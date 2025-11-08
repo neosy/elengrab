@@ -1,7 +1,6 @@
 package iconfig
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/caarlos0/env/v11"
@@ -56,7 +55,7 @@ func New() *Config {
 // Load config from environment variables
 func (config *Config) load() {
 	if err := godotenv.Load(); err != nil {
-		fmt.Println("Error loading .env file, proceeding with environment variables only")
+		log.Println("No .env file found, using environment variables only")
 	}
 	if err := env.Parse(config); err != nil {
 		log.Fatalf("Config load(). Read configuration error: %s\n", err)

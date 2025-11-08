@@ -49,7 +49,6 @@ img-rm: ## Удаление image с тегом latest
 img-push: ## Отправка images в локальный репозитарий с тегом latest
 	docker tag $(APP_IMG_NAME) $(APP_IMG_LATEST)
 	docker push $(APP_IMG_LATEST)
-	docker rmi $(APP_IMG_LATEST)
 	
 img-push-version: ## Отправка images в локальный репозитарий с тегом актуальной версии
 	docker tag $(APP_IMG_NAME) $(APP_IMG):$(VERSION)
@@ -62,9 +61,10 @@ img-pull: ## Загрузка images из локального репозита�
 docker-run: ## Запуск докера
 	docker run -d \
 		--name $(APP_NAME) \
-		-p ${HTTP_PORT}:8080 \
+		-p $(HTTP_PORT):8080 \
 		-v $(APP_NAME)_downloads:/app_n/downloads \
 		$(APP_IMG_NAME_LATEST)
+
 git-push-tag-version: ## Создание тега в git для актуальной версии
 	-git tag v$(VERSION)
 	git push --tags
