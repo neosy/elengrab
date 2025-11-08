@@ -1,0 +1,219 @@
+body {
+    display: flex;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+
+.header {
+    color: #333;
+    font-size: 64px;
+    font-family: 'Cinzel', serif;
+    margin-bottom: 40px;
+}
+
+.grab-area {
+    width: 80%;
+    max-width: 1000px;
+    min-width: 400px;
+    padding: 30px 50px;
+
+    margin-top: 50px;
+
+    text-align: center;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;  
+}
+
+.grab-input {
+    flex: 1;
+    width: 70%;
+    max-width: 500px;
+    min-width: 200px;
+    padding: 10px 15px 10px 40px;
+    line-height: 1.5;
+
+    border: 2px solid #7eb980;
+    border-radius: 24px;
+    
+    outline: none;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+
+    font-size: 16px;
+
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%2370a072" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-5.34C15.01 5.59 12.42 3 9.25 3S3.49 5.59 3.49 8.75s2.59 5.75 5.76 5.75c1.61 0 3.07-.66 4.12-1.72l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0s.41-1.08 0-1.49L15.5 14zm-6.25 0C6.45 14 4.5 12.05 4.5 9.75S6.45 5.5 9.25 5.5s4.75 1.95 4.75 4.25-1.95 4.25-4.75 4.25z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: 14px center;
+    background-size: 20px 20px;
+}
+
+/* Container for radio buttons */
+.format-options {
+    display: flex;
+    justify-content: center; /* center horizontally */
+    gap: 20px;               /* space between labels */
+    margin-top: 15px;        /* spacing below input */
+}
+
+/* Style individual labels */
+.format-options label {
+    font-size: 16px;
+    color: #333;             /* dark text */
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Hide default radio button look and style custom circle */
+.format-options input[type="radio"] {
+    accent-color: #4CAF50;  /* match Get button color */
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+/* Optional: hover effect on label text */
+.format-options label:hover {
+    color: #2e7d32;
+}
+
+.button-grab-get {
+    font-size: 20px;
+    padding: 10px 25px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    /* transition: background-color 0.2s ease; */
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.button-grab-get:hover {
+    background-color: #3e8e41;
+    /* transform: translateY(-1px); */
+    transform: scale(1.02);
+}
+
+.button-grab-get:active {
+    transform: translateY(1px);
+}
+
+/* Container for the download result */
+.grab-result {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-weight: bold;
+    color: #333;
+    font-size: 16px;
+}
+
+/* Wrapper for result item */
+.grab-result-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #f8f9fb;
+  border: 1px solid #dfe3e8;
+  border-radius: 10px;
+  padding: 12px 20px;
+  margin-top: 15px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+}
+
+/* YouTube link — simple black style */
+.result-youtube-url a {
+  color: #000;                /* Pure black text */
+  font-weight: 600;           /* Slightly bold for emphasis */
+  text-decoration: none;      /* Clean look, no underline */
+  transition: opacity 0.2s ease;
+}
+
+/* Hover effect — subtle visual feedback */
+.result-youtube-url a:hover {
+  opacity: 0.7;               /* Slight fade effect */
+  text-decoration: underline; /* Add underline on hover */
+}
+/* Separator dot */
+.result-separator {
+  color: #888;
+}
+
+/* Style for format label */
+.result-format {
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 500;
+    background-color: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin: 0 4px;
+}
+
+/* Download link */
+.result-download-link {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.result-download-link:hover {
+  text-decoration: underline;
+}
+
+/* Error message */
+.result-error {
+    color: #e53935;
+    font-weight: 600;
+}
+
+/* Container for the loading spinner and text */
+.result-loading {
+    display: flex;                     /* Align spinner and text horizontally */
+    align-items: center;               /* Vertically center items */
+    justify-content: center;           /* Center in parent container */
+    gap: 10px;                         /* Space between spinner and text */
+    padding: 12px;                     /* Some breathing room */
+    border-radius: 8px;                /* Slightly rounded corners */
+    background-color: #f8f8f8;         /* Soft background highlight */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* Subtle shadow for depth */
+    color: #333;                       /* Text color */
+    font-family: "Inter", "Segoe UI", sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    width: fit-content;                /* Shrink to fit content */
+    margin: 10px auto;                 /* Center horizontally */
+}
+
+/* Spinner circle */
+.result-spinner {
+    width: 18px;                       /* Spinner size */
+    height: 18px;
+    border: 3px solid #d0d0d0;         /* Light ring */
+    border-top: 3px solid #4a90e2;     /* Blue accent for animation */
+    border-radius: 50%;                /* Make it circular */
+    animation: spin 1s linear infinite;/* Continuous rotation */
+}
+
+/* Rotation keyframes */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Loading text next to spinner */
+.result-loading-text {
+    color: #4a4a4a;
+    letter-spacing: 0.4px;
+    user-select: none;                 /* Prevent text selection while loading */
+}

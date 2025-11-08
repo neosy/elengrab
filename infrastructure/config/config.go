@@ -1,0 +1,64 @@
+package iconfig
+
+import (
+	"fmt"
+	"log"
+
+	"github.com/caarlos0/env/v11"
+	"github.com/joho/godotenv"
+	iconstants "github.com/neosy/elengrab/infrastructure/constants"
+	"github.com/neosy/elengrab/pkg/nconfig"
+)
+
+// Основные настройки
+type Config struct {
+	AppName string `env:"APP_NAME" envDefault:"Elengrab"`
+	// Application configuration
+	AppConfig nconfig.AppConfig
+
+	HTMXServer HTMXServerConfig `envPrefix:"HTTP_SERVER_"`
+	Elengrab   ElengrabConfig   `envPrefix:"ELENGRAB_"`
+	Redis      RedisConfig      `envPrefix:"REDIS_"`
+}
+
+// Настройки HTMX сервера
+type HTMXServerConfig struct {
+	Address  string `env:"ADDRESS" envDefault:""`
+	Port     string `env:"PORT" envDefault:"8080"`
+	Compress bool   `env:"COMPRESS" envDefault:"true"`
+}
+
+type ElengrabConfig struct {
+	AssetsDir    string `env:"ASSETS_DIR" envDefault:"/app_n/assets"`
+	BinDir       string `env:"BIN_DIR" envDefault:"/usr/local/bin"`
+	DownloadsDir string `env:"DOWNLOADS_DIR" envDefault:"/app_n/downloads"`
+}
+
+type RedisConfig struct {
+	// SIMPLE(Обычный редис) or SENTINEL
+	ConnectionType     string   `env:"CONNECTION_TYPE" envDefault:"SIMPLE"`
+	Addresses          []string `env:"ADDRESSES" envSeparator:"," envDefault:"localhost:6379"`
+	SentinelMasterName string   `env:"SENTINEL_MASTER_NAME" envDefault:"mymaster"`
+	PrefixKey          string   `env:"PREFIX_KEY" envDefault:"microservice"`
+}
+
+// Создание объекта Config
+func New() *Config {
+	c := &Config{}
+
+	c.load()
+
+	c.AppConfig.Version = iconstants.AppVersion
+
+	return c
+}
+
+// Load config from environment variables
+func (config *Config) load() {
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("Error loading .env file, proceeding with environment variables only")
+	}
+	if err := env.Parse(config); err != nil {
+		log.Fatalf("Config load(). Read configuration error: %s\n", err)
+	}
+}
