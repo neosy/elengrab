@@ -53,5 +53,6 @@ func (h *GrabHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, fileName))
 
 	// Serve the file
-	fasthttp.ServeFile(ctx, filePath)
+	// fasthttp.ServeFile(ctx, filePath)
+	fasthttp.ServeFileUncompressed(ctx, filePath)
 }
