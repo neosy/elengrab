@@ -1,0 +1,26 @@
+# Binaries for programs and plugins
+*.exe
+/elengrab
+
+# Exclude
+/secrets/*
+/.vscode/*
+
+# Exception to the rule
+!/secrets/.gitkeep
+
+# godotenv file
+.env
+
+# .md file
+.md
+
+# go.work
+go.work
+go.work.sum
+
+# Dependency directories (remove the comment below to include it)
+vendor/
+
+# Local scripts
+scripts/
