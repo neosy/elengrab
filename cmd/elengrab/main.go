@@ -30,6 +30,8 @@ func main() {
 	}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, handlerOptions))
 
+	log.Printf("Logging level set to '%s'.\n", cfg.AppConfig.LogLevel)
+
 	// Захват сигналов завершения (Ctrl+C, SIGTERM)
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
