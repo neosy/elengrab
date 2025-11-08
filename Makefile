@@ -69,6 +69,10 @@ git-push-tag-version: ## Создание тега в git для актуаль�
 	-git tag v$(VERSION)
 	git push --tags
 
+git-push-update-tag-version: ## Обновление тега в git для актуальной версии
+	git tag -f v$(VERSION)
+	git push origin -f v$(VERSION)
+
 version-create: ## Создание файла с номер версии программы
 	echo -n $(VERSION_START) > $(VERSION_FILE)
 	
