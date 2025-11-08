@@ -12,10 +12,10 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-      placement:
-        constraints:
-          - "node.role==manager"
-          # - "node.hostname==HostName"
+      resources:
+        limits:
+          memory: "512M"
+          cpus: "2.0"
 
 volumes:
   downloads:
