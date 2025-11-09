@@ -7,14 +7,14 @@ body {
 
 .div-header-main {
     display: flex;
-    align-items: center; /* выравнивание по вертикали */
-    justify-content: center; /* центрирование всего блока по горизонтали */
-    gap: 20px; /* отступ между картинкой и заголовком */
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     padding-bottom: 20px;
 }
 
-.img-logo {
-    height: 4em; /* высота равна текущей высоте шрифта заголовка */
+.img-header-logo {
+    height: 4em;
     width: auto;
 }
 
@@ -22,7 +22,7 @@ body {
     color: #333;
     font-size: 64px;
     font-family: 'Cinzel', serif;
-    margin: 0; /* убираем нижний отступ, чтобы блок лучше центрировался */
+    margin: 0;
 }
 
 .grab-area {
@@ -44,9 +44,9 @@ body {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    position: relative;      /* Добавлено: контейнер для абсолютного позиционирования */
+    position: relative;
     width: 100%;
-    max-width: 500px;        /* Ограничиваем ширину, как у input */
+    max-width: 500px;
     margin: 0 auto;
 }
 
@@ -56,7 +56,7 @@ body {
     max-width: 500px;
     min-width: 200px;
     padding: 10px 15px 10px 40px;
-    padding-right: 85px;    /* Добавлено: место под кнопку (ширина кнопки + отступ) */
+    padding-right: 85px;
     line-height: 1.5;
 
     border: 2px solid #7eb980;
@@ -67,7 +67,6 @@ body {
 
     font-size: 16px;
 
-    /* background-image: url('data:image/svg+xml;utf8,<svg fill="%2370a072" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>'); */
     background-image: url('data:image/svg+xml;utf8,<svg fill="%2370a072" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><g><path d="M17.5 12c0-3.04 2.46-5.5 5.5-5.5-3.04 0-5.5-2.46-5.5-5.5 0 3.04-2.46 5.5-5.5 5.5 3.04 0 5.5 2.46 5.5 5.5z"></path><path d="M15.65 11.58c.18-.5.27-1.03.31-1.58h-2c-.1 1.03-.51 1.93-1.27 2.69-.88.87-1.94 1.31-3.19 1.31C7.03 14 5 12.07 5 9.5 5 7.03 6.93 5 9.5 5c.46 0 .89.08 1.3.2l1.56-1.56C11.5 3.22 10.55 3 9.5 3 5.85 3 3 5.85 3 9.5S5.85 16 9.5 16c.56 0 2.26-.06 3.8-1.3l6.3 6.3 1.4-1.4-6.3-6.3c.4-.5.72-1.08.95-1.72z"></path></g></svg>');
     background-repeat: no-repeat;
     background-position: 14px center;
@@ -76,7 +75,7 @@ body {
 
 .div-button-get {
     position: absolute;
-    right: 6px;              /* Отступ от правого края поля (учитывая border-radius и padding кнопки) */
+    right: 6px;
     top: 50%;
     transform: translateY(-50%);
     margin: 0;
@@ -84,12 +83,12 @@ body {
 }
 
 .button-grab-get {
-    font-size: 18px; /* Немного уменьшен для лучшего вписывания */
-    padding: 4px 18px; /* Уменьшенный padding */
+    font-size: 18px;
+    padding: 4px 18px;
     background-color: #ebebeb;
-    color: #1b1d1bd8; /* Цвет текста */
-    border: 2px solid transparent; /* Прозрачная граница для сохранения размеров */
-    border-radius: 20px; /* Соответствует радиусу поля */
+    color: #1b1d1bd8;
+    border: 2px solid transparent;
+    border-radius: 20px;
     cursor: pointer;
     transition: 
         border-color 0.5s ease,
@@ -99,47 +98,47 @@ body {
 }
 
 .button-grab-get:hover {
-    border-color: #4CAF50; /* Появление границы #4CAF50 при наведении */
+    border-color: #4CAF50;
     background-color: #e4e4e4;
     color: #1b1d1bd8;
     /* transform: scale(1.02); */
 }
 
 .button-grab-get:active {
-    transform: scale(0.9); /* Лёгкое сжатие при нажатии */
+    transform: scale(0.9);
     background-color: rgba(76, 175, 80, 0.1);
 }
 
 /* Container for radio buttons */
-.format-options {
+.div-format-options {
     display: flex;
     justify-content: center; /* center horizontally */
     gap: 20px;               /* space between labels */
-    margin-top: 15px;        /* spacing below input */
+    margin-top: 20px;        /* spacing below input */
 }
 
 /* Style individual labels */
-.format-options label {
+.div-format-options label {
     font-size: 16px;
-    color: #333;             /* dark text */
+    color: #333;
     font-weight: 500;
     cursor: pointer;
 }
 
 /* Hide default radio button look and style custom circle */
-.format-options input[type="radio"] {
-    accent-color: #4CAF50;  /* match Get button color */
+.div-format-options input[type="radio"] {
+    accent-color: #4CAF50;
     margin-right: 5px;
     cursor: pointer;
 }
 
 /* Optional: hover effect on label text */
-.format-options label:hover {
+.div-format-options label:hover {
     color: #2e7d32;
 }
 
 /* Container for the download result */
-.grab-result {
+.div-grab-result {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -157,16 +156,16 @@ body {
   gap: 12px;
   background: #f8f9fb;
   border: 1px solid #dfe3e8;
-  border-radius: 10px;
+  border-radius: 15px;
   padding: 12px 20px;
-  margin-top: 15px;
+  margin-top: 25px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   transition: all 0.2s ease;
 }
 
 /* YouTube link — simple black style */
 .result-youtube-url a {
-  color: #000;                /* Pure black text */
+  color: #000;
   font-weight: 600;           /* Slightly bold for emphasis */
   text-decoration: none;      /* Clean look, no underline */
   transition: opacity 0.2s ease;
@@ -216,24 +215,24 @@ body {
     align-items: center;               /* Vertically center items */
     justify-content: center;           /* Center in parent container */
     gap: 10px;                         /* Space between spinner and text */
-    padding: 12px;                     /* Some breathing room */
+    padding: 12px;
     border-radius: 8px;                /* Slightly rounded corners */
-    background-color: #f8f8f8;         /* Soft background highlight */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* Subtle shadow for depth */
-    color: #333;                       /* Text color */
+    background-color: #f8f8f8;       /* Soft background highlight */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    color: #333;                     /* Text color */
     font-family: "Inter", "Segoe UI", sans-serif;
     font-size: 16px;
     font-weight: 500;
     width: fit-content;                /* Shrink to fit content */
-    margin: 10px auto;                 /* Center horizontally */
+    margin-top: 25px;
 }
 
 /* Spinner circle */
 .result-spinner {
-    width: 18px;                       /* Spinner size */
-    height: 18px;
-    border: 3px solid #d0d0d0;         /* Light ring */
-    border-top: 3px solid #4a90e2;     /* Blue accent for animation */
+    width: 15px;                       /* Spinner size */
+    height: 15px;
+    border: 3px solid #d0d0d0;       /* Light ring */
+    border-top: 3px solid #4a90e2;   /* Blue accent for animation */
     border-radius: 50%;                /* Make it circular */
     animation: spin 1s linear infinite;/* Continuous rotation */
 }
