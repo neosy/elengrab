@@ -15,7 +15,7 @@
 <body>
   <div class="grab-area">
       <div class="div-header-main">
-        <img class="img-logo" src="/static/img/logo.png">
+        <img class="img-header-logo" src="/static/img/logo-512.png">
         <h1 class="header">{{.Header}}</h1>
       </div>
       <div class="search-wrapper">
@@ -24,7 +24,7 @@
           <button class="button-grab-get" hx-post="/downloader/grab" hx-target="#grab-result" hx-include="#youtubeURL, [name='formatType']">Get</button>
         </div>
       </div>
-      <div class="format-options">
+      <div class="div-format-options">
           <label>
               <input type="radio" name="formatType" value="video_mp4" checked> Video (mp4)
           </label>
@@ -38,7 +38,7 @@
               <input type="radio" name="formatType" value="audio_orig"> Audio (orig)
           </label>
       </div>
-      <div class="grab-result" id="grab-result"></div>
+      <div class="div-grab-result" id="grab-result"></div>
   </div>
 </body>
 </html>
