@@ -14,7 +14,7 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: "512M"
+          memory: "1G"
           cpus: "2.0"
 
 volumes:
