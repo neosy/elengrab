@@ -9,11 +9,11 @@ body {
     display: flex;
     align-items: center; /* выравнивание по вертикали */
     justify-content: center; /* центрирование всего блока по горизонтали */
-    gap: 20px; /* отступ между картинкой и заголовком */
+    gap: 10px;
     padding-bottom: 20px;
 }
 
-.img-logo {
+.img-header-logo {
     height: 4em; /* высота равна текущей высоте шрифта заголовка */
     width: auto;
 }
@@ -111,15 +111,15 @@ body {
 }
 
 /* Container for radio buttons */
-.format-options {
+.div-format-options {
     display: flex;
     justify-content: center; /* center horizontally */
     gap: 20px;               /* space between labels */
-    margin-top: 15px;        /* spacing below input */
+    margin-top: 20px;        /* spacing below input */
 }
 
 /* Style individual labels */
-.format-options label {
+.div-format-options label {
     font-size: 16px;
     color: #333;             /* dark text */
     font-weight: 500;
@@ -127,19 +127,19 @@ body {
 }
 
 /* Hide default radio button look and style custom circle */
-.format-options input[type="radio"] {
+.div-format-options input[type="radio"] {
     accent-color: #4CAF50;  /* match Get button color */
     margin-right: 5px;
     cursor: pointer;
 }
 
 /* Optional: hover effect on label text */
-.format-options label:hover {
+.div-format-options label:hover {
     color: #2e7d32;
 }
 
 /* Container for the download result */
-.grab-result {
+.div-grab-result {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -157,9 +157,9 @@ body {
   gap: 12px;
   background: #f8f9fb;
   border: 1px solid #dfe3e8;
-  border-radius: 10px;
+  border-radius: 15px;
   padding: 12px 20px;
-  margin-top: 15px;
+  margin-top: 25px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   transition: all 0.2s ease;
 }
