@@ -5,6 +5,8 @@ services:
     image: neosy/elengrab
     ports:
       - 8080:8080
+    environment:
+      TZ: "Europe/Moscow"
     volumes:
       - downloads:/app_n/downloads
     deploy:

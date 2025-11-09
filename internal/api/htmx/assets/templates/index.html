@@ -14,10 +14,15 @@
 </head>
 <body>
   <div class="grab-area">
-      <h1 class="header">{{.Header}}</h1>
+      <div class="div-header-main">
+        <img class="img-logo" src="/static/img/logo.png">
+        <h1 class="header">{{.Header}}</h1>
+      </div>
       <div class="search-wrapper">
         <input class="grab-input" type="text" id="youtubeURL" name="youtubeURL" placeholder="Enter YouTube URL" maxlength="200" pattern="https?://(www\.)?youtube\.com/watch\?v=[\w-]+">
-        <button class="button-grab-get" hx-post="/downloader/grab" hx-target="#grab-result" hx-include="#youtubeURL, [name='formatType']">Get</button>
+        <div class="div-button-get">
+          <button class="button-grab-get" hx-post="/downloader/grab" hx-target="#grab-result" hx-include="#youtubeURL, [name='formatType']">Get</button>
+        </div>
       </div>
       <div class="format-options">
           <label>
