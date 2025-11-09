@@ -23,9 +23,21 @@ type resultData struct {
 }
 
 var (
-	mapFormatType = map[string]dtypes.FormatType{
-		"video": dtypes.FormatTypeVideoAudio,
-		"audio": dtypes.FormatTypeAudioOnly,
+	formatTypeMap = map[string]dtypes.FormatType{
+		"video_orig": dtypes.FormatTypeVideoAudio,
+		"video_mp4":  dtypes.FormatTypeVideoAudio,
+		"audio_orig": dtypes.FormatTypeAudioOnly,
+		"audio_mp3":  dtypes.FormatTypeAudioOnly,
+		"audio_m4a":  dtypes.FormatTypeAudioOnly,
+	}
+	videoFormatMap = map[string]dtypes.VideoFormat{
+		"video_orig": dtypes.VideoFormatOrig,
+		"video_mp4":  dtypes.VideoFormatMP4,
+	}
+	audioFormatMap = map[string]dtypes.AudioFormat{
+		"audio_orig": dtypes.AudioFormatOrig,
+		"audio_mp3":  dtypes.AudioFormatMP3,
+		"audio_m4a":  dtypes.AudioFormatM4A,
 	}
 )
 
@@ -38,9 +50,22 @@ func (h *GrabHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Read selected format from radio buttons
-	formatType := mapFormatType[string(ctx.FormValue(formFieldFormatType))]
+	formFormatType := string(ctx.FormValue(formFieldFormatType))
+	formatType := formatTypeMap[formFormatType]
 	if formatType == "" {
 		formatType = dtypes.FormatTypeVideoAudio
+	}
+
+	var videoFormat *dtypes.VideoFormat
+	if _, exists := videoFormatMap[formFormatType]; exists {
+		videoFormat = new(dtypes.VideoFormat)
+		*videoFormat = videoFormatMap[formFormatType]
+	}
+
+	var audioFormat *dtypes.AudioFormat
+	if _, exists := audioFormatMap[formFormatType]; exists {
+		audioFormat = new(dtypes.AudioFormat)
+		*audioFormat = audioFormatMap[formFormatType]
 	}
 
 	var (
@@ -48,7 +73,14 @@ func (h *GrabHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		data     = resultData{YoutubeURL: url}
 	)
 
-	resp, err := h.usecases.Downloader.Download(url, &ddownload.DownloadOptions{FormatType: formatType})
+	resp, err := h.usecases.Downloader.Download(
+		url,
+		&ddownload.DownloadOptions{
+			FormatType:  formatType,
+			VideoFormat: videoFormat,
+			AudioFormat: audioFormat,
+		},
+	)
 
 	if err != nil {
 		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_error.html")

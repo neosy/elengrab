@@ -16,15 +16,21 @@
   <div class="grab-area">
       <h1 class="header">{{.Header}}</h1>
       <div class="search-wrapper">
-        <input class="grab-input" type="text" id="youtubeURL" name="youtubeURL" placeholder="Enter YouTube URL">
+        <input class="grab-input" type="text" id="youtubeURL" name="youtubeURL" placeholder="Enter YouTube URL" maxlength="200" pattern="https?://(www\.)?youtube\.com/watch\?v=[\w-]+">
         <button class="button-grab-get" hx-post="/downloader/grab" hx-target="#grab-result" hx-include="#youtubeURL, [name='formatType']">Get</button>
       </div>
       <div class="format-options">
           <label>
-              <input type="radio" name="formatType" value="video" checked> Video
+              <input type="radio" name="formatType" value="video_mp4" checked> Video (mp4)
           </label>
           <label>
-              <input type="radio" name="formatType" value="audio"> Audio
+              <input type="radio" name="formatType" value="audio_mp3"> Audio (mp3)
+          </label>
+          <label>
+              <input type="radio" name="formatType" value="audio_m4a"> Audio (m4a)
+          </label>
+          <label>
+              <input type="radio" name="formatType" value="audio_orig"> Audio (orig)
           </label>
       </div>
       <div class="grab-result" id="grab-result"></div>
