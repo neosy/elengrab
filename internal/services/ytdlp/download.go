@@ -11,64 +11,35 @@ import (
 )
 
 const (
-	formatTypeDefault = dtypes.FormatTypeVideoAudio
+	formatTypeDefault      = dtypes.FormatTypeVideoAudio
+	videoFormatDefault     = dtypes.VideoFormatMP4
+	audioFormatDefault     = dtypes.AudioFormatMP3
+	audioQualityMP3Default = "0"
+	audioQualityM4ADefault = "0"
 )
 
 func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions) (*ddownload.DownloadResponse, error) {
+	// Prepare download options with defaults and user overrides
+	formatType, videoFormat, audioFormat, downloadDir, fileName := srv.prepareDownloadOptions(options)
+
 	var (
-		formatType  = formatTypeDefault
-		downloadDir = srv.downloadsDir
-		fileName    string
-		fileExt     string
-		filePath    string
-		cmd         *exec.Cmd
-		args        []string
-		title       string
+		cmd *exec.Cmd
 	)
 
-	if options != nil {
-		if options.FormatType != dtypes.FormatTypeNone {
-			formatType = options.FormatType
-		}
-
-		if options.Filename != nil {
-			fileName = fileNameWithoutExt(*options.Filename)
-		}
-
-		if options.DownloadsDir != nil {
-			downloadDir = *options.DownloadsDir
-		}
-	}
-
+	// Ensure download directory exists
 	if err := checkDir(downloadDir); err != nil {
 		srv.logger.Error(err.Error())
 		return nil, err
 	}
 
-	switch formatType {
-	case dtypes.FormatTypeVideoAudio, dtypes.FormatTypeVideoOnly:
-		info, err := srv.getBestFormat(url, "b")
-		if err != nil {
-			srv.logger.Error(err.Error())
-			return nil, err
-		}
-		args = append(args, "-f", "bestvideo+bestaudio")
-		args = append(args, "--merge-output-format", info.Formats[0].FileExt)
-		title = info.Title
-		fileExt = info.Formats[0].FileExt
-	case dtypes.FormatTypeAudioOnly:
-		info, err := srv.getBestFormat(url, "bestaudio")
-		if err != nil {
-			srv.logger.Error(err.Error())
-			return nil, err
-		}
-		args = append(args, "-f", "bestaudio")
-		args = append(args, "--extract-audio", "--audio-format", "mp3")
-		args = append(args, "--audio-quality", "0")
-		title = info.Title
-		fileExt = "mp3"
+	// Build yt-dlp arguments and get file extension and title
+	args, fileExt, title, err := srv.buildDownloadArgs(url, formatType, videoFormat, audioFormat)
+	if err != nil {
+		srv.logger.Error(err.Error())
+		return nil, err
 	}
 
+	// If title is empty, fetch it manually
 	if title == "" {
 		var err error
 		title, err = srv.GetTitle(url)
@@ -78,31 +49,35 @@ func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions
 		}
 	}
 
+	// Generate a unique filename if none provided
 	if fileName == "" {
 		fileName = uuid.New().String()
 	}
 
 	FileFullName := fmt.Sprintf("%s.%s", fileName, fileExt)
-	filePath = path.Join(downloadDir, FileFullName)
+	filePath := path.Join(downloadDir, FileFullName)
 
-	// output file
+	// Add output file path to yt-dlp arguments
 	args = append(args, "-o", filePath)
 
-	// video url
+	// Add the video URL to arguments
 	args = append(args, url)
 
+	// Execute yt-dlp command
 	cmd = exec.Command(srv.cmdPath, args...)
 	outByte, err := cmd.CombinedOutput()
 	if err != nil {
-		// Log the full output (stdout + stderr)
+		// Log full stdout + stderr if yt-dlp fails
 		output := string(outByte)
 		srv.logger.Error("yt-dlp failed", "error", err, "output", output)
 
 		return nil, fmt.Errorf("%s error: %v, output: %s", ytDlpName, err, output)
 	}
 
+	// Debug log command output
 	srv.logger.Debug(string(outByte))
 
+	// Build response struct
 	resp := &ddownload.DownloadResponse{
 		Title:        title,
 		FilePath:     filePath,
@@ -111,7 +86,146 @@ func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions
 		FileFullName: FileFullName,
 	}
 
+	// Log successful download
 	srv.logger.Info("Download successful", "info", resp)
 
 	return resp, nil
+}
+
+// prepareDownloadOptions prepare download options with defaults and user overrides
+func (srv *YtDlpService) prepareDownloadOptions(
+	options *ddownload.DownloadOptions,
+) (
+	formatType dtypes.FormatType,
+	videoFormat dtypes.VideoFormat,
+	audioFormat dtypes.AudioFormat,
+	downloadDir, fileName string,
+) {
+	// Set default values
+	formatType = formatTypeDefault
+	videoFormat = videoFormatDefault
+	audioFormat = audioFormatDefault
+	downloadDir = srv.downloadsDir
+	fileName = ""
+
+	// If no options provided, return defaults
+	if options == nil {
+		return
+	}
+
+	// Override format type if provided
+	if options.FormatType != dtypes.FormatTypeNone {
+		formatType = options.FormatType
+	}
+
+	// Override video format if provided
+	if options.VideoFormat != nil && *options.VideoFormat != dtypes.VideoFormatNone {
+		videoFormat = *options.VideoFormat
+	}
+
+	// Override audio format if provided
+	if options.AudioFormat != nil && *options.AudioFormat != dtypes.AudioFormatNone {
+		audioFormat = *options.AudioFormat
+	}
+
+	// Override file name if provided
+	if options.Filename != nil {
+		fileName = fileNameWithoutExt(*options.Filename)
+	}
+
+	// Override download directory if provided
+	if options.DownloadsDir != nil {
+		downloadDir = *options.DownloadsDir
+	}
+
+	return formatType, videoFormat, audioFormat, downloadDir, fileName
+}
+
+// buildDownloadArgs build yt-dlp arguments and get file extension and title
+func (srv *YtDlpService) buildDownloadArgs(
+	url string,
+	formatType dtypes.FormatType,
+	videoFormat dtypes.VideoFormat,
+	audioFormat dtypes.AudioFormat,
+) (args []string, fileExt, title string, err error) {
+
+	// Default audio quality (used when extracting audio)
+	var (
+		audioQualityM4A = audioQualityM4ADefault
+		audioQualityMP3 = audioQualityMP3Default
+	)
+
+	switch formatType {
+	// Video + Audio or Video only
+	case dtypes.FormatTypeVideoAudio, dtypes.FormatTypeVideoOnly:
+		var format string
+
+		// Choose video format string based on requested video format
+		switch videoFormat {
+		case dtypes.VideoFormatOrig:
+			format = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"
+		default:
+			format = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best"
+		}
+
+		// Get information about the best format from yt-dlp
+		info, err := srv.getBestFormat(url, format)
+		if err != nil {
+			return nil, "", "", err
+		}
+
+		// Add format option to yt-dlp arguments
+		args = append(args, "-f", format)
+
+		// args = append(args, "--merge-output-format", info.Formats[0].FileExt)
+
+		// Determine output file extension
+		switch videoFormat {
+		case dtypes.VideoFormatOrig:
+			fileExt = info.Formats[0].FileExt
+		default:
+			args = append(args, "--recode-video", "mp4")
+			fileExt = "mp4"
+		}
+
+		// Save video title
+		title = info.Title
+
+	// Audio only
+	case dtypes.FormatTypeAudioOnly:
+		var format string
+
+		// Choose audio format string based on requested audio format
+		switch audioFormat {
+		case dtypes.AudioFormatM4A:
+			format = "bestaudio[ext=m4a]/bestaudio"
+		default:
+			format = "bestaudio"
+		}
+
+		// Get information about the best audio format
+		info, err := srv.getBestFormat(url, format)
+		if err != nil {
+			return nil, "", "", err
+		}
+
+		args = append(args, "-f", format)
+
+		// Choose audio processing based on requested audio format
+		switch audioFormat {
+		case dtypes.AudioFormatOrig:
+			fileExt = info.Formats[0].FileExt
+		case dtypes.AudioFormatM4A:
+			args = append(args, "--extract-audio", "--audio-format", "m4a", "--audio-quality", audioQualityM4A)
+			fileExt = "m4a"
+		default:
+			args = append(args, "--extract-audio", "--audio-format", "mp3", "--audio-quality", audioQualityMP3)
+			fileExt = "mp3"
+		}
+
+		// Save audio title
+		title = info.Title
+	}
+
+	return args, fileExt, title, nil
 }
