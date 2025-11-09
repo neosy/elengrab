@@ -1,8 +1,8 @@
 # Elengrab
 
-**Fast YouTube video/audio grabber with format and quality options.**
+**Fast web interface for your own YouTube video/audio grabber server with format and quality options. Built on top of [yt-dlp](https://github.com/yt-dlp/yt-dlp).**
 
-Elengrab allows you to quickly download YouTube videos or audio tracks with customizable format and quality options. Runs in a lightweight Docker container and is easy to deploy.
+Elengrab provides a simple web interface that allows you to quickly download YouTube videos or audio tracks with customizable format and quality options. It runs in a lightweight Docker container, is easy to deploy, and serves as a self-hosted frontend for your personal media download server.
 
 ---
 
