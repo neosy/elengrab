@@ -74,6 +74,42 @@ body {
     background-size: 20px 20px;
 }
 
+.div-button-get {
+    position: absolute;
+    right: 6px;              /* Отступ от правого края поля (учитывая border-radius и padding кнопки) */
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+    padding: 0;
+}
+
+.button-grab-get {
+    font-size: 18px; /* Немного уменьшен для лучшего вписывания */
+    padding: 4px 18px; /* Уменьшенный padding */
+    background-color: #ebebeb;
+    color: #1b1d1bd8; /* Цвет текста */
+    border: 2px solid transparent; /* Прозрачная граница для сохранения размеров */
+    border-radius: 20px; /* Соответствует радиусу поля */
+    cursor: pointer;
+    transition: 
+        border-color 0.5s ease,
+        background-color 0.5s ease,
+        color 0.5s ease,
+        transform 0.5s ease;
+}
+
+.button-grab-get:hover {
+    border-color: #4CAF50; /* Появление границы #4CAF50 при наведении */
+    background-color: #e4e4e4;
+    color: #1b1d1bd8;
+    /* transform: scale(1.02); */
+}
+
+.button-grab-get:active {
+    transform: scale(0.9); /* Лёгкое сжатие при нажатии */
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
 /* Container for radio buttons */
 .format-options {
     display: flex;
@@ -100,42 +136,6 @@ body {
 /* Optional: hover effect on label text */
 .format-options label:hover {
     color: #2e7d32;
-}
-
-.div-button-get {
-    position: absolute;
-    right: 6px;              /* Отступ от правого края поля (учитывая border-radius и padding кнопки) */
-    top: 50%;
-    transform: translateY(-50%);
-    margin: 0;
-    padding: 0;
-}
-
-.button-grab-get {
-    font-size: 18px; /* Немного уменьшен для лучшего вписывания */
-    padding: 6px 18px; /* Уменьшенный padding */
-    background-color: transparent; /* Прозрачный фон */
-    color: #1b1d1bd8; /* Цвет текста */
-    border: 2px solid transparent; /* Прозрачная граница для сохранения размеров */
-    border-radius: 20px; /* Соответствует радиусу поля */
-    cursor: pointer;
-    transition: 
-        border-color 0.5s ease,
-        background-color 0.5s ease,
-        color 0.5s ease,
-        transform 0.5s ease;
-}
-
-.button-grab-get:hover {
-    border-color: #4CAF50; /* Появление границы #4CAF50 при наведении */
-    background-color: rgba(76, 175, 80, 0.05); /* Лёгкий фон для акцента (опционально) */
-    color: #1b1d1bd8;
-    /* transform: scale(1.02); */
-}
-
-.button-grab-get:active {
-    transform: scale(0.9); /* Лёгкое сжатие при нажатии */
-    background-color: rgba(76, 175, 80, 0.1);
 }
 
 /* Container for the download result */
