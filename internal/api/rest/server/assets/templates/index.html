@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{.Title}}</title>
+  <link rel="stylesheet" href="{{.PathStaticCss}}/style.css">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{.PathStaticImg}}/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{.PathStaticImg}}/favicon-16.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="{{.PathStaticImg}}/android-chrome-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="{{.PathStaticImg}}/android-chrome-512x512.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{.PathStaticImg}}/apple-touch-icon.png">
+  <script src="https://unpkg.com/htmx.org@1.9.3"></script>
+  <script src="{{.PathStaticJs}}/downloader.js"></script>
+</head>
+<body>
+  <div class="div-main-area">
+      <div class="div-header-main">
+        <img class="img-header-logo" src="{{.PathStaticImg}}/logo-512.png">
+        <h1 class="header">{{.Header}}</h1>
+      </div>
+      <div class="div-grab-area">
+        <input class="input-grab" type="text" id="youtubeURL" name="youtubeURL" placeholder="Enter YouTube URL" maxlength="256" pattern="https?://(www\.)?youtube\.com/watch\?v=[\w-]+">
+        <div class="div-button-get">
+          <button class="button-grab-get" hx-post="{{.PathDownloaderGrab}}" hx-target="#grab-result-items" hx-include="#youtubeURL, [name='formatType']">Get</button>
+        </div>
+      </div>
+      <div class="div-format-options">
+          <label>
+              <input type="radio" name="formatType" value="video_mp4" checked> Video (mp4)
+          </label>
+          <label>
+              <input type="radio" name="formatType" value="audio_mp3"> Audio (mp3)
+          </label>
+          <label>
+              <input type="radio" name="formatType" value="audio_m4a"> Audio (m4a)
+          </label>
+          <label>
+              <input type="radio" name="formatType" value="audio_orig"> Audio (orig)
+          </label>
+      </div>
+      <div class="div-grab-result" id="grab-result">
+        <div class="div-grab-result-items" id="grab-result-info"></div>
+        <div class="div-grab-result-items" id="grab-result-items"></div>
+      </div>
+  </div>
+</body>
+</html>
