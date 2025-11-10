@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 
+	"github.com/google/uuid"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -27,32 +27,40 @@ var (
 
 func (h *GrabberHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	// Get the file name from the query parameter
-	fileName := string(ctx.QueryArgs().Peek("file"))
-	if fileName == "" {
+	fileIdStr := string(ctx.QueryArgs().Peek("file"))
+	if fileIdStr == "" {
 		nfasthttp.WriteError(ctx, errors.New("file is required"), fasthttp.StatusBadRequest)
 		return
 	}
 
+	fileId := uuid.MustParse(fileIdStr)
+
 	// Build the full path to the file
-	filePath := h.usecases.Downloader.GetFilePath(fileName)
+	fileInfo, err := h.usecases.Downloader.GetFileInfo(ctx, fileId)
+	if err != nil {
+		nfasthttp.WriteError(ctx, err, fasthttp.StatusNotFound)
+		return
+	}
 
 	// Check if the file exists
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+	if _, err := os.Stat(fileInfo.Path); os.IsNotExist(err) {
 		nfasthttp.WriteError(ctx, errors.New("file not found"), fasthttp.StatusBadRequest)
 		return
 	}
 
+	h.usecases.Downloader.GetDownloadFileName(ctx, fileId)
+
 	// Detect content type by extension
-	contentType := mapContentTypeByExt[filepath.Ext(fileName)]
+	contentType := mapContentTypeByExt[fileInfo.Ext]
 	if contentType == "" {
 		contentType = "application/octet-stream"
 	}
 
 	// Set headers for file download
 	ctx.SetContentType(contentType)
-	ctx.Response.Header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, fileName))
+	ctx.Response.Header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, fileInfo.SafeReadableFullName))
 
 	// Serve the file
 	// fasthttp.ServeFile(ctx, filePath)
-	fasthttp.ServeFileUncompressed(ctx, filePath)
+	fasthttp.ServeFileUncompressed(ctx, fileInfo.Path)
 }

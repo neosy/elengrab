@@ -18,9 +18,10 @@ const (
 )
 
 type resultData struct {
-	YoutubeURL  string
-	Format      string
-	DownloadURL string
+	YoutubeTitle string
+	YoutubeURL   string
+	Format       string
+	DownloadURL  string
 }
 
 var (
@@ -75,6 +76,7 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	)
 
 	resp, err := h.usecases.Downloader.Download(
+		ctx,
 		url,
 		&ddownload.DownloadOptions{
 			FormatType:  formatType,
@@ -87,9 +89,10 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_error.html")
 	} else {
 		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_success.html")
-		data.Format = resp.FileExt
+		data.YoutubeTitle = resp.Title
+		data.Format = resp.Format
 		// Set URL for download endpoint
-		data.DownloadURL = fmt.Sprintf("%s?file=%s", httppaths.GroupDownloader+httppaths.PathDownload, resp.FileFullName)
+		data.DownloadURL = fmt.Sprintf("%s?file=%s", httppaths.GroupDownloader+httppaths.PathDownload, resp.FileId)
 	}
 
 	tpl, err := template.ParseFiles(tmplPath)

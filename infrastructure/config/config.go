@@ -17,6 +17,7 @@ type Config struct {
 
 	HTMXServer HTMXServerConfig `envPrefix:"HTTP_SERVER_"`
 	Elengrab   ElengrabConfig   `envPrefix:"ELENGRAB_"`
+	SQLite     SQLiteConfig     `envPrefix:"SQLITE_"`
 	Redis      RedisConfig      `envPrefix:"REDIS_"`
 }
 
@@ -31,6 +32,11 @@ type ElengrabConfig struct {
 	AssetsDir    string `env:"ASSETS_DIR" envDefault:"/app_n/assets"`
 	BinDir       string `env:"BIN_DIR" envDefault:"/usr/local/bin"`
 	DownloadsDir string `env:"DOWNLOADS_DIR" envDefault:"/app_n/downloads"`
+}
+
+type SQLiteConfig struct {
+	DataDir       string `env:"DATA_DIR" envDefault:"/app_n/sqlite/data"`
+	MigrationsDir string `env:"MIGRATIONS_DIR" envDefault:"/app_n/migrations"`
 }
 
 type RedisConfig struct {
