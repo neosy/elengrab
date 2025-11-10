@@ -7,11 +7,16 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
+
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "modernc.org/sqlite"
 
 	iconfig "github.com/neosy/elengrab/infrastructure/config"
 	httpsrv "github.com/neosy/elengrab/internal/api/rest/server"
 	"github.com/neosy/elengrab/internal/app/usecases"
+	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
 	"github.com/neosy/elengrab/internal/services"
 	"github.com/neosy/elengrab/pkg/nlogger"
 )
@@ -32,6 +37,20 @@ func main() {
 
 	log.Printf("Logging level set to '%s'.\n", cfg.AppConfig.LogLevel)
 
+	// SQLite
+	sqliteDB, err := sqliterep.InitDB(
+		filepath.Join(cfg.SQLite.DataDir, "elengrab.db"),
+		fmt.Sprintf("file://%s", cfg.SQLite.MigrationsDir),
+	)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to initialize db: %v", err))
+		return
+	}
+	defer sqliteDB.Close()
+
+	// SQLite repositories
+	slRepositories := sqliterep.New(sqliteDB)
+
 	// Захват сигналов завершения (Ctrl+C, SIGTERM)
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
@@ -50,7 +69,12 @@ func main() {
 
 	// Usecases
 	ucDeps := &usecases.Dependencies{
-		Services:     services,
+		Repositories: usecases.DepRepositories{
+			Files: slRepositories.File,
+		},
+		Services: services,
+
+		// Options
 		DownloadsDir: cfg.Elengrab.DownloadsDir,
 	}
 	uc := usecases.NewUsecases(logger, ucDeps)

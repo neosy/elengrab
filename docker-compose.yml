@@ -8,6 +8,7 @@ services:
     environment:
       TZ: "Europe/Moscow"
     volumes:
+      - db:/app_n/sqlite/data
       - downloads:/app_n/downloads
     deploy:
       mode: replicated
@@ -18,4 +19,5 @@ services:
           cpus: "2.0"
 
 volumes:
+  db:
   downloads:

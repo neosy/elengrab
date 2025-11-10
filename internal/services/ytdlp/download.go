@@ -18,7 +18,7 @@ const (
 	audioQualityM4ADefault = "0"
 )
 
-func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions) (*ddownload.DownloadResponse, error) {
+func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions) (*ddownload.DownloadResult, error) {
 	// Prepare download options with defaults and user overrides
 	formatType, videoFormat, audioFormat, downloadDir, fileName := srv.prepareDownloadOptions(options)
 
@@ -78,7 +78,7 @@ func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions
 	srv.logger.Debug(string(outByte))
 
 	// Build response struct
-	resp := &ddownload.DownloadResponse{
+	resp := &ddownload.DownloadResult{
 		Title:        title,
 		FilePath:     filePath,
 		Filename:     fileName,

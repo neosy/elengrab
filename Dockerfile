@@ -18,7 +18,8 @@ RUN apk add --no-cache git \
 FROM alpine:latest
 
 # Create necessary directories and install dependencies
-RUN mkdir -p /app_n/{bin,assets,downloads} \
+RUN mkdir /app_n \
+    && cd /app_n && mkdir -p bin assets downloads migrations sqlite/data \
     && apk add --no-cache su-exec curl dcron python3 py3-pip ffmpeg \
     # Download yt-dlp binary
     && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
@@ -32,6 +33,7 @@ RUN mkdir -p /app_n/{bin,assets,downloads} \
 COPY --from=builder /build/elengrab /app_n/bin/elengrab
 COPY entrypoint.sh /app_n/entrypoint.sh
 COPY internal/api/rest/server/assets /app_n/assets/
+COPY migrations /app_n/migrations/
 
 # Create a non-root user and set ownership
 RUN adduser -D -h /app_n elengrab \
@@ -44,6 +46,7 @@ WORKDIR /app_n
 
 # Declare downloads folder as a volume
 VOLUME ["/app_n/downloads"]
+VOLUME ["/app_n/sqlite/data"]
 
 # Expose web server port
 EXPOSE 8080

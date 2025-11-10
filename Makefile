@@ -62,6 +62,7 @@ docker-run: ## Запуск докера
 	docker run -d \
 		--name $(APP_NAME) \
 		-p $(HTTP_PORT):8080 \
+		-v $(APP_NAME)_db:/app_n/sqlite/data \
 		-v $(APP_NAME)_downloads:/app_n/downloads \
 		$(APP_IMG_NAME_LATEST)
 
