@@ -14,8 +14,7 @@ type Dependencies struct {
 	Usecases *usecases.Usecases
 
 	// Options
-	AssetsDir    string
-	DownloadsDir string
+	AssetsDir string
 }
 
 type httpServer struct {
@@ -37,7 +36,7 @@ func NewServer(logger *slog.Logger, deps *Dependencies) *httpServer {
 func (s *httpServer) ListenAndServe(ctx context.Context, port string) error {
 	addr := fmt.Sprintf(":%s", port)
 
-	router := s.newRouter(s.assetsDir)
+	router := s.newRouter()
 	handler := router.Handler
 
 	log.Printf("HTTP server listening on %s\n", addr)
