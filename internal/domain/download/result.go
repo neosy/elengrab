@@ -1,12 +1,12 @@
 package ddownload
 
-type DownloadResponse struct {
+type DownloadResult struct {
 	Title string
 	// full path to the downloaded file
 	FilePath string
 	// file name
 	Filename string
-	// Ext
+	// ext
 	FileExt string
 	// file name
 	FileFullName string

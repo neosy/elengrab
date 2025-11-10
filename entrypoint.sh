@@ -2,6 +2,7 @@
 
 # Set ownership of downloads folder to non-root user
 chown -R elengrab:elengrab /app_n/downloads
+chown -R elengrab:elengrab /app_n/sqlite
 
 # Start cron as root
 crond -f &
