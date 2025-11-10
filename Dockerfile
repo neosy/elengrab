@@ -31,7 +31,7 @@ RUN mkdir -p /app_n/{bin,assets,downloads} \
 # Copy application binaries and assets from builder stage
 COPY --from=builder /build/elengrab /app_n/bin/elengrab
 COPY entrypoint.sh /app_n/entrypoint.sh
-COPY internal/api/htmx/assets /app_n/assets/
+COPY internal/api/rest/server/assets /app_n/assets/
 
 # Create a non-root user and set ownership
 RUN adduser -D -h /app_n elengrab \

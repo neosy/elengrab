@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"path/filepath"
 
-	avalues "github.com/neosy/elengrab/internal/api/htmx/assets/values"
+	avalues "github.com/neosy/elengrab/internal/api/rest/server/assets/values"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -23,7 +23,7 @@ func (h *IndexHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("text/html; charset=utf-8")
 
 	// Execute template with PageTitle
-	if err := tmpl.Execute(ctx, avalues.IndexValues); err != nil {
+	if err := tmpl.Execute(ctx, avalues.MergeMaps(avalues.IndexValues, avalues.PathsValues)); err != nil {
 		nfasthttp.WriteError(ctx, fmt.Errorf("template execution error: %v", err), fasthttp.StatusInternalServerError)
 		return
 	}

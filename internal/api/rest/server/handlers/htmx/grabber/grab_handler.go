@@ -1,4 +1,4 @@
-package grabh
+package grabberh
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"text/template"
 
+	httppaths "github.com/neosy/elengrab/internal/api/rest/server/paths"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/valyala/fasthttp"
@@ -41,7 +42,7 @@ var (
 	}
 )
 
-func (h *GrabHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
+func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	url := string(ctx.FormValue(formFieldYouTubeURL))
 	if url == "" {
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
@@ -88,7 +89,7 @@ func (h *GrabHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_success.html")
 		data.Format = resp.FileExt
 		// Set URL for download endpoint
-		data.DownloadURL = fmt.Sprintf("/downloader/download?file=%s", resp.FileFullName)
+		data.DownloadURL = fmt.Sprintf("%s?file=%s", httppaths.GroupDownloader+httppaths.PathDownload, resp.FileFullName)
 	}
 
 	tpl, err := template.ParseFiles(tmplPath)

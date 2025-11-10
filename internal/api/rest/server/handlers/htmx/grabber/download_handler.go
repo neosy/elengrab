@@ -1,4 +1,4 @@
-package grabh
+package grabberh
 
 import (
 	"errors"
@@ -25,7 +25,7 @@ var (
 	}
 )
 
-func (h *GrabHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
+func (h *GrabberHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	// Get the file name from the query parameter
 	fileName := string(ctx.QueryArgs().Peek("file"))
 	if fileName == "" {
