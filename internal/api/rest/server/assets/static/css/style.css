@@ -25,7 +25,7 @@ body {
     margin: 0;
 }
 
-.grab-area {
+.div-main-area {
     width: 80%;
     max-width: 1000px;
     min-width: 400px;
@@ -39,21 +39,20 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.search-wrapper {
+.div-grab-area {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     position: relative;
     width: 100%;
-    max-width: 500px;
+    max-width: 700px;
     margin: 0 auto;
 }
 
-.grab-input {
+.input-grab {
     flex: 1;
     width: 100%;
-    max-width: 500px;
     min-width: 200px;
     padding: 10px 15px 10px 40px;
     padding-right: 85px;
@@ -98,7 +97,7 @@ body {
 }
 
 .button-grab-get:hover {
-    border-color: #4CAF50;
+    border-color: #4caf50;
     background-color: #e4e4e4;
     color: #1b1d1bd8;
     /* transform: scale(1.02); */
@@ -112,6 +111,7 @@ body {
 /* Container for radio buttons */
 .div-format-options {
     display: flex;
+    min-width: 200px;
     justify-content: center; /* center horizontally */
     gap: 20px;               /* space between labels */
     margin-top: 20px;        /* spacing below input */
@@ -127,7 +127,7 @@ body {
 
 /* Hide default radio button look and style custom circle */
 .div-format-options input[type="radio"] {
-    accent-color: #4CAF50;
+    accent-color: #4caf50;
     margin-right: 5px;
     cursor: pointer;
 }
@@ -140,6 +140,16 @@ body {
 /* Container for the download result */
 .div-grab-result {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Wrapper for result item */
+.div-grab-result-items {
+    display: flex;
+    max-width: 100%;
+    min-width: 200px;
     align-items: center;
     justify-content: center;
     gap: 10px;
@@ -148,8 +158,7 @@ body {
     font-size: 16px;
 }
 
-/* Wrapper for result item */
-.grab-result-item {
+.div-grab-result-item {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -163,9 +172,14 @@ body {
   transition: all 0.2s ease;
 }
 
+.result-youtube-url {
+    text-align: left;
+}
+
 /* YouTube link — simple black style */
 .result-youtube-url a {
   color: #000;
+  justify-content: left;
   font-weight: 600;           /* Slightly bold for emphasis */
   text-decoration: none;      /* Clean look, no underline */
   transition: opacity 0.2s ease;
@@ -194,7 +208,7 @@ body {
 
 /* Download link */
 .result-download-link {
-  color: #2563eb;
+  color: #4caf50;
   font-weight: 600;
   text-decoration: none;
 }
@@ -205,7 +219,7 @@ body {
 
 /* Error message */
 .result-error {
-    color: #e53935;
+    color: #ef5350;
     font-weight: 600;
 }
 

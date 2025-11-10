@@ -10,7 +10,7 @@ import (
 	"syscall"
 
 	iconfig "github.com/neosy/elengrab/infrastructure/config"
-	httpsrv "github.com/neosy/elengrab/internal/api/htmx/server"
+	httpsrv "github.com/neosy/elengrab/internal/api/rest/server"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	"github.com/neosy/elengrab/internal/services"
 	"github.com/neosy/elengrab/pkg/nlogger"

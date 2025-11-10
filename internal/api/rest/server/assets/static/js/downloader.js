@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const button = document.querySelector('.button-grab-get');
     const input = document.querySelector('#youtubeURL');
-    const resultDiv = document.querySelector('#grab-result');
+    const resultDivInfo = document.querySelector('#grab-result-info');
+    const resultDivItems = document.querySelector('#grab-result-items');
 
     // Listen for Enter key inside input
     input.addEventListener('keydown', (event) => {
@@ -12,24 +13,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     button.addEventListener('htmx:configRequest', (event) => {
-        const button = event.target;
-        const input = document.querySelector('#youtubeURL');
-        const resultDiv = document.querySelector('#grab-result');
-
         if (button.disabled) return;
+
+        if (resultDivInfo) resultDivInfo.innerHTML = '';
 
         // Disable button and input during loading
         button.disabled = true;
         input.disabled = true;
 
         // Show loading indicator
-        if (resultDiv) {
+        if (resultDivItems) {
             // Remove old spinners if any (prevent duplicates)
-            const oldSpinner = resultDiv.querySelector('.result-loading');
+            const oldSpinner = resultDivItems.querySelector('.result-loading');
             if (oldSpinner) oldSpinner.remove();
 
             // Append spinner *inside* existing content
-            resultDiv.innerHTML = `
+            resultDivItems.innerHTML = `
                 <div class="result-loading">
                     <div class="result-spinner"></div>
                     <span class="result-loading-text">Loading...</span>
@@ -45,10 +44,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.detail.xhr.status === 200) {
             if (input) input.value = '';
         } else {
-            // Show error message inside result div
-            if (resultDiv) {
-                resultDiv.innerHTML = `
-                    <div class="grab-result-item">    
+            if (resultDivItems) {
+                // Remove old spinners if any (prevent duplicates)
+                const oldSpinner = resultDivItems.querySelector('.result-loading');
+                if (oldSpinner) oldSpinner.remove();
+            }
+            // Show error message
+            if (resultDivInfo) {
+
+                resultDivInfo.innerHTML = `
+                    <div class="div-grab-result-item">    
                         <span class="result-error">Error: ${event.detail.xhr.responseText}</span>
                     </div>
                 `;

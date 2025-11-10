@@ -1,5 +1,9 @@
 package statich
 
+const (
+	pathStatic = "/static"
+)
+
 type StaticHandlers struct {
 	assetsDir string
 }
