@@ -10,5 +10,6 @@ import (
 type FileRepository interface {
 	Insert(ctx context.Context, file *ddownload.File) error
 	Update(ctx context.Context, file *ddownload.File) error
+	Delete(ctx context.Context, fileId uuid.UUID) error
 	FindByFileId(ctx context.Context, fileId uuid.UUID) (*ddownload.File, error)
 }

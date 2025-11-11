@@ -3,7 +3,7 @@ package dto
 import "github.com/google/uuid"
 
 type DownloadResponse struct {
-	Title string
+	YoutubeTitle string
 	// format type
 	Format string
 	// file id

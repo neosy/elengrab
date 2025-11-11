@@ -1,0 +1,19 @@
+CREATE TABLE IF NOT EXISTS download_tasks (
+    -- Unique ID for the task
+    task_id TEXT PRIMARY KEY,
+    
+    -- ID of the file to download
+    file_id TEXT NOT NULL,
+    
+    -- Task status: pending, working, done, failed
+    task_status TEXT NOT NULL DEFAULT 'pending',
+    
+    -- ID of the worker currently processing the task
+    worker_id INT NULL,
+    
+    -- Task creation timestamp
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Last update timestamp
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

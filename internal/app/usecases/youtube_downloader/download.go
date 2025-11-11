@@ -21,7 +21,7 @@ func (uc *YouTubeDownloader) Download(
 
 	options.Filename = &filename
 
-	err := uc.fileRep.Insert(
+	err := uc.file.Create(
 		ctx,
 		&ddownload.File{
 			FileId:   fileId,
@@ -41,26 +41,24 @@ func (uc *YouTubeDownloader) Download(
 		return nil, err
 	}
 
-	safeReadableFullName := fmt.Sprintf("%s.%s", uc.sanitizeFileName(result.Title), result.FileExt)
+	safeReadableFullName := fmt.Sprintf("%s.%s", uc.sanitizeFileName(result.YoutubeTitle), result.FileExt)
 
-	err = uc.fileRep.Update(
+	uc.UpdateFileInfo(
 		ctx,
-		&ddownload.File{
-			FileId:               fileId,
-			Title:                result.Title,
-			FileName:             result.Filename,
-			Ext:                  result.FileExt,
-			FullName:             result.FileFullName,
-			SafeReadableFullName: safeReadableFullName,
-		})
-	if err != nil {
-		uc.logger.Error("Update record error", "error", err)
-	}
+		fileId,
+		&dto.FileInfoPatch{
+			YoutubeTitle:         &result.YoutubeTitle,
+			FileName:             &result.Filename,
+			Ext:                  &result.FileExt,
+			FullName:             &result.FileFullName,
+			SafeReadableFullName: &safeReadableFullName,
+		},
+	)
 
 	return &dto.DownloadResponse{
-		Title:  result.Title,
-		Format: result.FileExt,
-		FileId: fileId,
+		YoutubeTitle: result.YoutubeTitle,
+		Format:       result.FileExt,
+		FileId:       fileId,
 	}, nil
 }
 

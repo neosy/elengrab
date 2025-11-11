@@ -89,7 +89,7 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_error.html")
 	} else {
 		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_success.html")
-		data.YoutubeTitle = resp.Title
+		data.YoutubeTitle = resp.YoutubeTitle
 		data.Format = resp.Format
 		// Set URL for download endpoint
 		data.DownloadURL = fmt.Sprintf("%s?file=%s", httppaths.GroupDownloader+httppaths.PathDownload, resp.FileId)
