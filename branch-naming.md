@@ -12,9 +12,9 @@ This document defines consistent naming rules for branches in the repository.
 **Example:**
 
 ```
-feature-downloader-ui
-fix-api-timeout
-refactor-htmx-server
+feature/downloader-ui
+fix/api-timeout
+refactor/htmx-server
 ```
 
 ---
@@ -23,34 +23,34 @@ refactor-htmx-server
 
 | Prefix            | Description                                                      |
 | ----------------- | ---------------------------------------------------------------- |
-| `feature-<name>`  | Adds new functionality (e.g., new API, module, or UI component). |
-| `fix-<name>`      | Fixes a bug or error in existing code.                           |
-| `refactor-<name>` | Refactors code without changing external behavior.               |
-| `style-<name>`    | Updates styling (CSS, HTML layout, UI design).                   |
-| `docs-<name>`     | Documentation updates (README, Swagger, etc.).                   |
-| `test-<name>`     | Adds or modifies tests.                                          |
-| `perf-<name>`     | Improves performance or efficiency.                              |
-| `build-<name>`    | Changes related to build tools, Docker, Makefile, or CI/CD.      |
-| `chore-<name>`    | Minor maintenance tasks (e.g., dependency updates).              |
-| `hotfix-<name>`   | Urgent fix for a production issue.                               |
-| `wip-<name>`      | Work in progress — temporary branch for incomplete work.         |
+| `feature/<name>`  | Adds new functionality (e.g., new API, module, or UI component). |
+| `fix/<name>`      | Fixes a bug or error in existing code.                           |
+| `refactor/<name>` | Refactors code without changing external behavior.               |
+| `style/<name>`    | Updates styling (CSS, HTML layout, UI design).                   |
+| `docs/<name>`     | Documentation updates (README, Swagger, etc.).                   |
+| `test/<name>`     | Adds or modifies tests.                                          |
+| `perf/<name>`     | Improves performance or efficiency.                              |
+| `build/<name>`    | Changes related to build tools, Docker, Makefile, or CI/CD.      |
+| `chore/<name>`    | Minor maintenance tasks (e.g., dependency updates).              |
+| `hotfix/<name>`   | Urgent fix for a production issue.                               |
+| `wip/<name>`      | Work in progress — temporary branch for incomplete work.         |
 
 ---
 
 ## 🔹 Examples
 
 ```
-feature-user-authentication
-fix-youtube-parser
-refactor-rest-server
-style-header-layout
-docs-update-readme
-test-order-repository
-perf-cache-optimization
-build-github-actions
-chore-deps-update
-hotfix-production-crash
-wip-css-redesign
+feature/user-authentication
+fix/youtube-parser
+refactor/rest-server
+style/header-layout
+docs/update-readme
+test/order-repository
+perf/cache-optimization
+build/github-actions
+chore/deps-update
+hotfix/production-crash
+wip/css-redesign
 ```
 
 ---
@@ -60,7 +60,7 @@ wip-css-redesign
 1. Create a new branch from `main` or `develop`:
 
    ```bash
-   git checkout -b feature-downloader-ui
+   git checkout -b feature/downloader-ui
    ```
 2. Work on your changes.
 3. Commit with clear, English messages:
