@@ -37,6 +37,7 @@ Elengrab provides a simple web interface that allows you to quickly download You
 ```
 docker run -d \
   --name elengrab \
+  -v elengrab_db:/app_n/sqlite/data \
   -v elengrab_downloads:/app_n/downloads \
   -p 8080:8080 \
   neosy/elengrab:latest
@@ -59,6 +60,7 @@ services:
     environment:
       TZ: "Europe/Moscow"
     volumes:
+      - db:/app_n/sqlite/data
       - downloads:/app_n/downloads
     deploy:
       mode: replicated
@@ -69,6 +71,7 @@ services:
           cpus: "2.0"
 
 volumes:
+  db:
   downloads:
 ```
 
