@@ -1,5 +1,6 @@
 package tablenames
 
 const (
-	Files = "files"
+	Files         = "files"
+	DownloadTasks = "download_tasks"
 )

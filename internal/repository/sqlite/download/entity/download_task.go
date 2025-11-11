@@ -1,0 +1,42 @@
+package edownload
+
+import (
+	"database/sql"
+
+	tablenames "github.com/neosy/elengrab/internal/repository/sqlite/download/table_names"
+	"github.com/neosy/elengrab/pkg/dbentity"
+)
+
+type DownloadTask struct {
+	dbentity.BaseEntity[DownloadTask]
+	TaskId    sql.NullString `db:"task_id"`
+	FileId    sql.NullString `db:"file_id"`
+	Status    sql.NullString `db:"task_status"`
+	WorkerId  sql.NullInt64  `db:"worker_id"`
+	CreatedAt sql.NullTime   `db:"created_at" insert:"false"`
+	UpdatedAt sql.NullTime   `db:"updated_at" insert:"false"`
+}
+
+// TableName returns the table name
+func (e *DownloadTask) TableName() string {
+	return tablenames.DownloadTasks
+}
+
+// FieldName field name from sql tag by structure field name
+// Example:
+// var ent <TableEntity>
+// ent.FieldName(&ent.SalesId)
+func (e *DownloadTask) FieldName(field any) string {
+	return e.BaseEntity.FieldName(e, field)
+}
+
+// Values returns a list of values for fields that will be used for updates
+func (e *DownloadTask) Values() []any {
+	return e.BaseEntity.Values(e)
+}
+
+// FieldPointers returns a slice of pointers to all exported fields of the given struct.
+func (e *DownloadTask) FieldPointers() []any {
+	ptrs, _ := e.BaseEntity.FieldPointers(e)
+	return ptrs
+}

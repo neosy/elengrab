@@ -20,7 +20,7 @@ type FileRepository struct {
 	mappers *mappers.Mappers
 }
 
-// NewFilesRepository returns a new object for the repository
+// NewFileRepository returns a new object for the repository
 func NewFileRepository(db *sql.DB) *FileRepository {
 	return &FileRepository{
 		db:      db,
@@ -77,24 +77,39 @@ func (r *FileRepository) save(ctx context.Context, file *ddownload.File, isUpd b
 }
 
 func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*ddownload.File, error) {
-	var ent edownload.File
+	var (
+		eFile edownload.File
+		eTask edownload.DownloadTask
 
-	sqlBuilder, args, err := squirrel.Select(ent.FieldsAll()...).
-		From(ent.TableName()).
-		Where(squirrel.Eq{ent.FieldName(&ent.FileId): fileId.String()}).
+		aliasFiles = "f"
+		aliasTasks = "t"
+	)
+
+	selectFields := append(eFile.FieldsAllWithAlias(aliasFiles), eTask.FieldsAllWithAlias(aliasTasks)...)
+
+	sqlQuery, args, err := squirrel.Select(selectFields...).
+		From(eFile.TableName() + " AS " + aliasFiles).
+		LeftJoin(
+			eTask.TableName() + " AS " + aliasTasks +
+				" ON " + aliasTasks + "." + eTask.FieldName(&eTask.FileId) +
+				" = " + aliasFiles + "." + eFile.FieldName(&eFile.FileId),
+		).
+		Where(squirrel.Eq{eFile.FieldNameWithAlias(&eFile.FileId, aliasFiles): fileId.String()}).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()
+
+	fmt.Println(sqlQuery)
 
 	if err != nil {
 		return nil, fmt.Errorf("error generating SQL: %v", err)
 	}
 
 	// Execute the query
-	row := r.db.QueryRowContext(ctx, sqlBuilder, args...)
+	row := r.db.QueryRowContext(ctx, sqlQuery, args...)
 
 	// Scan result into entity
-	if err := row.Scan(ent.FieldPointers()...); err != nil {
+	if err := row.Scan(append(eFile.FieldPointers(), eTask.FieldPointers()...)...); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // запись не найдена
 		}
@@ -102,7 +117,30 @@ func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*d
 	}
 
 	// Map entity to domain model
-	file := r.mappers.MapFileEntityToDomain(&ent)
+	file := r.mappers.MapFileEntityToDomain(&eFile, &eTask)
 
 	return file, nil
+}
+
+func (r *FileRepository) Delete(ctx context.Context, fileId uuid.UUID) error {
+	var ent edownload.File
+
+	// Build DELETE query
+	sqlBuilder := squirrel.Delete(ent.TableName()).
+		Where(squirrel.Eq{ent.FieldName(&ent.FileId): fileId.String()}).
+		PlaceholderFormat(squirrel.Dollar)
+
+	// Generate SQL and args
+	sqlStr, args, err := sqlBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	_, err = r.db.ExecContext(ctx, sqlStr, args...)
+	if err != nil {
+		return fmt.Errorf("error deleting file: %v", err)
+	}
+
+	return nil
 }

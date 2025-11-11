@@ -17,7 +17,8 @@ type Dependencies struct {
 }
 
 type DepRepositories struct {
-	Files persistence.FileRepository
+	File         persistence.FileRepository
+	DownloadTask persistence.DownloadTaskRepository
 }
 
 type Usecases struct {
@@ -28,8 +29,15 @@ func NewUsecases(logger *slog.Logger, deps *Dependencies) *Usecases {
 	return &Usecases{
 		Downloader: ucdownloader.NewYouTubeDownloader(
 			logger,
-			deps.Repositories.Files,
+
+			// repositories
+			deps.Repositories.File,
+			deps.Repositories.DownloadTask,
+
+			// services
 			deps.Services.YouTubeDownloader,
+
+			// options
 			deps.DownloadsDir,
 		),
 	}

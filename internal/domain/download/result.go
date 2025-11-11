@@ -1,7 +1,7 @@
 package ddownload
 
 type DownloadResult struct {
-	Title string
+	YoutubeTitle string
 	// full path to the downloaded file
 	FilePath string
 	// file name

@@ -9,12 +9,14 @@ import (
 
 // Repositories groups all database repositories.
 type Repositories struct {
-	File persistence.FileRepository
+	File         persistence.FileRepository
+	DownloadTask persistence.DownloadTaskRepository
 }
 
 // New returns a new Repositories struct with database connections.
 func New(db *sql.DB) *Repositories {
 	return &Repositories{
-		File: sldownload.NewFileRepository(db),
+		File:         sldownload.NewFileRepository(db),
+		DownloadTask: sldownload.NewDownloadTaskRepository(db),
 	}
 }

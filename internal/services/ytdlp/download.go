@@ -79,7 +79,7 @@ func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions
 
 	// Build response struct
 	resp := &ddownload.DownloadResult{
-		Title:        title,
+		YoutubeTitle: title,
 		FilePath:     filePath,
 		Filename:     fileName,
 		FileExt:      fileExt,
