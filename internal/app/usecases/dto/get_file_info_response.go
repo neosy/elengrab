@@ -3,7 +3,7 @@ package dto
 import "github.com/google/uuid"
 
 type GetFileInfoResponse struct {
-	Title                string
+	YoutubeTitle         string
 	FileId               uuid.UUID
 	Name                 string
 	Ext                  string

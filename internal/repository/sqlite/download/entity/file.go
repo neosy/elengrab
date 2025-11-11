@@ -11,11 +11,13 @@ import (
 type File struct {
 	dbentity.BaseEntity[File]
 	FileId               uuid.UUID `db:"file_id"`
-	Title                string    `db:"title"`
+	Status               string    `db:"file_status"`
+	YoutubeTitle         string    `db:"youtube_title"`
 	FileName             string    `db:"file_name"`
 	Ext                  string    `db:"ext"`
 	FullName             string    `db:"full_name"`
 	SafeReadableFullName string    `db:"safe_readable_full_name"`
+	ErrorMessage         *string   `db:"error_message"`
 	CreatedAt            time.Time `db:"created_at" insert:"false"`
 	UpdatedAt            time.Time `db:"updated_at" insert:"false"`
 }
@@ -29,8 +31,16 @@ func (e *File) TableName() string {
 // Example:
 // var ent <TableEntity>
 // ent.FieldName(&ent.SalesId)
-func (e *File) FieldName(field any) string {
-	return e.BaseEntity.FieldName(e, field)
+func (e *File) FieldName(fieldPtr any) string {
+	return e.BaseEntity.FieldName(e, fieldPtr)
+}
+
+// FieldNameWithAlias field name with alieas from sql tag by structure field pointer
+// Example:
+// var ent <TableEntity>
+// ent.FieldName(ent, &ent.SalesId, "alias")
+func (e *File) FieldNameWithAlias(fieldPtr any, alias string) string {
+	return e.BaseEntity.FieldNameWithAlias(e, fieldPtr, alias)
 }
 
 // Values returns a list of values for fields that will be used for updates

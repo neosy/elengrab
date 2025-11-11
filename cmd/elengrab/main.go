@@ -70,7 +70,8 @@ func main() {
 	// Usecases
 	ucDeps := &usecases.Dependencies{
 		Repositories: usecases.DepRepositories{
-			Files: slRepositories.File,
+			File:         slRepositories.File,
+			DownloadTask: slRepositories.DownloadTask,
 		},
 		Services: services,
 
