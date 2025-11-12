@@ -19,7 +19,7 @@ func (s *FileStatus) Done(
 		dto.PatchToFileDomain(patch, file)
 	}
 
-	err := s.downloadTask.DeleteByFileId(ctx, fileId)
+	err := s.dlTask.DeleteByFileId(ctx, fileId)
 	if err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func (s *FileStatus) Done(
 	return s.updateStatus(
 		ctx,
 		fileId,
-		dtypes.FileStatusFailed,
+		dtypes.FileStatusDone,
 		updateFieldsFunc,
 	)
 }

@@ -1,4 +1,4 @@
-package file
+package fileuc
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 )
 
 func (uc *File) Patch(ctx context.Context, fileId uuid.UUID, patch *dto.FileInfoPatch) error {
-	file, err := uc.FindFileById(ctx, fileId, true)
+	file, err := uc.FindByFileId(ctx, fileId, true)
 	if err != nil {
 		return err
 	}

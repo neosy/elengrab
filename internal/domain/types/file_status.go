@@ -42,7 +42,7 @@ func (v FileStatus) Exists() bool {
 	return exists
 }
 
-// ParseFileStatus converting string to order status
+// ParseFileStatus converting string to status
 func ParseFileStatus(s string) (FileStatus, error) {
 	status := FileStatus(strings.ToUpper(s))
 
@@ -53,7 +53,7 @@ func ParseFileStatus(s string) (FileStatus, error) {
 	return status, nil
 }
 
-// StringToFileStatus converting string to order status
+// StringToFileStatus converting string to status
 func StringToFileStatus(s string) (FileStatus, error) {
 	return ParseFileStatus(s)
 }

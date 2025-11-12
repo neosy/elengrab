@@ -42,7 +42,10 @@ func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.Downl
 	}
 
 	// Convert the domain model to a database entity
-	eTask := r.mappers.MapDownloadTaskDomainToEntity(task)
+	eTask, err := r.mappers.MapDownloadTaskDomainToEntity(task)
+	if err != nil {
+		return err
+	}
 
 	// Get the list of fields and values for insertion
 	fields := eTask.Fields()
@@ -102,7 +105,10 @@ func (r *DownloadTaskRepository) FindByTaskId(ctx context.Context, taskId uuid.U
 	}
 
 	// Map entity to domain model
-	task := r.mappers.MapDownloadTaskEntityToDomain(&ent)
+	task, err := r.mappers.MapDownloadTaskEntityToDomain(&ent)
+	if err != nil {
+		return nil, err
+	}
 
 	return task, nil
 }
@@ -133,7 +139,10 @@ func (r *DownloadTaskRepository) FindByFileId(ctx context.Context, fileId uuid.U
 	}
 
 	// Map entity to domain model
-	task := r.mappers.MapDownloadTaskEntityToDomain(&ent)
+	task, err := r.mappers.MapDownloadTaskEntityToDomain(&ent)
+	if err != nil {
+		return nil, err
+	}
 
 	return task, nil
 }

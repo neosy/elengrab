@@ -19,68 +19,81 @@ import (
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
 	"github.com/neosy/elengrab/internal/services"
 	"github.com/neosy/elengrab/pkg/nlogger"
+	"github.com/neosy/elengrab/pkg/workerpool"
 )
 
 func main() {
 	var err error
 
+	// Load application configuration
 	cfg := iconfig.New()
 
+	// Create a cancellable context
 	ctx, cancel := context.WithCancel(context.Background())
 
-	// Создаем обработчик с уровнем Info, используя HandlerOptions
+	// Create a logger with Info level using HandlerOptions
 	handlerOptions := &slog.HandlerOptions{
-		// Устанавливаем уровень логирования
+		// Set the logging level
 		Level: nlogger.LevelToSlogLevel(cfg.AppConfig.LogLevel),
 	}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, handlerOptions))
 
 	log.Printf("Logging level set to '%s'.\n", cfg.AppConfig.LogLevel)
 
-	// SQLite
+	// Initialize SQLite database with migrations
 	sqliteDB, err := sqliterep.InitDB(
 		filepath.Join(cfg.SQLite.DataDir, "elengrab.db"),
-		fmt.Sprintf("file://%s", cfg.SQLite.MigrationsDir),
+		cfg.SQLite.MigrationsDir,
 	)
 	if err != nil {
-		logger.Error(fmt.Sprintf("Failed to initialize db: %v", err))
+		logger.Error(fmt.Sprintf("Failed to initialize SQLite database: %v", err))
 		return
 	}
+	// Close the database on exit
 	defer sqliteDB.Close()
 
-	// SQLite repositories
+	// Create SQLite repositories
 	slRepositories := sqliterep.New(sqliteDB)
 
-	// Захват сигналов завершения (Ctrl+C, SIGTERM)
+	// Capture termination signals (Ctrl+C, SIGTERM)
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
-	// Services
+	// Start workers
+	dlManager := workerpool.NewManager(logger, nil)
+	if err := dlManager.Start(ctx); err != nil {
+		logger.Error("Failed to start worker pool", "err", err)
+		return
+	}
+	// Stop workers on exit
+	defer dlManager.Stop()
+
+	// Initialize services
 	srvDeps := &services.Dependencies{
 		BinDir:       cfg.Elengrab.BinDir,
 		DownloadsDir: cfg.Elengrab.DownloadsDir,
 	}
 	services, err := services.New(logger, srvDeps)
 	if err != nil {
-		logger.Error("Failed to create services", "err", err)
+		logger.Error("Failed to initialize services", "err", err)
 		return
-
 	}
 
-	// Usecases
+	// Initialize usecases
 	ucDeps := &usecases.Dependencies{
 		Repositories: usecases.DepRepositories{
 			File:         slRepositories.File,
 			DownloadTask: slRepositories.DownloadTask,
 		},
-		Services: services,
+		DownloadDispetcher: dlManager,
+		Services:           services,
 
 		// Options
 		DownloadsDir: cfg.Elengrab.DownloadsDir,
 	}
 	uc := usecases.NewUsecases(logger, ucDeps)
 
-	// FastHTTP server
+	// Start FastHTTP server in a separate goroutine
 	go func(ctx context.Context) {
 		deps := &httpsrv.Dependencies{
 			Usecases:  uc,
@@ -94,15 +107,16 @@ func main() {
 		}
 	}(ctx)
 
-	// Ждем сигнал завершения или отмены контекста
+	// Wait for context cancellation or termination signal
 	select {
 	case <-ctx.Done():
-		logger.ErrorContext(ctx, "Context complete, shutting down services...")
+		logger.ErrorContext(ctx, "Context completed, shutting down services...")
 	case sig := <-sigChan:
-		logger.ErrorContext(ctx, fmt.Sprintf("Signal received: %v, shutting down...", sig))
+		logger.ErrorContext(ctx, fmt.Sprintf("Termination signal received: %v, shutting down...", sig))
 		cancel()
 	}
 
+	// Log final error if any
 	if err != nil {
 		log.Print(err)
 	}

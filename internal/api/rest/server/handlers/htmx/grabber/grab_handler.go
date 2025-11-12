@@ -75,7 +75,7 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		data     = resultData{YoutubeURL: url}
 	)
 
-	resp, err := h.usecases.Downloader.Download(
+	resp, err := h.usecases.Downloader.ScheduleDownload(
 		ctx,
 		url,
 		&ddownload.DownloadOptions{
@@ -89,8 +89,8 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_error.html")
 	} else {
 		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_success.html")
-		data.YoutubeTitle = resp.YoutubeTitle
-		data.Format = resp.Format
+		data.YoutubeTitle = url
+		data.Format = "-"
 		// Set URL for download endpoint
 		data.DownloadURL = fmt.Sprintf("%s?file=%s", httppaths.GroupDownloader+httppaths.PathDownload, resp.FileId)
 	}

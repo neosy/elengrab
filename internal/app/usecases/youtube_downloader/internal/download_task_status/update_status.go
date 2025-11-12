@@ -1,4 +1,4 @@
-package filestatus
+package dltaskstatus
 
 import (
 	"context"
@@ -9,22 +9,22 @@ import (
 )
 
 // updateStatus marking the status
-func (uc *FileStatus) updateStatus(
+func (s *DownloadTaskStatus) updateStatus(
 	ctx context.Context,
-	fileId uuid.UUID,
-	toStatus dtypes.FileStatus,
-	updateFieldsFunc func(file *ddownload.File),
+	taskId uuid.UUID,
+	toStatus dtypes.DownloadTaskStatus,
+	updateFieldsFunc func(file *ddownload.DownloadTask),
 ) error {
-	file, err := uc.file.FindByFileId(ctx, fileId, true)
+	task, err := s.downloadTask.FindByTaskId(ctx, taskId, true)
 	if err != nil {
 		return err
 	}
 
-	err = uc.statusSetter.SetStatus(file, toStatus)
+	err = s.statusSetter.SetStatus(task, toStatus)
 	if err != nil {
-		uc.logger.Error(
+		s.logger.Error(
 			"Failed to update status",
-			"fileId", fileId,
+			"taskId", taskId,
 			"error", err,
 		)
 		return err
@@ -32,15 +32,15 @@ func (uc *FileStatus) updateStatus(
 
 	// Update fields
 	if updateFieldsFunc != nil {
-		updateFieldsFunc(file)
+		updateFieldsFunc(task)
 	}
 
 	// Update in the repository
-	err = uc.fileRep.Update(ctx, file)
+	err = s.downloadTask.Update(ctx, task)
 	if err != nil {
-		uc.logger.Error(
+		s.logger.Error(
 			"Failed to update file in the repository",
-			"fileId", fileId,
+			"taskId", taskId,
 			"error", err,
 		)
 

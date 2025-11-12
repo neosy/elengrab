@@ -1,4 +1,4 @@
-package fileuc
+package dltask
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-func (uc *File) Update(ctx context.Context, file *ddownload.File) error {
-	err := uc.fileRep.Update(ctx, file)
+func (uc *DownloadTask) Update(ctx context.Context, task *ddownload.DownloadTask) error {
+	err := uc.taskRep.Update(ctx, task)
 	if err != nil {
 		uc.logger.Error("Update record error", "error", err)
 		return err

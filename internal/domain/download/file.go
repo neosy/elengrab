@@ -14,6 +14,9 @@ type File struct {
 	// Status
 	Status dtypes.FileStatus
 
+	// Youtube URL
+	YoutubeUrl string
+
 	// Youtube title
 	YoutubeTitle string
 
@@ -29,6 +32,7 @@ type File struct {
 	// Human-readable safe full name
 	SafeReadableFullName string
 
+	// Error message
 	ErrorMessage *string
 
 	// Timestamp when the record was created
@@ -37,5 +41,6 @@ type File struct {
 	// Timestamp when the record was last updated
 	UpdatedAt time.Time
 
+	// Related task
 	DownloadTask *DownloadTask
 }

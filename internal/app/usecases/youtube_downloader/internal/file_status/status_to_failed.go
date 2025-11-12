@@ -18,7 +18,7 @@ func (s *FileStatus) Failed(
 		file.ErrorMessage = message
 	}
 
-	err := s.downloadTask.DeleteByFileId(ctx, fileId)
+	err := s.dlTask.DeleteByFileId(ctx, fileId)
 	if err != nil {
 		return err
 	}

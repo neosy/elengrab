@@ -12,6 +12,7 @@ type File struct {
 	dbentity.BaseEntity[File]
 	FileId               uuid.UUID `db:"file_id"`
 	Status               string    `db:"file_status"`
+	YoutubeUrl           string    `db:"youtube_url"`
 	YoutubeTitle         string    `db:"youtube_title"`
 	FileName             string    `db:"file_name"`
 	Ext                  string    `db:"ext"`

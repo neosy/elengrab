@@ -99,8 +99,6 @@ func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*d
 		Limit(1).
 		ToSql()
 
-	fmt.Println(sqlQuery)
-
 	if err != nil {
 		return nil, fmt.Errorf("error generating SQL: %v", err)
 	}
@@ -117,7 +115,10 @@ func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*d
 	}
 
 	// Map entity to domain model
-	file := r.mappers.MapFileEntityToDomain(&eFile, &eTask)
+	file, err := r.mappers.MapFileEntityToDomain(&eFile, &eTask)
+	if err != nil {
+		return nil, err
+	}
 
 	return file, nil
 }
