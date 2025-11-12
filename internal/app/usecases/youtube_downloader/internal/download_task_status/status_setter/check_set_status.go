@@ -3,14 +3,14 @@ package statussetter
 import (
 	"fmt"
 
-	dfilestatus "github.com/neosy/elengrab/internal/domain/types/file_status"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	dfilestatus "github.com/neosy/elengrab/internal/domain/types/download_task_status"
 )
 
 // checkSetStatus validates whether the status transition from fromStatus to toStatus is allowed.
-func (u *FileStatusSetter) checkSetStatus(
-	fromStatus dtypes.FileStatus,
-	toStatus dtypes.FileStatus,
+func (u *DownloadTaskStatusSetter) checkSetStatus(
+	fromStatus dtypes.DownloadTaskStatus,
+	toStatus dtypes.DownloadTaskStatus,
 ) error {
 	_, exists := dfilestatus.SelectAllowedStatusMap()[fromStatus][toStatus]
 	if exists {

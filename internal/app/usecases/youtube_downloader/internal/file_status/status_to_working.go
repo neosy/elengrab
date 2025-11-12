@@ -8,11 +8,18 @@ import (
 )
 
 // Pending set status to working
-func (s *FileStatus) Working(
+func (uc *FileStatus) Working(
 	ctx context.Context,
 	fileId uuid.UUID,
+	taskId uuid.UUID,
+	workerId uint,
 ) error {
-	return s.updateStatus(
+	err := uc.dlTaskStatus.Working(ctx, taskId, workerId)
+	if err != nil {
+		return err
+	}
+
+	return uc.updateStatus(
 		ctx,
 		fileId,
 		dtypes.FileStatusWorking,

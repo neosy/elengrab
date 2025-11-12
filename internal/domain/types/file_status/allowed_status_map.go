@@ -2,12 +2,12 @@ package dfilestatus
 
 import dtypes "github.com/neosy/elengrab/internal/domain/types"
 
-// MapAllowedStatus defines allowed transitions between order statuses:
+// MapAllowedStatus defines allowed transitions between statuses:
 // key — current status, value — set of allowed next statuses.
 type AllowedStatusMap = map[dtypes.FileStatus]map[dtypes.FileStatus]struct{}
 
 var (
-	mapAllowedStatus = AllowedStatusMap{
+	allowedStatusMap = AllowedStatusMap{
 		dtypes.FileStatusNew: {
 			dtypes.FileStatusPending: {},
 			dtypes.FileStatusFailed:  {},
@@ -23,7 +23,7 @@ var (
 	}
 )
 
-// SelectAllowedStatusMap returns the allowed order status transitions map based.
+// SelectAllowedStatusMap returns the allowed status transitions map based.
 func SelectAllowedStatusMap() AllowedStatusMap {
-	return mapAllowedStatus
+	return allowedStatusMap
 }

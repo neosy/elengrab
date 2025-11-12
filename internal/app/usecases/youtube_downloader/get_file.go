@@ -1,4 +1,4 @@
-package ucdownloader
+package ytdownloader
 
 import (
 	"context"
@@ -9,12 +9,12 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-func (uc *YouTubeDownloader) findFileById(ctx context.Context, fileId uuid.UUID, checkNotFound bool) (*ddownload.File, error) {
-	return uc.file.FindFileById(ctx, fileId, checkNotFound)
+func (uc *YouTubeDownloader) findByFileId(ctx context.Context, fileId uuid.UUID, checkNotFound bool) (*ddownload.File, error) {
+	return uc.file.FindByFileId(ctx, fileId, checkNotFound)
 }
 
 func (uc *YouTubeDownloader) GetFileInfo(ctx context.Context, fileId uuid.UUID) (*dto.GetFileInfoResponse, error) {
-	file, err := uc.findFileById(ctx, fileId, true)
+	file, err := uc.findByFileId(ctx, fileId, true)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (uc *YouTubeDownloader) GetFileInfo(ctx context.Context, fileId uuid.UUID) 
 }
 
 func (uc *YouTubeDownloader) GetFilePath(ctx context.Context, fileId uuid.UUID) (string, error) {
-	file, err := uc.findFileById(ctx, fileId, true)
+	file, err := uc.findByFileId(ctx, fileId, true)
 	if err != nil {
 		return "", err
 	}
@@ -48,7 +48,7 @@ func (uc *YouTubeDownloader) GetFilePath(ctx context.Context, fileId uuid.UUID) 
 //	ext      - the file extension (without dot)
 //	err      - an error if the record is not found or a query fails
 func (uc *YouTubeDownloader) GetDownloadFileName(ctx context.Context, fileId uuid.UUID) (string, string, error) {
-	file, err := uc.findFileById(ctx, fileId, true)
+	file, err := uc.findByFileId(ctx, fileId, true)
 	if err != nil {
 		return "", "", err
 	}

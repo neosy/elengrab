@@ -14,7 +14,7 @@ type TagName string
 
 const (
 	// Default tag name used to specify the database field name.
-	// Example: `db:"order_id"` or `sql:"order_id"`.
+	// Example: `db:"sale_id"` or `sql:"sale_id"`.
 	columnTagNameDefault TagName = "db"
 	// Tag name that defines an SQL expression used during SQL query generation.
 	// Used for dynamically building SQL expressions.
@@ -48,7 +48,7 @@ const (
 var (
 	columnConfig = struct {
 		// Tag name used to specify the database field name.
-		// Example: `db:"order_id"` or `sql:"order_id"`.
+		// Example: `db:"sale_id"` or `sql:"sale_id"`.
 		tagName TagName
 		once    sync.Once
 	}{
