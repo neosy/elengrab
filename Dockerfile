@@ -33,7 +33,7 @@ RUN mkdir /app_n \
 COPY --from=builder /build/elengrab /app_n/bin/elengrab
 COPY entrypoint.sh /app_n/entrypoint.sh
 COPY internal/api/rest/server/assets /app_n/assets/
-COPY migrations /app_n/migrations/
+COPY db/migrations /app_n/migrations/
 
 # Create a non-root user and set ownership
 RUN adduser -D -h /app_n elengrab \

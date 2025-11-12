@@ -22,7 +22,7 @@ type structTest2 struct {
 	Qty                uint64     `db:"qty" json:"qty"`
 	Amount             string     `db:"amount" json:"amount"`
 	GateId             *uuid.UUID `db:"gate_id"`
-	GateOrderId        *string    `db:"gate_order_id"`
+	GateSaleId         *string    `db:"gate_sale_id"`
 	GatePaymentDetails string     `db:"gate_payment_details"`
 	SettlementType     string     `db:"settlement_type"`
 	Rate               string     `db:"rate"`
@@ -88,7 +88,7 @@ func runTest15of15() {
 	StructFieldName(&sTest, &sTest.Qty, "db")
 	StructFieldName(&sTest, &sTest.Amount, "db")
 	StructFieldName(&sTest, &sTest.GateId, "db")
-	StructFieldName(&sTest, &sTest.GateOrderId, "db")
+	StructFieldName(&sTest, &sTest.GateSaleId, "db")
 	StructFieldName(&sTest, &sTest.GatePaymentDetails, "db")
 	StructFieldName(&sTest, &sTest.SettlementType, "db")
 	StructFieldName(&sTest, &sTest.Rate, "db")

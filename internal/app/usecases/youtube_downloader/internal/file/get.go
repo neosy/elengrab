@@ -1,13 +1,14 @@
-package file
+package fileuc
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-func (uc *File) FindFileById(ctx context.Context, fileId uuid.UUID, checkNotFound bool) (*ddownload.File, error) {
+func (uc *File) FindByFileId(ctx context.Context, fileId uuid.UUID, checkNotFound bool) (*ddownload.File, error) {
 	file, err := uc.fileRep.FindByFileId(ctx, fileId)
 	if err != nil {
 		uc.logger.Error("Error finding record", "error", err)
@@ -15,6 +16,7 @@ func (uc *File) FindFileById(ctx context.Context, fileId uuid.UUID, checkNotFoun
 	}
 
 	if checkNotFound && file == nil {
+		err := errors.New("record not found")
 		uc.logger.Error("Record not found", "fileId", fileId)
 		return nil, err
 	}

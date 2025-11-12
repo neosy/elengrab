@@ -10,6 +10,7 @@ func (m *Mappers) MapFileDomainToEntity(file *ddownload.File) *edownload.File {
 	return &edownload.File{
 		FileId:               file.FileId,
 		Status:               file.Status.String(),
+		YoutubeUrl:           file.YoutubeUrl,
 		YoutubeTitle:         file.YoutubeTitle,
 		FileName:             file.FileName,
 		Ext:                  file.Ext,
@@ -19,15 +20,20 @@ func (m *Mappers) MapFileDomainToEntity(file *ddownload.File) *edownload.File {
 	}
 }
 
-func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.DownloadTask) *ddownload.File {
+func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.DownloadTask) (*ddownload.File, error) {
 	var task *ddownload.DownloadTask
 	if eTask != nil && eTask.TaskId.String != "" {
-		task = m.MapDownloadTaskEntityToDomain(eTask)
+		var err error
+		task, err = m.MapDownloadTaskEntityToDomain(eTask)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &ddownload.File{
 		FileId:               eFile.FileId,
 		Status:               dtypes.FileStatus(eFile.Status),
+		YoutubeUrl:           eFile.YoutubeUrl,
 		YoutubeTitle:         eFile.YoutubeTitle,
 		FileName:             eFile.FileName,
 		Ext:                  eFile.Ext,
@@ -37,5 +43,5 @@ func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.
 		CreatedAt:            eFile.CreatedAt,
 		UpdatedAt:            eFile.UpdatedAt,
 		DownloadTask:         task,
-	}
+	}, nil
 }

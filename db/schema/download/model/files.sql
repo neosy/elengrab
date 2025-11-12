@@ -5,6 +5,9 @@ CREATE TABLE IF NOT EXISTS files (
     -- Status
     file_status TEXT NOT NULL DEFAULT 'new', -- new, pending, working, done, failed
 
+    -- Youtube URL
+    youtube_url TEXT NOT NULL,
+
     -- Title from youtube
     youtube_title TEXT NOT NULL,
     

@@ -1,4 +1,4 @@
-package downloadtask
+package dltask
 
 import (
 	"context"

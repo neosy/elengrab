@@ -8,22 +8,22 @@ import (
 )
 
 // SetStatus checks if the status transition is valid and setting the status.
-func (u *FileStatusSetter) SetStatus(file *ddownload.File, toStatus dtypes.FileStatus) error {
-	if file == nil {
+func (u *DownloadTaskStatusSetter) SetStatus(task *ddownload.DownloadTask, toStatus dtypes.DownloadTaskStatus) error {
+	if task == nil {
 		return errors.New("function parameter is a null pointer")
 	}
 
-	err := u.checkSetStatus(file.Status, toStatus)
+	err := u.checkSetStatus(task.Status, toStatus)
 	if err != nil {
 		return err
 	}
 
 	// Update fields depending on the status being set
 	switch toStatus {
-	case dtypes.FileStatusFailed:
+	case dtypes.DownloadTaskStatusWorking:
 	}
 
-	file.Status = toStatus
+	task.Status = toStatus
 
 	return nil
 }

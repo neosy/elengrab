@@ -36,7 +36,7 @@ func (v DownloadTaskStatus) Exists() bool {
 	return exists
 }
 
-// ParseDownloadTaskStatus converting string to order status
+// ParseDownloadTaskStatus converting string to status
 func ParseDownloadTaskStatus(s string) (DownloadTaskStatus, error) {
 	status := DownloadTaskStatus(strings.ToUpper(s))
 
@@ -47,7 +47,7 @@ func ParseDownloadTaskStatus(s string) (DownloadTaskStatus, error) {
 	return status, nil
 }
 
-// StringToDownloadTaskStatus converting string to order status
+// StringToDownloadTaskStatus converting string to status
 func StringToDownloadTaskStatus(s string) (DownloadTaskStatus, error) {
 	return ParseDownloadTaskStatus(s)
 }

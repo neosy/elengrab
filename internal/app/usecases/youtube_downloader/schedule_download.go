@@ -1,17 +1,18 @@
-package ucdownloader
+package ytdownloader
 
 import (
 	"context"
-	"fmt"
 	"regexp"
 	"strings"
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
-func (uc *YouTubeDownloader) Download(
+func (uc *YouTubeDownloader) ScheduleDownload(
 	ctx context.Context,
 	url string,
 	options *ddownload.DownloadOptions,
@@ -24,40 +25,33 @@ func (uc *YouTubeDownloader) Download(
 	err := uc.file.Create(
 		ctx,
 		&ddownload.File{
-			FileId:   fileId,
-			FileName: filename,
+			FileId:     fileId,
+			FileName:   filename,
+			YoutubeUrl: url,
 		},
+		options,
 	)
 	if err != nil {
 		uc.logger.Error("Insert record failed", "error", err)
+		return nil, err
 	}
 
-	result, err := uc.downloaderSrv.Download(
-		url,
-		options,
-	)
-
+	file, err := uc.file.FindByFileId(ctx, fileId, true)
 	if err != nil {
 		return nil, err
 	}
 
-	safeReadableFullName := fmt.Sprintf("%s.%s", uc.sanitizeFileName(result.YoutubeTitle), result.FileExt)
+	err = uc.fileStatus.Pending(ctx, fileId)
+	if err != nil {
+		uc.fileStatus.Failed(ctx, fileId, uptr.String(err.Error()))
+		return nil, err
+	}
 
-	uc.UpdateFileInfo(
-		ctx,
-		fileId,
-		&dto.FileInfoPatch{
-			YoutubeTitle:         &result.YoutubeTitle,
-			FileName:             &result.Filename,
-			Ext:                  &result.FileExt,
-			FullName:             &result.FileFullName,
-			SafeReadableFullName: &safeReadableFullName,
-		},
-	)
+	uc.enqueueDownloadTask(file.DownloadTask)
 
 	return &dto.DownloadResponse{
-		YoutubeTitle: result.YoutubeTitle,
-		Format:       result.FileExt,
+		YoutubeTitle: "",
+		Format:       "",
 		FileId:       fileId,
 	}, nil
 }
@@ -83,4 +77,8 @@ func (uc *YouTubeDownloader) sanitizeFileName(title string) string {
 	}
 
 	return safe
+}
+
+func (uc *YouTubeDownloader) enqueueDownloadTask(task *ddownload.DownloadTask) {
+	uc.dlDispetcher.AddJob(wjobs.NewDownloadJob(task, uc))
 }
