@@ -2,7 +2,6 @@ package workerpool
 
 import (
 	"context"
-	"sync"
 )
 
 type Job interface {
@@ -15,7 +14,6 @@ type JobDispatcher interface {
 
 type jobQueue struct {
 	items []Job
-	mu    sync.Mutex
 }
 
 func newJobQueue(cap int) *jobQueue {
@@ -29,15 +27,10 @@ func (q *jobQueue) Len() int {
 }
 
 func (q *jobQueue) Push(job Job) {
-	q.mu.Lock()
 	q.items = append(q.items, job)
-	q.mu.Unlock()
 }
 
 func (q *jobQueue) Pop() (Job, bool) {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-
 	if len(q.items) == 0 {
 		return nil, false
 	}

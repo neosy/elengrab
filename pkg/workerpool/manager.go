@@ -6,127 +6,194 @@ import (
 	"log/slog"
 	"sync"
 	"sync/atomic"
-	"time"
 )
 
 const (
-	maxWorkersDefault uint = 3
-	// Interval to wait before retrying when queue is empty or semaphore is full
-	dispatchRetryInterval = 1000 * time.Millisecond
+	workerCountDefault int = 3
 )
 
+// Manager defines the interface for controlling the worker pool lifecycle.
 type Manager interface {
+	// Start begins execution of the worker pool.
+	// ctx: context for cancellation and worker lifecycle.
+	// Returns error if already running.
 	Start(ctx context.Context) error
+
+	// Stop gracefully shuts down the manager and all workers.
+	// Idempotent; safe to call multiple times.
 	Stop()
+
+	// WorkerCount returns the number of worker goroutines in the pool.
+	WorkerCount() int
 }
 
+// ManagerOptions configures the worker pool behavior.
 type ManagerOptions struct {
-	MaxWorkers uint
+	// WorkerCount specifies the number of worker goroutines to run.
+	// If zero or negative, defaults to maxWorkersDefault.
+	WorkerCount int
 }
 
 type manager struct {
-	logger     *slog.Logger
-	workers    []Worker
-	maxWorkers uint
+	logger      *slog.Logger
+	workers     []Worker
+	workerCount int
 
 	quit    chan struct{}
 	wg      sync.WaitGroup
 	mu      sync.Mutex
 	running atomic.Bool
+	cond    *sync.Cond
 
 	semaphore chan struct{}
 	jobStream chan Job
 	jobQueue  jobQueue
 }
 
+// NewManager creates a new worker pool manager.
+// logger: used for logging events and errors.
+// options: optional configuration; nil uses defaults.
+// Returns initialized manager ready for Start().
 func NewManager(logger *slog.Logger, options *ManagerOptions) *manager {
-	var maxWorkers = maxWorkersDefault
-	if options != nil && options.MaxWorkers > 0 {
-		maxWorkers = options.MaxWorkers
+	var workerCount = workerCountDefault
+	if options != nil && options.WorkerCount > 0 {
+		workerCount = options.WorkerCount
 	}
 
-	return &manager{
-		logger:     logger,
-		workers:    make([]Worker, 0),
-		maxWorkers: maxWorkers,
-		quit:       make(chan struct{}),
-		semaphore:  make(chan struct{}, maxWorkers),
-		jobStream:  make(chan Job, 1),
-		jobQueue:   *newJobQueue(100),
+	m := &manager{
+		logger:      logger,
+		workers:     make([]Worker, 0),
+		workerCount: workerCount,
+		quit:        make(chan struct{}),
+		semaphore:   make(chan struct{}, workerCount),
+		jobStream:   make(chan Job, 1),
+		jobQueue:    *newJobQueue(100),
 	}
+
+	m.cond = sync.NewCond(&m.mu)
+
+	return m
 }
 
+// Start initializes workers and begins job dispatching.
+// ctx: passed to each worker for cancellation and timeouts.
+// Returns error if manager is already running.
 func (m *manager) Start(ctx context.Context) error {
 	if !m.running.CompareAndSwap(false, true) {
 		err := errors.New("manager already running")
-		m.logger.Error("Download manager already running")
+		m.logger.Error("Manager already running")
 		return err
 	}
 
-	for range m.maxWorkers {
+	// Create and start all workers
+	for range m.workerCount {
 		m.addWorker(ctx)
 	}
 
-	m.wg.Go(func() {
-		defer m.running.Store(false)
-
-		// Create a timer that fires immediately
-		timer := time.NewTimer(0)
-
-		timerReset := func() {
-			timer.Reset(dispatchRetryInterval)
+	// Bridge ctx cancellation to quit signal and wake dispatcher
+	go func(ctx context.Context) {
+		select {
+		// If manager is already stopping, exit immediately
+		case <-m.quit:
+			return
+		// On context cancellation: signal shutdown and wake dispatcher
+		case <-ctx.Done():
+			m.mu.Lock()
+			select {
+			case <-m.quit:
+			default:
+				close(m.quit)
+			}
+			m.cond.Broadcast() // Wake dispatcher from cond.Wait()
+			m.mu.Unlock()
+			return
 		}
+	}(ctx)
+
+	m.wg.Go(func() {
+		// Ensure running flag is cleared when dispatcher exits
+		defer func() {
+			m.running.Store(false)
+			m.logger.Debug("Worker pool manager stopped")
+		}()
 
 		for {
+			// Fast-path: exit immediately if quit signal received
 			select {
-			// Stop loop if quit signal is received
 			case <-m.quit:
 				return
-			// Handle timer expiration
-			case <-timer.C:
-				func() {
-					m.mu.Lock()
-					defer m.mu.Unlock()
-
-					// If queue is empty, reset timer and return
-					if m.jobQueue.Len() == 0 {
-						timerReset()
-						return
-					}
-
-					// Try to acquire a semaphore slot to dispatch a job
-					select {
-					case m.semaphore <- struct{}{}:
-						// Pop a job from the queue and send it to jobStream
-						job, _ := m.jobQueue.Pop()
-						m.jobStream <- job
-					// If semaphore is full, reset timer to retry later
-					default:
-						timerReset()
-					}
-				}()
+			default:
 			}
+
+			// Acquire lock to safely inspect queue and semaphore
+			m.mu.Lock()
+
+			// Wait until there is at least one job AND a free worker slot
+			for m.jobQueue.Len() == 0 || len(m.semaphore) == cap(m.semaphore) {
+				select {
+				// Stop loop if quit signal is received during wait
+				case <-m.quit:
+					m.mu.Unlock()
+					return
+				default:
+					// Release lock and sleep until notified (job added or slot freed)
+					m.cond.Wait()
+				}
+			}
+
+			// Claim a worker slot (non-blocking due to prior check)
+			m.semaphore <- struct{}{}
+
+			// Extract next job from queue
+			job, _ := m.jobQueue.Pop()
+
+			// Release lock before sending job to worker
+			m.mu.Unlock()
+
+			// Dispatch job to an available worker
+			m.jobStream <- job
 		}
 	})
 
-	m.logger.Debug("Downloader manager running...")
+	m.logger.Debug("Worker pool manager running...")
 
 	return nil
 }
 
+// Stop gracefully shuts down the manager and all workers.
+// Idempotent; safe to call multiple times.
+// Blocks until all goroutines exit.
 func (m *manager) Stop() {
 	if !m.running.CompareAndSwap(true, false) {
 		return
 	}
 
+	// Signal all components to stop
 	close(m.quit)
+
+	// Wake up dispatcher if waiting
+	m.mu.Lock()
+	m.cond.Broadcast()
+	m.mu.Unlock()
+
+	// Wait for dispatcher and workers to finish
 	m.wg.Wait()
 }
 
+// AddJob enqueues a new job for execution.
+// job: the job to be executed by a worker.
+// Thread-safe; can be called from any goroutine.
 func (m *manager) AddJob(job Job) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	m.jobQueue.Push(job)
+	m.cond.Broadcast() // Notify dispatcher of new job
 }
 
+// addWorker creates and starts a new worker.
+// ctx: context passed to worker for lifecycle control.
+// Must be called with m.mu held.
 func (m *manager) addWorker(ctx context.Context) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -144,6 +211,15 @@ func (m *manager) addWorker(ctx context.Context) {
 		m.quit,
 		func() {
 			<-m.semaphore
+
+			m.mu.Lock()
+			m.cond.Broadcast() // Notify dispatcher that a slot is free
+			m.mu.Unlock()
 		},
 	)
+}
+
+// WorkerCount returns the number of worker goroutines in the pool.
+func (m *manager) WorkerCount() int {
+	return m.workerCount
 }
