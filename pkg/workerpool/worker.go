@@ -55,7 +55,7 @@ func (w *worker) Start(ctx context.Context, jobStream chan Job, quit <-chan stru
 		defer func() {
 			w.running.Store(false)
 			w.status.Store(WorkerStatusStopped)
-			w.logger.Debug("Download worker stopped", "workerId", w.workerId)
+			w.logger.Debug("Worker stopped", "workerId", w.workerId)
 		}()
 
 		for {
@@ -76,15 +76,15 @@ func (w *worker) Start(ctx context.Context, jobStream chan Job, quit <-chan stru
 						onJobDone()
 					}()
 
-					w.logger.Debug("Download job running...", "workerId", w.workerId)
+					w.logger.Debug("Worker: running job", "workerId", w.workerId)
 					job.Execute(ctx, w.workerId)
-					w.logger.Debug("Download job done", "workerId", w.workerId)
+					w.logger.Debug("Worker: job done", "workerId", w.workerId)
 				}()
 			}
 		}
 	})
 
-	w.logger.Debug("Download worker started", "workerId", w.workerId)
+	w.logger.Debug("Worker started", "workerId", w.workerId)
 }
 
 func (w *worker) Stop() {
