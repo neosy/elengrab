@@ -145,9 +145,9 @@ body {
     justify-content: center;
 }
 
-/* Wrapper for result item */
-.div-grab-result-items {
+.div-grab-result-info {
     display: flex;
+    flex-direction: column;
     max-width: 100%;
     min-width: 200px;
     align-items: center;
@@ -158,18 +158,78 @@ body {
     font-size: 16px;
 }
 
+.div-grab-result-info-item {
+    display: flex;
+    width: 95%;
+    max-width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #f8f9fb;
+    /* padding: 12px 20px; */
+    margin-top: 20px;
+    /* opacity: 0; */
+    transition: all 0.2s ease;
+}
+
+/* Wrapper for result item */
+.div-grab-result-items {
+    display: flex;
+    flex-direction: column;
+    max-width: 100%;
+    min-width: 200px;
+    align-items: center;
+    justify-content: center;
+    /* gap: 10px; */
+    margin-top: 15px;
+    padding: 10px;
+    background: #f8f9fb;
+    border: 1px solid #dfe3e8;
+    border-radius: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    font-weight: bold;
+    color: #333;
+    font-size: 16px;
+}
+
+.div-grab-result-items:empty {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    min-width: 0;
+    margin-top: 0;
+    padding: 0;
+}
+
 .div-grab-result-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: #f8f9fb;
-  border: 1px solid #dfe3e8;
-  border-radius: 15px;
-  padding: 12px 20px;
-  margin-top: 25px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  transition: all 0.2s ease;
+    display: flex;
+    width: 95%;
+    max-width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #f8f9fb;
+    padding: 12px 20px;
+    margin-top: 0px;
+    /* opacity: 0; */
+    transition: all 0.2s ease;
+}
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: fadeInAnim 0.75s ease forwards;
+}
+
+@keyframes fadeInAnim {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .result-youtube-url {
@@ -195,8 +255,17 @@ body {
   color: #888;
 }
 
+.result-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
 /* Style for format label */
 .result-format {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
     font-size: 0.9rem;
     color: #555;
     font-weight: 500;
@@ -204,6 +273,45 @@ body {
     padding: 2px 6px;
     border-radius: 4px;
     margin: 0 4px;
+}
+
+.div-result-status {
+    display: inline-flex;
+    width: 50px;
+    height: 25px;
+    min-width: 20px;
+    max-width: 50px;
+    min-height: 25px;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.div-result-format {
+    display: inline-flex;
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Spinner circle */
+.item-result-spinner {
+    display: inline-flex;
+    justify-content: center;    /* центрируем спиннер внутри контейнера */
+    align-items: center;
+    width: 15px;                       /* Spinner size */
+    height: 15px;
+    border: 5px solid #d0d0d0;       /* Light ring */
+    border-top: 5px solid #4a90e2;   /* Blue accent for animation */
+    border-radius: 50%;                /* Make it circular */
+    animation: spin 1s linear infinite;/* Continuous rotation */
 }
 
 /* Download link */
@@ -218,7 +326,7 @@ body {
 }
 
 /* Error message */
-.result-error {
+.result-failed {
     color: #ef5350;
     font-weight: 600;
 }
@@ -262,4 +370,32 @@ body {
     color: #4a4a4a;
     letter-spacing: 0.4px;
     user-select: none;                 /* Prevent text selection while loading */
+}
+
+.icon-download {
+    width: 25px;
+    height: 25px;
+}
+
+.icon-download path {
+    fill: #4caf50;
+}
+
+.icon-download-wait {
+    width: 25px;
+    height: 25px;
+}
+
+.icon-download-wait path {
+    fill: #4a4a4a;
+}
+
+.icon-download-failed{
+    width: 25px;
+    height: 25px;
+}
+
+.icon-download-failed path {
+    fill: #ef5350;
+    /* stroke: #ef5350; */
 }

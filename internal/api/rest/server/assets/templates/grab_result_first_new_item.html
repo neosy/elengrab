@@ -1,0 +1,20 @@
+<div class="div-grab-result-items" id="grab-result-items">
+    <div class="div-grab-result-item-replaceme" id="grab-result-item-replaceme" data-only-one="false"></div>
+    <div class="div-grab-result-item fade-in" 
+        hx-get="{{.PathFileRow}}"
+        hx-trigger="every 1000ms"
+        hx-target="this"
+        hx-swap="outerHTML">
+        <span class="result-youtube-url">
+            <a href="{{.YoutubeURL}}" target="_blank">{{.YoutubeTitle}}</a>
+        </span>
+        <div class="result-right">
+            <span class="result-separator">•</span>
+            <div class="div-result-format">
+                <span class="result-format">{{.Format}}</span>
+            </div>
+            <span class="result-separator">•</span>
+            <div class="div-result-status">{{.GrabResultItemStatusHtml}}</div>
+        </div>
+    </div>
+</div>

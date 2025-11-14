@@ -84,6 +84,14 @@ func InitDB(dbPath, migrationsDir string) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to create migrate instance: %w", err)
 	}
 
+	// ******** rollback migration
+	// if err := m.Force(2); err != nil {
+	// 	log.Fatalf("failed to force version: %v", err)
+	// }
+	// if err := m.Steps(-1); err != nil && err != migrate.ErrNoChange {
+	// 	log.Fatalf("failed to rollback migration: %v", err)
+	// }
+
 	// 7. Apply all up migrations
 	err = m.Up()
 	if err != nil {

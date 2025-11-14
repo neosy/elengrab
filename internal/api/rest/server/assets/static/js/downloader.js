@@ -1,64 +1,46 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const button = document.querySelector('.button-grab-get');
-    const input = document.querySelector('#youtubeURL');
+    const formGrab = document.querySelector('#form-grab');
+    const buttonGrab = document.querySelector('.button-grab-get');
+    const inputURL = document.querySelector('#youtubeURL');
     const resultDivInfo = document.querySelector('#grab-result-info');
-    const resultDivItems = document.querySelector('#grab-result-items');
 
     // Listen for Enter key inside input
-    input.addEventListener('keydown', (event) => {
+    inputURL.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
         event.preventDefault();
-        button.click();
+        buttonGrab.click();
         }
     });
 
-    button.addEventListener('htmx:configRequest', (event) => {
-        if (button.disabled) return;
-
+    htmx.on('#form-grab', 'htmx:beforeRequest', () => {
+        if (inputURL) inputURL.value = '';
         if (resultDivInfo) resultDivInfo.innerHTML = '';
-
-        // Disable button and input during loading
-        button.disabled = true;
-        input.disabled = true;
-
-        // Show loading indicator
-        if (resultDivItems) {
-            // Remove old spinners if any (prevent duplicates)
-            const oldSpinner = resultDivItems.querySelector('.result-loading');
-            if (oldSpinner) oldSpinner.remove();
-
-            // Append spinner *inside* existing content
-            resultDivItems.innerHTML = `
-                <div class="result-loading">
-                    <div class="result-spinner"></div>
-                    <span class="result-loading-text">Loading...</span>
-                </div>
-            `;
-        }
     });
 
     document.body.addEventListener('htmx:afterOnLoad', (event) => {
-        button.disabled = false;
-        input.disabled = false;
-
-        if (event.detail.xhr.status === 200) {
-            if (input) input.value = '';
-        } else {
-            if (resultDivItems) {
-                // Remove old spinners if any (prevent duplicates)
-                const oldSpinner = resultDivItems.querySelector('.result-loading');
-                if (oldSpinner) oldSpinner.remove();
+        if (event.detail.elt === formGrab) {
+            if (inputURL) inputURL.value = '';
+            if (event.detail.xhr.status !== 200) {
+                if (resultDivInfo) {
+                    resultDivInfo.innerHTML = `
+                        <div class="div-grab-result-info-item">    
+                            <span class="result-failed">Error: ${event.detail.xhr.responseText}</span>
+                        </div>
+                    `;
+                } 
             }
-            // Show error message
-            if (resultDivInfo) {
-
-                resultDivInfo.innerHTML = `
-                    <div class="div-grab-result-item">    
-                        <span class="result-error">Error: ${event.detail.xhr.responseText}</span>
-                    </div>
-                `;
-            } 
         }
     });
+
+    document.body.addEventListener('htmx:beforeRequest', function(evt) {
+        const div = document.getElementById("grab-result-item-replaceme");
+        if (div) {
+            const onlyOne = div.dataset.onlyOne;
+            const d = new Date();
+            d.setTime(d.getTime() + (7*24*60*60*1000));
+            document.cookie = "resultItemsOnlyOne=" + encodeURIComponent(onlyOne) + ";expires=" + d.toUTCString() + ";path=/";
+        }
+    });
+
 });
 

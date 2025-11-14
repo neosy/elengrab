@@ -16,7 +16,7 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 	ctx context.Context,
 	url string,
 	options *ddownload.DownloadOptions,
-) (*dto.DownloadResponse, error) {
+) (*dto.ScheduleDownloadResponse, error) {
 	fileId := uuid.New()
 	filename := fileId.String()
 
@@ -49,10 +49,11 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 
 	uc.enqueueDownloadTask(file.DownloadTask)
 
-	return &dto.DownloadResponse{
-		YoutubeTitle: "",
-		Format:       "",
-		FileId:       fileId,
+	return &dto.ScheduleDownloadResponse{
+		FileId:       file.FileId,
+		Status:       file.Status,
+		YoutubeTitle: file.YoutubeTitle,
+		Format:       file.Ext,
 	}, nil
 }
 
