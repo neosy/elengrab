@@ -9,7 +9,7 @@ import (
 
 // GetTitle
 func (srv *YtDlpService) GetTitle(url string) (string, error) {
-	cmd := exec.Command(srv.cmdPath, "-e", url)
+	cmd := exec.Command(srv.cmdPath, "--no-playlist", "-e", url)
 
 	// Buffers to capture stdout and stderr
 	var out, stderr bytes.Buffer

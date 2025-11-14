@@ -15,7 +15,7 @@ func (srv *YtDlpService) GetBestFormat(url string) (*dyoutubeinfo.YouTubeInfo, e
 }
 
 func (srv *YtDlpService) getBestFormat(url string, format string) (*dyoutubeinfo.YouTubeInfo, error) {
-	cmd := exec.Command(srv.cmdPath, "-f", format, "--get-format", url)
+	cmd := exec.Command(srv.cmdPath, "--no-playlist", "-f", format, "--get-format", url)
 
 	// Buffers to capture stdout and stderr
 	var out, stderr bytes.Buffer
