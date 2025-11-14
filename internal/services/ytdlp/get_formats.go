@@ -15,7 +15,7 @@ import (
 // GetFormats retrieves and parses video formats for the given URL.
 func (srv *YtDlpService) GetFormats(url string) (*dyoutubeinfo.YouTubeInfo, error) {
 	// Prepare command to fetch video info in JSON
-	cmd := exec.Command(srv.cmdPath, "-J", url)
+	cmd := exec.Command(srv.cmdPath, "--no-playlist", "-J", url)
 
 	// Capture combined stdout and stderr
 	out, err := cmd.CombinedOutput()
