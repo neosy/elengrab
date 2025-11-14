@@ -3,7 +3,7 @@ package usecases
 import (
 	"log/slog"
 
-	ucdownloader "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader"
+	ytdownloader "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/services"
 	"github.com/neosy/elengrab/pkg/workerpool"
@@ -26,12 +26,12 @@ type DepRepositories struct {
 }
 
 type Usecases struct {
-	Downloader *ucdownloader.YouTubeDownloader
+	Downloader *ytdownloader.YouTubeDownloader
 }
 
 func NewUsecases(logger *slog.Logger, deps *Dependencies) *Usecases {
 	return &Usecases{
-		Downloader: ucdownloader.NewYouTubeDownloader(
+		Downloader: ytdownloader.NewYouTubeDownloader(
 			logger,
 
 			// repositories

@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 func (uc *YouTubeDownloader) findByFileId(ctx context.Context, fileId uuid.UUID, checkNotFound bool) (*ddownload.File, error) {
@@ -19,14 +20,27 @@ func (uc *YouTubeDownloader) GetFileInfo(ctx context.Context, fileId uuid.UUID) 
 		return nil, err
 	}
 
+	var youtubeTitle = file.YoutubeTitle
+	if file.YoutubeTitle == "" {
+		youtubeTitle = file.YoutubeUrl
+	}
+
+	var filePath string
+	if file.FullName != "" {
+		filePath = filepath.Join(uc.downloadsDir, file.FullName)
+	}
+
 	return &dto.GetFileInfoResponse{
-		YoutubeTitle:         file.YoutubeTitle,
 		FileId:               file.FileId,
-		Name:                 file.FileName,
-		Ext:                  file.Ext,
-		FullName:             file.FullName,
-		Path:                 filepath.Join(uc.downloadsDir, file.FullName),
+		Status:               file.Status,
+		YoutubeUrl:           file.YoutubeUrl,
+		YoutubeTitle:         youtubeTitle,
+		FileName:             file.FileName,
+		FileExt:              file.Ext,
+		FileFullName:         file.FullName,
+		FilePath:             filePath,
 		SafeReadableFullName: file.SafeReadableFullName,
+		StatusText:           uptr.Deref(file.ErrorMessage),
 	}, nil
 }
 

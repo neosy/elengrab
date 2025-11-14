@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	workerCountDefault int = 3
+	workerCountDefault int = 2
 )
 
 // Manager defines the interface for controlling the worker pool lifecycle.

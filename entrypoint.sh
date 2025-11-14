@@ -7,5 +7,7 @@ chown -R elengrab:elengrab /app_n/sqlite
 # Start cron as root
 crond -f &
 
+# exec sleep infinity
+
 # Switch to non-root user and start main app
 exec su-exec elengrab /app_n/bin/elengrab

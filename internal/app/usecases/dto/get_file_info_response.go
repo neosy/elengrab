@@ -1,13 +1,19 @@
 package dto
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
+)
 
 type GetFileInfoResponse struct {
-	YoutubeTitle         string
 	FileId               uuid.UUID
-	Name                 string
-	Ext                  string
-	FullName             string
-	Path                 string
+	Status               dtypes.FileStatus
+	YoutubeUrl           string
+	YoutubeTitle         string
+	FileName             string
+	FileExt              string
+	FileFullName         string
+	FilePath             string
 	SafeReadableFullName string
+	StatusText           string
 }

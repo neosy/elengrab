@@ -23,7 +23,7 @@ func (h *IndexHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("text/html; charset=utf-8")
 
 	// Execute template with PageTitle
-	if err := tmpl.Execute(ctx, avalues.MergeMaps(avalues.IndexValues, avalues.PathsValues)); err != nil {
+	if err := tmpl.Execute(ctx, avalues.MergeMaps(avalues.IndexValues, avalues.PathValues)); err != nil {
 		nfasthttp.WriteError(ctx, fmt.Errorf("template execution error: %v", err), fasthttp.StatusInternalServerError)
 		return
 	}
