@@ -11,7 +11,9 @@ func (s *httpServer) setupHtmxUIRoutes(r *router.Router, handlers *htmxh.Handler
 	// Static
 	group := r.Group(httppaths.GroupStatic)
 	{
-		group.GET(httppaths.PathFiles, handlers.Static.StaticHandler)
+		group.GET(httppaths.PathCssFiles, handlers.Static.StaticCssHandler)
+		group.GET(httppaths.PathImgFiles, handlers.Static.StaticImgHandler)
+		group.GET(httppaths.PathJsFiles, handlers.Static.StaticJsHandler)
 	}
 
 	// Downloader
@@ -19,5 +21,6 @@ func (s *httpServer) setupHtmxUIRoutes(r *router.Router, handlers *htmxh.Handler
 	{
 		group.POST(httppaths.PathGrab, handlers.Grabber.GrabHandler)
 		group.GET(httppaths.PathDownload, handlers.Grabber.DownloadHandler)
+		group.GET(httppaths.PathFileRow, handlers.Grabber.GetFileRow)
 	}
 }

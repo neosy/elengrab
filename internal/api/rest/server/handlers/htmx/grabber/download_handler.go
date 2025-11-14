@@ -43,7 +43,7 @@ func (h *GrabberHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Check if the file exists
-	if _, err := os.Stat(fileInfo.Path); os.IsNotExist(err) {
+	if _, err := os.Stat(fileInfo.FilePath); os.IsNotExist(err) {
 		nfasthttp.WriteError(ctx, errors.New("file not found"), fasthttp.StatusBadRequest)
 		return
 	}
@@ -51,7 +51,7 @@ func (h *GrabberHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	h.usecases.Downloader.GetDownloadFileName(ctx, fileId)
 
 	// Detect content type by extension
-	contentType := mapContentTypeByExt[fileInfo.Ext]
+	contentType := mapContentTypeByExt[fileInfo.FileExt]
 	if contentType == "" {
 		contentType = "application/octet-stream"
 	}
@@ -62,5 +62,5 @@ func (h *GrabberHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 
 	// Serve the file
 	// fasthttp.ServeFile(ctx, filePath)
-	fasthttp.ServeFileUncompressed(ctx, fileInfo.Path)
+	fasthttp.ServeFileUncompressed(ctx, fileInfo.FilePath)
 }

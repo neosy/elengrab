@@ -18,29 +18,40 @@
         <img class="img-header-logo" src="{{.PathStaticImg}}/logo-512.png">
         <h1 class="header">{{.Header}}</h1>
       </div>
-      <div class="div-grab-area">
-        <input class="input-grab" type="text" id="youtubeURL" name="youtubeURL" placeholder="Enter YouTube URL" maxlength="256" pattern="https?://(www\.)?youtube\.com/watch\?v=[\w-]+">
-        <div class="div-button-get">
-          <button class="button-grab-get" hx-post="{{.PathDownloaderGrab}}" hx-target="#grab-result-items" hx-include="#youtubeURL, [name='formatType']">Get</button>
+      <form id="form-grab"
+            hx-post="{{.PathDownloaderGrab}}"
+            hx-target="#grab-result-item-replaceme"
+            hx-include="#youtubeURL, [name='formatType']"
+            hx-swap="outerHTML">
+        <div class="div-grab-area">
+          <input class="input-grab" type="text" id="youtubeURL" name="youtubeURL" placeholder="Enter YouTube URL" maxlength="255">
+          <div class="div-button-get">
+            <button type="submit" class="button-grab-get">Get</button>
+            <input type="hidden" id="inputGrabF" name="hiddenInput" value="">
+          </div>
         </div>
-      </div>
-      <div class="div-format-options">
-          <label>
-              <input type="radio" name="formatType" value="video_mp4" checked> Video (mp4)
-          </label>
-          <label>
-              <input type="radio" name="formatType" value="audio_mp3"> Audio (mp3)
-          </label>
-          <label>
-              <input type="radio" name="formatType" value="audio_m4a"> Audio (m4a)
-          </label>
-          <label>
-              <input type="radio" name="formatType" value="audio_orig"> Audio (orig)
-          </label>
-      </div>
+        <div class="div-format-options">
+            <label>
+                <input type="radio" name="formatType" value="video_mp4" checked> Video (mp4)
+            </label>
+            <label>
+                <input type="radio" name="formatType" value="audio_mp3"> Audio (mp3)
+            </label>
+            <label>
+                <input type="radio" name="formatType" value="audio_m4a"> Audio (m4a)
+            </label>
+            <label>
+                <input type="radio" name="formatType" value="audio_orig"> Audio (orig)
+            </label>
+        </div>
+      </form>
       <div class="div-grab-result" id="grab-result">
-        <div class="div-grab-result-items" id="grab-result-info"></div>
-        <div class="div-grab-result-items" id="grab-result-items"></div>
+        <div class="div-grab-result-info" id="grab-result-info"></div>
+        <div
+          class="div-grab-result-item-replaceme"
+          id="grab-result-item-replaceme"
+          data-only-one="true">
+        </div>
       </div>
   </div>
 </body>

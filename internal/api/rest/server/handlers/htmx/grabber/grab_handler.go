@@ -6,18 +6,15 @@ import (
 	"path/filepath"
 	"text/template"
 
+	avalues "github.com/neosy/elengrab/internal/api/rest/server/assets/values"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/paths"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/valyala/fasthttp"
 )
 
-const (
-	formFieldYouTubeURL = "youtubeURL"
-	formFieldFormatType = "formatType"
-)
-
-type resultData struct {
+type grabResultData struct {
+	PathFileRow  string
 	YoutubeTitle string
 	YoutubeURL   string
 	Format       string
@@ -44,15 +41,23 @@ var (
 )
 
 func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
-	url := string(ctx.FormValue(formFieldYouTubeURL))
+	itemsOnlyOne := string(ctx.Request.Header.Cookie("resultItemsOnlyOne"))
+
+	url := string(ctx.FormValue(formFieldYouTubeURLKey))
 	if url == "" {
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
 		ctx.SetBodyString("URL is required")
 		return
 	}
 
+	if err := h.validators.Validate.Var(url, "url"); err != nil {
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetBodyString("Invalid URL")
+		return
+	}
+
 	// Read selected format from radio buttons
-	formFormatType := string(ctx.FormValue(formFieldFormatType))
+	formFormatType := string(ctx.FormValue(formFieldFormatTypeKey))
 	formatType := formatTypeMap[formFormatType]
 	if formatType == "" {
 		formatType = dtypes.FormatTypeVideoAudio
@@ -72,7 +77,9 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 
 	var (
 		tmplPath string
-		data     = resultData{YoutubeURL: url}
+		data     = grabResultData{
+			YoutubeURL: url,
+		}
 	)
 
 	resp, err := h.usecases.Downloader.ScheduleDownload(
@@ -86,10 +93,15 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	)
 
 	if err != nil {
-		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_error.html")
+		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_failed.html")
 	} else {
-		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_success.html")
+		if itemsOnlyOne == "true" {
+			tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_first_new_item.html")
+		} else {
+			tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_new_item.html")
+		}
 		data.YoutubeTitle = url
+		data.PathFileRow = httppaths.BuildPathFileRow(resp.FileId)
 		data.Format = "-"
 		// Set URL for download endpoint
 		data.DownloadURL = fmt.Sprintf("%s?file=%s", httppaths.GroupDownloader+httppaths.PathDownload, resp.FileId)
@@ -102,8 +114,19 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	dataMap := avalues.MergeMaps(
+		avalues.PathValues,
+		avalues.IconNames,
+		avalues.StructToMap(data),
+	)
+
+	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
+
+	dataMap[avalues.GrabResultStatusIconNameKey] = avalues.GrabResultStatusIconName(resp.Status)
+	dataMap[avalues.GrabResultItemStatusHtmlKey] = avalues.GrabResultStatusIconSvgRaw(resp.Status, iconsDir)
+
 	var buf bytes.Buffer
-	tpl.Execute(&buf, data)
+	tpl.Execute(&buf, dataMap)
 	ctx.SetBody(buf.Bytes())
 	ctx.SetStatusCode(fasthttp.StatusOK)
 }

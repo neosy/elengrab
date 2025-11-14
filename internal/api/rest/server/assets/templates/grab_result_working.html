@@ -1,4 +1,8 @@
-<div class="div-grab-result-item">
+<div class="div-grab-result-item" 
+    hx-get="{{.PathFileRow}}"
+    hx-trigger="every 1000ms"
+    hx-target="this"
+    hx-swap="outerHTML">
     <span class="result-youtube-url">
         <a href="{{.YoutubeURL}}" target="_blank">{{.YoutubeTitle}}</a>
     </span>
@@ -9,7 +13,7 @@
         </div>
         <span class="result-separator">•</span>
         <div class="div-result-status">
-            <a class="result-download-link" href="{{.DownloadURL}}" hx-get="{{.PathStaticIcons}}/{{.GrabResultStatusIconName}}" hx-trigger="load" hx-target="this" hx-swap="innerHTML"></a>
+            <div class="item-result-spinner"></div>
         </div>
     </div>
 </div>
