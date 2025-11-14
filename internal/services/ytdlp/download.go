@@ -155,6 +155,9 @@ func (srv *YtDlpService) buildDownloadArgs(
 		audioQualityMP3 = audioQualityMP3Default
 	)
 
+	// prevent downloading the entire playlist, only fetch single video
+	args = append(args, "--no-playlist")
+
 	switch formatType {
 	// Video + Audio or Video only
 	case dtypes.FormatTypeVideoAudio, dtypes.FormatTypeVideoOnly:
