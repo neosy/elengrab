@@ -48,10 +48,12 @@ type RedisConfig struct {
 
 // Создание объекта Config
 func New() *Config {
-	c := &Config{}
+	parseFlag()
 
+	c := &Config{}
 	c.load()
 
+	c.AppName = iconstants.AppName
 	c.AppConfig.Version = iconstants.AppVersion
 
 	return c
