@@ -15,6 +15,7 @@ func (m *Mappers) MapFileDomainToEntity(file *ddownload.File) *edownload.File {
 		FileName:             file.FileName,
 		Ext:                  file.Ext,
 		FullName:             file.FullName,
+		FileSize:             file.FileSize,
 		SafeReadableFullName: file.SafeReadableFullName,
 		ErrorMessage:         file.ErrorMessage,
 	}
@@ -38,6 +39,7 @@ func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.
 		FileName:             eFile.FileName,
 		Ext:                  eFile.Ext,
 		FullName:             eFile.FullName,
+		FileSize:             eFile.FileSize,
 		SafeReadableFullName: eFile.SafeReadableFullName,
 		ErrorMessage:         eFile.ErrorMessage,
 		CreatedAt:            eFile.CreatedAt,

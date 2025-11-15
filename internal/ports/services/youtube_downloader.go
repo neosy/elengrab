@@ -9,5 +9,5 @@ type YouTubeDownloader interface {
 	GetTitle(url string) (string, error)
 	GetFormats(url string) (*dyoutubeinfo.YouTubeInfo, error)
 	GetBestFormat(url string) (*dyoutubeinfo.YouTubeInfo, error)
-	Download(url string, options *ddownload.DownloadOptions) (*ddownload.DownloadResult, error)
+	Download(url string, options *ddownload.DownloadOptions) (<-chan *ddownload.DownloadResult, error)
 }

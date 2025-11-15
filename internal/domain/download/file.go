@@ -29,6 +29,9 @@ type File struct {
 	// Full file name including extension
 	FullName string
 
+	// File size (byte)
+	FileSize *int
+
 	// Human-readable safe full name
 	SafeReadableFullName string
 

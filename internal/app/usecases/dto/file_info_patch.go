@@ -7,6 +7,7 @@ type FileInfoPatch struct {
 	FileName             *string
 	Ext                  *string
 	FullName             *string
+	FileSize             **int
 	SafeReadableFullName *string
 }
 
@@ -25,6 +26,10 @@ func PatchToFileDomain(patch *FileInfoPatch, file *ddownload.File) {
 
 	if patch.FullName != nil {
 		file.FullName = *patch.FullName
+	}
+
+	if patch.FileSize != nil {
+		file.FileSize = *patch.FileSize
 	}
 
 	if patch.SafeReadableFullName != nil {

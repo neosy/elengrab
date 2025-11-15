@@ -19,6 +19,9 @@ CREATE TABLE IF NOT EXISTS files (
     
     -- Full file name (file_name + ext)
     full_name TEXT NOT NULL,
+
+    -- File size (byte)
+    file_size INTEGER NULL,
     
     -- Human-readable safe full name
     safe_readable_full_name TEXT NOT NULL,

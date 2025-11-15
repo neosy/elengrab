@@ -14,6 +14,7 @@ type GetFileInfoResponse struct {
 	FileExt              string
 	FileFullName         string
 	FilePath             string
+	FileSize             *int
 	SafeReadableFullName string
 	StatusText           string
 }

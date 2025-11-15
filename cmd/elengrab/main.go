@@ -16,6 +16,7 @@ import (
 	iconfig "github.com/neosy/elengrab/infrastructure/config"
 	httpsrv "github.com/neosy/elengrab/internal/api/rest/server"
 	"github.com/neosy/elengrab/internal/app/usecases"
+	inmemoryrep "github.com/neosy/elengrab/internal/repository/in_memory"
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
 	"github.com/neosy/elengrab/internal/services"
 	"github.com/neosy/elengrab/pkg/nlogger"
@@ -55,6 +56,9 @@ func main() {
 	// Create SQLite repositories
 	slRepositories := sqliterep.New(sqliteDB)
 
+	// Create SQLite repositories
+	inMemoryRepositories := inmemoryrep.New()
+
 	// Capture termination signals (Ctrl+C, SIGTERM)
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
@@ -82,8 +86,9 @@ func main() {
 	// Initialize usecases
 	ucDeps := &usecases.Dependencies{
 		Repositories: usecases.DepRepositories{
-			File:         slRepositories.File,
-			DownloadTask: slRepositories.DownloadTask,
+			File:          slRepositories.File,
+			DownloadTask:  slRepositories.DownloadTask,
+			DownloadState: inMemoryRepositories.DownloadState,
 		},
 		DownloadDispetcher: dlManager,
 		Services:           services,

@@ -21,8 +21,9 @@ type Dependencies struct {
 }
 
 type DepRepositories struct {
-	File         persistence.FileRepository
-	DownloadTask persistence.DownloadTaskRepository
+	File          persistence.FileRepository
+	DownloadTask  persistence.DownloadTaskRepository
+	DownloadState persistence.DownloadStateRepository
 }
 
 type Usecases struct {
@@ -37,6 +38,7 @@ func NewUsecases(logger *slog.Logger, deps *Dependencies) *Usecases {
 			// repositories
 			deps.Repositories.File,
 			deps.Repositories.DownloadTask,
+			deps.Repositories.DownloadState,
 
 			// dispetchers
 			deps.DownloadDispetcher,
