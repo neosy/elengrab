@@ -17,6 +17,7 @@ type grabResultData struct {
 	PathFileRow  string
 	YoutubeTitle string
 	YoutubeURL   string
+	FileSize     string
 	Format       string
 	DownloadURL  string
 }
@@ -102,6 +103,7 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		}
 		data.YoutubeTitle = url
 		data.PathFileRow = httppaths.BuildPathFileRow(resp.FileId)
+		data.FileSize = "-"
 		data.Format = "-"
 		// Set URL for download endpoint
 		data.DownloadURL = fmt.Sprintf("%s?file=%s", httppaths.GroupDownloader+httppaths.PathDownload, resp.FileId)

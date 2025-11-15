@@ -1,7 +1,10 @@
 package ddownload
 
 type DownloadResult struct {
+	Error error
+
 	YoutubeTitle string
+
 	// full path to the downloaded file
 	FilePath string
 	// file name
@@ -10,4 +13,7 @@ type DownloadResult struct {
 	FileExt string
 	// file name
 	FileFullName string
+
+	// file size (byte)
+	Filesize *int
 }
