@@ -15,10 +15,18 @@ func (uc *YouTubeDownloader) findByFileId(ctx context.Context, fileId uuid.UUID,
 }
 
 func (uc *YouTubeDownloader) GetFileInfo(ctx context.Context, fileId uuid.UUID) (*dto.GetFileInfoResponse, error) {
-	file, err := uc.findByFileId(ctx, fileId, true)
-	if err != nil {
-		return nil, err
+	state, _ := uc.dlState.FindByFileId(ctx, fileId)
+
+	if state == nil || state.File == nil {
+		file, err := uc.findByFileId(ctx, fileId, true)
+		if err != nil {
+			return nil, err
+		}
+		state := &ddownload.DownloadState{}
+		state.InitFromFile(file)
 	}
+
+	file := state.File
 
 	var youtubeTitle = file.YoutubeTitle
 	if file.YoutubeTitle == "" {
@@ -39,6 +47,7 @@ func (uc *YouTubeDownloader) GetFileInfo(ctx context.Context, fileId uuid.UUID) 
 		FileExt:              file.Ext,
 		FileFullName:         file.FullName,
 		FilePath:             filePath,
+		FileSize:             file.FileSize,
 		SafeReadableFullName: file.SafeReadableFullName,
 		StatusText:           uptr.Deref(file.ErrorMessage),
 	}, nil

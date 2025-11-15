@@ -275,6 +275,17 @@ body {
     margin: 0 4px;
 }
 
+.result-size {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin: 0 4px;
+}
+
 .div-result-status {
     display: inline-flex;
     width: 50px;
@@ -294,6 +305,18 @@ body {
     width: 50px;
     min-width: 50px;
     max-width: 50px;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.div-result-size {
+    display: inline-flex;
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
     justify-content: center;
     align-items: center;
     overflow: hidden;

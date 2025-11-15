@@ -12,8 +12,9 @@
 # godotenv file
 .env
 
-# .md file
+# ignore files
 .md
+branch-current-changes.txt
 
 # go.work
 go.work

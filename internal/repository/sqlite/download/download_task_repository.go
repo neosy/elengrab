@@ -16,15 +16,15 @@ import (
 )
 
 type DownloadTaskRepository struct {
-	db      *sql.DB
 	mappers *mappers.Mappers
+	db      *sql.DB
 }
 
 // NewTaskRepository returns a new object for the repository
 func NewDownloadTaskRepository(db *sql.DB) *DownloadTaskRepository {
 	return &DownloadTaskRepository{
-		db:      db,
 		mappers: mappers.NewMappers(),
+		db:      db,
 	}
 }
 

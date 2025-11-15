@@ -2,12 +2,15 @@ package ytdlpsrv
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"path"
 
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	dyoutubeinfo "github.com/neosy/elengrab/internal/domain/youtube_info"
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 const (
@@ -18,78 +21,115 @@ const (
 	audioQualityM4ADefault = "0"
 )
 
-func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions) (*ddownload.DownloadResult, error) {
-	// Prepare download options with defaults and user overrides
-	formatType, videoFormat, audioFormat, downloadDir, fileName := srv.prepareDownloadOptions(options)
+func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions) (<-chan *ddownload.DownloadResult, error) {
+	resultCh := make(chan *ddownload.DownloadResult)
 
-	var (
-		cmd *exec.Cmd
-	)
-
-	// Ensure download directory exists
-	if err := checkDir(downloadDir); err != nil {
-		srv.logger.Error(err.Error())
-		return nil, err
+	sendResultError := func(err error) {
+		resultCh <- &ddownload.DownloadResult{Error: err}
 	}
 
-	// Build yt-dlp arguments and get file extension and title
-	args, fileExt, title, err := srv.buildDownloadArgs(url, formatType, videoFormat, audioFormat)
-	if err != nil {
-		srv.logger.Error(err.Error())
-		return nil, err
-	}
+	go func() {
+		defer close(resultCh)
 
-	// If title is empty, fetch it manually
-	if title == "" {
-		var err error
-		title, err = srv.GetTitle(url)
+		// Prepare download options with defaults and user overrides
+		formatType, videoFormat, audioFormat, downloadDir, fileName := srv.prepareDownloadOptions(options)
+
+		var (
+			cmd *exec.Cmd
+		)
+
+		// Ensure download directory exists
+		if err := checkDir(downloadDir); err != nil {
+			srv.logger.Error(err.Error())
+			sendResultError(err)
+			return
+		}
+
+		// Build yt-dlp arguments and get file extension and title
+		args, fileExt, info, err := srv.buildDownloadArgs(url, formatType, videoFormat, audioFormat)
 		if err != nil {
 			srv.logger.Error(err.Error())
-			return nil, err
+			sendResultError(err)
+			return
 		}
-	}
 
-	// Generate a unique filename if none provided
-	if fileName == "" {
-		fileName = uuid.New().String()
-	}
+		// If title is empty, fetch it manually
+		title := info.Title
+		if title == "" {
+			var err error
+			title, err = srv.GetTitle(url)
+			if err != nil {
+				srv.logger.Error(err.Error())
+				sendResultError(err)
+				return
+			}
+		}
 
-	FileFullName := fmt.Sprintf("%s.%s", fileName, fileExt)
-	filePath := path.Join(downloadDir, FileFullName)
+		// Generate a unique filename if none provided
+		if fileName == "" {
+			fileName = uuid.New().String()
+		}
 
-	// Add output file path to yt-dlp arguments
-	args = append(args, "-o", filePath)
+		FileFullName := fmt.Sprintf("%s.%s", fileName, fileExt)
+		filePath := path.Join(downloadDir, FileFullName)
 
-	// Add the video URL to arguments
-	args = append(args, url)
+		var fileSize *int
+		if len(info.Formats) == 1 {
+			fileSize = info.Formats[0].Filesize
+		}
 
-	// Execute yt-dlp command
-	cmd = exec.Command(srv.cmdPath, args...)
-	outByte, err := cmd.CombinedOutput()
-	if err != nil {
-		// Log full stdout + stderr if yt-dlp fails
-		output := string(outByte)
-		srv.logger.Error("yt-dlp failed", "error", err, "output", output)
+		resultCh <- &ddownload.DownloadResult{
+			YoutubeTitle: title,
+			FilePath:     filePath,
+			Filename:     fileName,
+			FileExt:      fileExt,
+			FileFullName: FileFullName,
+			Filesize:     fileSize,
+		}
 
-		return nil, fmt.Errorf("%s error: %v, output: %s", ytDlpName, err, output)
-	}
+		// Add output file path to yt-dlp arguments
+		args = append(args, "-o", filePath)
 
-	// Debug log command output
-	srv.logger.Debug(string(outByte))
+		// Add the video URL to arguments
+		args = append(args, url)
 
-	// Build response struct
-	resp := &ddownload.DownloadResult{
-		YoutubeTitle: title,
-		FilePath:     filePath,
-		Filename:     fileName,
-		FileExt:      fileExt,
-		FileFullName: FileFullName,
-	}
+		// Execute yt-dlp command
+		cmd = exec.Command(srv.cmdPath, args...)
+		outByte, err := cmd.CombinedOutput()
+		if err != nil {
+			// Log full stdout + stderr if yt-dlp fails
+			output := string(outByte)
+			srv.logger.Error("yt-dlp failed", "error", err, "output", output)
+			sendResultError(fmt.Errorf("%s error: %v, output: %s", ytDlpName, err, output))
+			return
+		}
 
-	// Log successful download
-	srv.logger.Info("Download successful", "info", resp)
+		// Debug log command output
+		srv.logger.Debug(string(outByte))
 
-	return resp, nil
+		// Get the actual file size
+		fileInfo, err := os.Stat(filePath)
+		if err == nil {
+			fileSize = uptr.Int(int(fileInfo.Size()))
+		}
+
+		// Build response struct
+		result := &ddownload.DownloadResult{
+			YoutubeTitle: title,
+			FilePath:     filePath,
+			Filename:     fileName,
+			FileExt:      fileExt,
+			FileFullName: FileFullName,
+			Filesize:     fileSize,
+		}
+
+		resultCh <- result
+
+		// Log successful download
+		srv.logger.Info("Download successful", "info", result)
+	}()
+
+	return resultCh, nil
 }
 
 // prepareDownloadOptions prepare download options with defaults and user overrides
@@ -147,7 +187,7 @@ func (srv *YtDlpService) buildDownloadArgs(
 	formatType dtypes.FormatType,
 	videoFormat dtypes.VideoFormat,
 	audioFormat dtypes.AudioFormat,
-) (args []string, fileExt, title string, err error) {
+) (args []string, fileExt string, info *dyoutubeinfo.YouTubeInfo, err error) {
 
 	// Default audio quality (used when extracting audio)
 	var (
@@ -172,9 +212,10 @@ func (srv *YtDlpService) buildDownloadArgs(
 		}
 
 		// Get information about the best format from yt-dlp
-		info, err := srv.getBestFormat(url, format)
+		var err error
+		info, err = srv.getBestFormat(url, format)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", nil, err
 		}
 
 		// Add format option to yt-dlp arguments
@@ -191,9 +232,6 @@ func (srv *YtDlpService) buildDownloadArgs(
 			fileExt = "mp4"
 		}
 
-		// Save video title
-		title = info.Title
-
 	// Audio only
 	case dtypes.FormatTypeAudioOnly:
 		var format string
@@ -207,9 +245,10 @@ func (srv *YtDlpService) buildDownloadArgs(
 		}
 
 		// Get information about the best audio format
-		info, err := srv.getBestFormat(url, format)
+		var err error
+		info, err = srv.getBestFormat(url, format)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", nil, err
 		}
 
 		args = append(args, "-f", format)
@@ -225,10 +264,7 @@ func (srv *YtDlpService) buildDownloadArgs(
 			args = append(args, "--extract-audio", "--audio-format", "mp3", "--audio-quality", audioQualityMP3)
 			fileExt = "mp3"
 		}
-
-		// Save audio title
-		title = info.Title
 	}
 
-	return args, fileExt, title, nil
+	return args, fileExt, info, nil
 }

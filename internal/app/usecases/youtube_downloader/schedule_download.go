@@ -41,11 +41,21 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 		return nil, err
 	}
 
+	uc.saveStateByFile(ctx, file)
+
 	err = uc.fileStatus.Pending(ctx, fileId)
 	if err != nil {
 		uc.fileStatus.Failed(ctx, fileId, uptr.String(err.Error()))
+		uc.saveStateByFileId(ctx, fileId)
 		return nil, err
 	}
+
+	file, err = uc.file.FindByFileId(ctx, fileId, true)
+	if err != nil {
+		return nil, err
+	}
+
+	uc.saveStateByFileId(ctx, fileId)
 
 	uc.enqueueDownloadTask(file.DownloadTask)
 

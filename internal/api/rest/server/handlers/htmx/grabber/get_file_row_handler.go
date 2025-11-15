@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	avalues "github.com/neosy/elengrab/internal/api/rest/server/assets/values"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/paths"
+	"github.com/neosy/elengrab/pkg/utils"
 	"github.com/valyala/fasthttp"
 )
 
@@ -15,6 +16,7 @@ type fileRowInfoData struct {
 	PathFileRow  string
 	YoutubeTitle string
 	YoutubeURL   string
+	FileSize     string
 	Format       string
 	DownloadURL  string
 }
@@ -50,9 +52,15 @@ func (h *GrabberHandlers) GetFileRow(ctx *fasthttp.RequestCtx) {
 		data.YoutubeURL = resp.YoutubeUrl
 		data.YoutubeTitle = resp.YoutubeTitle
 		data.PathFileRow = httppaths.BuildPathFileRow(resp.FileId)
-		data.Format = resp.FileExt
-		if data.Format == "" {
-			data.Format = "-"
+
+		data.FileSize = "-"
+		if resp.FileSize != nil && *resp.FileSize > 0 {
+			data.FileSize = utils.BytesToHuman(*resp.FileSize)
+		}
+
+		data.Format = "-"
+		if resp.FileExt != "" {
+			data.Format = resp.FileExt
 		}
 		// Set URL for download endpoint
 		data.DownloadURL = httppaths.BuildPathFileDownload(resp.FileId)

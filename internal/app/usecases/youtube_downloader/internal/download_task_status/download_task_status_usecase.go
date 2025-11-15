@@ -29,7 +29,9 @@ func NewDownloadTaskStatus(
 	downloadTask *downloadtask.DownloadTask,
 ) *DownloadTaskStatus {
 	return &DownloadTaskStatus{
-		logger:  logger,
+		logger: logger,
+
+		// repositories
 		taskRep: taskRep,
 
 		// internal

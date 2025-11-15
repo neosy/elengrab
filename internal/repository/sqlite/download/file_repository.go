@@ -16,15 +16,15 @@ import (
 )
 
 type FileRepository struct {
-	db      *sql.DB
 	mappers *mappers.Mappers
+	db      *sql.DB
 }
 
 // NewFileRepository returns a new object for the repository
 func NewFileRepository(db *sql.DB) *FileRepository {
 	return &FileRepository{
-		db:      db,
 		mappers: mappers.NewMappers(),
+		db:      db,
 	}
 }
 

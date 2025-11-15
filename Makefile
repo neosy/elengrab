@@ -10,7 +10,7 @@ VERSION_FILE := "VERSION"
 VERSION_START := "0.1.0"
 
 VERSION := $(shell cat $(VERSION_FILE))
-VERSION_NEW := $(shell echo $(VERSION) | awk -F. '{print $$1"."$$2"."$$3+1}')
+# VERSION_NEW := $(shell echo $(VERSION) | awk -F. '{print $$1"."$$2"."$$3+1}')
 
 .DEFAULT_GOAL := help
 
@@ -31,13 +31,13 @@ server-run: ## Запуск fastHTTP сервера
 	. ./cmd/${APP_NAME}/.env; \
 	go run ./cmd/${APP_NAME}/main.go
 
-build: ## Билд исполняемого файла
+build: update-app-version ## Билд исполняемого файла
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o $(APP_NAME) ./cmd/$(APP_NAME)/main.go
 
-img-build: ## Генерация образа docker контейнера
+img-build: update-app-version ## Генерация образа docker контейнера
 	docker build -t $(APP_IMG_NAME) .
 
-img-rebuild: ## Удаление и генерация образа docker контейнера
+img-rebuild: update-app-version ## Удаление и генерация образа docker контейнера
 	docker rmi -f $(APP_IMG_NAME)
 	docker build -t $(APP_IMG_NAME) .
 
@@ -46,16 +46,16 @@ img-rebuild-push: img-rebuild img-push ## Сборка images, обновлен�
 img-rm: ## Удаление image с тегом latest
 	-docker rmi -f $(APP_IMG_NAME)
 	
-img-push: ## Отправка images в локальный репозитарий с тегом latest
+img-push: ## Отправка images в репозитарий с тегом latest
 	docker tag $(APP_IMG_NAME) $(APP_IMG_LATEST)
 	docker push $(APP_IMG_LATEST)
 	
-img-push-version: ## Отправка images в локальный репозитарий с тегом актуальной версии
+img-push-version: ## Отправка images в репозитарий с тегом актуальной версии
 	docker tag $(APP_IMG_NAME) $(APP_IMG):$(VERSION)
 	docker push $(APP_IMG):$(VERSION)
 	docker rmi $(APP_IMG):$(VERSION)
 
-img-pull: ## Загрузка images из локального репозитария
+img-pull: ## Загрузка images из репозитария
 	@docker pull $(APP_IMG_LATEST)
 
 docker-run: ## Запуск докера
@@ -74,11 +74,16 @@ git-push-update-tag-version: ## Обновление тега в git для ак
 	git tag -f v$(VERSION)
 	git push origin -f v$(VERSION)
 
+update-app-version: ## Update AppVersion in Go
+	@sed -i "s|AppVersion = \".*\"|AppVersion = \"${VERSION}\"|" ./infrastructure/constants/app_version.go
+
 version-create: ## Создание файла с номер версии программы
 	echo -n $(VERSION_START) > $(VERSION_FILE)
 	
 version-inc: ## Увеличение номера версии программы и сохранение в файл
-	echo -n $(VERSION_NEW) > $(VERSION_FILE)
+	@VERSION_NEW=$$(echo $(VERSION) | awk -F. '{print $$1"."$$2"."$$3+1}'); \
+	echo -n $$VERSION_NEW > $(VERSION_FILE)
+	@$(MAKE) --no-print-directory update-app-version
 
 version-img-list: ## Список версий images
 	curl -s $(DOCKER_HTTP_ADRR_TAG_LIST) | jq .
