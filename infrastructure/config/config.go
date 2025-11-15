@@ -35,8 +35,7 @@ type ElengrabConfig struct {
 }
 
 type SQLiteConfig struct {
-	DataDir       string `env:"DATA_DIR" envDefault:"/app_n/sqlite/data"`
-	MigrationsDir string `env:"MIGRATIONS_DIR" envDefault:"/app_n/migrations"`
+	DataDir string `env:"DATA_DIR" envDefault:"/app_n/sqlite/data"`
 }
 
 type RedisConfig struct {

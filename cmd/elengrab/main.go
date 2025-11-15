@@ -13,6 +13,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "modernc.org/sqlite"
 
+	database "github.com/neosy/elengrab/db"
 	iconfig "github.com/neosy/elengrab/infrastructure/config"
 	httpsrv "github.com/neosy/elengrab/internal/api/rest/server"
 	"github.com/neosy/elengrab/internal/app/usecases"
@@ -42,16 +43,20 @@ func main() {
 	log.Printf("Logging level set to '%s'.\n", cfg.AppConfig.LogLevel)
 
 	// Initialize SQLite database with migrations
-	sqliteDB, err := sqliterep.InitDB(
-		filepath.Join(cfg.SQLite.DataDir, "elengrab.db"),
-		cfg.SQLite.MigrationsDir,
-	)
+	sqliteDB, err := sqliterep.InitDB(filepath.Join(cfg.SQLite.DataDir, "elengrab.db"))
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to initialize SQLite database: %v", err))
 		return
 	}
 	// Close the database on exit
 	defer sqliteDB.Close()
+
+	// Apply all up migrations
+	migrations := database.NewMigrations(sqliteDB, nil)
+	if err := migrations.ApplyMigrations(); err != nil {
+		logger.Error(fmt.Sprintf("Failed to initialize SQLite database: %v", err))
+		return
+	}
 
 	// Create SQLite repositories
 	slRepositories := sqliterep.New(sqliteDB)
