@@ -30,6 +30,8 @@ func main() {
 	// Load application configuration
 	cfg := iconfig.New()
 
+	fmt.Printf("%s v%s\n", cfg.AppName, cfg.AppConfig.Version)
+
 	// Create a cancellable context
 	ctx, cancel := context.WithCancel(context.Background())
 
