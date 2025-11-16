@@ -1,7 +1,9 @@
 body {
     display: flex;
     justify-content: center;
-    font-family: Arial, sans-serif;
+    font-family: "Inter", sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.5px;
     background-color: #f0f0f0;
 }
 
@@ -27,7 +29,7 @@ body {
 
 .div-main-area {
     width: 80%;
-    max-width: 1000px;
+    max-width: 1200px;
     min-width: 400px;
     padding: 30px 50px;
 
@@ -36,7 +38,7 @@ body {
     text-align: center;
     background: white;
     border-radius: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 .div-grab-area {
@@ -121,7 +123,6 @@ body {
 .div-format-options label {
     font-size: 16px;
     color: #333;
-    font-weight: 500;
     cursor: pointer;
 }
 
@@ -187,7 +188,6 @@ body {
     border: 1px solid #dfe3e8;
     border-radius: 15px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    font-weight: bold;
     color: #333;
     font-size: 16px;
 }
@@ -215,11 +215,12 @@ body {
     transition: all 0.2s ease;
 }
 
-.fade-in {
+.div-grab-result-item.fade-in {
     opacity: 0;
     transform: translateY(-20px);
     animation: fadeInAnim 0.75s ease forwards;
 }
+
 
 @keyframes fadeInAnim {
     from {
@@ -240,7 +241,8 @@ body {
 .result-youtube-url a {
   color: #000;
   justify-content: left;
-  font-weight: 600;           /* Slightly bold for emphasis */
+  font-family: "Inter", sans-serif;
+  font-weight: 500;           /* Slightly bold for emphasis */
   text-decoration: none;      /* Clean look, no underline */
   transition: opacity 0.2s ease;
 }
@@ -261,38 +263,21 @@ body {
     gap: 6px;
 }
 
-/* Style for format label */
-.result-format {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 0.9rem;
-    color: #555;
-    font-weight: 500;
-    background-color: #f0f0f0;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin: 0 4px;
-}
-
 .result-size {
     display: inline-flex;
     justify-content: center;
     align-items: center;
     font-size: 0.9rem;
-    font-weight: 500;
     padding: 2px 6px;
     border-radius: 4px;
     margin: 0 4px;
 }
 
-.div-result-status {
+.div-result-size {
     display: inline-flex;
-    width: 50px;
-    height: 25px;
-    min-width: 20px;
-    max-width: 50px;
-    min-height: 25px;
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
     justify-content: center;
     align-items: center;
     overflow: hidden;
@@ -312,16 +297,55 @@ body {
     white-space: nowrap;
 }
 
-.div-result-size {
+/* Style for format label */
+.result-format {
     display: inline-flex;
-    width: 70px;
-    min-width: 70px;
-    max-width: 70px;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 500;
+    background-color: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin: 0 4px;
+}
+
+.div-result-status {
+    display: inline-flex;
+    width: 50px;
+    height: 25px;
+    min-width: 20px;
+    max-width: 50px;
+    min-height: 25px;
     justify-content: center;
     align-items: center;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.fade-text {
+    opacity: 0;
+    filter: blur(1px) brightness(1.1);
+    animation: pureFadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation-delay: 0.1s;
+    will-change: opacity, filter;
+}
+
+@keyframes pureFadeIn {
+    0% {
+        opacity: 0;
+        filter: blur(1px) brightness(1.1);
+    }
+    60% {
+        opacity: 1;
+        filter: blur(0) brightness(1.05);
+    }
+    100% {
+        opacity: 1;
+        filter: blur(0) brightness(1);
+    }
 }
 
 /* Spinner circle */
@@ -344,8 +368,21 @@ body {
   text-decoration: none;
 }
 
-.result-download-link:hover {
-  text-decoration: underline;
+.result-download-link .icon-download {
+    transition: transform .25s ease;
+}
+
+.result-download-link:hover .icon-download {
+    transform: scale(1.2);
+}
+
+.icon-download {
+    width: 25px;
+    height: 25px;
+}
+
+.icon-download path {
+    fill: #4caf50;
 }
 
 /* Error message */
@@ -393,15 +430,6 @@ body {
     color: #4a4a4a;
     letter-spacing: 0.4px;
     user-select: none;                 /* Prevent text selection while loading */
-}
-
-.icon-download {
-    width: 25px;
-    height: 25px;
-}
-
-.icon-download path {
-    fill: #4caf50;
 }
 
 .icon-download-wait {
