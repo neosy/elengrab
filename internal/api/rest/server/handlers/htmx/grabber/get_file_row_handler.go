@@ -33,14 +33,14 @@ type cacheRowEntry struct {
 }
 
 type cache[T any] struct {
-	data map[string]T
+	data map[uuid.UUID]T
 	mu   sync.RWMutex
 	ttl  time.Duration
 }
 
 var (
 	cacheRow = cache[cacheRowEntry]{
-		data: make(map[string]cacheRowEntry),
+		data: make(map[uuid.UUID]cacheRowEntry),
 		ttl:  time.Minute,
 	}
 )
@@ -86,10 +86,8 @@ func (h *GrabberHandlers) GetFileRow(ctx *fasthttp.RequestCtx) {
 
 	// Checking the cache
 	{
-		path := string(ctx.Path())
-
 		cacheRow.mu.RLock()
-		cached, exists := cacheRow.data[path]
+		cached, exists := cacheRow.data[resp.FileId]
 		cacheRow.mu.RUnlock()
 
 		if exists {
@@ -116,7 +114,7 @@ func (h *GrabberHandlers) GetFileRow(ctx *fasthttp.RequestCtx) {
 			fileSize = *resp.FileSize
 		}
 		cacheRow.mu.Lock()
-		cacheRow.data[path] = cacheRowEntry{
+		cacheRow.data[resp.FileId] = cacheRowEntry{
 			youtubeTitle: resp.YoutubeTitle,
 			FileSize:     fileSize,
 			Format:       resp.FileExt,
