@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"text/template"
+	"time"
 
 	avalues "github.com/neosy/elengrab/internal/api/rest/server/assets/values"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/paths"
@@ -92,22 +93,40 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 			AudioFormat: audioFormat,
 		},
 	)
-
 	if err != nil {
-		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_failed.html")
-	} else {
-		if itemsOnlyOne == "true" {
-			tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_first_new_item.html")
-		} else {
-			tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_new_item.html")
-		}
-		data.YoutubeTitle = url
-		data.PathFileRow = httppaths.BuildPathFileRow(resp.FileId)
-		data.FileSize = "-"
-		data.Format = "-"
-		// Set URL for download endpoint
-		data.DownloadURL = fmt.Sprintf("%s?file=%s", httppaths.GroupDownloader+httppaths.PathDownload, resp.FileId)
+		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+		ctx.SetBodyString(fmt.Sprintf("Internal error: %v", err))
+		return
 	}
+
+	if resp == nil {
+		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+		ctx.SetBodyString("the request returned an empty")
+		return
+	}
+
+	// Updating the cache
+	{
+		cacheRow.mu.Lock()
+		cacheRow.data[resp.FileId] = cacheRowEntry{
+			youtubeTitle: resp.YoutubeTitle,
+			Format:       resp.Format,
+			Updated:      time.Now(),
+		}
+		cacheRow.mu.Unlock()
+	}
+
+	if itemsOnlyOne == "true" {
+		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_first_new_item.html")
+	} else {
+		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_new_item.html")
+	}
+	data.YoutubeTitle = url
+	data.PathFileRow = httppaths.BuildPathFileRow(resp.FileId)
+	data.FileSize = "-"
+	data.Format = "-"
+	// Set URL for download endpoint
+	data.DownloadURL = fmt.Sprintf("%s?file=%s", httppaths.GroupDownloader+httppaths.PathDownload, resp.FileId)
 
 	tpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
