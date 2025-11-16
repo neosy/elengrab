@@ -22,7 +22,7 @@ func (uc *YouTubeDownloader) GetFileInfo(ctx context.Context, fileId uuid.UUID) 
 		if err != nil {
 			return nil, err
 		}
-		state := &ddownload.DownloadState{}
+		state = &ddownload.DownloadState{}
 		state.InitFromFile(file)
 	}
 

@@ -10,8 +10,14 @@ import (
 )
 
 const (
-	ytDlpName = "yt-dlp"
+	ytDlpName                  = "yt-dlp"
+	concurrentFragmentsDefault = 5
 )
+
+type Options struct {
+	// Number of fragments of a dash/hlsnative video that should be downloaded concurrently (default is 1)
+	ConcurrentFragments uint8
+}
 
 type YtDlpService struct {
 	logger  *slog.Logger
@@ -20,9 +26,11 @@ type YtDlpService struct {
 	cmdPath string
 	// Directory where downloaded files are saved
 	downloadsDir string
+
+	options Options
 }
 
-func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string) (*YtDlpService, error) {
+func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, options *Options) (*YtDlpService, error) {
 	cmdPath, err := resolveCmdPath(ytDlpName, binDir)
 	if err != nil {
 		return nil, err
@@ -40,11 +48,22 @@ func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string) (*
 		return nil, err
 	}
 
+	var opts Options
+	if options != nil {
+		opts = *options
+	}
+
+	if opts.ConcurrentFragments == 0 || opts.ConcurrentFragments > 20 {
+		opts.ConcurrentFragments = concurrentFragmentsDefault
+	}
+
 	return &YtDlpService{
 		logger:  logger,
 		mappers: mappers.NewMappers(),
 
 		cmdPath:      cmdPath,
 		downloadsDir: downloadsDir,
+
+		options: opts,
 	}, nil
 }

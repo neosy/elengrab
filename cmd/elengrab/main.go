@@ -71,7 +71,7 @@ func main() {
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
 	// Start workers
-	dlManager := workerpool.NewManager(logger, nil)
+	dlManager := workerpool.NewManager(logger, &workerpool.ManagerOptions{WorkerCount: 3})
 	if err := dlManager.Start(ctx); err != nil {
 		logger.Error("Failed to start worker pool", "err", err)
 		return

@@ -31,3 +31,12 @@ func (srv *YtDlpService) GetTitle(url string) (string, error) {
 
 	return title, nil
 }
+
+func (srv *YtDlpService) getTitleFast(url string) (string, error) {
+	info, err := srv.getInfoFast(url)
+	if err != nil {
+		return "", err
+	}
+
+	return info.Title, nil
+}

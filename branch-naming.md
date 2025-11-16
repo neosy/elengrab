@@ -72,7 +72,7 @@ wip/css-redesign
 
 ---
 
-##  Commit Rules with Issue Linking
+## 🔹 Commit Rules with Issue Linking
 
 Use clear, descriptive commit messages in English. To link a commit or pull request to an issue, include one of the GitHub keywords followed by the issue number:
 
