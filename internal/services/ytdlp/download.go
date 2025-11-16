@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strconv"
 
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -45,8 +46,15 @@ func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions
 			return
 		}
 
+		title, err := srv.getTitleFast(url)
+		if err == nil && title != "" {
+			resultCh <- &ddownload.DownloadResult{
+				YoutubeTitle: title,
+			}
+		}
+
 		// Build yt-dlp arguments and get file extension and title
-		args, fileExt, info, err := srv.buildDownloadArgs(url, formatType, videoFormat, audioFormat)
+		args, fileExt, info, err := srv.buildDownloadArgs(url, formatType, videoFormat, audioFormat, srv.options.ConcurrentFragments)
 		if err != nil {
 			srv.logger.Error(err.Error())
 			sendResultError(err)
@@ -54,7 +62,7 @@ func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions
 		}
 
 		// If title is empty, fetch it manually
-		title := info.Title
+		title = info.Title
 		if title == "" {
 			var err error
 			title, err = srv.GetTitle(url)
@@ -187,6 +195,7 @@ func (srv *YtDlpService) buildDownloadArgs(
 	formatType dtypes.FormatType,
 	videoFormat dtypes.VideoFormat,
 	audioFormat dtypes.AudioFormat,
+	concurrentAragments uint8,
 ) (args []string, fileExt string, info *dyoutubeinfo.YouTubeInfo, err error) {
 
 	// Default audio quality (used when extracting audio)
@@ -197,6 +206,7 @@ func (srv *YtDlpService) buildDownloadArgs(
 
 	// prevent downloading the entire playlist, only fetch single video
 	args = append(args, "--no-playlist")
+	args = append(args, "--concurrent-fragments", strconv.Itoa(int(concurrentAragments)))
 
 	switch formatType {
 	// Video + Audio or Video only
