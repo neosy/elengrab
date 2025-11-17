@@ -28,3 +28,7 @@ func (h *StaticHandlers) StaticImgHandler(ctx *fasthttp.RequestCtx) {
 func (h *StaticHandlers) StaticJsHandler(ctx *fasthttp.RequestCtx) {
 	h.staticHandler(ctx, "js")
 }
+
+func (h *StaticHandlers) StaticPwaHandler(ctx *fasthttp.RequestCtx) {
+	h.staticHandler(ctx, "pwa")
+}
