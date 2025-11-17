@@ -14,6 +14,7 @@ func (s *httpServer) setupHtmxUIRoutes(r *router.Router, handlers *htmxh.Handler
 		group.GET(httppaths.PathCssFiles, handlers.Static.StaticCssHandler)
 		group.GET(httppaths.PathImgFiles, handlers.Static.StaticImgHandler)
 		group.GET(httppaths.PathJsFiles, handlers.Static.StaticJsHandler)
+		group.GET(httppaths.PathPwaFiles, handlers.Static.StaticPwaHandler)
 	}
 
 	// Downloader

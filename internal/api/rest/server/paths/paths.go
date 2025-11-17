@@ -25,6 +25,7 @@ const (
 	PathCssFiles = "/css/{filepath:*}"
 	PathImgFiles = "/img/{filepath:*}"
 	PathJsFiles  = "/js/{filepath:*}"
+	PathPwaFiles = "/pwa/{filepath:*}"
 )
 
 func BuildPathFileRow(fileId uuid.UUID) string {
