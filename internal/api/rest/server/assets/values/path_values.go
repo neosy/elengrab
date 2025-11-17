@@ -7,6 +7,7 @@ const (
 	PathStaticIconsKey = "PathStaticIcons"
 	PathStaticCssKey   = "PathStaticCss"
 	PathStaticJsKey    = "PathStaticJs"
+	PathStaticPwaKey   = "PathStaticPwa"
 )
 
 var PathValues = map[string]string{
@@ -14,5 +15,6 @@ var PathValues = map[string]string{
 	"PathStaticIcons":    httppaths.GroupStatic + "/img/icons",
 	"PathStaticCss":      httppaths.GroupStatic + "/css",
 	"PathStaticJs":       httppaths.GroupStatic + "/js",
+	"PathStaticPwa":      httppaths.GroupStatic + "/pwa",
 	"PathDownloaderGrab": httppaths.GroupDownloader + httppaths.PathGrab,
 }
