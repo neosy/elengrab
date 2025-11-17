@@ -55,6 +55,11 @@ img-push-version: ## Отправка images в репозитарий с тег
 	docker push $(APP_IMG):$(VERSION)
 	docker rmi $(APP_IMG):$(VERSION)
 
+img-push-version-dev: ## Отправка images в репозитарий с тегом актуальной версии + dev
+	docker tag $(APP_IMG_NAME) $(APP_IMG):$(VERSION)-dev
+	docker push $(APP_IMG):$(VERSION)-dev
+	docker rmi $(APP_IMG):$(VERSION)-dev
+
 img-pull: ## Загрузка images из репозитария
 	@docker pull $(APP_IMG_LATEST)
 
