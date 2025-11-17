@@ -30,11 +30,8 @@ body {
 .div-main-area {
     width: 80%;
     max-width: 1200px;
-    min-width: 400px;
     padding: 30px 50px;
-
     margin-top: 50px;
-
     text-align: center;
     background: white;
     border-radius: 20px;
@@ -43,6 +40,7 @@ body {
 
 .div-grab-area {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     gap: 10px;
@@ -53,11 +51,11 @@ body {
 }
 
 .input-grab {
-    flex: 1;
+    flex: 1 1 100%;
     width: 100%;
-    min-width: 200px;
+    min-width: 150px;
     padding: 10px 15px 10px 40px;
-    padding-right: 85px;
+    padding-right: 40px;
     line-height: 1.5;
 
     border: 2px solid #7eb980;
@@ -164,7 +162,7 @@ body {
     width: 95%;
     max-width: 100%;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 12px;
     background: #f8f9fb;
     /* padding: 12px 20px; */
@@ -313,10 +311,10 @@ body {
 
 .div-result-status {
     display: inline-flex;
-    width: 50px;
+    width: 35px;
     height: 25px;
-    min-width: 20px;
-    max-width: 50px;
+    min-width: 35px;
+    max-width: 35px;
     min-height: 25px;
     justify-content: center;
     align-items: center;
@@ -449,4 +447,87 @@ body {
 .icon-download-failed path {
     fill: #ef5350;
     /* stroke: #ef5350; */
+}
+
+@media (max-width: 768px) {
+    .div-main-area {
+        width: 95%;
+        padding: 20px;
+        margin-top: 0px;
+    }
+
+    .header {
+        font-size: 40px;
+    }
+
+    .img-header-logo {
+        height: 2.5em; /* уменьшаем вместе с заголовком */
+    }
+}
+
+@media (max-width: 480px) {
+    .div-main-area {
+        width: 95%;
+        padding: 15px;
+        margin-top: 0px;
+    }
+
+    .img-header-logo {
+        height: 1.8em;
+    }
+
+    .header {
+        font-size: 28px;
+    }
+
+    .input-grab {
+        font-size: 16px;
+    }
+
+    .div-format-options {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        justify-items: start;
+    }
+
+    .div-format-options input[type="radio"] {
+        vertical-align: bottom;
+        transform: scale(0.8);
+        margin: 4px 5px 2px 3px;
+    }
+
+    .div-format-options label {
+        /* width: 100%; */
+        font-size: 16px;
+    }
+
+    .div-grab-result-item {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 5px;
+        gap: 10px;
+    }
+
+    .div-result-size,
+    .div-result-format,
+    .div-result-status {
+        width: auto;
+    }
+
+    .result-right {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .result-youtube-url {
+        text-align: center;
+        width: 100%;
+    }
+
+    .result-separator.first {
+        display: none;
+    }
 }
