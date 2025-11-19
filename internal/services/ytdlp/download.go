@@ -41,8 +41,7 @@ func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions
 
 		// Ensure download directory exists
 		if err := checkDir(downloadDir); err != nil {
-			srv.logger.Error(err.Error())
-			sendResultError(err)
+			sendResultError(fmt.Errorf("failed to check directory: %w", err))
 			return
 		}
 
@@ -56,8 +55,7 @@ func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions
 		// Build yt-dlp arguments and get file extension and title
 		args, fileExt, info, err := srv.buildDownloadArgs(url, formatType, videoFormat, audioFormat, srv.options.ConcurrentFragments)
 		if err != nil {
-			srv.logger.Error(err.Error())
-			sendResultError(err)
+			sendResultError(fmt.Errorf("failed to build download arguments: %w", err))
 			return
 		}
 
@@ -67,8 +65,7 @@ func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions
 			var err error
 			title, err = srv.GetTitle(url)
 			if err != nil {
-				srv.logger.Error(err.Error())
-				sendResultError(err)
+				sendResultError(fmt.Errorf("failed to get title: %w", err))
 				return
 			}
 		}
@@ -103,17 +100,19 @@ func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions
 
 		// Execute yt-dlp command
 		cmd = exec.Command(srv.cmdPath, args...)
-		outByte, err := cmd.CombinedOutput()
+		out, err := cmd.CombinedOutput()
 		if err != nil {
 			// Log full stdout + stderr if yt-dlp fails
-			output := string(outByte)
-			srv.logger.Error("yt-dlp failed", "error", err, "output", output)
-			sendResultError(fmt.Errorf("%s error: %v, output: %s", ytDlpName, err, output))
+			sendResultError(fmt.Errorf("%s failed: %w, output: %s", ytDlpName, err, string(out)))
 			return
 		}
 
 		// Debug log command output
-		srv.logger.Debug(string(outByte))
+		srv.logger.Debug(
+			"Download",
+			"url", url,
+			"out", string(out),
+		)
 
 		// Get the actual file size
 		fileInfo, err := os.Stat(filePath)
