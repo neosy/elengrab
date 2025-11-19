@@ -20,11 +20,12 @@ FROM alpine:latest
 # Create necessary directories and install dependencies
 RUN mkdir /app_n \
     && cd /app_n && mkdir -p bin assets downloads migrations sqlite/data \
-    && apk add --no-cache su-exec curl dcron python3 py3-pip ffmpeg \
+    && apk add --no-cache su-exec curl dcron python3 py3-pip ffmpeg tzdata \
     # Download yt-dlp binary
     && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
     && chmod a+rx /usr/local/bin/yt-dlp \
-    # Remove curl to keep image small
+    && ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime \
+    # Remove packages to keep image small
     && apk del curl \
     # Add cron job to update yt-dlp once a day
     && echo "0 1 * * * /usr/local/bin/yt-dlp -U >> /var/log/yt-dlp-update.log 2>&1" >> /etc/crontabs/root
@@ -47,6 +48,9 @@ WORKDIR /app_n
 # Declare downloads folder as a volume
 VOLUME ["/app_n/downloads"]
 VOLUME ["/app_n/sqlite/data"]
+
+# Enviroments
+ENV TZ=Europe/Moscow
 
 # Expose web server port
 EXPOSE 8080
