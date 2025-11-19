@@ -21,28 +21,25 @@ func (srv *YtDlpService) GetFormats(url string) (*dyoutubeinfo.YouTubeInfo, erro
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		errOut := fmt.Errorf("%s failed: %v, output: %s", ytDlpName, err, string(out))
-		srv.logger.Error(errOut.Error())
 		// Include stderr in error message
 		return nil, errOut
 	}
 
-	outString := string(out)
+	outStr := string(out)
 
 	// Find JSON start
-	start := strings.Index(outString, "{")
+	start := strings.Index(outStr, "{")
 	if start == -1 {
 		err := errors.New("no JSON found in yt-dlp output")
-		srv.logger.Error(err.Error())
 		return nil, err
 	}
 
 	// Extract JSON substring
-	jsonData := outString[start:]
+	jsonData := outStr[start:]
 
 	var info = &dto.YouTubeInfo{}
 	if err := json.NewDecoder(bytes.NewReader([]byte(jsonData))).Decode(info); err != nil {
 		errOut := fmt.Errorf("no JSON found: %v", err)
-		srv.logger.Error(errOut.Error())
 		return nil, errOut
 	}
 
