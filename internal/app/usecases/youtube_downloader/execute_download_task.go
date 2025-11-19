@@ -16,7 +16,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 	task *ddownload.DownloadTask,
 ) error {
 	if task == nil {
-		uc.logger.Error("Nil pointer in function")
+		uc.logger.Error("Nil pointer in function", "func", "ExecuteDownloadTask")
 		return errors.New("function parameter is a null pointer")
 	}
 
@@ -29,6 +29,10 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 
 	resultCh, err := uc.downloaderSrv.Download(task.YoutubeUrl, task.Options)
 	if err != nil {
+		uc.logger.Error(
+			"Download",
+			"error", err,
+		)
 		uc.fileStatus.Failed(ctx, task.FileId, uptr.String(err.Error()))
 		uc.saveStateByFileId(ctx, task.FileId)
 		return err
@@ -37,6 +41,10 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 	var lastResult *ddownload.DownloadResult
 	for r := range resultCh {
 		if r.Error != nil {
+			uc.logger.Error(
+				"Download",
+				"error", err,
+			)
 			uc.fileStatus.Failed(ctx, task.FileId, uptr.String(r.Error.Error()))
 			uc.saveStateByFileId(ctx, task.FileId)
 			return r.Error
@@ -44,6 +52,10 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 
 		state, err := uc.dlState.FindByFileId(ctx, task.FileId)
 		if err != nil {
+			uc.logger.Error(
+				"Find by fileId",
+				"error", err,
+			)
 			uc.fileStatus.Failed(ctx, task.FileId, uptr.String(err.Error()))
 			uc.saveStateByFileId(ctx, task.FileId)
 			return err

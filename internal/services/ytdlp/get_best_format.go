@@ -24,14 +24,12 @@ func (srv *YtDlpService) getBestFormat(url string, format string) (*dyoutubeinfo
 
 	if err := cmd.Run(); err != nil {
 		errOut := fmt.Errorf("%s failed: %v, stderr: %s", ytDlpName, err, stderr.String())
-		srv.logger.Error(errOut.Error())
 		return nil, errOut
 	}
 
 	outStr := strings.TrimSpace(out.String())
 	if outStr == "" {
 		err := fmt.Errorf("best format not found")
-		srv.logger.Error(err.Error())
 		return nil, err
 	}
 
@@ -40,7 +38,6 @@ func (srv *YtDlpService) getBestFormat(url string, format string) (*dyoutubeinfo
 
 	info, err := srv.GetFormats(url)
 	if err != nil {
-		srv.logger.Error(err.Error())
 		return nil, err
 	}
 
@@ -54,12 +51,17 @@ func (srv *YtDlpService) getBestFormat(url string, format string) (*dyoutubeinfo
 
 	if bestFormat == nil {
 		err := fmt.Errorf("best format not found")
-		srv.logger.Error(err.Error())
 		return nil, err
 	}
 
 	bestInfo := *info
 	bestInfo.Formats = []dyoutubeinfo.Format{*bestFormat}
+
+	srv.logger.Debug(
+		"Get best format",
+		"url", url,
+		"format", bestInfo,
+	)
 
 	return &bestInfo, nil
 }

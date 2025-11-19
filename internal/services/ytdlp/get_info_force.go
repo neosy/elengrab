@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 type embedInfoResponse struct {
@@ -14,10 +15,14 @@ type embedInfoResponse struct {
 	Provider   string `json:"provider_name"`
 }
 
-func (srv *YtDlpService) getInfoFast(videoUrl string) (*embedInfoResponse, error) {
-	apiURL := "https://www.youtube.com/oembed?format=json&url=" + url.QueryEscape(videoUrl)
+func (srv *YtDlpService) getInfoFast(youtubeUrl string) (*embedInfoResponse, error) {
+	apiURL := "https://www.youtube.com/oembed?format=json&url=" + url.QueryEscape(youtubeUrl)
 
-	resp, err := http.Get(apiURL)
+	client := &http.Client{
+		Timeout: 2 * time.Second,
+	}
+
+	resp, err := client.Get(apiURL)
 	if err != nil {
 		return nil, err
 	}
