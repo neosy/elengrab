@@ -3,8 +3,8 @@ package statussetter
 import (
 	"fmt"
 
-	dfilestatus "github.com/neosy/elengrab/internal/domain/types/file_status"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	dfilestatus "github.com/neosy/elengrab/internal/domain/types/file_status"
 )
 
 // checkSetStatus validates whether the status transition from fromStatus to toStatus is allowed.
@@ -17,7 +17,7 @@ func (u *FileStatusSetter) checkSetStatus(
 		return nil
 	}
 
-	u.logger.Error(
+	u.logger.Debug(
 		"Invalid status transition",
 		"fromStatus", fromStatus,
 		"toStatus", toStatus,

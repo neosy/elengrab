@@ -20,22 +20,16 @@ func (uc *File) Create(ctx context.Context, file *ddownload.File, dlOptions *ddo
 	}
 	file.Status = dtypes.FileStatusNew
 
-	err := uc.fileRep.Insert(ctx, file)
+	err := uc.FileRep.Insert(ctx, file)
 	if err != nil {
-		uc.logger.Error(
+		uc.logger.Debug(
 			"Failed to insert record into repository",
 			"error", err,
 		)
 		return err
 	}
 
-	task := &ddownload.DownloadTask{
-		FileId:     file.FileId,
-		YoutubeUrl: file.YoutubeUrl,
-		Options:    dlOptions,
-	}
-
-	err = uc.dlTask.Create(ctx, task)
+	err = uc.CreateTask(ctx, file, dlOptions)
 	if err != nil {
 		return err
 	}

@@ -17,7 +17,7 @@ func (u *DownloadTaskStatusSetter) checkSetStatus(
 		return nil
 	}
 
-	u.logger.Error(
+	u.logger.Debug(
 		"Invalid status transition",
 		"fromStatus", fromStatus,
 		"toStatus", toStatus,

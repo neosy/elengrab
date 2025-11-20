@@ -5,7 +5,7 @@ const (
 	header    = "Elengrab"
 )
 
-var IndexValues = map[string]string{
+var IndexValues = map[string]any{
 	"Title":  pageTitle,
 	"Header": header,
 }

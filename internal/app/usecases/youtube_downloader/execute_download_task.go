@@ -22,6 +22,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 
 	err := uc.fileStatus.Working(ctx, task.FileId, task.TaskId, workerId)
 	if err != nil {
+		uc.logger.Error("Failed update status", "error", err)
 		return err
 	}
 

@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-func StructToMap(data any) map[string]string {
-	var result = make(map[string]string)
+func StructToMap(data any) map[string]any {
+	var result = make(map[string]any)
 
 	b, err := json.Marshal(data)
 	if err != nil {

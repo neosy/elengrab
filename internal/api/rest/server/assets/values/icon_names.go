@@ -14,7 +14,7 @@ const (
 	GrabResultStatusIconNameKey = "GrabResultStatusIconName"
 )
 
-var IconNames = map[string]string{
+var IconNames = map[string]any{
 	DownloadIconNameKey:        "download-light-icon.svg",
 	DownloadFailedIconNameKey:  "download-warning-icon.svg",
 	DownloadPendingIconNameKey: "download-wait-icon.svg",
@@ -25,11 +25,11 @@ func GrabResultStatusIconName(status dtypes.FileStatus) string {
 
 	switch status {
 	case dtypes.FileStatusNew, dtypes.FileStatusPending:
-		iconName = IconNames[DownloadPendingIconNameKey]
+		iconName = IconNames[DownloadPendingIconNameKey].(string)
 	case dtypes.FileStatusDone:
-		iconName = IconNames[DownloadIconNameKey]
+		iconName = IconNames[DownloadIconNameKey].(string)
 	case dtypes.FileStatusFailed:
-		iconName = IconNames[DownloadFailedIconNameKey]
+		iconName = IconNames[DownloadFailedIconNameKey].(string)
 	}
 
 	return iconName

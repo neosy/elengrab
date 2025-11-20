@@ -7,5 +7,5 @@ import (
 )
 
 func (uc *File) Delete(ctx context.Context, fileId uuid.UUID) error {
-	return uc.fileRep.Delete(ctx, fileId)
+	return uc.FileRep.Delete(ctx, fileId)
 }

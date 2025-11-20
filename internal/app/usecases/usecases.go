@@ -18,6 +18,7 @@ type Dependencies struct {
 
 	// Options
 	DownloadsDir string
+	LoadHistory  bool
 }
 
 type DepRepositories struct {
@@ -48,6 +49,7 @@ func NewUsecases(logger *slog.Logger, deps *Dependencies) *Usecases {
 
 			// options
 			deps.DownloadsDir,
+			deps.LoadHistory,
 		),
 	}
 }

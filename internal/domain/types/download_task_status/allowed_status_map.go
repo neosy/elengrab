@@ -8,6 +8,9 @@ type AllowedStatusMap = map[dtypes.DownloadTaskStatus]map[dtypes.DownloadTaskSta
 
 var (
 	allowedStatusMap = AllowedStatusMap{
+		dtypes.DownloadTaskStatusNew: {
+			dtypes.DownloadTaskStatusPending: {},
+		},
 		dtypes.DownloadTaskStatusPending: {
 			dtypes.DownloadTaskStatusWorking: {},
 		},

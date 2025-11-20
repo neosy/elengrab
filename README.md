@@ -27,6 +27,7 @@ Elengrab provides a simple web interface that allows you to quickly download You
 |----------|---------|-------------|
 | `LOG_LEVEL` | `warn` | Logging level. Options: `debug`, `info`, `warn`, `error`. |
 | `ELENGRAB_DOWNLOADS_DIR` | `/app_n/downloads` | Directory where downloaded files are stored inside the container. Must be mapped to a host volume. |
+| `ELENGRAB_LOAD_HISTORY` | `true` | Whether to display the download history of files. Set to true to show the history, or false to hide it. |
 
 ---
 

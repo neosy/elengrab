@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
@@ -17,4 +19,5 @@ type GetFileInfoResponse struct {
 	FileSize             *int
 	SafeReadableFullName string
 	StatusText           string
+	CreatedAt            time.Time
 }

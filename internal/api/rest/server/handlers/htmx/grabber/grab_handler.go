@@ -121,9 +121,9 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	if itemsOnlyOne == "true" {
-		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_first_new_item.html")
+		tmplPath = filepath.Join(h.assetsDir, "templates", avalues.GrabResultNewItemFirstHtmlFileName)
 	} else {
-		tmplPath = filepath.Join(h.assetsDir, "templates", "grab_result_new_item.html")
+		tmplPath = filepath.Join(h.assetsDir, "templates", avalues.GrabResultNewItemHtmlFileName)
 	}
 	data.YoutubeTitle = url
 	data.PathFileRow = httppaths.BuildPathFileRow(resp.FileId)
