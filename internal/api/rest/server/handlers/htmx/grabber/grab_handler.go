@@ -25,15 +25,19 @@ type grabResultData struct {
 
 var (
 	formatTypeMap = map[string]dtypes.FormatType{
-		"video_orig": dtypes.FormatTypeVideoAudio,
-		"video_mp4":  dtypes.FormatTypeVideoAudio,
-		"audio_orig": dtypes.FormatTypeAudioOnly,
-		"audio_mp3":  dtypes.FormatTypeAudioOnly,
-		"audio_m4a":  dtypes.FormatTypeAudioOnly,
+		"video_orig":     dtypes.FormatTypeVideoAudio,
+		"video_mp4_orig": dtypes.FormatTypeVideoAudio,
+		"video_mp4_h264": dtypes.FormatTypeVideoAudio,
+		"video_mp4_h265": dtypes.FormatTypeVideoAudio,
+		"audio_orig":     dtypes.FormatTypeAudioOnly,
+		"audio_mp3":      dtypes.FormatTypeAudioOnly,
+		"audio_m4a":      dtypes.FormatTypeAudioOnly,
 	}
 	videoFormatMap = map[string]dtypes.VideoFormat{
-		"video_orig": dtypes.VideoFormatOrig,
-		"video_mp4":  dtypes.VideoFormatMP4,
+		"video_orig":     dtypes.VideoFormatOrig,
+		"video_mp4_orig": dtypes.VideoFormatMP4Orig,
+		"video_mp4_h264": dtypes.VideoFormatMP4H264,
+		"video_mp4_h265": dtypes.VideoFormatMP4H265,
 	}
 	audioFormatMap = map[string]dtypes.AudioFormat{
 		"audio_orig": dtypes.AudioFormatOrig,

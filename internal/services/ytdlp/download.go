@@ -16,7 +16,7 @@ import (
 
 const (
 	formatTypeDefault      = dtypes.FormatTypeVideoAudio
-	videoFormatDefault     = dtypes.VideoFormatMP4
+	videoFormatDefault     = dtypes.VideoFormatMP4Orig
 	audioFormatDefault     = dtypes.AudioFormatMP3
 	audioQualityMP3Default = "0"
 	audioQualityM4ADefault = "0"
@@ -237,6 +237,16 @@ func (srv *YtDlpService) buildDownloadArgs(
 		switch videoFormat {
 		case dtypes.VideoFormatOrig:
 			fileExt = info.Formats[0].FileExt
+		case dtypes.VideoFormatMP4H264:
+			// Codec options (lower - worse)
+			// ffmpeg:-c:v libx264 -crf 18 -preset slow -c:a aac -b:a 192k
+			// ffmpeg:-c:v libx264 -crf 22 -preset slow -c:a aac -b:a 160k
+			// ffmpeg:-c:v libx264 -crf 24 -preset slow -c:a aac -b:a 128k
+			args = append(args, "--recode-video", "mp4", "--postprocessor-args", "ffmpeg:-c:v libx264 -crf 22 -preset slow -c:a aac -b:a 160k")
+			fileExt = "mp4"
+		case dtypes.VideoFormatMP4H265:
+			args = append(args, "--recode-video", "mp4", "--postprocessor-args", "ffmpeg:-c:v libx265 -crf 22 -preset slow -c:a aac -b:a 160k")
+			fileExt = "mp4"
 		default:
 			args = append(args, "--recode-video", "mp4")
 			fileExt = "mp4"
