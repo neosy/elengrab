@@ -12,6 +12,7 @@ type DownloadTaskStatus string
 
 const (
 	DownloadTaskStatusNone    DownloadTaskStatus = "none"
+	DownloadTaskStatusNew     DownloadTaskStatus = "new"
 	DownloadTaskStatusPending DownloadTaskStatus = "pending"
 	DownloadTaskStatusWorking DownloadTaskStatus = "working"
 )
@@ -20,6 +21,7 @@ var (
 	// downloadTaskStatusMap implementation of a set for DownloadTaskStatus
 	downloadTaskStatusMap = map[DownloadTaskStatus]struct{}{
 		DownloadTaskStatusNone:    {},
+		DownloadTaskStatusNew:     {},
 		DownloadTaskStatusPending: {},
 		DownloadTaskStatusWorking: {},
 	}

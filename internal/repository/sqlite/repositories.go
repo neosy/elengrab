@@ -2,6 +2,7 @@ package sqliterep
 
 import (
 	"database/sql"
+	"sync"
 
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	sldownload "github.com/neosy/elengrab/internal/repository/sqlite/download"
@@ -9,14 +10,19 @@ import (
 
 // Repositories groups all database repositories.
 type Repositories struct {
+	mu *sync.RWMutex
+
 	File         persistence.FileRepository
 	DownloadTask persistence.DownloadTaskRepository
 }
 
 // New returns a new Repositories struct with database connections.
 func New(db *sql.DB) *Repositories {
+	var mu sync.RWMutex
+
 	return &Repositories{
-		File:         sldownload.NewFileRepository(db),
-		DownloadTask: sldownload.NewDownloadTaskRepository(db),
+		mu:           &mu,
+		File:         sldownload.NewFileRepository(db, &mu),
+		DownloadTask: sldownload.NewDownloadTaskRepository(db, &mu),
 	}
 }

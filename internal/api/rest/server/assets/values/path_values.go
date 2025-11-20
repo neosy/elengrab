@@ -3,18 +3,23 @@ package avalues
 import httppaths "github.com/neosy/elengrab/internal/api/rest/server/paths"
 
 const (
-	PathStaticImgKey   = "PathStaticImg"
-	PathStaticIconsKey = "PathStaticIcons"
-	PathStaticCssKey   = "PathStaticCss"
-	PathStaticJsKey    = "PathStaticJs"
-	PathStaticPwaKey   = "PathStaticPwa"
+	PathFileRowKey        = "PathFileRow"
+	PathFilesHistoryKey   = "PathFilesHistory"
+	PathStaticImgKey      = "PathStaticImg"
+	PathStaticIconsKey    = "PathStaticIcons"
+	PathStaticCssKey      = "PathStaticCss"
+	PathStaticJsKey       = "PathStaticJs"
+	PathStaticPwaKey      = "PathStaticPwa"
+	PathItemsHistoryKey   = "PathItemsHistory"
+	PathDownloaderGrabKey = "PathDownloaderGrab"
 )
 
-var PathValues = map[string]string{
-	"PathStaticImg":      httppaths.GroupStatic + "/img",
-	"PathStaticIcons":    httppaths.GroupStatic + "/img/icons",
-	"PathStaticCss":      httppaths.GroupStatic + "/css",
-	"PathStaticJs":       httppaths.GroupStatic + "/js",
-	"PathStaticPwa":      httppaths.GroupStatic + "/pwa",
-	"PathDownloaderGrab": httppaths.GroupDownloader + httppaths.PathGrab,
+var PathValues = map[string]any{
+	PathStaticImgKey:      httppaths.GroupStatic + "/img",
+	PathStaticIconsKey:    httppaths.GroupStatic + "/img/icons",
+	PathStaticCssKey:      httppaths.GroupStatic + "/css",
+	PathStaticJsKey:       httppaths.GroupStatic + "/js",
+	PathStaticPwaKey:      httppaths.GroupStatic + "/pwa",
+	PathItemsHistoryKey:   httppaths.GroupDownloader + httppaths.PathHistory,
+	PathDownloaderGrabKey: httppaths.GroupDownloader + httppaths.PathGrab,
 }

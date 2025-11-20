@@ -5,11 +5,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
 	"github.com/neosy/elengrab/pkg/dbutils"
@@ -18,13 +20,29 @@ import (
 type DownloadTaskRepository struct {
 	mappers *mappers.Mappers
 	db      *sql.DB
+	mu      *sync.RWMutex
+
+	// options
+	retryOptions retryOptions
+}
+
+type taskByFields struct {
+	fileId *uuid.UUID
+	status *dtypes.DownloadTaskStatus
 }
 
 // NewTaskRepository returns a new object for the repository
-func NewDownloadTaskRepository(db *sql.DB) *DownloadTaskRepository {
+func NewDownloadTaskRepository(db *sql.DB, mu *sync.RWMutex) *DownloadTaskRepository {
 	return &DownloadTaskRepository{
 		mappers: mappers.NewMappers(),
 		db:      db,
+		mu:      mu,
+
+		// options
+		retryOptions: retryOptions{
+			maxRetries: maxRetriesDefault,
+			delay:      retryDelayDefault,
+		},
 	}
 }
 
@@ -58,7 +76,7 @@ func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.Downl
 	}
 
 	// Generate SQL query with upsert logic
-	sql, args, err := squirrel.
+	sqlQuery, args, err := squirrel.
 		Insert(eTask.TableName()).
 		Columns(fields...).
 		Values(values...).
@@ -70,10 +88,45 @@ func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.Downl
 		return fmt.Errorf("failed to build SQL: %w", err)
 	}
 
-	// Execute the SQL query
-	_, err = r.db.ExecContext(ctx, sql, args...)
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	// Execute the query
+	err = execContext(ctx, r.db, sqlQuery, args, r.retryOptions)
 	if err != nil {
-		return fmt.Errorf("failed to insert task: %w", err)
+		return fmt.Errorf("failed to save file: %v", err)
+	}
+
+	return nil
+}
+
+func (r *DownloadTaskRepository) UpdateStatusToNew(ctx context.Context) error {
+	var ent edownload.DownloadTask
+
+	sqlWhere := squirrel.Or{
+		squirrel.Eq{ent.FieldName(&ent.Status): dtypes.DownloadTaskStatusPending},
+		squirrel.Eq{ent.FieldName(&ent.Status): dtypes.DownloadTaskStatusWorking},
+	}
+
+	// Build query
+	sqlBuilder := squirrel.Update(ent.TableName()).
+		Set(ent.FieldName(&ent.Status), dtypes.DownloadTaskStatusNew).
+		Where(sqlWhere).
+		PlaceholderFormat(squirrel.Dollar)
+
+	// Generate SQL and args
+	sqlStr, args, err := sqlBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	// Execute the query
+	err = execContext(ctx, r.db, sqlStr, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to update file: %v", err)
 	}
 
 	return nil
@@ -161,21 +214,31 @@ func (r *DownloadTaskRepository) Delete(ctx context.Context, taskId uuid.UUID) e
 		return fmt.Errorf("error generating SQL: %v", err)
 	}
 
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
 	// Execute the query
-	_, err = r.db.ExecContext(ctx, sqlStr, args...)
+	err = execContext(ctx, r.db, sqlStr, args, r.retryOptions)
 	if err != nil {
-		return fmt.Errorf("error deleting file: %v", err)
+		return fmt.Errorf("failed to delete task: %v", err)
 	}
 
 	return nil
 }
 
-func (r *DownloadTaskRepository) DeleteByFileId(ctx context.Context, fileId uuid.UUID) error {
+func (r *DownloadTaskRepository) deleteBy(ctx context.Context, byFields taskByFields) error {
 	var ent edownload.DownloadTask
+
+	sqlWhere := squirrel.Expr("TRUE")
+	if byFields.fileId != nil {
+		sqlWhere = squirrel.Eq{ent.FieldName(&ent.FileId): byFields.fileId.String()}
+	} else if byFields.status != nil {
+		sqlWhere = squirrel.Eq{ent.FieldName(&ent.Status): byFields.status.String()}
+	}
 
 	// Build DELETE query
 	sqlBuilder := squirrel.Delete(ent.TableName()).
-		Where(squirrel.Eq{ent.FieldName(&ent.FileId): fileId.String()}).
+		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar)
 
 	// Generate SQL and args
@@ -184,11 +247,22 @@ func (r *DownloadTaskRepository) DeleteByFileId(ctx context.Context, fileId uuid
 		return fmt.Errorf("error generating SQL: %v", err)
 	}
 
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
 	// Execute the query
-	_, err = r.db.ExecContext(ctx, sqlStr, args...)
+	err = execContext(ctx, r.db, sqlStr, args, r.retryOptions)
 	if err != nil {
-		return fmt.Errorf("error deleting file: %v", err)
+		return fmt.Errorf("failed to delete task: %v", err)
 	}
 
 	return nil
+}
+
+func (r *DownloadTaskRepository) DeleteByFileId(ctx context.Context, fileId uuid.UUID) error {
+	return r.deleteBy(ctx, taskByFields{fileId: &fileId})
+}
+
+func (r *DownloadTaskRepository) DeleteByStatus(ctx context.Context, status dtypes.DownloadTaskStatus) error {
+	return r.deleteBy(ctx, taskByFields{status: &status})
 }

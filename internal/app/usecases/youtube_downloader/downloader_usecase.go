@@ -3,6 +3,7 @@ package ytdownloader
 import (
 	"log/slog"
 
+	"github.com/neosy/elengrab/internal/app/usecases/mappers"
 	dlstate "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/download_state"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/download_task"
 	dltasktatus "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/download_task_status"
@@ -14,7 +15,8 @@ import (
 )
 
 type YouTubeDownloader struct {
-	logger *slog.Logger
+	logger  *slog.Logger
+	mappers *mappers.Mappers
 
 	// repositories
 	downloadStateRep persistence.DownloadStateRepository
@@ -34,6 +36,7 @@ type YouTubeDownloader struct {
 
 	// Options
 	downloadsDir string
+	loadHistory  bool
 }
 
 func NewYouTubeDownloader(
@@ -52,13 +55,15 @@ func NewYouTubeDownloader(
 
 	// options
 	downloadsDir string,
+	loadHistory bool,
 ) *YouTubeDownloader {
 	dlTask := dltask.NewDownloadTask(logger, dlTaskRep)
 	file := fileuc.NewFile(logger, fileRep, dlTask)
 	dlTaskStatus := dltasktatus.NewDownloadTaskStatus(logger, dlTaskRep, dlTask)
 
 	return &YouTubeDownloader{
-		logger: logger,
+		logger:  logger,
+		mappers: mappers.NewMappers(),
 
 		// repositories
 		downloadStateRep: downloadStateRep,
@@ -78,5 +83,6 @@ func NewYouTubeDownloader(
 
 		// Options
 		downloadsDir: downloadsDir,
+		loadHistory:  loadHistory,
 	}
 }

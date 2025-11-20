@@ -11,7 +11,7 @@ type File struct {
 	logger *slog.Logger
 
 	// repositories
-	fileRep persistence.FileRepository
+	FileRep persistence.FileRepository
 
 	// usecases
 	dlTask *dltask.DownloadTask
@@ -28,7 +28,7 @@ func NewFile(
 ) *File {
 	return &File{
 		logger:  logger,
-		fileRep: fileRep,
+		FileRep: fileRep,
 		dlTask:  dlTask,
 	}
 }

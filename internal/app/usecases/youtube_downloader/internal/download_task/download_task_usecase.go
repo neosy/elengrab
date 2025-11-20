@@ -10,7 +10,7 @@ type DownloadTask struct {
 	logger *slog.Logger
 
 	// repositories
-	taskRep persistence.DownloadTaskRepository
+	TaskRep persistence.DownloadTaskRepository
 }
 
 func NewDownloadTask(
@@ -19,6 +19,6 @@ func NewDownloadTask(
 ) *DownloadTask {
 	return &DownloadTask{
 		logger:  logger,
-		taskRep: taskRep,
+		TaskRep: taskRep,
 	}
 }

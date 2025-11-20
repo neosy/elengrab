@@ -11,7 +11,13 @@ import (
 func (s *FileStatus) Pending(
 	ctx context.Context,
 	fileId uuid.UUID,
+	taskId uuid.UUID,
 ) error {
+	err := s.dlTaskStatus.Penging(ctx, taskId)
+	if err != nil {
+		return err
+	}
+
 	return s.updateStatus(
 		ctx,
 		fileId,

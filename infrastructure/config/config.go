@@ -32,6 +32,7 @@ type ElengrabConfig struct {
 	AssetsDir    string `env:"ASSETS_DIR" envDefault:"/app_n/assets"`
 	BinDir       string `env:"BIN_DIR" envDefault:"/usr/local/bin"`
 	DownloadsDir string `env:"DOWNLOADS_DIR" envDefault:"/app_n/downloads"`
+	LoadHistory  bool   `env:"LOAD_HISTORY" envDefault:"true"`
 }
 
 type SQLiteConfig struct {

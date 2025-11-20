@@ -35,26 +35,24 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 
 	file, err := uc.file.FindByFileId(ctx, fileId, true)
 	if err != nil {
+		uc.logger.Error("Failed find file", "error", err)
 		return nil, err
+	}
+	if file.DownloadTask == nil {
+		file.DownloadTask, err = uc.dlTask.FindByFileId(ctx, fileId, true)
+		if err != nil {
+			uc.logger.Error("Failed find task", "error", err)
+			return nil, err
+		}
 	}
 
 	uc.saveStateByFile(ctx, file)
 
-	err = uc.fileStatus.Pending(ctx, fileId)
+	file, err = uc.addFileToQueueDownload(ctx, fileId, file.DownloadTask.TaskId)
 	if err != nil {
-		uc.fileStatus.Failed(ctx, fileId, uptr.String(err.Error()))
-		uc.saveStateByFileId(ctx, fileId)
+		uc.logger.Error("Failed add to queue", "error", err)
 		return nil, err
 	}
-
-	file, err = uc.file.FindByFileId(ctx, fileId, true)
-	if err != nil {
-		return nil, err
-	}
-
-	uc.saveStateByFileId(ctx, fileId)
-
-	uc.enqueueDownloadTask(file.DownloadTask)
 
 	return &dto.ScheduleDownloadResponse{
 		FileId:       file.FileId,
@@ -62,4 +60,26 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 		YoutubeTitle: file.YoutubeTitle,
 		Format:       file.Ext,
 	}, nil
+}
+
+func (uc *YouTubeDownloader) addFileToQueueDownload(ctx context.Context, fileId uuid.UUID, taskId uuid.UUID) (*ddownload.File, error) {
+	err := uc.fileStatus.Pending(ctx, fileId, taskId)
+	if err != nil {
+		uc.logger.Debug("Failed update status", "error", err)
+		uc.fileStatus.Failed(ctx, fileId, uptr.String(err.Error()))
+		uc.saveStateByFileId(ctx, fileId)
+		return nil, err
+	}
+
+	file, err := uc.file.FindByFileId(ctx, fileId, true)
+	if err != nil {
+		uc.logger.Debug("Failed find file", "error", err)
+		return nil, err
+	}
+
+	uc.saveStateByFile(ctx, file)
+
+	uc.enqueueDownloadTask(file.DownloadTask)
+
+	return file, nil
 }
