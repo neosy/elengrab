@@ -20,6 +20,7 @@ const (
 
 	// Paths
 	PathGrab     = "/grab"
+	PathHistory  = "/history"
 	PathDownload = "/download"
 	PathFileRow  = "/file/{fileId}/row"
 	PathCssFiles = "/css/{filepath:*}"

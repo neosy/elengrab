@@ -8,7 +8,7 @@ import (
 )
 
 func (uc *DownloadTask) FindByFileId(ctx context.Context, fileId uuid.UUID, checkNotFound bool) (*ddownload.DownloadTask, error) {
-	task, err := uc.taskRep.FindByFileId(ctx, fileId)
+	task, err := uc.TaskRep.FindByFileId(ctx, fileId)
 	if err != nil {
 		uc.logger.Error("Error finding record", "error", err)
 		return nil, err
@@ -23,7 +23,7 @@ func (uc *DownloadTask) FindByFileId(ctx context.Context, fileId uuid.UUID, chec
 }
 
 func (uc *DownloadTask) FindByTaskId(ctx context.Context, taskId uuid.UUID, checkNotFound bool) (*ddownload.DownloadTask, error) {
-	task, err := uc.taskRep.FindByTaskId(ctx, taskId)
+	task, err := uc.TaskRep.FindByTaskId(ctx, taskId)
 	if err != nil {
 		uc.logger.Error("Error finding record", "error", err)
 		return nil, err

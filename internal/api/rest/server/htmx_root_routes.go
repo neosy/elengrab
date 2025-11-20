@@ -9,5 +9,5 @@ import (
 // setupHtmxRootoutes setup root routes.
 func (s *httpServer) setupHtmxRootRoutes(r *router.Router, handlers *htmxh.Handlers) {
 	// Index
-	r.GET(httppaths.PathIndex, handlers.Index.IndexHandler)
+	r.GET(httppaths.PathIndex, handlers.Grabber.IndexHandler)
 }

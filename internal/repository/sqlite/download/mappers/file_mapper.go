@@ -1,6 +1,8 @@
 package mappers
 
 import (
+	"database/sql"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
@@ -46,4 +48,28 @@ func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.
 		UpdatedAt:            eFile.UpdatedAt,
 		DownloadTask:         task,
 	}, nil
+}
+
+func (m *Mappers) MapRowsToFiles(rows *sql.Rows) ([]*ddownload.File, error) {
+	var (
+		eFile edownload.File
+		eTask edownload.DownloadTask
+		files []*ddownload.File
+	)
+
+	for rows.Next() {
+		err := rows.Scan(append(eFile.FieldPointers(), eTask.FieldPointers()...)...)
+		if err != nil {
+			return nil, err
+		}
+
+		file, err := m.MapFileEntityToDomain(&eFile, &eTask)
+		if err != nil {
+			return nil, err
+		}
+
+		files = append(files, file)
+	}
+
+	return files, nil
 }

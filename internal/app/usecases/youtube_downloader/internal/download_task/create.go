@@ -18,9 +18,9 @@ func (uc *DownloadTask) Create(ctx context.Context, task *ddownload.DownloadTask
 	if task.TaskId == uuid.Nil {
 		task.TaskId = uuid.New()
 	}
-	task.Status = dtypes.DownloadTaskStatusPending
+	task.Status = dtypes.DownloadTaskStatusNew
 
-	err := uc.taskRep.Insert(ctx, task)
+	err := uc.TaskRep.Insert(ctx, task)
 	if err != nil {
 		uc.logger.Error(
 			"Failed to insert record into repository",

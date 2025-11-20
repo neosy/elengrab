@@ -102,8 +102,15 @@ func main() {
 
 		// Options
 		DownloadsDir: cfg.Elengrab.DownloadsDir,
+		LoadHistory:  cfg.Elengrab.LoadHistory,
 	}
 	uc := usecases.NewUsecases(logger, ucDeps)
+
+	// Init
+	if err := uc.Downloader.ResetStuckJobs(ctx); err != nil {
+		logger.Error("Failed to init downloader", "err", err)
+		return
+	}
 
 	// Start FastHTTP server in a separate goroutine
 	go func(ctx context.Context) {

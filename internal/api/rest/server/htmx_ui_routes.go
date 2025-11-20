@@ -20,6 +20,7 @@ func (s *httpServer) setupHtmxUIRoutes(r *router.Router, handlers *htmxh.Handler
 	// Downloader
 	group = r.Group(httppaths.GroupDownloader)
 	{
+		group.GET(httppaths.PathHistory, handlers.Grabber.GetFilesHistoryHandler)
 		group.POST(httppaths.PathGrab, handlers.Grabber.GrabHandler)
 		group.GET(httppaths.PathDownload, handlers.Grabber.DownloadHandler)
 		group.GET(httppaths.PathFileRow, handlers.Grabber.GetFileRow)

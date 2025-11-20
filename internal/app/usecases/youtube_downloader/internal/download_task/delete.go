@@ -7,9 +7,9 @@ import (
 )
 
 func (uc *DownloadTask) Delete(ctx context.Context, taskId uuid.UUID) error {
-	return uc.taskRep.Delete(ctx, taskId)
+	return uc.TaskRep.Delete(ctx, taskId)
 }
 
 func (uc *DownloadTask) DeleteByFileId(ctx context.Context, fileId uuid.UUID) error {
-	return uc.taskRep.DeleteByFileId(ctx, fileId)
+	return uc.TaskRep.DeleteByFileId(ctx, fileId)
 }
