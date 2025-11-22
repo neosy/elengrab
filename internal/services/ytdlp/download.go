@@ -86,14 +86,6 @@ func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions
 			fileSize = info.Formats[0].Filesize
 		}
 
-		var partialHash *string
-		{
-			h, err := nfile.HashPartial(filePath, iconstants.HashPartialBlocks, iconstants.HashPartialBlockSize)
-			if err == nil && h != "" {
-				partialHash = &h
-			}
-		}
-
 		resultCh <- &ddownload.DownloadResult{
 			YoutubeTitle: title,
 			FilePath:     filePath,
@@ -101,7 +93,6 @@ func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions
 			FileExt:      fileExt,
 			FileFullName: FileFullName,
 			Filesize:     fileSize,
-			PartialHash:  partialHash,
 		}
 
 		// Add output file path to yt-dlp arguments
@@ -132,6 +123,14 @@ func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions
 			fileSize = uptr.Int(int(fileInfo.Size()))
 		}
 
+		var partialHash *string
+		{
+			h, err := nfile.HashPartial(filePath, iconstants.HashPartialBlocks, iconstants.HashPartialBlockSize)
+			if err == nil && h != "" {
+				partialHash = &h
+			}
+		}
+
 		// Build response struct
 		result := &ddownload.DownloadResult{
 			YoutubeTitle: title,
@@ -140,6 +139,7 @@ func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions
 			FileExt:      fileExt,
 			FileFullName: FileFullName,
 			Filesize:     fileSize,
+			PartialHash:  partialHash,
 		}
 
 		resultCh <- result
