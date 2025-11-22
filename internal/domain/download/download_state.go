@@ -40,4 +40,5 @@ func (s *DownloadState) InitFromDownloadResult(result *DownloadResult) {
 	s.File.YoutubeTitle = result.YoutubeTitle
 	s.File.Ext = result.FileExt
 	s.File.FileSize = result.Filesize
+	s.File.PartialHash = result.PartialHash
 }

@@ -17,6 +17,7 @@ import (
 	iconfig "github.com/neosy/elengrab/infrastructure/config"
 	httpsrv "github.com/neosy/elengrab/internal/api/rest/server"
 	"github.com/neosy/elengrab/internal/app/usecases"
+	"github.com/neosy/elengrab/internal/app/workers"
 	inmemoryrep "github.com/neosy/elengrab/internal/repository/in_memory"
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
 	"github.com/neosy/elengrab/internal/services"
@@ -111,6 +112,16 @@ func main() {
 		logger.Error("Failed to init downloader", "err", err)
 		return
 	}
+
+	// Workers
+	wsDeps := &workers.Dependencies{
+		Downloader: uc.Downloader,
+	}
+	ws := workers.NewWorkers(logger, wsDeps)
+	if err := ws.StartWorkers(ctx); err != nil {
+		logger.Error("Failed to run workers", "err", err)
+	}
+	defer ws.StopWorkers()
 
 	// Start FastHTTP server in a separate goroutine
 	go func(ctx context.Context) {

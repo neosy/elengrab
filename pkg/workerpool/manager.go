@@ -87,7 +87,9 @@ func (m *manager) Start(ctx context.Context) error {
 
 	// Create and start all workers
 	for range m.workerCount {
-		m.addWorker(ctx)
+		m.wg.Go(func() {
+			m.addWorker(ctx)
+		})
 	}
 
 	// Bridge ctx cancellation to quit signal and wake dispatcher
@@ -198,11 +200,7 @@ func (m *manager) addWorker(ctx context.Context) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	worker := newWorker(
-		m.logger,
-		uint(len(m.workers)),
-		&m.wg,
-	)
+	worker := newWorker(m.logger, uint(len(m.workers)))
 	m.workers = append(m.workers, worker)
 
 	worker.Start(

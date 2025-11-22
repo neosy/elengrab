@@ -21,4 +21,7 @@ type FileRepository interface {
 	GetAll(ctx context.Context) ([]*ddownload.File, error)
 	GetBeforeTime(ctx context.Context, before time.Time, limit uint64) ([]*ddownload.File, error)
 	GetByStatus(ctx context.Context, status dtypes.FileStatus) ([]*ddownload.File, error)
+	GetByPartialHash(ctx context.Context, hash string) ([]*ddownload.File, error)
+	GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, error)
+	GetDuplicateHashes(ctx context.Context) ([]string, error)
 }

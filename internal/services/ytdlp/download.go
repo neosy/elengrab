@@ -8,9 +8,12 @@ import (
 	"strconv"
 
 	"github.com/google/uuid"
+	iconstants "github.com/neosy/elengrab/internal/constants"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	dyoutubeinfo "github.com/neosy/elengrab/internal/domain/youtube_info"
+	"github.com/neosy/elengrab/pkg/nfile"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
@@ -22,7 +25,7 @@ const (
 	audioQualityM4ADefault = "0"
 )
 
-func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions) (<-chan *ddownload.DownloadResult, error) {
+func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions) (<-chan *ddownload.DownloadResult, error) {
 	resultCh := make(chan *ddownload.DownloadResult)
 
 	sendResultError := func(err error) {
@@ -83,6 +86,14 @@ func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions
 			fileSize = info.Formats[0].Filesize
 		}
 
+		var partialHash *string
+		{
+			h, err := nfile.HashPartial(filePath, iconstants.HashPartialBlocks, iconstants.HashPartialBlockSize)
+			if err == nil && h != "" {
+				partialHash = &h
+			}
+		}
+
 		resultCh <- &ddownload.DownloadResult{
 			YoutubeTitle: title,
 			FilePath:     filePath,
@@ -90,6 +101,7 @@ func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions
 			FileExt:      fileExt,
 			FileFullName: FileFullName,
 			Filesize:     fileSize,
+			PartialHash:  partialHash,
 		}
 
 		// Add output file path to yt-dlp arguments
@@ -140,9 +152,7 @@ func (srv *YtDlpService) Download(url string, options *ddownload.DownloadOptions
 }
 
 // prepareDownloadOptions prepare download options with defaults and user overrides
-func (srv *YtDlpService) prepareDownloadOptions(
-	options *ddownload.DownloadOptions,
-) (
+func (srv *YtDlpService) prepareDownloadOptions(options *dservices.DownloadOptions) (
 	formatType dtypes.FormatType,
 	videoFormat dtypes.VideoFormat,
 	audioFormat dtypes.AudioFormat,

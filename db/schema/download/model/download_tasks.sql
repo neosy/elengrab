@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS download_tasks (
     file_id TEXT NOT NULL,
     
     -- Task status: pending, working, done, failed
-    task_status TEXT NOT NULL DEFAULT 'pending',
+    task_status TEXT NOT NULL DEFAULT 'new',
 
     -- Youtube URL
     youtube_url TEXT NOT NULL,

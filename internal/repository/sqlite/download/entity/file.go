@@ -18,6 +18,7 @@ type File struct {
 	Ext                  string    `db:"ext"`
 	FullName             string    `db:"full_name"`
 	FileSize             *int      `db:"file_size"`
+	PartialHash          *string   `db:"partial_hash"`
 	SafeReadableFullName string    `db:"safe_readable_full_name"`
 	ErrorMessage         *string   `db:"error_message"`
 	CreatedAt            time.Time `db:"created_at" insert:"false"`
