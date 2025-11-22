@@ -32,6 +32,9 @@ type File struct {
 	// File size (byte)
 	FileSize *int
 
+	// Fast partial file hash (combined hash of multiple sampled blocks; not a full-file checksum)
+	PartialHash *string
+
 	// Human-readable safe full name
 	SafeReadableFullName string
 

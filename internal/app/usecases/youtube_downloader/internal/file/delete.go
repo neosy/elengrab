@@ -7,5 +7,9 @@ import (
 )
 
 func (uc *File) Delete(ctx context.Context, fileId uuid.UUID) error {
-	return uc.FileRep.Delete(ctx, fileId)
+	err := uc.FileRep.Delete(ctx, fileId)
+	if err != nil {
+		uc.logger.Debug("Failed delete file", "error", err)
+	}
+	return nil
 }

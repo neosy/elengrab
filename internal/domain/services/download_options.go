@@ -1,24 +1,27 @@
-package ddownload
+package dservices
 
 import dtypes "github.com/neosy/elengrab/internal/domain/types"
 
 // DownloadOptions defines optional parameters for a download operation.
 type DownloadOptions struct {
 	// Type of content to download (video, audio, or both)
-	FormatType dtypes.FormatType `json:"format_type"`
+	FormatType dtypes.FormatType
 
 	// Video format (orig, mp4)
-	VideoFormat *dtypes.VideoFormat `json:"video_format,omitempty"`
+	VideoFormat *dtypes.VideoFormat
 
 	// Audio format (orig, mp3)
-	AudioFormat *dtypes.AudioFormat `json:"audio_format,omitempty"`
+	AudioFormat *dtypes.AudioFormat
+
+	// Custom output directory
+	DownloadsDir *string
 
 	// Custom file name for the downloaded content
-	Filename *string `json:"filename,omitempty"`
+	Filename *string
 
 	// Desired video quality
-	VideoQuality *string `json:"video_quality,omitempty"`
+	VideoQuality *string
 
 	// Desired audio quality
-	AudioQuality *string `json:"audio_quality,omitempty"`
+	AudioQuality *string
 }

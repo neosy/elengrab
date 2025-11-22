@@ -9,3 +9,8 @@ import (
 type DownloadTaskRunner interface {
 	ExecuteDownloadTask(ctx context.Context, workerId uint, task *ddownload.DownloadTask) error
 }
+
+type MaintenanceRunner interface {
+	UpdateHash(ctx context.Context) error
+	DeleteDuplicates(ctx context.Context) error
+}
