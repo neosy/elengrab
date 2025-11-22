@@ -28,7 +28,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 
 	uc.saveStateByFileId(ctx, task.FileId)
 
-	resultCh, err := uc.downloaderSrv.Download(task.YoutubeUrl, task.Options)
+	resultCh, err := uc.downloaderSrv.Download(task.YoutubeUrl, uc.mappers.MapDownloadOptionsDomainToService(task.Options))
 	if err != nil {
 		uc.logger.Error(
 			"Download",
@@ -79,6 +79,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		Ext:                  &lastResult.FileExt,
 		FullName:             &lastResult.FileFullName,
 		FileSize:             &lastResult.Filesize,
+		PartialHash:          &lastResult.PartialHash,
 		SafeReadableFullName: &safeReadableFullName,
 	}
 

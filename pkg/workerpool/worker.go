@@ -22,19 +22,17 @@ type worker struct {
 	running  atomic.Bool
 
 	stop chan struct{}
-	wg   *sync.WaitGroup
+	mu   sync.Mutex
 }
 
 func newWorker(
 	logger *slog.Logger,
 	workerId uint,
-	wg *sync.WaitGroup,
 ) *worker {
 	worker := &worker{
 		logger:   logger,
 		workerId: workerId,
 
-		wg:   wg,
 		stop: make(chan struct{}),
 	}
 
@@ -51,7 +49,7 @@ func (w *worker) Start(ctx context.Context, jobStream chan Job, quit <-chan stru
 
 	w.status.Store(WorkerStatusIdle)
 
-	w.wg.Go(func() {
+	go func() {
 		defer func() {
 			w.running.Store(false)
 			w.status.Store(WorkerStatusStopped)
@@ -82,7 +80,7 @@ func (w *worker) Start(ctx context.Context, jobStream chan Job, quit <-chan stru
 				}()
 			}
 		}
-	})
+	}()
 
 	w.logger.Debug("Worker started", "workerId", w.workerId)
 }
@@ -96,7 +94,9 @@ func (w *worker) Stop() {
 	case <-w.stop:
 		// already closed
 	default:
+		w.mu.Lock()
 		close(w.stop)
+		w.mu.Unlock()
 	}
 }
 

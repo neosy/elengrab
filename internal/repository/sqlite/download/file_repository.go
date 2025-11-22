@@ -15,6 +15,7 @@ import (
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
 	"github.com/neosy/elengrab/pkg/dbutils"
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 type FileRepository struct {
@@ -27,9 +28,10 @@ type FileRepository struct {
 }
 
 type fileByFields struct {
-	status     *dtypes.FileStatus
-	beforeTime *time.Time
-	limit      *uint64
+	status      *dtypes.FileStatus
+	beforeTime  *time.Time
+	limit       *uint64
+	partialHash **string
 }
 
 // NewFileRepository returns a new object for the repository
@@ -223,6 +225,13 @@ func (r *FileRepository) getAll(ctx context.Context, byFields fileByFields, sort
 		t := byFields.beforeTime.Add(-1 * time.Nanosecond)
 		conditions = append(conditions, squirrel.Lt{eFile.FieldNameWithAlias(&eFile.CreatedAt, aliasFiles): t})
 	}
+	if byFields.partialHash != nil {
+		if *byFields.partialHash == nil {
+			conditions = append(conditions, squirrel.Expr(eFile.FieldNameWithAlias(&eFile.PartialHash, aliasFiles)+" IS NULL"))
+		} else {
+			conditions = append(conditions, squirrel.Eq{eFile.FieldNameWithAlias(&eFile.PartialHash, aliasFiles): **byFields.partialHash})
+		}
+	}
 
 	sqlWhere := squirrel.Expr("TRUE")
 	if len(conditions) > 0 {
@@ -287,6 +296,68 @@ func (r *FileRepository) GetBeforeTime(ctx context.Context, before time.Time, li
 
 func (r *FileRepository) GetByStatus(ctx context.Context, status dtypes.FileStatus) ([]*ddownload.File, error) {
 	return r.getAll(ctx, fileByFields{status: &status}, dbutils.OrderAsc)
+}
+
+func (r *FileRepository) GetByPartialHash(ctx context.Context, hash string) ([]*ddownload.File, error) {
+	var h = &hash
+	return r.getAll(ctx, fileByFields{partialHash: &h, status: uptr.Any(dtypes.FileStatusDone)}, dbutils.OrderDesc)
+}
+
+func (r *FileRepository) GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, error) {
+	var h *string
+	return r.getAll(ctx, fileByFields{partialHash: &h}, dbutils.OrderAsc)
+}
+
+func (r *FileRepository) GetDuplicateHashes(ctx context.Context) ([]string, error) {
+	var eFile edownload.File
+
+	sqlWhere := squirrel.And{
+		squirrel.Expr(eFile.FieldName(&eFile.PartialHash) + " IS NOT NULL"),
+		squirrel.Eq{eFile.FieldName(&eFile.Status): dtypes.FileStatusDone},
+		squirrel.NotEq{eFile.FieldName(&eFile.FullName): ""},
+	}
+
+	// SELECT partial_hash
+	// FROM files
+	// WHERE partial_hash IS NOT NULL
+	// GROUP BY partial_hash
+	// HAVING COUNT(*) > 1;
+	sqlQuery, args, err := squirrel.Select(eFile.FieldName(&eFile.PartialHash)).
+		From(eFile.TableName()).
+		Where(sqlWhere).
+		GroupBy(eFile.FieldName(&eFile.PartialHash)).
+		Having("COUNT(*) > 1").
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	var hashes []string
+
+	// Execute the query
+	rows, err := r.db.QueryContext(ctx, sqlQuery, args...)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return hashes, nil
+		}
+		return nil, err
+	}
+	defer rows.Close()
+
+	if rows != nil {
+		for rows.Next() {
+			var hash string
+			err := rows.Scan(&hash)
+			if err != nil {
+				continue
+			}
+			hashes = append(hashes, hash)
+		}
+	}
+
+	return hashes, nil
 }
 
 func (r *FileRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {

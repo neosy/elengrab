@@ -22,6 +22,9 @@ CREATE TABLE IF NOT EXISTS files (
 
     -- File size (byte)
     file_size INTEGER NULL,
+
+    -- Fast partial file hash (combined hash of multiple sampled blocks; not a full-file checksum)
+    partial_hash TEXT NULL,
     
     -- Human-readable safe full name
     safe_readable_full_name TEXT NOT NULL,
@@ -35,3 +38,9 @@ CREATE TABLE IF NOT EXISTS files (
     -- Record update timestamp, set automatically
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS files_created_at_idx
+ON files(created_at);
+
+CREATE INDEX IF NOT EXISTS files_partial_hash_idx
+ON files(partial_hash);
