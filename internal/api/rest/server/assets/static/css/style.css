@@ -232,6 +232,8 @@ body {
 
 .result-youtube-url {
     text-align: left;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 /* YouTube link — simple black style */
@@ -239,15 +241,15 @@ body {
   color: #000;
   justify-content: left;
   font-family: "Inter", sans-serif;
-  font-weight: 500;           /* Slightly bold for emphasis */
-  text-decoration: none;      /* Clean look, no underline */
+  font-weight: 500;                         /* Slightly bold for emphasis */
+  text-decoration: none;                    /* Clean look, no underline */
   transition: opacity 0.2s ease;
 }
 
 /* Hover effect — subtle visual feedback */
 .result-youtube-url a:hover {
-  opacity: 0.7;               /* Slight fade effect */
-  text-decoration: underline; /* Add underline on hover */
+  opacity: 0.7;                             /* Slight fade effect */
+  text-decoration: underline;               /* Add underline on hover */
 }
 /* Separator dot */
 .result-separator {
@@ -308,6 +310,22 @@ body {
     margin: 0 4px;
 }
 
+.result-format[data-format="mp3"] {
+    color: #ff7043;
+}
+
+.result-format[data-format="m4a"] {
+    color: #42a5f5;
+}
+
+.result-format[data-format="mp4"] {
+    color: #1e88e5;
+}
+
+.result-format[data-format="webm"] {
+    color: #7e57c2;
+}
+
 .div-result-status {
     display: inline-flex;
     width: 35px;
@@ -348,14 +366,14 @@ body {
 /* Spinner circle */
 .item-result-spinner {
     display: inline-flex;
-    justify-content: center;    /* центрируем спиннер внутри контейнера */
+    justify-content: center;              /* center the spinner inside the container */
     align-items: center;
-    width: 15px;                       /* Spinner size */
+    width: 15px;                          /* Spinner size */
     height: 15px;
-    border: 5px solid #d0d0d0;       /* Light ring */
-    border-top: 5px solid #4a90e2;   /* Blue accent for animation */
-    border-radius: 50%;                /* Make it circular */
-    animation: spin 1s linear infinite;/* Continuous rotation */
+    border: 5px solid #d0d0d0;          /* Light ring */
+    border-top: 5px solid #4a90e2;      /* Blue accent for animation */
+    border-radius: 50%;                   /* Make it circular */
+    animation: spin 1s linear infinite;   /* Continuous rotation */
 }
 
 /* Download link */
@@ -460,7 +478,7 @@ body {
     }
 
     .img-header-logo {
-        height: 2.5em; /* уменьшаем вместе с заголовком */
+        height: 2.5em;                  /* decreases along with the title */
     }
 }
 
@@ -497,7 +515,6 @@ body {
     }
 
     .div-format-options label {
-        /* width: 100%; */
         font-size: 16px;
     }
 
@@ -505,8 +522,20 @@ body {
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        padding: 5px;
+        position: relative;
+        padding: 5px 5px 20px 5px;
         gap: 10px;
+    }
+
+    .div-grab-result-item::after {
+        content: "";
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        width: 80%;
+        height: 1px;
+        background: #e0e0e0;
+        transform: translateX(-50%);
     }
 
     .div-result-size,
