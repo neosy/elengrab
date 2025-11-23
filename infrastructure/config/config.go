@@ -2,6 +2,7 @@ package iconfig
 
 import (
 	"log"
+	"time"
 
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
@@ -29,10 +30,16 @@ type HTMXServerConfig struct {
 }
 
 type ElengrabConfig struct {
-	AssetsDir    string `env:"ASSETS_DIR" envDefault:"/app_n/assets"`
-	BinDir       string `env:"BIN_DIR" envDefault:"/usr/local/bin"`
-	DownloadsDir string `env:"DOWNLOADS_DIR" envDefault:"/app_n/downloads"`
-	LoadHistory  bool   `env:"LOAD_HISTORY" envDefault:"true"`
+	AssetsDir    string                    `env:"ASSETS_DIR" envDefault:"/app_n/assets"`
+	BinDir       string                    `env:"BIN_DIR" envDefault:"/usr/local/bin"`
+	DownloadsDir string                    `env:"DOWNLOADS_DIR" envDefault:"/app_n/downloads"`
+	LoadHistory  bool                      `env:"LOAD_HISTORY" envDefault:"true"`
+	Maintenance  ElengrabMaintenanceConfig `envPrefix:"MAINTENANCE_"`
+}
+
+type ElengrabMaintenanceConfig struct {
+	IntervalUpdateHash       time.Duration `env:"INTERVAL_UPDATE_HASH" envDefault:"8h"`
+	IntervalDeleteDuplicates time.Duration `env:"INTERVAL_UPDATE_DUPLICATES" envDefault:"1h"`
 }
 
 type SQLiteConfig struct {
