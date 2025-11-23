@@ -7,6 +7,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	"github.com/neosy/elengrab/pkg/nfile"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
@@ -71,7 +72,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		)
 	}
 
-	safeReadableFullName := fmt.Sprintf("%s.%s", uc.sanitizeFileName(lastResult.YoutubeTitle), lastResult.FileExt)
+	safeReadableFullName := fmt.Sprintf("%s.%s", nfile.SanitizeFileName(lastResult.YoutubeTitle), lastResult.FileExt)
 
 	patch := &dto.FileInfoPatch{
 		YoutubeTitle:         &lastResult.YoutubeTitle,

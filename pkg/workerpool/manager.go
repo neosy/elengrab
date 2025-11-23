@@ -80,17 +80,20 @@ func NewManager(logger *slog.Logger, options *ManagerOptions) *manager {
 // Returns error if manager is already running.
 func (m *manager) Start(ctx context.Context) error {
 	if !m.running.CompareAndSwap(false, true) {
-		err := errors.New("manager already running")
-		m.logger.Error("Manager already running")
-		return err
+		if m.logger != nil {
+			m.logger.Error("Manager already running")
+		}
+		return errors.New("manager already running")
 	}
 
 	// Create and start all workers
-	for range m.workerCount {
-		m.wg.Go(func() {
+	m.mu.Lock()
+	{
+		for range m.workerCount {
 			m.addWorker(ctx)
-		})
+		}
 	}
+	m.mu.Unlock()
 
 	// Bridge ctx cancellation to quit signal and wake dispatcher
 	go func(ctx context.Context) {
@@ -101,12 +104,14 @@ func (m *manager) Start(ctx context.Context) error {
 		// On context cancellation: signal shutdown and wake dispatcher
 		case <-ctx.Done():
 			m.mu.Lock()
-			select {
-			case <-m.quit:
-			default:
-				close(m.quit)
+			{
+				select {
+				case <-m.quit:
+				default:
+					close(m.quit)
+				}
+				m.cond.Broadcast() // Wake dispatcher from cond.Wait()
 			}
-			m.cond.Broadcast() // Wake dispatcher from cond.Wait()
 			m.mu.Unlock()
 			return
 		}
@@ -116,7 +121,9 @@ func (m *manager) Start(ctx context.Context) error {
 		// Ensure running flag is cleared when dispatcher exits
 		defer func() {
 			m.running.Store(false)
-			m.logger.Debug("Worker pool manager stopped")
+			if m.logger != nil {
+				m.logger.Debug("Worker pool manager stopped")
+			}
 		}()
 
 		for {
@@ -129,35 +136,45 @@ func (m *manager) Start(ctx context.Context) error {
 
 			// Acquire lock to safely inspect queue and semaphore
 			m.mu.Lock()
-
-			// Wait until there is at least one job AND a free worker slot
-			for m.jobQueue.Len() == 0 || len(m.semaphore) == cap(m.semaphore) {
-				select {
-				// Stop loop if quit signal is received during wait
-				case <-m.quit:
-					m.mu.Unlock()
-					return
-				default:
-					// Release lock and sleep until notified (job added or slot freed)
-					m.cond.Wait()
+			{
+				// Wait until there is at least one job AND a free worker slot
+				for m.jobQueue.Len() == 0 || len(m.semaphore) == cap(m.semaphore) {
+					select {
+					// Stop loop if quit signal is received during wait
+					case <-m.quit:
+						m.mu.Unlock()
+						return
+					default:
+						// Release the mutex lock and sleep until notified (job added or slot freed)
+						m.cond.Wait()
+					}
 				}
 			}
-
-			// Claim a worker slot (non-blocking due to prior check)
-			m.semaphore <- struct{}{}
+			// Release lock before sending job to worker
+			m.mu.Unlock()
 
 			// Extract next job from queue
 			job, _ := m.jobQueue.Pop()
 
-			// Release lock before sending job to worker
-			m.mu.Unlock()
+			if job != nil {
+				// Claim a worker slot (non-blocking due to prior check)
+				select {
+				case <-m.quit:
+				case m.semaphore <- struct{}{}:
+				}
 
-			// Dispatch job to an available worker
-			m.jobStream <- job
+				// Dispatch job to an available worker
+				select {
+				case <-m.quit:
+				case m.jobStream <- job:
+				}
+			}
 		}
 	})
 
-	m.logger.Debug("Worker pool manager running...")
+	if m.logger != nil {
+		m.logger.Debug("Worker pool manager running...")
+	}
 
 	return nil
 }
@@ -170,12 +187,14 @@ func (m *manager) Stop() {
 		return
 	}
 
-	// Signal all components to stop
-	close(m.quit)
-
-	// Wake up dispatcher if waiting
 	m.mu.Lock()
-	m.cond.Broadcast()
+	{
+		// Signal all components to stop
+		close(m.quit)
+
+		// Wake up dispatcher if waiting
+		m.cond.Broadcast()
+	}
 	m.mu.Unlock()
 
 	// Wait for dispatcher and workers to finish
@@ -197,9 +216,6 @@ func (m *manager) AddJob(job Job) {
 // ctx: context passed to worker for lifecycle control.
 // Must be called with m.mu held.
 func (m *manager) addWorker(ctx context.Context) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
 	worker := newWorker(m.logger, uint(len(m.workers)))
 	m.workers = append(m.workers, worker)
 
@@ -208,10 +224,16 @@ func (m *manager) addWorker(ctx context.Context) {
 		m.jobStream,
 		m.quit,
 		func() {
-			<-m.semaphore
-
+			select {
+			case <-m.quit:
+				return
+			case <-m.semaphore:
+			}
 			m.mu.Lock()
-			m.cond.Broadcast() // Notify dispatcher that a slot is free
+			{
+				// Notify dispatcher that a slot is free
+				m.cond.Broadcast()
+			}
 			m.mu.Unlock()
 		},
 	)
