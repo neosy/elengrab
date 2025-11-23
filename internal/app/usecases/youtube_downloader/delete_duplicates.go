@@ -36,7 +36,7 @@ func (uc *YouTubeDownloader) DeleteDuplicates(ctx context.Context) error {
 
 			fPath := path.Join(uc.downloadsDir, file.FullName)
 			if err := os.Remove(fPath); err != nil {
-				uc.logger.Debug("Failed delete file", "filePath", fPath, "error", err)
+				uc.logger.Warn("Failed delete file", "filePath", fPath, "error", err)
 				continue
 			}
 		}

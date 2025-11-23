@@ -1,4 +1,4 @@
-package workerpool
+package nworkerpool
 
 import (
 	"context"
@@ -42,7 +42,7 @@ func newWorker(
 func (w *worker) Start(ctx context.Context, jobStream chan Job, quit <-chan struct{}, onJobDone func()) {
 	if !w.running.CompareAndSwap(false, true) {
 		if w.logger != nil {
-			w.logger.Error("Worker already running", "workerId", w.workerId)
+			w.logger.Warn("Worker already running", "workerId", w.workerId)
 		}
 		return
 	}

@@ -35,7 +35,7 @@ func NewWorkers[T any](logger *slog.Logger, deps T, init func(ws *Workers, deps 
 func (ws *Workers) Add(worker Worker) error {
 	if ws.running.Load() {
 		if ws.logger != nil {
-			ws.logger.Debug("Workers already running")
+			ws.logger.Warn("Workers already running")
 		}
 		return errors.New("workers already running")
 	}
@@ -66,7 +66,7 @@ func (ws *Workers) startWorker(ctx context.Context, worker Worker) {
 func (ws *Workers) StartWorkers(ctx context.Context) error {
 	if !ws.running.CompareAndSwap(false, true) {
 		if ws.logger != nil {
-			ws.logger.Debug("Workers already running")
+			ws.logger.Warn("Workers already running")
 		}
 		return errors.New("workers already running")
 	}

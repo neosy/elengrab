@@ -13,13 +13,13 @@ import (
 func (uc *File) FindByFileId(ctx context.Context, fileId uuid.UUID, checkNotFound bool) (*ddownload.File, error) {
 	file, err := uc.FileRep.FindByFileId(ctx, fileId)
 	if err != nil {
-		uc.logger.Debug("Error finding record", "error", err)
+		uc.logger.Warn("Error finding record", "error", err)
 		return nil, err
 	}
 
 	if checkNotFound && file == nil {
 		err := errors.New("record not found")
-		uc.logger.Debug("Record not found", "fileId", fileId)
+		uc.logger.Warn("Record not found", "fileId", fileId)
 		return nil, err
 	}
 
@@ -29,7 +29,7 @@ func (uc *File) FindByFileId(ctx context.Context, fileId uuid.UUID, checkNotFoun
 func (uc *File) GetAll(ctx context.Context) ([]*ddownload.File, error) {
 	file, err := uc.FileRep.GetAll(ctx)
 	if err != nil {
-		uc.logger.Debug("Error get files", "error", err)
+		uc.logger.Warn("Error get files", "error", err)
 		return nil, err
 	}
 
@@ -39,7 +39,7 @@ func (uc *File) GetAll(ctx context.Context) ([]*ddownload.File, error) {
 func (uc *File) GetBeforeTime(ctx context.Context, before time.Time, limit uint64) ([]*ddownload.File, error) {
 	file, err := uc.FileRep.GetBeforeTime(ctx, before, limit)
 	if err != nil {
-		uc.logger.Debug("Error get files", "error", err)
+		uc.logger.Warn("Error get files", "error", err)
 		return nil, err
 	}
 
@@ -49,7 +49,7 @@ func (uc *File) GetBeforeTime(ctx context.Context, before time.Time, limit uint6
 func (uc *File) GetByStatus(ctx context.Context, status dtypes.FileStatus) ([]*ddownload.File, error) {
 	file, err := uc.FileRep.GetByStatus(ctx, status)
 	if err != nil {
-		uc.logger.Debug("Failed to get files", "error", err)
+		uc.logger.Warn("Failed to get files", "error", err)
 		return nil, err
 	}
 
@@ -59,7 +59,7 @@ func (uc *File) GetByStatus(ctx context.Context, status dtypes.FileStatus) ([]*d
 func (uc *File) GetByPartialHash(ctx context.Context, hash string) ([]*ddownload.File, error) {
 	file, err := uc.FileRep.GetByPartialHash(ctx, hash)
 	if err != nil {
-		uc.logger.Debug("Failed to get files", "error", err)
+		uc.logger.Warn("Failed to get files", "error", err)
 		return nil, err
 	}
 
@@ -71,7 +71,7 @@ func (uc *File) GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, e
 
 	gFiles, err := uc.FileRep.GetWithoutPartialHash(ctx)
 	if err != nil {
-		uc.logger.Debug("Failed to get files", "error", err)
+		uc.logger.Warn("Failed to get files", "error", err)
 		return nil, err
 	}
 
@@ -91,7 +91,7 @@ func (uc *File) GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, e
 func (uc *File) GetDuplicateHashes(ctx context.Context) ([]string, error) {
 	hashes, err := uc.FileRep.GetDuplicateHashes(ctx)
 	if err != nil {
-		uc.logger.Debug("Failed to get dublicate hashes")
+		uc.logger.Warn("Failed to get dublicate hashes")
 		return nil, err
 	}
 

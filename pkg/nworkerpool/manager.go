@@ -1,4 +1,4 @@
-package workerpool
+package nworkerpool
 
 import (
 	"context"
@@ -81,7 +81,7 @@ func NewManager(logger *slog.Logger, options *ManagerOptions) *manager {
 func (m *manager) Start(ctx context.Context) error {
 	if !m.running.CompareAndSwap(false, true) {
 		if m.logger != nil {
-			m.logger.Error("Manager already running")
+			m.logger.Warn("Manager already running")
 		}
 		return errors.New("manager already running")
 	}
