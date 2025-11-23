@@ -22,8 +22,8 @@ import (
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
 	"github.com/neosy/elengrab/internal/services"
 	"github.com/neosy/elengrab/pkg/nlogger"
-	"github.com/neosy/elengrab/pkg/nworkers"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
+	"github.com/neosy/elengrab/pkg/nworkers"
 )
 
 func main() {
@@ -65,15 +65,15 @@ func main() {
 	// Create SQLite repositories
 	slRepositories := sqliterep.New(sqliteDB)
 
-	// Create SQLite repositories
+	// Create in memory repositories
 	inMemoryRepositories := inmemoryrep.New()
 
 	// Capture termination signals (Ctrl+C, SIGTERM)
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
-	// Start workers
-	dlManager := nworkerpool.NewManager(logger, &nworkerpool.ManagerOptions{WorkerCount: 3})
+	// Start worker pool
+	dlManager := nworkerpool.NewManager(logger, &nworkerpool.ManagerOptions{WorkerCount: cfg.Elengrab.DownloadWorkers})
 	if err := dlManager.Start(ctx); err != nil {
 		logger.Error("Failed to start worker pool", "err", err)
 		return
