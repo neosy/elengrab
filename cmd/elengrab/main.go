@@ -83,8 +83,8 @@ func main() {
 
 	// Initialize services
 	srvDeps := &services.Dependencies{
-		BinDir:       cfg.Elengrab.BinDir,
-		DownloadsDir: cfg.Elengrab.DownloadsDir,
+		DownloaderBinDir: cfg.Elengrab.DownloaderBinDir,
+		DownloadsDir:     cfg.Elengrab.DownloadsDir,
 	}
 	services, err := services.New(logger, srvDeps)
 	if err != nil {

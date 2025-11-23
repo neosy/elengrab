@@ -1,4 +1,4 @@
-package avalues
+package htmxvalues
 
 import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"

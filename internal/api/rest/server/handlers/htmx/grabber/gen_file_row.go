@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	avalues "github.com/neosy/elengrab/internal/api/rest/server/assets/values"
+	htmxvalues "github.com/neosy/elengrab/internal/api/rest/server/handlers/htmx/values"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/paths"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -93,7 +93,7 @@ func (h *GrabberHandlers) genFileRow(ctx context.Context, fileInfo *dto.GetFileI
 		cacheRow.mu.Unlock()
 	}
 
-	tmplPath = filepath.Join(h.assetsDir, "templates", avalues.GetGrabResultStatusHtmlFileName(fileInfo.Status))
+	tmplPath = filepath.Join(h.assetsDir, "templates", htmxvalues.GetGrabResultStatusHtmlFileName(fileInfo.Status))
 
 	data.YoutubeURL = fileInfo.YoutubeUrl
 	data.YoutubeTitle = fileInfo.YoutubeTitle
@@ -116,26 +116,26 @@ func (h *GrabberHandlers) genFileRow(ctx context.Context, fileInfo *dto.GetFileI
 		return nil, fasthttp.StatusInternalServerError, fmt.Errorf("template error: %v", err)
 	}
 
-	dataMap := avalues.MergeMaps(
-		avalues.PathValues,
-		avalues.IconNames,
-		avalues.StructToMap(data),
+	dataMap := htmxvalues.MergeMaps(
+		htmxvalues.PathValues,
+		htmxvalues.IconNames,
+		htmxvalues.StructToMap(data),
 	)
 
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
-	dataMap[avalues.GrabResultStatusIconNameKey] = avalues.GrabResultStatusIconName(fileInfo.Status)
-	dataMap[avalues.GrabResultItemHtmxOptionKey] = avalues.GrabResultStatusHtmxOption(fileInfo.Status, data.PathFileRow)
-	dataMap[avalues.GrabResultItemStatusHtmlKey] = avalues.GrabResultStatusIconSvgRaw(fileInfo.Status, iconsDir)
-	dataMap[avalues.GrabResultItemStatusTextKey] = fileInfo.StatusText
+	dataMap[htmxvalues.GrabResultStatusIconNameKey] = htmxvalues.GrabResultStatusIconName(fileInfo.Status)
+	dataMap[htmxvalues.GrabResultItemHtmxOptionKey] = htmxvalues.GrabResultStatusHtmxOption(fileInfo.Status, data.PathFileRow)
+	dataMap[htmxvalues.GrabResultItemStatusHtmlKey] = htmxvalues.GrabResultStatusIconSvgRaw(fileInfo.Status, iconsDir)
+	dataMap[htmxvalues.GrabResultItemStatusTextKey] = fileInfo.StatusText
 	if cacheChanged.youtubeTitle {
-		dataMap[avalues.ResultYoutubeUrlFadeKey] = "fade-text"
+		dataMap[htmxvalues.ResultYoutubeUrlFadeKey] = "fade-text"
 	}
 	if cacheChanged.FileSize {
-		dataMap[avalues.ResultSizeFadeKey] = "fade-text"
+		dataMap[htmxvalues.ResultSizeFadeKey] = "fade-text"
 	}
 	if cacheChanged.Format {
-		dataMap[avalues.ResultFormatFadeKey] = "fade-text"
+		dataMap[htmxvalues.ResultFormatFadeKey] = "fade-text"
 	}
 
 	var buf bytes.Buffer
