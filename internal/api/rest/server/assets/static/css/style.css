@@ -208,8 +208,15 @@ body {
     background: #f8f9fb;
     padding: 12px 20px;
     margin-top: 0px;
-    /* opacity: 0; */
     transition: all 0.2s ease;
+}
+
+.div-grab-result-item.inprogress {
+    color: #9e9e9e;
+}
+
+.div-grab-result-item.success {
+    color: #000;
 }
 
 .div-grab-result-item.fade-in {
@@ -217,7 +224,6 @@ body {
     transform: translateY(-20px);
     animation: fadeInAnim 0.75s ease forwards;
 }
-
 
 @keyframes fadeInAnim {
     from {
@@ -238,7 +244,7 @@ body {
 
 /* YouTube link — simple black style */
 .result-youtube-url a {
-  color: #000;
+  color: inherit;
   justify-content: left;
   font-family: "Inter", sans-serif;
   font-weight: 500;                         /* Slightly bold for emphasis */
@@ -253,7 +259,7 @@ body {
 }
 /* Separator dot */
 .result-separator {
-  color: #888;
+  color: #555;
 }
 
 .result-right {
@@ -302,7 +308,7 @@ body {
     justify-content: center;
     align-items: center;
     font-size: 0.9rem;
-    color: #555;
+    color: inherit;
     font-weight: 500;
     background-color: #f0f0f0;
     padding: 2px 6px;
@@ -315,7 +321,7 @@ body {
 }
 
 .result-format[data-format="m4a"] {
-    color: #42a5f5;
+    color: #26a69a;
 }
 
 .result-format[data-format="mp4"] {
