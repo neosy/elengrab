@@ -117,6 +117,9 @@ func main() {
 	// Workers
 	wsDeps := &workers.Dependencies{
 		Downloader: uc.Downloader,
+		// options
+		IntervalUpdateHash:       cfg.Elengrab.Maintenance.IntervalUpdateHash,
+		IntervalDeleteDuplicates: cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
 	}
 	ws := nworkers.NewWorkers(logger, wsDeps, workers.InitWorkers)
 	if err := ws.StartWorkers(ctx); err != nil {
