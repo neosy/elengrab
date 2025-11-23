@@ -19,6 +19,9 @@ type DownloadOptions struct {
 	// Custom file name for the downloaded content
 	Filename *string
 
+	// IncludeTitleInFilename indicates whether to include the title in the file name
+	IncludeTitleInFilename bool
+
 	// Desired video quality
 	VideoQuality *string
 

@@ -32,8 +32,6 @@ func newWorker(
 	worker := &worker{
 		logger:   logger,
 		workerId: workerId,
-
-		stop: make(chan struct{}),
 	}
 
 	worker.status.Store(WorkerStatusNone)
@@ -43,9 +41,14 @@ func newWorker(
 
 func (w *worker) Start(ctx context.Context, jobStream chan Job, quit <-chan struct{}, onJobDone func()) {
 	if !w.running.CompareAndSwap(false, true) {
-		w.logger.Error("Worker already running", "workerId", w.workerId)
+		if w.logger != nil {
+			w.logger.Error("Worker already running", "workerId", w.workerId)
+		}
 		return
 	}
+
+	// Opening a channel on startup
+	w.stop = make(chan struct{})
 
 	w.status.Store(WorkerStatusIdle)
 
@@ -53,7 +56,9 @@ func (w *worker) Start(ctx context.Context, jobStream chan Job, quit <-chan stru
 		defer func() {
 			w.running.Store(false)
 			w.status.Store(WorkerStatusStopped)
-			w.logger.Debug("Worker stopped", "workerId", w.workerId)
+			if w.logger != nil {
+				w.logger.Debug("Worker stopped", "workerId", w.workerId)
+			}
 		}()
 
 		for {
@@ -64,25 +69,33 @@ func (w *worker) Start(ctx context.Context, jobStream chan Job, quit <-chan stru
 				return
 			case job, ok := <-jobStream:
 				if !ok {
-					w.logger.Debug("taskStream closed, stopping worker", "workerId", w.workerId)
+					if w.logger != nil {
+						w.logger.Debug("taskStream closed, stopping worker", "workerId", w.workerId)
+					}
 					return
 				}
-				func() {
+				{
 					w.status.Store(WorkerStatusWorking)
 					defer func() {
 						w.status.Store(WorkerStatusIdle)
 						onJobDone()
 					}()
 
-					w.logger.Debug("Worker: running job", "workerId", w.workerId)
+					if w.logger != nil {
+						w.logger.Debug("Worker: running job", "workerId", w.workerId)
+					}
 					job.Execute(ctx, w.workerId)
-					w.logger.Debug("Worker: job done", "workerId", w.workerId)
-				}()
+					if w.logger != nil {
+						w.logger.Debug("Worker: job done", "workerId", w.workerId)
+					}
+				}
 			}
 		}
 	}()
 
-	w.logger.Debug("Worker started", "workerId", w.workerId)
+	if w.logger != nil {
+		w.logger.Debug("Worker started", "workerId", w.workerId)
+	}
 }
 
 func (w *worker) Stop() {
@@ -90,13 +103,16 @@ func (w *worker) Stop() {
 		return
 	}
 
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
 	select {
 	case <-w.stop:
 		// already closed
 	default:
-		w.mu.Lock()
-		close(w.stop)
-		w.mu.Unlock()
+		if w.stop != nil {
+			close(w.stop)
+		}
 	}
 }
 

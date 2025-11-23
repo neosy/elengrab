@@ -36,7 +36,7 @@ func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions
 		defer close(resultCh)
 
 		// Prepare download options with defaults and user overrides
-		formatType, videoFormat, audioFormat, downloadDir, fileName := srv.prepareDownloadOptions(options)
+		formatType, videoFormat, audioFormat, downloadDir, fileName, includeTitleInFilename := srv.prepareDownloadOptions(options)
 
 		var (
 			cmd *exec.Cmd
@@ -76,6 +76,10 @@ func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions
 		// Generate a unique filename if none provided
 		if fileName == "" {
 			fileName = uuid.New().String()
+		}
+
+		if includeTitleInFilename {
+			fileName = fmt.Sprintf("%s_%s", nfile.SanitizeFileName(title), fileName)
 		}
 
 		FileFullName := fmt.Sprintf("%s.%s", fileName, fileExt)
@@ -157,6 +161,7 @@ func (srv *YtDlpService) prepareDownloadOptions(options *dservices.DownloadOptio
 	videoFormat dtypes.VideoFormat,
 	audioFormat dtypes.AudioFormat,
 	downloadDir, fileName string,
+	includeTitleInFilename bool,
 ) {
 	// Set default values
 	formatType = formatTypeDefault
@@ -164,6 +169,7 @@ func (srv *YtDlpService) prepareDownloadOptions(options *dservices.DownloadOptio
 	audioFormat = audioFormatDefault
 	downloadDir = srv.downloadsDir
 	fileName = ""
+	includeTitleInFilename = false
 
 	// If no options provided, return defaults
 	if options == nil {
@@ -190,12 +196,15 @@ func (srv *YtDlpService) prepareDownloadOptions(options *dservices.DownloadOptio
 		fileName = fileNameWithoutExt(*options.Filename)
 	}
 
+	// Include title in filename
+	includeTitleInFilename = options.IncludeTitleInFilename
+
 	// Override download directory if provided
 	if options.DownloadsDir != nil {
 		downloadDir = *options.DownloadsDir
 	}
 
-	return formatType, videoFormat, audioFormat, downloadDir, fileName
+	return formatType, videoFormat, audioFormat, downloadDir, fileName, includeTitleInFilename
 }
 
 // buildDownloadArgs build yt-dlp arguments and get file extension and title
