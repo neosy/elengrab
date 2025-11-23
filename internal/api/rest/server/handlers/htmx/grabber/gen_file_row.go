@@ -18,6 +18,16 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+type fileRowInfoData struct {
+	PathFileRow  string
+	YoutubeTitle string
+	YoutubeURL   string
+	FileSize     string
+	Format       string
+	DataFormat   string
+	DownloadURL  string
+}
+
 type cacheRowEntry struct {
 	youtubeTitle string
 	FileSize     int
@@ -105,8 +115,10 @@ func (h *GrabberHandlers) genFileRow(ctx context.Context, fileInfo *dto.GetFileI
 	}
 
 	data.Format = "-"
+	data.DataFormat = "-"
 	if fileInfo.FileExt != "" {
 		data.Format = fileInfo.FileExt
+		data.DataFormat = fileInfo.FileExt
 	}
 	// Set URL for download endpoint
 	data.DownloadURL = httppaths.BuildPathFileDownload(fileInfo.FileId)

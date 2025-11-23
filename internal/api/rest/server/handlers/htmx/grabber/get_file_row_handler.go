@@ -5,15 +5,6 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-type fileRowInfoData struct {
-	PathFileRow  string
-	YoutubeTitle string
-	YoutubeURL   string
-	FileSize     string
-	Format       string
-	DownloadURL  string
-}
-
 func (h *GrabberHandlers) GetFileRow(ctx *fasthttp.RequestCtx) {
 	fileIdStr := ctx.UserValue(fileIdKey).(string)
 	if fileIdStr == "" {
