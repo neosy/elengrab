@@ -74,7 +74,7 @@ func (w *worker) Start(ctx context.Context, jobStream chan Job, quit <-chan stru
 					}
 					return
 				}
-				{
+				func() {
 					w.status.Store(WorkerStatusWorking)
 					defer func() {
 						w.status.Store(WorkerStatusIdle)
@@ -84,11 +84,12 @@ func (w *worker) Start(ctx context.Context, jobStream chan Job, quit <-chan stru
 					if w.logger != nil {
 						w.logger.Debug("Worker: running job", "workerId", w.workerId)
 					}
+
 					job.Execute(ctx, w.workerId)
 					if w.logger != nil {
 						w.logger.Debug("Worker: job done", "workerId", w.workerId)
 					}
-				}
+				}()
 			}
 		}
 	}()
