@@ -22,7 +22,7 @@ func (s *DownloadTaskStatus) updateStatus(
 
 	err = s.statusSetter.SetStatus(task, toStatus)
 	if err != nil {
-		s.logger.Debug(
+		s.logger.Warn(
 			"Failed to update status",
 			"taskId", taskId,
 			"error", err,
@@ -38,7 +38,7 @@ func (s *DownloadTaskStatus) updateStatus(
 	// Update in the repository
 	err = s.downloadTask.Update(ctx, task)
 	if err != nil {
-		s.logger.Debug(
+		s.logger.Warn(
 			"Failed to update file in the repository",
 			"taskId", taskId,
 			"error", err,

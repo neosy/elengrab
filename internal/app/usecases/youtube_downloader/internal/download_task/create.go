@@ -11,7 +11,7 @@ import (
 
 func (uc *DownloadTask) Create(ctx context.Context, task *ddownload.DownloadTask) error {
 	if task == nil {
-		uc.logger.Error("Nil pointer in function")
+		uc.logger.Warn("Nil pointer in function")
 		return errors.New("function parameter is a null pointer")
 	}
 
@@ -22,7 +22,7 @@ func (uc *DownloadTask) Create(ctx context.Context, task *ddownload.DownloadTask
 
 	err := uc.TaskRep.Insert(ctx, task)
 	if err != nil {
-		uc.logger.Error(
+		uc.logger.Warn(
 			"Failed to insert record into repository",
 			"error", err,
 		)

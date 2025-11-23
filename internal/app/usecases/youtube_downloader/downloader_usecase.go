@@ -11,7 +11,7 @@ import (
 	filestatus "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/file_status"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
-	"github.com/neosy/elengrab/pkg/workerpool"
+	"github.com/neosy/elengrab/pkg/nworkerpool"
 )
 
 type YouTubeDownloader struct {
@@ -22,7 +22,7 @@ type YouTubeDownloader struct {
 	downloadStateRep persistence.DownloadStateRepository
 
 	// dispetchers
-	dlDispetcher workerpool.JobDispatcher
+	dlDispetcher nworkerpool.JobDispatcher
 
 	// internal
 	file         *fileuc.File
@@ -48,7 +48,7 @@ func NewYouTubeDownloader(
 	downloadStateRep persistence.DownloadStateRepository,
 
 	// dispetchers
-	dlDispetcher workerpool.JobDispatcher,
+	dlDispetcher nworkerpool.JobDispatcher,
 
 	// services
 	downloaderSrv pservices.YouTubeDownloader,

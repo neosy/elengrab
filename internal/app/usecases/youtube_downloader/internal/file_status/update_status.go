@@ -22,7 +22,7 @@ func (uc *FileStatus) updateStatus(
 
 	err = uc.statusSetter.SetStatus(file, toStatus)
 	if err != nil {
-		uc.logger.Error(
+		uc.logger.Warn(
 			"Failed to update status",
 			"fileId", fileId,
 			"error", err,
@@ -38,7 +38,7 @@ func (uc *FileStatus) updateStatus(
 	// Update in the repository
 	err = uc.fileRep.Update(ctx, file)
 	if err != nil {
-		uc.logger.Error(
+		uc.logger.Warn(
 			"Failed to update file in the repository",
 			"fileId", fileId,
 			"error", err,

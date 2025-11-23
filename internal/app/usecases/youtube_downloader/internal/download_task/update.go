@@ -9,7 +9,7 @@ import (
 func (uc *DownloadTask) Update(ctx context.Context, task *ddownload.DownloadTask) error {
 	err := uc.TaskRep.Update(ctx, task)
 	if err != nil {
-		uc.logger.Error("Update record error", "error", err)
+		uc.logger.Warn("Update record error", "error", err)
 		return err
 	}
 	return err

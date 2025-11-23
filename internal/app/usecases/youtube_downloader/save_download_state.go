@@ -9,7 +9,7 @@ import (
 
 func (uc *YouTubeDownloader) saveStateByFile(ctx context.Context, file *ddownload.File) {
 	if err := uc.dlState.SaveByFile(ctx, file); err != nil {
-		uc.logger.Debug("Save record failed", "error", err)
+		uc.logger.Warn("Save record failed", "error", err)
 	}
 }
 

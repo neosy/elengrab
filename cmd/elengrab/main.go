@@ -23,7 +23,7 @@ import (
 	"github.com/neosy/elengrab/internal/services"
 	"github.com/neosy/elengrab/pkg/nlogger"
 	"github.com/neosy/elengrab/pkg/nworkers"
-	"github.com/neosy/elengrab/pkg/workerpool"
+	"github.com/neosy/elengrab/pkg/nworkerpool"
 )
 
 func main() {
@@ -73,7 +73,7 @@ func main() {
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
 	// Start workers
-	dlManager := workerpool.NewManager(logger, &workerpool.ManagerOptions{WorkerCount: 3})
+	dlManager := nworkerpool.NewManager(logger, &nworkerpool.ManagerOptions{WorkerCount: 3})
 	if err := dlManager.Start(ctx); err != nil {
 		logger.Error("Failed to start worker pool", "err", err)
 		return

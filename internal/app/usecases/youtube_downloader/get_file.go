@@ -30,7 +30,7 @@ func (uc *YouTubeDownloader) getFileInfo(ctx context.Context, file *ddownload.Fi
 	}
 
 	if id == uuid.Nil {
-		uc.logger.Debug("FileId not specified")
+		uc.logger.Warn("Id for the FileId field is not defined")
 		return nil, errors.New("fileId not specified")
 	}
 
@@ -42,7 +42,7 @@ func (uc *YouTubeDownloader) getFileInfo(ctx context.Context, file *ddownload.Fi
 			var err error
 			f, err = uc.file.FindByFileId(ctx, id, true)
 			if err != nil {
-				uc.logger.Debug("Failed find file", "error", err)
+				uc.logger.Warn("Failed find file", "fileId", f.FileId, "error", err)
 				return nil, err
 			}
 		}
@@ -66,7 +66,7 @@ func (uc *YouTubeDownloader) getFilesInfo(ctx context.Context, before time.Time,
 
 	files, err := uc.file.GetBeforeTime(ctx, before, limit)
 	if err != nil {
-		uc.logger.Debug("Failed get files", "error", err)
+		uc.logger.Warn("Failed get files", "before", before, "limit", limit, "error", err)
 		return nil, err
 	}
 
