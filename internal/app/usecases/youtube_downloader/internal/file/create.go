@@ -11,7 +11,7 @@ import (
 
 func (uc *File) Create(ctx context.Context, file *ddownload.File, dlOptions *ddownload.DownloadOptions) error {
 	if file == nil {
-		uc.logger.Error("Nil pointer in function")
+		uc.logger.Warn("Nil pointer in function")
 		return errors.New("function parameter is a null pointer")
 	}
 
@@ -22,7 +22,7 @@ func (uc *File) Create(ctx context.Context, file *ddownload.File, dlOptions *ddo
 
 	err := uc.FileRep.Insert(ctx, file)
 	if err != nil {
-		uc.logger.Debug(
+		uc.logger.Warn(
 			"Failed to insert record into repository",
 			"error", err,
 		)

@@ -17,7 +17,7 @@ func (u *FileStatusSetter) checkSetStatus(
 		return nil
 	}
 
-	u.logger.Debug(
+	u.logger.Warn(
 		"Invalid status transition",
 		"fromStatus", fromStatus,
 		"toStatus", toStatus,

@@ -9,7 +9,7 @@ import (
 func (uc *File) DeleteBroken(ctx context.Context) error {
 	files, err := uc.GetByStatus(ctx, dtypes.FileStatusNew)
 	if err != nil {
-		uc.logger.Debug("Failed get files", "error", err)
+		uc.logger.Warn("Failed get files", "error", err)
 		return err
 	}
 
@@ -17,7 +17,7 @@ func (uc *File) DeleteBroken(ctx context.Context) error {
 		if file.DownloadTask == nil {
 			err := uc.Delete(ctx, file.FileId)
 			if err != nil {
-				uc.logger.Debug("Failed delete file", "error", err)
+				uc.logger.Warn("Failed delete file", "error", err)
 			}
 		}
 	}

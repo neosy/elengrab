@@ -66,7 +66,7 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 func (uc *YouTubeDownloader) addFileToQueueDownload(ctx context.Context, fileId uuid.UUID, taskId uuid.UUID) (*ddownload.File, error) {
 	err := uc.fileStatus.Pending(ctx, fileId, taskId)
 	if err != nil {
-		uc.logger.Debug("Failed update status", "error", err)
+		uc.logger.Warn("Failed update status", "error", err)
 		uc.fileStatus.Failed(ctx, fileId, uptr.String(err.Error()))
 		uc.saveStateByFileId(ctx, fileId)
 		return nil, err
@@ -74,7 +74,7 @@ func (uc *YouTubeDownloader) addFileToQueueDownload(ctx context.Context, fileId 
 
 	file, err := uc.file.FindByFileId(ctx, fileId, true)
 	if err != nil {
-		uc.logger.Debug("Failed find file", "error", err)
+		uc.logger.Warn("Failed find file", "error", err)
 		return nil, err
 	}
 

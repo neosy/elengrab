@@ -6,7 +6,7 @@ import (
 	ytdownloader "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/services"
-	"github.com/neosy/elengrab/pkg/workerpool"
+	"github.com/neosy/elengrab/pkg/nworkerpool"
 )
 
 type Dependencies struct {
@@ -14,7 +14,7 @@ type Dependencies struct {
 	Services     *services.Services
 
 	// dispetchers
-	DownloadDispetcher workerpool.JobDispatcher
+	DownloadDispetcher nworkerpool.JobDispatcher
 
 	// Options
 	DownloadsDir string

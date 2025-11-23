@@ -18,11 +18,13 @@ func (uc *YouTubeDownloader) UpdateHash(ctx context.Context) error {
 	for _, file := range files {
 		fPath := path.Join(uc.downloadsDir, file.FullName)
 		if _, err := os.Stat(fPath); err != nil {
+			uc.logger.Warn("File not found", "filePath", fPath, "error", err)
 			continue
 		}
 
 		h, err := nfile.HashPartial(fPath, iconstants.HashPartialBlocks, iconstants.HashPartialBlockSize)
 		if err != nil {
+			uc.logger.Warn("Failed get hash partial", "filePath", fPath, "error", err)
 			continue
 		}
 

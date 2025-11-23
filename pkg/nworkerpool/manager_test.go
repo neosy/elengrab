@@ -1,5 +1,5 @@
 // manager_test.go
-package workerpool
+package nworkerpool
 
 import (
 	"context"
