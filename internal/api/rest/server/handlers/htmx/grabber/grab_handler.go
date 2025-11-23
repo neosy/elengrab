@@ -7,7 +7,7 @@ import (
 	"text/template"
 	"time"
 
-	avalues "github.com/neosy/elengrab/internal/api/rest/server/assets/values"
+	htmxvalues "github.com/neosy/elengrab/internal/api/rest/server/handlers/htmx/values"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/paths"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -121,9 +121,9 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	if itemsOnlyOne == "true" {
-		tmplPath = filepath.Join(h.assetsDir, "templates", avalues.GrabResultNewItemFirstHtmlFileName)
+		tmplPath = filepath.Join(h.assetsDir, "templates", htmxvalues.GrabResultNewItemFirstHtmlFileName)
 	} else {
-		tmplPath = filepath.Join(h.assetsDir, "templates", avalues.GrabResultNewItemHtmlFileName)
+		tmplPath = filepath.Join(h.assetsDir, "templates", htmxvalues.GrabResultNewItemHtmlFileName)
 	}
 	data.YoutubeTitle = url
 	data.PathFileRow = httppaths.BuildPathFileRow(resp.FileId)
@@ -139,16 +139,16 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	dataMap := avalues.MergeMaps(
-		avalues.PathValues,
-		avalues.IconNames,
-		avalues.StructToMap(data),
+	dataMap := htmxvalues.MergeMaps(
+		htmxvalues.PathValues,
+		htmxvalues.IconNames,
+		htmxvalues.StructToMap(data),
 	)
 
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
-	dataMap[avalues.GrabResultStatusIconNameKey] = avalues.GrabResultStatusIconName(resp.Status)
-	dataMap[avalues.GrabResultItemStatusHtmlKey] = avalues.GrabResultStatusIconSvgRaw(resp.Status, iconsDir)
+	dataMap[htmxvalues.GrabResultStatusIconNameKey] = htmxvalues.GrabResultStatusIconName(resp.Status)
+	dataMap[htmxvalues.GrabResultItemStatusHtmlKey] = htmxvalues.GrabResultStatusIconSvgRaw(resp.Status, iconsDir)
 
 	var buf bytes.Buffer
 	tpl.Execute(&buf, dataMap)

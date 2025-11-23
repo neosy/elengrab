@@ -1,4 +1,4 @@
-package avalues
+package htmxvalues
 
 import httppaths "github.com/neosy/elengrab/internal/api/rest/server/paths"
 
