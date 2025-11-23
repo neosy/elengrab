@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
@@ -82,4 +83,8 @@ func (uc *YouTubeDownloader) addFileToQueueDownload(ctx context.Context, fileId 
 	uc.enqueueDownloadTask(file.DownloadTask)
 
 	return file, nil
+}
+
+func (uc *YouTubeDownloader) enqueueDownloadTask(task *ddownload.DownloadTask) {
+	uc.dlDispetcher.AddJob(wjobs.NewDownloadJob(task, uc))
 }

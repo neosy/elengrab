@@ -22,6 +22,7 @@ import (
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
 	"github.com/neosy/elengrab/internal/services"
 	"github.com/neosy/elengrab/pkg/nlogger"
+	"github.com/neosy/elengrab/pkg/nworkers"
 	"github.com/neosy/elengrab/pkg/workerpool"
 )
 
@@ -117,7 +118,7 @@ func main() {
 	wsDeps := &workers.Dependencies{
 		Downloader: uc.Downloader,
 	}
-	ws := workers.NewWorkers(logger, wsDeps)
+	ws := nworkers.NewWorkers(logger, wsDeps, workers.InitWorkers)
 	if err := ws.StartWorkers(ctx); err != nil {
 		logger.Error("Failed to run workers", "err", err)
 	}

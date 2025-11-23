@@ -1,4 +1,4 @@
-package worker
+package nworkers
 
 import (
 	"context"
@@ -24,7 +24,7 @@ type worker struct {
 	optons WorkerOptions
 }
 
-func NewWorker(options *WorkerOptions, job WorkerJob) Worker {
+func NewWorker(job WorkerJob, options *WorkerOptions) Worker {
 	w := &worker{
 		job: job,
 	}

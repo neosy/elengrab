@@ -1,22 +1,19 @@
-package ytdownloader
+package nfile
 
 import (
 	"regexp"
 	"strings"
-
-	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
-	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-// sanitizeFileName replaces characters not allowed in file names with "_"
-func (uc *YouTubeDownloader) sanitizeFileName(title string) string {
+// SanitizeFileName replaces characters not allowed in file names with "_"
+func SanitizeFileName(name string) string {
 	// Trim spaces at the beginning and end
-	title = strings.TrimSpace(title)
+	safe := strings.TrimSpace(name)
 
 	// Replace all invalid characters with underscore
 	// Windows forbidden: \ / : * ? " < > |
 	// Unix forbidden: /
-	safe := regexp.MustCompile(`[:|]`).ReplaceAllString(title, "-")
+	safe = regexp.MustCompile(`[:|]`).ReplaceAllString(safe, "-")
 	safe = regexp.MustCompile(`[/\\]`).ReplaceAllString(safe, "-")
 	safe = regexp.MustCompile(`["<>]`).ReplaceAllString(safe, "")
 	safe = regexp.MustCompile(`[?*\x00-\x1F]`).ReplaceAllString(safe, "_")
@@ -30,8 +27,4 @@ func (uc *YouTubeDownloader) sanitizeFileName(title string) string {
 	}
 
 	return safe
-}
-
-func (uc *YouTubeDownloader) enqueueDownloadTask(task *ddownload.DownloadTask) {
-	uc.dlDispetcher.AddJob(wjobs.NewDownloadJob(task, uc))
 }
