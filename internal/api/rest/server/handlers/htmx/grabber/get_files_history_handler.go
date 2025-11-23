@@ -7,7 +7,7 @@ import (
 	"text/template"
 	"time"
 
-	avalues "github.com/neosy/elengrab/internal/api/rest/server/assets/values"
+	htmxvalues "github.com/neosy/elengrab/internal/api/rest/server/handlers/htmx/values"
 	"github.com/valyala/fasthttp"
 )
 
@@ -59,17 +59,17 @@ func (h *GrabberHandlers) genRowLoadHistory(before time.Time) (*bytes.Buffer, in
 		return nil, fasthttp.StatusOK, nil
 	}
 
-	tmplPath := filepath.Join(h.assetsDir, "templates", avalues.GrabResultLoadHistoryHtmlFileName)
+	tmplPath := filepath.Join(h.assetsDir, "templates", htmxvalues.GrabResultLoadHistoryHtmlFileName)
 	tpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
 		return nil, fasthttp.StatusInternalServerError, err
 	}
 
-	dataMap := avalues.MergeMaps(
-		avalues.PathValues,
+	dataMap := htmxvalues.MergeMaps(
+		htmxvalues.PathValues,
 	)
 
-	dataMap[avalues.PathItemsHistoryKey] = dataMap[avalues.PathItemsHistoryKey].(string) + fmt.Sprintf("?before=%s", before.Format(dateFormate))
+	dataMap[htmxvalues.PathItemsHistoryKey] = dataMap[htmxvalues.PathItemsHistoryKey].(string) + fmt.Sprintf("?before=%s", before.Format(dateFormate))
 
 	var buf bytes.Buffer
 	err = tpl.Execute(&buf, dataMap)

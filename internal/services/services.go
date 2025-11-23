@@ -8,8 +8,8 @@ import (
 )
 
 type Dependencies struct {
-	BinDir       string
-	DownloadsDir string
+	DownloaderBinDir string
+	DownloadsDir     string
 
 	YtDlpOptions *ytdlpsrv.Options
 }
@@ -19,7 +19,7 @@ type Services struct {
 }
 
 func New(logger *slog.Logger, deps *Dependencies) (*Services, error) {
-	downloader, err := ytdlpsrv.NewYtDlpService(logger, deps.BinDir, deps.DownloadsDir, deps.YtDlpOptions)
+	downloader, err := ytdlpsrv.NewYtDlpService(logger, deps.DownloaderBinDir, deps.DownloadsDir, deps.YtDlpOptions)
 	if err != nil {
 		return nil, err
 	}

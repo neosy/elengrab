@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	avalues "github.com/neosy/elengrab/internal/api/rest/server/assets/values"
+	htmxvalues "github.com/neosy/elengrab/internal/api/rest/server/handlers/htmx/values"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -25,25 +25,25 @@ func (h *GrabberHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	if needLoadHistory {
-		itemsTmpl, err := template.ParseFiles(filepath.Join(h.assetsDir, "templates", avalues.GrabResultItemsHistoryHtmlFileName))
+		itemsTmpl, err := template.ParseFiles(filepath.Join(h.assetsDir, "templates", htmxvalues.GrabResultItemsHistoryHtmlFileName))
 		if err != nil {
 			nfasthttp.WriteError(ctx, err, fasthttp.StatusInternalServerError)
 			return
 		}
 
-		if err := itemsTmpl.Execute(&itemsTmplBuf, avalues.PathValues); err != nil {
+		if err := itemsTmpl.Execute(&itemsTmplBuf, htmxvalues.PathValues); err != nil {
 			nfasthttp.WriteError(ctx, fmt.Errorf("template execution error: %v", err), fasthttp.StatusInternalServerError)
 			return
 		}
 	} else { // Подготовка шаблона с пустой строкой
-		itemsTmpl, err := template.ParseFiles(filepath.Join(h.assetsDir, "templates", avalues.GrabResultItemReplacemeHtmlFileName))
+		itemsTmpl, err := template.ParseFiles(filepath.Join(h.assetsDir, "templates", htmxvalues.GrabResultItemReplacemeHtmlFileName))
 		if err != nil {
 			nfasthttp.WriteError(ctx, err, fasthttp.StatusInternalServerError)
 			return
 		}
 
 		dataMap := make(map[string]any)
-		dataMap[avalues.DataOnlyOneKey] = "true"
+		dataMap[htmxvalues.DataOnlyOneKey] = "true"
 
 		if err := itemsTmpl.Execute(&itemsTmplBuf, dataMap); err != nil {
 			nfasthttp.WriteError(ctx, fmt.Errorf("template execution error: %v", err), fasthttp.StatusInternalServerError)
@@ -51,7 +51,7 @@ func (h *GrabberHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	tmplPath := filepath.Join(h.assetsDir, "templates", avalues.IndexHtmlFileName)
+	tmplPath := filepath.Join(h.assetsDir, "templates", htmxvalues.IndexHtmlFileName)
 	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
 		nfasthttp.WriteError(ctx, err, fasthttp.StatusInternalServerError)
@@ -61,8 +61,8 @@ func (h *GrabberHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	// Set content type so browser renders HTML properly
 	ctx.SetContentType("text/html; charset=utf-8")
 
-	dataMap := avalues.MergeMaps(avalues.IndexValues, avalues.PathValues)
-	dataMap[avalues.GrabResultItemsHtmlKey] = template.HTML(itemsTmplBuf.String())
+	dataMap := htmxvalues.MergeMaps(htmxvalues.IndexValues, htmxvalues.PathValues)
+	dataMap[htmxvalues.GrabResultItemsHtmlKey] = template.HTML(itemsTmplBuf.String())
 
 	// Execute template with PageTitle
 	if err := tmpl.Execute(ctx, dataMap); err != nil {
