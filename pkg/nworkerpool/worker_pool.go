@@ -12,14 +12,15 @@ const (
 	workerCountDefault int = 3
 )
 
-// Manager defines the interface for controlling the worker pool lifecycle.
-type Manager interface {
+// WorkerPool represents a pool of workers that can execute jobs concurrently.
+// It provides methods to start and stop the pool and query the number of workers.
+type WorkerPool interface {
 	// Start begins execution of the worker pool.
 	// ctx: context for cancellation and worker lifecycle.
 	// Returns error if already running.
 	Start(ctx context.Context) error
 
-	// Stop gracefully shuts down the manager and all workers.
+	// Stop gracefully shuts down all workers and the pool
 	// Idempotent; safe to call multiple times.
 	Stop()
 
@@ -27,14 +28,14 @@ type Manager interface {
 	WorkerCount() int
 }
 
-// ManagerOptions configures the worker pool behavior.
-type ManagerOptions struct {
+// WorkerPoolOptions configures the worker pool behavior.
+type WorkerPoolOptions struct {
 	// WorkerCount specifies the number of worker goroutines to run.
 	// If zero or negative, defaults to maxWorkersDefault.
 	WorkerCount int
 }
 
-type manager struct {
+type workerPool struct {
 	logger      *slog.Logger
 	workers     []Worker
 	workerCount int
@@ -50,17 +51,17 @@ type manager struct {
 	jobQueue  jobQueue
 }
 
-// NewManager creates a new worker pool manager.
+// NewWorkerPool creates a new worker pool.
 // logger: used for logging events and errors.
 // options: optional configuration; nil uses defaults.
-// Returns initialized manager ready for Start().
-func NewManager(logger *slog.Logger, options *ManagerOptions) *manager {
+// Returns initialized worker pool ready for Start().
+func NewWorkerPool(logger *slog.Logger, options *WorkerPoolOptions) *workerPool {
 	var workerCount = workerCountDefault
 	if options != nil && options.WorkerCount > 0 {
 		workerCount = options.WorkerCount
 	}
 
-	m := &manager{
+	wp := &workerPool{
 		logger:      logger,
 		workers:     make([]Worker, 0),
 		workerCount: workerCount,
@@ -70,110 +71,110 @@ func NewManager(logger *slog.Logger, options *ManagerOptions) *manager {
 		jobQueue:    *newJobQueue(100),
 	}
 
-	m.cond = sync.NewCond(&m.mu)
+	wp.cond = sync.NewCond(&wp.mu)
 
-	return m
+	return wp
 }
 
 // Start initializes workers and begins job dispatching.
 // ctx: passed to each worker for cancellation and timeouts.
 // Returns error if manager is already running.
-func (m *manager) Start(ctx context.Context) error {
-	if !m.running.CompareAndSwap(false, true) {
-		if m.logger != nil {
-			m.logger.Warn("Manager already running")
+func (wp *workerPool) Start(ctx context.Context) error {
+	if !wp.running.CompareAndSwap(false, true) {
+		if wp.logger != nil {
+			wp.logger.Warn("Manager already running")
 		}
 		return errors.New("manager already running")
 	}
 
 	// Create and start all workers
-	m.mu.Lock()
+	wp.mu.Lock()
 	{
-		for range m.workerCount {
-			m.addWorker(ctx)
+		for range wp.workerCount {
+			wp.addWorker(ctx)
 		}
 	}
-	m.mu.Unlock()
+	wp.mu.Unlock()
 
 	// Bridge ctx cancellation to quit signal and wake dispatcher
 	go func(ctx context.Context) {
 		select {
 		// If manager is already stopping, exit immediately
-		case <-m.quit:
+		case <-wp.quit:
 			return
 		// On context cancellation: signal shutdown and wake dispatcher
 		case <-ctx.Done():
-			m.mu.Lock()
+			wp.mu.Lock()
 			{
 				select {
-				case <-m.quit:
+				case <-wp.quit:
 				default:
-					close(m.quit)
+					close(wp.quit)
 				}
-				m.cond.Broadcast() // Wake dispatcher from cond.Wait()
+				wp.cond.Broadcast() // Wake dispatcher from cond.Wait()
 			}
-			m.mu.Unlock()
+			wp.mu.Unlock()
 			return
 		}
 	}(ctx)
 
-	m.wg.Go(func() {
+	wp.wg.Go(func() {
 		// Ensure running flag is cleared when dispatcher exits
 		defer func() {
-			m.running.Store(false)
-			if m.logger != nil {
-				m.logger.Debug("Worker pool manager stopped")
+			wp.running.Store(false)
+			if wp.logger != nil {
+				wp.logger.Debug("Worker pool manager stopped")
 			}
 		}()
 
 		for {
 			// Fast-path: exit immediately if quit signal received
 			select {
-			case <-m.quit:
+			case <-wp.quit:
 				return
 			default:
 			}
 
 			// Acquire lock to safely inspect queue and semaphore
-			m.mu.Lock()
+			wp.mu.Lock()
 			{
 				// Wait until there is at least one job AND a free worker slot
-				for m.jobQueue.Len() == 0 || len(m.semaphore) == cap(m.semaphore) {
+				for wp.jobQueue.Len() == 0 || len(wp.semaphore) == cap(wp.semaphore) {
 					select {
 					// Stop loop if quit signal is received during wait
-					case <-m.quit:
-						m.mu.Unlock()
+					case <-wp.quit:
+						wp.mu.Unlock()
 						return
 					default:
 						// Release the mutex lock and sleep until notified (job added or slot freed)
-						m.cond.Wait()
+						wp.cond.Wait()
 					}
 				}
 			}
 			// Release lock before sending job to worker
-			m.mu.Unlock()
+			wp.mu.Unlock()
 
 			// Extract next job from queue
-			job, _ := m.jobQueue.Pop()
+			job, _ := wp.jobQueue.Pop()
 
 			if job != nil {
 				// Claim a worker slot (non-blocking due to prior check)
 				select {
-				case <-m.quit:
-				case m.semaphore <- struct{}{}:
+				case <-wp.quit:
+				case wp.semaphore <- struct{}{}:
 				}
 
 				// Dispatch job to an available worker
 				select {
-				case <-m.quit:
-				case m.jobStream <- job:
+				case <-wp.quit:
+				case wp.jobStream <- job:
 				}
 			}
 		}
 	})
 
-	if m.logger != nil {
-		m.logger.Debug("Worker pool manager running...")
+	if wp.logger != nil {
+		wp.logger.Debug("Worker pool manager running...")
 	}
 
 	return nil
@@ -182,64 +183,64 @@ func (m *manager) Start(ctx context.Context) error {
 // Stop gracefully shuts down the manager and all workers.
 // Idempotent; safe to call multiple times.
 // Blocks until all goroutines exit.
-func (m *manager) Stop() {
-	if !m.running.CompareAndSwap(true, false) {
+func (wp *workerPool) Stop() {
+	if !wp.running.CompareAndSwap(true, false) {
 		return
 	}
 
-	m.mu.Lock()
+	wp.mu.Lock()
 	{
 		// Signal all components to stop
-		close(m.quit)
+		close(wp.quit)
 
 		// Wake up dispatcher if waiting
-		m.cond.Broadcast()
+		wp.cond.Broadcast()
 	}
-	m.mu.Unlock()
+	wp.mu.Unlock()
 
 	// Wait for dispatcher and workers to finish
-	m.wg.Wait()
+	wp.wg.Wait()
 }
 
 // AddJob enqueues a new job for execution.
 // job: the job to be executed by a worker.
 // Thread-safe; can be called from any goroutine.
-func (m *manager) AddJob(job Job) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+func (wp *workerPool) AddJob(job Job) {
+	wp.mu.Lock()
+	defer wp.mu.Unlock()
 
-	m.jobQueue.Push(job)
-	m.cond.Broadcast() // Notify dispatcher of new job
+	wp.jobQueue.Push(job)
+	wp.cond.Broadcast() // Notify dispatcher of new job
 }
 
 // addWorker creates and starts a new worker.
 // ctx: context passed to worker for lifecycle control.
-// Must be called with m.mu held.
-func (m *manager) addWorker(ctx context.Context) {
-	worker := newWorker(m.logger, uint(len(m.workers)))
-	m.workers = append(m.workers, worker)
+// Must be called with wp.mu held.
+func (wp *workerPool) addWorker(ctx context.Context) {
+	worker := newWorker(wp.logger, uint(len(wp.workers)))
+	wp.workers = append(wp.workers, worker)
 
 	worker.Start(
 		ctx,
-		m.jobStream,
-		m.quit,
-		func() {
-			select {
-			case <-m.quit:
-				return
-			case <-m.semaphore:
-			}
-			m.mu.Lock()
-			{
-				// Notify dispatcher that a slot is free
-				m.cond.Broadcast()
-			}
-			m.mu.Unlock()
-		},
+		wp.jobStream,
+		wp.quit,
+		wp.notifyJobDone,
 	)
 }
 
 // WorkerCount returns the number of worker goroutines in the pool.
-func (m *manager) WorkerCount() int {
-	return m.workerCount
+func (wp *workerPool) WorkerCount() int {
+	return wp.workerCount
+}
+
+// notifyJobDone notifies the manager that a worker finished a job.
+func (wp *workerPool) notifyJobDone() {
+	select {
+	case <-wp.quit:
+		return
+	case <-wp.semaphore:
+	}
+	wp.mu.Lock()
+	wp.cond.Broadcast() // Notify dispatcher that a slot is free
+	wp.mu.Unlock()
 }
