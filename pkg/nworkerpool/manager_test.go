@@ -72,7 +72,7 @@ func (w *concurrentJobWrapper) Execute(ctx context.Context, workerID uint) error
 // TestManager_StartStop
 // ---------------------------------------------------------------------
 func TestManager_StartStop(t *testing.T) {
-	m := NewManager(noopLogger(), nil)
+	m := NewWorkerPool(noopLogger(), nil)
 	if err := m.Start(context.Background()); err != nil {
 		t.Fatalf("Start failed: %v", err)
 	}
@@ -84,7 +84,7 @@ func TestManager_StartStop(t *testing.T) {
 // TestManager_DoubleStart
 // ---------------------------------------------------------------------
 func TestManager_DoubleStart(t *testing.T) {
-	m := NewManager(noopLogger(), nil)
+	m := NewWorkerPool(noopLogger(), nil)
 	_ = m.Start(context.Background())
 	if err := m.Start(context.Background()); err == nil {
 		t.Fatal("expected error on double start")
@@ -96,7 +96,7 @@ func TestManager_DoubleStart(t *testing.T) {
 // ---------------------------------------------------------------------
 func TestManager_JobExecution(t *testing.T) {
 	const workers = 2
-	m := NewManager(noopLogger(), &ManagerOptions{WorkerCount: workers})
+	m := NewWorkerPool(noopLogger(), &WorkerPoolOptions{WorkerCount: workers})
 	if err := m.Start(context.Background()); err != nil {
 		t.Fatal(err)
 	}
@@ -129,7 +129,7 @@ func TestManager_JobExecution(t *testing.T) {
 // ---------------------------------------------------------------------
 func TestManager_MaxWorkersLimit(t *testing.T) {
 	const maxWorkers = 3
-	m := NewManager(noopLogger(), &ManagerOptions{WorkerCount: maxWorkers})
+	m := NewWorkerPool(noopLogger(), &WorkerPoolOptions{WorkerCount: maxWorkers})
 	if err := m.Start(context.Background()); err != nil {
 		t.Fatal(err)
 	}
@@ -171,7 +171,7 @@ func TestManager_MaxWorkersLimit(t *testing.T) {
 // TestManager_ContextCancellation
 // ---------------------------------------------------------------------
 func TestManager_ContextCancellation(t *testing.T) {
-	m := NewManager(noopLogger(), &ManagerOptions{WorkerCount: 1})
+	m := NewWorkerPool(noopLogger(), &WorkerPoolOptions{WorkerCount: 1})
 
 	// Создаём контекст
 	ctx, cancel := context.WithCancel(context.Background())
@@ -206,7 +206,7 @@ func TestManager_ContextCancellation(t *testing.T) {
 // TestManager_ImmediateStop
 // ---------------------------------------------------------------------
 func TestManager_ImmediateStop(t *testing.T) {
-	m := NewManager(noopLogger(), nil)
+	m := NewWorkerPool(noopLogger(), nil)
 	if err := m.Start(context.Background()); err != nil {
 		t.Fatal(err)
 	}
@@ -222,7 +222,7 @@ func TestManager_ImmediateStop(t *testing.T) {
 // TestManager_ZeroWorkers
 // ---------------------------------------------------------------------
 func TestManager_ZeroWorkers(t *testing.T) {
-	m := NewManager(noopLogger(), &ManagerOptions{WorkerCount: 0})
+	m := NewWorkerPool(noopLogger(), &WorkerPoolOptions{WorkerCount: 0})
 	if err := m.Start(context.Background()); err != nil {
 		t.Fatal(err)
 	}
@@ -245,7 +245,7 @@ func TestManager_ZeroWorkers(t *testing.T) {
 // TestManager_Race
 // ---------------------------------------------------------------------
 func TestManager_Race(t *testing.T) {
-	m := NewManager(noopLogger(), &ManagerOptions{WorkerCount: 5})
+	m := NewWorkerPool(noopLogger(), &WorkerPoolOptions{WorkerCount: 5})
 	if err := m.Start(context.Background()); err != nil {
 		t.Fatal(err)
 	}
