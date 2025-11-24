@@ -8,17 +8,24 @@ import (
 	"sync/atomic"
 )
 
+// Workers manages a set of Worker instances, allowing them to start, stop, and wait for completion.
 type Workers struct {
+	// optional logger
 	logger *slog.Logger
 
+	// registered workers
 	items []Worker
 
+	// indicates if the workers are currently running
 	running atomic.Bool
-	stop    chan struct{}
-	wg      sync.WaitGroup
-	mu      sync.Mutex
+	// channel to signal all workers to stop
+	stop chan struct{}
+	wg   sync.WaitGroup
+	mu   sync.Mutex
 }
 
+// NewWorkers creates a new Workers manager with optional initialization function.
+// T can be used to pass dependencies to the init function.
 func NewWorkers[T any](logger *slog.Logger, deps T, init func(ws *Workers, deps T)) *Workers {
 	ws := &Workers{
 		logger: logger,
@@ -32,6 +39,7 @@ func NewWorkers[T any](logger *slog.Logger, deps T, init func(ws *Workers, deps 
 	return ws
 }
 
+// Add registers a Worker. Returns an error if workers are already running.
 func (ws *Workers) Add(worker Worker) error {
 	if ws.running.Load() {
 		if ws.logger != nil {
@@ -49,6 +57,7 @@ func (ws *Workers) Add(worker Worker) error {
 	return nil
 }
 
+// startWorker runs a single worker in its own goroutine and logs start/stop events.
 func (ws *Workers) startWorker(ctx context.Context, worker Worker) {
 	ws.wg.Go(func() {
 		defer func() {
@@ -63,6 +72,7 @@ func (ws *Workers) startWorker(ctx context.Context, worker Worker) {
 	}
 }
 
+// StartWorkers starts all registered workers. Returns an error if already running.
 func (ws *Workers) StartWorkers(ctx context.Context) error {
 	if !ws.running.CompareAndSwap(false, true) {
 		if ws.logger != nil {
@@ -86,6 +96,7 @@ func (ws *Workers) StartWorkers(ctx context.Context) error {
 	return nil
 }
 
+// StopWorkers signals all workers to stop and waits for them to finish.
 func (ws *Workers) StopWorkers() {
 	if !ws.running.Load() {
 		return
@@ -95,9 +106,10 @@ func (ws *Workers) StopWorkers() {
 	{
 		select {
 		case <-ws.stop:
+			// already stopped
 			return
 		default:
-			close(ws.stop)
+			close(ws.stop) // signal all workers to stop
 		}
 	}
 	ws.mu.Unlock()
@@ -109,6 +121,7 @@ func (ws *Workers) StopWorkers() {
 	}
 }
 
+// Wait blocks until all worker goroutines have finished.
 func (ws *Workers) Wait() {
 	ws.wg.Wait()
 }

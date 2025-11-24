@@ -9,7 +9,7 @@ import (
 
 func TestManagerStopWhenIdle(t *testing.T) {
 	logger := slog.Default()
-	m := NewManager(logger, &ManagerOptions{WorkerCount: 1})
+	m := NewWorkerPool(logger, &WorkerPoolOptions{WorkerCount: 1})
 	ctx := context.Background()
 
 	if err := m.Start(ctx); err != nil {
