@@ -73,7 +73,7 @@ func main() {
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
 	// Start worker pool
-	dlManager := nworkerpool.NewWorkerPool(logger, &nworkerpool.WorkerPoolOptions{WorkerCount: cfg.Elengrab.DownloadWorkers})
+	dlManager := nworkerpool.NewWorkerPool(logger, &nworkerpool.WorkerPoolOptions{PoolSize: cfg.Elengrab.DownloadWorkers})
 	if err := dlManager.Start(ctx); err != nil {
 		logger.Error("Failed to start worker pool", "err", err)
 		return

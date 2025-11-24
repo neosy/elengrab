@@ -18,8 +18,8 @@ type jobQueue struct {
 	items []Job
 }
 
-func newJobQueue(cap int) *jobQueue {
-	return &jobQueue{
+func newJobQueue(cap int) jobQueue {
+	return jobQueue{
 		items: make([]Job, 0, cap),
 	}
 }

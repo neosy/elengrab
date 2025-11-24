@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	workerCountDefault int = 3
+	defaultWorkerPoolSize int = 3
+	defaultJobQueueCap    int = 100
 )
 
 // WorkerPool represents a pool of workers that can execute jobs concurrently.
@@ -24,21 +25,21 @@ type WorkerPool interface {
 	// Idempotent; safe to call multiple times.
 	Stop()
 
-	// WorkerCount returns the number of worker goroutines in the pool.
-	WorkerCount() int
+	// PoolSize returns the number of worker goroutines in the pool.
+	PoolSize() int
 }
 
 // WorkerPoolOptions configures the worker pool behavior.
 type WorkerPoolOptions struct {
-	// WorkerCount specifies the number of worker goroutines to run.
-	// If zero or negative, defaults to maxWorkersDefault.
-	WorkerCount int
+	// PoolSize  specifies the number of worker goroutines to run.
+	// If zero or negative, defaults to defaultWorkerPoolSize.
+	PoolSize int
 }
 
 type workerPool struct {
-	logger      *slog.Logger
-	workers     []Worker
-	workerCount int
+	logger   *slog.Logger
+	workers  []Worker
+	poolSize int
 
 	quit    chan struct{}
 	wg      sync.WaitGroup
@@ -56,19 +57,19 @@ type workerPool struct {
 // options: optional configuration; nil uses defaults.
 // Returns initialized worker pool ready for Start().
 func NewWorkerPool(logger *slog.Logger, options *WorkerPoolOptions) *workerPool {
-	var workerCount = workerCountDefault
-	if options != nil && options.WorkerCount > 0 {
-		workerCount = options.WorkerCount
+	var poolSize = defaultWorkerPoolSize
+	if options != nil && options.PoolSize > 0 {
+		poolSize = options.PoolSize
 	}
 
 	wp := &workerPool{
-		logger:      logger,
-		workers:     make([]Worker, 0),
-		workerCount: workerCount,
-		quit:        make(chan struct{}),
-		semaphore:   make(chan struct{}, workerCount),
-		jobStream:   make(chan Job, 1),
-		jobQueue:    *newJobQueue(100),
+		logger:    logger,
+		workers:   make([]Worker, 0, poolSize),
+		poolSize:  poolSize,
+		quit:      make(chan struct{}),
+		semaphore: make(chan struct{}, poolSize),
+		jobStream: make(chan Job, 1),
+		jobQueue:  newJobQueue(defaultJobQueueCap), // Initial but not final queue size
 	}
 
 	wp.cond = sync.NewCond(&wp.mu)
@@ -90,7 +91,7 @@ func (wp *workerPool) Start(ctx context.Context) error {
 	// Create and start all workers
 	wp.mu.Lock()
 	{
-		for range wp.workerCount {
+		for range wp.poolSize {
 			wp.addWorker(ctx)
 		}
 	}
@@ -228,9 +229,9 @@ func (wp *workerPool) addWorker(ctx context.Context) {
 	)
 }
 
-// WorkerCount returns the number of worker goroutines in the pool.
-func (wp *workerPool) WorkerCount() int {
-	return wp.workerCount
+// PoolSize returns the number of worker goroutines in the pool.
+func (wp *workerPool) PoolSize() int {
+	return wp.poolSize
 }
 
 // notifyJobDone notifies the manager that a worker finished a job.
