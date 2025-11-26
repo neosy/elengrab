@@ -39,6 +39,18 @@ func HashPartial(path string, blocks int, blockSize int64) (string, error) {
 	binary.LittleEndian.PutUint64(bufSize, uint64(size))
 	h.Write(bufSize)
 
+	// If the file is small, we read the whole thing
+	if size <= int64(blocks)*blockSize {
+		buf := make([]byte, size)
+		_, err := f.Read(buf)
+		if err != nil && err != io.EOF {
+			return "", err
+		}
+		h.Write(buf)
+		return hex.EncodeToString(h.Sum(nil)), nil
+	}
+
+	// Large file — read only blocks
 	for i := range blocks {
 		// calculate offset of the block
 		offset := (size - blockSize) * int64(i) / int64(blocks-1)
