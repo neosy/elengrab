@@ -2,7 +2,6 @@ package grabberh
 
 import (
 	"errors"
-	"fmt"
 	"os"
 
 	"github.com/google/uuid"
@@ -56,11 +55,6 @@ func (h *GrabberHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 		contentType = "application/octet-stream"
 	}
 
-	// Set headers for file download
-	ctx.SetContentType(contentType)
-	ctx.Response.Header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, fileInfo.SafeReadableFullName))
-
-	// Serve the file
-	// fasthttp.ServeFile(ctx, filePath)
-	fasthttp.ServeFileUncompressed(ctx, fileInfo.FilePath)
+	// Send file via streaming
+	nfasthttp.SendFile(ctx, fileInfo.FilePath, fileInfo.SafeReadableFullName, contentType)
 }
