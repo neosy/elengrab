@@ -1,3 +1,13 @@
+<p align="center">
+  <img width="192" height="192" alt="android-chrome-192x192" src="https://github.com/user-attachments/assets/783f055f-b04b-4d76-b6a3-19ac3fae2cab" />
+</p>
+<h3 align="center">Fast web UI for your YouTube downloader.</h3>
+
+<p align="center">
+  <img width="708" height="314" alt="image" src="https://github.com/user-attachments/assets/cd0f6c69-445c-45fe-9ebc-0c76f258ffd2" />
+</p>
+
+
 # Elengrab
 
 **Fast web interface for your own YouTube video/audio grabber server with format and quality options. Built on top of [yt-dlp](https://github.com/yt-dlp/yt-dlp).**
