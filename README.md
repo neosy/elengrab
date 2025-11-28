@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="192" height="192" alt="android-chrome-192x192" src="https://github.com/user-attachments/assets/783f055f-b04b-4d76-b6a3-19ac3fae2cab" />
+  <img width="192" height="192" alt="android-chrome-192x192_round" src="https://github.com/user-attachments/assets/f2973dcc-90d3-4046-b9e0-fd34b6697fa5" />
 </p>
 <h3 align="center">Fast web UI for your YouTube downloader.</h3>
 
