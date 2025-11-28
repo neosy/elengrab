@@ -60,6 +60,37 @@ docker run -d \
 
 ---
 
+### Docker Compose
+
+Create a file `docker-compose.yml` with the following content:
+
+```
+version: "3.8"
+
+services:
+  elengrab:
+    image: neosy/elengrab:latest
+    container_name: elengrab
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      TZ: "Europe/Moscow"   # your time zone
+    volumes:
+      - <your_path_to_db_folder>:/app_n/sqlite/data
+      - <your_path_to_downloads_folder>:/app_n/downloads
+```
+
+Then:
+
+```
+docker-compose up -d
+```
+
+After this, Elengrab will be accessible at http://localhost:8080
+
+---
+
 ### Docker Compose for Docker Swarm
 
 Create a file `docker-compose.yml` with the following content:
