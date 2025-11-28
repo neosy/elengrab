@@ -121,6 +121,12 @@ body {
     font-size: 16px;
     color: #333;
     cursor: pointer;
+} 
+
+.format-video,
+.format-audio {
+    display: flex;
+    gap: 10px;
 }
 
 /* Hide default radio button look and style custom circle */
@@ -486,6 +492,42 @@ body {
     .img-header-logo {
         height: 2.5em;                  /* decreases along with the title */
     }
+
+    .div-format-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        justify-items: start;
+    }
+
+    .div-format-options input[type="radio"] {
+        vertical-align: bottom;
+        transform: scale(0.8);
+        margin: 4px 5px 2px 3px;
+    }
+
+    .div-format-options label {
+        font-size: 16px;
+    }
+
+    .format-video,
+    .format-audio {
+        display: block;
+    }
+
+    .format-video {
+        justify-self: end;
+    }
+
+    .format-video label,
+    .format-audio label {
+        grid-column: auto;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        justify-content: flex-start;
+    }    
 }
 
 @media (max-width: 480px) {
@@ -504,23 +546,6 @@ body {
     }
 
     .input-grab {
-        font-size: 16px;
-    }
-
-    .div-format-options {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        justify-items: start;
-    }
-
-    .div-format-options input[type="radio"] {
-        vertical-align: bottom;
-        transform: scale(0.8);
-        margin: 4px 5px 2px 3px;
-    }
-
-    .div-format-options label {
         font-size: 16px;
     }
 
