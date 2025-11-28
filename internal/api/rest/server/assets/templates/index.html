@@ -38,24 +38,29 @@
           </div>
         </div>
         <div class="div-format-options">
-            <label>
-                <input type="radio" name="formatType" value="video_mp4_orig" checked> Video (mp4)
-            </label>
-            <label>
-                <input type="radio" name="formatType" value="video_mp4_h264"> Video (H.264)
-            </label>
-            <label>
-                <input type="radio" name="formatType" value="video_mp4_h265"> Video (H.265)
-            </label>
-            <label>
-                <input type="radio" name="formatType" value="audio_mp3"> Audio (mp3)
-            </label>
-            <label>
-                <input type="radio" name="formatType" value="audio_m4a"> Audio (m4a)
-            </label>
-            <label>
-                <input type="radio" name="formatType" value="audio_orig"> Audio (orig)
-            </label>
+            <div class="format-video">
+                <label>
+                    <input type="radio" name="formatType" value="video_mp4_orig" checked> Video (mp4)
+                </label>
+                <label>
+                    <input type="radio" name="formatType" value="video_mp4_h264"> Video (H.264)
+                </label>
+                <label>
+                    <input type="radio" name="formatType" value="video_mp4_h265"> Video (H.265)
+                </label>
+            </div>
+
+            <div class="format-audio">
+                <label>
+                    <input type="radio" name="formatType" value="audio_orig"> Audio (orig)
+                </label>
+                <label>
+                    <input type="radio" name="formatType" value="audio_mp3"> Audio (mp3)
+                </label>
+                <label>
+                    <input type="radio" name="formatType" value="audio_m4a"> Audio (m4a)
+                </label>
+            </div>
         </div>
       </form>
       <div class="div-grab-result" id="grab-result">
