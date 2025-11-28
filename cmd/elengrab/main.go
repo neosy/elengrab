@@ -16,6 +16,7 @@ import (
 	database "github.com/neosy/elengrab/db"
 	iconfig "github.com/neosy/elengrab/infrastructure/config"
 	httpsrv "github.com/neosy/elengrab/internal/api/rest/server"
+	httptemplates "github.com/neosy/elengrab/internal/api/rest/server/templates"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	"github.com/neosy/elengrab/internal/app/workers"
 	inmemoryrep "github.com/neosy/elengrab/internal/repository/in_memory"
@@ -129,8 +130,15 @@ func main() {
 
 	// Start FastHTTP server in a separate goroutine
 	go func(ctx context.Context) {
+		tmpl, err := httptemplates.LoadTemplates(cfg.Elengrab.AssetsDir)
+		if err != nil {
+			logger.Error(err.Error())
+			cancel()
+		}
+
 		deps := &httpsrv.Dependencies{
 			Usecases:  uc,
+			Templates: tmpl,
 			AssetsDir: cfg.Elengrab.AssetsDir,
 		}
 
@@ -151,7 +159,7 @@ func main() {
 	}
 
 	// Log final error if any
-	if err != nil {
-		log.Print(err)
-	}
+	// if err != nil {
+	// 	log.Print(err)
+	// }
 }

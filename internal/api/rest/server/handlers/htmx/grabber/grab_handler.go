@@ -3,8 +3,8 @@ package grabberh
 import (
 	"bytes"
 	"fmt"
+	"html/template"
 	"path/filepath"
-	"text/template"
 	"time"
 
 	htmxvalues "github.com/neosy/elengrab/internal/api/rest/server/handlers/htmx/values"
@@ -47,7 +47,10 @@ var (
 )
 
 func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
-	itemsOnlyOne := string(ctx.Request.Header.Cookie("resultItemsOnlyOne"))
+	var itemsOnlyOne = false
+	if itemsOnlyOneStr := string(ctx.Request.Header.Cookie("resultItemsOnlyOne")); itemsOnlyOneStr == "true" {
+		itemsOnlyOne = true
+	}
 
 	url := string(ctx.FormValue(formFieldYouTubeURLKey))
 	if url == "" {
@@ -82,8 +85,7 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	var (
-		tmplPath string
-		data     = grabResultData{
+		data = grabResultData{
 			YoutubeURL: url,
 		}
 	)
@@ -120,24 +122,12 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		cacheRow.mu.Unlock()
 	}
 
-	if itemsOnlyOne == "true" {
-		tmplPath = filepath.Join(h.assetsDir, "templates", htmxvalues.GrabResultNewItemFirstHtmlFileName)
-	} else {
-		tmplPath = filepath.Join(h.assetsDir, "templates", htmxvalues.GrabResultNewItemHtmlFileName)
-	}
 	data.YoutubeTitle = url
 	data.PathFileRow = httppaths.BuildPathFileRow(resp.FileId)
 	data.FileSize = "-"
 	data.Format = "-"
 	// Set URL for download endpoint
 	data.DownloadURL = fmt.Sprintf("%s?file=%s", httppaths.GroupDownloader+httppaths.PathDownload, resp.FileId)
-
-	tpl, err := template.ParseFiles(tmplPath)
-	if err != nil {
-		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
-		ctx.SetBodyString("Template error")
-		return
-	}
 
 	dataMap := htmxvalues.MergeMaps(
 		htmxvalues.PathValues,
@@ -148,10 +138,18 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
 	dataMap[htmxvalues.GrabResultStatusIconNameKey] = htmxvalues.GrabResultStatusIconName(resp.Status)
-	dataMap[htmxvalues.GrabResultItemStatusHtmlKey] = htmxvalues.GrabResultStatusIconSvgRaw(resp.Status, iconsDir)
+	dataMap[htmxvalues.GrabResultItemStatusHtmlKey] = template.HTML(htmxvalues.GrabResultStatusIconSvgRaw(resp.Status, iconsDir))
+	dataMap[htmxvalues.IsItemHTMXOptionRepeatKey] = true
+	dataMap[htmxvalues.IsItemFirstKey] = itemsOnlyOne
+	dataMap[htmxvalues.DataOnlyOneKey] = false
+	dataMap[htmxvalues.ItemFadeKey] = "fade-in"
+	dataMap[htmxvalues.GrabResultItemStatusTextKey] = ""
+	dataMap[htmxvalues.ResultYoutubeUrlFadeKey] = ""
+	dataMap[htmxvalues.ResultSizeFadeKey] = ""
+	dataMap[htmxvalues.ResultFormatFadeKey] = ""
 
 	var buf bytes.Buffer
-	tpl.Execute(&buf, dataMap)
+	h.templates.ExecuteTemplate(&buf, htmxvalues.GrabResultNewItemHtmlFileName, dataMap)
 	ctx.SetBody(buf.Bytes())
 	ctx.SetStatusCode(fasthttp.StatusOK)
 }
