@@ -3,8 +3,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const buttonGrab = document.querySelector('.button-grab-get');
     const inputURL = document.querySelector('#youtubeURL');
     const resultDivInfo = document.querySelector('#grab-result-info');
+    const radios = document.querySelectorAll('input[name="formatType"]');
 
-    // Listen for Enter key inside input
+    //-----------------------------------------------------------------
+    //  Restore saved radio selection (formatType)
+    //-----------------------------------------------------------------
+    const getCookie = (name) => {
+        return document.cookie
+            .split('; ')
+            .find(row => row.startsWith(name + "="))
+            ?.split('=')[1];
+    };
+
+    const savedFormat = getCookie('formatType');
+    if (savedFormat) {
+        const savedRadio = document.querySelector(`input[name="formatType"][value="${savedFormat}"]`);
+        if (savedRadio) savedRadio.checked = true;
+    }
+
+    //-----------------------------------------------------------------
+    //  Save radio choice on change
+    //-----------------------------------------------------------------
+    radios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            const date = new Date();
+            date.setFullYear(date.getFullYear() + 1); // store 1 year
+            document.cookie = "formatType=" + encodeURIComponent(radio.value)
+                + ";expires=" + date.toUTCString()
+                + ";path=/";
+        });
+    });
+
+    //-----------------------------------------------------------------
+    //  Submit on Enter
+    //-----------------------------------------------------------------
     inputURL.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
         event.preventDefault();
@@ -12,11 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    //-----------------------------------------------------------------
+    //  Before HTMX Request — clear input + result
+    //-----------------------------------------------------------------
     htmx.on('#form-grab', 'htmx:beforeRequest', () => {
         if (inputURL) inputURL.value = '';
         if (resultDivInfo) resultDivInfo.innerHTML = '';
     });
 
+    //-----------------------------------------------------------------
+    //  After HTMX Response — display error if not 200
+    //-----------------------------------------------------------------
     document.body.addEventListener('htmx:afterOnLoad', (event) => {
         if (event.detail.elt === formGrab) {
             if (inputURL) inputURL.value = '';
@@ -32,6 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    //-----------------------------------------------------------------
+    //  Save "resultItemsOnlyOne" cookie before any HTMX request
+    //-----------------------------------------------------------------
     document.body.addEventListener('htmx:beforeRequest', function(evt) {
         const div = document.getElementById("grab-result-item-replaceme");
         if (div) {
