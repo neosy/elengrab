@@ -27,7 +27,7 @@ func (h *GrabberHandlers) GetFileRow(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	buf, httpStatus, err := h.genFileRow(ctx, fileInfo, false)
+	buf, httpStatus, err := h.genRow(ctx, fileInfo, false)
 	if err != nil {
 		ctx.SetStatusCode(httpStatus)
 		ctx.SetBodyString(err.Error())

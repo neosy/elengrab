@@ -3,8 +3,6 @@ package grabberh
 import (
 	"bytes"
 	"fmt"
-	"path/filepath"
-	"text/template"
 	"time"
 
 	htmxvalues "github.com/neosy/elengrab/internal/api/rest/server/handlers/htmx/values"
@@ -37,7 +35,7 @@ func (h *GrabberHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 
 	before = time.Time{}
 	for _, fileInfo := range resps {
-		buf, _, err := h.genFileRow(ctx, fileInfo, true)
+		buf, _, err := h.genRow(ctx, fileInfo, true)
 		if err != nil || buf == nil {
 			continue
 		}
@@ -59,20 +57,11 @@ func (h *GrabberHandlers) genRowLoadHistory(before time.Time) (*bytes.Buffer, in
 		return nil, fasthttp.StatusOK, nil
 	}
 
-	tmplPath := filepath.Join(h.assetsDir, "templates", htmxvalues.GrabResultLoadHistoryHtmlFileName)
-	tpl, err := template.ParseFiles(tmplPath)
-	if err != nil {
-		return nil, fasthttp.StatusInternalServerError, err
-	}
-
-	dataMap := htmxvalues.MergeMaps(
-		htmxvalues.PathValues,
-	)
-
+	dataMap := htmxvalues.MergeMaps(htmxvalues.PathValues)
 	dataMap[htmxvalues.PathItemsHistoryKey] = dataMap[htmxvalues.PathItemsHistoryKey].(string) + fmt.Sprintf("?before=%s", before.Format(dateFormate))
 
 	var buf bytes.Buffer
-	err = tpl.Execute(&buf, dataMap)
+	err := h.templates.ExecuteTemplate(&buf, htmxvalues.GrabResultLoadHistoryHtmlFileName, dataMap)
 	if err != nil {
 		return nil, fasthttp.StatusInternalServerError, err
 	}

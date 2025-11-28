@@ -25,48 +25,8 @@
         <img class="img-header-logo" src="{{.PathStaticImg}}/logo-512.png">
         <h1 class="header">{{.Header}}</h1>
       </div>
-      <form id="form-grab"
-            hx-post="{{.PathDownloaderGrab}}"
-            hx-target="#grab-result-item-replaceme"
-            hx-include="#youtubeURL, [name='formatType']"
-            hx-swap="outerHTML">
-        <div class="div-grab-area">
-          <input class="input-grab" type="text" id="youtubeURL" name="youtubeURL" placeholder="Enter YouTube URL" maxlength="255">
-          <div class="div-button-get">
-            <button type="submit" class="button-grab-get">Get</button>
-            <input type="hidden" id="inputGrabF" name="hiddenInput" value="">
-          </div>
-        </div>
-        <div class="div-format-options">
-            <div class="format-video">
-                <label>
-                    <input type="radio" name="formatType" value="video_mp4_orig" checked> Video (mp4)
-                </label>
-                <label>
-                    <input type="radio" name="formatType" value="video_mp4_h264"> Video (H.264)
-                </label>
-                <label>
-                    <input type="radio" name="formatType" value="video_mp4_h265"> Video (H.265)
-                </label>
-            </div>
-
-            <div class="format-audio">
-                <label>
-                    <input type="radio" name="formatType" value="audio_orig"> Audio (orig)
-                </label>
-                <label>
-                    <input type="radio" name="formatType" value="audio_mp3"> Audio (mp3)
-                </label>
-                <label>
-                    <input type="radio" name="formatType" value="audio_m4a"> Audio (m4a)
-                </label>
-            </div>
-        </div>
-      </form>
-      <div class="div-grab-result" id="grab-result">
-        <div class="div-grab-result-info" id="grab-result-info"></div>
-        {{.GrabResultItemsHtml}}
-      </div>
+      {{ template "form-grab" . }}
+      {{ template "grab-result.html" . }}
   </div>
 </body>
 </html>

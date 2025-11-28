@@ -1,11 +1,14 @@
 package htmxvalues
 
 const (
-	GrabResultItemsHtmlKey      = "GrabResultItemsHtml"
 	GrabResultItemStatusHtmlKey = "GrabResultItemStatusHtml"
 	GrabResultItemStatusTextKey = "GrabResultItemStatusText"
 	DataOnlyOneKey              = "DataOnlyOne"
-	GrabResultLoadHistory
+	NeedLoadHistoryKey          = "NeedLoadHistory"
+	ItemFadeKey                 = "ItemFade"
+	IsItemFirstKey              = "IsItemFirst"
+	IsItemHTMXOptionRepeatKey   = "IsItemHTMXOptionRepeat"
+	IsItemSpinerKey             = "IsItemSpiner"
 
 	ResultYoutubeUrlFadeKey = "ResultYoutubeUrlFade"
 	ResultSizeFadeKey       = "ResultSizeFade"
