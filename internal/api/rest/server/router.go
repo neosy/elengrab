@@ -13,6 +13,7 @@ func (s *httpServer) newRouter() *router.Router {
 
 	handlers := handlers.New(&handlers.Dependencies{
 		Usecases:  s.usecases,
+		Templates: s.templates,
 		AssetsDir: s.assetsDir,
 	})
 

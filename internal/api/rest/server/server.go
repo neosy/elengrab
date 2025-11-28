@@ -3,6 +3,7 @@ package httpsrv
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"log"
 	"log/slog"
 
@@ -11,7 +12,8 @@ import (
 )
 
 type Dependencies struct {
-	Usecases *usecases.Usecases
+	Usecases  *usecases.Usecases
+	Templates *template.Template
 
 	// Options
 	AssetsDir string
@@ -21,6 +23,8 @@ type httpServer struct {
 	logger   *slog.Logger
 	usecases *usecases.Usecases
 
+	templates *template.Template
+
 	// Options
 	assetsDir string
 }
@@ -29,6 +33,7 @@ func NewServer(logger *slog.Logger, deps *Dependencies) *httpServer {
 	return &httpServer{
 		logger:    logger,
 		usecases:  deps.Usecases,
+		templates: deps.Templates,
 		assetsDir: deps.AssetsDir,
 	}
 }

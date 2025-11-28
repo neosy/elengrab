@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"html/template"
 	"path/filepath"
 	"sync"
-	"text/template"
 	"time"
 
 	"github.com/google/uuid"
@@ -48,11 +48,8 @@ var (
 	}
 )
 
-func (h *GrabberHandlers) genFileRow(ctx context.Context, fileInfo *dto.GetFileInfoResponse, isLoadHistory bool) (*bytes.Buffer, int, error) {
+func (h *GrabberHandlers) genRow(ctx context.Context, fileInfo *dto.GetFileInfoResponse, isLoadHistory bool) (*bytes.Buffer, int, error) {
 	var (
-		tmplPath string
-		data     fileRowInfoData
-
 		cacheChanged = struct {
 			youtubeTitle bool
 			FileSize     bool
@@ -71,7 +68,9 @@ func (h *GrabberHandlers) genFileRow(ctx context.Context, fileInfo *dto.GetFileI
 		cacheRow.mu.RUnlock()
 
 		if exists {
-			cacheChanged.youtubeTitle = cached.youtubeTitle != fileInfo.YoutubeTitle
+			if cached.youtubeTitle != "" {
+				cacheChanged.youtubeTitle = cached.youtubeTitle != fileInfo.YoutubeTitle
+			}
 			if fileInfo.FileSize != nil {
 				cacheChanged.FileSize = cached.FileSize != *fileInfo.FileSize
 			}
@@ -103,29 +102,22 @@ func (h *GrabberHandlers) genFileRow(ctx context.Context, fileInfo *dto.GetFileI
 		cacheRow.mu.Unlock()
 	}
 
-	tmplPath = filepath.Join(h.assetsDir, "templates", htmxvalues.GetGrabResultStatusHtmlFileName(fileInfo.Status))
+	data := fileRowInfoData{
+		YoutubeURL:   fileInfo.YoutubeUrl,
+		YoutubeTitle: fileInfo.YoutubeTitle,
+		PathFileRow:  httppaths.BuildPathFileRow(fileInfo.FileId),
+		FileSize:     "-",
+		Format:       "-",
+		DataFormat:   "-",
+		DownloadURL:  httppaths.BuildPathFileDownload(fileInfo.FileId),
+	}
 
-	data.YoutubeURL = fileInfo.YoutubeUrl
-	data.YoutubeTitle = fileInfo.YoutubeTitle
-	data.PathFileRow = httppaths.BuildPathFileRow(fileInfo.FileId)
-
-	data.FileSize = "-"
 	if fileInfo.FileSize != nil && *fileInfo.FileSize > 0 {
 		data.FileSize = utils.BytesToHuman(*fileInfo.FileSize)
 	}
-
-	data.Format = "-"
-	data.DataFormat = "-"
 	if fileInfo.FileExt != "" {
 		data.Format = fileInfo.FileExt
 		data.DataFormat = fileInfo.FileExt
-	}
-	// Set URL for download endpoint
-	data.DownloadURL = httppaths.BuildPathFileDownload(fileInfo.FileId)
-
-	tpl, err := template.ParseFiles(tmplPath)
-	if err != nil {
-		return nil, fasthttp.StatusInternalServerError, fmt.Errorf("template error: %v", err)
 	}
 
 	dataMap := htmxvalues.MergeMaps(
@@ -136,10 +128,20 @@ func (h *GrabberHandlers) genFileRow(ctx context.Context, fileInfo *dto.GetFileI
 
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
+	var isGrabResultItemHTMXOptionRepeat = false
+	switch fileInfo.Status {
+	case dtypes.FileStatusNew, dtypes.FileStatusPending, dtypes.FileStatusWorking:
+		isGrabResultItemHTMXOptionRepeat = true
+	}
+
 	dataMap[htmxvalues.GrabResultStatusIconNameKey] = htmxvalues.GrabResultStatusIconName(fileInfo.Status)
-	dataMap[htmxvalues.GrabResultItemHtmxOptionKey] = htmxvalues.GrabResultStatusHtmxOption(fileInfo.Status, data.PathFileRow)
-	dataMap[htmxvalues.GrabResultItemStatusHtmlKey] = htmxvalues.GrabResultStatusIconSvgRaw(fileInfo.Status, iconsDir)
+	dataMap[htmxvalues.IsItemHTMXOptionRepeatKey] = isGrabResultItemHTMXOptionRepeat
+	dataMap[htmxvalues.GrabResultItemStatusHtmlKey] = template.HTML(htmxvalues.GrabResultStatusIconSvgRaw(fileInfo.Status, iconsDir))
 	dataMap[htmxvalues.GrabResultItemStatusTextKey] = fileInfo.StatusText
+
+	dataMap[htmxvalues.ResultYoutubeUrlFadeKey] = ""
+	dataMap[htmxvalues.ResultSizeFadeKey] = ""
+	dataMap[htmxvalues.ResultFormatFadeKey] = ""
 	if cacheChanged.youtubeTitle {
 		dataMap[htmxvalues.ResultYoutubeUrlFadeKey] = "fade-text"
 	}
@@ -150,8 +152,18 @@ func (h *GrabberHandlers) genFileRow(ctx context.Context, fileInfo *dto.GetFileI
 		dataMap[htmxvalues.ResultFormatFadeKey] = "fade-text"
 	}
 
+	dataMap[htmxvalues.IsItemSpinerKey] = false
+	if fileInfo.Status == dtypes.FileStatusWorking {
+		dataMap[htmxvalues.IsItemSpinerKey] = true
+	}
+
+	var tmplFileName = htmxvalues.GrabResultItemStatusHtmlFileName
+	if fileInfo.Status == dtypes.FileStatusDone {
+		tmplFileName = htmxvalues.GrabResultItemSuccessHtmlFileName
+	}
+
 	var buf bytes.Buffer
-	err = tpl.Execute(&buf, dataMap)
+	err := h.templates.ExecuteTemplate(&buf, tmplFileName, dataMap)
 	if err != nil {
 		return nil, fasthttp.StatusInternalServerError, err
 	}

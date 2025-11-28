@@ -1,19 +1,19 @@
 <div class="div-grab-result-item success">
     <span class="result-youtube-url">
-        <a href="{{.YoutubeURL}}" target="_blank">{{.YoutubeTitle}}</a>
+        <a href="{{ .YoutubeURL }}" target="_blank">{{ .YoutubeTitle }}</a>
     </span>
     <div class="result-right">
         <span class="result-separator first">•</span>
         <div class="div-result-size">
-            <span class="result-size">{{.FileSize}}</span>
+            <span class="result-size">{{ .FileSize }}</span>
         </div>
         <span class="result-separator">•</span>
         <div class="div-result-format">
-            <span class="result-format" data-format="{{.DataFormat}}">{{.Format}}</span>
+            <span class="result-format" data-format="{{ .DataFormat }}">{{ .Format }}</span>
         </div>
         <span class="result-separator">•</span>
         <div class="div-result-status">
-            <a class="result-download-link" href="{{.DownloadURL}}">{{.GrabResultItemStatusHtml}}</a>
+            <a class="result-download-link" href="{{ .DownloadURL }}">{{ .GrabResultItemStatusHtml }}</a>
         </div>
     </div>
 </div>
