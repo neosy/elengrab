@@ -531,10 +531,17 @@ body {
 }
 
 @media (max-width: 480px) {
+    body {
+        margin: 0;
+        background: white;
+    }
+
     .div-main-area {
         width: 95%;
         padding: 15px;
         margin-top: 0px;
+        border-radius: 0;
+        box-shadow: none;
     }
 
     .img-header-logo {
