@@ -32,6 +32,7 @@ type cacheRowEntry struct {
 	youtubeTitle string
 	FileSize     int
 	Format       string
+	Status       dtypes.FileStatus
 	Updated      time.Time
 }
 
@@ -54,6 +55,7 @@ func (h *GrabberHandlers) genRow(ctx context.Context, fileInfo *dto.GetFileInfoR
 			youtubeTitle bool
 			FileSize     bool
 			Format       bool
+			Status       bool
 		}{}
 	)
 
@@ -68,19 +70,19 @@ func (h *GrabberHandlers) genRow(ctx context.Context, fileInfo *dto.GetFileInfoR
 		cacheRow.mu.RUnlock()
 
 		if exists {
-			if cached.youtubeTitle != "" {
-				cacheChanged.youtubeTitle = cached.youtubeTitle != fileInfo.YoutubeTitle
-			}
+			cacheChanged.youtubeTitle = cached.youtubeTitle != fileInfo.YoutubeTitle
 			if fileInfo.FileSize != nil {
 				cacheChanged.FileSize = cached.FileSize != *fileInfo.FileSize
 			}
 			cacheChanged.Format = cached.Format != fileInfo.FileExt
+			cacheChanged.Status = cached.Status != fileInfo.Status
 		}
 
 		if exists && fileInfo.Status != dtypes.FileStatusDone &&
 			!cacheChanged.youtubeTitle &&
 			!cacheChanged.FileSize &&
 			!cacheChanged.Format &&
+			!cacheChanged.Status &&
 			time.Since(cached.Updated) < cacheRow.ttl {
 			if !isLoadHistory {
 				return nil, fasthttp.StatusNoContent, nil
@@ -97,6 +99,7 @@ func (h *GrabberHandlers) genRow(ctx context.Context, fileInfo *dto.GetFileInfoR
 			youtubeTitle: fileInfo.YoutubeTitle,
 			FileSize:     fileSize,
 			Format:       fileInfo.FileExt,
+			Status:       fileInfo.Status,
 			Updated:      time.Now(),
 		}
 		cacheRow.mu.Unlock()
