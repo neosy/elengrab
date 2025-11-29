@@ -322,6 +322,11 @@ body {
     margin: 0 4px;
 }
 
+
+.result-format[data-format="opus"] {
+    color: #29b6f6;
+}
+
 .result-format[data-format="mp3"] {
     color: #ff7043;
 }

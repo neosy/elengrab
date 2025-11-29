@@ -294,7 +294,13 @@ func (srv *YtDlpService) buildDownloadArgs(
 		// Choose audio processing based on requested audio format
 		switch audioFormat {
 		case dtypes.AudioFormatOrig:
-			fileExt = info.Formats[0].FileExt
+			format := info.Formats[0]
+			if format.ACodec != nil && *format.ACodec == "opus" {
+				args = append(args, "--extract-audio", "--audio-format", "opus")
+				fileExt = "opus"
+			} else {
+				fileExt = format.FileExt
+			}
 		case dtypes.AudioFormatM4A:
 			args = append(args, "--extract-audio", "--audio-format", "m4a", "--audio-quality", audioQualityM4A)
 			fileExt = "m4a"
