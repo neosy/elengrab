@@ -36,7 +36,10 @@ CREATE TABLE IF NOT EXISTS files (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
     -- Record update timestamp, set automatically
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    -- Record delete timestamp
+    deleted_at DATETIME NULL
 );
 
 CREATE INDEX IF NOT EXISTS files_created_at_idx
@@ -44,3 +47,7 @@ ON files(created_at);
 
 CREATE INDEX IF NOT EXISTS files_partial_hash_idx
 ON files(partial_hash);
+
+CREATE INDEX files_deleted_at_null_idx
+ON files(deleted_at)
+WHERE deleted_at IS NULL;

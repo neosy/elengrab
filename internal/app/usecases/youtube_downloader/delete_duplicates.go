@@ -27,10 +27,11 @@ func (uc *YouTubeDownloader) DeleteDuplicates(ctx context.Context) error {
 				continue
 			}
 
-			err := uc.file.Delete(ctx, file.FileId)
+			err := uc.file.HardDelete(ctx, file.FileId)
 			if err != nil {
 				continue
 			}
+			uc.dlState.Delete(ctx, file.FileId)
 
 			delCnt++
 

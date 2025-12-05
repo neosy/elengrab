@@ -19,7 +19,7 @@ func NewInterval(valueDefault time.Duration, value time.Duration) Interval {
 
 // Value returns the effective duration: the actual value if set, otherwise the default.
 func (i *Interval) Duration() time.Duration {
-	if i.v.Seconds() != 0 {
+	if i.v.Seconds() >= 1 {
 		return i.v
 	}
 	return i.vDef

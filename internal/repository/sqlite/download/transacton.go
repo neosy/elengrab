@@ -30,39 +30,39 @@ type retryOptions struct {
 	delay      time.Duration
 }
 
-func execContext(ctx context.Context, db *sql.DB, sqlQuery string, args []interface{}, options retryOptions) error {
-	var err error
+func execContext(ctx context.Context, db *sql.DB, sqlQuery string, args []any, options retryOptions) error {
+	var (
+		err  error
+		dbtx interface {
+			ExecContext(context.Context, string, ...any) (sql.Result, error)
+		} = db
+	)
+
 	if tx, ok := txFromCtx(ctx); ok && tx != nil {
-		for i := range options.maxRetries {
-			_, err = tx.ExecContext(ctx, sqlQuery, args...)
-			if err != nil {
-				if sqlError, ok := err.(*sqlite.Error); ok && sqlError.Code() == sqlite3.SQLITE_BUSY {
-					if i == options.maxRetries-1 {
-						return err
-					}
-					time.Sleep(options.delay)
-					continue
-				} else {
-					return err
-				}
-			}
+		dbtx = tx
+	}
+
+	for i := range options.maxRetries {
+		_, err = dbtx.ExecContext(ctx, sqlQuery, args...)
+		if err == nil {
 			break
 		}
-	} else {
-		for i := range options.maxRetries {
-			_, err = db.ExecContext(ctx, sqlQuery, args...)
-			if err != nil {
-				if sqlError, ok := err.(*sqlite.Error); ok && sqlError.Code() == sqlite3.SQLITE_BUSY {
-					if i == options.maxRetries-1 {
-						return err
-					}
-					time.Sleep(options.delay)
-					continue
-				} else {
-					return err
-				}
+		if sqlError, ok := err.(*sqlite.Error); ok && sqlError.Code() == sqlite3.SQLITE_BUSY {
+			if i+1 == options.maxRetries {
+				return err
 			}
-			break
+
+			timer := time.NewTimer(options.delay)
+			select {
+			case <-ctx.Done():
+				timer.Stop()
+				return ctx.Err()
+			case <-timer.C:
+				// Let's continue
+			}
+			continue
+		} else {
+			return err
 		}
 	}
 

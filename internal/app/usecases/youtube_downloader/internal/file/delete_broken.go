@@ -15,9 +15,10 @@ func (uc *File) DeleteBroken(ctx context.Context) error {
 
 	for _, file := range files {
 		if file.DownloadTask == nil {
-			err := uc.Delete(ctx, file.FileId)
+			err := uc.HardDelete(ctx, file.FileId)
 			if err != nil {
 				uc.logger.Warn("Failed delete file", "error", err)
+				continue
 			}
 		}
 	}

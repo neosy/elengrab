@@ -42,7 +42,7 @@ func (uc *YouTubeDownloader) getFileInfo(ctx context.Context, file *ddownload.Fi
 			var err error
 			f, err = uc.file.FindByFileId(ctx, id, true)
 			if err != nil {
-				uc.logger.Warn("Failed find file", "fileId", f.FileId, "error", err)
+				uc.logger.Warn("Failed find file", "fileId", id, "error", err)
 				return nil, err
 			}
 		}
