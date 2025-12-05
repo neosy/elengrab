@@ -48,11 +48,35 @@ func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.
 		ErrorMessage:         eFile.ErrorMessage,
 		CreatedAt:            eFile.CreatedAt,
 		UpdatedAt:            eFile.UpdatedAt,
+		DeletedAt:            eFile.DeletedAt,
 		DownloadTask:         task,
 	}, nil
 }
 
 func (m *Mappers) MapRowsToFiles(rows *sql.Rows) ([]*ddownload.File, error) {
+	var (
+		eFile edownload.File
+		files []*ddownload.File
+	)
+
+	for rows.Next() {
+		err := rows.Scan(eFile.FieldPointers()...)
+		if err != nil {
+			return nil, err
+		}
+
+		file, err := m.MapFileEntityToDomain(&eFile, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		files = append(files, file)
+	}
+
+	return files, nil
+}
+
+func (m *Mappers) MapRowsToFilesTask(rows *sql.Rows) ([]*ddownload.File, error) {
 	var (
 		eFile edownload.File
 		eTask edownload.DownloadTask

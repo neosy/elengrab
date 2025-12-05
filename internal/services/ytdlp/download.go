@@ -129,7 +129,11 @@ func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions
 
 		var partialHash *string
 		{
-			h, err := nfile.HashPartial(filePath, iconstants.HashPartialBlocks, iconstants.HashPartialBlockSize)
+			h, err := nfile.HashPartialMedia(
+				filePath,
+				iconstants.HashPartialBlocks,
+				iconstants.HashPartialBlockSize,
+			)
 			if err == nil && h != "" {
 				partialHash = &h
 			}

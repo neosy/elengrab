@@ -18,9 +18,6 @@ type YouTubeDownloader struct {
 	logger  *slog.Logger
 	mappers *mappers.Mappers
 
-	// repositories
-	downloadStateRep persistence.DownloadStateRepository
-
 	// dispetchers
 	dlDispetcher nworkerpool.JobDispatcher
 
@@ -65,8 +62,8 @@ func NewYouTubeDownloader(
 		logger:  logger,
 		mappers: mappers.NewMappers(),
 
-		// repositories
-		downloadStateRep: downloadStateRep,
+		// in memory
+		dlState: dlstate.NewDownloadState(logger, downloadStateRep),
 
 		// dispetchers
 		dlDispetcher: dlDispetcher,
@@ -76,7 +73,6 @@ func NewYouTubeDownloader(
 		dlTask:       dlTask,
 		fileStatus:   filestatus.NewFileStatus(logger, fileRep, file, dlTask, dlTaskStatus),
 		dlTaskStatus: dlTaskStatus,
-		dlState:      dlstate.NewDownloadState(logger, downloadStateRep),
 
 		// services
 		downloaderSrv: downloaderSrv,

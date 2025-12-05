@@ -47,6 +47,9 @@ type File struct {
 	// Timestamp when the record was last updated
 	UpdatedAt time.Time
 
+	// Timestamp when the record was soft deleted
+	DeletedAt *time.Time
+
 	// Related task
 	DownloadTask *DownloadTask
 }

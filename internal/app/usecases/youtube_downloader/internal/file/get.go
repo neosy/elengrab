@@ -13,7 +13,7 @@ import (
 func (uc *File) FindByFileId(ctx context.Context, fileId uuid.UUID, checkNotFound bool) (*ddownload.File, error) {
 	file, err := uc.FileRep.FindByFileId(ctx, fileId)
 	if err != nil {
-		uc.logger.Warn("Error finding record", "error", err)
+		uc.logger.Warn("Failed to find record", "error", err)
 		return nil, err
 	}
 
@@ -26,20 +26,30 @@ func (uc *File) FindByFileId(ctx context.Context, fileId uuid.UUID, checkNotFoun
 	return file, err
 }
 
-func (uc *File) GetAll(ctx context.Context) ([]*ddownload.File, error) {
-	file, err := uc.FileRep.GetAll(ctx)
+func (uc *File) GetAll(ctx context.Context, includeDeleted bool) ([]*ddownload.File, error) {
+	file, err := uc.FileRep.GetAll(ctx, includeDeleted)
 	if err != nil {
-		uc.logger.Warn("Error get files", "error", err)
+		uc.logger.Warn("Failed to get files", "error", err)
 		return nil, err
 	}
 
 	return file, err
 }
 
+func (uc *File) GetAllFullNames(ctx context.Context, includeDeleted bool) ([]string, error) {
+	names, err := uc.FileRep.GetAllFullNames(ctx, includeDeleted)
+	if err != nil {
+		uc.logger.Warn("Failed to get fullNames", "error", err)
+		return nil, err
+	}
+
+	return names, nil
+}
+
 func (uc *File) GetBeforeTime(ctx context.Context, before time.Time, limit uint64) ([]*ddownload.File, error) {
 	file, err := uc.FileRep.GetBeforeTime(ctx, before, limit)
 	if err != nil {
-		uc.logger.Warn("Error get files", "error", err)
+		uc.logger.Warn("Failed to get files", "error", err)
 		return nil, err
 	}
 
@@ -91,9 +101,19 @@ func (uc *File) GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, e
 func (uc *File) GetDuplicateHashes(ctx context.Context) ([]string, error) {
 	hashes, err := uc.FileRep.GetDuplicateHashes(ctx)
 	if err != nil {
-		uc.logger.Warn("Failed to get dublicate hashes")
+		uc.logger.Warn("Failed to get dublicate hashes", "error", err)
 		return nil, err
 	}
 
 	return hashes, nil
+}
+
+func (uc *File) GetDeleted(ctx context.Context, from, to *time.Time) ([]*ddownload.File, error) {
+	files, err := uc.FileRep.GetDeleted(ctx, from, to)
+	if err != nil {
+		uc.logger.Warn("Failed to get deleted", "fromDate", from, "toDate", to, "error", err)
+		return nil, err
+	}
+
+	return files, nil
 }

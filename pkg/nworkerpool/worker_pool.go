@@ -90,10 +90,8 @@ func (wp *workerPool) Start(ctx context.Context) error {
 
 	// Create and start all workers
 	wp.mu.Lock()
-	{
-		for range wp.poolSize {
-			wp.addWorker(ctx)
-		}
+	for range wp.poolSize {
+		wp.addWorker(ctx)
 	}
 	wp.mu.Unlock()
 
@@ -175,7 +173,7 @@ func (wp *workerPool) Start(ctx context.Context) error {
 	})
 
 	if wp.logger != nil {
-		wp.logger.Debug("Worker pool manager running...")
+		wp.logger.Debug("Worker pool manager running...", "count", wp.poolSize)
 	}
 
 	return nil

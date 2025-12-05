@@ -10,19 +10,20 @@ import (
 
 type File struct {
 	dbentity.BaseEntity[File]
-	FileId               uuid.UUID `db:"file_id"`
-	Status               string    `db:"file_status"`
-	YoutubeUrl           string    `db:"youtube_url"`
-	YoutubeTitle         string    `db:"youtube_title"`
-	FileName             string    `db:"file_name"`
-	Ext                  string    `db:"ext"`
-	FullName             string    `db:"full_name"`
-	FileSize             *int      `db:"file_size"`
-	PartialHash          *string   `db:"partial_hash"`
-	SafeReadableFullName string    `db:"safe_readable_full_name"`
-	ErrorMessage         *string   `db:"error_message"`
-	CreatedAt            time.Time `db:"created_at" insert:"false"`
-	UpdatedAt            time.Time `db:"updated_at" insert:"false"`
+	FileId               uuid.UUID  `db:"file_id"`
+	Status               string     `db:"file_status"`
+	YoutubeUrl           string     `db:"youtube_url"`
+	YoutubeTitle         string     `db:"youtube_title"`
+	FileName             string     `db:"file_name"`
+	Ext                  string     `db:"ext"`
+	FullName             string     `db:"full_name"`
+	FileSize             *int       `db:"file_size"`
+	PartialHash          *string    `db:"partial_hash"`
+	SafeReadableFullName string     `db:"safe_readable_full_name"`
+	ErrorMessage         *string    `db:"error_message"`
+	CreatedAt            time.Time  `db:"created_at" insert:"false"`
+	UpdatedAt            time.Time  `db:"updated_at" insert:"false"`
+	DeletedAt            *time.Time `db:"deleted_at" insert:"false"`
 }
 
 // TableName returns the table name
