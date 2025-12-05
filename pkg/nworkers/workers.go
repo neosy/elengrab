@@ -90,7 +90,7 @@ func (ws *Workers) StartWorkers(ctx context.Context) error {
 	ws.mu.Unlock()
 
 	if ws.logger != nil {
-		ws.logger.Debug("Workers running...", "qty", len(ws.items))
+		ws.logger.Debug("Workers running...", "count", len(ws.items))
 	}
 
 	return nil

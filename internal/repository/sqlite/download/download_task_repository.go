@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"sync"
-	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -72,7 +71,7 @@ func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.Downl
 	// If this is an update — add the UpdatedAt field with the current time
 	if isUpd {
 		fields = append(fields, eTask.FieldName(&eTask.UpdatedAt))
-		values = append(values, time.Now())
+		values = append(values, squirrel.Expr("CURRENT_TIMESTAMP"))
 	}
 
 	// Generate SQL query with upsert logic

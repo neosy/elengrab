@@ -22,7 +22,11 @@ func (uc *YouTubeDownloader) UpdateHash(ctx context.Context) error {
 			continue
 		}
 
-		h, err := nfile.HashPartial(fPath, iconstants.HashPartialBlocks, iconstants.HashPartialBlockSize)
+		h, err := nfile.HashPartialMedia(
+			fPath,
+			iconstants.HashPartialBlocks,
+			iconstants.HashPartialBlockSize,
+		)
 		if err != nil {
 			uc.logger.Warn("Failed get hash partial", "filePath", fPath, "error", err)
 			continue

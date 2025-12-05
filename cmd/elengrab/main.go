@@ -119,8 +119,11 @@ func main() {
 	wsDeps := &workers.Dependencies{
 		Downloader: uc.Downloader,
 		// options
-		IntervalUpdateHash:       cfg.Elengrab.Maintenance.IntervalUpdateHash,
-		IntervalDeleteDuplicates: cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
+		IntervalUpdateHash:            cfg.Elengrab.Maintenance.IntervalUpdateHash,
+		IntervalDeleteDuplicates:      cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
+		IntervalDeleteMissingFiles:    cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
+		IntervalDeleteFailedDownloads: cfg.Elengrab.Maintenance.IntervalDeleteFailedDownloads,
+		EnableMoveUnmatchedFiles:      cfg.Elengrab.Maintenance.EnableMoveUnmatchedFiles,
 	}
 	ws := nworkers.NewWorkers(logger, wsDeps, workers.InitWorkers)
 	if err := ws.StartWorkers(ctx); err != nil {

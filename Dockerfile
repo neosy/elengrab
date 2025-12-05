@@ -20,7 +20,7 @@ FROM alpine:latest
 # Create necessary directories and install dependencies
 RUN mkdir /app_n \
     && cd /app_n && mkdir -p bin assets downloads migrations sqlite/data \
-    && apk add --no-cache su-exec curl dcron python3 py3-pip ffmpeg tzdata \
+    && apk add --no-cache su-exec curl dcron python3 ffmpeg tzdata \
     # Download yt-dlp binary
     && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
     && chmod a+rx /usr/local/bin/yt-dlp \

@@ -15,7 +15,6 @@ import (
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
 	"github.com/neosy/elengrab/pkg/dbutils"
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 type FileRepository struct {
@@ -28,7 +27,7 @@ type FileRepository struct {
 }
 
 type fileByFields struct {
-	status      *dtypes.FileStatus
+	statuses    []dtypes.FileStatus
 	beforeTime  *time.Time
 	limit       *uint64
 	partialHash **string
@@ -72,7 +71,7 @@ func (r *FileRepository) save(ctx context.Context, file *ddownload.File, isUpd b
 	// If this is an update — add the UpdatedAt field with the current time
 	if isUpd {
 		fields = append(fields, eFile.FieldName(&eFile.UpdatedAt))
-		values = append(values, time.Now())
+		values = append(values, squirrel.Expr("CURRENT_TIMESTAMP"))
 	}
 
 	// Generate SQL query with upsert logic
@@ -100,12 +99,16 @@ func (r *FileRepository) save(ctx context.Context, file *ddownload.File, isUpd b
 	return nil
 }
 
-func (r *FileRepository) UpdateStatusToNew(ctx context.Context) error {
+func (r *FileRepository) UpdateStatusToNew(ctx context.Context, statuses []dtypes.FileStatus) error {
+	if len(statuses) == 0 {
+		return nil
+	}
+
 	var ent edownload.File
 
-	sqlWhere := squirrel.Or{
-		squirrel.Eq{ent.FieldName(&ent.Status): dtypes.FileStatusPending},
-		squirrel.Eq{ent.FieldName(&ent.Status): dtypes.FileStatusWorking},
+	sqlWhere := squirrel.And{
+		squirrel.Eq{ent.FieldName(&ent.Status): statuses},
+		squirrel.Eq{ent.FieldName(&ent.DeletedAt): nil},
 	}
 
 	// Build query
@@ -132,7 +135,47 @@ func (r *FileRepository) UpdateStatusToNew(ctx context.Context) error {
 	return nil
 }
 
-func (r *FileRepository) Delete(ctx context.Context, fileId uuid.UUID) error {
+func (r *FileRepository) Delete(ctx context.Context, fileId uuid.UUID, soft bool) error {
+	if soft {
+		return r.softDelete(ctx, fileId)
+	} else {
+		return r.hardDelete(ctx, fileId)
+	}
+}
+
+func (r *FileRepository) softDelete(ctx context.Context, fileId uuid.UUID) error {
+	var eFile edownload.File
+
+	fieldsToUpdate := map[string]interface{}{
+		eFile.FieldName(&eFile.UpdatedAt): squirrel.Expr("CURRENT_TIMESTAMP"),
+		eFile.FieldName(&eFile.DeletedAt): squirrel.Expr("CURRENT_TIMESTAMP"),
+	}
+
+	// Generate SQL query with upsert logic
+	sqlQuery, args, err := squirrel.
+		Update(eFile.TableName()).
+		SetMap(fieldsToUpdate).
+		Where(squirrel.Eq{eFile.FieldName(&eFile.FileId): fileId}).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+	// If SQL generation failed — return an error
+	if err != nil {
+		return fmt.Errorf("failed to build SQL: %w", err)
+	}
+
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	// Execute the query
+	err = execContext(ctx, r.db, sqlQuery, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to save file: %v", err)
+	}
+
+	return nil
+}
+
+func (r *FileRepository) hardDelete(ctx context.Context, fileId uuid.UUID) error {
 	var ent edownload.File
 
 	// Build DELETE query
@@ -158,6 +201,43 @@ func (r *FileRepository) Delete(ctx context.Context, fileId uuid.UUID) error {
 	return nil
 }
 
+func (r *FileRepository) Restore(ctx context.Context, fileId uuid.UUID) error {
+	var eFile edownload.File
+
+	fieldsToUpdate := map[string]any{
+		eFile.FieldName(&eFile.UpdatedAt): squirrel.Expr("CURRENT_TIMESTAMP"),
+		eFile.FieldName(&eFile.DeletedAt): nil,
+	}
+
+	sqlWhere := squirrel.And{
+		squirrel.Eq{eFile.FieldName(&eFile.FileId): fileId},
+		squirrel.NotEq{eFile.FieldName(&eFile.DeletedAt): nil},
+	}
+
+	// Generate SQL query with upsert logic
+	sqlQuery, args, err := squirrel.
+		Update(eFile.TableName()).
+		SetMap(fieldsToUpdate).
+		Where(sqlWhere).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+	// If SQL generation failed — return an error
+	if err != nil {
+		return fmt.Errorf("failed to build SQL: %w", err)
+	}
+
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	// Execute the query
+	err = execContext(ctx, r.db, sqlQuery, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to save file: %v", err)
+	}
+
+	return nil
+}
+
 func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*ddownload.File, error) {
 	var (
 		eFile edownload.File
@@ -169,6 +249,11 @@ func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*d
 
 	selectFields := append(eFile.FieldsAllWithAlias(aliasFiles), eTask.FieldsAllWithAlias(aliasTasks)...)
 
+	sqlWhere := squirrel.Eq{
+		eFile.FieldNameWithAlias(&eFile.FileId, aliasFiles):    fileId.String(),
+		eFile.FieldNameWithAlias(&eFile.DeletedAt, aliasFiles): nil,
+	}
+
 	sqlQuery, args, err := squirrel.Select(selectFields...).
 		From(eFile.TableName() + " AS " + aliasFiles).
 		LeftJoin(
@@ -176,7 +261,7 @@ func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*d
 				" ON " + aliasTasks + "." + eTask.FieldName(&eTask.FileId) +
 				" = " + aliasFiles + "." + eFile.FieldName(&eFile.FileId),
 		).
-		Where(squirrel.Eq{eFile.FieldNameWithAlias(&eFile.FileId, aliasFiles): fileId.String()}).
+		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()
@@ -205,7 +290,12 @@ func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*d
 	return file, nil
 }
 
-func (r *FileRepository) getAll(ctx context.Context, byFields fileByFields, sortOrder string) ([]*ddownload.File, error) {
+func (r *FileRepository) getAll(
+	ctx context.Context,
+	byFields fileByFields,
+	sortOrderByCreatedAt string,
+	includeDeleted bool,
+) ([]*ddownload.File, error) {
 	var (
 		eFile edownload.File
 		eTask edownload.DownloadTask
@@ -218,8 +308,8 @@ func (r *FileRepository) getAll(ctx context.Context, byFields fileByFields, sort
 	selectFields := append(eFile.FieldsAllWithAlias(aliasFiles), eTask.FieldsAllWithAlias(aliasTasks)...)
 
 	var conditions = squirrel.And{}
-	if byFields.status != nil {
-		conditions = append(conditions, squirrel.Eq{eFile.FieldNameWithAlias(&eFile.Status, aliasFiles): byFields.status.String()})
+	if len(byFields.statuses) > 0 {
+		conditions = append(conditions, squirrel.Eq{eFile.FieldNameWithAlias(&eFile.Status, aliasFiles): byFields.statuses})
 	}
 	if byFields.beforeTime != nil && !byFields.beforeTime.IsZero() {
 		t := byFields.beforeTime.Add(-1 * time.Nanosecond)
@@ -232,16 +322,16 @@ func (r *FileRepository) getAll(ctx context.Context, byFields fileByFields, sort
 			conditions = append(conditions, squirrel.Eq{eFile.FieldNameWithAlias(&eFile.PartialHash, aliasFiles): **byFields.partialHash})
 		}
 	}
-
-	sqlWhere := squirrel.Expr("TRUE")
-	if len(conditions) > 0 {
-		sqlWhere = conditions
+	if !includeDeleted {
+		conditions = append(conditions, squirrel.Eq{eFile.FieldNameWithAlias(&eFile.DeletedAt, aliasFiles): nil})
 	}
+
+	sqlWhere := conditions
 
 	qb := squirrel.Select(selectFields...).
 		From(eFile.TableName() + " AS " + aliasFiles).
 		Where(sqlWhere).
-		OrderBy(dbutils.OrderBy(dbutils.Flds{eFile.FieldNameWithAlias(&eFile.CreatedAt, aliasFiles): sortOrder})).
+		OrderBy(dbutils.OrderBy(dbutils.Flds{eFile.FieldNameWithAlias(&eFile.CreatedAt, aliasFiles): sortOrderByCreatedAt})).
 		LeftJoin(
 			eTask.TableName() + " AS " + aliasTasks +
 				" ON " + aliasTasks + "." + eTask.FieldName(&eTask.FileId) +
@@ -262,15 +352,12 @@ func (r *FileRepository) getAll(ctx context.Context, byFields fileByFields, sort
 	// Execute the query
 	rows, err := r.db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return files, nil // ничего не найдено
-		}
 		return nil, err
 	}
 	defer rows.Close()
 
 	if rows != nil {
-		files, err = r.mappers.MapRowsToFiles(rows)
+		files, err = r.mappers.MapRowsToFilesTask(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -279,8 +366,50 @@ func (r *FileRepository) getAll(ctx context.Context, byFields fileByFields, sort
 	return files, nil
 }
 
-func (r *FileRepository) GetAll(ctx context.Context) ([]*ddownload.File, error) {
-	return r.getAll(ctx, fileByFields{}, dbutils.OrderDesc)
+func (r *FileRepository) GetAll(ctx context.Context, includeDeleted bool) ([]*ddownload.File, error) {
+	return r.getAll(ctx, fileByFields{}, dbutils.OrderDesc, includeDeleted)
+}
+
+func (r *FileRepository) GetAllFullNames(ctx context.Context, includeDeleted bool) ([]string, error) {
+	var eFile edownload.File
+
+	sqlWhere := squirrel.And{}
+
+	if !includeDeleted {
+		sqlWhere = append(sqlWhere, squirrel.Eq{eFile.FieldName(&eFile.DeletedAt): nil})
+	}
+
+	sqlQuery, args, err := squirrel.Select(eFile.FieldName(&eFile.FullName)).
+		From(eFile.TableName()).
+		Where(sqlWhere).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	rows, err := r.db.QueryContext(ctx, sqlQuery, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var fullNames []string
+	for rows.Next() {
+		var fullName string
+		err = rows.Scan(&fullName)
+		if err != nil {
+			return nil, err
+		}
+
+		if fullName != "" {
+			fullNames = append(fullNames, fullName)
+		}
+	}
+
+	return fullNames, nil
 }
 
 func (r *FileRepository) GetBeforeTime(ctx context.Context, before time.Time, limit uint64) ([]*ddownload.File, error) {
@@ -291,21 +420,26 @@ func (r *FileRepository) GetBeforeTime(ctx context.Context, before time.Time, li
 			limit:      &limit,
 		},
 		dbutils.OrderDesc,
+		false,
 	)
 }
 
 func (r *FileRepository) GetByStatus(ctx context.Context, status dtypes.FileStatus) ([]*ddownload.File, error) {
-	return r.getAll(ctx, fileByFields{status: &status}, dbutils.OrderAsc)
+	return r.GetByStatuses(ctx, []dtypes.FileStatus{status})
+}
+
+func (r *FileRepository) GetByStatuses(ctx context.Context, statuses []dtypes.FileStatus) ([]*ddownload.File, error) {
+	return r.getAll(ctx, fileByFields{statuses: statuses}, dbutils.OrderAsc, false)
 }
 
 func (r *FileRepository) GetByPartialHash(ctx context.Context, hash string) ([]*ddownload.File, error) {
 	var h = &hash
-	return r.getAll(ctx, fileByFields{partialHash: &h, status: uptr.Any(dtypes.FileStatusDone)}, dbutils.OrderDesc)
+	return r.getAll(ctx, fileByFields{partialHash: &h, statuses: []dtypes.FileStatus{dtypes.FileStatusDone}}, dbutils.OrderDesc, false)
 }
 
 func (r *FileRepository) GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, error) {
 	var h *string
-	return r.getAll(ctx, fileByFields{partialHash: &h}, dbutils.OrderAsc)
+	return r.getAll(ctx, fileByFields{partialHash: &h}, dbutils.OrderAsc, false)
 }
 
 func (r *FileRepository) GetDuplicateHashes(ctx context.Context) ([]string, error) {
@@ -313,8 +447,11 @@ func (r *FileRepository) GetDuplicateHashes(ctx context.Context) ([]string, erro
 
 	sqlWhere := squirrel.And{
 		squirrel.Expr(eFile.FieldName(&eFile.PartialHash) + " IS NOT NULL"),
-		squirrel.Eq{eFile.FieldName(&eFile.Status): dtypes.FileStatusDone},
 		squirrel.NotEq{eFile.FieldName(&eFile.FullName): ""},
+		squirrel.Eq{
+			eFile.FieldName(&eFile.Status):    dtypes.FileStatusDone,
+			eFile.FieldName(&eFile.DeletedAt): nil,
+		},
 	}
 
 	// SELECT partial_hash
@@ -358,6 +495,58 @@ func (r *FileRepository) GetDuplicateHashes(ctx context.Context) ([]string, erro
 	}
 
 	return hashes, nil
+}
+
+func (r *FileRepository) GetDeleted(ctx context.Context, from, to *time.Time) ([]*ddownload.File, error) {
+	var eFile edownload.File
+
+	sqlWhere := squirrel.And{
+		squirrel.NotEq{eFile.FieldName(&eFile.DeletedAt): nil},
+	}
+
+	if from != nil {
+		sqlWhere = append(sqlWhere, squirrel.GtOrEq{
+			eFile.FieldName(&eFile.DeletedAt): *from,
+		})
+	}
+
+	if to != nil {
+		sqlWhere = append(sqlWhere, squirrel.LtOrEq{
+			eFile.FieldName(&eFile.DeletedAt): *to,
+		})
+	}
+
+	sqlQuery, args, err := squirrel.Select(eFile.FieldsAll()...).
+		From(eFile.TableName()).
+		Where(sqlWhere).
+		OrderBy(dbutils.OrderBy(dbutils.Flds{eFile.FieldName(&eFile.DeletedAt): dbutils.OrderAsc})).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	var files []*ddownload.File
+
+	// Execute the query
+	rows, err := r.db.QueryContext(ctx, sqlQuery, args...)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return files, nil // ничего не найдено
+		}
+		return nil, err
+	}
+	defer rows.Close()
+
+	if rows != nil {
+		files, err = r.mappers.MapRowsToFiles(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return files, nil
 }
 
 func (r *FileRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {

@@ -32,26 +32,25 @@ func (r *DownloadStateRepository) Save(_ context.Context, state *ddownload.Downl
 	}
 
 	r.mu.Lock()
-	{
-		if state.TaskId != nil && *state.TaskId == uuid.Nil {
-			state.TaskId = nil
-			if state.File != nil {
-				state.File.DownloadTask = nil
-			}
-		}
+	defer r.mu.Unlock()
 
-		if state.File != nil && state.File.DownloadTask == nil && state.TaskId != nil {
-			delete(r.dataByStateIdMap, *state.TaskId)
-			state.TaskId = nil
-		}
-
-		r.dataByFileIdMap[state.FileId] = state
-
-		if state.TaskId != nil && *state.TaskId != uuid.Nil {
-			r.dataByStateIdMap[*state.TaskId] = state
+	if state.TaskId != nil && *state.TaskId == uuid.Nil {
+		state.TaskId = nil
+		if state.File != nil {
+			state.File.DownloadTask = nil
 		}
 	}
-	r.mu.Unlock()
+
+	if state.File != nil && state.File.DownloadTask == nil && state.TaskId != nil {
+		delete(r.dataByStateIdMap, *state.TaskId)
+		state.TaskId = nil
+	}
+
+	r.dataByFileIdMap[state.FileId] = state
+
+	if state.TaskId != nil && *state.TaskId != uuid.Nil {
+		r.dataByStateIdMap[*state.TaskId] = state
+	}
 
 	return nil
 }
@@ -66,17 +65,16 @@ func (r *DownloadStateRepository) Update(ctx context.Context, state *ddownload.D
 
 func (r *DownloadStateRepository) Delete(_ context.Context, fileId uuid.UUID) error {
 	r.mu.Lock()
-	{
-		file := r.dataByFileIdMap[fileId]
-		if file == nil {
-			return nil
-		}
-		if file.TaskId != nil && *file.TaskId != uuid.Nil {
-			delete(r.dataByStateIdMap, *file.TaskId)
-		}
-		delete(r.dataByFileIdMap, fileId)
+	defer r.mu.Unlock()
+
+	file, exists := r.dataByFileIdMap[fileId]
+	if !exists || file == nil {
+		return nil
 	}
-	r.mu.Unlock()
+	if file.TaskId != nil && *file.TaskId != uuid.Nil {
+		delete(r.dataByStateIdMap, *file.TaskId)
+	}
+	delete(r.dataByFileIdMap, fileId)
 
 	return nil
 }

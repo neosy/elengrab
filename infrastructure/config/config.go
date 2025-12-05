@@ -39,8 +39,14 @@ type ElengrabConfig struct {
 }
 
 type ElengrabMaintenanceConfig struct {
-	IntervalUpdateHash       time.Duration `env:"INTERVAL_UPDATE_HASH" envDefault:"8h"`
-	IntervalDeleteDuplicates time.Duration `env:"INTERVAL_UPDATE_DUPLICATES" envDefault:"1h"`
+	IntervalUpdateHash            time.Duration `env:"INTERVAL_UPDATE_HASH" envDefault:"8h"`
+	IntervalDeleteDuplicates      time.Duration `env:"INTERVAL_DELETE_DUPLICATES" envDefault:"1h"`
+	IntervalDeleteMissingFiles    time.Duration `env:"INTERVAL_DELETE_MISSING_FILES" envDefault:"30m"`
+	IntervalDeleteFailedDownloads time.Duration `env:"INTERVAL_DELETE_FAILED_DOWNLOADS" envDefault:"1h"`
+
+	// EnableMoveUnmatchedFiles controls whether the periodic
+	// moveUnmatchedFiles operation is allowed. Default is false (disabled).
+	EnableMoveUnmatchedFiles bool `env:"ENABLE_MOVE_UNMATCHED_FILES" envDefault:"false"`
 }
 
 type SQLiteConfig struct {
