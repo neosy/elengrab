@@ -1,3 +1,5 @@
+// document.documentElement.classList.add('dark');
+
 document.addEventListener('DOMContentLoaded', () => {
     const formGrab = document.querySelector('#form-grab');
     const buttonGrab = document.querySelector('.button-grab-get');
