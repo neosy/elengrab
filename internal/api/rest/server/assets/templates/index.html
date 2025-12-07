@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>{{.Title}}</title>
+  <link rel="stylesheet" href="{{.PathStaticCss}}/theme-switcher.css">
   <link rel="stylesheet" href="{{.PathStaticCss}}/style.css">
   <link rel="manifest" href="{{.PathStaticPwa}}/manifest.json">
   <link rel="icon" type="image/png" sizes="16x16" href="{{.PathStaticImg}}/favicon-16.png">
@@ -16,10 +17,12 @@
   <link rel="preload" href="https://fonts.gstatic.com/s/inter/v12/....woff2" as="font" type="font/woff2" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-  <script src="{{.PathStaticJs}}/downloader.js"></script>
+  <script defer src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script defer src="{{.PathStaticJs}}/theme-switcher.js"></script>
+  <script defer src="{{.PathStaticJs}}/downloader.js"></script>
 </head>
 <body>
+  {{ template "theme-switcher.html" . }}
   <div class="div-main-area">
       <div class="div-header-main">
         <img class="img-header-logo" src="{{.PathStaticImg}}/logo-512.png">
