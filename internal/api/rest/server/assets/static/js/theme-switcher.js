@@ -1,11 +1,18 @@
 ;(() => {
     const html = document.documentElement;
     const btn = document.getElementById('theme-toggle-btn');
+    const themeColorMeta = document.getElementById('theme-color-meta');
 
-    // Apply theme and save to localStorage
+    // Apply theme, persist to localStorage and update mobile status bar color
     const setTheme = (theme) => {
         html.classList.toggle('dark', theme === 'dark');
         localStorage.setItem('theme', theme);
+
+        // Update <meta name="theme-color"> for mobile browsers (removes white bar)
+        if (themeColorMeta) {
+            const color = theme === 'dark' ? '#171717' : '#f0f0f0'; // adjust to your exact colors
+            themeColorMeta.setAttribute('content', color);
+        }
     };
 
     // Determine initial theme on page load
@@ -21,7 +28,7 @@
         setTheme(isDark ? 'light' : 'dark');
     });
 
-    // Follow system preference changes only if user hasn't made a manual choice
+    // Follow system theme changes only if user has not made a manual choice
     window.matchMedia('(prefers-color-scheme: dark)')
         .addEventListener('change', (e) => {
             if (!localStorage.getItem('theme')) {
