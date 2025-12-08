@@ -72,6 +72,7 @@ body {
 }
 
 .div-main-area {
+    position: relative;
     width: 80%;
     max-width: 1200px;
     padding: 30px 50px;
@@ -87,8 +88,8 @@ body {
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 10px;
     position: relative;
+    gap: 10px;
     width: 100%;
     max-width: 700px;
     margin: 0 auto;
