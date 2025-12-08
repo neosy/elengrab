@@ -1,8 +1,8 @@
 :root {
     --bg-body: #f0f0f0;
     --bg-main: white;
-    --bg-result: #f8f9fb;
-    --bg-result-item: #f8f9fb;
+    --bg-result: #fdfdfd;
+    --bg-result-item: #fdfdfd;
     --bg-format: #f0f0f0;
     --bg-button: #ebebeb;
     --bg-button-hover: #e4e4e4;
@@ -77,6 +77,7 @@ body {
     max-width: 1200px;
     padding: 30px 50px;
     margin-top: 50px;
+    margin-bottom: 30px;
     text-align: center;
     background: var(--bg-main);
     border-radius: 20px;
