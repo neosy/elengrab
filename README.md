@@ -4,7 +4,7 @@
 <h3 align="center">Fast web UI for your YouTube downloader.</h3>
 
 <p align="center">
-  <img width="708" height="314" alt="image" src="https://github.com/user-attachments/assets/cd0f6c69-445c-45fe-9ebc-0c76f258ffd2" />
+  <img width="1142" height="581" alt="image" src="https://github.com/user-attachments/assets/59111174-1b7b-489f-acc7-1a88cc7efd2d" />
 </p>
 
 
