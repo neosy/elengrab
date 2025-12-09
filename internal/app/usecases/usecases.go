@@ -5,7 +5,7 @@ import (
 
 	ytdownloader "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader"
 	"github.com/neosy/elengrab/internal/ports/persistence"
-	"github.com/neosy/elengrab/internal/services"
+	"github.com/neosy/elengrab/internal/app/services"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
 )
 

@@ -10,20 +10,18 @@ import (
 type VideoFormat string
 
 const (
-	VideoFormatNone    VideoFormat = "none"
-	VideoFormatOrig    VideoFormat = "orig"
-	VideoFormatMP4Orig VideoFormat = "mp4_orig"
-	VideoFormatMP4H264 VideoFormat = "mp4_h264"
-	VideoFormatMP4H265 VideoFormat = "mp4_h265"
+	VideoFormatNone VideoFormat = "none"
+	VideoFormatBest VideoFormat = "best"
+	VideoFormatMP4  VideoFormat = "mp4"
+	VideoFormatWebM VideoFormat = "webm"
 )
 
 var (
 	videoFormatMap = map[VideoFormat]struct{}{
-		VideoFormatNone:    {},
-		VideoFormatOrig:    {},
-		VideoFormatMP4Orig: {},
-		VideoFormatMP4H264: {},
-		VideoFormatMP4H265: {},
+		VideoFormatNone: {},
+		VideoFormatBest: {},
+		VideoFormatMP4:  {},
+		VideoFormatWebM: {},
 	}
 )
 

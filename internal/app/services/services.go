@@ -4,7 +4,7 @@ import (
 	"log/slog"
 
 	pservices "github.com/neosy/elengrab/internal/ports/services"
-	ytdlpsrv "github.com/neosy/elengrab/internal/services/ytdlp"
+	ytdlpsrv "github.com/neosy/elengrab/internal/app/services/ytdlp"
 )
 
 type Dependencies struct {

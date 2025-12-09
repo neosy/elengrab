@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	dyoutubeinfo "github.com/neosy/elengrab/internal/domain/youtube_info"
-	"github.com/neosy/elengrab/internal/services/ytdlp/dto"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
 )
 
 // GetFormats retrieves and parses video formats for the given URL.

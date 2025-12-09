@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/neosy/elengrab/internal/services/ytdlp/mappers"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/mappers"
 )
 
 const (

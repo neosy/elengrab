@@ -11,17 +11,21 @@ type AudioFormat string
 
 const (
 	AudioFormatNone AudioFormat = "none"
-	AudioFormatOrig AudioFormat = "orig"
+	AudioFormatBest AudioFormat = "best"
 	AudioFormatMP3  AudioFormat = "mp3"
 	AudioFormatM4A  AudioFormat = "m4a"
+	AudioFormatFLAC AudioFormat = "flac"
+	AudioFormatOPUS AudioFormat = "opus"
 )
 
 var (
 	audioFormatMap = map[AudioFormat]struct{}{
 		AudioFormatNone: {},
-		AudioFormatOrig: {},
+		AudioFormatBest: {},
 		AudioFormatMP3:  {},
 		AudioFormatM4A:  {},
+		AudioFormatFLAC: {},
+		AudioFormatOPUS: {},
 	}
 )
 

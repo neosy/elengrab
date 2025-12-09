@@ -10,7 +10,6 @@ import (
 	htmxvalues "github.com/neosy/elengrab/internal/api/rest/server/handlers/htmx/values"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/paths"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/valyala/fasthttp"
 )
 
@@ -22,29 +21,6 @@ type grabResultData struct {
 	Format       string
 	DownloadURL  string
 }
-
-var (
-	formatTypeMap = map[string]dtypes.FormatType{
-		"video_orig":     dtypes.FormatTypeVideoAudio,
-		"video_mp4_orig": dtypes.FormatTypeVideoAudio,
-		"video_mp4_h264": dtypes.FormatTypeVideoAudio,
-		"video_mp4_h265": dtypes.FormatTypeVideoAudio,
-		"audio_orig":     dtypes.FormatTypeAudioOnly,
-		"audio_mp3":      dtypes.FormatTypeAudioOnly,
-		"audio_m4a":      dtypes.FormatTypeAudioOnly,
-	}
-	videoFormatMap = map[string]dtypes.VideoFormat{
-		"video_orig":     dtypes.VideoFormatOrig,
-		"video_mp4_orig": dtypes.VideoFormatMP4Orig,
-		"video_mp4_h264": dtypes.VideoFormatMP4H264,
-		"video_mp4_h265": dtypes.VideoFormatMP4H265,
-	}
-	audioFormatMap = map[string]dtypes.AudioFormat{
-		"audio_orig": dtypes.AudioFormatOrig,
-		"audio_mp3":  dtypes.AudioFormatMP3,
-		"audio_m4a":  dtypes.AudioFormatM4A,
-	}
-)
 
 func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	var itemsOnlyOne = false
@@ -65,24 +41,10 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	// Read selected format from radio buttons
-	formFormatType := string(ctx.FormValue(formFieldFormatTypeKey))
-	formatType := formatTypeMap[formFormatType]
-	if formatType == "" {
-		formatType = dtypes.FormatTypeVideoAudio
-	}
-
-	var videoFormat *dtypes.VideoFormat
-	if _, exists := videoFormatMap[formFormatType]; exists {
-		videoFormat = new(dtypes.VideoFormat)
-		*videoFormat = videoFormatMap[formFormatType]
-	}
-
-	var audioFormat *dtypes.AudioFormat
-	if _, exists := audioFormatMap[formFormatType]; exists {
-		audioFormat = new(dtypes.AudioFormat)
-		*audioFormat = audioFormatMap[formFormatType]
-	}
+	// Read selected quality and format
+	formSelectQualityCodec := string(ctx.FormValue(formFieldQualityCodecKey))
+	formSelectQualityResolution := string(ctx.FormValue(formFieldQualityResolutionKey))
+	formSelectFormat := string(ctx.FormValue(formFieldFormatKey))
 
 	var (
 		data = grabResultData{
@@ -94,9 +56,11 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		ctx,
 		url,
 		&ddownload.DownloadOptions{
-			FormatType:  formatType,
-			VideoFormat: videoFormat,
-			AudioFormat: audioFormat,
+			FormatType:      h.mappers.MapFormatType(formSelectQualityCodec, formSelectFormat),
+			VideoFormat:     h.mappers.MapVideoFormat(formSelectQualityCodec, formSelectFormat),
+			VideoCodec:      h.mappers.MapVideoCodec(formSelectQualityCodec),
+			VideoResolution: h.mappers.MapVideoResolution(formSelectQualityResolution),
+			AudioFormat:     h.mappers.MapAudioFormat(formSelectFormat),
 		},
 	)
 	if err != nil {
