@@ -10,8 +10,23 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func SendFile(ctx *fasthttp.RequestCtx, path string, downloadName string, contentType string) {
-	// Open file
+// SendFileBuffered sends a file to the client over HTTP with support for partial downloads (Range requests).
+// This is a simple, buffered implementation: the file is read through Go memory buffers.
+// For large files, memory usage may be high, especially when multiple downloads occur simultaneously.
+//
+// Parameters:
+//
+//	ctx          - the fasthttp request context used to write the response.
+//	path         - the path to the file on disk to be sent.
+//	downloadName - the filename suggested to the client for saving the file.
+//	contentType  - the MIME type of the file (e.g., "application/octet-stream", "image/png").
+//
+// Features:
+//   - Supports full file downloads.
+//   - Supports HTTP Range requests for partial downloads.
+//   - Uses Go buffers to stream data, which may increase RAM usage for large files.
+//   - Simple implementation without guaranteed zero-copy; not recommended for very large files.
+func SendFileBuffered(ctx *fasthttp.RequestCtx, path string, downloadName string, contentType string) {
 	f, err := os.Open(path)
 	if err != nil {
 		ctx.Error("failed to open file", fasthttp.StatusInternalServerError)
@@ -24,14 +39,12 @@ func SendFile(ctx *fasthttp.RequestCtx, path string, downloadName string, conten
 		ctx.Error("failed to stat file", fasthttp.StatusInternalServerError)
 		return
 	}
-
 	size := fi.Size()
 
 	// Base headers
 	ctx.Response.Header.Set("Content-Type", contentType)
 	ctx.Response.Header.Set("Accept-Ranges", "bytes")
-	ctx.Response.Header.Set("Content-Disposition",
-		fmt.Sprintf(`attachment; filename="%s"`, downloadName))
+	ctx.Response.Header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, downloadName))
 
 	rangeHeader := string(ctx.Request.Header.Peek("Range"))
 
@@ -57,15 +70,16 @@ func SendFile(ctx *fasthttp.RequestCtx, path string, downloadName string, conten
 		}
 
 		ctx.SetStatusCode(fasthttp.StatusPartialContent)
-		ctx.Response.Header.Set("Content-Range",
-			fmt.Sprintf("bytes %d-%d/%d", start, end, size))
+		ctx.Response.Header.Set("Content-Range", fmt.Sprintf("bytes %d-%d/%d", start, end, size))
+		ctx.Response.Header.Set("Content-Length", fmt.Sprintf("%d", end-start+1))
 
 		if _, err := f.Seek(start, io.SeekStart); err != nil {
 			ctx.Error("seek error", fasthttp.StatusInternalServerError)
 			return
 		}
 
-		_, err = io.CopyN(ctx, f, end-start+1)
+		w := ctx.Response.BodyWriter()
+		_, err = io.CopyN(w, f, end-start+1)
 		if err != nil && !errors.Is(err, io.EOF) {
 			ctx.Error("stream error", fasthttp.StatusInternalServerError)
 		}
@@ -78,8 +92,37 @@ func SendFile(ctx *fasthttp.RequestCtx, path string, downloadName string, conten
 	ctx.SetStatusCode(fasthttp.StatusOK)
 	ctx.Response.Header.Set("Content-Length", fmt.Sprintf("%d", size))
 
-	_, err = io.Copy(ctx, f)
+	w := ctx.Response.BodyWriter()
+	_, err = io.Copy(w, f)
 	if err != nil && !errors.Is(err, io.EOF) {
 		ctx.Error("stream error", fasthttp.StatusInternalServerError)
 	}
+}
+
+// SendFileDirect streams a file to the client over HTTP using fasthttp's built-in SendFile method.
+// This implementation is optimized for large files: it uses zero-copy where possible, minimizing
+// memory usage and avoiding buffering the entire file in Go.
+//
+// Parameters:
+//
+//	ctx          - the fasthttp request context used to write the response.
+//	path         - the path to the file on disk to be sent.
+//	downloadName - the filename suggested to the client for saving the file.
+//	contentType  - the MIME type of the file (e.g., "application/octet-stream", "image/png").
+//
+// Features:
+//   - Supports full file downloads.
+//   - Automatically supports HTTP Range requests (partial downloads).
+//   - Minimal RAM usage, even for gigabyte-scale files.
+//   - Uses fasthttp.SendFile, which leverages zero-copy sendfile on supported operating systems.
+//   - Simple and efficient implementation, suitable for production environments.
+func SendFileDirect(ctx *fasthttp.RequestCtx, path string, downloadName string, contentType string) {
+	// Set headers before sending the file
+	ctx.Response.Header.Set("Content-Type", contentType)
+	ctx.Response.Header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, downloadName))
+	ctx.Response.Header.Set("Accept-Ranges", "bytes")
+
+	// fasthttp.SendFile streams the file with zero-copy where possible
+	// Supports Range requests automatically
+	ctx.SendFile(path)
 }

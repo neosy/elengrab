@@ -16,6 +16,7 @@ var (
 		".aac":  "audio/aac",
 		".ogg":  "audio/ogg",
 		".opus": "audio/opus",
+		".flac": "audio/flac",
 
 		".mp4":  "video/mp4",
 		".webm": "video/webm",
@@ -56,5 +57,5 @@ func (h *GrabberHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Send file via streaming
-	nfasthttp.SendFile(ctx, fileInfo.FilePath, fileInfo.SafeReadableFullName, contentType)
+	nfasthttp.SendFileDirect(ctx, fileInfo.FilePath, fileInfo.SafeReadableFullName, contentType)
 }
