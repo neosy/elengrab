@@ -1,10 +1,12 @@
 package mappers
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
@@ -19,6 +21,19 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(file *ddownload.File, download
 		filePath = filepath.Join(downloadsDir, file.FullName)
 	}
 
+	var mediaInfoText string
+	if file.MediaInfo != nil {
+		if file.MediaInfo.VideoCodec != dtypes.VideoCodecNone {
+			mediaInfoText = fmt.Sprintf(
+				"%v, %v, %dx%d",
+				file.MediaInfo.VideoCodec.Title(),
+				file.MediaInfo.Resolution,
+				file.MediaInfo.Width,
+				file.MediaInfo.Height,
+			)
+		}
+	}
+
 	return &dto.GetFileInfoResponse{
 		FileId:               file.FileId,
 		Status:               file.Status,
@@ -31,6 +46,8 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(file *ddownload.File, download
 		FileSize:             file.FileSize,
 		SafeReadableFullName: file.SafeReadableFullName,
 		StatusText:           uptr.Deref(file.ErrorMessage),
+		MediaInfo:            file.MediaInfo,
+		MediaInfoText:        mediaInfoText,
 		CreatedAt:            file.CreatedAt,
 	}
 }

@@ -53,6 +53,15 @@ var (
 		VideoResolution480p:  854,
 		VideoResolution360p:  640,
 	}
+
+	heightToResolutionMap = map[uint16]VideoResolution{
+		2160: VideoResolution4k,
+		1440: VideoResolution2k,
+		1080: VideoResolution1080p,
+		720:  VideoResolution720p,
+		480:  VideoResolution480p,
+		360:  VideoResolution360p,
+	}
 )
 
 // String returns the value as a string.
@@ -80,6 +89,18 @@ func ParseVideoResolution(s string) (VideoResolution, error) {
 	}
 
 	return videoResolution, nil
+}
+
+// ParseVideoResolutionWH
+func ParseVideoResolutionWH(w, h uint16) VideoResolution {
+	if h > w {
+		h = w
+	}
+	resolution, exists := heightToResolutionMap[h]
+	if !exists {
+		resolution = VideoResolutionNone
+	}
+	return resolution
 }
 
 // ValidateVideoResolution checks if the field value is a valid VideoResolution enum.

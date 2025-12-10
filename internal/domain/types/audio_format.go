@@ -27,11 +27,24 @@ var (
 		AudioFormatFLAC: {},
 		AudioFormatOPUS: {},
 	}
+	audioFormatToFileFormatMap = map[AudioFormat]FileFormat{
+		AudioFormatNone: FileFormatNone,
+		AudioFormatBest: FileFormatBest,
+		AudioFormatMP3:  FileFormatMP3,
+		AudioFormatM4A:  FileFormatM4A,
+		AudioFormatFLAC: FileFormatFLAC,
+		AudioFormatOPUS: FileFormatOPUS,
+	}
 )
 
 // String returns the value as a string.
 func (v AudioFormat) String() string {
 	return string(v)
+}
+
+// FileFormat returns the corresponding FileFormat value for the AudioFormat.
+func (v AudioFormat) FileFormat() FileFormat {
+	return audioFormatToFileFormatMap[v]
 }
 
 // Ptr returns the pointer.

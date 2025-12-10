@@ -22,4 +22,7 @@ type DownloadResult struct {
 
 	// Fast partial file hash (combined hash of multiple sampled blocks; not a full-file checksum)
 	PartialHash *string
+
+	// MediaInfo holds media metadata.
+	MediaInfo *MediaInfo
 }

@@ -68,7 +68,7 @@ func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions
 		}
 
 		// Build yt-dlp arguments and get file extension and title
-		args, fileExt, info, err := srv.buildDownloadArgs(
+		args, fileExt, info, mediaInfo, err := srv.buildDownloadArgs(
 			url,
 			formatType,
 			videoFormat,
@@ -168,6 +168,7 @@ func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions
 			FileFullName: FileFullName,
 			Filesize:     fileSize,
 			PartialHash:  partialHash,
+			MediaInfo:    mediaInfo,
 		}
 
 		resultCh <- result
@@ -254,7 +255,10 @@ func (srv *YtDlpService) buildDownloadArgs(
 	videoResolution dtypes.VideoResolution,
 	audioFormat dtypes.AudioFormat,
 	concurrentAragments uint8,
-) (args []string, fileExt string, info *dyoutubeinfo.YouTubeInfo, err error) {
+) (args []string, fileExt string, info *dyoutubeinfo.YouTubeInfo, mediaInfo *ddownload.MediaInfo, err error) {
+	var (
+		infoVideoCodec = dtypes.VideoCodecNone
+	)
 
 	// Default audio quality (used when extracting audio)
 	var (
@@ -324,11 +328,11 @@ func (srv *YtDlpService) buildDownloadArgs(
 		var err error
 		info, err = srv.getBestFormat(url, infoFormat)
 		if err != nil {
-			return nil, "", nil, err
+			return nil, "", nil, nil, err
 		}
 
 		if len(info.Formats) == 0 {
-			return nil, "", nil, errors.New("not found best format")
+			return nil, "", nil, nil, errors.New("not found best format")
 		}
 
 		// Add format option to yt-dlp arguments
@@ -362,7 +366,6 @@ func (srv *YtDlpService) buildDownloadArgs(
 		var (
 			isInfoFormatWebMCodec = false
 			isInfoFormatMP4Codec  = false
-			infoFormatCodec       = dtypes.VideoCodecNone
 		)
 		if info.Formats[0].VCodec != nil {
 			isInfoFormatWebMCodec = strings.HasPrefix(*info.Formats[0].VCodec, "av01") ||
@@ -370,10 +373,13 @@ func (srv *YtDlpService) buildDownloadArgs(
 			isInfoFormatMP4Codec = strings.HasPrefix(*info.Formats[0].VCodec, "av01") ||
 				strings.HasPrefix(*info.Formats[0].VCodec, "avc1")
 			if strings.HasPrefix(*info.Formats[0].VCodec, "av01") {
-				infoFormatCodec = dtypes.VideoCodecAV1
+				infoVideoCodec = dtypes.VideoCodecAV1
+			}
+			if strings.HasPrefix(*info.Formats[0].VCodec, "vp9") {
+				infoVideoCodec = dtypes.VideoCodecVP9
 			}
 			if strings.HasPrefix(*info.Formats[0].VCodec, "avc1") {
-				infoFormatCodec = dtypes.VideoCodecH264
+				infoVideoCodec = dtypes.VideoCodecH264
 			}
 		}
 
@@ -393,7 +399,7 @@ func (srv *YtDlpService) buildDownloadArgs(
 				videoCodecArgs string
 				audioCodecArgs string
 			)
-			if infoFormatCodec != dtypes.VideoCodecAV1 {
+			if infoVideoCodec != dtypes.VideoCodecAV1 {
 				videoCodecArgs = "-c:v libaom-av1 -crf 0 -b:v 0"
 				isVideoArgs = true
 			}
@@ -415,7 +421,7 @@ func (srv *YtDlpService) buildDownloadArgs(
 			// ffmpeg:-c:v libx264 -crf 18 -preset slow -c:a aac -b:a 192k
 			// ffmpeg:-c:v libx264 -crf 22 -preset slow -c:a aac -b:a 160k
 			// ffmpeg:-c:v libx264 -crf 24 -preset slow -c:a aac -b:a 128k
-			if infoFormatCodec != dtypes.VideoCodecH264 {
+			if infoVideoCodec != dtypes.VideoCodecH264 {
 				videoCodecArgs = "-c:v libx264 -crf 22 -preset slow"
 				isVideoArgs = true
 			}
@@ -471,7 +477,7 @@ func (srv *YtDlpService) buildDownloadArgs(
 		var err error
 		info, err = srv.getBestFormat(url, format)
 		if err != nil {
-			return nil, "", nil, err
+			return nil, "", nil, nil, err
 		}
 
 		args = append(args, "-f", format)
@@ -506,7 +512,28 @@ func (srv *YtDlpService) buildDownloadArgs(
 		}
 	}
 
-	return args, fileExt, info, nil
+	mediaInfo = &ddownload.MediaInfo{
+		FormatType: formatType,
+		Format:     dtypes.MapFileExtToFileFormat(fileExt),
+		VideoCodec: videoCodec,
+		Resolution: videoResolution,
+		Width:      int(videoResolution.Width()),
+		Height:     int(videoResolution.Height()),
+	}
+
+	if info != nil && len(info.Formats) > 0 {
+		infoFormat := info.Formats[0]
+		if mediaInfo.VideoCodec == dtypes.VideoCodecBest {
+			mediaInfo.VideoCodec = infoVideoCodec
+		}
+		if mediaInfo.Resolution == dtypes.VideoResolutionBest {
+			mediaInfo.Width = infoFormat.Width
+			mediaInfo.Height = infoFormat.Height
+			mediaInfo.Resolution = dtypes.ParseVideoResolutionWH(uint16(mediaInfo.Width), uint16(mediaInfo.Height))
+		}
+	}
+
+	return args, fileExt, info, mediaInfo, nil
 }
 
 // scaleValue builds an ffmpeg scale expression based on source dimensions

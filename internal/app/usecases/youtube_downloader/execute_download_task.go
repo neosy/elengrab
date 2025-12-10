@@ -94,6 +94,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		FileSize:             &lastResult.Filesize,
 		PartialHash:          &lastResult.PartialHash,
 		SafeReadableFullName: &safeReadableFullName,
+		MediaInfo:            &lastResult.MediaInfo,
 	}
 
 	err = uc.fileStatus.Done(ctx, task.FileId, patch)

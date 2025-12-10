@@ -15,6 +15,7 @@ const (
 	VideoCodecH264 VideoCodec = "h264"
 	VideoCodecH265 VideoCodec = "h265"
 	VideoCodecAV1  VideoCodec = "av1"
+	VideoCodecVP9  VideoCodec = "vp9"
 )
 
 var (
@@ -24,12 +25,26 @@ var (
 		VideoCodecH264: {},
 		VideoCodecH265: {},
 		VideoCodecAV1:  {},
+		VideoCodecVP9:  {},
+	}
+
+	videoCodecTitleMap = map[VideoCodec]string{
+		VideoCodecBest: "Best",
+		VideoCodecH264: "H.264",
+		VideoCodecH265: "H.265",
+		VideoCodecAV1:  "AV1",
+		VideoCodecVP9:  "VP9",
 	}
 )
 
 // String returns the value as a string.
 func (v VideoCodec) String() string {
 	return string(v)
+}
+
+// Title
+func (v VideoCodec) Title() string {
+	return videoCodecTitleMap[v]
 }
 
 // Ptr returns the pointer.

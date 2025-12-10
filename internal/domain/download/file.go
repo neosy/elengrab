@@ -38,6 +38,9 @@ type File struct {
 	// Human-readable safe full name
 	SafeReadableFullName string
 
+	// MediaInfo holds media metadata.
+	MediaInfo *MediaInfo
+
 	// Error message
 	ErrorMessage *string
 

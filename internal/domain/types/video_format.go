@@ -23,11 +23,22 @@ var (
 		VideoFormatMP4:  {},
 		VideoFormatWebM: {},
 	}
+	videoFormatToFileFormatMap = map[VideoFormat]FileFormat{
+		VideoFormatNone: FileFormatNone,
+		VideoFormatBest: FileFormatBest,
+		VideoFormatMP4:  FileFormatMP4,
+		VideoFormatWebM: FileFormatWebM,
+	}
 )
 
 // String returns the value as a string.
 func (v VideoFormat) String() string {
 	return string(v)
+}
+
+// FileFormat returns the corresponding FileFormat value for the VideoFormat.
+func (v VideoFormat) FileFormat() FileFormat {
+	return videoFormatToFileFormatMap[v]
 }
 
 // Ptr returns the pointer.

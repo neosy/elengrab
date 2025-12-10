@@ -2,13 +2,23 @@ package mappers
 
 import (
 	"database/sql"
+	"encoding/json"
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 )
 
-func (m *Mappers) MapFileDomainToEntity(file *ddownload.File) *edownload.File {
+func (m *Mappers) MapFileDomainToEntity(file *ddownload.File) (*edownload.File, error) {
+	var mediaInfoJson string
+	if file.MediaInfo != nil {
+		data, err := json.MarshalIndent(file.MediaInfo, "", "  ")
+		if err != nil {
+			return nil, err
+		}
+		mediaInfoJson = string(data)
+	}
+
 	return &edownload.File{
 		FileId:               file.FileId,
 		Status:               file.Status.String(),
@@ -20,11 +30,24 @@ func (m *Mappers) MapFileDomainToEntity(file *ddownload.File) *edownload.File {
 		FileSize:             file.FileSize,
 		PartialHash:          file.PartialHash,
 		SafeReadableFullName: file.SafeReadableFullName,
+		MediaInfo:            &mediaInfoJson,
 		ErrorMessage:         file.ErrorMessage,
-	}
+	}, nil
 }
 
 func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.DownloadTask) (*ddownload.File, error) {
+	var mediaInfo *ddownload.MediaInfo
+	if eFile.MediaInfo != nil {
+		mediaInfoJson := *eFile.MediaInfo
+		if mediaInfoJson != "" {
+			mediaInfo = &ddownload.MediaInfo{}
+			err := json.Unmarshal([]byte(mediaInfoJson), mediaInfo)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	var task *ddownload.DownloadTask
 	if eTask != nil && eTask.TaskId.String != "" {
 		var err error
@@ -45,6 +68,7 @@ func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.
 		FileSize:             eFile.FileSize,
 		PartialHash:          eFile.PartialHash,
 		SafeReadableFullName: eFile.SafeReadableFullName,
+		MediaInfo:            mediaInfo,
 		ErrorMessage:         eFile.ErrorMessage,
 		CreatedAt:            eFile.CreatedAt,
 		UpdatedAt:            eFile.UpdatedAt,
