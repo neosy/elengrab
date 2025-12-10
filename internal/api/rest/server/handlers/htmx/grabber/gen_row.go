@@ -25,6 +25,7 @@ type fileRowInfoData struct {
 	FileSize     string
 	Format       string
 	DataFormat   string
+	FormatTitle  string
 	DownloadURL  string
 }
 
@@ -112,6 +113,7 @@ func (h *GrabberHandlers) genRow(ctx context.Context, fileInfo *dto.GetFileInfoR
 		FileSize:     "-",
 		Format:       "-",
 		DataFormat:   "-",
+		FormatTitle:  fileInfo.MediaInfoText,
 		DownloadURL:  httppaths.BuildPathFileDownload(fileInfo.FileId),
 	}
 

@@ -7,8 +7,10 @@ const (
 
 	loadHistoryLimit = 30
 
-	formFieldYouTubeURLKey = "youtubeURL"
-	formFieldFormatTypeKey = "formatType"
+	formFieldYouTubeURLKey        = "youtubeURL"
+	formFieldQualityCodecKey      = "quality-codec"
+	formFieldQualityResolutionKey = "quality-resolution"
+	formFieldFormatKey            = "format"
 
 	fileIdKey = "fileId"
 	beforeKey = "before"

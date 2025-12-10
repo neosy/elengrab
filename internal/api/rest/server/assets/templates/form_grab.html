@@ -11,30 +11,41 @@
             <input type="hidden" id="inputGrabF" name="hiddenInput" value="">
           </div>
         </div>
-        <div class="div-format-options">
-            <div class="format-video">
-                <label>
-                    <input type="radio" name="formatType" value="video_mp4_orig" checked> Video (Best)
-                </label>
-                <label>
-                    <input type="radio" name="formatType" value="video_mp4_h264"> Video (H.264)
-                </label>
-                <label>
-                    <input type="radio" name="formatType" value="video_mp4_h265"> Video (H.265)
-                </label>
-            </div>
-
-            <div class="format-audio">
-                <label>
-                    <input type="radio" name="formatType" value="audio_orig"> Audio (Best)
-                </label>
-                <label>
-                    <input type="radio" name="formatType" value="audio_mp3"> Audio (mp3)
-                </label>
-                <label>
-                    <input type="radio" name="formatType" value="audio_m4a"> Audio (m4a)
-                </label>
-            </div>
+        <div class="div-select-options">
+          <div class="div-select">
+            <span class="select-option-label">Quality</span>
+            <select name="quality-codec">
+              <option value="best" selected>Best</option>
+              <option value="only_audio">Only audio</option>
+              <option value="h264">Video H.264</option>
+              <option value="h265">Video H.265</option>
+              <option value="av1">Video AV1</option>
+            </select>
+            <select name="quality-resolution">
+              <option value="empty" hidden>-</option>
+              <option value="best" selected>Best</option>
+              <option value="1080">1080p</option>
+              <option value="720">720p</option>
+              <option value="480">480p</option>
+              <option value="360">360p</option>
+            </select>
+          </div>
+          <div class="div-select">
+            <span class="select-option-label">Format</span>
+            <select name="format">
+              <option value="best" selected>Best</option>
+              <optgroup label="Video">
+                <option value="mp4">MP4</option>
+                <option value="webm">WebM</option>
+              </optgroup>
+              <optgroup label="Audio">
+                <option value="mp3">MP3</option>
+                <option value="m4a">M4A</option>
+                <option value="flac">FLAC</option>
+                <option value="opus">OPUS</option>
+              </optgroup>
+            </select>
+          </div>
         </div>
       </form>
 {{end}}

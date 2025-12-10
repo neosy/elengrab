@@ -9,6 +9,8 @@ func (m *Mappers) MapDownloadOptionsDomainToService(options *ddownload.DownloadO
 	return &dservices.DownloadOptions{
 		FormatType:             options.FormatType,
 		VideoFormat:            options.VideoFormat,
+		VideoCodec:             options.VideoCodec,
+		VideoResolution:        options.VideoResolution,
 		AudioFormat:            options.AudioFormat,
 		Filename:               options.Filename,
 		IncludeTitleInFilename: true,

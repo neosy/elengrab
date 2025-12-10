@@ -3,8 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <title>{{.Title}}</title>
+  <script>
+    try {
+      if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme: dark)').matches)){
+        document.documentElement.classList.add('dark');
+      }
+    } catch(e){}
+  </script>
+  <link rel="stylesheet" href="{{.PathStaticCss}}/variables.css">
   <link rel="stylesheet" href="{{.PathStaticCss}}/theme-switcher.css">
   <link rel="stylesheet" href="{{.PathStaticCss}}/style.css">
+  <link rel="stylesheet" href="{{.PathStaticCss}}/form-grab.css">
   <link rel="manifest" href="{{.PathStaticPwa}}/manifest.json">
   <link rel="icon" type="image/png" sizes="16x16" href="{{.PathStaticImg}}/favicon-16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="{{.PathStaticImg}}/favicon-32.png">
@@ -14,11 +23,15 @@
   <link rel="icon" type="image/png" sizes="512x512" href="{{.PathStaticImg}}/android-chrome-512x512.png">
   <link rel="apple-touch-icon" sizes="180x180" href="{{.PathStaticImg}}/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" href="https://fonts.gstatic.com/s/inter/v12/....woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload"
+      href="https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" id="theme-color-meta" content="#171717">
-  <script defer src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
   <script defer src="{{.PathStaticJs}}/theme-switcher.js"></script>
   <script defer src="{{.PathStaticJs}}/downloader.js"></script>
 </head>

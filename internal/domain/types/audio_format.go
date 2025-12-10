@@ -11,23 +11,40 @@ type AudioFormat string
 
 const (
 	AudioFormatNone AudioFormat = "none"
-	AudioFormatOrig AudioFormat = "orig"
+	AudioFormatBest AudioFormat = "best"
 	AudioFormatMP3  AudioFormat = "mp3"
 	AudioFormatM4A  AudioFormat = "m4a"
+	AudioFormatFLAC AudioFormat = "flac"
+	AudioFormatOPUS AudioFormat = "opus"
 )
 
 var (
 	audioFormatMap = map[AudioFormat]struct{}{
 		AudioFormatNone: {},
-		AudioFormatOrig: {},
+		AudioFormatBest: {},
 		AudioFormatMP3:  {},
 		AudioFormatM4A:  {},
+		AudioFormatFLAC: {},
+		AudioFormatOPUS: {},
+	}
+	audioFormatToFileFormatMap = map[AudioFormat]FileFormat{
+		AudioFormatNone: FileFormatNone,
+		AudioFormatBest: FileFormatBest,
+		AudioFormatMP3:  FileFormatMP3,
+		AudioFormatM4A:  FileFormatM4A,
+		AudioFormatFLAC: FileFormatFLAC,
+		AudioFormatOPUS: FileFormatOPUS,
 	}
 )
 
 // String returns the value as a string.
 func (v AudioFormat) String() string {
 	return string(v)
+}
+
+// FileFormat returns the corresponding FileFormat value for the AudioFormat.
+func (v AudioFormat) FileFormat() FileFormat {
+	return audioFormatToFileFormatMap[v]
 }
 
 // Ptr returns the pointer.

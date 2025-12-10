@@ -10,26 +10,35 @@ import (
 type VideoFormat string
 
 const (
-	VideoFormatNone    VideoFormat = "none"
-	VideoFormatOrig    VideoFormat = "orig"
-	VideoFormatMP4Orig VideoFormat = "mp4_orig"
-	VideoFormatMP4H264 VideoFormat = "mp4_h264"
-	VideoFormatMP4H265 VideoFormat = "mp4_h265"
+	VideoFormatNone VideoFormat = "none"
+	VideoFormatBest VideoFormat = "best"
+	VideoFormatMP4  VideoFormat = "mp4"
+	VideoFormatWebM VideoFormat = "webm"
 )
 
 var (
 	videoFormatMap = map[VideoFormat]struct{}{
-		VideoFormatNone:    {},
-		VideoFormatOrig:    {},
-		VideoFormatMP4Orig: {},
-		VideoFormatMP4H264: {},
-		VideoFormatMP4H265: {},
+		VideoFormatNone: {},
+		VideoFormatBest: {},
+		VideoFormatMP4:  {},
+		VideoFormatWebM: {},
+	}
+	videoFormatToFileFormatMap = map[VideoFormat]FileFormat{
+		VideoFormatNone: FileFormatNone,
+		VideoFormatBest: FileFormatBest,
+		VideoFormatMP4:  FileFormatMP4,
+		VideoFormatWebM: FileFormatWebM,
 	}
 )
 
 // String returns the value as a string.
 func (v VideoFormat) String() string {
 	return string(v)
+}
+
+// FileFormat returns the corresponding FileFormat value for the VideoFormat.
+func (v VideoFormat) FileFormat() FileFormat {
+	return videoFormatToFileFormatMap[v]
 }
 
 // Ptr returns the pointer.

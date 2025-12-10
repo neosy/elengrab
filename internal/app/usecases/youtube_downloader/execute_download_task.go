@@ -35,7 +35,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 			"Download",
 			"error", err,
 		)
-		uc.fileStatus.Failed(ctx, task.FileId, uptr.String(err.Error()))
+		uc.fileStatus.Failed(ctx, task.FileId, nil, uptr.String(err.Error()))
 		uc.saveStateByFileId(ctx, task.FileId)
 		return err
 	}
@@ -45,9 +45,21 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		if r.Error != nil {
 			uc.logger.Error(
 				"Download",
-				"error", err,
+				"error", r.Error,
 			)
-			uc.fileStatus.Failed(ctx, task.FileId, uptr.String(r.Error.Error()))
+			var patch *dto.FileInfoPatch
+			if lastResult.YoutubeTitle != "" {
+				patch = &dto.FileInfoPatch{
+					YoutubeTitle: &lastResult.YoutubeTitle,
+				}
+				if lastResult.FileExt != "" {
+					patch.Ext = &lastResult.FileExt
+				}
+				if lastResult.Filesize != nil && *lastResult.Filesize != 0 {
+					patch.FileSize = &lastResult.Filesize
+				}
+			}
+			uc.fileStatus.Failed(ctx, task.FileId, patch, uptr.String(r.Error.Error()))
 			uc.saveStateByFileId(ctx, task.FileId)
 			return r.Error
 		}
@@ -58,7 +70,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 				"Find by fileId",
 				"error", err,
 			)
-			uc.fileStatus.Failed(ctx, task.FileId, uptr.String(err.Error()))
+			uc.fileStatus.Failed(ctx, task.FileId, nil, uptr.String(err.Error()))
 			uc.saveStateByFileId(ctx, task.FileId)
 			return err
 		}
@@ -82,11 +94,12 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		FileSize:             &lastResult.Filesize,
 		PartialHash:          &lastResult.PartialHash,
 		SafeReadableFullName: &safeReadableFullName,
+		MediaInfo:            &lastResult.MediaInfo,
 	}
 
 	err = uc.fileStatus.Done(ctx, task.FileId, patch)
 	if err != nil {
-		uc.fileStatus.Failed(ctx, task.FileId, uptr.String(err.Error()))
+		uc.fileStatus.Failed(ctx, task.FileId, patch, uptr.String(err.Error()))
 		uc.saveStateByFileId(ctx, task.FileId)
 		return err
 	}

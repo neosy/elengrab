@@ -62,7 +62,10 @@ func (r *FileRepository) save(ctx context.Context, file *ddownload.File, isUpd b
 	}
 
 	// Convert the domain model to a database entity
-	eFile := r.mappers.MapFileDomainToEntity(file)
+	eFile, err := r.mappers.MapFileDomainToEntity(file)
+	if err != nil {
+		return err
+	}
 
 	// Get the list of fields and values for insertion
 	fields := eFile.Fields()

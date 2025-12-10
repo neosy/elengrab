@@ -29,6 +29,9 @@ CREATE TABLE IF NOT EXISTS files (
     -- Human-readable safe full name
     safe_readable_full_name TEXT NOT NULL,
 
+    -- Media metadata as JSON (codecs, resolution, etc.)
+    media_info TEXT NULL,
+
     -- Error message
     error_message TEXT NULL,
     

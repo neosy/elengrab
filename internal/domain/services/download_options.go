@@ -10,6 +10,12 @@ type DownloadOptions struct {
 	// Video format (orig, mp4)
 	VideoFormat *dtypes.VideoFormat
 
+	// Video codec (best, h264, ...)
+	VideoCodec *dtypes.VideoCodec
+
+	// Video resolution (best, 4k, 2k, 1080p, 720p, ...)
+	VideoResolution *dtypes.VideoResolution
+
 	// Audio format (orig, mp3)
 	AudioFormat *dtypes.AudioFormat
 
