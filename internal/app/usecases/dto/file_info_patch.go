@@ -14,6 +14,10 @@ type FileInfoPatch struct {
 }
 
 func PatchToFileDomain(patch *FileInfoPatch, file *ddownload.File) {
+	if patch == nil || file == nil {
+		return
+	}
+
 	if patch.YoutubeTitle != nil {
 		file.YoutubeTitle = *patch.YoutubeTitle
 	}

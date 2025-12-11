@@ -48,7 +48,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 				"error", r.Error,
 			)
 			var patch *dto.FileInfoPatch
-			if lastResult.YoutubeTitle != "" {
+			if lastResult != nil && lastResult.YoutubeTitle != "" {
 				patch = &dto.FileInfoPatch{
 					YoutubeTitle: &lastResult.YoutubeTitle,
 				}
