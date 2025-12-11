@@ -24,5 +24,6 @@ func (s *httpServer) setupHtmxUIRoutes(r *router.Router, handlers *htmxh.Handler
 		group.POST(httppaths.PathGrab, handlers.Grabber.GrabHandler)
 		group.GET(httppaths.PathDownload, handlers.Grabber.DownloadHandler)
 		group.GET(httppaths.PathFileRow, handlers.Grabber.GetFileRow)
+		group.DELETE(httppaths.PathFileRow, handlers.Grabber.DeleteFileRow)
 	}
 }

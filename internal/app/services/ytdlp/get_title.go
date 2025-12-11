@@ -2,14 +2,15 @@ package ytdlpsrv
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os/exec"
 	"strings"
 )
 
 // GetTitle
-func (srv *YtDlpService) GetTitle(url string) (string, error) {
-	cmd := exec.Command(srv.cmdPath, "--no-playlist", "-e", url)
+func (srv *YtDlpService) GetTitle(ctx context.Context, url string) (string, error) {
+	cmd := exec.CommandContext(ctx, srv.cmdPath, "--no-playlist", "--no-warnings", "-e", url)
 
 	// Buffers to capture stdout and stderr
 	var out, stderr bytes.Buffer
@@ -17,6 +18,10 @@ func (srv *YtDlpService) GetTitle(url string) (string, error) {
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
+		// The context was canceled
+		if ctx.Err() != nil {
+			return "", fmt.Errorf("process canceled: %w", ctx.Err())
+		}
 		errOut := fmt.Errorf("%s failed: %v, stderr: %s", ytDlpName, err, stderr.String())
 		return "", errOut
 	}

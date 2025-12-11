@@ -17,6 +17,8 @@
     --border-result: #dfe3e8;
     --shadow: rgba(0,0,0,0.1);
     --download: #4caf50;
+    --download-delete: #6b7280;
+    --download-delete-hover: #c44b4b;
     --error: #ef5350;
     --spinner-light: #d0d0d0;
     --spinner-accent: #4a90e2;
@@ -41,6 +43,8 @@
     --border-result: #30363d;
     --shadow: rgba(0,0,0,0.4);
     --download: #58d660;
+    --download-delete: #6b7280;
+    --download-delete-hover: #c44b4b;
     --error: #f85149;
     --spinner-light: #30363d;
     --spinner-accent: #58a6ff;

@@ -2,11 +2,13 @@ package ytdownloader
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	"github.com/neosy/elengrab/pkg/nworkerpool"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
@@ -49,10 +51,15 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 
 	uc.saveStateByFile(ctx, file)
 
-	file, err = uc.addFileToQueueDownload(ctx, fileId, file.DownloadTask.TaskId)
+	err = uc.addFileToQueueDownload(ctx, fileId, file.DownloadTask.TaskId)
 	if err != nil {
 		uc.logger.Error("Failed add to queue", "error", err)
 		return nil, err
+	}
+
+	f, _ := uc.file.FindByFileId(ctx, fileId, true)
+	if f != nil {
+		file = f
 	}
 
 	return &dto.ScheduleDownloadResponse{
@@ -63,28 +70,57 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 	}, nil
 }
 
-func (uc *YouTubeDownloader) addFileToQueueDownload(ctx context.Context, fileId uuid.UUID, taskId uuid.UUID) (*ddownload.File, error) {
-	err := uc.fileStatus.Pending(ctx, fileId, taskId)
-	if err != nil {
-		uc.logger.Warn("Failed update status", "error", err)
-		uc.fileStatus.Failed(ctx, fileId, nil, uptr.String(err.Error()))
-		uc.saveStateByFileId(ctx, fileId)
-		return nil, err
-	}
+func (uc *YouTubeDownloader) addFileToQueueDownload(ctx context.Context, fileId uuid.UUID, taskId uuid.UUID) error {
+	var (
+		file *ddownload.File
+	)
 
-	file, err := uc.file.FindByFileId(ctx, fileId, true)
+	err := uc.file.FileRep.Tx(ctx, func(ctx context.Context) error {
+		err := uc.fileStatus.Pending(ctx, fileId, taskId, uuid.New())
+		if err != nil {
+			uc.logger.Warn("Failed update status", "fileId", fileId, "error", err)
+			return err
+		}
+
+		file, err = uc.file.FindByFileId(ctx, fileId, true)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
 	if err != nil {
-		uc.logger.Warn("Failed find file", "error", err)
-		return nil, err
+		return err
 	}
 
 	uc.saveStateByFile(ctx, file)
 
-	uc.enqueueDownloadTask(file.DownloadTask)
+	job := uc.enqueueDownloadTask(file.DownloadTask)
+	if job == nil {
+		err := fmt.Errorf("task has not been added to the queue")
+		uc.logger.Warn("Task has not been added to the queue", "fileId", file.FileId)
 
-	return file, nil
+		if e := uc.fileStatus.Failed(ctx, fileId, nil, uptr.String("failed to enqueue download task")); e != nil {
+			uc.logger.Error("Failed update status", "fileId", file.FileId, "error", e)
+			uc.dlState.Delete(ctx, fileId)
+			return fmt.Errorf("%v: %w", err, e)
+		}
+
+		uc.saveStateByFileId(ctx, fileId)
+
+		return err
+	}
+
+	return nil
 }
 
-func (uc *YouTubeDownloader) enqueueDownloadTask(task *ddownload.DownloadTask) {
-	uc.dlDispetcher.AddJob(wjobs.NewDownloadJob(task, uc))
+func (uc *YouTubeDownloader) enqueueDownloadTask(task *ddownload.DownloadTask) nworkerpool.Job {
+	job := wjobs.NewDownloadJob(task, uc)
+
+	if !uc.dlDispetcher.AddJob(job) {
+		return nil
+	}
+
+	return job
 }

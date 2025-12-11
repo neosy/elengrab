@@ -12,8 +12,9 @@ func (s *FileStatus) Pending(
 	ctx context.Context,
 	fileId uuid.UUID,
 	taskId uuid.UUID,
+	jobID uuid.UUID,
 ) error {
-	err := s.dlTaskStatus.Penging(ctx, taskId)
+	err := s.dlTaskStatus.Penging(ctx, taskId, jobID)
 	if err != nil {
 		return err
 	}

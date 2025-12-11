@@ -39,7 +39,7 @@ func (s *DownloadTaskStatus) updateStatus(
 	err = s.downloadTask.Update(ctx, task)
 	if err != nil {
 		s.logger.Warn(
-			"Failed to update file in the repository",
+			"Failed to update task in the repository",
 			"taskId", taskId,
 			"error", err,
 		)

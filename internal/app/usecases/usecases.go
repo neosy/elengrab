@@ -1,11 +1,12 @@
 package usecases
 
 import (
+	"context"
 	"log/slog"
 
+	"github.com/neosy/elengrab/internal/app/services"
 	ytdownloader "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader"
 	"github.com/neosy/elengrab/internal/ports/persistence"
-	"github.com/neosy/elengrab/internal/app/services"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
 )
 
@@ -31,9 +32,10 @@ type Usecases struct {
 	Downloader *ytdownloader.YouTubeDownloader
 }
 
-func NewUsecases(logger *slog.Logger, deps *Dependencies) *Usecases {
+func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *Usecases {
 	return &Usecases{
 		Downloader: ytdownloader.NewYouTubeDownloader(
+			ctx,
 			logger,
 
 			// repositories

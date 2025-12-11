@@ -9,6 +9,8 @@ const (
 	IsItemFirstKey              = "IsItemFirst"
 	IsItemHTMXOptionRepeatKey   = "IsItemHTMXOptionRepeat"
 	IsItemSpinerKey             = "IsItemSpiner"
+	ResultItemDeleteUrlKey      = "ResultItemDeleteUrl"
+	GrabResultItemDeleteIconKey = "GrabResultItemDeleteIcon"
 
 	ResultYoutubeUrlFadeKey = "ResultYoutubeUrlFade"
 	ResultSizeFadeKey       = "ResultSizeFade"

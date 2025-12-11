@@ -5,11 +5,13 @@ import (
 	"log/slog"
 	"testing"
 	"time"
+
+	"github.com/neosy/elengrab/pkg/nworkerpool"
 )
 
 func TestManagerStopWhenIdle(t *testing.T) {
 	logger := slog.Default()
-	m := NewWorkerPool(logger, &WorkerPoolOptions{PoolSize: 1})
+	m := nworkerpool.NewWorkerPool(logger, &nworkerpool.WorkerPoolOptions{PoolSize: 1})
 	ctx := context.Background()
 
 	if err := m.Start(ctx); err != nil {

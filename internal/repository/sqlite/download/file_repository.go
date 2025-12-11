@@ -90,11 +90,8 @@ func (r *FileRepository) save(ctx context.Context, file *ddownload.File, isUpd b
 		return fmt.Errorf("failed to build SQL: %w", err)
 	}
 
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	// Execute the query
-	err = execContext(ctx, r.db, sqlQuery, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.mu, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save file: %v", err)
 	}
@@ -126,11 +123,8 @@ func (r *FileRepository) UpdateStatusToNew(ctx context.Context, statuses []dtype
 		return fmt.Errorf("error generating SQL: %v", err)
 	}
 
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	// Execute the query
-	err = execContext(ctx, r.db, sqlQuery, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.mu, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to update file: %v", err)
 	}
@@ -166,11 +160,8 @@ func (r *FileRepository) softDelete(ctx context.Context, fileId uuid.UUID) error
 		return fmt.Errorf("failed to build SQL: %w", err)
 	}
 
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	// Execute the query
-	err = execContext(ctx, r.db, sqlQuery, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.mu, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save file: %v", err)
 	}
@@ -192,11 +183,8 @@ func (r *FileRepository) hardDelete(ctx context.Context, fileId uuid.UUID) error
 		return fmt.Errorf("error generating SQL: %v", err)
 	}
 
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	// Execute the query
-	err = execContext(ctx, r.db, sqlStr, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.mu, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete file: %v", err)
 	}
@@ -229,11 +217,8 @@ func (r *FileRepository) Restore(ctx context.Context, fileId uuid.UUID) error {
 		return fmt.Errorf("failed to build SQL: %w", err)
 	}
 
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	// Execute the query
-	err = execContext(ctx, r.db, sqlQuery, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.mu, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save file: %v", err)
 	}
@@ -274,7 +259,8 @@ func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*d
 	}
 
 	// Execute the query
-	row := r.db.QueryRowContext(ctx, sqlQuery, args...)
+	db := dbOrTx(ctx, r.db)
+	row := db.QueryRowContext(ctx, sqlQuery, args...)
 
 	// Scan result into entity
 	if err := row.Scan(append(eFile.FieldPointers(), eTask.FieldPointers()...)...); err != nil {
@@ -353,7 +339,8 @@ func (r *FileRepository) getAll(
 	}
 
 	// Execute the query
-	rows, err := r.db.QueryContext(ctx, sqlQuery, args...)
+	db := dbOrTx(ctx, r.db)
+	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -393,7 +380,8 @@ func (r *FileRepository) GetAllFullNames(ctx context.Context, includeDeleted boo
 	}
 
 	// Execute the query
-	rows, err := r.db.QueryContext(ctx, sqlQuery, args...)
+	db := dbOrTx(ctx, r.db)
+	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -477,7 +465,8 @@ func (r *FileRepository) GetDuplicateHashes(ctx context.Context) ([]string, erro
 	var hashes []string
 
 	// Execute the query
-	rows, err := r.db.QueryContext(ctx, sqlQuery, args...)
+	db := dbOrTx(ctx, r.db)
+	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return hashes, nil
@@ -533,7 +522,8 @@ func (r *FileRepository) GetDeleted(ctx context.Context, from, to *time.Time) ([
 	var files []*ddownload.File
 
 	// Execute the query
-	rows, err := r.db.QueryContext(ctx, sqlQuery, args...)
+	db := dbOrTx(ctx, r.db)
+	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return files, nil // ничего не найдено

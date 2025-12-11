@@ -1,6 +1,7 @@
 package ytdownloader
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/neosy/elengrab/internal/app/usecases/mappers"
@@ -15,6 +16,7 @@ import (
 )
 
 type YouTubeDownloader struct {
+	appCtx  context.Context
 	logger  *slog.Logger
 	mappers *mappers.Mappers
 
@@ -37,6 +39,7 @@ type YouTubeDownloader struct {
 }
 
 func NewYouTubeDownloader(
+	ctx context.Context,
 	logger *slog.Logger,
 
 	// repositories
@@ -59,6 +62,7 @@ func NewYouTubeDownloader(
 	dlTaskStatus := dltasktatus.NewDownloadTaskStatus(logger, dlTaskRep, dlTask)
 
 	return &YouTubeDownloader{
+		appCtx:  ctx,
 		logger:  logger,
 		mappers: mappers.NewMappers(),
 

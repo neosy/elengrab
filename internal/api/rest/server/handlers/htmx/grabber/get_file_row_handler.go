@@ -2,6 +2,7 @@ package grabberh
 
 import (
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
 
@@ -22,15 +23,13 @@ func (h *GrabberHandlers) GetFileRow(ctx *fasthttp.RequestCtx) {
 
 	fileInfo, err := h.usecases.Downloader.GetFileInfo(ctx, fileId)
 	if err != nil {
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetBodyString(err.Error())
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	buf, httpStatus, err := h.genRow(ctx, fileInfo, false)
+	buf, httpStatus, err := h.genRow(fileInfo, false)
 	if err != nil {
-		ctx.SetStatusCode(httpStatus)
-		ctx.SetBodyString(err.Error())
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 	if httpStatus == fasthttp.StatusNoContent {

@@ -9,18 +9,23 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	"github.com/neosy/elengrab/pkg/errorx"
+	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
 )
 
 func (uc *YouTubeDownloader) GetFileInfo(ctx context.Context, fileId uuid.UUID) (*dto.GetFileInfoResponse, error) {
-	resp, err := uc.getFileInfo(ctx, nil, &fileId)
+	resp, err := uc.getFileInfo(ctx, nil, &fileId, false)
 	if err != nil {
 		uc.logger.Error("Failed get file info", "error", err)
-		return nil, err
+		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+	}
+	if resp == nil {
+		return nil, errorx.NewByExceptionType("file not found", exceptionx.NOT_FOUND)
 	}
 	return resp, nil
 }
 
-func (uc *YouTubeDownloader) getFileInfo(ctx context.Context, file *ddownload.File, fileId *uuid.UUID) (*dto.GetFileInfoResponse, error) {
+func (uc *YouTubeDownloader) getFileInfo(ctx context.Context, file *ddownload.File, fileId *uuid.UUID, checkNotFound bool) (*dto.GetFileInfoResponse, error) {
 	var id uuid.UUID
 
 	if file != nil {
@@ -40,10 +45,12 @@ func (uc *YouTubeDownloader) getFileInfo(ctx context.Context, file *ddownload.Fi
 		f := file
 		if f == nil {
 			var err error
-			f, err = uc.file.FindByFileId(ctx, id, true)
+			f, err = uc.file.FindByFileId(ctx, id, checkNotFound)
 			if err != nil {
-				uc.logger.Warn("Failed find file", "fileId", id, "error", err)
 				return nil, err
+			}
+			if f == nil {
+				return nil, nil
 			}
 		}
 		state = &ddownload.DownloadState{}
@@ -72,7 +79,7 @@ func (uc *YouTubeDownloader) getFilesInfo(ctx context.Context, before time.Time,
 
 	resps = make([]*dto.GetFileInfoResponse, 0, len(files))
 	for _, file := range files {
-		resp, err := uc.getFileInfo(ctx, file, nil)
+		resp, err := uc.getFileInfo(ctx, file, nil, true)
 		if err != nil {
 			continue
 		}

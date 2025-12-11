@@ -13,22 +13,6 @@ const (
 	defaultJobQueueCap    int = 100
 )
 
-// WorkerPool represents a pool of workers that can execute jobs concurrently.
-// It provides methods to start and stop the pool and query the number of workers.
-type WorkerPool interface {
-	// Start begins execution of the worker pool.
-	// ctx: context for cancellation and worker lifecycle.
-	// Returns error if already running.
-	Start(ctx context.Context) error
-
-	// Stop gracefully shuts down all workers and the pool
-	// Idempotent; safe to call multiple times.
-	Stop()
-
-	// PoolSize returns the number of worker goroutines in the pool.
-	PoolSize() int
-}
-
 // WorkerPoolOptions configures the worker pool behavior.
 type WorkerPoolOptions struct {
 	// PoolSize  specifies the number of worker goroutines to run.
@@ -47,9 +31,10 @@ type workerPool struct {
 	running atomic.Bool
 	cond    *sync.Cond
 
-	semaphore chan struct{}
-	jobStream chan Job
-	jobQueue  jobQueue
+	semaphore    chan struct{}
+	taskStream   chan *task
+	jobQueue     *jobQueue
+	runningTasks map[string]*task
 }
 
 // NewWorkerPool creates a new worker pool.
@@ -63,13 +48,14 @@ func NewWorkerPool(logger *slog.Logger, options *WorkerPoolOptions) *workerPool 
 	}
 
 	wp := &workerPool{
-		logger:    logger,
-		workers:   make([]Worker, 0, poolSize),
-		poolSize:  poolSize,
-		quit:      make(chan struct{}),
-		semaphore: make(chan struct{}, poolSize),
-		jobStream: make(chan Job, 1),
-		jobQueue:  newJobQueue(defaultJobQueueCap), // Initial but not final queue size
+		logger:       logger,
+		workers:      make([]Worker, 0, poolSize),
+		poolSize:     poolSize,
+		quit:         make(chan struct{}),
+		semaphore:    make(chan struct{}, poolSize),
+		taskStream:   make(chan *task, 1),
+		jobQueue:     newJobQueue(defaultJobQueueCap), // Initial but not final queue size
+		runningTasks: make(map[string]*task, defaultJobQueueCap),
 	}
 
 	wp.cond = sync.NewCond(&wp.mu)
@@ -136,25 +122,24 @@ func (wp *workerPool) Start(ctx context.Context) error {
 
 			// Acquire lock to safely inspect queue and semaphore
 			wp.mu.Lock()
-			{
-				// Wait until there is at least one job AND a free worker slot
-				for wp.jobQueue.Len() == 0 || len(wp.semaphore) == cap(wp.semaphore) {
-					select {
-					// Stop loop if quit signal is received during wait
-					case <-wp.quit:
-						wp.mu.Unlock()
-						return
-					default:
-						// Release the mutex lock and sleep until notified (job added or slot freed)
-						wp.cond.Wait()
-					}
+			// Wait until there is at least one job AND a free worker slot
+			for wp.jobQueue.Len() == 0 || len(wp.semaphore) == cap(wp.semaphore) {
+				select {
+				// Stop loop if quit signal is received during wait
+				case <-wp.quit:
+					wp.mu.Unlock()
+					return
+				default:
+					// Release the mutex lock and sleep until notified (job added or slot freed)
+					wp.cond.Wait()
 				}
 			}
-			// Release lock before sending job to worker
-			wp.mu.Unlock()
-
 			// Extract next job from queue
 			job, _ := wp.jobQueue.Pop()
+			task := newTask(ctx, job)
+			wp.runningTasks[job.ID()] = task
+			// Release lock before sending job to worker
+			wp.mu.Unlock()
 
 			if job != nil {
 				// Claim a worker slot (non-blocking due to prior check)
@@ -166,7 +151,7 @@ func (wp *workerPool) Start(ctx context.Context) error {
 				// Dispatch job to an available worker
 				select {
 				case <-wp.quit:
-				case wp.jobStream <- job:
+				case wp.taskStream <- task:
 				}
 			}
 		}
@@ -192,6 +177,11 @@ func (wp *workerPool) Stop() {
 		// Signal all components to stop
 		close(wp.quit)
 
+		// Signal all jobs to cancel
+		for _, task := range wp.runningTasks {
+			task.Cancel()
+		}
+
 		// Wake up dispatcher if waiting
 		wp.cond.Broadcast()
 	}
@@ -204,12 +194,38 @@ func (wp *workerPool) Stop() {
 // AddJob enqueues a new job for execution.
 // job: the job to be executed by a worker.
 // Thread-safe; can be called from any goroutine.
-func (wp *workerPool) AddJob(job Job) {
+func (wp *workerPool) AddJob(job Job) bool {
 	wp.mu.Lock()
 	defer wp.mu.Unlock()
 
-	wp.jobQueue.Push(job)
-	wp.cond.Broadcast() // Notify dispatcher of new job
+	if !wp.jobQueue.Push(job) {
+		return false
+	}
+
+	wp.cond.Signal() // Notify dispatcher of new job
+
+	return true
+}
+
+// CancelJob removes a job with the given ID from the queue.
+// Returns true if the job was found and removed, false otherwise.
+// If the job is removed, it signals the dispatcher to wake up
+// and re-evaluate available jobs.
+func (wp *workerPool) CancelJob(jobID string) bool {
+	wp.mu.Lock()
+	defer wp.mu.Unlock()
+
+	if wp.jobQueue.Remove(jobID) {
+		wp.cond.Signal()
+		return true
+	}
+
+	if task, exists := wp.runningTasks[jobID]; exists {
+		task.Cancel()
+		return true
+	}
+
+	return false
 }
 
 // addWorker creates and starts a new worker.
@@ -221,7 +237,7 @@ func (wp *workerPool) addWorker(ctx context.Context) {
 
 	worker.Start(
 		ctx,
-		wp.jobStream,
+		wp.taskStream,
 		wp.quit,
 		wp.notifyJobDone,
 	)
@@ -233,13 +249,17 @@ func (wp *workerPool) PoolSize() int {
 }
 
 // notifyJobDone notifies the manager that a worker finished a job.
-func (wp *workerPool) notifyJobDone() {
+func (wp *workerPool) notifyJobDone(jobID string) {
+	wp.mu.Lock()
+	defer wp.mu.Unlock()
+
+	delete(wp.runningTasks, jobID)
+
 	select {
 	case <-wp.quit:
 		return
 	case <-wp.semaphore:
 	}
-	wp.mu.Lock()
-	wp.cond.Broadcast() // Notify dispatcher that a slot is free
-	wp.mu.Unlock()
+
+	wp.cond.Signal() // Notify dispatcher that a slot is free
 }

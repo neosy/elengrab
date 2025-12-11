@@ -8,6 +8,8 @@ import (
 	"log/slog"
 
 	"github.com/neosy/elengrab/internal/app/usecases"
+	appenv "github.com/neosy/elengrab/pkg/nconfig/app_env"
+	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
 
@@ -20,18 +22,23 @@ type Dependencies struct {
 }
 
 type httpServer struct {
-	logger   *slog.Logger
+	logger *slog.Logger
+	appEnv appenv.AppEnv
+
+	// usecases
 	usecases *usecases.Usecases
 
+	// templates
 	templates *template.Template
 
 	// Options
 	assetsDir string
 }
 
-func NewServer(logger *slog.Logger, deps *Dependencies) *httpServer {
+func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *httpServer {
 	return &httpServer{
 		logger:    logger,
+		appEnv:    appEnv,
 		usecases:  deps.Usecases,
 		templates: deps.Templates,
 		assetsDir: deps.AssetsDir,
@@ -42,13 +49,13 @@ func (s *httpServer) ListenAndServe(ctx context.Context, port string) error {
 	addr := fmt.Sprintf(":%s", port)
 
 	router := s.newRouter()
-	handler := router.Handler
+	handler := nfasthttp.NewHandler(ctx, s.logger, s.appEnv, router.Handler)
 
 	log.Printf("HTTP server listening on %s\n", addr)
 
 	err := fasthttp.ListenAndServe(addr, handler)
 	if err != nil {
-		s.logger.Error(fmt.Sprintf("error run server: %v", err))
+		s.logger.ErrorContext(ctx, fmt.Sprintf("error run server: %v", err))
 		return err
 	}
 

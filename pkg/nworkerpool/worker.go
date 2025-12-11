@@ -8,7 +8,7 @@ import (
 )
 
 type Worker interface {
-	Start(ctx context.Context, jobStream chan Job, quit <-chan struct{}, onJobDone func())
+	Start(ctx context.Context, task chan *task, quit <-chan struct{}, onJobDone func(jobID string))
 	Stop()
 	Status() WorkerStatus
 	Running() bool
@@ -39,7 +39,7 @@ func newWorker(
 	return worker
 }
 
-func (w *worker) Start(ctx context.Context, jobStream chan Job, quit <-chan struct{}, onJobDone func()) {
+func (w *worker) Start(ctx context.Context, taskStream chan *task, quit <-chan struct{}, onJobDone func(jobID string)) {
 	if !w.running.CompareAndSwap(false, true) {
 		if w.logger != nil {
 			w.logger.Warn("Worker already running", "workerId", w.workerId)
@@ -67,7 +67,7 @@ func (w *worker) Start(ctx context.Context, jobStream chan Job, quit <-chan stru
 				return
 			case <-quit:
 				return
-			case job, ok := <-jobStream:
+			case task, ok := <-taskStream:
 				if !ok {
 					if w.logger != nil {
 						w.logger.Debug("taskStream closed, stopping worker", "workerId", w.workerId)
@@ -78,16 +78,27 @@ func (w *worker) Start(ctx context.Context, jobStream chan Job, quit <-chan stru
 					w.status.Store(WorkerStatusWorking)
 					defer func() {
 						w.status.Store(WorkerStatusIdle)
-						onJobDone()
+						onJobDone(task.job.ID())
 					}()
 
 					if w.logger != nil {
-						w.logger.Debug("Worker: running job", "workerId", w.workerId)
+						w.logger.Debug("Worker: running job", "workerId", w.workerId, "jobName", task.job.Name())
 					}
 
-					job.Execute(ctx, w.workerId)
-					if w.logger != nil {
-						w.logger.Debug("Worker: job done", "workerId", w.workerId)
+					done := make(chan struct{})
+					go func() {
+						defer close(done)
+
+						task.job.Execute(task.ctx, w.workerId)
+
+						if w.logger != nil {
+							w.logger.Debug("Worker: job done", "workerId", w.workerId, "jobName", task.job.Name())
+						}
+					}()
+
+					select {
+					case <-task.ctx.Done():
+					case <-done:
 					}
 				}()
 			}

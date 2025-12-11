@@ -1,6 +1,7 @@
 package ytdlpsrv
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -30,7 +31,7 @@ const (
 	audioQualityOPUSDefault = "160K"
 )
 
-func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions) (<-chan *ddownload.DownloadResult, error) {
+func (srv *YtDlpService) Download(ctx context.Context, url string, options *dservices.DownloadOptions) (<-chan *ddownload.DownloadResult, error) {
 	resultCh := make(chan *ddownload.DownloadResult)
 
 	sendResultError := func(err error) {
@@ -69,6 +70,7 @@ func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions
 
 		// Build yt-dlp arguments and get file extension and title
 		args, fileExt, info, mediaInfo, err := srv.buildDownloadArgs(
+			ctx,
 			url,
 			formatType,
 			videoFormat,
@@ -86,7 +88,7 @@ func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions
 		title = info.Title
 		if title == "" {
 			var err error
-			title, err = srv.GetTitle(url)
+			title, err = srv.GetTitle(ctx, url)
 			if err != nil {
 				sendResultError(fmt.Errorf("failed to get title: %w", err))
 				return
@@ -126,9 +128,14 @@ func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions
 		args = append(args, url)
 
 		// Execute yt-dlp command
-		cmd = exec.Command(srv.cmdPath, args...)
+		cmd = exec.CommandContext(ctx, srv.cmdPath, args...)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
+			// The context was canceled
+			if ctx.Err() != nil {
+				sendResultError(fmt.Errorf("%s failed: %w", ytDlpName, fmt.Errorf("process canceled: %w", ctx.Err())))
+				return
+			}
 			// Log full stdout + stderr if yt-dlp fails
 			sendResultError(fmt.Errorf("%s failed: %w, output: %s", ytDlpName, err, string(out)))
 			return
@@ -136,7 +143,7 @@ func (srv *YtDlpService) Download(url string, options *dservices.DownloadOptions
 
 		// Debug log command output
 		srv.logger.Debug(
-			"Download",
+			"Download completed",
 			"url", url,
 			"out", string(out),
 		)
@@ -248,6 +255,7 @@ func (srv *YtDlpService) prepareDownloadOptions(options *dservices.DownloadOptio
 
 // buildDownloadArgs build yt-dlp arguments and get file extension and title
 func (srv *YtDlpService) buildDownloadArgs(
+	ctx context.Context,
 	url string,
 	formatType dtypes.FormatType,
 	videoFormat dtypes.VideoFormat,
@@ -269,6 +277,7 @@ func (srv *YtDlpService) buildDownloadArgs(
 
 	// prevent downloading the entire playlist, only fetch single video
 	args = append(args, "--no-playlist")
+	args = append(args, "--no-warnings")
 	args = append(args, "--concurrent-fragments", strconv.Itoa(int(concurrentAragments)))
 
 	switch formatType {
@@ -326,7 +335,7 @@ func (srv *YtDlpService) buildDownloadArgs(
 
 		// Get information about the best format from yt-dlp
 		var err error
-		info, err = srv.getBestFormat(url, infoFormat)
+		info, err = srv.getBestFormat(ctx, url, infoFormat)
 		if err != nil {
 			return nil, "", nil, nil, err
 		}
@@ -475,7 +484,7 @@ func (srv *YtDlpService) buildDownloadArgs(
 
 		// Get information about the best audio format
 		var err error
-		info, err = srv.getBestFormat(url, format)
+		info, err = srv.getBestFormat(ctx, url, format)
 		if err != nil {
 			return nil, "", nil, nil, err
 		}

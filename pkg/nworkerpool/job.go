@@ -1,53 +1,87 @@
 package nworkerpool
 
 import (
+	"container/list"
 	"context"
-	"sync"
 )
 
 type Job interface {
-	Execute(ctx context.Context, workerId uint) error
+	ID() string
+	Name() string
+	Execute(ctx context.Context, workerID uint) error
 }
 
 type JobDispatcher interface {
-	AddJob(job Job)
+	AddJob(job Job) bool
+	CancelJob(jobID string) bool
 }
 
 type jobQueue struct {
-	mu    sync.Mutex
-	items []Job
+	items *list.List
+	index map[string]*list.Element
 }
 
-func newJobQueue(cap int) jobQueue {
-	return jobQueue{
-		items: make([]Job, 0, cap),
+type task struct {
+	ctx    context.Context
+	Cancel context.CancelFunc
+	job    Job
+}
+
+func newJobQueue(cap int) *jobQueue {
+	return &jobQueue{
+		items: list.New(),
+		index: make(map[string]*list.Element, cap),
+	}
+}
+
+func newTask(ctx context.Context, job Job) *task {
+	ctx, cancel := context.WithCancel(ctx)
+
+	return &task{
+		ctx:    ctx,
+		Cancel: cancel,
+		job:    job,
 	}
 }
 
 func (q *jobQueue) Len() int {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-
-	return len(q.items)
+	return q.items.Len()
 }
 
-func (q *jobQueue) Push(job Job) {
-	q.mu.Lock()
-	defer q.mu.Unlock()
+func (q *jobQueue) Push(job Job) bool {
+	id := job.ID()
+	if _, exists := q.index[id]; exists {
+		return false
+	}
 
-	q.items = append(q.items, job)
+	q.index[id] = q.items.PushBack(job)
+
+	return true
 }
 
 func (q *jobQueue) Pop() (Job, bool) {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-
-	if len(q.items) == 0 {
+	el := q.items.Front()
+	if el == nil {
 		return nil, false
 	}
 
-	job := q.items[0]
-	q.items = q.items[1:]
+	job := el.Value.(Job)
+
+	if !q.Remove(job.ID()) {
+		return nil, false
+	}
 
 	return job, true
+}
+
+func (q *jobQueue) Remove(id string) bool {
+	el, exists := q.index[id]
+	if !exists {
+		return false
+	}
+
+	q.items.Remove(el)
+	delete(q.index, id)
+
+	return true
 }

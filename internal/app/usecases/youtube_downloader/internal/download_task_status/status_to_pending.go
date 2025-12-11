@@ -12,8 +12,10 @@ import (
 func (s *DownloadTaskStatus) Penging(
 	ctx context.Context,
 	taskId uuid.UUID,
+	jobID uuid.UUID,
 ) error {
 	updateFieldsFunc := func(task *ddownload.DownloadTask) {
+		task.JobID = &jobID
 	}
 
 	return s.updateStatus(

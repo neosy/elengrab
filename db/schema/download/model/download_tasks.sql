@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS download_tasks (
 
     -- ID of the worker currently processing the task
     worker_id INT NULL,
+
+    -- ID of the job currently processing the task
+    job_id TEXT NULL,
     
     -- Task creation timestamp
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

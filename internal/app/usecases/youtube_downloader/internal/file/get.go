@@ -18,9 +18,8 @@ func (uc *File) FindByFileId(ctx context.Context, fileId uuid.UUID, checkNotFoun
 	}
 
 	if checkNotFound && file == nil {
-		err := errors.New("record not found")
 		uc.logger.Warn("Record not found", "fileId", fileId)
-		return nil, err
+		return nil, errors.New("record not found")
 	}
 
 	return file, err

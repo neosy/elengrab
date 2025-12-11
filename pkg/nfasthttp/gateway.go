@@ -1,0 +1,34 @@
+package nfasthttp
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+
+	appenv "github.com/neosy/elengrab/pkg/nconfig/app_env"
+	"github.com/valyala/fasthttp"
+)
+
+func NewHandler(baseCtx context.Context, logger *slog.Logger, env appenv.AppEnv, h fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return loggerMiddleware(logger, corsMiddleware(baseCtx, env, h))
+}
+
+func loggerMiddleware(logger *slog.Logger, h fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return func(ctx *fasthttp.RequestCtx) {
+		h(ctx)
+
+		status := ctx.Response.StatusCode()
+		if status >= 400 {
+			logger.DebugContext(ctx, fmt.Sprintf("Request %s %s %s -> %d", ctx.Method(), ctx.Host(), ctx.RequestURI(), status))
+		}
+	}
+}
+
+func corsMiddleware(baseCtx context.Context, env appenv.AppEnv, h fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return func(ctx *fasthttp.RequestCtx) {
+		ctx.SetUserValue(RequestCtxKey, baseCtx)
+		ctx.SetUserValue(AppConfigCtxKey, env)
+
+		h(ctx)
+	}
+}

@@ -62,7 +62,34 @@
     background: var(--bg-result-item);
     padding: 12px 20px;
     margin-top: 0px;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease;
+    overflow: hidden;
+
+    height: auto;
+    opacity: 1;
+}
+
+.div-grab-result-item.htmx-swapping {
+    height: 0;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    transition: height 0.5s ease, padding 0.5s ease, margin 0.5s ease, opacity 0.5s ease;
+}
+
+.div-grab-result-item-replaceme {
+    height: 0;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+}
+
+.div-grab-result-item-replaceme.htmx-swapping {
+    height: auto;
+    padding: 12px 20px;
+    margin-top: 0px;
+    opacity: 1;
+    transition: height 0.5s ease, padding 0.5s ease, margin 0.5s ease, opacity 0.5s ease;
 }
 
 .div-grab-result-item.inprogress {
@@ -288,6 +315,38 @@
 .icon-download-failed path {
     fill: var(--error);
 }
+
+.icon-download-delete {
+    width: 20px;
+    height: 20px;
+}
+
+.btn-delete-row {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: auto;
+    height: auto;
+}
+
+.btn-delete-row svg {
+    pointer-events: none; /* чтобы клик попадал на кнопку, а не на SVG */
+    color: var(--download-delete);
+    transition: transform .25s ease;
+}
+
+.btn-delete-row:hover svg {
+    color: var(--download-delete-hover);
+    transform: scale(1.2);
+}
+
 
 @media (max-width: 480px) {
     .div-grab-result-items {

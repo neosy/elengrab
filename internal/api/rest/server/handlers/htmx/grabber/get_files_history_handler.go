@@ -35,7 +35,7 @@ func (h *GrabberHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 
 	before = time.Time{}
 	for _, fileInfo := range resps {
-		buf, _, err := h.genRow(ctx, fileInfo, true)
+		buf, _, err := h.genRow(fileInfo, true)
 		if err != nil || buf == nil {
 			continue
 		}

@@ -29,20 +29,42 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 
 	uc.saveStateByFileId(ctx, task.FileId)
 
-	resultCh, err := uc.downloaderSrv.Download(task.YoutubeUrl, uc.mappers.MapDownloadOptionsDomainToService(task.Options))
+	resultCh, err := uc.downloaderSrv.Download(ctx, task.YoutubeUrl, uc.mappers.MapDownloadOptionsDomainToService(task.Options))
 	if err != nil {
 		uc.logger.Error(
 			"Download",
 			"error", err,
 		)
+
+		// The context was canceled
+		if ctx.Err() != nil {
+			file, e := uc.file.FindByFileId(uc.appCtx, task.FileId, false)
+			if e == nil && file != nil {
+				uc.fileStatus.Failed(uc.appCtx, task.FileId, nil, uptr.String(err.Error()))
+			}
+			uc.dlState.Delete(uc.appCtx, task.FileId)
+			return ctx.Err()
+		}
+
 		uc.fileStatus.Failed(ctx, task.FileId, nil, uptr.String(err.Error()))
 		uc.saveStateByFileId(ctx, task.FileId)
+
 		return err
 	}
 
 	var lastResult *ddownload.DownloadResult
 	for r := range resultCh {
 		if r.Error != nil {
+			// The context was canceled
+			if ctx.Err() != nil {
+				file, e := uc.file.FindByFileId(uc.appCtx, task.FileId, false)
+				if e == nil && file != nil {
+					uc.fileStatus.Failed(uc.appCtx, task.FileId, nil, uptr.String(r.Error.Error()))
+				}
+				uc.dlState.Delete(uc.appCtx, task.FileId)
+				return ctx.Err()
+			}
+
 			uc.logger.Error(
 				"Download",
 				"error", r.Error,
