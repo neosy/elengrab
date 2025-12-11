@@ -2,8 +2,6 @@ package grabberh
 
 import (
 	"bytes"
-	"context"
-	"fmt"
 	"html/template"
 	"path/filepath"
 	"sync"
@@ -14,6 +12,7 @@ import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/paths"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/pkg/errorx"
 	"github.com/neosy/elengrab/pkg/utils"
 	"github.com/valyala/fasthttp"
 )
@@ -27,6 +26,7 @@ type fileRowInfoData struct {
 	DataFormat   string
 	FormatTitle  string
 	DownloadURL  string
+	DeleteURL    string
 }
 
 type cacheRowEntry struct {
@@ -50,7 +50,7 @@ var (
 	}
 )
 
-func (h *GrabberHandlers) genRow(ctx context.Context, fileInfo *dto.GetFileInfoResponse, isLoadHistory bool) (*bytes.Buffer, int, error) {
+func (h *GrabberHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHistory bool) (*bytes.Buffer, int, error) {
 	var (
 		cacheChanged = struct {
 			youtubeTitle bool
@@ -61,7 +61,7 @@ func (h *GrabberHandlers) genRow(ctx context.Context, fileInfo *dto.GetFileInfoR
 	)
 
 	if fileInfo == nil {
-		return nil, fasthttp.StatusInternalServerError, fmt.Errorf("the request returned an empty")
+		return nil, fasthttp.StatusInternalServerError, errorx.New("the request returned an empty")
 	}
 
 	// Checking the cache
@@ -115,6 +115,7 @@ func (h *GrabberHandlers) genRow(ctx context.Context, fileInfo *dto.GetFileInfoR
 		DataFormat:   "-",
 		FormatTitle:  fileInfo.MediaInfoText,
 		DownloadURL:  httppaths.BuildPathFileDownload(fileInfo.FileId),
+		DeleteURL:    httppaths.BuildPathFileRow(fileInfo.FileId),
 	}
 
 	if fileInfo.FileSize != nil && *fileInfo.FileSize > 0 {
@@ -127,7 +128,7 @@ func (h *GrabberHandlers) genRow(ctx context.Context, fileInfo *dto.GetFileInfoR
 
 	dataMap := htmxvalues.MergeMaps(
 		htmxvalues.PathValues,
-		htmxvalues.IconNames,
+		htmxvalues.IconFileNames(),
 		htmxvalues.StructToMap(data),
 	)
 
@@ -139,10 +140,15 @@ func (h *GrabberHandlers) genRow(ctx context.Context, fileInfo *dto.GetFileInfoR
 		isGrabResultItemHTMXOptionRepeat = true
 	}
 
-	dataMap[htmxvalues.GrabResultStatusIconNameKey] = htmxvalues.GrabResultStatusIconName(fileInfo.Status)
+	dataMap[htmxvalues.GrabResultStatusIconNameKey] = htmxvalues.FrabResultStatusIconFileName(fileInfo.Status)
 	dataMap[htmxvalues.IsItemHTMXOptionRepeatKey] = isGrabResultItemHTMXOptionRepeat
-	dataMap[htmxvalues.GrabResultItemStatusHtmlKey] = template.HTML(htmxvalues.GrabResultStatusIconSvgRaw(fileInfo.Status, iconsDir))
+	dataMap[htmxvalues.GrabResultItemStatusHtmlKey] = template.HTML(
+		htmxvalues.GrabResultStatusIconSvgRaw(fileInfo.Status, iconsDir),
+	)
 	dataMap[htmxvalues.GrabResultItemStatusTextKey] = fileInfo.StatusText
+	dataMap[htmxvalues.GrabResultItemDeleteIconKey] = template.HTML(
+		htmxvalues.IconFileRaw(htmxvalues.IconFileName(htmxvalues.DownloadDeleteIconNameKey), iconsDir),
+	)
 
 	dataMap[htmxvalues.ResultYoutubeUrlFadeKey] = ""
 	dataMap[htmxvalues.ResultSizeFadeKey] = ""
@@ -170,7 +176,7 @@ func (h *GrabberHandlers) genRow(ctx context.Context, fileInfo *dto.GetFileInfoR
 	var buf bytes.Buffer
 	err := h.templates.ExecuteTemplate(&buf, tmplFileName, dataMap)
 	if err != nil {
-		return nil, fasthttp.StatusInternalServerError, err
+		return nil, fasthttp.StatusInternalServerError, errorx.NewByErr(err)
 	}
 
 	return &buf, fasthttp.StatusOK, nil

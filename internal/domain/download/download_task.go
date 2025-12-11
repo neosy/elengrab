@@ -26,6 +26,9 @@ type DownloadTask struct {
 	// Id worker
 	WorkerId *uint
 
+	// ID job
+	JobID *uuid.UUID
+
 	// Timestamp when the record was created
 	CreatedAt time.Time
 

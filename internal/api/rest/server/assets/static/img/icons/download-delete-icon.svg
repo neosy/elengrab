@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<svg class="icon-download-delete" height="1em" width="1em" viewBox="-5.1 0 85.5 85.5" xmlns="http://www.w3.org/2000/svg">
+  <g id="Group_14" data-name="Group 14" transform="translate(-837.1 -670)">
+    <path id="Path_40" data-name="Path 40" d="M905.8,703.3H843.7a4.653,4.653,0,0,1-4.6-4.6v-9.2a4.653,4.653,0,0,1,4.6-4.6h62.1a4.653,4.653,0,0,1,4.6,4.6v9.2A4.653,4.653,0,0,1,905.8,703.3Z" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="4"/>
+    <path id="Path_41" data-name="Path 41" d="M901.6,706v41c-.7.5-3.2,1.9-10,3.1a108.881,108.881,0,0,1-17.2,1.5,92.907,92.907,0,0,1-16.8-1.5c-6.6-1.2-8.9-2.5-9.6-3V706h53.6m4-4H844v45.7c0,5.3,18.5,7.8,30.4,7.8s31.2-2.5,31.2-7.8V702Z" fill="currentColor"/>
+    <line id="Line_17" data-name="Line 17" y2="11.9" transform="translate(862.7 721.6)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <line id="Line_18" data-name="Line 18" y2="18.9" transform="translate(874.9 718.1)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <line id="Line_19" data-name="Line 19" y2="11.9" transform="translate(886.9 721.6)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <path id="Path_42" data-name="Path 42" d="M859,684.2S857.3,672,873.9,672s16.7,12.2,16.7,12.2" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="4"/>
+  </g>
+</svg>

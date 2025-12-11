@@ -2,6 +2,7 @@ package ytdlpsrv
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -10,12 +11,12 @@ import (
 )
 
 // GetBestFormat retrieves and parses video best format for the given URL.
-func (srv *YtDlpService) GetBestFormat(url string) (*dyoutubeinfo.YouTubeInfo, error) {
-	return srv.getBestFormat(url, "b")
+func (srv *YtDlpService) GetBestFormat(ctx context.Context, url string) (*dyoutubeinfo.YouTubeInfo, error) {
+	return srv.getBestFormat(ctx, url, "b")
 }
 
-func (srv *YtDlpService) getBestFormat(url string, format string) (*dyoutubeinfo.YouTubeInfo, error) {
-	cmd := exec.Command(srv.cmdPath, "--no-playlist", "-f", format, "--get-format", url)
+func (srv *YtDlpService) getBestFormat(ctx context.Context, url string, format string) (*dyoutubeinfo.YouTubeInfo, error) {
+	cmd := exec.CommandContext(ctx, srv.cmdPath, "--no-playlist", "--no-warnings", "-f", format, "--get-format", url)
 
 	// Buffers to capture stdout and stderr
 	var out, stderr bytes.Buffer
@@ -23,6 +24,10 @@ func (srv *YtDlpService) getBestFormat(url string, format string) (*dyoutubeinfo
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
+		// The context was canceled
+		if ctx.Err() != nil {
+			return nil, fmt.Errorf("process canceled: %w", ctx.Err())
+		}
 		errOut := fmt.Errorf("%s failed: %v, stderr: %s", ytDlpName, err, stderr.String())
 		return nil, errOut
 	}
@@ -36,7 +41,7 @@ func (srv *YtDlpService) getBestFormat(url string, format string) (*dyoutubeinfo
 	parts := strings.SplitN(outStr, " - ", 2)
 	bestFormatId := parts[0]
 
-	info, err := srv.GetFormats(url)
+	info, err := srv.GetFormats(ctx, url)
 	if err != nil {
 		return nil, err
 	}

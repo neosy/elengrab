@@ -95,14 +95,17 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 
 	dataMap := htmxvalues.MergeMaps(
 		htmxvalues.PathValues,
-		htmxvalues.IconNames,
+		htmxvalues.IconFileNames(),
 		htmxvalues.StructToMap(data),
 	)
 
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
-	dataMap[htmxvalues.GrabResultStatusIconNameKey] = htmxvalues.GrabResultStatusIconName(resp.Status)
-	dataMap[htmxvalues.GrabResultItemStatusHtmlKey] = template.HTML(htmxvalues.GrabResultStatusIconSvgRaw(resp.Status, iconsDir))
+	dataMap[htmxvalues.GrabResultStatusIconNameKey] = htmxvalues.FrabResultStatusIconFileName(resp.Status)
+	dataMap[htmxvalues.GrabResultItemStatusHtmlKey] = template.HTML(
+		htmxvalues.GrabResultStatusIconSvgRaw(resp.Status, iconsDir))
+	dataMap[htmxvalues.GrabResultItemDeleteIconKey] = template.HTML(
+		htmxvalues.IconFileRaw(htmxvalues.IconFileName(htmxvalues.DownloadDeleteIconNameKey), iconsDir))
 	dataMap[htmxvalues.IsItemHTMXOptionRepeatKey] = true
 	dataMap[htmxvalues.IsItemFirstKey] = itemsOnlyOne
 	dataMap[htmxvalues.DataOnlyOneKey] = false

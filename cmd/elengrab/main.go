@@ -107,7 +107,7 @@ func main() {
 		DownloadsDir: cfg.Elengrab.DownloadsDir,
 		LoadHistory:  cfg.Elengrab.LoadHistory,
 	}
-	uc := usecases.NewUsecases(logger, ucDeps)
+	uc := usecases.NewUsecases(ctx, logger, ucDeps)
 
 	// Init
 	if err := uc.Downloader.ResetStuckJobs(ctx); err != nil {
@@ -145,7 +145,7 @@ func main() {
 			AssetsDir: cfg.Elengrab.AssetsDir,
 		}
 
-		httpServer := httpsrv.NewServer(logger, deps)
+		httpServer := httpsrv.NewServer(logger, cfg.AppConfig.AppEnv, deps)
 		err = httpServer.ListenAndServe(ctx, cfg.HTMXServer.Port)
 		if err != nil {
 			cancel()

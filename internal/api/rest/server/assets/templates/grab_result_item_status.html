@@ -18,6 +18,15 @@
             <span class="result-format {{.ResultFormatFade}}" data-id="format">{{ .Format }}</span>
         </div>
         <span class="result-separator">•</span>
+        <div class="div-result-delete">
+            <button class="btn-delete-row"
+                hx-delete="{{ .DeleteURL }}"
+                hx-target="closest .div-grab-result-item"
+                hx-swap="outerHTML swap:0.5s">
+                {{ .GrabResultItemDeleteIcon }}
+            </button>            
+        </div>
+        <span class="result-separator">•</span>
         <div class="div-result-status" title="{{ .GrabResultItemStatusText }}">
         {{ if .IsItemSpiner }}
             <div class="item-result-spinner"></div>

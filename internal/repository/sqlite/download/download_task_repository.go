@@ -87,13 +87,10 @@ func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.Downl
 		return fmt.Errorf("failed to build SQL: %w", err)
 	}
 
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	// Execute the query
-	err = execContext(ctx, r.db, sqlQuery, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.mu, sqlQuery, args, r.retryOptions)
 	if err != nil {
-		return fmt.Errorf("failed to save file: %v", err)
+		return fmt.Errorf("failed to save task: %v", err)
 	}
 
 	return nil
@@ -119,11 +116,8 @@ func (r *DownloadTaskRepository) UpdateStatusToNew(ctx context.Context) error {
 		return fmt.Errorf("error generating SQL: %v", err)
 	}
 
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	// Execute the query
-	err = execContext(ctx, r.db, sqlStr, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.mu, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to update file: %v", err)
 	}
@@ -146,7 +140,8 @@ func (r *DownloadTaskRepository) FindByTaskId(ctx context.Context, taskId uuid.U
 	}
 
 	// Execute the query
-	row := r.db.QueryRowContext(ctx, sqlBuilder, args...)
+	db := dbOrTx(ctx, r.db)
+	row := db.QueryRowContext(ctx, sqlBuilder, args...)
 
 	// Scan result into entity
 	if err := row.Scan(ent.FieldPointers()...); err != nil {
@@ -180,7 +175,8 @@ func (r *DownloadTaskRepository) FindByFileId(ctx context.Context, fileId uuid.U
 	}
 
 	// Execute the query
-	row := r.db.QueryRowContext(ctx, sqlBuilder, args...)
+	db := dbOrTx(ctx, r.db)
+	row := db.QueryRowContext(ctx, sqlBuilder, args...)
 
 	// Scan result into entity
 	if err := row.Scan(ent.FieldPointers()...); err != nil {
@@ -213,11 +209,8 @@ func (r *DownloadTaskRepository) Delete(ctx context.Context, taskId uuid.UUID) e
 		return fmt.Errorf("error generating SQL: %v", err)
 	}
 
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	// Execute the query
-	err = execContext(ctx, r.db, sqlStr, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.mu, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete task: %v", err)
 	}
@@ -246,11 +239,8 @@ func (r *DownloadTaskRepository) deleteBy(ctx context.Context, byFields taskByFi
 		return fmt.Errorf("error generating SQL: %v", err)
 	}
 
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	// Execute the query
-	err = execContext(ctx, r.db, sqlStr, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.mu, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete task: %v", err)
 	}

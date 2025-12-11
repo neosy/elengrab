@@ -14,7 +14,7 @@ import (
 type Config struct {
 	AppName string `env:"APP_NAME" envDefault:"Elengrab"`
 	// Application configuration
-	AppConfig nconfig.AppConfig
+	AppConfig nconfig.AppConfig `envPrefix:""`
 
 	HTMXServer HTMXServerConfig `envPrefix:"HTTP_SERVER_"`
 	Elengrab   ElengrabConfig   `envPrefix:"ELENGRAB_"`

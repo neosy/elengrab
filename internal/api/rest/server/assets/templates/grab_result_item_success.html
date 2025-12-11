@@ -12,6 +12,15 @@
             <span class="result-format" title="{{ .FormatTitle }}" data-format="{{ .DataFormat }}">{{ .Format }}</span>
         </div>
         <span class="result-separator">•</span>
+        <div class="div-result-delete">
+            <button class="btn-delete-row"
+                hx-delete="{{ .DeleteURL }}"
+                hx-target="closest .div-grab-result-item"
+                hx-swap="outerHTML swap:0.5s">
+                {{ .GrabResultItemDeleteIcon }}
+            </button>            
+        </div>
+        <span class="result-separator">•</span>
         <div class="div-result-status">
             <a class="result-download-link" href="{{ .DownloadURL }}">{{ .GrabResultItemStatusHtml }}</a>
         </div>
