@@ -35,7 +35,6 @@ func BuildDownloadArgs(
 	// prevent downloading the entire playlist, only fetch single video
 	args = append(args, "--no-playlist")
 	args = append(args, "--no-warnings")
-	args = append(args, "--no-part")
 	args = append(args, "--concurrent-fragments", strconv.Itoa(int(dlOptions.ConcurrentFragments)))
 
 	switch dlOptions.FormatType {

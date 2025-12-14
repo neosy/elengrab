@@ -21,7 +21,9 @@ import (
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
-const ()
+const (
+	ytDlpTempDir = ".yt-dlp"
+)
 
 func (y *YTDlp) Download(
 	ctx context.Context,
@@ -88,8 +90,8 @@ func (y *YTDlp) Download(
 		fileName = fmt.Sprintf("%s_%s", nfile.SanitizeFileName(title), fileName)
 	}
 
-	FileFullName := fmt.Sprintf("%s.%s", fileName, fileExt)
-	filePath := path.Join(dlDir, FileFullName)
+	fileFullName := fmt.Sprintf("%s.%s", fileName, fileExt)
+	filePath := path.Join(dlDir, fileFullName)
 
 	var fileSize *int
 	if len(info.Formats) == 1 {
@@ -102,24 +104,14 @@ func (y *YTDlp) Download(
 			FilePath:     filePath,
 			Filename:     fileName,
 			FileExt:      fileExt,
-			FileFullName: FileFullName,
+			FileFullName: fileFullName,
 			Filesize:     fileSize,
 		},
 	)
 
-	// Add output file path to yt-dlp arguments
-	args = append(args, "-o", filePath)
-
-	// Add the video URL to arguments
-	args = append(args, url)
-
-	// Execute yt-dlp command
-	// Create command without CommandContext.
-	// We manage cancellation manually to properly kill the whole process group.
-	cmd := exec.Command(y.ytDlpPath, args...)
-
 	// Running yt-dlp in a separate temporary directory
-	baseTmpDir := filepath.Join(dlDir, ".yt-dlp")
+	baseTmpDir := filepath.Join(dlDir, ytDlpTempDir)
+
 	workDir, cleanup, err := iutils.CreateTempDir(baseTmpDir, "job-*")
 	if err != nil {
 		sendError(
@@ -128,6 +120,23 @@ func (y *YTDlp) Download(
 		return
 	}
 	defer cleanup()
+
+	// Build full path to the output file inside the temp work directory
+	tmpFilePath := filepath.Join(workDir, fileFullName)
+
+	// Force yt-dlp to store all temporary and intermediate files in the isolated work directory
+	args = append(args, "--paths", fmt.Sprintf("temp:%s", workDir))
+
+	// Add output file path to yt-dlp arguments
+	args = append(args, "-o", tmpFilePath)
+
+	// Add the video URL to arguments
+	args = append(args, url)
+
+	// Execute yt-dlp command
+	// Create command without CommandContext.
+	// We manage cancellation manually to properly kill the whole process group.
+	cmd := exec.Command(y.ytDlpPath, args...)
 
 	cmd.Dir = workDir
 
@@ -219,6 +228,16 @@ func (y *YTDlp) Download(
 		return
 	}
 
+	// Move final file from temp directory to target path
+	// to avoid ffmpeg creating temporary files in the download directory
+	err = os.Rename(tmpFilePath, filePath)
+	if err != nil {
+		sendError(
+			fmt.Errorf("%s failed to move file from temp dir to target path: %w", y.ytDlpName, err),
+		)
+		return
+	}
+
 	// Debug log command output
 	y.logger.Debug(
 		"Download completed",
@@ -250,7 +269,7 @@ func (y *YTDlp) Download(
 		FilePath:     filePath,
 		Filename:     fileName,
 		FileExt:      fileExt,
-		FileFullName: FileFullName,
+		FileFullName: fileFullName,
 		Filesize:     fileSize,
 		PartialHash:  partialHash,
 		MediaInfo:    mediaInfo,
