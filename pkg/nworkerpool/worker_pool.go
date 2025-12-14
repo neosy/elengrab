@@ -55,7 +55,7 @@ func NewWorkerPool(logger *slog.Logger, options *WorkerPoolOptions) *workerPool 
 		semaphore:    make(chan struct{}, poolSize),
 		taskStream:   make(chan *task, 1),
 		jobQueue:     newJobQueue(defaultJobQueueCap), // Initial but not final queue size
-		runningTasks: make(map[string]*task, defaultJobQueueCap),
+		runningTasks: make(map[string]*task, poolSize),
 	}
 
 	wp.cond = sync.NewCond(&wp.mu)
@@ -90,14 +90,14 @@ func (wp *workerPool) Start(ctx context.Context) error {
 		// On context cancellation: signal shutdown and wake dispatcher
 		case <-ctx.Done():
 			wp.mu.Lock()
-			{
-				select {
-				case <-wp.quit:
-				default:
-					close(wp.quit)
-				}
-				wp.cond.Broadcast() // Wake dispatcher from cond.Wait()
+
+			select {
+			case <-wp.quit:
+			default:
+				close(wp.quit)
 			}
+			wp.cond.Broadcast() // Wake dispatcher from cond.Wait()
+
 			wp.mu.Unlock()
 			return
 		}
@@ -122,6 +122,7 @@ func (wp *workerPool) Start(ctx context.Context) error {
 
 			// Acquire lock to safely inspect queue and semaphore
 			wp.mu.Lock()
+
 			// Wait until there is at least one job AND a free worker slot
 			for wp.jobQueue.Len() == 0 || len(wp.semaphore) == cap(wp.semaphore) {
 				select {
@@ -134,10 +135,12 @@ func (wp *workerPool) Start(ctx context.Context) error {
 					wp.cond.Wait()
 				}
 			}
+
 			// Extract next job from queue
 			job, _ := wp.jobQueue.Pop()
 			task := newTask(ctx, job)
 			wp.runningTasks[job.ID()] = task
+
 			// Release lock before sending job to worker
 			wp.mu.Unlock()
 
@@ -145,12 +148,14 @@ func (wp *workerPool) Start(ctx context.Context) error {
 				// Claim a worker slot (non-blocking due to prior check)
 				select {
 				case <-wp.quit:
+					return
 				case wp.semaphore <- struct{}{}:
 				}
 
 				// Dispatch job to an available worker
 				select {
 				case <-wp.quit:
+					return
 				case wp.taskStream <- task:
 				}
 			}
@@ -172,19 +177,21 @@ func (wp *workerPool) Stop() {
 		return
 	}
 
+	// Acquire lock to safely cancel job
 	wp.mu.Lock()
-	{
-		// Signal all components to stop
-		close(wp.quit)
 
-		// Signal all jobs to cancel
-		for _, task := range wp.runningTasks {
-			task.Cancel()
-		}
+	// Signal all components to stop
+	close(wp.quit)
 
-		// Wake up dispatcher if waiting
-		wp.cond.Broadcast()
+	// Signal all jobs to cancel
+	for _, task := range wp.runningTasks {
+		task.Cancel()
 	}
+
+	// Wake up dispatcher if waiting
+	wp.cond.Broadcast()
+
+	// Release lock
 	wp.mu.Unlock()
 
 	// Wait for dispatcher and workers to finish
@@ -245,6 +252,8 @@ func (wp *workerPool) addWorker(ctx context.Context) {
 
 // PoolSize returns the number of worker goroutines in the pool.
 func (wp *workerPool) PoolSize() int {
+	wp.mu.Lock()
+	defer wp.mu.Unlock()
 	return wp.poolSize
 }
 
