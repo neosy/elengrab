@@ -2,5 +2,5 @@ package iconstants
 
 const (
 	AppName    = "Elengrab"
-	AppVersion = "0.5.1"
+	AppVersion = "0.5.2"
 )

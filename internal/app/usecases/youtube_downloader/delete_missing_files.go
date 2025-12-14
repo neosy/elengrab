@@ -22,7 +22,7 @@ const (
 
 	// lostDirName defines the name of the subdirectory where orphaned
 	// or unmatched files from the downloads folder are moved.
-	lostDirName = "lost"
+	lostDirName = ".lost"
 )
 
 // DeleteMissingFiles removes files from the database that no longer exist
