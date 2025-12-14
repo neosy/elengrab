@@ -8,8 +8,8 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
+	usql "github.com/neosy/elengrab/pkg/dbutils/sql"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
-	usql "github.com/neosy/elengrab/pkg/utils/sql"
 )
 
 func (m *Mappers) MapDownloadTaskDomainToEntity(task *ddownload.DownloadTask) (*edownload.DownloadTask, error) {

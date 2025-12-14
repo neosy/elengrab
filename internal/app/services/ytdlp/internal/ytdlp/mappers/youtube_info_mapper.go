@@ -1,9 +1,9 @@
 package mappers
 
 import (
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	dyoutubeinfo "github.com/neosy/elengrab/internal/domain/youtube_info"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 

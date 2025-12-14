@@ -6,12 +6,12 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/mappers"
+	iutils "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/utils"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/ytdlp"
 )
 
 const (
-	ytDlpName                  = "yt-dlp"
-	concurrentFragmentsDefault = 5
+	ytDlpName = "yt-dlp"
 )
 
 type Options struct {
@@ -20,18 +20,17 @@ type Options struct {
 }
 
 type YtDlpService struct {
-	logger  *slog.Logger
-	mappers *mappers.Mappers
+	logger *slog.Logger
 
-	cmdPath string
-	// Directory where downloaded files are saved
-	downloadsDir string
-
+	// options
 	options Options
+
+	// internal
+	ytdlp *ytdlp.YTDlp
 }
 
 func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, options *Options) (*YtDlpService, error) {
-	cmdPath, err := resolveCmdPath(ytDlpName, binDir)
+	cmdPath, err := iutils.ResolveCmdPath(ytDlpName, binDir)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +43,7 @@ func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, op
 		return nil, fmt.Errorf("downloads directory must not end with a slash or backslash: %s", downloadsDir)
 	}
 
-	if err := checkDir(downloadsDir); err != nil {
+	if err := iutils.CheckDir(downloadsDir); err != nil {
 		return nil, err
 	}
 
@@ -53,17 +52,13 @@ func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, op
 		opts = *options
 	}
 
-	if opts.ConcurrentFragments == 0 || opts.ConcurrentFragments > 20 {
-		opts.ConcurrentFragments = concurrentFragmentsDefault
-	}
-
 	return &YtDlpService{
-		logger:  logger,
-		mappers: mappers.NewMappers(),
+		logger: logger,
 
-		cmdPath:      cmdPath,
-		downloadsDir: downloadsDir,
-
+		// options
 		options: opts,
+
+		// internal
+		ytdlp: ytdlp.NewYTDlp(logger, cmdPath, downloadsDir),
 	}, nil
 }
