@@ -4,9 +4,8 @@
 <h3 align="center">Fast web UI for your YouTube downloader.</h3>
 
 <p align="center">
-  <img width="1142" height="581" alt="image" src="https://github.com/user-attachments/assets/59111174-1b7b-489f-acc7-1a88cc7efd2d" />
+  <img width="1251" height="635" alt="Screenshot_125" src="https://github.com/user-attachments/assets/fbc7a2c2-93e5-4c06-9e7f-264b65880346" />
 </p>
-
 
 # Elengrab
 
