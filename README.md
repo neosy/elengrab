@@ -20,6 +20,10 @@ Elengrab provides a simple and **very fast** web interface that allows you to qu
 - Download YouTube videos in various formats.
 - Download only audio tracks.
 - Configure download quality.
+- Download queue
+- Instant addition/removal from queue
+- Concurrent downloads (3 by default)
+- Dark theme
 
 ---
 
