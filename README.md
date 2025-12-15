@@ -52,7 +52,7 @@ Users are responsible for ensuring compliance with applicable laws and platform 
 | `ELENGRAB_DOWNLOADER_BIN_DIR` | `/usr/local/bin` | Directory containing yt-dlp binary. |
 | `ELENGRAB_ASSETS_DIR` | `/app_n/assets` | Directory containing application assets. |
 | `ELENGRAB_DOWNLOADS_DIR` | `/app_n/downloads` | Directory where downloaded files are stored inside the container. Must be mapped to a host volume. |
-| `ELENGRAB_DOWNLOAD_WORKERS` | 3 | Number of concurrent workers used for downloading YouTube videos in parallel. |
+| `ELENGRAB_DOWNLOAD_WORKERS` | 3 | Number of concurrent workers used for processing YouTube video and audio tasks in parallel. |
 | `ELENGRAB_LOAD_HISTORY` | `true` | Whether to display the download history of files. Set to true to show the history, or false to hide it. |
 
 ---
