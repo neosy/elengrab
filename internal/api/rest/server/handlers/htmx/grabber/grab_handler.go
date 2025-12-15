@@ -14,12 +14,13 @@ import (
 )
 
 type grabResultData struct {
-	PathFileRow  string
-	YoutubeTitle string
-	YoutubeURL   string
-	FileSize     string
-	Format       string
-	DownloadURL  string
+	PathFileRow      string
+	YoutubeChannelID string
+	YoutubeTitle     string
+	YoutubeURL       string
+	FileSize         string
+	Format           string
+	DownloadURL      string
 }
 
 func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
@@ -48,7 +49,8 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 
 	var (
 		data = grabResultData{
-			YoutubeURL: url,
+			YoutubeURL:       url,
+			YoutubeChannelID: "none",
 		}
 	)
 

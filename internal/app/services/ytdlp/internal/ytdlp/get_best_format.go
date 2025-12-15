@@ -7,10 +7,21 @@ import (
 	"os/exec"
 	"strings"
 
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/ytdlp/dto"
 	dyoutubeinfo "github.com/neosy/elengrab/internal/domain/youtube_info"
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 func (y *YTDlp) GetBestFormat(ctx context.Context, url string, format string) (*dyoutubeinfo.YouTubeInfo, error) {
+	info, err := y.getBestFormat(ctx, url, format)
+	if err != nil {
+		return nil, err
+	}
+
+	return y.mappers.VideoInfoToDomain(info), nil
+}
+
+func (y *YTDlp) getBestFormat(ctx context.Context, url string, format string) (*idto.YouTubeInfo, error) {
 	cmd := exec.CommandContext(ctx, y.ytDlpPath, "--no-playlist", "--no-warnings", "-f", format, "--get-format", url)
 
 	// Buffers to capture stdout and stderr
@@ -36,14 +47,14 @@ func (y *YTDlp) GetBestFormat(ctx context.Context, url string, format string) (*
 	parts := strings.SplitN(outStr, " - ", 2)
 	bestFormatId := parts[0]
 
-	info, err := y.GetFormats(ctx, url)
+	info, err := y.getFormats(ctx, url)
 	if err != nil {
 		return nil, err
 	}
 
-	var bestFormat *dyoutubeinfo.Format
+	var bestFormat *idto.Format
 	for _, f := range info.Formats {
-		if f.FormatId == bestFormatId {
+		if f.FormatID == bestFormatId {
 			bestFormat = &f
 			break
 		}
@@ -54,8 +65,8 @@ func (y *YTDlp) GetBestFormat(ctx context.Context, url string, format string) (*
 		return nil, err
 	}
 
-	bestInfo := *info
-	bestInfo.Formats = []dyoutubeinfo.Format{*bestFormat}
+	var bestInfo *idto.YouTubeInfo = uptr.Any(*info)
+	bestInfo.Formats = []idto.Format{*bestFormat}
 
-	return &bestInfo, nil
+	return bestInfo, nil
 }

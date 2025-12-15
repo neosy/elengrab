@@ -9,12 +9,21 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/dto"
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/ytdlp/dto"
 	dyoutubeinfo "github.com/neosy/elengrab/internal/domain/youtube_info"
 )
 
 // GetFormats retrieves and parses video formats for the given URL.
 func (y *YTDlp) GetFormats(ctx context.Context, url string) (*dyoutubeinfo.YouTubeInfo, error) {
+	info, err := y.getFormats(ctx, url)
+	if err != nil {
+		return nil, err
+	}
+
+	return y.mappers.VideoInfoToDomain(info), nil
+}
+
+func (y *YTDlp) getFormats(ctx context.Context, url string) (*idto.YouTubeInfo, error) {
 	// Prepare command to fetch video info in JSON
 	cmd := exec.CommandContext(ctx, y.ytDlpPath, "--no-playlist", "--no-warnings", "-J", url)
 
@@ -43,11 +52,11 @@ func (y *YTDlp) GetFormats(ctx context.Context, url string) (*dyoutubeinfo.YouTu
 	// Extract JSON substring
 	jsonData := outStr[start:]
 
-	var info = &dto.YouTubeInfo{}
+	var info = &idto.YouTubeInfo{}
 	if err := json.NewDecoder(bytes.NewReader([]byte(jsonData))).Decode(info); err != nil {
 		errOut := fmt.Errorf("no JSON found: %v", err)
 		return nil, errOut
 	}
 
-	return y.mappers.VideoInfoToDomain(info), nil
+	return info, err
 }

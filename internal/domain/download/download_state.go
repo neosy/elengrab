@@ -37,6 +37,7 @@ func (s *DownloadState) InitFromDownloadResult(result *DownloadResult) {
 		return
 	}
 
+	s.File.YoutubeChannelID = result.ChannelID
 	s.File.YoutubeTitle = result.YoutubeTitle
 	s.File.Ext = result.FileExt
 	s.File.FileSize = result.Filesize

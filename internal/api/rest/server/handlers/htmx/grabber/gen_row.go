@@ -18,15 +18,16 @@ import (
 )
 
 type fileRowInfoData struct {
-	PathFileRow  string
-	YoutubeTitle string
-	YoutubeURL   string
-	FileSize     string
-	Format       string
-	DataFormat   string
-	FormatTitle  string
-	DownloadURL  string
-	DeleteURL    string
+	PathFileRow      string
+	YoutubeChannelID string
+	YoutubeTitle     string
+	YoutubeURL       string
+	FileSize         string
+	Format           string
+	DataFormat       string
+	FormatTitle      string
+	DownloadURL      string
+	DeleteURL        string
 }
 
 type cacheRowEntry struct {
@@ -106,16 +107,22 @@ func (h *GrabberHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHistor
 		cacheRow.mu.Unlock()
 	}
 
+	youtubeChannelID := "none"
+	if fileInfo.YoutubeChannelID != nil {
+		youtubeChannelID = *fileInfo.YoutubeChannelID
+	}
+
 	data := fileRowInfoData{
-		YoutubeURL:   fileInfo.YoutubeUrl,
-		YoutubeTitle: fileInfo.YoutubeTitle,
-		PathFileRow:  httppaths.BuildPathFileRow(fileInfo.FileId),
-		FileSize:     "-",
-		Format:       "-",
-		DataFormat:   "-",
-		FormatTitle:  fileInfo.MediaInfoText,
-		DownloadURL:  httppaths.BuildPathFileDownload(fileInfo.FileId),
-		DeleteURL:    httppaths.BuildPathFileRow(fileInfo.FileId),
+		YoutubeURL:       fileInfo.YoutubeUrl,
+		YoutubeChannelID: youtubeChannelID,
+		YoutubeTitle:     fileInfo.YoutubeTitle,
+		PathFileRow:      httppaths.BuildPathFileRow(fileInfo.FileId),
+		FileSize:         "-",
+		Format:           "-",
+		DataFormat:       "-",
+		FormatTitle:      fileInfo.MediaInfoText,
+		DownloadURL:      httppaths.BuildPathFileDownload(fileInfo.FileId),
+		DeleteURL:        httppaths.BuildPathFileRow(fileInfo.FileId),
 	}
 
 	if fileInfo.FileSize != nil && *fileInfo.FileSize > 0 {

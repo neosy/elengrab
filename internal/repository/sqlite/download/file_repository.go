@@ -265,7 +265,7 @@ func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*d
 	// Scan result into entity
 	if err := row.Scan(append(eFile.FieldPointers(), eTask.FieldPointers()...)...); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil // запись не найдена
+			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to scan row: %w", err)
 	}
@@ -526,7 +526,7 @@ func (r *FileRepository) GetDeleted(ctx context.Context, from, to *time.Time) ([
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return files, nil // ничего не найдено
+			return files, nil
 		}
 		return nil, err
 	}

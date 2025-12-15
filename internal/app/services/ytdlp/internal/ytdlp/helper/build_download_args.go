@@ -7,20 +7,20 @@ import (
 	"strconv"
 	"strings"
 
-	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/dto"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/dto"
 	iutils "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/utils"
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/ytdlp/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	dyoutubeinfo "github.com/neosy/elengrab/internal/domain/youtube_info"
 )
 
 // BuildDownloadArgs build yt-dlp arguments and get file extension and title
 func BuildDownloadArgs(
 	ctx context.Context,
 	url string,
-	dlOptions idto.DLOptions,
-	bestFormat func(ctx context.Context, url string, format string) (*dyoutubeinfo.YouTubeInfo, error),
-) (args []string, fileExt string, info *dyoutubeinfo.YouTubeInfo, mediaInfo *ddownload.MediaInfo, err error) {
+	dlOptions dto.DLOptions,
+	bestFormat func(ctx context.Context, url string, format string) (*idto.YouTubeInfo, error),
+) (args []string, fileExt string, info *idto.YouTubeInfo, mediaInfo *ddownload.MediaInfo, err error) {
 	var (
 		infoVideoCodec = dtypes.VideoCodecNone
 	)
@@ -137,18 +137,18 @@ func BuildDownloadArgs(
 			isInfoFormatWebMCodec = false
 			isInfoFormatMP4Codec  = false
 		)
-		if info.Formats[0].VCodec != nil {
-			isInfoFormatWebMCodec = strings.HasPrefix(*info.Formats[0].VCodec, "av01") ||
-				strings.HasPrefix(*info.Formats[0].VCodec, "vp9")
-			isInfoFormatMP4Codec = strings.HasPrefix(*info.Formats[0].VCodec, "av01") ||
-				strings.HasPrefix(*info.Formats[0].VCodec, "avc1")
-			if strings.HasPrefix(*info.Formats[0].VCodec, "av01") {
+		if info.Formats[0].VCodec != "" {
+			isInfoFormatWebMCodec = strings.HasPrefix(info.Formats[0].VCodec, "av01") ||
+				strings.HasPrefix(info.Formats[0].VCodec, "vp9")
+			isInfoFormatMP4Codec = strings.HasPrefix(info.Formats[0].VCodec, "av01") ||
+				strings.HasPrefix(info.Formats[0].VCodec, "avc1")
+			if strings.HasPrefix(info.Formats[0].VCodec, "av01") {
 				infoVideoCodec = dtypes.VideoCodecAV1
 			}
-			if strings.HasPrefix(*info.Formats[0].VCodec, "vp9") {
+			if strings.HasPrefix(info.Formats[0].VCodec, "vp9") {
 				infoVideoCodec = dtypes.VideoCodecVP9
 			}
-			if strings.HasPrefix(*info.Formats[0].VCodec, "avc1") {
+			if strings.HasPrefix(info.Formats[0].VCodec, "avc1") {
 				infoVideoCodec = dtypes.VideoCodecH264
 			}
 		}
@@ -256,7 +256,7 @@ func BuildDownloadArgs(
 		switch dlOptions.AudioFormat {
 		case dtypes.AudioFormatBest:
 			format := info.Formats[0]
-			if format.ACodec != nil && *format.ACodec == "opus" {
+			if format.ACodec != "" && format.ACodec == "opus" {
 				args = append(args, "--extract-audio", "--audio-format", "opus")
 				fileExt = "opus"
 			} else {
@@ -270,7 +270,7 @@ func BuildDownloadArgs(
 			fileExt = "flac"
 		case dtypes.AudioFormatOPUS:
 			format := info.Formats[0]
-			if format.ACodec != nil && *format.ACodec == "opus" {
+			if format.ACodec != "" && format.ACodec == "opus" {
 				args = append(args, "--extract-audio", "--audio-format", "opus")
 			} else {
 				args = append(args, "--extract-audio", "--audio-format", "opus", "--audio-quality", audioQualityOPUS)

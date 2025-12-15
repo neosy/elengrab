@@ -8,18 +8,20 @@ import (
 )
 
 const (
-	DownloadIconNameKey         = "DownloadIconName"
-	DownloadFailedIconNameKey   = "DownloadFailedIconName"
-	DownloadPendingIconNameKey  = "DownloadPendingIconName"
-	GrabResultStatusIconNameKey = "GrabResultStatusIconName"
-	DownloadDeleteIconNameKey   = "DownloadDeleteIconName"
+	DownloadIconNameKey              = "DownloadIconName"
+	DownloadFailedIconNameKey        = "DownloadFailedIconName"
+	DownloadPendingIconNameKey       = "DownloadPendingIconName"
+	GrabResultStatusIconNameKey      = "GrabResultStatusIconName"
+	DownloadDeleteIconNameKey        = "DownloadDeleteIconName"
+	YoutubeChannelDefaultIconNameKey = "YoutubeChannelDefaultIconName"
 )
 
 var iconFileNames = map[string]any{
-	DownloadIconNameKey:        "download-light-icon.svg",
-	DownloadFailedIconNameKey:  "download-warning-icon.svg",
-	DownloadPendingIconNameKey: "download-wait-icon.svg",
-	DownloadDeleteIconNameKey:  "download-delete-icon.svg",
+	DownloadIconNameKey:              "download-light-icon.svg",
+	DownloadFailedIconNameKey:        "download-warning-icon.svg",
+	DownloadPendingIconNameKey:       "download-wait-icon.svg",
+	DownloadDeleteIconNameKey:        "download-delete-icon.svg",
+	YoutubeChannelDefaultIconNameKey: "youtube_channel_default_avatar-icon_3.svg",
 }
 
 func IconFileNames() map[string]any {
@@ -54,6 +56,10 @@ func IconFileRaw(fileName string, svgDir string) string {
 	}
 
 	return string(data)
+}
+
+func IconFileRawByKey(key string, svgDir string) string {
+	return IconFileRaw(IconFileName(key), svgDir)
 }
 
 func GrabResultStatusIconSvgRaw(status dtypes.FileStatus, svgDir string) string {

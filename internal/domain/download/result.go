@@ -3,6 +3,8 @@ package ddownload
 type DownloadResult struct {
 	Error error
 
+	ChannelID *string
+
 	YoutubeTitle string
 
 	// full path to the downloaded file
@@ -23,6 +25,15 @@ type DownloadResult struct {
 	// Fast partial file hash (combined hash of multiple sampled blocks; not a full-file checksum)
 	PartialHash *string
 
+	// Channel avatar
+	ChannelAvatar *DownloadResultChannelAvatar
+
 	// MediaInfo holds media metadata.
 	MediaInfo *MediaInfo
+}
+
+type DownloadResultChannelAvatar struct {
+	ImageURL    string
+	ImageRAW    []byte
+	ImageFormat string
 }

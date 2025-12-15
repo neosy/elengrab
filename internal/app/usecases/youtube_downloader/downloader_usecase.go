@@ -10,6 +10,7 @@ import (
 	dltasktatus "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/download_task_status"
 	fileuc "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/file"
 	filestatus "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/file_status"
+	ytchannel "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/youtube_channel"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
@@ -28,6 +29,7 @@ type YouTubeDownloader struct {
 	dlTask       *dltask.DownloadTask
 	fileStatus   *filestatus.FileStatus
 	dlTaskStatus *dltasktatus.DownloadTaskStatus
+	ytChannel    *ytchannel.YoutubeChannel
 	dlState      *dlstate.DownloadState
 
 	// services
@@ -45,6 +47,7 @@ func NewYouTubeDownloader(
 	// repositories
 	fileRep persistence.FileRepository,
 	dlTaskRep persistence.DownloadTaskRepository,
+	ytChannelRep persistence.YoutubeChannelRepository,
 	downloadStateRep persistence.DownloadStateRepository,
 
 	// dispetchers
@@ -77,6 +80,7 @@ func NewYouTubeDownloader(
 		dlTask:       dlTask,
 		fileStatus:   filestatus.NewFileStatus(logger, fileRep, file, dlTask, dlTaskStatus),
 		dlTaskStatus: dlTaskStatus,
+		ytChannel:    ytchannel.NewYoutubeChannel(logger, ytChannelRep),
 
 		// services
 		downloaderSrv: downloaderSrv,

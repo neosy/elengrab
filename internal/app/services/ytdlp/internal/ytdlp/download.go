@@ -63,7 +63,7 @@ func (y *YTDlp) Download(
 		ctx,
 		url,
 		dlOptions,
-		y.GetBestFormat,
+		y.getBestFormat,
 	)
 	if err != nil {
 		sendError(fmt.Errorf("failed to build download arguments: %w", err))
@@ -78,6 +78,28 @@ func (y *YTDlp) Download(
 		if err != nil {
 			sendError(fmt.Errorf("failed to get title: %w", err))
 			return
+		}
+	}
+
+	var channelID *string
+	var channelAvatar *ddownload.DownloadResultChannelAvatar
+	if info.ChannelID != "" {
+		channelID = &info.ChannelID
+
+		avatarSources, err := y.getChannelAvatar(info.ChannelUrl)
+		if err != nil {
+			y.logger.Debug("Failed get channel avatar", "error", err)
+		}
+
+		if len(avatarSources) > 0 {
+			src := avatarSources[0]
+			if len(src.Raw) > 0 {
+				channelAvatar = &ddownload.DownloadResultChannelAvatar{
+					ImageURL:    src.URL,
+					ImageRAW:    src.Raw,
+					ImageFormat: src.Format,
+				}
+			}
 		}
 	}
 
@@ -100,12 +122,14 @@ func (y *YTDlp) Download(
 
 	sendData(
 		&dlResult{
-			YoutubeTitle: title,
-			FilePath:     filePath,
-			Filename:     fileName,
-			FileExt:      fileExt,
-			FileFullName: fileFullName,
-			Filesize:     fileSize,
+			ChannelID:     channelID,
+			YoutubeTitle:  title,
+			FilePath:      filePath,
+			Filename:      fileName,
+			FileExt:       fileExt,
+			FileFullName:  fileFullName,
+			Filesize:      fileSize,
+			ChannelAvatar: channelAvatar,
 		},
 	)
 
@@ -265,14 +289,16 @@ func (y *YTDlp) Download(
 
 	// Build response struct
 	result := &dlResult{
-		YoutubeTitle: title,
-		FilePath:     filePath,
-		Filename:     fileName,
-		FileExt:      fileExt,
-		FileFullName: fileFullName,
-		Filesize:     fileSize,
-		PartialHash:  partialHash,
-		MediaInfo:    mediaInfo,
+		ChannelID:     channelID,
+		YoutubeTitle:  title,
+		FilePath:      filePath,
+		Filename:      fileName,
+		FileExt:       fileExt,
+		FileFullName:  fileFullName,
+		Filesize:      fileSize,
+		PartialHash:   partialHash,
+		ChannelAvatar: channelAvatar,
+		MediaInfo:     mediaInfo,
 	}
 
 	// Build response struct

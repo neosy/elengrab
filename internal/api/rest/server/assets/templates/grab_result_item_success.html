@@ -1,7 +1,12 @@
 <div class="div-grab-result-item success">
-    <span class="result-youtube-url">
-        <a href="{{ .YoutubeURL }}" target="_blank">{{ .YoutubeTitle }}</a>
-    </span>
+    <div class="result-left">
+        <span class="result-youtube-channel-avatar">
+            <img class="img-youtube-channel-avatar" src="/ui/downloader/channel/{{ .YoutubeChannelID }}/avatar" alt="Channel avatar">
+        </span>
+        <span class="result-youtube-url">
+            <a href="{{ .YoutubeURL }}" target="_blank">{{ .YoutubeTitle }}</a>
+        </span>
+    </div>
     <div class="result-right">
         <span class="result-separator first">•</span>
         <div class="div-result-size">

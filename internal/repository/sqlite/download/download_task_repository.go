@@ -146,7 +146,7 @@ func (r *DownloadTaskRepository) FindByTaskId(ctx context.Context, taskId uuid.U
 	// Scan result into entity
 	if err := row.Scan(ent.FieldPointers()...); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil // запись не найдена
+			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to scan row: %w", err)
 	}
@@ -181,7 +181,7 @@ func (r *DownloadTaskRepository) FindByFileId(ctx context.Context, fileId uuid.U
 	// Scan result into entity
 	if err := row.Scan(ent.FieldPointers()...); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil // запись не найдена
+			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to scan row: %w", err)
 	}

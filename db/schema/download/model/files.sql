@@ -10,7 +10,10 @@ CREATE TABLE IF NOT EXISTS files (
 
     -- Title from youtube
     youtube_title TEXT NOT NULL,
-    
+
+    -- Youtube channel ID
+    youtube_channel_id TEXT NULL,
+
     -- Original file name
     file_name TEXT NOT NULL,
     
