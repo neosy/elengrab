@@ -1,7 +1,7 @@
 <p align="center">
   <img width="192" height="192" alt="android-chrome-192x192_round" src="https://github.com/user-attachments/assets/f2973dcc-90d3-4046-b9e0-fd34b6697fa5" />
 </p>
-<h3 align="center">Fast web UI for your YouTube downloader.</h3>
+<h3 align="center">Self-hosted web interface for working with YouTube media.</h3>
 
 <p align="center">
   <img width="1251" height="635" alt="Screenshot_125" src="https://github.com/user-attachments/assets/fbc7a2c2-93e5-4c06-9e7f-264b65880346" />
@@ -9,21 +9,30 @@
 
 # Elengrab
 
-**Fast web interface for your own YouTube video/audio grabber server with format and quality options. Built on top of [yt-dlp](https://github.com/yt-dlp/yt-dlp).**
+**Fast web interface for your own YouTube video/audio processing server with format and quality options. The project integrates with existing open-source media processing utilities
+(such as [yt-dlp](https://github.com/yt-dlp/yt-dlp)) as an optional backend component.**
 
-Elengrab provides a simple and **very fast** web interface that allows you to quickly download YouTube videos or audio tracks with customizable format and quality options. The project is fully written in **Go**, and the frontend is powered by **HTMX**, ensuring high responsiveness and minimal overhead. It runs in a lightweight Docker container, is easy to deploy, and serves as a self-hosted frontend for your personal media download server.
+Elengrab provides a simple and **very fast** web interface to work with YouTube videos and audio tracks, allowing selection of formats and quality settings. The project is fully written in **Go**, and the frontend is powered by **HTMX**, ensuring high responsiveness and minimal overhead. It runs in a lightweight Docker container, is easy to deploy, and serves as a self-hosted frontend for managing your personal media server.
 
 ---
 
 ## Features
 
-- Download YouTube videos in various formats.
-- Download only audio tracks.
-- Configure download quality.
-- Download queue
-- Instant addition/removal from queue
-- Concurrent downloads (3 by default)
-- Dark theme
+- Support for YouTube video content in various formats.
+- Support for audio tracks from YouTube content.
+- Configurable format and quality settings.
+- Task queue for media processing.
+- Instant addition/removal from queue.
+- Concurrent processing of multiple tasks (3 by default).
+- Dark theme.
+
+---
+
+## YouTube Content Context
+
+Elengrab is designed to work with media hosted on YouTube.
+It operates as a self-hosted interface for organizing and processing personal video and audio content.
+Users are responsible for ensuring compliance with applicable laws and platform terms.
 
 ---
 
@@ -146,4 +155,4 @@ docker stack deploy -c docker-compose.yml elengrab
 docker service ls
 ```
 
-4. Access Elengrab at `http://<your-host-ip>:8080` and enjoy downloading videos and audio.
+4. Access Elengrab at `http://<your-host-ip>:8080` and start managing your personal video and audio content.
