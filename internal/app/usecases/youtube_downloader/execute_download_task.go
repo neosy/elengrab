@@ -69,10 +69,12 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 				"Download",
 				"error", r.Error,
 			)
+
 			var patch *dto.FileInfoPatch
 			if lastResult != nil && lastResult.YoutubeTitle != "" {
 				patch = &dto.FileInfoPatch{
-					YoutubeTitle: &lastResult.YoutubeTitle,
+					YoutubeChannelID: &lastResult.ChannelID,
+					YoutubeTitle:     &lastResult.YoutubeTitle,
 				}
 				if lastResult.FileExt != "" {
 					patch.Ext = &lastResult.FileExt
@@ -99,6 +101,18 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 
 		lastResult = r
 
+		// Adding a record to the YouTube Channel table
+		if lastResult != nil && lastResult.ChannelID != nil {
+			exists, _ := uc.ytChannel.ExistsByChannelId(ctx, *lastResult.ChannelID)
+			if !exists {
+				channel := &ddownload.YoutubeChannel{
+					ChannelID: *lastResult.ChannelID,
+				}
+				channel.InitFromResultChannelAvatar(lastResult.ChannelAvatar)
+				uc.ytChannel.Create(ctx, channel)
+			}
+		}
+
 		state.InitFromDownloadResult(r)
 		uc.dlState.Save(
 			ctx,
@@ -109,6 +123,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 	safeReadableFullName := fmt.Sprintf("%s.%s", nfile.SanitizeFileName(lastResult.YoutubeTitle), lastResult.FileExt)
 
 	patch := &dto.FileInfoPatch{
+		YoutubeChannelID:     &lastResult.ChannelID,
 		YoutubeTitle:         &lastResult.YoutubeTitle,
 		FileName:             &lastResult.Filename,
 		Ext:                  &lastResult.FileExt,

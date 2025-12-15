@@ -12,6 +12,7 @@ const (
 	formFieldQualityResolutionKey = "quality-resolution"
 	formFieldFormatKey            = "format"
 
-	fileIdKey = "fileId"
-	beforeKey = "before"
+	fileIdKey    = "fileId"
+	beforeKey    = "before"
+	channelIDKey = "channelID"
 )

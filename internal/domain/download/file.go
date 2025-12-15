@@ -20,6 +20,9 @@ type File struct {
 	// Youtube title
 	YoutubeTitle string
 
+	// Youtube Channel ID
+	YoutubeChannelID *string
+
 	// Original file name
 	FileName string
 

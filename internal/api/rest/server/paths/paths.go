@@ -19,10 +19,13 @@ const (
 	GroupDownloader = "/ui/downloader"
 
 	// Paths
-	PathGrab     = "/grab"
-	PathHistory  = "/history"
-	PathDownload = "/download"
-	PathFileRow  = "/file/{fileId}/row"
+	PathGrab          = "/grab"
+	PathHistory       = "/history"
+	PathDownload      = "/download"
+	PathFileRow       = "/file/{fileId}/row"
+	PathChannelAvatar = "/channel/{channelID}/avatar"
+
+	// Path files
 	PathCssFiles = "/css/{filepath:*}"
 	PathImgFiles = "/img/{filepath:*}"
 	PathJsFiles  = "/js/{filepath:*}"

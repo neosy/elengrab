@@ -1,8 +1,8 @@
-package dto
+package idto
 
 type Format struct {
 	FormatID   string  `json:"format_id"`
-	Ext        string  `json:"ext"`
+	FileExt    string  `json:"ext"`
 	Height     int     `json:"height"`
 	Width      int     `json:"width"`
 	FPS        float32 `json:"fps"`
@@ -18,7 +18,9 @@ type Format struct {
 }
 
 type YouTubeInfo struct {
-	ID      string   `json:"id"`
-	Title   string   `json:"title"`
-	Formats []Format `json:"formats"`
+	ID         string   `json:"id"`
+	Title      string   `json:"title"`
+	ChannelID  string   `json:"channel_id"`
+	ChannelUrl string   `json:"channel_url"`
+	Formats    []Format `json:"formats"`
 }

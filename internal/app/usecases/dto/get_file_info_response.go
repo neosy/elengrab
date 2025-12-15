@@ -11,6 +11,7 @@ import (
 type GetFileInfoResponse struct {
 	FileId               uuid.UUID
 	Status               dtypes.FileStatus
+	YoutubeChannelID     *string
 	YoutubeUrl           string
 	YoutubeTitle         string
 	FileName             string

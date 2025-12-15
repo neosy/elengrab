@@ -1,13 +1,13 @@
 package mappers
 
 import (
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/dto"
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/ytdlp/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	dyoutubeinfo "github.com/neosy/elengrab/internal/domain/youtube_info"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
-func (m *Mappers) VideoInfoToDomain(info *dto.YouTubeInfo) *dyoutubeinfo.YouTubeInfo {
+func (m *Mappers) VideoInfoToDomain(info *idto.YouTubeInfo) *dyoutubeinfo.YouTubeInfo {
 	var formats = make([]dyoutubeinfo.Format, 0, len(info.Formats))
 
 	for _, f := range info.Formats {
@@ -48,7 +48,7 @@ func (m *Mappers) VideoInfoToDomain(info *dto.YouTubeInfo) *dyoutubeinfo.YouTube
 		formats = append(formats, dyoutubeinfo.Format{
 			FormatType: formatType,
 			FormatId:   f.FormatID,
-			FileExt:    f.Ext,
+			FileExt:    f.FileExt,
 			Height:     f.Height,
 			Width:      f.Width,
 			FPS:        fps,

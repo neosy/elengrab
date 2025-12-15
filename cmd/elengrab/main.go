@@ -96,9 +96,10 @@ func main() {
 	// Initialize usecases
 	ucDeps := &usecases.Dependencies{
 		Repositories: usecases.DepRepositories{
-			File:          slRepositories.File,
-			DownloadTask:  slRepositories.DownloadTask,
-			DownloadState: inMemoryRepositories.DownloadState,
+			File:           slRepositories.File,
+			DownloadTask:   slRepositories.DownloadTask,
+			YoutubeChannel: slRepositories.YoutubeChannel,
+			DownloadState:  inMemoryRepositories.DownloadState,
 		},
 		DownloadDispetcher: dlManager,
 		Services:           services,
