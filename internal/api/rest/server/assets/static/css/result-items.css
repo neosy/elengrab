@@ -152,9 +152,9 @@
 
 .div-result-size {
     display: inline-flex;
-    width: 70px;
-    min-width: 70px;
-    max-width: 70px;
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
     justify-content: center;
     align-items: center;
     overflow: hidden;
