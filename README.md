@@ -125,8 +125,8 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: "512M"
-          cpus: "2.0"
+          cpus: "4.0"
+          memory: "4G"
 
 volumes:
   db:
