@@ -3,6 +3,7 @@ package fileuc
 import (
 	"log/slog"
 
+	dlstate "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/download_state_cache"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/download_task"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 )
@@ -11,10 +12,11 @@ type File struct {
 	logger *slog.Logger
 
 	// repositories
-	FileRep persistence.FileRepository
+	fileRep persistence.FileRepository
 
-	// usecases
-	dlTask *dltask.DownloadTask
+	// internal
+	dlTask       *dltask.DownloadTask
+	dlStateCache *dlstate.DownloadStateCache
 }
 
 func NewFile(
@@ -25,10 +27,12 @@ func NewFile(
 
 	// usecases
 	dlTask *dltask.DownloadTask,
+	dlStateCache *dlstate.DownloadStateCache,
 ) *File {
 	return &File{
-		logger:  logger,
-		FileRep: fileRep,
-		dlTask:  dlTask,
+		logger:       logger,
+		fileRep:      fileRep,
+		dlTask:       dlTask,
+		dlStateCache: dlStateCache,
 	}
 }

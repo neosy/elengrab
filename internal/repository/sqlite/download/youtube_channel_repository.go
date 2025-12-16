@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/Masterminds/squirrel"
-	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dyoutube "github.com/neosy/elengrab/internal/domain/youtube_info"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
 	"github.com/neosy/elengrab/pkg/dbutils"
@@ -38,15 +38,15 @@ func NewYoutubeChannelRepository(db *sql.DB, mu *sync.RWMutex) *YoutubeChannelRe
 	}
 }
 
-func (r *YoutubeChannelRepository) Insert(ctx context.Context, channel *ddownload.YoutubeChannel) error {
-	return r.save(ctx, channel, false)
+func (r *YoutubeChannelRepository) Insert(ctx context.Context, channel *dyoutube.YoutubeChannel) error {
+	return r.Save(ctx, channel)
 }
 
-func (r *YoutubeChannelRepository) Update(ctx context.Context, channel *ddownload.YoutubeChannel) error {
-	return r.save(ctx, channel, true)
+func (r *YoutubeChannelRepository) Update(ctx context.Context, channel *dyoutube.YoutubeChannel) error {
+	return r.Save(ctx, channel)
 }
 
-func (r *YoutubeChannelRepository) save(ctx context.Context, channel *ddownload.YoutubeChannel, isUpd bool) error {
+func (r *YoutubeChannelRepository) Save(ctx context.Context, channel *dyoutube.YoutubeChannel) error {
 	if channel == nil {
 		return errors.New("function parameter is a null pointer")
 	}
@@ -60,12 +60,6 @@ func (r *YoutubeChannelRepository) save(ctx context.Context, channel *ddownload.
 	// Get the list of fields and values for insertion
 	fields := eChannel.Fields()
 	values := eChannel.Values()
-
-	// If this is an update — add the UpdatedAt field with the current time
-	if isUpd {
-		fields = append(fields, eChannel.FieldName(&eChannel.UpdatedAt))
-		values = append(values, squirrel.Expr("CURRENT_TIMESTAMP"))
-	}
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -89,7 +83,7 @@ func (r *YoutubeChannelRepository) save(ctx context.Context, channel *ddownload.
 	return nil
 }
 
-func (r *YoutubeChannelRepository) FindByChannelId(ctx context.Context, channelID string) (*ddownload.YoutubeChannel, error) {
+func (r *YoutubeChannelRepository) FindByChannelID(ctx context.Context, channelID string) (*dyoutube.YoutubeChannel, error) {
 	var ent edownload.YoutubeChannel
 
 	query, args, err := squirrel.Select(ent.FieldsAll()...).
@@ -124,7 +118,7 @@ func (r *YoutubeChannelRepository) FindByChannelId(ctx context.Context, channelI
 	return channel, nil
 }
 
-func (r *YoutubeChannelRepository) ExistsByChannelId(ctx context.Context, channelID string) (bool, error) {
+func (r *YoutubeChannelRepository) ExistsByChannelID(ctx context.Context, channelID string) (bool, error) {
 	var ent edownload.YoutubeChannel
 
 	// Build SQL query: SELECT 1 FROM table WHERE channel_id = $1 LIMIT 1

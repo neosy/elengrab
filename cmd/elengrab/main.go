@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
+	"time"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "modernc.org/sqlite"
@@ -25,6 +26,13 @@ import (
 	"github.com/neosy/elengrab/pkg/nlogger"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
 	"github.com/neosy/elengrab/pkg/nworkers"
+)
+
+const (
+	downloadStateTTLDefault          = 1 * time.Hour
+	youtubeChannelTTLDefault         = 1 * 24 * time.Hour
+	intervalCleanYoutubeChannelCache = 1 * time.Hour
+	intervalCleanDownloadStateCache  = 12 * time.Hour
 )
 
 func main() {
@@ -67,7 +75,11 @@ func main() {
 	slRepositories := sqliterep.New(sqliteDB)
 
 	// Create in memory repositories
-	inMemoryRepositories := inmemoryrep.New()
+	inMemoryDeps := inmemoryrep.Dependencies{
+		DownloadStateTTL:  downloadStateTTLDefault,
+		YoutubeChannelTTL: youtubeChannelTTLDefault,
+	}
+	inMemoryRepositories := inmemoryrep.New(inMemoryDeps)
 
 	// Capture termination signals (Ctrl+C, SIGTERM)
 	sigChan := make(chan os.Signal, 1)
@@ -99,7 +111,10 @@ func main() {
 			File:           slRepositories.File,
 			DownloadTask:   slRepositories.DownloadTask,
 			YoutubeChannel: slRepositories.YoutubeChannel,
-			DownloadState:  inMemoryRepositories.DownloadState,
+
+			// in memory
+			DownloadStateCache:  inMemoryRepositories.DownloadState,
+			YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
 		},
 		DownloadDispetcher: dlManager,
 		Services:           services,
@@ -118,13 +133,17 @@ func main() {
 
 	// Workers
 	wsDeps := &workers.Dependencies{
-		Downloader: uc.Downloader,
+		DownloadStateCache:  inMemoryRepositories.DownloadState,
+		YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
+		Downloader:          uc.Downloader,
 		// options
-		IntervalUpdateHash:            cfg.Elengrab.Maintenance.IntervalUpdateHash,
-		IntervalDeleteDuplicates:      cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
-		IntervalDeleteMissingFiles:    cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
-		IntervalDeleteFailedDownloads: cfg.Elengrab.Maintenance.IntervalDeleteFailedDownloads,
-		EnableMoveUnmatchedFiles:      cfg.Elengrab.Maintenance.EnableMoveUnmatchedFiles,
+		IntervalUpdateHash:               cfg.Elengrab.Maintenance.IntervalUpdateHash,
+		IntervalDeleteDuplicates:         cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
+		IntervalDeleteMissingFiles:       cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
+		IntervalDeleteFailedDownloads:    cfg.Elengrab.Maintenance.IntervalDeleteFailedDownloads,
+		EnableMoveUnmatchedFiles:         cfg.Elengrab.Maintenance.EnableMoveUnmatchedFiles,
+		IntervalCleanYoutubeChannelCache: intervalCleanYoutubeChannelCache,
+		IntervalCleanDownloadStateCache:  intervalCleanDownloadStateCache,
 	}
 	ws := nworkers.NewWorkers(logger, wsDeps, workers.InitWorkers)
 	if err := ws.StartWorkers(ctx); err != nil {

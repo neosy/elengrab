@@ -17,7 +17,7 @@ type DownloadTask struct {
 	WorkerId   sql.NullInt64  `db:"worker_id"`
 	JobID      sql.NullString `db:"job_id"`
 	CreatedAt  sql.NullTime   `db:"created_at" insert:"false"`
-	UpdatedAt  sql.NullTime   `db:"updated_at" insert:"false"`
+	UpdatedAt  sql.NullTime   `db:"updated_at" sqlexpr:"CURRENT_TIMESTAMP"`
 }
 
 // TableName returns the table name

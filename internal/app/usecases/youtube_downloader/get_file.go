@@ -11,10 +11,11 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/pkg/errorx"
 	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 func (uc *YouTubeDownloader) GetFileInfo(ctx context.Context, fileId uuid.UUID) (*dto.GetFileInfoResponse, error) {
-	resp, err := uc.getFileInfo(ctx, nil, &fileId, false)
+	resp, err := uc.findStateAndFileInfo(ctx, &fileId, nil, false)
 	if err != nil {
 		uc.logger.Error("Failed get file info", "error", err)
 		return nil, errorx.NewByErr(err, exceptionx.ERROR)
@@ -25,7 +26,7 @@ func (uc *YouTubeDownloader) GetFileInfo(ctx context.Context, fileId uuid.UUID) 
 	return resp, nil
 }
 
-func (uc *YouTubeDownloader) getFileInfo(ctx context.Context, file *ddownload.File, fileId *uuid.UUID, checkNotFound bool) (*dto.GetFileInfoResponse, error) {
+func (uc *YouTubeDownloader) findStateAndFileInfo(ctx context.Context, fileId *uuid.UUID, file *ddownload.File, checkNotFound bool) (*dto.GetFileInfoResponse, error) {
 	var id uuid.UUID
 
 	if file != nil {
@@ -39,25 +40,31 @@ func (uc *YouTubeDownloader) getFileInfo(ctx context.Context, file *ddownload.Fi
 		return nil, errors.New("fileId not specified")
 	}
 
-	state, _ := uc.dlState.FindByFileId(ctx, id)
+	var fileResp *ddownload.File
 
-	if state == nil || state.File == nil {
-		f := file
-		if f == nil {
-			var err error
-			f, err = uc.file.FindByFileId(ctx, id, checkNotFound)
-			if err != nil {
-				return nil, err
-			}
-			if f == nil {
-				return nil, nil
-			}
-		}
-		state = &ddownload.DownloadState{}
-		state.InitFromFile(f)
+	state, _ := uc.dlStateCache.FindByFileId(ctx, id)
+	if state != nil && state.File != nil {
+		fileResp = uptr.Any(*state.File)
 	}
 
-	return uc.mappers.MapFileDomainToFileInfoResponse(state.File, uc.downloadsDir), nil
+	if fileResp == nil && file != nil {
+		fileResp = uptr.Any(*file)
+	}
+
+	if fileResp == nil {
+		file, err := uc.file.FindByFileId(ctx, id, checkNotFound)
+		if err != nil {
+			return nil, err
+		}
+
+		if file == nil {
+			return nil, nil
+		}
+
+		fileResp = uptr.Any(*file)
+	}
+
+	return uc.mappers.MapFileDomainToFileInfoResponse(fileResp, uc.downloadsDir), nil
 }
 
 func (uc *YouTubeDownloader) LoadHistory(ctx context.Context, before time.Time, limit uint64) ([]*dto.GetFileInfoResponse, error) {
@@ -79,7 +86,7 @@ func (uc *YouTubeDownloader) getFilesInfo(ctx context.Context, before time.Time,
 
 	resps = make([]*dto.GetFileInfoResponse, 0, len(files))
 	for _, file := range files {
-		resp, err := uc.getFileInfo(ctx, file, nil, true)
+		resp, err := uc.findStateAndFileInfo(ctx, nil, file, true)
 		if err != nil {
 			continue
 		}

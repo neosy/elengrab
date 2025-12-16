@@ -62,7 +62,6 @@ func (uc *YouTubeDownloader) deleteMissingFiles(ctx context.Context) error {
 		if file.FullName == "" || nfile.NotExistFile(filePath) {
 			err := uc.file.SoftDelete(ctx, file.FileId)
 			if err == nil {
-				uc.dlState.Delete(ctx, file.FileId)
 				uc.logger.Debug("Soft deleting file", "file_id", file.FileId, "fileName", file.FullName)
 			}
 		}
@@ -92,7 +91,6 @@ func (uc *YouTubeDownloader) deleteMissingFiles(ctx context.Context) error {
 			if err != nil {
 				continue
 			}
-			uc.dlState.Delete(ctx, file.FileId)
 			uc.logger.Debug("Hard deleting file from database", "fileId", file.FileId, "fileName", file.FullName)
 		}
 	}

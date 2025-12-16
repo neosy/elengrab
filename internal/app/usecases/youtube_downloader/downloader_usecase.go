@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/neosy/elengrab/internal/app/usecases/mappers"
-	dlstate "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/download_state"
+	dlstate "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/download_state_cache"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/download_task"
 	dltasktatus "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/download_task_status"
 	fileuc "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/file"
@@ -30,7 +30,7 @@ type YouTubeDownloader struct {
 	fileStatus   *filestatus.FileStatus
 	dlTaskStatus *dltasktatus.DownloadTaskStatus
 	ytChannel    *ytchannel.YoutubeChannel
-	dlState      *dlstate.DownloadState
+	dlStateCache *dlstate.DownloadStateCache
 
 	// services
 	downloaderSrv pservices.YouTubeDownloader
@@ -48,7 +48,10 @@ func NewYouTubeDownloader(
 	fileRep persistence.FileRepository,
 	dlTaskRep persistence.DownloadTaskRepository,
 	ytChannelRep persistence.YoutubeChannelRepository,
-	downloadStateRep persistence.DownloadStateRepository,
+
+	// in memory
+	downloadStateCacheRep persistence.DownloadStateRepository,
+	ytChannelCacheRep persistence.YoutubeChannelRepository,
 
 	// dispetchers
 	dlDispetcher nworkerpool.JobDispatcher,
@@ -60,17 +63,19 @@ func NewYouTubeDownloader(
 	downloadsDir string,
 	loadHistory bool,
 ) *YouTubeDownloader {
-	dlTask := dltask.NewDownloadTask(logger, dlTaskRep)
-	file := fileuc.NewFile(logger, fileRep, dlTask)
-	dlTaskStatus := dltasktatus.NewDownloadTaskStatus(logger, dlTaskRep, dlTask)
+	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRep)
+
+	dlTask := dltask.NewDownloadTask(logger, dlTaskRep, dlStateCache)
+	file := fileuc.NewFile(logger, fileRep, dlTask, dlStateCache)
+	dlTaskStatus := dltasktatus.NewDownloadTaskStatus(logger, dlTask)
 
 	return &YouTubeDownloader{
 		appCtx:  ctx,
 		logger:  logger,
 		mappers: mappers.NewMappers(),
 
-		// in memory
-		dlState: dlstate.NewDownloadState(logger, downloadStateRep),
+		// Cache
+		dlStateCache: dlStateCache,
 
 		// dispetchers
 		dlDispetcher: dlDispetcher,
@@ -78,9 +83,9 @@ func NewYouTubeDownloader(
 		// internal
 		file:         file,
 		dlTask:       dlTask,
-		fileStatus:   filestatus.NewFileStatus(logger, fileRep, file, dlTask, dlTaskStatus),
+		fileStatus:   filestatus.NewFileStatus(logger, file, dlTask, dlTaskStatus),
 		dlTaskStatus: dlTaskStatus,
-		ytChannel:    ytchannel.NewYoutubeChannel(logger, ytChannelRep),
+		ytChannel:    ytchannel.NewYoutubeChannel(logger, ytChannelRep, ytChannelCacheRep),
 
 		// services
 		downloaderSrv: downloaderSrv,

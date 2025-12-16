@@ -49,8 +49,6 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 		}
 	}
 
-	uc.saveStateByFile(ctx, file)
-
 	err = uc.addFileToQueueDownload(ctx, fileId, file.DownloadTask.TaskId)
 	if err != nil {
 		uc.logger.Error("Failed add to queue", "error", err)
@@ -75,15 +73,17 @@ func (uc *YouTubeDownloader) addFileToQueueDownload(ctx context.Context, fileId 
 		file *ddownload.File
 	)
 
-	err := uc.file.FileRep.Tx(ctx, func(ctx context.Context) error {
+	err := uc.file.Tx(ctx, func(ctx context.Context) error {
 		err := uc.fileStatus.Pending(ctx, fileId, taskId, uuid.New())
 		if err != nil {
 			uc.logger.Warn("Failed update status", "fileId", fileId, "error", err)
+			uc.dlStateCache.Delete(ctx, fileId)
 			return err
 		}
 
 		file, err = uc.file.FindByFileId(ctx, fileId, true)
 		if err != nil {
+			uc.dlStateCache.Delete(ctx, fileId)
 			return err
 		}
 
@@ -94,20 +94,17 @@ func (uc *YouTubeDownloader) addFileToQueueDownload(ctx context.Context, fileId 
 		return err
 	}
 
-	uc.saveStateByFile(ctx, file)
-
 	job := uc.enqueueDownloadTask(file.DownloadTask)
 	if job == nil {
 		err := fmt.Errorf("task has not been added to the queue")
 		uc.logger.Warn("Task has not been added to the queue", "fileId", file.FileId)
 
-		if e := uc.fileStatus.Failed(ctx, fileId, nil, uptr.String("failed to enqueue download task")); e != nil {
+		e := uc.fileStatus.Failed(ctx, fileId, nil, uptr.String("failed to enqueue download task"))
+		if e != nil {
 			uc.logger.Error("Failed update status", "fileId", file.FileId, "error", e)
-			uc.dlState.Delete(ctx, fileId)
+			uc.dlStateCache.Delete(ctx, fileId)
 			return fmt.Errorf("%v: %w", err, e)
 		}
-
-		uc.saveStateByFileId(ctx, fileId)
 
 		return err
 	}

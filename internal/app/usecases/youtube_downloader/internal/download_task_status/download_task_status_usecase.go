@@ -5,12 +5,10 @@ import (
 
 	downloadtask "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/download_task"
 	statussetter "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/download_task_status/status_setter"
-	"github.com/neosy/elengrab/internal/ports/persistence"
 )
 
 type DownloadTaskStatus struct {
-	logger  *slog.Logger
-	taskRep persistence.DownloadTaskRepository
+	logger *slog.Logger
 
 	// internal
 	statusSetter *statussetter.DownloadTaskStatusSetter
@@ -22,17 +20,11 @@ type DownloadTaskStatus struct {
 func NewDownloadTaskStatus(
 	logger *slog.Logger,
 
-	// repositories
-	taskRep persistence.DownloadTaskRepository,
-
 	// usecases
 	downloadTask *downloadtask.DownloadTask,
 ) *DownloadTaskStatus {
 	return &DownloadTaskStatus{
 		logger: logger,
-
-		// repositories
-		taskRep: taskRep,
 
 		// internal
 		statusSetter: statussetter.NewFDownloadTaskStatusSetter(logger),

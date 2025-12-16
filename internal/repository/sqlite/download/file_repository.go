@@ -49,14 +49,14 @@ func NewFileRepository(db *sql.DB, mu *sync.RWMutex) *FileRepository {
 }
 
 func (r *FileRepository) Insert(ctx context.Context, file *ddownload.File) error {
-	return r.save(ctx, file, false)
+	return r.save(ctx, file)
 }
 
 func (r *FileRepository) Update(ctx context.Context, file *ddownload.File) error {
-	return r.save(ctx, file, true)
+	return r.save(ctx, file)
 }
 
-func (r *FileRepository) save(ctx context.Context, file *ddownload.File, isUpd bool) error {
+func (r *FileRepository) save(ctx context.Context, file *ddownload.File) error {
 	if file == nil {
 		return errors.New("function parameter is a null pointer")
 	}
@@ -72,10 +72,10 @@ func (r *FileRepository) save(ctx context.Context, file *ddownload.File, isUpd b
 	values := eFile.Values()
 
 	// If this is an update — add the UpdatedAt field with the current time
-	if isUpd {
-		fields = append(fields, eFile.FieldName(&eFile.UpdatedAt))
-		values = append(values, squirrel.Expr("CURRENT_TIMESTAMP"))
-	}
+	// if isUpd {
+	// 	fields = append(fields, eFile.FieldName(&eFile.UpdatedAt))
+	// 	values = append(values, squirrel.Expr("CURRENT_TIMESTAMP"))
+	// }
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.

@@ -7,6 +7,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dyoutube "github.com/neosy/elengrab/internal/domain/youtube_info"
 	"github.com/neosy/elengrab/pkg/nfile"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
@@ -27,8 +28,6 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		return err
 	}
 
-	uc.saveStateByFileId(ctx, task.FileId)
-
 	resultCh, err := uc.downloaderSrv.Download(ctx, task.YoutubeUrl, uc.mappers.MapDownloadOptionsDomainToService(task.Options))
 	if err != nil {
 		uc.logger.Error(
@@ -42,12 +41,11 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 			if e == nil && file != nil {
 				uc.fileStatus.Failed(uc.appCtx, task.FileId, nil, uptr.String(err.Error()))
 			}
-			uc.dlState.Delete(uc.appCtx, task.FileId)
+			uc.dlStateCache.Delete(uc.appCtx, task.FileId)
 			return ctx.Err()
 		}
 
 		uc.fileStatus.Failed(ctx, task.FileId, nil, uptr.String(err.Error()))
-		uc.saveStateByFileId(ctx, task.FileId)
 
 		return err
 	}
@@ -61,7 +59,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 				if e == nil && file != nil {
 					uc.fileStatus.Failed(uc.appCtx, task.FileId, nil, uptr.String(r.Error.Error()))
 				}
-				uc.dlState.Delete(uc.appCtx, task.FileId)
+				uc.dlStateCache.Delete(uc.appCtx, task.FileId)
 				return ctx.Err()
 			}
 
@@ -84,18 +82,16 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 				}
 			}
 			uc.fileStatus.Failed(ctx, task.FileId, patch, uptr.String(r.Error.Error()))
-			uc.saveStateByFileId(ctx, task.FileId)
 			return r.Error
 		}
 
-		state, err := uc.dlState.FindByFileId(ctx, task.FileId)
+		state, err := uc.dlStateCache.FindByFileId(ctx, task.FileId)
 		if err != nil {
 			uc.logger.Error(
 				"Find by fileId",
 				"error", err,
 			)
 			uc.fileStatus.Failed(ctx, task.FileId, nil, uptr.String(err.Error()))
-			uc.saveStateByFileId(ctx, task.FileId)
 			return err
 		}
 
@@ -103,9 +99,9 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 
 		// Adding a record to the YouTube Channel table
 		if lastResult != nil && lastResult.ChannelID != nil {
-			exists, _ := uc.ytChannel.ExistsByChannelId(ctx, *lastResult.ChannelID)
+			exists, _ := uc.ytChannel.ExistsByChannelID(ctx, *lastResult.ChannelID)
 			if !exists {
-				channel := &ddownload.YoutubeChannel{
+				channel := &dyoutube.YoutubeChannel{
 					ChannelID: *lastResult.ChannelID,
 				}
 				channel.InitFromResultChannelAvatar(lastResult.ChannelAvatar)
@@ -114,7 +110,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		}
 
 		state.InitFromDownloadResult(r)
-		uc.dlState.Save(
+		uc.dlStateCache.Save(
 			ctx,
 			state,
 		)
@@ -137,11 +133,8 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 	err = uc.fileStatus.Done(ctx, task.FileId, patch)
 	if err != nil {
 		uc.fileStatus.Failed(ctx, task.FileId, patch, uptr.String(err.Error()))
-		uc.saveStateByFileId(ctx, task.FileId)
 		return err
 	}
-
-	uc.saveStateByFileId(ctx, task.FileId)
 
 	return nil
 }

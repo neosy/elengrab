@@ -7,10 +7,13 @@ import (
 )
 
 func (uc *File) Update(ctx context.Context, file *ddownload.File) error {
-	err := uc.FileRep.Update(ctx, file)
+	err := uc.fileRep.Update(ctx, file)
 	if err != nil {
 		uc.logger.Warn("Update record error", "error", err)
 		return err
 	}
+
+	uc.saveToDownloadStateCache(ctx, file.FileId)
+
 	return err
 }

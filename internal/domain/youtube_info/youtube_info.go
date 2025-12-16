@@ -1,4 +1,4 @@
-package dyoutubeinfo
+package dyoutube
 
 type YouTubeInfo struct {
 	Title   string

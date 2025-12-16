@@ -46,14 +46,14 @@ func NewDownloadTaskRepository(db *sql.DB, mu *sync.RWMutex) *DownloadTaskReposi
 }
 
 func (r *DownloadTaskRepository) Insert(ctx context.Context, task *ddownload.DownloadTask) error {
-	return r.save(ctx, task, false)
+	return r.save(ctx, task)
 }
 
 func (r *DownloadTaskRepository) Update(ctx context.Context, task *ddownload.DownloadTask) error {
-	return r.save(ctx, task, true)
+	return r.save(ctx, task)
 }
 
-func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.DownloadTask, isUpd bool) error {
+func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.DownloadTask) error {
 	if task == nil {
 		return errors.New("function parameter is a null pointer")
 	}
@@ -67,12 +67,6 @@ func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.Downl
 	// Get the list of fields and values for insertion
 	fields := eTask.Fields()
 	values := eTask.Values()
-
-	// If this is an update — add the UpdatedAt field with the current time
-	if isUpd {
-		fields = append(fields, eTask.FieldName(&eTask.UpdatedAt))
-		values = append(values, squirrel.Expr("CURRENT_TIMESTAMP"))
-	}
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.

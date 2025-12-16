@@ -11,7 +11,7 @@ import (
 )
 
 func (uc *File) FindByFileId(ctx context.Context, fileId uuid.UUID, checkNotFound bool) (*ddownload.File, error) {
-	file, err := uc.FileRep.FindByFileId(ctx, fileId)
+	file, err := uc.fileRep.FindByFileId(ctx, fileId)
 	if err != nil {
 		uc.logger.Warn("Failed to find record", "error", err)
 		return nil, err
@@ -26,7 +26,7 @@ func (uc *File) FindByFileId(ctx context.Context, fileId uuid.UUID, checkNotFoun
 }
 
 func (uc *File) GetAll(ctx context.Context, includeDeleted bool) ([]*ddownload.File, error) {
-	file, err := uc.FileRep.GetAll(ctx, includeDeleted)
+	file, err := uc.fileRep.GetAll(ctx, includeDeleted)
 	if err != nil {
 		uc.logger.Warn("Failed to get files", "error", err)
 		return nil, err
@@ -36,7 +36,7 @@ func (uc *File) GetAll(ctx context.Context, includeDeleted bool) ([]*ddownload.F
 }
 
 func (uc *File) GetAllFullNames(ctx context.Context, includeDeleted bool) ([]string, error) {
-	names, err := uc.FileRep.GetAllFullNames(ctx, includeDeleted)
+	names, err := uc.fileRep.GetAllFullNames(ctx, includeDeleted)
 	if err != nil {
 		uc.logger.Warn("Failed to get fullNames", "error", err)
 		return nil, err
@@ -46,7 +46,7 @@ func (uc *File) GetAllFullNames(ctx context.Context, includeDeleted bool) ([]str
 }
 
 func (uc *File) GetBeforeTime(ctx context.Context, before time.Time, limit uint64) ([]*ddownload.File, error) {
-	file, err := uc.FileRep.GetBeforeTime(ctx, before, limit)
+	file, err := uc.fileRep.GetBeforeTime(ctx, before, limit)
 	if err != nil {
 		uc.logger.Warn("Failed to get files", "error", err)
 		return nil, err
@@ -56,7 +56,7 @@ func (uc *File) GetBeforeTime(ctx context.Context, before time.Time, limit uint6
 }
 
 func (uc *File) GetByStatus(ctx context.Context, status dtypes.FileStatus) ([]*ddownload.File, error) {
-	file, err := uc.FileRep.GetByStatus(ctx, status)
+	file, err := uc.fileRep.GetByStatus(ctx, status)
 	if err != nil {
 		uc.logger.Warn("Failed to get files", "error", err)
 		return nil, err
@@ -66,7 +66,7 @@ func (uc *File) GetByStatus(ctx context.Context, status dtypes.FileStatus) ([]*d
 }
 
 func (uc *File) GetByPartialHash(ctx context.Context, hash string) ([]*ddownload.File, error) {
-	file, err := uc.FileRep.GetByPartialHash(ctx, hash)
+	file, err := uc.fileRep.GetByPartialHash(ctx, hash)
 	if err != nil {
 		uc.logger.Warn("Failed to get files", "error", err)
 		return nil, err
@@ -78,7 +78,7 @@ func (uc *File) GetByPartialHash(ctx context.Context, hash string) ([]*ddownload
 func (uc *File) GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, error) {
 	var files []*ddownload.File
 
-	gFiles, err := uc.FileRep.GetWithoutPartialHash(ctx)
+	gFiles, err := uc.fileRep.GetWithoutPartialHash(ctx)
 	if err != nil {
 		uc.logger.Warn("Failed to get files", "error", err)
 		return nil, err
@@ -98,7 +98,7 @@ func (uc *File) GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, e
 }
 
 func (uc *File) GetDuplicateHashes(ctx context.Context) ([]string, error) {
-	hashes, err := uc.FileRep.GetDuplicateHashes(ctx)
+	hashes, err := uc.fileRep.GetDuplicateHashes(ctx)
 	if err != nil {
 		uc.logger.Warn("Failed to get dublicate hashes", "error", err)
 		return nil, err
@@ -108,7 +108,7 @@ func (uc *File) GetDuplicateHashes(ctx context.Context) ([]string, error) {
 }
 
 func (uc *File) GetDeleted(ctx context.Context, from, to *time.Time) ([]*ddownload.File, error) {
-	files, err := uc.FileRep.GetDeleted(ctx, from, to)
+	files, err := uc.fileRep.GetDeleted(ctx, from, to)
 	if err != nil {
 		uc.logger.Warn("Failed to get deleted", "fromDate", from, "toDate", to, "error", err)
 		return nil, err

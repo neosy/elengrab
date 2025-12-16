@@ -2,12 +2,12 @@ package httpsrv
 
 import (
 	"github.com/fasthttp/router"
-	htmxh "github.com/neosy/elengrab/internal/api/rest/server/handlers/htmx"
-	httppaths "github.com/neosy/elengrab/internal/api/rest/server/paths"
+	htmxh "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/htmx"
+	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 )
 
 // setupHtmxUIRoutes setup UI routes.
-func (s *httpServer) setupHtmxUIRoutes(r *router.Router, handlers *htmxh.Handlers) {
+func (s *httpServer) setupHtmxUIRoutes(r *router.Router, handlers *htmxh.HTMXHandlers) {
 	// Static
 	group := r.Group(httppaths.GroupStatic)
 	{

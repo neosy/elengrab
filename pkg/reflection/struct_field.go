@@ -13,7 +13,7 @@ func StructFieldName(structPtr any, fieldPtr any, tag string) (string, error) {
 	structVal := reflect.ValueOf(structPtr)
 
 	// Check the type of the first argument (pointer to a struct)
-	if structVal.Kind() != reflect.Ptr || structVal.Elem().Kind() != reflect.Struct {
+	if structVal.Kind() != reflect.Pointer || structVal.Elem().Kind() != reflect.Struct {
 		return "", ErrFirstArgumentTypeMustPointerStructure
 	}
 

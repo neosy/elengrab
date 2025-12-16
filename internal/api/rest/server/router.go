@@ -2,7 +2,7 @@ package httpsrv
 
 import (
 	"github.com/fasthttp/router"
-	"github.com/neosy/elengrab/internal/api/rest/server/handlers"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers"
 )
 
 // newRouter returns a new router.
@@ -19,6 +19,8 @@ func (s *httpServer) newRouter() *router.Router {
 
 	s.setupHtmxRootRoutes(r, handlers.HTMX)
 	s.setupHtmxUIRoutes(r, handlers.HTMX)
+
+	s.setupAPIV1Routes(r, handlers.API)
 
 	return r
 }
