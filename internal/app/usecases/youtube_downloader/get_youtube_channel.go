@@ -3,22 +3,27 @@ package ytdownloader
 import (
 	"context"
 
-	"github.com/neosy/elengrab/internal/app/usecases/dto"
-	"github.com/neosy/elengrab/pkg/errorx"
-	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
+	dyoutube "github.com/neosy/elengrab/internal/domain/youtube_info"
 )
 
-func (uc *YouTubeDownloader) GetYoutubeChannelInfo(ctx context.Context, channelID string) (*dto.GetYoutubeChannelInfoResponse, error) {
-	channel, err := uc.ytChannel.FindByChannelId(ctx, channelID)
+func (uc *YouTubeDownloader) FindYoutubeChannelInfo(ctx context.Context, channelID string) (*dyoutube.YoutubeChannel, error) {
+	channel, err := uc.ytChannel.FindByChannelID(ctx, channelID)
 	if err != nil {
-		uc.logger.Error("Failed get youtube channel info", "error", err)
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, err
 	}
 
-	var resp *dto.GetYoutubeChannelInfoResponse
-	if channel != nil {
-		resp = uc.mappers.MapYoutubeChannelDomainToInfoResponse(channel)
+	if channel == nil {
+		return nil, nil
 	}
 
-	return resp, nil
+	return channel, nil
+}
+
+func (uc *YouTubeDownloader) GetYoutubeChannelInfo(ctx context.Context, channelID string) (*dyoutube.YoutubeChannel, error) {
+	channel, err := uc.ytChannel.GetByChannelID(ctx, channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	return channel, nil
 }

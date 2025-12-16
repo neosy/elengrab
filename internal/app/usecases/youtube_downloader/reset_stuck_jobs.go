@@ -7,7 +7,7 @@ import (
 )
 
 func (uc *YouTubeDownloader) ResetStuckJobs(ctx context.Context) error {
-	err := uc.file.FileRep.Tx(
+	err := uc.file.Tx(
 		ctx,
 		func(ctx context.Context) error {
 			if err := uc.dlTask.ResetStatus(ctx); err != nil {

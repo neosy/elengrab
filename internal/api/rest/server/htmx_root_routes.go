@@ -2,12 +2,12 @@ package httpsrv
 
 import (
 	"github.com/fasthttp/router"
-	htmxh "github.com/neosy/elengrab/internal/api/rest/server/handlers/htmx"
-	httppaths "github.com/neosy/elengrab/internal/api/rest/server/paths"
+	htmxh "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/htmx"
+	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 )
 
 // setupHtmxRootoutes setup root routes.
-func (s *httpServer) setupHtmxRootRoutes(r *router.Router, handlers *htmxh.Handlers) {
+func (s *httpServer) setupHtmxRootRoutes(r *router.Router, handlers *htmxh.HTMXHandlers) {
 	// Index
 	r.GET(httppaths.PathIndex, handlers.Grabber.IndexHandler)
 }

@@ -29,5 +29,7 @@ func (uc *DownloadTask) Create(ctx context.Context, task *ddownload.DownloadTask
 		return err
 	}
 
+	uc.saveToDownloadStateCache(ctx, task.FileId, task.TaskId)
+
 	return nil
 }

@@ -36,7 +36,7 @@ func (uc *FileStatus) updateStatus(
 	}
 
 	// Update in the repository
-	err = uc.fileRep.Update(ctx, file)
+	err = uc.file.Update(ctx, file)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to update file in the repository",

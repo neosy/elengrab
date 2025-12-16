@@ -23,7 +23,6 @@ func (uc *YouTubeDownloader) DeleteDownload(ctx context.Context, fileId uuid.UUI
 			uc.logger.Error("Failed to delete file", "fileId", fileId, "error", err)
 			return err
 		}
-		uc.dlState.Delete(ctx, file.FileId)
 		return nil
 	}
 
@@ -70,7 +69,7 @@ func (uc *YouTubeDownloader) DeleteDownload(ctx context.Context, fileId uuid.UUI
 		return nil
 	}
 
-	err := uc.file.FileRep.Tx(ctx, fn)
+	err := uc.file.Tx(ctx, fn)
 	if err != nil {
 		return err
 	}

@@ -12,7 +12,7 @@ func (uc *File) ResetStatus(ctx context.Context) error {
 		dtypes.FileStatusWorking,
 	}
 
-	err := uc.FileRep.UpdateStatusToNew(ctx, statuses)
+	err := uc.fileRep.UpdateStatusToNew(ctx, statuses)
 	if err != nil {
 		uc.logger.Warn("Failed update status to new", "error", err)
 		return err

@@ -7,7 +7,7 @@ import (
 )
 
 func (uc *File) Restore(ctx context.Context, fileId uuid.UUID) error {
-	err := uc.FileRep.Restore(ctx, fileId)
+	err := uc.fileRep.Restore(ctx, fileId)
 	if err != nil {
 		uc.logger.Warn("Failed restore file", "error", err)
 		return err

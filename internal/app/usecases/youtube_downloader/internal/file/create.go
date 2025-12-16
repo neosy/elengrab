@@ -20,7 +20,7 @@ func (uc *File) Create(ctx context.Context, file *ddownload.File, dlOptions *ddo
 	}
 	file.Status = dtypes.FileStatusNew
 
-	err := uc.FileRep.Insert(ctx, file)
+	err := uc.fileRep.Insert(ctx, file)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to insert record into repository",
@@ -33,6 +33,8 @@ func (uc *File) Create(ctx context.Context, file *ddownload.File, dlOptions *ddo
 	if err != nil {
 		return err
 	}
+
+	uc.saveToDownloadStateCache(ctx, file.FileId)
 
 	return nil
 }

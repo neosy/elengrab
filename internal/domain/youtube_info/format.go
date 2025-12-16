@@ -1,4 +1,4 @@
-package dyoutubeinfo
+package dyoutube
 
 import dtypes "github.com/neosy/elengrab/internal/domain/types"
 

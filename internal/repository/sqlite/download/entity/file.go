@@ -24,7 +24,7 @@ type File struct {
 	MediaInfo            *string    `db:"media_info"`
 	ErrorMessage         *string    `db:"error_message"`
 	CreatedAt            time.Time  `db:"created_at" insert:"false"`
-	UpdatedAt            time.Time  `db:"updated_at" insert:"false"`
+	UpdatedAt            time.Time  `db:"updated_at" sqlexpr:"CURRENT_TIMESTAMP"`
 	DeletedAt            *time.Time `db:"deleted_at" insert:"false"`
 }
 

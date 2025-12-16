@@ -12,5 +12,8 @@ func (uc *DownloadTask) Update(ctx context.Context, task *ddownload.DownloadTask
 		uc.logger.Warn("Update record error", "error", err)
 		return err
 	}
+
+	uc.saveToDownloadStateCache(ctx, task.FileId, task.TaskId)
+
 	return err
 }

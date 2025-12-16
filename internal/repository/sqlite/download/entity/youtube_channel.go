@@ -26,7 +26,7 @@ type YoutubeChannel struct {
 	CreatedAt time.Time `db:"created_at" insert:"false"`
 
 	// Timestamp when the record was last updated
-	UpdatedAt time.Time `db:"updated_at" insert:"false"`
+	UpdatedAt time.Time `db:"updated_at" sqlexpr:"CURRENT_TIMESTAMP"`
 }
 
 // TableName returns the table name
