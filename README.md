@@ -4,7 +4,7 @@
 <h3 align="center">Self-hosted web interface for working with YouTube media.</h3>
 
 <p align="center">
-  <img width="1251" height="635" alt="Screenshot_125" src="https://github.com/user-attachments/assets/fbc7a2c2-93e5-4c06-9e7f-264b65880346" />
+  <img width="1248" height="517" alt="Screenshot_126" src="https://github.com/user-attachments/assets/e6f9cfa6-2a26-4330-8897-ca32c5e97b88" />
 </p>
 
 # Elengrab
