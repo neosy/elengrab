@@ -16,30 +16,37 @@ const (
 	// Default tag name used to specify the database field name.
 	// Example: `db:"sale_id"` or `sql:"sale_id"`.
 	columnTagNameDefault TagName = "db"
+
 	// Tag name that defines an SQL expression used during SQL query generation.
 	// Used for dynamically building SQL expressions.
 	// Example: `db:"name" json:"name" sqlexpr:"LOWER(name)"`,
 	// which results in SQL: `LOWER(name) = ?`.
 	TagNameExpr TagName = "sqlexpr"
+
 	// Tag name controlling inclusion/exclusion of a field in SELECT queries.
 	// Allowed values: "false", "true".
 	// Default is "true" if not specified.
 	// Example: `db:"created_at" select:"false"` — field `created_at` will not be included in SELECT queries.
 	TagNameSelect TagName = "select"
+
 	// Tag name controlling inclusion/exclusion of a field in INSERT queries.
 	// Allowed values: "false", "true".
 	// Default is "true" if not specified.
 	// Example: `db:"created_at" insert:"false"` — field `created_at` will not be included in INSERT queries.
 	TagNameInsert TagName = "insert"
+
 	// tagValueTrue — tag value indicating that the field is allowed in a specific SQL operation.
 	// Used with tags such as `select`, `insert`, etc.
 	tagValueTrue = "true"
+
 	// Tag value indicating that the field is forbidden in a specific SQL operation.
 	// Used with tags such as `select`, `insert`, etc.
 	tagValueFalse = "false"
+
 	// Tag used to mark searchable fields in BaseEntity for Paginate.
 	// Allowed values: "true"
 	TagNameIsSearch TagName = "issearch"
+
 	// TagNamePaginationField — tag name for specifying a field used in pagination.
 	// For example, for sorting or filtering.
 	TagNamePaginationField TagName = "pfield"

@@ -33,7 +33,7 @@ body {
     position: relative;
     width: 80%;
     max-width: 1200px;
-    padding: 30px 50px;
+    padding: 30px 50px 10px;
     margin-top: 50px;
     margin-bottom: 30px;
     text-align: center;
@@ -45,7 +45,7 @@ body {
 @media (max-width: 768px) {
     .div-main-area {
         width: 95%;
-        padding: 20px;
+        padding: 15px;
         margin-top: 0px;
         margin-bottom: 0px;
     }
@@ -67,7 +67,6 @@ body {
 
     .div-main-area {
         width: 95%;
-        padding: 15px;
         margin-top: 0px;
         margin-bottom: 0px;
         border-radius: 0;
