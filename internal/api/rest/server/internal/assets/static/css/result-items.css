@@ -37,7 +37,8 @@
     min-width: 200px;
     align-items: center;
     justify-content: center;
-    margin-top: 15px;
+    margin-top: 20px;
+    padding: 0 12px;
     background: var(--bg-result);
     color: var(--text-primary);
     font-size: 16px;
@@ -60,7 +61,7 @@
     justify-content: space-between;
     gap: 12px;
     background: var(--bg-result-item);
-    padding: 12px 20px;
+    padding-bottom: 20px;
     margin-top: 0px;
     transition: background 0.2s ease, transform 0.2s ease;
     overflow: hidden;
@@ -368,6 +369,11 @@
     transform: scale(1.2);
 }
 
+@media (max-width: 768px) {
+    .div-grab-result-item {
+        width: 100%;
+    }
+}
 
 @media (max-width: 580px) {
     .div-grab-result-items {
@@ -382,7 +388,7 @@
         justify-content: center;
         align-items: center;
         position: relative;
-        padding: 5px 5px 20px 5px;
+        padding-bottom: 20px;
         gap: 10px;
     }
 
