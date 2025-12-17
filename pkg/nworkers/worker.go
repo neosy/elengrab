@@ -44,46 +44,80 @@ func NewWorker(job WorkerJob, options *WorkerOptions) Worker {
 	return w
 }
 
-// Run starts the worker loop. It executes the job after FirstDelay,
-// then either once or repeatedly based on Interval until stop or ctx cancellation.
+// Run starts the worker execution loop.
+//
+// Behavior:
+//   - If RunImmediatelyDelay is set, the job is executed once after the given delay.
+//   - If Interval is set, the job is executed repeatedly with the given interval.
+//   - If both options are set, the first execution happens after RunImmediatelyDelay,
+//     and subsequent executions happen on Interval.
+//   - If neither option is set, Run returns immediately.
+//
+// The worker stops when:
+//   - the context is cancelled,
+//   - the stop channel is closed or receives a value.
 func (w *worker) Run(ctx context.Context, stop <-chan struct{}) error {
 	if !w.running.CompareAndSwap(false, true) {
 		return errors.New("worker already running")
 	}
 	defer w.running.Store(false)
 
-	// Timer for first execution after delay
-	timer := time.NewTimer(w.optons.FirstDelay)
-	defer timer.Stop()
+	var (
+		timer   *time.Timer
+		timerC  <-chan time.Time
+		ticker  *time.Ticker
+		tickerC <-chan time.Time
+	)
 
-	if w.optons.Interval == nil {
-		// Single execution after FirstDelay
-		for {
-			select {
-			case <-ctx.Done():
-				return nil
-			case <-stop:
-				return nil
-			case <-timer.C:
-				w.job.Execute(ctx)
+	// One-shot execution after an optional initial delay.
+	if w.optons.OneShotDelay != nil {
+		timer = time.NewTimer(*w.optons.OneShotDelay)
+		defer timer.Stop()
+		timerC = timer.C
+	} else {
+		timerC = nil
+	}
+
+	// Periodic execution
+	if w.optons.Interval != nil {
+		ticker = time.NewTicker(*w.optons.Interval)
+		defer ticker.Stop()
+		tickerC = ticker.C
+	} else {
+		tickerC = nil
+	}
+
+	// Nothing to execute: neither delayed nor periodic execution is configured.
+	if timerC == nil && tickerC == nil {
+		return nil
+	}
+
+	runs := 0
+	for {
+		select {
+		case <-ctx.Done():
+			// Context cancellation always terminates the worker
+			return nil
+		case <-stop:
+			// Explicit stop signal terminates the worker.
+			return nil
+		case <-timerC:
+			// Initial one-shot execution.
+			timerC = nil
+			w.job.Execute(ctx)
+			runs++
+			if tickerC == nil {
 				return nil
 			}
-		}
-	} else {
-		// Periodic execution with Interval
-		ticker := time.NewTicker(*w.optons.Interval)
-		defer ticker.Stop()
-
-		for {
-			select {
-			case <-ctx.Done():
+			if w.optons.MaxRuns > 0 && runs >= w.optons.MaxRuns {
 				return nil
-			case <-stop:
+			}
+		case <-tickerC:
+			// Periodic execution.
+			w.job.Execute(ctx)
+			runs++
+			if w.optons.MaxRuns > 0 && runs >= w.optons.MaxRuns {
 				return nil
-			case <-timer.C: // first execution
-				w.job.Execute(ctx)
-			case <-ticker.C: // subsequent executions
-				w.job.Execute(ctx)
 			}
 		}
 	}
