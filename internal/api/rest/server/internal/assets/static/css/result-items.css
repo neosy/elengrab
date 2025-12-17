@@ -61,6 +61,7 @@
     justify-content: space-between;
     gap: 12px;
     background: var(--bg-result-item);
+    padding-top: 5px;
     padding-bottom: 20px;
     margin-top: 0px;
     transition: background 0.2s ease, transform 0.2s ease;
@@ -377,7 +378,7 @@
 
 @media (max-width: 580px) {
     .div-grab-result-items {
-        padding: 10px;
+        padding: 5px 10px;
         border: 1px solid var(--border-result);
         border-radius: 15px;
         box-shadow: 0 1px 3px var(--shadow);
@@ -388,7 +389,8 @@
         justify-content: center;
         align-items: center;
         position: relative;
-        padding-bottom: 20px;
+        padding-top: 5px;
+        padding-bottom: 25px;
         gap: 10px;
     }
 
