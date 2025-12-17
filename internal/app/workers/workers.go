@@ -8,6 +8,7 @@ import (
 	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/pkg/nworkers"
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 const (
@@ -50,54 +51,54 @@ func InitWorkers(ws *nworkers.Workers, deps *Dependencies) {
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewUpdateHashJob(deps.Downloader),
 		&nworkers.WorkerOptions{
-			Name:       "UpdateHash",
-			Interval:   intervalUpdateHash.DurationPtr(),
-			FirstDelay: 3 * time.Second,
+			Name:         "UpdateHash",
+			Interval:     intervalUpdateHash.DurationPtr(),
+			OneShotDelay: uptr.Any(3 * time.Second),
 		},
 	))
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewDeleteDuplicatesJob(deps.Downloader),
 		&nworkers.WorkerOptions{
-			Name:       "DeleteDuplicates",
-			Interval:   intervalDeleteDuplicates.DurationPtr(),
-			FirstDelay: 10 * time.Second,
+			Name:         "DeleteDuplicates",
+			Interval:     intervalDeleteDuplicates.DurationPtr(),
+			OneShotDelay: uptr.Any(10 * time.Second),
 		},
 	))
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewDeleteMissingFilesJob(deps.Downloader, deps.EnableMoveUnmatchedFiles),
 		&nworkers.WorkerOptions{
-			Name:       "DeleteMissingFiles",
-			Interval:   intervalDeleteMissingFiles.DurationPtr(),
-			FirstDelay: 20 * time.Second,
+			Name:         "DeleteMissingFiles",
+			Interval:     intervalDeleteMissingFiles.DurationPtr(),
+			OneShotDelay: uptr.Any(20 * time.Second),
 		},
 	))
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewDeleteFailedDownloadsJob(deps.Downloader),
 		&nworkers.WorkerOptions{
-			Name:       "DeleteFailedDownloads",
-			Interval:   intervalDeleteFailedDownloads.DurationPtr(),
-			FirstDelay: 30 * time.Second,
+			Name:         "DeleteFailedDownloads",
+			Interval:     intervalDeleteFailedDownloads.DurationPtr(),
+			OneShotDelay: uptr.Any(30 * time.Second),
 		},
 	))
 
 	ws.Add(nworkers.NewWorker(
 		cachejobs.NewCleanCacheJob(deps.YoutubeChannelCache),
 		&nworkers.WorkerOptions{
-			Name:       "CleanYoutubeChannelCache",
-			Interval:   intervalCleanYoutubeChannelCache.DurationPtr(),
-			FirstDelay: 10 * time.Second,
+			Name:         "CleanYoutubeChannelCache",
+			Interval:     intervalCleanYoutubeChannelCache.DurationPtr(),
+			OneShotDelay: nil,
 		},
 	))
 
 	ws.Add(nworkers.NewWorker(
 		cachejobs.NewCleanCacheJob(deps.DownloadStateCache),
 		&nworkers.WorkerOptions{
-			Name:       "CleanDownloadStateCache",
-			Interval:   intervalCleanDownloadStateCache.DurationPtr(),
-			FirstDelay: 15 * time.Second,
+			Name:         "CleanDownloadStateCache",
+			Interval:     intervalCleanDownloadStateCache.DurationPtr(),
+			OneShotDelay: nil,
 		},
 	))
 }
