@@ -70,7 +70,7 @@ func InitDB(dbPath string) (*sql.DB, error) {
 	if err := row.Scan(&mode); err != nil {
 		log.Println("failed to read journal_mode:", err)
 	}
-	log.Println("Test db WAL:", "PRAGMA journal_mode;", mode)
+	log.Printf("SQLite initialized: PRAGMA journal_mode=%q", mode)
 
 	// 4. Return the live database connection
 	return db, nil
