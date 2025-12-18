@@ -2,20 +2,25 @@ package cachejobs
 
 import (
 	"context"
+	"log/slog"
 
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
 type cleanCacheJob struct {
+	logger *slog.Logger
 	runner pworkers.CacheRunner
 }
 
-func NewCleanCacheJob(runner pworkers.CacheRunner) *cleanCacheJob {
+func NewCleanCacheJob(logger *slog.Logger, runner pworkers.CacheRunner) *cleanCacheJob {
 	return &cleanCacheJob{
+		logger: logger,
 		runner: runner,
 	}
 }
 
 func (j *cleanCacheJob) Execute(ctx context.Context) error {
-	return j.runner.CleanExpired(ctx)
+	err := j.runner.CleanExpired(ctx)
+	j.logger.Debug("Job done", "name", "Clean expired cache")
+	return err
 }

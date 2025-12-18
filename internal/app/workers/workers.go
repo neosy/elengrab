@@ -1,6 +1,7 @@
 package workers
 
 import (
+	"log/slog"
 	"time"
 
 	ytdownloader "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader"
@@ -38,7 +39,7 @@ type Dependencies struct {
 	IntervalCleanDownloadStateCache  time.Duration
 }
 
-func InitWorkers(ws *nworkers.Workers, deps *Dependencies) {
+func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) {
 	var (
 		intervalUpdateHash               = nworkers.NewInterval(intervalUpdateHashDefault, deps.IntervalUpdateHash)
 		intervalDeleteDuplicates         = nworkers.NewInterval(intervalDeleteDuplicatesDefault, deps.IntervalDeleteDuplicates)
@@ -49,7 +50,7 @@ func InitWorkers(ws *nworkers.Workers, deps *Dependencies) {
 	)
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewUpdateHashJob(deps.Downloader),
+		wjobs.NewUpdateHashJob(logger, deps.Downloader),
 		&nworkers.WorkerOptions{
 			Name:         "UpdateHash",
 			Interval:     intervalUpdateHash.DurationPtr(),
@@ -58,7 +59,7 @@ func InitWorkers(ws *nworkers.Workers, deps *Dependencies) {
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewDeleteDuplicatesJob(deps.Downloader),
+		wjobs.NewDeleteDuplicatesJob(logger, deps.Downloader),
 		&nworkers.WorkerOptions{
 			Name:         "DeleteDuplicates",
 			Interval:     intervalDeleteDuplicates.DurationPtr(),
@@ -67,7 +68,7 @@ func InitWorkers(ws *nworkers.Workers, deps *Dependencies) {
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewDeleteMissingFilesJob(deps.Downloader, deps.EnableMoveUnmatchedFiles),
+		wjobs.NewDeleteMissingFilesJob(logger, deps.Downloader, deps.EnableMoveUnmatchedFiles),
 		&nworkers.WorkerOptions{
 			Name:         "DeleteMissingFiles",
 			Interval:     intervalDeleteMissingFiles.DurationPtr(),
@@ -76,7 +77,7 @@ func InitWorkers(ws *nworkers.Workers, deps *Dependencies) {
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewDeleteFailedDownloadsJob(deps.Downloader),
+		wjobs.NewDeleteFailedDownloadsJob(logger, deps.Downloader),
 		&nworkers.WorkerOptions{
 			Name:         "DeleteFailedDownloads",
 			Interval:     intervalDeleteFailedDownloads.DurationPtr(),
@@ -85,7 +86,7 @@ func InitWorkers(ws *nworkers.Workers, deps *Dependencies) {
 	))
 
 	ws.Add(nworkers.NewWorker(
-		cachejobs.NewCleanCacheJob(deps.YoutubeChannelCache),
+		cachejobs.NewCleanCacheJob(logger, deps.YoutubeChannelCache),
 		&nworkers.WorkerOptions{
 			Name:         "CleanYoutubeChannelCache",
 			Interval:     intervalCleanYoutubeChannelCache.DurationPtr(),
@@ -94,7 +95,7 @@ func InitWorkers(ws *nworkers.Workers, deps *Dependencies) {
 	))
 
 	ws.Add(nworkers.NewWorker(
-		cachejobs.NewCleanCacheJob(deps.DownloadStateCache),
+		cachejobs.NewCleanCacheJob(logger, deps.DownloadStateCache),
 		&nworkers.WorkerOptions{
 			Name:         "CleanDownloadStateCache",
 			Interval:     intervalCleanDownloadStateCache.DurationPtr(),

@@ -26,14 +26,14 @@ type Workers struct {
 
 // NewWorkers creates a new Workers manager with optional initialization function.
 // T can be used to pass dependencies to the init function.
-func NewWorkers[T any](logger *slog.Logger, deps T, init func(ws *Workers, deps T)) *Workers {
+func NewWorkers[T any](logger *slog.Logger, deps T, init func(logger *slog.Logger, ws *Workers, deps T)) *Workers {
 	ws := &Workers{
 		logger: logger,
 		stop:   make(chan struct{}),
 	}
 
 	if init != nil {
-		init(ws, deps)
+		init(logger, ws, deps)
 	}
 
 	return ws
