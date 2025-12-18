@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -14,6 +15,8 @@ import (
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
 	"github.com/neosy/elengrab/pkg/dbutils"
+	"modernc.org/sqlite"
+	sqlite3 "modernc.org/sqlite/lib"
 )
 
 type DownloadTaskRepository struct {
@@ -135,13 +138,36 @@ func (r *DownloadTaskRepository) FindByTaskId(ctx context.Context, taskId uuid.U
 
 	// Execute the query
 	db := dbOrTx(ctx, r.db)
-	row := db.QueryRowContext(ctx, sqlBuilder, args...)
 
-	// Scan result into entity
-	if err := row.Scan(ent.FieldPointers()...); err != nil {
+	for i := range r.retryOptions.maxRetries {
+		row := db.QueryRowContext(ctx, sqlBuilder, args...)
+		// Scan result into entity
+		err := row.Scan(ent.FieldPointers()...)
+		if err == nil {
+			break
+		}
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
+
+		if sqlError, ok := err.(*sqlite.Error); ok && sqlError.Code() == sqlite3.SQLITE_BUSY {
+			if i+1 == r.retryOptions.maxRetries {
+				return nil, fmt.Errorf("failed to scan row: %w", err)
+			}
+
+			timer := time.NewTimer(r.retryOptions.delay)
+
+			select {
+			case <-ctx.Done():
+				timer.Stop()
+				return nil, ctx.Err()
+			case <-timer.C:
+				// Let's continue
+			}
+
+			continue
+		}
+
 		return nil, fmt.Errorf("failed to scan row: %w", err)
 	}
 
@@ -170,13 +196,36 @@ func (r *DownloadTaskRepository) FindByFileId(ctx context.Context, fileId uuid.U
 
 	// Execute the query
 	db := dbOrTx(ctx, r.db)
-	row := db.QueryRowContext(ctx, sqlBuilder, args...)
 
-	// Scan result into entity
-	if err := row.Scan(ent.FieldPointers()...); err != nil {
+	for i := range r.retryOptions.maxRetries {
+		row := db.QueryRowContext(ctx, sqlBuilder, args...)
+		// Scan result into entity
+		err := row.Scan(ent.FieldPointers()...)
+		if err == nil {
+			break
+		}
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
+
+		if sqlError, ok := err.(*sqlite.Error); ok && sqlError.Code() == sqlite3.SQLITE_BUSY {
+			if i+1 == r.retryOptions.maxRetries {
+				return nil, fmt.Errorf("failed to scan row: %w", err)
+			}
+
+			timer := time.NewTimer(r.retryOptions.delay)
+
+			select {
+			case <-ctx.Done():
+				timer.Stop()
+				return nil, ctx.Err()
+			case <-timer.C:
+				// Let's continue
+			}
+
+			continue
+		}
+
 		return nil, fmt.Errorf("failed to scan row: %w", err)
 	}
 

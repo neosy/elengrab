@@ -15,6 +15,8 @@ import (
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
 	"github.com/neosy/elengrab/pkg/dbutils"
+	"modernc.org/sqlite"
+	sqlite3 "modernc.org/sqlite/lib"
 )
 
 type FileRepository struct {
@@ -260,13 +262,35 @@ func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*d
 
 	// Execute the query
 	db := dbOrTx(ctx, r.db)
-	row := db.QueryRowContext(ctx, sqlQuery, args...)
-
-	// Scan result into entity
-	if err := row.Scan(append(eFile.FieldPointers(), eTask.FieldPointers()...)...); err != nil {
+	for i := range r.retryOptions.maxRetries {
+		row := db.QueryRowContext(ctx, sqlQuery, args...)
+		// Scan result into entity
+		err := row.Scan(append(eFile.FieldPointers(), eTask.FieldPointers()...)...)
+		if err == nil {
+			break
+		}
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
+
+		if sqlError, ok := err.(*sqlite.Error); ok && sqlError.Code() == sqlite3.SQLITE_BUSY {
+			if i+1 == r.retryOptions.maxRetries {
+				return nil, fmt.Errorf("failed to scan row: %w", err)
+			}
+
+			timer := time.NewTimer(r.retryOptions.delay)
+
+			select {
+			case <-ctx.Done():
+				timer.Stop()
+				return nil, ctx.Err()
+			case <-timer.C:
+				// Let's continue
+			}
+
+			continue
+		}
+
 		return nil, fmt.Errorf("failed to scan row: %w", err)
 	}
 

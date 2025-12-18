@@ -67,6 +67,7 @@ func execContext(ctx context.Context, db *sql.DB, mu *sync.RWMutex, sqlQuery str
 			}
 
 			timer := time.NewTimer(options.delay)
+
 			select {
 			case <-ctx.Done():
 				timer.Stop()
@@ -74,10 +75,11 @@ func execContext(ctx context.Context, db *sql.DB, mu *sync.RWMutex, sqlQuery str
 			case <-timer.C:
 				// Let's continue
 			}
+
 			continue
-		} else {
-			return err
 		}
+
+		return err
 	}
 
 	return nil
