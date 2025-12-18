@@ -46,16 +46,15 @@ func NewWorker(job WorkerJob, options *WorkerOptions) Worker {
 
 // Run starts the worker execution loop.
 //
-// Behavior:
-//   - If RunImmediatelyDelay is set, the job is executed once after the given delay.
-//   - If Interval is set, the job is executed repeatedly with the given interval.
-//   - If both options are set, the first execution happens after RunImmediatelyDelay,
-//     and subsequent executions happen on Interval.
-//   - If neither option is set, Run returns immediately.
+// The job may be executed:
+//   - once after OneShotDelay, if set;
+//   - at StartAt and then repeatedly with Interval, if both are set;
+//   - repeatedly with Interval, if Interval is set without StartAt.
 //
-// The worker stops when:
-//   - the context is cancelled,
-//   - the stop channel is closed or receives a value.
+// Run returns immediately if no execution options are configured.
+//
+// The worker stops when the context is cancelled, the stop channel is signaled,
+// or MaxRuns (if set) is reached.
 func (w *worker) Run(ctx context.Context, stop <-chan struct{}) error {
 	if !w.running.CompareAndSwap(false, true) {
 		return errors.New("worker already running")
@@ -63,32 +62,56 @@ func (w *worker) Run(ctx context.Context, stop <-chan struct{}) error {
 	defer w.running.Store(false)
 
 	var (
-		timer   *time.Timer
-		timerC  <-chan time.Time
-		ticker  *time.Ticker
-		tickerC <-chan time.Time
+		timer         *time.Timer
+		timerC        <-chan time.Time = nil
+		ticker        *time.Ticker
+		tickerC       <-chan time.Time = nil
+		startAtTimer  *time.Timer
+		startAtTimerC <-chan time.Time = nil
 	)
+
+	defer func() {
+		if timer != nil {
+			timer.Stop()
+		}
+		if ticker != nil {
+			ticker.Stop()
+		}
+		if startAtTimer != nil {
+			startAtTimer.Stop()
+		}
+	}()
 
 	// One-shot execution after an optional initial delay.
 	if w.optons.OneShotDelay != nil {
 		timer = time.NewTimer(*w.optons.OneShotDelay)
-		defer timer.Stop()
 		timerC = timer.C
-	} else {
-		timerC = nil
 	}
 
 	// Periodic execution
-	if w.optons.Interval != nil {
+	if w.optons.StartAt == nil && w.optons.Interval != nil {
 		ticker = time.NewTicker(*w.optons.Interval)
-		defer ticker.Stop()
 		tickerC = ticker.C
-	} else {
-		tickerC = nil
+	}
+
+	if w.optons.StartAt != nil && w.optons.Interval != nil {
+		startAt := *w.optons.StartAt
+		now := time.Now()
+
+		if startAt.Before(now) {
+			// move startAt forward to the next valid interval
+			elapsed := now.Sub(startAt)
+			steps := elapsed / *w.optons.Interval
+			startAt = startAt.Add((steps + 1) * (*w.optons.Interval))
+		}
+
+		delay := time.Until(startAt)
+		startAtTimer = time.NewTimer(delay)
+		startAtTimerC = startAtTimer.C
 	}
 
 	// Nothing to execute: neither delayed nor periodic execution is configured.
-	if timerC == nil && tickerC == nil {
+	if timerC == nil && tickerC == nil && startAtTimerC == nil {
 		return nil
 	}
 
@@ -106,11 +129,26 @@ func (w *worker) Run(ctx context.Context, stop <-chan struct{}) error {
 			timerC = nil
 			w.job.Execute(ctx)
 			runs++
-			if tickerC == nil {
+
+			if tickerC == nil && startAtTimerC == nil {
 				return nil
 			}
+
 			if w.optons.MaxRuns > 0 && runs >= w.optons.MaxRuns {
 				return nil
+			}
+		case <-startAtTimerC:
+			startAtTimerC = nil
+			w.job.Execute(ctx)
+			runs++
+
+			if w.optons.MaxRuns > 0 && runs >= w.optons.MaxRuns {
+				return nil
+			}
+
+			if ticker == nil {
+				ticker = time.NewTicker(*w.optons.Interval)
+				tickerC = ticker.C
 			}
 		case <-tickerC:
 			// Periodic execution.

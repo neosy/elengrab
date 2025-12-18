@@ -5,20 +5,20 @@ import (
 	"time"
 
 	dyoutube "github.com/neosy/elengrab/internal/domain/youtube_info"
-	"github.com/neosy/elengrab/internal/repository/in_memory/cache"
+	nmemory "github.com/neosy/elengrab/pkg/ncache/memory"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 type YoutubeChannelRepository struct {
-	cache.Repository[dyoutube.YoutubeChannel]
+	nmemory.Repository[dyoutube.YoutubeChannel]
 
-	dataByChannelMap cache.CacheMap[string, dyoutube.YoutubeChannel]
+	dataByChannelMap nmemory.Cache[string, dyoutube.YoutubeChannel]
 }
 
 // newYoutubeChannelRepository returns a new object for the repository
 func newYoutubeChannelRepository(ttl time.Duration) *YoutubeChannelRepository {
 	r := &YoutubeChannelRepository{
-		dataByChannelMap: make(cache.CacheMap[string, dyoutube.YoutubeChannel]),
+		dataByChannelMap: make(nmemory.Cache[string, dyoutube.YoutubeChannel]),
 	}
 	r.Repository.Init(ttl)
 	return r

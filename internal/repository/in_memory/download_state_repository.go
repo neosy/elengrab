@@ -6,22 +6,22 @@ import (
 
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	"github.com/neosy/elengrab/internal/repository/in_memory/cache"
+	nmemory "github.com/neosy/elengrab/pkg/ncache/memory"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 type DownloadStateRepository struct {
-	cache.Repository[ddownload.DownloadState]
+	nmemory.Repository[ddownload.DownloadState]
 
-	dataByFileIdMap  cache.CacheMap[uuid.UUID, ddownload.DownloadState]
-	dataByStateIdMap cache.CacheMap[uuid.UUID, ddownload.DownloadState]
+	dataByFileIdMap  nmemory.Cache[uuid.UUID, ddownload.DownloadState]
+	dataByStateIdMap nmemory.Cache[uuid.UUID, ddownload.DownloadState]
 }
 
 // newDownloadStateRepository returns a new object for the repository
 func newDownloadStateRepository(ttl time.Duration) *DownloadStateRepository {
 	r := &DownloadStateRepository{
-		dataByFileIdMap:  make(cache.CacheMap[uuid.UUID, ddownload.DownloadState]),
-		dataByStateIdMap: make(cache.CacheMap[uuid.UUID, ddownload.DownloadState]),
+		dataByFileIdMap:  make(nmemory.Cache[uuid.UUID, ddownload.DownloadState]),
+		dataByStateIdMap: make(nmemory.Cache[uuid.UUID, ddownload.DownloadState]),
 	}
 	r.Repository.Init(ttl)
 	return r
