@@ -3,6 +3,7 @@ package sqliterep
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	_ "modernc.org/sqlite"
 )
@@ -30,10 +31,19 @@ func InitDB(dbPath string) (*sql.DB, error) {
 		sqliteBusyTimeoutMS,
 		sqliteSynchronous,
 	)
+
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
+
+	// SQLite works best with a single connection.
+	// Limiting the pool prevents lock contention and SQLITE_BUSY errors.
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
+
+	// Keep the connection alive indefinitely to avoid reapplying PRAGMAs.
+	db.SetConnMaxLifetime(0)
 
 	// 2. Test database connection
 	if err := db.Ping(); err != nil {
@@ -53,6 +63,14 @@ func InitDB(dbPath string) (*sql.DB, error) {
 		db.Close()
 		return nil, fmt.Errorf("failed to set synchronous mode: %w", err)
 	}
+
+	// Test WAL
+	row := db.QueryRow("PRAGMA journal_mode;")
+	var mode string
+	if err := row.Scan(&mode); err != nil {
+		log.Println("failed to read journal_mode:", err)
+	}
+	log.Println("Test db WAL:", "PRAGMA journal_mode;", mode)
 
 	// 4. Return the live database connection
 	return db, nil
