@@ -38,8 +38,39 @@ Users are responsible for ensuring compliance with applicable laws and platform 
 
 ## Requirements
 
-- Docker 20.10+  
-- Optional: Docker Compose for multi-container setups.
+### Minimum
+
+* **CPU:** 1–2 cores
+* **Memory:** ~1 GB RAM
+* **Concurrent downloads:** 1 worker
+
+This configuration is suitable for low-resource servers. To limit concurrency, set:
+
+```
+ELENGRAB_DOWNLOAD_WORKERS=1
+```
+
+### Recommended
+
+* **CPU:** 4 cores
+* **Memory:** 4 GB RAM
+* **Concurrent downloads:** 3 workers (default)
+
+By default, the Docker container is configured to use this setup.
+
+### Notes
+
+The main resource consumers are **yt-dlp** and **ffmpeg**, especially during video downloading, merging, and transcoding.
+
+The number of concurrent workers can be adjusted using the following environment variable:
+
+```
+ELENGRAB_DOWNLOAD_WORKERS
+```
+
+**Default value:** `3`
+**Description:** Number of concurrent workers used for processing YouTube video and audio tasks in parallel.
+
 
 ---
 
