@@ -43,6 +43,7 @@ func main() {
 	cfg := iconfig.New()
 
 	fmt.Printf("%s v%s\n", cfg.AppName, cfg.AppConfig.Version)
+	os.Stdout.Sync()
 
 	// Create a cancellable context
 	ctx, cancel := context.WithCancel(context.Background())
