@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/neosy/elengrab/internal/app/services"
+	"github.com/neosy/elengrab/internal/app/usecases/maintenance"
 	ytdownloader "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
@@ -18,11 +19,18 @@ type Dependencies struct {
 	DownloadDispetcher nworkerpool.JobDispatcher
 
 	// Options
+	AppName      string
 	DownloadsDir string
-	LoadHistory  bool
+
+	DatabaseBackupsDir  string
+	DatabaseBackupsKeep int
+
+	LoadHistory bool
 }
 
 type DepRepositories struct {
+	Database persistence.Database
+
 	File           persistence.FileRepository
 	DownloadTask   persistence.DownloadTaskRepository
 	YoutubeChannel persistence.YoutubeChannelRepository
@@ -33,7 +41,8 @@ type DepRepositories struct {
 }
 
 type Usecases struct {
-	Downloader *ytdownloader.YouTubeDownloader
+	Downloader  *ytdownloader.YouTubeDownloader
+	Maintenance *maintenance.Maintenance
 }
 
 func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *Usecases {
@@ -60,6 +69,15 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			// options
 			deps.DownloadsDir,
 			deps.LoadHistory,
+		),
+		Maintenance: maintenance.NewMaintenance(
+			logger,
+			deps.Repositories.Database,
+
+			// options
+			deps.AppName,
+			deps.DatabaseBackupsDir,
+			deps.DatabaseBackupsKeep,
 		),
 	}
 }

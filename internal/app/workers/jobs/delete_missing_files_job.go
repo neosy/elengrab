@@ -9,13 +9,13 @@ import (
 
 type deleteMissingFilesJob struct {
 	logger *slog.Logger
-	runner pworkers.MaintenanceRunner
+	runner pworkers.DownloadMaintenanceRunner
 
 	// options
 	enableMoveUnmatchedFiles bool
 }
 
-func NewDeleteMissingFilesJob(logger *slog.Logger, runner pworkers.MaintenanceRunner, enableMoveUnmatchedFiles bool) *deleteMissingFilesJob {
+func NewDeleteMissingFilesJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner, enableMoveUnmatchedFiles bool) *deleteMissingFilesJob {
 	return &deleteMissingFilesJob{
 		logger: logger,
 		runner: runner,

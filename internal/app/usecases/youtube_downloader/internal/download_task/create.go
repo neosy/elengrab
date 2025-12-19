@@ -23,7 +23,7 @@ func (uc *DownloadTask) Create(ctx context.Context, task *ddownload.DownloadTask
 	err := uc.TaskRep.Insert(ctx, task)
 	if err != nil {
 		uc.logger.Warn(
-			"Failed to insert record into repository",
+			"Failed to insert record",
 			"error", err,
 		)
 		return err

@@ -29,6 +29,7 @@ import (
 )
 
 const (
+	databaseFileName                 = "elengrab.db"
 	downloadStateTTLDefault          = 1 * time.Hour
 	youtubeChannelTTLDefault         = 1 * 24 * time.Hour
 	intervalCleanYoutubeChannelCache = 1 * time.Hour
@@ -56,7 +57,7 @@ func main() {
 	log.Printf("Logging level set to '%s'.\n", cfg.AppConfig.LogLevel)
 
 	// Initialize SQLite database with migrations
-	sqliteDB, err := sqliterep.InitDB(filepath.Join(cfg.SQLite.DataDir, "elengrab.db"))
+	sqliteDB, err := sqliterep.InitDB(filepath.Join(cfg.SQLite.DataDir, databaseFileName))
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to initialize SQLite database: %v", err))
 		return
@@ -108,6 +109,8 @@ func main() {
 	// Initialize usecases
 	ucDeps := &usecases.Dependencies{
 		Repositories: usecases.DepRepositories{
+			Database: slRepositories,
+
 			File:           slRepositories.File,
 			DownloadTask:   slRepositories.DownloadTask,
 			YoutubeChannel: slRepositories.YoutubeChannel,
@@ -120,8 +123,11 @@ func main() {
 		Services:           services,
 
 		// Options
-		DownloadsDir: cfg.Elengrab.DownloadsDir,
-		LoadHistory:  cfg.Elengrab.LoadHistory,
+		AppName:             cfg.AppName,
+		DownloadsDir:        cfg.Elengrab.DownloadsDir,
+		DatabaseBackupsDir:  cfg.SQLite.BackupsDir,
+		DatabaseBackupsKeep: cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
+		LoadHistory:         cfg.Elengrab.LoadHistory,
 	}
 	uc := usecases.NewUsecases(ctx, logger, ucDeps)
 
@@ -135,7 +141,9 @@ func main() {
 	wsDeps := &workers.Dependencies{
 		DownloadStateCache:  inMemoryRepositories.DownloadState,
 		YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
-		Downloader:          uc.Downloader,
+		// runners
+		DownloaderMaintenance: uc.Downloader,
+		Maintenance:           uc.Maintenance,
 		// options
 		IntervalUpdateHash:               cfg.Elengrab.Maintenance.IntervalUpdateHash,
 		IntervalDeleteDuplicates:         cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,

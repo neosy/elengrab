@@ -7,18 +7,21 @@ services:
       - 8080:8080
     environment:
       TZ: "Europe/Moscow"
+      ELENGRAB_DOWNLOAD_WORKERS: "3"
       ELENGRAB_LOAD_HISTORY: "true"
     volumes:
       - db:/app_n/sqlite/data
+      - db_backups:/app_n/sqlite/backups
       - downloads:/app_n/downloads
     deploy:
       mode: replicated
       replicas: 1
       resources:
         limits:
-          memory: "1G"
-          cpus: "2.0"
+          cpus: "6.0"
+          memory: "4G"
 
 volumes:
   db:
+  db_backups:
   downloads:

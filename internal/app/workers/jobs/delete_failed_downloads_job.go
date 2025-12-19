@@ -9,10 +9,10 @@ import (
 
 type deleteFailedDownloadsJob struct {
 	logger *slog.Logger
-	runner pworkers.MaintenanceRunner
+	runner pworkers.DownloadMaintenanceRunner
 }
 
-func NewDeleteFailedDownloadsJob(logger *slog.Logger, runner pworkers.MaintenanceRunner) *deleteFailedDownloadsJob {
+func NewDeleteFailedDownloadsJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) *deleteFailedDownloadsJob {
 	return &deleteFailedDownloadsJob{
 		logger: logger,
 		runner: runner,

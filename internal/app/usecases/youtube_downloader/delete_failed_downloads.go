@@ -30,7 +30,7 @@ func (uc *YouTubeDownloader) DeleteFailedDownloads(ctx context.Context) error {
 				uc.logger.Warn("Failed to hard delete file", "fileId", file.FileId, "error", err)
 				continue
 			}
-			uc.logger.Debug("Hard deleted failed download", "fileId", file.FileId)
+			uc.logger.Debug("Hard deleted file download", "fileId", file.FileId)
 		}
 	}
 

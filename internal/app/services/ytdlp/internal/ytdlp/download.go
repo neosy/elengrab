@@ -305,5 +305,13 @@ func (y *YTDlp) Download(
 	sendData(result)
 
 	// Log successful download
-	y.logger.Info("Download successful", "info", result)
+	// Info Download completed
+	y.logger.Info(
+		"Download completed",
+		"title", result.YoutubeTitle,
+		"url", url,
+		"mediaInfo", result.MediaInfo,
+	)
+	y.logger.Debug("Download successful", "info", result)
+
 }

@@ -47,10 +47,15 @@ type ElengrabMaintenanceConfig struct {
 	// EnableMoveUnmatchedFiles controls whether the periodic
 	// moveUnmatchedFiles operation is allowed. Default is false (disabled).
 	EnableMoveUnmatchedFiles bool `env:"ENABLE_MOVE_UNMATCHED_FILES" envDefault:"false"`
+
+	// DatabaseBackupsKeep defines how many of the latest backup files to keep.
+	// If the value is 0, old backup files will not be cleaned up.
+	DatabaseBackupsKeep int `env:"DATABASE_BACKUPS_KEEP" envDefault:"7"`
 }
 
 type SQLiteConfig struct {
-	DataDir string `env:"DATA_DIR" envDefault:"/app_n/sqlite/data"`
+	DataDir    string `env:"DATA_DIR" envDefault:"/app_n/sqlite/data"`
+	BackupsDir string `env:"BACKUPS_DIR" envDefault:"/app_n/sqlite/backups"`
 }
 
 type RedisConfig struct {

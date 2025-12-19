@@ -9,10 +9,10 @@ import (
 
 type updateHashJob struct {
 	logger *slog.Logger
-	runner pworkers.MaintenanceRunner
+	runner pworkers.DownloadMaintenanceRunner
 }
 
-func NewUpdateHashJob(logger *slog.Logger, runner pworkers.MaintenanceRunner) *updateHashJob {
+func NewUpdateHashJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) *updateHashJob {
 	return &updateHashJob{
 		logger: logger,
 		runner: runner,

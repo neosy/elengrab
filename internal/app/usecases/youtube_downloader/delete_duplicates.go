@@ -40,7 +40,7 @@ func (uc *YouTubeDownloader) DeleteDuplicates(ctx context.Context) error {
 				continue
 			}
 		}
-		uc.logger.Debug("Delete duplicate", "youtubeTitle", files[0].YoutubeTitle, "count", delCnt)
+		uc.logger.Info("Delete duplicate", "youtubeTitle", files[0].YoutubeTitle, "count", delCnt)
 	}
 
 	return nil

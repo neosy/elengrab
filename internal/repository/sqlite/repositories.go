@@ -12,6 +12,8 @@ import (
 type Repositories struct {
 	mu *sync.RWMutex
 
+	db *sql.DB
+
 	File           persistence.FileRepository
 	DownloadTask   persistence.DownloadTaskRepository
 	YoutubeChannel persistence.YoutubeChannelRepository
@@ -23,6 +25,7 @@ func New(db *sql.DB) *Repositories {
 
 	return &Repositories{
 		mu:             &mu,
+		db:             db,
 		File:           sldownload.NewFileRepository(db, &mu),
 		DownloadTask:   sldownload.NewDownloadTaskRepository(db, &mu),
 		YoutubeChannel: sldownload.NewYoutubeChannelRepository(db, &mu),

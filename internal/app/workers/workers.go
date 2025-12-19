@@ -4,10 +4,10 @@ import (
 	"log/slog"
 	"time"
 
-	ytdownloader "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader"
 	cachejobs "github.com/neosy/elengrab/internal/app/workers/cache"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
 	"github.com/neosy/elengrab/internal/ports/persistence"
+	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 	"github.com/neosy/elengrab/pkg/nworkers"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
@@ -19,6 +19,7 @@ const (
 	intervalDeleteFailedDownloadsDefault    = 1 * time.Hour
 	intervalCleanYoutubeChannelCacheDefault = 1 * time.Hour
 	intervalCleanDownloadStateCacheDefault  = 12 * time.Hour
+	intervalBackupDatabaseDefault           = 1 * 24 * time.Hour
 )
 
 type Dependencies struct {
@@ -26,8 +27,9 @@ type Dependencies struct {
 	DownloadStateCache  persistence.DownloadStateCacheRepository
 	YoutubeChannelCache persistence.YoutubeChannelCacheRepository
 
-	// usecases
-	Downloader *ytdownloader.YouTubeDownloader
+	// runners
+	DownloaderMaintenance pworkers.DownloadMaintenanceRunner
+	Maintenance           pworkers.MaintenanceRunner
 
 	// options
 	IntervalUpdateHash               time.Duration
@@ -37,6 +39,7 @@ type Dependencies struct {
 	EnableMoveUnmatchedFiles         bool
 	IntervalCleanYoutubeChannelCache time.Duration
 	IntervalCleanDownloadStateCache  time.Duration
+	IntervalBackupDatabase           time.Duration
 }
 
 func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) {
@@ -47,10 +50,17 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 		intervalDeleteFailedDownloads    = nworkers.NewInterval(intervalDeleteFailedDownloadsDefault, deps.IntervalDeleteFailedDownloads)
 		intervalCleanYoutubeChannelCache = nworkers.NewInterval(intervalCleanYoutubeChannelCacheDefault, deps.IntervalCleanYoutubeChannelCache)
 		intervalCleanDownloadStateCache  = nworkers.NewInterval(intervalCleanDownloadStateCacheDefault, deps.IntervalCleanDownloadStateCache)
+		intervalBackupDatabase           = nworkers.NewInterval(intervalBackupDatabaseDefault, deps.IntervalBackupDatabase)
 	)
 
+	now := time.Now()
+	backupDatabaseStartAt := time.Date(
+		now.Year(), now.Month(), now.Day(),
+		0, 0, 0, 0, now.Location(),
+	).Add(1 * time.Hour)
+
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewUpdateHashJob(logger, deps.Downloader),
+		wjobs.NewUpdateHashJob(logger, deps.DownloaderMaintenance),
 		&nworkers.WorkerOptions{
 			Name:         "UpdateHash",
 			Interval:     intervalUpdateHash.DurationPtr(),
@@ -59,7 +69,7 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewDeleteDuplicatesJob(logger, deps.Downloader),
+		wjobs.NewDeleteDuplicatesJob(logger, deps.DownloaderMaintenance),
 		&nworkers.WorkerOptions{
 			Name:         "DeleteDuplicates",
 			Interval:     intervalDeleteDuplicates.DurationPtr(),
@@ -68,7 +78,7 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewDeleteMissingFilesJob(logger, deps.Downloader, deps.EnableMoveUnmatchedFiles),
+		wjobs.NewDeleteMissingFilesJob(logger, deps.DownloaderMaintenance, deps.EnableMoveUnmatchedFiles),
 		&nworkers.WorkerOptions{
 			Name:         "DeleteMissingFiles",
 			Interval:     intervalDeleteMissingFiles.DurationPtr(),
@@ -77,7 +87,7 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewDeleteFailedDownloadsJob(logger, deps.Downloader),
+		wjobs.NewDeleteFailedDownloadsJob(logger, deps.DownloaderMaintenance),
 		&nworkers.WorkerOptions{
 			Name:         "DeleteFailedDownloads",
 			Interval:     intervalDeleteFailedDownloads.DurationPtr(),
@@ -88,18 +98,25 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 	ws.Add(nworkers.NewWorker(
 		cachejobs.NewCleanCacheJob(logger, deps.YoutubeChannelCache),
 		&nworkers.WorkerOptions{
-			Name:         "CleanYoutubeChannelCache",
-			Interval:     intervalCleanYoutubeChannelCache.DurationPtr(),
-			OneShotDelay: nil,
+			Name:     "CleanYoutubeChannelCache",
+			Interval: intervalCleanYoutubeChannelCache.DurationPtr(),
 		},
 	))
 
 	ws.Add(nworkers.NewWorker(
 		cachejobs.NewCleanCacheJob(logger, deps.DownloadStateCache),
 		&nworkers.WorkerOptions{
-			Name:         "CleanDownloadStateCache",
-			Interval:     intervalCleanDownloadStateCache.DurationPtr(),
-			OneShotDelay: nil,
+			Name:     "CleanDownloadStateCache",
+			Interval: intervalCleanDownloadStateCache.DurationPtr(),
+		},
+	))
+
+	ws.Add(nworkers.NewWorker(
+		wjobs.NewbackupDatabaseJob(logger, deps.Maintenance),
+		&nworkers.WorkerOptions{
+			Name:     "DatabaseBackups",
+			StartAt:  uptr.Any(backupDatabaseStartAt),
+			Interval: intervalBackupDatabase.DurationPtr(),
 		},
 	))
 }

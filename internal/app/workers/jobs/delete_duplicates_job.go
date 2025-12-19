@@ -9,10 +9,10 @@ import (
 
 type deleteDuplicatesJob struct {
 	logger *slog.Logger
-	runner pworkers.MaintenanceRunner
+	runner pworkers.DownloadMaintenanceRunner
 }
 
-func NewDeleteDuplicatesJob(logger *slog.Logger, runner pworkers.MaintenanceRunner) *deleteDuplicatesJob {
+func NewDeleteDuplicatesJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) *deleteDuplicatesJob {
 	return &deleteDuplicatesJob{
 		logger: logger,
 		runner: runner,

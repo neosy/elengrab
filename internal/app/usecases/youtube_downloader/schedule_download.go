@@ -101,7 +101,7 @@ func (uc *YouTubeDownloader) addFileToQueueDownload(ctx context.Context, fileId 
 
 		e := uc.fileStatus.Failed(ctx, fileId, nil, uptr.String("failed to enqueue download task"))
 		if e != nil {
-			uc.logger.Error("Failed update status", "fileId", file.FileId, "error", e)
+			uc.logger.Warn("Failed update status", "fileId", file.FileId, "error", e)
 			uc.dlStateCache.Delete(ctx, fileId)
 			return fmt.Errorf("%v: %w", err, e)
 		}
