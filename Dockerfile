@@ -19,7 +19,7 @@ FROM alpine:latest
 
 # Create necessary directories and install dependencies
 RUN mkdir /app_n \
-    && cd /app_n && mkdir -p bin assets downloads migrations sqlite/data \
+    && cd /app_n && mkdir -p bin assets downloads migrations sqlite/data sqlite/backups \
     && apk add --no-cache su-exec curl dcron python3 ffmpeg tzdata \
     # Download yt-dlp binary
     && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
@@ -48,6 +48,7 @@ WORKDIR /app_n
 # Declare downloads folder as a volume
 VOLUME ["/app_n/downloads"]
 VOLUME ["/app_n/sqlite/data"]
+VOLUME ["/app_n/sqlite/backups"]
 
 # Enviroments
 ENV TZ=Europe/Moscow

@@ -21,6 +21,6 @@ func NewCleanCacheJob(logger *slog.Logger, runner pworkers.CacheRunner) *cleanCa
 
 func (j *cleanCacheJob) Execute(ctx context.Context) error {
 	err := j.runner.CleanExpired(ctx)
-	j.logger.Debug("Job done", "name", "Clean expired cache")
+	j.logger.Debug("Job done", "name", "CleanCacheExpired")
 	return err
 }

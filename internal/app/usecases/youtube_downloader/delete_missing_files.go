@@ -59,10 +59,13 @@ func (uc *YouTubeDownloader) deleteMissingFiles(ctx context.Context) error {
 	// Mark records for deletion if the file is missing
 	for _, file := range files {
 		filePath := filepath.Join(uc.downloadsDir, file.FullName)
-		if file.FullName == "" || nfile.NotExistFile(filePath) {
-			err := uc.file.SoftDelete(ctx, file.FileId)
-			if err == nil {
-				uc.logger.Debug("Soft deleting file", "file_id", file.FileId, "fileName", file.FullName)
+		if file.FullName == "" {
+			exists, _ := nfile.FileExists(filePath)
+			if !exists {
+				err := uc.file.SoftDelete(ctx, file.FileId)
+				if err == nil {
+					uc.logger.Debug("Soft deleting file", "file_id", file.FileId, "fileName", file.FullName)
+				}
 			}
 		}
 	}
@@ -80,7 +83,8 @@ func (uc *YouTubeDownloader) deleteMissingFiles(ctx context.Context) error {
 	// Permanently delete records if the file is still missing after the grace period
 	for _, file := range files {
 		filePath := filepath.Join(uc.downloadsDir, file.FullName)
-		if file.FullName != "" && nfile.ExistFile(filePath) {
+		exists, _ := nfile.FileExists(filePath)
+		if file.FullName != "" && exists {
 			err := uc.file.Restore(ctx, file.FileId)
 			if err != nil {
 				continue
