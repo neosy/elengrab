@@ -66,7 +66,7 @@ ELENGRAB_DOWNLOAD_WORKERS=1
 
 ### Recommended
 
-* **CPU:** 4 cores
+* **CPU:** 4-6 cores
 * **Memory:** 4 GB RAM
 * **Concurrent downloads:** 3 workers (default)
 
