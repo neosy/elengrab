@@ -134,8 +134,8 @@ services:
     environment:
       TZ: "Europe/Moscow"   # your time zone
     volumes:
-      - <your_path_to_db_folder>:/app_n/sqlite/data
-      - <your_path_to_downloads_folder>:/app_n/downloads
+      - elengrab_db:/app_n/sqlite/data
+      - elengrab_downloads:/app_n/downloads
 ```
 
 Then:
@@ -162,6 +162,7 @@ services:
       - 8080:8080
     environment:
       TZ: "Europe/Moscow"
+      ELENGRAB_DOWNLOAD_WORKERS: "3"
     volumes:
       - db:/app_n/sqlite/data
       - downloads:/app_n/downloads
