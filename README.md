@@ -42,7 +42,6 @@ Users are responsible for ensuring compliance with applicable laws and platform 
 ```
 docker run -d \
   --name elengrab \
-  -v elengrab_db:/app_n/sqlite/data \
   -v elengrab_downloads:/app_n/downloads \
   -p 8080:8080 \
   neosy/elengrab:latest
@@ -91,6 +90,7 @@ The number of concurrent workers can be adjusted using the following environment
 |----------|---------|-------------|
 | `LOG_LEVEL` | `warn` | Logging level. Options: `debug`, `info`, `warn`, `error`. |
 | `SQLITE_DATA_DIR` | `/app_n/sqlite/data` | Directory where SQLite database files are stored. |
+| `SQLITE_BACKUPS_DIR` | `/app_n/sqlite/backups` | Directory where SQLite backup files are stored. |
 | `ELENGRAB_DOWNLOADER_BIN_DIR` | `/usr/local/bin` | Directory containing yt-dlp binary. |
 | `ELENGRAB_ASSETS_DIR` | `/app_n/assets` | Directory containing application assets. |
 | `ELENGRAB_DOWNLOADS_DIR` | `/app_n/downloads` | Directory where downloaded files are stored inside the container. Must be mapped to a host volume. |
@@ -108,6 +108,7 @@ The number of concurrent workers can be adjusted using the following environment
 docker run -d \
   --name elengrab \
   -v elengrab_db:/app_n/sqlite/data \
+  -v elengrab_db_backups:/app_n/sqlite/backups \
   -v elengrab_downloads:/app_n/downloads \
   -p 8080:8080 \
   neosy/elengrab:latest
@@ -133,6 +134,7 @@ services:
       TZ: "Europe/Moscow"   # your time zone
     volumes:
       - elengrab_db:/app_n/sqlite/data
+      - elengrab_db_backups:/app_n/sqlite/backups
       - elengrab_downloads:/app_n/downloads
 ```
 
@@ -163,6 +165,7 @@ services:
       ELENGRAB_DOWNLOAD_WORKERS: "3"
     volumes:
       - db:/app_n/sqlite/data
+      - db_backups:/app_n/sqlite/backups
       - downloads:/app_n/downloads
     deploy:
       mode: replicated
@@ -174,6 +177,7 @@ services:
 
 volumes:
   db:
+  db_backups:
   downloads:
 ```
 
