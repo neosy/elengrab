@@ -1,12 +1,12 @@
 package iconfig
 
 import (
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
-	iconstants "github.com/neosy/elengrab/infrastructure/constants"
 	"github.com/neosy/elengrab/pkg/nconfig"
 )
 
@@ -67,24 +67,33 @@ type RedisConfig struct {
 }
 
 // Создание объекта Config
-func New() *Config {
+func New(appName, appVersion *string) (*Config, error) {
 	parseFlag()
 
 	c := &Config{}
-	c.load()
 
-	c.AppName = iconstants.AppName
-	c.AppConfig.Version = iconstants.AppVersion
+	if err := c.load(); err != nil {
+		return nil, err
+	}
 
-	return c
+	if appName != nil {
+		c.AppName = *appName
+	}
+	if appVersion != nil {
+		c.AppConfig.Version = *appVersion
+	}
+
+	return c, nil
 }
 
 // Load config from environment variables
-func (config *Config) load() {
+func (config *Config) load() error {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using environment variables only")
 	}
 	if err := env.Parse(config); err != nil {
-		log.Fatalf("Config load(). Read configuration error: %s\n", err)
+		return fmt.Errorf("config load(). Read configuration error: %w", err)
 	}
+
+	return nil
 }

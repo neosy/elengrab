@@ -16,6 +16,7 @@ import (
 
 	database "github.com/neosy/elengrab/db"
 	iconfig "github.com/neosy/elengrab/infrastructure/config"
+	iconstants "github.com/neosy/elengrab/infrastructure/constants"
 	httpsrv "github.com/neosy/elengrab/internal/api/rest/server"
 	httptemplates "github.com/neosy/elengrab/internal/api/rest/server/templates"
 	"github.com/neosy/elengrab/internal/app/services"
@@ -26,6 +27,7 @@ import (
 	"github.com/neosy/elengrab/pkg/nlogger"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
 	"github.com/neosy/elengrab/pkg/nworkers"
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 const (
@@ -39,11 +41,14 @@ const (
 func main() {
 	var err error
 
-	// Load application configuration
-	cfg := iconfig.New()
+	// Version output at startup
+	fmt.Fprintf(os.Stderr, "%s v%s\n", iconstants.AppName, iconstants.AppVersion)
 
-	fmt.Printf("%s v%s\n", cfg.AppName, cfg.AppConfig.Version)
-	os.Stdout.Sync()
+	// Load application configuration
+	cfg, err := iconfig.New(uptr.String(iconstants.AppName), uptr.String(iconstants.AppVersion))
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	// Create a cancellable context
 	ctx, cancel := context.WithCancel(context.Background())
