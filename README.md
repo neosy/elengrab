@@ -78,12 +78,9 @@ The main resource consumers are **yt-dlp** and **ffmpeg**, especially during vid
 
 The number of concurrent workers can be adjusted using the following environment variable:
 
-```
-ELENGRAB_DOWNLOAD_WORKERS
-```
-
-**Default value:** `3`
-**Description:** Number of concurrent workers used for processing YouTube video and audio tasks in parallel.
+| Variable                  | Default | Description                                                                                |
+| ------------------------- | ------- | ------------------------------------------------------------------------------------------ |
+| ELENGRAB_DOWNLOAD_WORKERS | 3       | Number of concurrent workers used for processing YouTube video and audio tasks in parallel |
 
 
 ---
