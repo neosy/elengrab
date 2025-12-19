@@ -163,7 +163,7 @@ func (wp *workerPool) Start(ctx context.Context) error {
 	})
 
 	if wp.logger != nil {
-		wp.logger.Debug("Worker pool manager running...", "count", wp.poolSize)
+		wp.logger.Info("Worker pool manager running...", "count", wp.poolSize)
 	}
 
 	return nil
