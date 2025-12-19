@@ -36,6 +36,20 @@ Users are responsible for ensuring compliance with applicable laws and platform 
 
 ---
 
+## Quick Start
+### Run with default settings
+
+```
+docker run -d \
+  --name elengrab \
+  -v elengrab_db:/app_n/sqlite/data \
+  -v elengrab_downloads:/app_n/downloads \
+  -p 8080:8080 \
+  neosy/elengrab:latest
+```
+
+---
+
 ## Requirements
 
 ### Minimum
