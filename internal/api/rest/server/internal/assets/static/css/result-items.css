@@ -8,6 +8,7 @@
 .div-grab-result-info {
     display: flex;
     flex-direction: column;
+    width: 100%;
     max-width: 100%;
     min-width: 200px;
     align-items: center;
@@ -20,7 +21,6 @@
 
 .div-grab-result-info-item {
     display: flex;
-    width: 95%;
     max-width: 100%;
     align-items: center;
     justify-content: center;
@@ -55,7 +55,7 @@
 
 .div-grab-result-item {
     display: flex;
-    width: 95%;
+    width: 100%;
     max-width: 100%;
     align-items: center;
     justify-content: space-between;
