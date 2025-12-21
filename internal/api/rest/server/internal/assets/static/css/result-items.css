@@ -33,7 +33,6 @@
 .div-grab-result-items {
     display: flex;
     flex-direction: column;
-    width: 95%;
     max-width: 100%;
     min-width: 200px;
     align-items: center;
@@ -372,7 +371,7 @@
 }
 
 @media (max-width: 768px) {
-    .div-grab-result-items {
+    .div-grab-result-item {
         width: 100%;
     }
 }
