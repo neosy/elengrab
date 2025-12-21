@@ -13,14 +13,14 @@ type Repositories struct {
 }
 
 type Dependencies struct {
-	DownloadStateTTL  time.Duration
-	YoutubeChannelTTL time.Duration
+	DownloadStateCacheTTL  time.Duration
+	YoutubeChannelCacheTTL time.Duration
 }
 
 // New returns a new Repositories struct.
 func New(deps Dependencies) *Repositories {
 	return &Repositories{
-		DownloadState:  newDownloadStateRepository(deps.DownloadStateTTL),
-		YoutubeChannel: newYoutubeChannelRepository(deps.YoutubeChannelTTL),
+		DownloadState:  newDownloadStateRepository(deps.DownloadStateCacheTTL),
+		YoutubeChannel: newYoutubeChannelRepository(deps.YoutubeChannelCacheTTL),
 	}
 }

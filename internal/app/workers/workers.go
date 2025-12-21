@@ -17,7 +17,7 @@ const (
 	intervalDeleteDuplicatesDefault         = 1 * time.Hour
 	intervalDeleteMissingFilesDefault       = 30 * time.Minute
 	intervalDeleteFailedDownloadsDefault    = 1 * time.Hour
-	intervalCleanYoutubeChannelCacheDefault = 1 * time.Hour
+	intervalCleanYoutubeChannelCacheDefault = 12 * time.Hour
 	intervalCleanDownloadStateCacheDefault  = 12 * time.Hour
 	intervalBackupDatabaseDefault           = 1 * 24 * time.Hour
 )

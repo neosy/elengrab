@@ -32,9 +32,9 @@ import (
 
 const (
 	databaseFileName                 = "elengrab.db"
-	downloadStateTTLDefault          = 1 * time.Hour
-	youtubeChannelTTLDefault         = 1 * 24 * time.Hour
-	intervalCleanYoutubeChannelCache = 1 * time.Hour
+	downloadStateCacheTTLDefault     = 1 * time.Hour
+	youtubeChannelCacheTTLDefault    = 1 * 24 * time.Hour
+	intervalCleanYoutubeChannelCache = 12 * time.Hour
 	intervalCleanDownloadStateCache  = 12 * time.Hour
 )
 
@@ -117,8 +117,8 @@ func main() {
 
 	// Create in memory repositories
 	inMemoryDeps := inmemoryrep.Dependencies{
-		DownloadStateTTL:  downloadStateTTLDefault,
-		YoutubeChannelTTL: youtubeChannelTTLDefault,
+		DownloadStateCacheTTL:  downloadStateCacheTTLDefault,
+		YoutubeChannelCacheTTL: youtubeChannelCacheTTLDefault,
 	}
 	inMemoryRepositories := inmemoryrep.New(inMemoryDeps)
 
