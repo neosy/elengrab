@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	iconstants "github.com/neosy/elengrab/infrastructure/constants"
 	"github.com/spf13/pflag"
 )
 
@@ -14,8 +13,8 @@ func parseFlag() {
 	pflag.Parse()
 
 	if versionFlag != nil && *versionFlag {
-		fmt.Printf("%s - fast YouTube video/audio grabber with format and quality options\n", iconstants.AppName)
-		fmt.Printf("Version %s\n", iconstants.AppVersion)
+		fmt.Printf("%s - fast YouTube video/audio grabber with format and quality options\n", AppName)
+		fmt.Printf("Version %s\n", AppVersion)
 		os.Exit(0)
 	}
 }

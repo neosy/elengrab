@@ -12,30 +12,36 @@ import (
 
 // Основные настройки
 type Config struct {
-	AppName string `env:"APP_NAME" envDefault:"Elengrab"`
-	// Application configuration
+	// Global application settings, no ENV prefix.
 	AppConfig nconfig.AppConfig `envPrefix:""`
 
-	HTMXServer HTMXServerConfig `envPrefix:"HTTP_SERVER_"`
-	Elengrab   ElengrabConfig   `envPrefix:"ELENGRAB_"`
-	SQLite     SQLiteConfig     `envPrefix:"SQLITE_"`
-	Redis      RedisConfig      `envPrefix:"REDIS_"`
+	// Elengrab subsystem configuration
+	Elengrab ElengrabConfig `envPrefix:"ELENGRAB_"`
+
+	// HTTP server configuration
+	HTTPServer HTTPServerConfig `envPrefix:"HTTP_SERVER_"`
+	// SQLite storage configuration
+	SQLite SQLiteConfig `envPrefix:"SQLITE_"`
+	// Redis configuration
+	Redis RedisConfig `envPrefix:"REDIS_"`
 }
 
-// Настройки HTMX сервера
-type HTMXServerConfig struct {
+type HTTPServerConfig struct {
 	Address  string `env:"ADDRESS" envDefault:""`
 	Port     string `env:"PORT" envDefault:"8080"`
 	Compress bool   `env:"COMPRESS" envDefault:"true"`
 }
 
 type ElengrabConfig struct {
-	AssetsDir        string                    `env:"ASSETS_DIR" envDefault:"/app_n/assets"`
-	DownloaderBinDir string                    `env:"DOWNLOADER_BIN_DIR" envDefault:"/usr/local/bin"`
-	DownloadsDir     string                    `env:"DOWNLOADS_DIR" envDefault:"/app_n/downloads"`
-	DownloadWorkers  int                       `env:"DOWNLOAD_WORKERS" envDefault:"3"`
-	LoadHistory      bool                      `env:"LOAD_HISTORY" envDefault:"true"`
-	Maintenance      ElengrabMaintenanceConfig `envPrefix:"MAINTENANCE_"`
+	DownloaderBinDir string `env:"DOWNLOADER_BIN_DIR" envDefault:"/usr/local/bin"`
+
+	AssetsDir    string `env:"ASSETS_DIR" envDefault:"./assets"`
+	DownloadsDir string `env:"DOWNLOADS_DIR" envDefault:"./downloads"`
+
+	DownloadWorkers int  `env:"DOWNLOAD_WORKERS" envDefault:"3"`
+	LoadHistory     bool `env:"LOAD_HISTORY" envDefault:"true"`
+
+	Maintenance ElengrabMaintenanceConfig `envPrefix:"MAINTENANCE_"`
 }
 
 type ElengrabMaintenanceConfig struct {
@@ -54,8 +60,8 @@ type ElengrabMaintenanceConfig struct {
 }
 
 type SQLiteConfig struct {
-	DataDir    string `env:"DATA_DIR" envDefault:"/app_n/sqlite/data"`
-	BackupsDir string `env:"BACKUPS_DIR" envDefault:"/app_n/sqlite/backups"`
+	DataDir    string `env:"DATA_DIR" envDefault:"./sqlite/data"`
+	BackupsDir string `env:"BACKUPS_DIR" envDefault:"./sqlite/backups"`
 }
 
 type RedisConfig struct {
@@ -74,13 +80,6 @@ func New(appName, appVersion *string) (*Config, error) {
 
 	if err := c.load(); err != nil {
 		return nil, err
-	}
-
-	if appName != nil {
-		c.AppName = *appName
-	}
-	if appVersion != nil {
-		c.AppConfig.Version = *appVersion
 	}
 
 	return c, nil

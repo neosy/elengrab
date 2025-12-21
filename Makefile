@@ -80,7 +80,7 @@ git-push-update-tag-version: ## Обновление тега в git для ак
 	git push origin -f v$(VERSION)
 
 update-app-version: ## Update AppVersion in Go
-	@sed -i "s|AppVersion = \".*\"|AppVersion = \"${VERSION}\"|" ./infrastructure/constants/app.go
+	@sed -i "s|AppVersion = \".*\"|AppVersion = \"${VERSION}\"|" ./infrastructure/config/constants.go
 
 version-create: ## Создание файла с номер версии программы
 	echo -n $(VERSION_START) > $(VERSION_FILE)
