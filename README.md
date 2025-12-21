@@ -88,11 +88,11 @@ ELENGRAB_DOWNLOAD_WORKERS=3
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `LOG_LEVEL` | `warn` | Logging level. Options: `debug`, `info`, `warn`, `error`. |
-| `SQLITE_DATA_DIR` | `/app_n/sqlite/data` | Directory where SQLite database files are stored. |
-| `SQLITE_BACKUPS_DIR` | `/app_n/sqlite/backups` | Directory where SQLite backup files are stored. |
+| `SQLITE_DATA_DIR` | `./sqlite/data` | Directory where SQLite database files are stored. |
+| `SQLITE_BACKUPS_DIR` | `./sqlite/backups` | Directory where SQLite backup files are stored. |
 | `ELENGRAB_DOWNLOADER_BIN_DIR` | `/usr/local/bin` | Directory containing yt-dlp binary. |
-| `ELENGRAB_ASSETS_DIR` | `/app_n/assets` | Directory containing application assets. |
-| `ELENGRAB_DOWNLOADS_DIR` | `/app_n/downloads` | Directory where downloaded files are stored inside the container. Must be mapped to a host volume. |
+| `ELENGRAB_ASSETS_DIR` | `./assets` | Directory containing application assets. |
+| `ELENGRAB_DOWNLOADS_DIR` | `./downloads` | Directory where downloaded files are stored inside the container. Must be mapped to a host volume. |
 | `ELENGRAB_DOWNLOAD_WORKERS` | 3 | Number of concurrent workers used for processing YouTube video and audio tasks in parallel. |
 | `ELENGRAB_LOAD_HISTORY` | `true` | Whether to display the download history of files. Set to true to show the history, or false to hide it. |
 | `ELENGRAB_MAINTENANCE_ENABLE_MOVE_UNMATCHED_FILES` | `false`   | Enables the periodic operation that moves files not present in the database tables from the download folder to the `.lost` folder. Default is `false` (disabled). |

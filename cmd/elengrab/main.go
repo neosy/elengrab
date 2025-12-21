@@ -16,7 +16,6 @@ import (
 
 	database "github.com/neosy/elengrab/db"
 	iconfig "github.com/neosy/elengrab/infrastructure/config"
-	iconstants "github.com/neosy/elengrab/infrastructure/constants"
 	httpsrv "github.com/neosy/elengrab/internal/api/rest/server"
 	httptemplates "github.com/neosy/elengrab/internal/api/rest/server/templates"
 	"github.com/neosy/elengrab/internal/app/services"
@@ -24,6 +23,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/workers"
 	inmemoryrep "github.com/neosy/elengrab/internal/repository/in_memory"
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
+	"github.com/neosy/elengrab/pkg/nfile"
 	"github.com/neosy/elengrab/pkg/nlogger"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
 	"github.com/neosy/elengrab/pkg/nworkers"
@@ -38,16 +38,50 @@ const (
 	intervalCleanDownloadStateCache  = 12 * time.Hour
 )
 
+// absPath resolves a relative path to an absolute path using current working directory.
+// Exits the program if resolving fails.
+func absPath(path string) string {
+	path, err := nfile.AbsPathCwd(path)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	return path
+}
+
+// checkDirs verifies that all given directories exist and are directories.
+// Returns true if all directories are valid, false otherwise.
+func checkDirs(dirs []string) bool {
+	var allOk = true
+	for _, dir := range dirs {
+		if err := nfile.CheckDir(dir); err != nil {
+			allOk = false
+			log.Println(err)
+		}
+	}
+	return allOk
+}
+
 func main() {
 	var err error
 
 	// Version output at startup
-	fmt.Fprintf(os.Stderr, "%s v%s\n", iconstants.AppName, iconstants.AppVersion)
+	fmt.Fprintf(os.Stderr, "%s v%s\n", iconfig.AppName, iconfig.AppVersion)
 
 	// Load application configuration
-	cfg, err := iconfig.New(uptr.String(iconstants.AppName), uptr.String(iconstants.AppVersion))
+	cfg, err := iconfig.New(uptr.String(iconfig.AppName), uptr.String(iconfig.AppVersion))
 	if err != nil {
 		log.Fatalln(err)
+	}
+
+	dirs := []string{
+		absPath(cfg.SQLite.DataDir),
+		absPath(cfg.SQLite.BackupsDir),
+		absPath(cfg.Elengrab.DownloaderBinDir),
+		absPath(cfg.Elengrab.AssetsDir),
+		absPath(cfg.Elengrab.DownloadsDir),
+	}
+	if !checkDirs(dirs) {
+		log.Fatal("one or more required directories are missing")
 	}
 
 	// Create a cancellable context
@@ -63,7 +97,7 @@ func main() {
 	log.Printf("Logging level set to '%s'.\n", cfg.AppConfig.LogLevel)
 
 	// Initialize SQLite database with migrations
-	sqliteDB, err := sqliterep.InitDB(filepath.Join(cfg.SQLite.DataDir, databaseFileName))
+	sqliteDB, err := sqliterep.InitDB(filepath.Join(absPath(cfg.SQLite.DataDir), databaseFileName))
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to initialize SQLite database: %v", err))
 		return
@@ -104,7 +138,7 @@ func main() {
 	// Initialize services
 	srvDeps := &services.Dependencies{
 		DownloaderBinDir: cfg.Elengrab.DownloaderBinDir,
-		DownloadsDir:     cfg.Elengrab.DownloadsDir,
+		DownloadsDir:     absPath(cfg.Elengrab.DownloadsDir),
 	}
 	services, err := services.New(logger, srvDeps)
 	if err != nil {
@@ -129,9 +163,9 @@ func main() {
 		Services:           services,
 
 		// Options
-		AppName:             cfg.AppName,
-		DownloadsDir:        cfg.Elengrab.DownloadsDir,
-		DatabaseBackupsDir:  cfg.SQLite.BackupsDir,
+		AppName:             iconfig.AppName,
+		DownloadsDir:        absPath(cfg.Elengrab.DownloadsDir),
+		DatabaseBackupsDir:  absPath(cfg.SQLite.BackupsDir),
 		DatabaseBackupsKeep: cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
 		LoadHistory:         cfg.Elengrab.LoadHistory,
 	}
@@ -167,7 +201,7 @@ func main() {
 
 	// Start FastHTTP server in a separate goroutine
 	go func(ctx context.Context) {
-		tmpl, err := httptemplates.LoadTemplates(cfg.Elengrab.AssetsDir)
+		tmpl, err := httptemplates.LoadTemplates(absPath(cfg.Elengrab.AssetsDir))
 		if err != nil {
 			logger.Error(err.Error())
 			cancel()
@@ -176,11 +210,11 @@ func main() {
 		deps := &httpsrv.Dependencies{
 			Usecases:  uc,
 			Templates: tmpl,
-			AssetsDir: cfg.Elengrab.AssetsDir,
+			AssetsDir: absPath(cfg.Elengrab.AssetsDir),
 		}
 
 		httpServer := httpsrv.NewServer(logger, cfg.AppConfig.AppEnv, deps)
-		err = httpServer.ListenAndServe(ctx, cfg.HTMXServer.Port)
+		err = httpServer.ListenAndServe(ctx, cfg.HTTPServer.Port)
 		if err != nil {
 			cancel()
 		}

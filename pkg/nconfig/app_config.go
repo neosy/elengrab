@@ -6,12 +6,11 @@ import (
 )
 
 type AppConfig struct {
-	// App mode: local, develop, test, production
-	AppEnv  appenv.AppEnv `env:"APP_ENV" envDefault:"production"`
-	Version string
+	// AppEnv defines the application mode: local, develop, test, or production.
+	AppEnv appenv.AppEnv `env:"APP_ENV" envDefault:"production"`
 
-	// values: json, console
+	// LogFormat specifies the output format for logs: "json" or "console".
 	LogFormat nlogger.LogFormat `env:"LOG_FORMAT" envDefault:"console"`
-	// values: debug, info, warn, error
+	// LogLevel sets the minimum log level: "debug", "info", "warn", or "error".
 	LogLevel nlogger.LogLevel `env:"LOG_LEVEL" envDefault:"warn"`
 }
