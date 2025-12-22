@@ -7,7 +7,7 @@ const (
 
 	videoFormatDefault     = dtypes.VideoFormatMP4
 	videoCodecDefault      = dtypes.VideoCodecBest
-	videoResolutionDefault = dtypes.VideoResolutionBest
+	videoResolutionDefault = dtypes.VideoResolutionMax
 
 	audioFormatDefault      = dtypes.AudioFormatMP3
 	audioQualityMP3Default  = "2"

@@ -54,7 +54,7 @@ func BuildDownloadArgs(
 
 		// Choose video format string based on requested video format
 		switch dlOptions.VideoFormat {
-		case dtypes.VideoFormatBest:
+		case dtypes.VideoFormatAuto:
 			format = fmt.Sprintf(
 				"bestvideo[ext=mp4]%s+bestaudio[ext=m4a]/best[ext=mp4]%s/best%s/best",
 				resolution, resolution, resolution,
@@ -106,7 +106,7 @@ func BuildDownloadArgs(
 
 		// Determine output file extension
 		switch dlOptions.VideoFormat {
-		case dtypes.VideoFormatBest:
+		case dtypes.VideoFormatAuto:
 			fileExt = info.Formats[0].FileExt
 		case dtypes.VideoFormatWebM:
 			fileExt = "webm"
@@ -254,7 +254,7 @@ func BuildDownloadArgs(
 
 		// Choose audio processing based on requested audio format
 		switch dlOptions.AudioFormat {
-		case dtypes.AudioFormatBest:
+		case dtypes.AudioFormatAuto:
 			format := info.Formats[0]
 			if format.ACodec != "" && format.ACodec == "opus" {
 				args = append(args, "--extract-audio", "--audio-format", "opus")
@@ -296,7 +296,7 @@ func BuildDownloadArgs(
 		if mediaInfo.VideoCodec == dtypes.VideoCodecBest {
 			mediaInfo.VideoCodec = infoVideoCodec
 		}
-		if mediaInfo.Resolution == dtypes.VideoResolutionBest {
+		if mediaInfo.Resolution == dtypes.VideoResolutionMax {
 			mediaInfo.Width = infoFormat.Width
 			mediaInfo.Height = infoFormat.Height
 			mediaInfo.Resolution = dtypes.ParseVideoResolutionWH(uint16(mediaInfo.Width), uint16(mediaInfo.Height))

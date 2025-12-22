@@ -52,16 +52,18 @@ function setupQualityFormatLogic() {
 
     if (!qualityCodecSelect || !qualityResolutionSelect || !formatSelect) return;
 
-    const videoFormats = ["best", "mp4", "webm"];
-    const audioFormats = ["best", "mp3", "m4a", "flac", "opus"];
+    const videoFormats = ["auto", "mp4", "webm"];
+    const audioFormats = ["auto", "mp3", "m4a", "flac", "opus"];
     const onlyAudioFormats = ["mp3", "m4a", "flac", "opus"];
     const webmCodecs = ["best", "av1"];
     const videoFormatWebmValue = "webm";
     const bestValue = "best"
+    const maxValue = "max"
+    const autoValue = "auto"
     const emptyValue = "empty"
     const onlyAudioValue = "only_audio";
-    const videoFormatDefault = bestValue;
-    const audioFormatDefault = bestValue;
+    const videoFormatDefault = autoValue;
+    const audioFormatDefault = autoValue;
 
     // Update format options based on quality
     const updateFormatOptions = () => {
@@ -73,17 +75,13 @@ function setupQualityFormatLogic() {
         if (isCodecFormatOnlyAudio && !qualityResolutionSelect.disabled) {
             qualityResolutionSelect.disabled = true;
 
-            // const option = qualityResolutionSelect.querySelector('option[value="empty"]');
-            // option.disabled = false;
             qualityResolutionSelect.value = emptyValue
         }
 
         if (!isCodecFormatOnlyAudio && qualityResolutionSelect.disabled) {
             qualityResolutionSelect.disabled = false;
 
-            // const option = qualityResolutionSelect.querySelector('option[value="empty"]');
-            // option.disabled = true;
-            qualityResolutionSelect.value = bestValue
+            qualityResolutionSelect.value = maxValue
         }
 
         formatSelect.querySelectorAll("option").forEach(option => {

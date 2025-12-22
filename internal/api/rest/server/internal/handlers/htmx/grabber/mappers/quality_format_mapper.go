@@ -7,7 +7,7 @@ import (
 
 var (
 	videoFormatMap = map[string]dtypes.VideoFormat{
-		"best": dtypes.VideoFormatBest,
+		"auto": dtypes.VideoFormatAuto,
 		"mp4":  dtypes.VideoFormatMP4,
 		"webm": dtypes.VideoFormatWebM,
 	}
@@ -22,14 +22,14 @@ var (
 		"av1":  {},
 	}
 	videoResolutionMap = map[string]dtypes.VideoResolution{
-		"best": dtypes.VideoResolutionBest,
+		"max":  dtypes.VideoResolutionMax,
 		"1080": dtypes.VideoResolution1080p,
 		"720":  dtypes.VideoResolution720p,
 		"480":  dtypes.VideoResolution480p,
 		"360":  dtypes.VideoResolution360p,
 	}
 	audioFormatMap = map[string]dtypes.AudioFormat{
-		"best": dtypes.AudioFormatBest,
+		"auto": dtypes.AudioFormatAuto,
 		"mp3":  dtypes.AudioFormatMP3,
 		"m4a":  dtypes.AudioFormatM4A,
 		"flac": dtypes.AudioFormatFLAC,
@@ -63,7 +63,7 @@ func (m *Mappers) MapVideoFormat(qc, f string) *dtypes.VideoFormat {
 	}
 	if videoFormat != nil && *videoFormat == dtypes.VideoFormatWebM {
 		if _, exists := videoCodecWebMMap[qc]; !exists {
-			videoFormat = dtypes.VideoFormatBest.Ptr()
+			videoFormat = dtypes.VideoFormatAuto.Ptr()
 		}
 	}
 	return videoFormat
