@@ -3,8 +3,8 @@ package ytdlp
 import (
 	"encoding/json"
 
-	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/ytdlp/dto"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/ytdlp/helper"
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp/dto"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp/helper"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 )
 

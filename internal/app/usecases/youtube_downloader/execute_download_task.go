@@ -73,13 +73,15 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 			)
 
 			var patch *dto.FileInfoPatch
-			if lastResult != nil && lastResult.YoutubeTitle != "" {
+			if lastResult != nil {
 				patch = &dto.FileInfoPatch{
 					YoutubeChannelID: &lastResult.ChannelID,
-					YoutubeTitle:     &lastResult.YoutubeTitle,
 				}
-				if lastResult.FileExt != "" {
-					patch.Ext = &lastResult.FileExt
+				if lastResult.YoutubeTitle != nil && *lastResult.YoutubeTitle != "" {
+					patch.YoutubeTitle = lastResult.YoutubeTitle
+				}
+				if lastResult.FileExt != nil && *lastResult.FileExt != "" {
+					patch.Ext = lastResult.FileExt
 				}
 				if lastResult.Filesize != nil && *lastResult.Filesize != 0 {
 					patch.FileSize = &lastResult.Filesize
@@ -103,7 +105,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		lastResult = r
 
 		// Adding a record to the YouTube Channel table
-		if lastResult != nil && lastResult.ChannelID != nil {
+		if lastResult != nil && lastResult.ChannelID != nil && lastResult.ChannelAvatar != nil {
 			exists, _ := uc.ytChannel.ExistsByChannelID(ctx, *lastResult.ChannelID)
 			if !exists {
 				channel := &dyoutube.YoutubeChannel{
@@ -121,17 +123,20 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		)
 	}
 
-	safeReadableFullName := fmt.Sprintf("%s.%s", nfasthttp.SanitizeFileName(lastResult.YoutubeTitle), lastResult.FileExt)
+	var safeReadableFullName *string
+	if lastResult.YoutubeTitle != nil {
+		safeReadableFullName = uptr.String(fmt.Sprintf("%s.%s", nfasthttp.SanitizeFileName(*lastResult.YoutubeTitle), lastResult.FileExt))
+	}
 
 	patch := &dto.FileInfoPatch{
 		YoutubeChannelID:     &lastResult.ChannelID,
-		YoutubeTitle:         &lastResult.YoutubeTitle,
-		FileName:             &lastResult.Filename,
-		Ext:                  &lastResult.FileExt,
-		FullName:             &lastResult.FileFullName,
+		YoutubeTitle:         lastResult.YoutubeTitle,
+		FileName:             lastResult.Filename,
+		Ext:                  lastResult.FileExt,
+		FullName:             lastResult.FileFullName,
 		FileSize:             &lastResult.Filesize,
 		PartialHash:          &lastResult.PartialHash,
-		SafeReadableFullName: &safeReadableFullName,
+		SafeReadableFullName: safeReadableFullName,
 		MediaInfo:            &lastResult.MediaInfo,
 	}
 

@@ -8,8 +8,7 @@ import (
 	"strings"
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/dto"
-	iutils "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/utils"
-	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/ytdlp/dto"
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
@@ -40,7 +39,7 @@ func BuildDownloadArgs(
 	switch dlOptions.FormatType {
 	// Video + Audio or Video only
 	case dtypes.FormatTypeVideoAudio, dtypes.FormatTypeVideoOnly:
-		var format, infoFormat string
+		var formatQuery, bestFormatQuery string
 
 		var resolution string
 		if dlOptions.VideoResolution.Height() > 0 {
@@ -55,44 +54,44 @@ func BuildDownloadArgs(
 		// Choose video format string based on requested video format
 		switch dlOptions.VideoFormat {
 		case dtypes.VideoFormatAuto:
-			format = fmt.Sprintf(
+			formatQuery = fmt.Sprintf(
 				"bestvideo[ext=mp4]%s+bestaudio[ext=m4a]/best[ext=mp4]%s/best%s/best",
 				resolution, resolution, resolution,
 			)
 			if dlOptions.VideoCodec == dtypes.VideoCodecH264 {
-				format = fmt.Sprintf("%s/%s", formatAVC1Query, format)
+				formatQuery = fmt.Sprintf("%s/%s", formatAVC1Query, formatQuery)
 			}
 			if dlOptions.VideoCodec == dtypes.VideoCodecAV1 {
-				format = fmt.Sprintf("%s/%s", formatAV01Query, format)
+				formatQuery = fmt.Sprintf("%s/%s", formatAV01Query, formatQuery)
 			}
-			infoFormat = format
+			bestFormatQuery = formatQuery
 		case dtypes.VideoFormatWebM:
-			format = fmt.Sprintf("bestvideo[ext=webm]%s+bestaudio[ext=webm]", resolution)
-			infoFormat = fmt.Sprintf(
+			formatQuery = fmt.Sprintf("bestvideo[ext=webm]%s+bestaudio[ext=webm]", resolution)
+			bestFormatQuery = fmt.Sprintf(
 				"bestvideo[ext=webm]%s+bestaudio[ext=webm]/bestvideo[ext=webm]%s/best[ext=mp4]%s/best%s/best",
 				resolution, resolution, resolution, resolution,
 			)
 			if dlOptions.VideoCodec == dtypes.VideoCodecAV1 {
-				format = fmt.Sprintf("%s/%s", formatAV01Query, format)
-				infoFormat = fmt.Sprintf("%s/%s", formatAV01Query, infoFormat)
+				formatQuery = fmt.Sprintf("%s/%s", formatAV01Query, formatQuery)
+				bestFormatQuery = fmt.Sprintf("%s/%s", formatAV01Query, bestFormatQuery)
 			}
 		default:
-			format = fmt.Sprintf(
+			formatQuery = fmt.Sprintf(
 				"bestvideo[ext=mp4]%s+bestaudio[ext=m4a]/bestvideo%s+bestaudio/best%s/best",
 				resolution, resolution, resolution,
 			)
 			if dlOptions.VideoCodec == dtypes.VideoCodecH264 {
-				format = fmt.Sprintf("%s/%s", formatAVC1Query, format)
+				formatQuery = fmt.Sprintf("%s/%s", formatAVC1Query, formatQuery)
 			}
 			if dlOptions.VideoCodec == dtypes.VideoCodecAV1 {
-				format = fmt.Sprintf("%s/%s", formatAV01Query, format)
+				formatQuery = fmt.Sprintf("%s/%s", formatAV01Query, formatQuery)
 			}
-			infoFormat = format
+			bestFormatQuery = formatQuery
 		}
 
 		// Get information about the best format from yt-dlp
 		var err error
-		info, err = bestFormat(ctx, url, infoFormat)
+		info, err = bestFormat(ctx, url, bestFormatQuery)
 		if err != nil {
 			return nil, "", nil, nil, err
 		}
@@ -102,7 +101,7 @@ func BuildDownloadArgs(
 		}
 
 		// Add format option to yt-dlp arguments
-		args = append(args, "-f", format)
+		args = append(args, "-f", formatQuery)
 
 		// Determine output file extension
 		switch dlOptions.VideoFormat {
@@ -122,7 +121,7 @@ func BuildDownloadArgs(
 			videoScaleArgs string
 		)
 		if dlOptions.VideoFormat != dtypes.VideoFormatWebM {
-			scaleValue := iutils.ScaleValue(
+			scaleValue := ScaleValue(
 				uint16(info.Formats[0].Width),
 				uint16(info.Formats[0].Height),
 				dlOptions.VideoResolution,

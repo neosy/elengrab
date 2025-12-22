@@ -7,11 +7,18 @@ import (
 )
 
 // GetBestFormat retrieves and parses video best format for the given URL.
-func (srv *YtDlpService) GetBestFormat(ctx context.Context, url string) (*dyoutubeinfo.YouTubeInfo, error) {
+func (srv *YtDlpService) GetBestFormat(
+	ctx context.Context,
+	url string,
+) (*dyoutubeinfo.YouTubeInfo, error) {
 	return srv.getBestFormat(ctx, url, "b")
 }
 
-func (srv *YtDlpService) getBestFormat(ctx context.Context, url string, format string) (*dyoutubeinfo.YouTubeInfo, error) {
+func (srv *YtDlpService) getBestFormat(
+	ctx context.Context,
+	url string,
+	format string,
+) (*dyoutubeinfo.YouTubeInfo, error) {
 	bestInfo, err := srv.ytdlp.GetBestFormat(ctx, url, format)
 	if err != nil {
 		return nil, err

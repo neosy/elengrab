@@ -4,10 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 
-	iutils "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/utils"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/ytdlp"
+	ytdlp "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp"
+	"github.com/neosy/elengrab/pkg/nfile"
 )
 
 const (
@@ -30,7 +33,7 @@ type YtDlpService struct {
 }
 
 func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, options *Options) (*YtDlpService, error) {
-	cmdPath, err := iutils.ResolveCmdPath(ytDlpName, binDir)
+	cmdPath, err := resolveCmdPath(ytDlpName, binDir)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +46,7 @@ func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, op
 		return nil, fmt.Errorf("downloads directory must not end with a slash or backslash: %s", downloadsDir)
 	}
 
-	if err := iutils.CheckDir(downloadsDir); err != nil {
+	if err := nfile.CheckDir(downloadsDir); err != nil {
 		return nil, err
 	}
 
@@ -61,4 +64,17 @@ func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, op
 		// internal
 		ytdlp: ytdlp.NewYTDlp(logger, cmdPath, downloadsDir),
 	}, nil
+}
+
+func resolveCmdPath(cmdName, binDir string) (string, error) {
+	if path, err := exec.LookPath(cmdName); err == nil {
+		return path, nil
+	}
+
+	cmdPath := filepath.Join(binDir, cmdName)
+	if fi, err := os.Stat(cmdPath); err == nil && !fi.IsDir() {
+		return cmdPath, nil
+	}
+
+	return "", fmt.Errorf("%s not found: tried config path %q and PATH lookup", cmdName, cmdPath)
 }

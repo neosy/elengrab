@@ -8,22 +8,19 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"strings"
+	"sync"
 	"syscall"
 	"time"
 
 	"github.com/google/uuid"
-	iutils "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/utils"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/ytdlp/helper"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp/helper"
 	iconstants "github.com/neosy/elengrab/internal/constants"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/neosy/elengrab/pkg/nfile"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
-)
-
-const (
-	ytDlpTempDir = ".yt-dlp"
 )
 
 func (y *YTDlp) Download(
@@ -34,20 +31,39 @@ func (y *YTDlp) Download(
 	downloadResultCh chan<- *ddownload.DownloadResult,
 ) {
 	type dlResult = ddownload.DownloadResult
+	var wg sync.WaitGroup
 
-	sendError := func(err error) {
-		downloadResultCh <- &dlResult{Error: err}
-	}
+	closeCh := make(chan struct{})
+	defer func() {
+		close(closeCh)
+		wg.Wait()
+	}()
 
-	sendData := func(data *dlResult) {
-		downloadResultCh <- data
-	}
+	var (
+		sendError = func(err error) {
+			select {
+			case <-closeCh:
+			case downloadResultCh <- &dlResult{Error: err}:
+			case <-ctx.Done():
+			}
+		}
+
+		sendData = func(data *dlResult) {
+			select {
+			case <-closeCh:
+			case downloadResultCh <- data:
+			case <-ctx.Done():
+			}
+		}
+	)
+
+	url = strings.TrimSpace(url)
 
 	// Prepare download options with defaults and user overrides
 	dlOptions, dlDir, fileName, includeTitleInFilename := helper.PrepareDownloadOptions(y.downloadsDir, concurrentFragments, options)
 
 	// Ensure download directory exists
-	if err := iutils.CheckDir(dlDir); err != nil {
+	if err := nfile.CheckDir(dlDir); err != nil {
 		sendError(fmt.Errorf("failed to check directory: %w", err))
 		return
 	}
@@ -55,7 +71,7 @@ func (y *YTDlp) Download(
 	title, err := y.getTitleFast(url)
 	if err == nil && title != "" {
 		sendData(&dlResult{
-			YoutubeTitle: title,
+			YoutubeTitle: &title,
 		})
 	}
 
@@ -82,28 +98,6 @@ func (y *YTDlp) Download(
 		}
 	}
 
-	var channelID *string
-	var channelAvatar *ddownload.DownloadResultChannelAvatar
-	if info.ChannelID != "" {
-		channelID = &info.ChannelID
-
-		avatarSources, err := y.getChannelAvatar(info.ChannelUrl)
-		if err != nil {
-			y.logger.Debug("Failed get channel avatar", "error", err)
-		}
-
-		if len(avatarSources) > 0 {
-			src := avatarSources[0]
-			if len(src.Raw) > 0 {
-				channelAvatar = &ddownload.DownloadResultChannelAvatar{
-					ImageURL:    src.URL,
-					ImageRAW:    src.Raw,
-					ImageFormat: src.Format,
-				}
-			}
-		}
-	}
-
 	// Generate a unique filename if none provided
 	if fileName == "" {
 		fileName = uuid.New().String()
@@ -121,23 +115,54 @@ func (y *YTDlp) Download(
 		fileSize = info.Formats[0].Filesize
 	}
 
-	sendData(
-		&dlResult{
-			ChannelID:     channelID,
-			YoutubeTitle:  title,
-			FilePath:      filePath,
-			Filename:      fileName,
-			FileExt:       fileExt,
-			FileFullName:  fileFullName,
-			Filesize:      fileSize,
-			ChannelAvatar: channelAvatar,
-		},
-	)
+	var channelID *string
+	if info.ChannelID != "" {
+		channelID = &info.ChannelID
+	}
+
+	result := &dlResult{
+		ChannelID:    channelID,
+		YoutubeTitle: &title,
+		FilePath:     &filePath,
+		Filename:     &fileName,
+		FileExt:      &fileExt,
+		FileFullName: &fileFullName,
+		Filesize:     fileSize,
+	}
+
+	sendData(result)
+
+	var channelAvatar *ddownload.DownloadResultChannelAvatar
+	wg.Go(func() {
+		if channelID != nil {
+			avatarSources, err := y.getChannelAvatar(info.ChannelUrl)
+			if err != nil {
+				y.logger.Debug("Failed get channel avatar", "error", err)
+				return
+			}
+
+			if len(avatarSources) > 0 {
+				src := avatarSources[0]
+				if len(src.Raw) > 0 {
+					channelAvatar = &ddownload.DownloadResultChannelAvatar{
+						ImageURL:    src.URL,
+						ImageRAW:    src.Raw,
+						ImageFormat: src.Format,
+					}
+				}
+			}
+
+			sendData(&dlResult{ChannelAvatar: channelAvatar})
+		}
+	})
+
+	// Cache directory
+	cacheDir := path.Join(dlDir, ytDlpCacheDir)
 
 	// Running yt-dlp in a separate temporary directory
-	baseTmpDir := filepath.Join(dlDir, ytDlpTempDir)
+	baseTmpDir := path.Join(dlDir, ytDlpTempDir)
 
-	workDir, cleanup, err := iutils.CreateTempDir(baseTmpDir, "job-*")
+	workDir, cleanup, err := helper.CreateTempDir(baseTmpDir, "job-*")
 	if err != nil {
 		sendError(
 			fmt.Errorf("%s failed to create tmp dir: %w", y.ytDlpName, err),
@@ -149,14 +174,17 @@ func (y *YTDlp) Download(
 	// Build full path to the output file inside the temp work directory
 	tmpFilePath := filepath.Join(workDir, fileFullName)
 
+	// Add cache directory to yt-dlp arguments
+	args = append(args, "--cache-dir", cacheDir)
+
 	// Force yt-dlp to store all temporary and intermediate files in the isolated work directory
 	args = append(args, "--paths", fmt.Sprintf("temp:%s", workDir))
 
+	// Add load info json to arguments
+	args = append(args, "--load-info-json", y.formatCache.cacheFilePath(url))
+
 	// Add output file path to yt-dlp arguments
 	args = append(args, "-o", tmpFilePath)
-
-	// Add the video URL to arguments
-	args = append(args, url)
 
 	// Execute yt-dlp command
 	// Create command without CommandContext.
@@ -288,14 +316,16 @@ func (y *YTDlp) Download(
 		}
 	}
 
+	wg.Wait()
+
 	// Build response struct
-	result := &dlResult{
+	result = &dlResult{
 		ChannelID:     channelID,
-		YoutubeTitle:  title,
-		FilePath:      filePath,
-		Filename:      fileName,
-		FileExt:       fileExt,
-		FileFullName:  fileFullName,
+		YoutubeTitle:  &title,
+		FilePath:      &filePath,
+		Filename:      &fileName,
+		FileExt:       &fileExt,
+		FileFullName:  &fileFullName,
 		Filesize:      fileSize,
 		PartialHash:   partialHash,
 		ChannelAvatar: channelAvatar,

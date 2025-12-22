@@ -2,9 +2,9 @@ package helper
 
 import (
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/dto"
-	iutils "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/utils"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/pkg/nfile"
 )
 
 // PrepareDownloadOptions prepare download options with defaults and user overrides
@@ -63,7 +63,7 @@ func PrepareDownloadOptions(
 
 	// Override file name if provided
 	if options.Filename != nil {
-		fileName = iutils.FileNameWithoutExt(*options.Filename)
+		fileName = nfile.FileNameWithoutExt(*options.Filename)
 	}
 
 	// Include title in filename
