@@ -1,7 +1,7 @@
 package mappers
 
 import (
-	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/ytdlp/dto"
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	dyoutubeinfo "github.com/neosy/elengrab/internal/domain/youtube_info"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"

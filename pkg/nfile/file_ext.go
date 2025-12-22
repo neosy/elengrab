@@ -1,4 +1,4 @@
-package iutils
+package nfile
 
 import "path/filepath"
 

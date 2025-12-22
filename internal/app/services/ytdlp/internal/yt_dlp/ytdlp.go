@@ -2,14 +2,17 @@ package ytdlp
 
 import (
 	"log/slog"
+	"path"
 	"path/filepath"
 
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/ytdlp/mappers"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp/mappers"
 )
 
 type YTDlp struct {
 	logger  *slog.Logger
 	mappers *mappers.Mappers
+
+	formatCache *formatCache
 
 	// parameters
 	ytDlpName    string
@@ -21,6 +24,8 @@ func NewYTDlp(logger *slog.Logger, ytDlpPath string, downloadsDir string) *YTDlp
 	return &YTDlp{
 		logger:  logger,
 		mappers: mappers.NewMappers(),
+
+		formatCache: NewFormatCache(path.Join(downloadsDir, ytDlpFormatCacheDir)),
 
 		// parameters
 		ytDlpName:    filepath.Base(ytDlpPath),
