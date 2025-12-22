@@ -124,8 +124,8 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 	}
 
 	var safeReadableFullName *string
-	if lastResult.YoutubeTitle != nil {
-		safeReadableFullName = uptr.String(fmt.Sprintf("%s.%s", nfasthttp.SanitizeFileName(*lastResult.YoutubeTitle), lastResult.FileExt))
+	if lastResult.YoutubeTitle != nil && lastResult.FileExt != nil {
+		safeReadableFullName = uptr.String(fmt.Sprintf("%s.%s", nfasthttp.SanitizeFileName(*lastResult.YoutubeTitle), *lastResult.FileExt))
 	}
 
 	patch := &dto.FileInfoPatch{
