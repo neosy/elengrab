@@ -13,7 +13,8 @@ type Dependencies struct {
 	Templates *template.Template
 
 	// Options
-	AssetsDir string
+	AssetsDir    string
+	DownloadsDir string
 }
 
 type handlers struct {
@@ -23,7 +24,7 @@ type handlers struct {
 
 func New(deps *Dependencies) *handlers {
 	return &handlers{
-		HTMX: htmxh.NewHTMXHandlers(deps.Usecases, deps.Templates, deps.AssetsDir),
+		HTMX: htmxh.NewHTMXHandlers(deps.Usecases, deps.Templates, deps.AssetsDir, deps.DownloadsDir),
 		API:  apihandlers.NewAPIHandlers(deps.Usecases),
 	}
 }

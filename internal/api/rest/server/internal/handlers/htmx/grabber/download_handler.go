@@ -3,6 +3,7 @@ package grabberh
 import (
 	"errors"
 	"os"
+	"path/filepath"
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
@@ -11,17 +12,17 @@ import (
 
 var (
 	mapContentTypeByExt = map[string]string{
-		".mp3":  "audio/mpeg",
-		".m4a":  "audio/mp4",
-		".aac":  "audio/aac",
-		".ogg":  "audio/ogg",
-		".opus": "audio/opus",
-		".flac": "audio/flac",
+		"mp3":  "audio/mpeg",
+		"m4a":  "audio/mp4",
+		"aac":  "audio/aac",
+		"ogg":  "audio/ogg",
+		"opus": "audio/opus",
+		"flac": "audio/flac",
 
-		".mp4":  "video/mp4",
-		".webm": "video/webm",
-		".mkv":  "video/x-matroska",
-		".mov":  "video/quicktime",
+		"mp4":  "video/mp4",
+		"webm": "video/webm",
+		"mkv":  "video/x-matroska",
+		"mov":  "video/quicktime",
 	}
 )
 
@@ -42,13 +43,16 @@ func (h *GrabberHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	var filePath string
+	if fileInfo.FileFullName != "" {
+		filePath = filepath.Join(h.downloadsDir, fileInfo.FileFullName)
+	}
+
 	// Check if the file exists
-	if _, err := os.Stat(fileInfo.FilePath); os.IsNotExist(err) {
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		nfasthttp.WriteError(ctx, errors.New("file not found"), fasthttp.StatusBadRequest)
 		return
 	}
-
-	h.usecases.Downloader.GetDownloadFileName(ctx, fileId)
 
 	// Detect content type by extension
 	contentType := mapContentTypeByExt[fileInfo.FileExt]
@@ -57,5 +61,5 @@ func (h *GrabberHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Send file via streaming
-	nfasthttp.SendFileDirect(ctx, fileInfo.FilePath, fileInfo.SafeReadableFullName, contentType)
+	nfasthttp.SendFileDirect(ctx, filePath, fileInfo.SafeReadableFullName, contentType)
 }
