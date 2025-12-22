@@ -12,9 +12,10 @@ func (s *httpServer) newRouter() *router.Router {
 	r.RedirectTrailingSlash = false
 
 	handlers := handlers.New(&handlers.Dependencies{
-		Usecases:  s.usecases,
-		Templates: s.templates,
-		AssetsDir: s.assetsDir,
+		Usecases:     s.usecases,
+		Templates:    s.templates,
+		AssetsDir:    s.assetsDir,
+		DownloadsDir: s.downloadsDir,
 	})
 
 	s.setupHtmxRootRoutes(r, handlers.HTMX)

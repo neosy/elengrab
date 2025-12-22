@@ -13,9 +13,14 @@ type HTMXHandlers struct {
 	Grabber *grabberh.GrabberHandlers
 }
 
-func NewHTMXHandlers(usecases *usecases.Usecases, templates *template.Template, assetsDir string) *HTMXHandlers {
+func NewHTMXHandlers(
+	usecases *usecases.Usecases,
+	templates *template.Template,
+	assetsDir string,
+	downloadsDir string,
+) *HTMXHandlers {
 	return &HTMXHandlers{
 		Static:  statich.NewStaticHandlers(assetsDir),
-		Grabber: grabberh.NewGrabberHandlers(usecases, templates, assetsDir),
+		Grabber: grabberh.NewGrabberHandlers(usecases, templates, assetsDir, downloadsDir),
 	}
 }

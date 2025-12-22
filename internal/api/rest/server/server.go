@@ -18,7 +18,8 @@ type Dependencies struct {
 	Templates *template.Template
 
 	// Options
-	AssetsDir string
+	AssetsDir    string
+	DownloadsDir string
 }
 
 type httpServer struct {
@@ -32,16 +33,18 @@ type httpServer struct {
 	templates *template.Template
 
 	// Options
-	assetsDir string
+	assetsDir    string
+	downloadsDir string
 }
 
 func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *httpServer {
 	return &httpServer{
-		logger:    logger,
-		appEnv:    appEnv,
-		usecases:  deps.Usecases,
-		templates: deps.Templates,
-		assetsDir: deps.AssetsDir,
+		logger:       logger,
+		appEnv:       appEnv,
+		usecases:     deps.Usecases,
+		templates:    deps.Templates,
+		assetsDir:    deps.AssetsDir,
+		downloadsDir: deps.DownloadsDir,
 	}
 }
 

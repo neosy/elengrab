@@ -208,9 +208,10 @@ func main() {
 		}
 
 		deps := &httpsrv.Dependencies{
-			Usecases:  uc,
-			Templates: tmpl,
-			AssetsDir: absPath(cfg.Elengrab.AssetsDir),
+			Usecases:     uc,
+			Templates:    tmpl,
+			AssetsDir:    absPath(cfg.Elengrab.AssetsDir),
+			DownloadsDir: absPath(cfg.Elengrab.DownloadsDir),
 		}
 
 		httpServer := httpsrv.NewServer(logger, cfg.AppConfig.AppEnv, deps)

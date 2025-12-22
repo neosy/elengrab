@@ -2,7 +2,6 @@ package mappers
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -14,11 +13,6 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(file *ddownload.File, download
 	var youtubeTitle = file.YoutubeTitle
 	if file.YoutubeTitle == "" {
 		youtubeTitle = file.YoutubeUrl
-	}
-
-	var filePath string
-	if file.FullName != "" {
-		filePath = filepath.Join(downloadsDir, file.FullName)
 	}
 
 	var mediaInfoText string
@@ -43,7 +37,6 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(file *ddownload.File, download
 		FileName:             file.FileName,
 		FileExt:              file.Ext,
 		FileFullName:         file.FullName,
-		FilePath:             filePath,
 		FileSize:             file.FileSize,
 		SafeReadableFullName: file.SafeReadableFullName,
 		StatusText:           uptr.Deref(file.ErrorMessage),

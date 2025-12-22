@@ -17,6 +17,7 @@ import (
 	iconstants "github.com/neosy/elengrab/internal/constants"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
+	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/neosy/elengrab/pkg/nfile"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
@@ -109,7 +110,7 @@ func (y *YTDlp) Download(
 	}
 
 	if includeTitleInFilename {
-		fileName = fmt.Sprintf("%s_%s", nfile.SanitizeFileName(title), fileName)
+		fileName = fmt.Sprintf("%s_%s", nfasthttp.SanitizeFileName(title), fileName)
 	}
 
 	fileFullName := fmt.Sprintf("%s.%s", fileName, fileExt)

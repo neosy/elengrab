@@ -16,15 +16,24 @@ type GrabberHandlers struct {
 	templates *template.Template
 
 	// Options
-	assetsDir string
+	assetsDir    string
+	downloadsDir string
 }
 
-func NewGrabberHandlers(usecases *usecases.Usecases, templates *template.Template, assetsDir string) *GrabberHandlers {
+func NewGrabberHandlers(
+	usecases *usecases.Usecases,
+	templates *template.Template,
+	assetsDir string,
+	downloadsDir string,
+) *GrabberHandlers {
 	return &GrabberHandlers{
 		mappers:    mappers.NewMappers(),
 		validators: validators.NewValidators(),
 		usecases:   usecases,
 		templates:  templates,
-		assetsDir:  assetsDir,
+
+		// Options
+		assetsDir:    assetsDir,
+		downloadsDir: downloadsDir,
 	}
 }
