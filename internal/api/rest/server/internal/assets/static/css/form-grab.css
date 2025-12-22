@@ -116,6 +116,13 @@
     transition: border-color 0.5s ease, background-color 0.5s ease, color 0.5s ease, transform 0.5s ease;
 }
 
+select:disabled {
+    color: var(--text-gray-disabled);
+    cursor: default;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
 .div-select-option select[name="quality-codec"] {
     min-width: 150px;
     border-radius: 0;

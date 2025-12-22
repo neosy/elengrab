@@ -11,7 +11,7 @@ type VideoResolution string
 
 const (
 	VideoResolutionNone  VideoResolution = "none"
-	VideoResolutionBest  VideoResolution = "best"
+	VideoResolutionMax   VideoResolution = "max"
 	VideoResolution4k    VideoResolution = "4k"
 	VideoResolution2k    VideoResolution = "2k"
 	VideoResolution1080p VideoResolution = "1080p"
@@ -23,7 +23,7 @@ const (
 var (
 	videoResolutionMap = map[VideoResolution]struct{}{
 		VideoResolutionNone:  {},
-		VideoResolutionBest:  {},
+		VideoResolutionMax:   {},
 		VideoResolution4k:    {},
 		VideoResolution2k:    {},
 		VideoResolution1080p: {},
@@ -34,7 +34,7 @@ var (
 
 	videoResolutionHeightMap = map[VideoResolution]uint16{
 		VideoResolutionNone:  0,
-		VideoResolutionBest:  0,
+		VideoResolutionMax:   0,
 		VideoResolution4k:    2160,
 		VideoResolution2k:    1440,
 		VideoResolution1080p: 1080,
@@ -45,7 +45,7 @@ var (
 
 	videoResolutionWidthMap = map[VideoResolution]uint16{
 		VideoResolutionNone:  0,
-		VideoResolutionBest:  0,
+		VideoResolutionMax:   0,
 		VideoResolution4k:    3840,
 		VideoResolution2k:    2560,
 		VideoResolution1080p: 1920,

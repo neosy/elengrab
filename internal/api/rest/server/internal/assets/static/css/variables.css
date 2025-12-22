@@ -12,6 +12,7 @@
     --text-header: #333;
     --text-secondary: #555;
     --text-muted: #9e9e9e;
+    --text-gray-disabled: #f0f0f0;
     --border-input: #7eb980;
     --border-select: #dfe3e8;
     --border-result: #dfe3e8;
@@ -38,6 +39,7 @@
     --text-header: #cfd8e3;
     --text-secondary: #8b949e;
     --text-muted: #6e7681;
+    --text-gray-disabled: #f0f0f0;
     --border-input: #7eb980;
     --border-select: #30363d;
     --border-result: #30363d;

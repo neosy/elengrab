@@ -11,7 +11,7 @@ type VideoFormat string
 
 const (
 	VideoFormatNone VideoFormat = "none"
-	VideoFormatBest VideoFormat = "best"
+	VideoFormatAuto VideoFormat = "auto"
 	VideoFormatMP4  VideoFormat = "mp4"
 	VideoFormatWebM VideoFormat = "webm"
 )
@@ -19,13 +19,13 @@ const (
 var (
 	videoFormatMap = map[VideoFormat]struct{}{
 		VideoFormatNone: {},
-		VideoFormatBest: {},
+		VideoFormatAuto: {},
 		VideoFormatMP4:  {},
 		VideoFormatWebM: {},
 	}
 	videoFormatToFileFormatMap = map[VideoFormat]FileFormat{
 		VideoFormatNone: FileFormatNone,
-		VideoFormatBest: FileFormatBest,
+		VideoFormatAuto: FileFormatAuto,
 		VideoFormatMP4:  FileFormatMP4,
 		VideoFormatWebM: FileFormatWebM,
 	}

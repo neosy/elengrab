@@ -11,7 +11,7 @@ type FileFormat string
 
 const (
 	FileFormatNone FileFormat = "none"
-	FileFormatBest FileFormat = "best"
+	FileFormatAuto FileFormat = "auto"
 
 	FileFormatMP4  FileFormat = "mp4"
 	FileFormatWebM FileFormat = "webm"
@@ -25,7 +25,7 @@ const (
 var (
 	fileFormatMap = map[FileFormat]struct{}{
 		FileFormatNone: {},
-		FileFormatBest: {},
+		FileFormatAuto: {},
 		FileFormatMP4:  {},
 		FileFormatWebM: {},
 		FileFormatMP3:  {},
