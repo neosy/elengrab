@@ -103,7 +103,7 @@ func main() {
 		return
 	}
 	// Close the database on exit
-	defer sqliteDB.Close()
+	defer sqliterep.CloseDB(sqliteDB)
 
 	// Apply all up migrations
 	migrations := database.NewMigrations(sqliteDB, nil)

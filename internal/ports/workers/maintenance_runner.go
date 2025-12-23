@@ -4,4 +4,5 @@ import "context"
 
 type MaintenanceRunner interface {
 	BackupDatabase(ctx context.Context) error
+	FlushWAL() error
 }
