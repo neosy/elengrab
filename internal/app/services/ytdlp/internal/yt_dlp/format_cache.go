@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	formatCacheTTL = 24 * time.Hour
+	formatCacheTTL = 8 * time.Hour
 )
 
 type formatCache struct {
