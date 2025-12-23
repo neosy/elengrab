@@ -274,6 +274,9 @@ func (y *YTDlp) Download(
 			return
 		}
 
+		// Deleting the cache, because the error may be due to outdated data
+		y.formatCache.deleteByURL(url)
+
 		// Process exited with an error
 		sendError(
 			fmt.Errorf("%s failed: %w, output: %s", y.ytDlpName, err, string(out)),

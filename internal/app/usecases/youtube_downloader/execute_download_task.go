@@ -69,6 +69,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 
 			uc.logger.Error(
 				"Failed to download",
+				"fileId", task.FileId,
 				"error", r.Error,
 			)
 
