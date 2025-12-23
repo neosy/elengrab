@@ -273,7 +273,12 @@ func (y *YTDlp) runYtDlp(
 	if err != nil {
 		return nil, fmt.Errorf("%s failed to create tmp dir: %w", y.ytDlpName, err)
 	}
-	defer cleanup()
+	defer func() {
+		err := cleanup()
+		if err != nil {
+			y.logger.Debug("Failed clear temp dir", "error", err)
+		}
+	}()
 
 	// Build full path to the output file inside the temp work directory
 	tmpFilePath := filepath.Join(workDir, meta.FileFullName)
