@@ -126,9 +126,8 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewFlushWALJob(logger, deps.Maintenance),
 		&nworkers.WorkerOptions{
-			Name:         "FlusWAL",
-			Interval:     intervalFlushWAL.DurationPtr(),
-			OneShotDelay: uptr.Any(5 * time.Second),
+			Name:     "FlusWAL",
+			Interval: intervalFlushWAL.DurationPtr(),
 		},
 	))
 }
