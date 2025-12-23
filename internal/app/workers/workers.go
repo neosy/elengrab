@@ -20,6 +20,7 @@ const (
 	intervalCleanYoutubeChannelCacheDefault = 12 * time.Hour
 	intervalCleanDownloadStateCacheDefault  = 12 * time.Hour
 	intervalBackupDatabaseDefault           = 1 * 24 * time.Hour
+	intervalFlushWALDefault                 = 1 * time.Hour
 )
 
 type Dependencies struct {
@@ -40,6 +41,7 @@ type Dependencies struct {
 	IntervalCleanYoutubeChannelCache time.Duration
 	IntervalCleanDownloadStateCache  time.Duration
 	IntervalBackupDatabase           time.Duration
+	IntervalFlushWAL                 time.Duration
 }
 
 func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) {
@@ -51,6 +53,7 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 		intervalCleanYoutubeChannelCache = nworkers.NewInterval(intervalCleanYoutubeChannelCacheDefault, deps.IntervalCleanYoutubeChannelCache)
 		intervalCleanDownloadStateCache  = nworkers.NewInterval(intervalCleanDownloadStateCacheDefault, deps.IntervalCleanDownloadStateCache)
 		intervalBackupDatabase           = nworkers.NewInterval(intervalBackupDatabaseDefault, deps.IntervalBackupDatabase)
+		intervalFlushWAL                 = nworkers.NewInterval(intervalFlushWALDefault, deps.IntervalFlushWAL)
 	)
 
 	now := time.Now()
@@ -117,6 +120,15 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 			Name:     "DatabaseBackups",
 			StartAt:  uptr.Any(backupDatabaseStartAt),
 			Interval: intervalBackupDatabase.DurationPtr(),
+		},
+	))
+
+	ws.Add(nworkers.NewWorker(
+		wjobs.NewFlushWALJob(logger, deps.Maintenance),
+		&nworkers.WorkerOptions{
+			Name:         "FlusWAL",
+			Interval:     intervalFlushWAL.DurationPtr(),
+			OneShotDelay: uptr.Any(5 * time.Second),
 		},
 	))
 }

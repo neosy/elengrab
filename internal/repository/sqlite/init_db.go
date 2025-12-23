@@ -75,3 +75,15 @@ func InitDB(dbPath string) (*sql.DB, error) {
 	// 4. Return the live database connection
 	return db, nil
 }
+
+func CloseDB(db *sql.DB) {
+	// 1. Do a full checkpoint to flush WAL into main DB
+	if err := FlushWAL(db); err != nil {
+		log.Printf("Failed to checkpoint WAL: %v", err)
+	}
+
+	// 2. Close the database connection
+	if err := db.Close(); err != nil {
+		log.Printf("Failed to close SQLite database: %v", err)
+	}
+}
