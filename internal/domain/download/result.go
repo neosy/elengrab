@@ -5,19 +5,19 @@ type DownloadResult struct {
 
 	ChannelID *string
 
-	YoutubeTitle *string
+	YoutubeTitle string
 
 	// full path to the downloaded file
-	FilePath *string
+	FilePath string
 
 	// file name
-	Filename *string
+	Filename string
 
 	// ext
-	FileExt *string
+	FileExt string
 
 	// file name
-	FileFullName *string
+	FileFullName string
 
 	// file size (byte)
 	Filesize *int
