@@ -78,11 +78,11 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 				patch = &dto.FileInfoPatch{
 					YoutubeChannelID: &lastResult.ChannelID,
 				}
-				if lastResult.YoutubeTitle != nil && *lastResult.YoutubeTitle != "" {
-					patch.YoutubeTitle = lastResult.YoutubeTitle
+				if lastResult.YoutubeTitle != "" {
+					patch.YoutubeTitle = &lastResult.YoutubeTitle
 				}
-				if lastResult.FileExt != nil && *lastResult.FileExt != "" {
-					patch.Ext = lastResult.FileExt
+				if lastResult.FileExt != "" {
+					patch.Ext = &lastResult.FileExt
 				}
 				if lastResult.Filesize != nil && *lastResult.Filesize != 0 {
 					patch.FileSize = &lastResult.Filesize
@@ -124,17 +124,16 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		)
 	}
 
-	var safeReadableFullName *string
-	if lastResult.YoutubeTitle != nil && lastResult.FileExt != nil {
-		safeReadableFullName = uptr.String(fmt.Sprintf("%s.%s", nfasthttp.SanitizeFileName(*lastResult.YoutubeTitle), *lastResult.FileExt))
-	}
+	safeReadableFullName := uptr.String(
+		fmt.Sprintf("%s.%s", nfasthttp.SanitizeFileName(lastResult.YoutubeTitle), lastResult.FileExt),
+	)
 
 	patch := &dto.FileInfoPatch{
 		YoutubeChannelID:     &lastResult.ChannelID,
-		YoutubeTitle:         lastResult.YoutubeTitle,
-		FileName:             lastResult.Filename,
-		Ext:                  lastResult.FileExt,
-		FullName:             lastResult.FileFullName,
+		YoutubeTitle:         &lastResult.YoutubeTitle,
+		FileName:             &lastResult.Filename,
+		Ext:                  &lastResult.FileExt,
+		FullName:             &lastResult.FileFullName,
 		FileSize:             &lastResult.Filesize,
 		PartialHash:          &lastResult.PartialHash,
 		SafeReadableFullName: safeReadableFullName,

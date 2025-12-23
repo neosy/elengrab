@@ -40,15 +40,14 @@ func (s *DownloadState) InitFromDownloadResult(result *DownloadResult) {
 	if result.ChannelID != nil {
 		s.File.YoutubeChannelID = result.ChannelID
 	}
-	if result.YoutubeTitle != nil {
-		s.File.YoutubeTitle = *result.YoutubeTitle
-	}
-	if result.FileExt != nil {
-		s.File.Ext = *result.FileExt
-	}
+
+	s.File.YoutubeTitle = result.YoutubeTitle
+	s.File.Ext = result.FileExt
+
 	if result.Filesize != nil {
 		s.File.FileSize = result.Filesize
 	}
+
 	if result.PartialHash != nil {
 		s.File.PartialHash = result.PartialHash
 	}

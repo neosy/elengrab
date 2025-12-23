@@ -9,7 +9,18 @@ import (
 )
 
 func (y *YTDlp) GetTitle(ctx context.Context, url string) (string, error) {
-	cmd := exec.CommandContext(ctx, y.ytDlpPath, "--no-playlist", "--no-warnings", "-e", url)
+	var cmd *exec.Cmd
+
+	if ok, _ := y.formatCache.isTTLValidByURL(url); ok {
+		cmd = exec.CommandContext(
+			ctx, y.ytDlpPath,
+			"--no-playlist", "--no-warnings",
+			"-e",
+			"--load-info-json", y.formatCache.cacheFilePath(url),
+		)
+	} else {
+		cmd = exec.CommandContext(ctx, y.ytDlpPath, "--no-playlist", "--no-warnings", "-e", url)
+	}
 
 	// Buffers to capture stdout and stderr
 	var out, stderr bytes.Buffer

@@ -5,8 +5,7 @@ import (
 	"os"
 	"path"
 
-	iconstants "github.com/neosy/elengrab/internal/constants"
-	"github.com/neosy/elengrab/pkg/nfile"
+	"github.com/neosy/elengrab/internal/app/utils"
 )
 
 func (uc *YouTubeDownloader) UpdateHash(ctx context.Context) error {
@@ -22,11 +21,7 @@ func (uc *YouTubeDownloader) UpdateHash(ctx context.Context) error {
 			continue
 		}
 
-		h, err := nfile.HashPartialMedia(
-			fPath,
-			iconstants.HashPartialBlocks,
-			iconstants.HashPartialBlockSize,
-		)
+		h, err := utils.HashPartialMedia(fPath)
 		if err != nil {
 			uc.logger.Warn("Failed get hash partial", "filePath", fPath, "error", err)
 			continue

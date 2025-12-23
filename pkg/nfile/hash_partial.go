@@ -6,24 +6,7 @@ import (
 	"encoding/hex"
 	"io"
 	"os"
-	"path/filepath"
 )
-
-// HashPartialMedia selects a partial-hash method for media files.
-// webm/opus → skip first 1 KB; others → standard partial hash.
-//
-// blocks — number of blocks for regular files
-// blockSize — size of each block in bytes
-func HashPartialMedia(filePath string, blocks int, blockSize int64) (string, error) {
-	ext := filepath.Ext(filePath)
-
-	switch ext[1:] {
-	case "webm", "opus":
-		return HashPartialWithOffset(filePath, 1, 1024, 1024)
-	default:
-		return HashPartial(filePath, blocks, blockSize)
-	}
-}
 
 // HashPartial computes a single combined hash from several file blocks.
 // It is very fast because it does not read the entire file.
