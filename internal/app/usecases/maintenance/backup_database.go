@@ -25,7 +25,7 @@ func (m *Maintenance) BackupDatabase(ctx context.Context) error {
 
 	}
 	if !exists {
-		err := os.MkdirAll(backupDir, os.FileMode(0755))
+		err := os.MkdirAll(backupDir, 0o755)
 		if err != nil {
 			m.logger.Error("Failed to make backup dir", "dir", backupDir, "error", err)
 			return err

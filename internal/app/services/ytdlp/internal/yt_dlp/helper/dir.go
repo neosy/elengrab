@@ -7,7 +7,7 @@ import (
 
 // CreateTempDir creates a temporary working directory inside baseDir.
 // Returns the path to the temp directory and a cleanup function that removes it.
-func CreateTempDir(baseDir string, prefix string) (string, func(), error) {
+func CreateTempDir(baseDir string, prefix string) (string, func() error, error) {
 	// Ensure base directory exists
 	if err := os.MkdirAll(baseDir, 0o755); err != nil {
 		return "", nil, fmt.Errorf("failed to create base temp dir: %w", err)
@@ -20,8 +20,8 @@ func CreateTempDir(baseDir string, prefix string) (string, func(), error) {
 	}
 
 	// Cleanup function to remove the temp directory
-	cleanup := func() {
-		_ = os.RemoveAll(workDir)
+	cleanup := func() error {
+		return os.RemoveAll(workDir)
 	}
 
 	return workDir, cleanup, nil
