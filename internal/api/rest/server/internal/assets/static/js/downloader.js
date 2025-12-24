@@ -23,22 +23,56 @@ const cookie = (() => {
 })();
 
 // -------------------------------------------------------------
-// Function: setupCookieSelectSync
-// Purpose: bind select to cookie (restore + save on change)
+// Element selectors and cookie names
 // -------------------------------------------------------------
-function setupCookieSelectSync(selectElement, cookieName) {
+const SELECT_NAMES = {
+    qualityCodec: "quality-codec",
+    qualityResolution: "quality-resolution",
+    format: "format"
+};
 
-    // Restore saved value
+const COOKIE_NAMES = {
+    qualityCodec: "selectQualityCodec",
+    qualityResolution: "selectQualityResolution",
+    format: "selectFormat"
+};
+
+// -------------------------------------------------------------
+// Helper: get select element by name
+// -------------------------------------------------------------
+function getSelectByName(name) {
+    return document.querySelector(`select[name="${name}"]`);
+}
+
+// -------------------------------------------------------------
+// Save all select values to cookies
+// -------------------------------------------------------------
+function saveAllSelectsToCookie() {
+    Object.entries(SELECT_NAMES).forEach(([key, name]) => {
+        const el = getSelectByName(name);
+        if (el) cookie.set(COOKIE_NAMES[key], el.value);
+    });
+}
+
+// -------------------------------------------------------------
+// Restore select value from cookie
+// -------------------------------------------------------------
+function setupCookieSelectSync(selectName, cookieName) {
+    const selectElement = getSelectByName(selectName);
+    if (!selectElement) return;
+
     const savedValue = cookie.get(cookieName);
     if (savedValue) {
         const option = selectElement.querySelector(`option[value="${savedValue}"]`);
         if (option) option.selected = true;
     }
 
-    // Save new value
-    selectElement.addEventListener("change", () => {
-        cookie.set(cookieName, selectElement.value);
-    });
+    // For resolution, save only its value on change
+    if (selectElement.name === SELECT_NAMES.qualityResolution) {
+        selectElement.addEventListener("change", () => {
+            cookie.set(cookieName, selectElement.value);
+        });
+    }
 }
 
 // -------------------------------------------------------------
@@ -46,9 +80,9 @@ function setupCookieSelectSync(selectElement, cookieName) {
 // Handles enabling/disabling format options based on quality
 // -------------------------------------------------------------
 function setupQualityFormatLogic() {
-    const qualityCodecSelect = document.querySelector('select[name="quality-codec"]');
-    const qualityResolutionSelect = document.querySelector('select[name="quality-resolution"]');
-    const formatSelect = document.querySelector('select[name="format"]');
+    const qualityCodecSelect = getSelectByName(SELECT_NAMES.qualityCodec);
+    const qualityResolutionSelect = getSelectByName(SELECT_NAMES.qualityResolution);
+    const formatSelect = getSelectByName(SELECT_NAMES.format);
 
     if (!qualityCodecSelect || !qualityResolutionSelect || !formatSelect) return;
 
@@ -74,14 +108,12 @@ function setupQualityFormatLogic() {
 
         if (isCodecFormatOnlyAudio && !qualityResolutionSelect.disabled) {
             qualityResolutionSelect.disabled = true;
-
-            qualityResolutionSelect.value = emptyValue
+            qualityResolutionSelect.value = emptyValue;
         }
 
         if (!isCodecFormatOnlyAudio && qualityResolutionSelect.disabled) {
             qualityResolutionSelect.disabled = false;
-
-            qualityResolutionSelect.value = maxValue
+            qualityResolutionSelect.value = maxValue;
         }
 
         formatSelect.querySelectorAll("option").forEach(option => {
@@ -112,6 +144,7 @@ function setupQualityFormatLogic() {
                 formatSelect.value = videoFormatDefault;
             }
         }
+        saveAllSelectsToCookie();
     };
 
     updateFormatOptions();
@@ -130,14 +163,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputURL = document.querySelector('#youtubeURL');
     const resultDivInfo = document.querySelector('#grab-result-info');
 
-    const selectQualityCodec = document.querySelector('select[name="quality-codec"]');
-    const selectQualityResolution = document.querySelector('select[name="quality-resolution"]');
-    const selectFormat = document.querySelector('select[name="format"]');
-
     // Sync selects with cookies
-    setupCookieSelectSync(selectQualityCodec, "selectQualityCodec");
-    setupCookieSelectSync(selectQualityResolution, "selectQualityResolution");
-    setupCookieSelectSync(selectFormat, "selectFormat");
+    setupCookieSelectSync(SELECT_NAMES.qualityCodec, COOKIE_NAMES.qualityCodec);
+    setupCookieSelectSync(SELECT_NAMES.qualityResolution, COOKIE_NAMES.qualityResolution);
+    setupCookieSelectSync(SELECT_NAMES.format, COOKIE_NAMES.format);
 
     // Submit on Enter
     inputURL.addEventListener('keydown', (event) => {
