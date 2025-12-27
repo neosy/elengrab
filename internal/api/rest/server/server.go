@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"log/slog"
+	"time"
 
 	"github.com/neosy/elengrab/internal/app/usecases"
 	appenv "github.com/neosy/elengrab/pkg/nconfig/app_env"
@@ -54,10 +55,56 @@ func (s *httpServer) ListenAndServe(ctx context.Context, port string) error {
 	router := s.newRouter()
 	handler := nfasthttp.NewHandler(ctx, s.logger, s.appEnv, router.Handler)
 
+	server := &fasthttp.Server{
+		Handler: handler,
+
+		// --- Timeouts ---
+		// Protects against slowloris attacks
+		ReadTimeout: 5 * time.Second,
+		// Prevents hanging writes to slow clients
+		WriteTimeout: 10 * time.Second,
+		// Limits keep-alive connection lifetime
+		IdleTimeout: 30 * time.Second,
+
+		// --- Concurrency and limits ---
+		// Maximum number of concurrent connections
+		Concurrency: 1024,
+		// Prevents a single IP from exhausting workers
+		MaxConnsPerIP: 100,
+		// Periodically rotates long-lived connections
+		MaxRequestsPerConn: 1000,
+
+		// --- Buffers and request sizes ---
+		// Sufficient for large headers and cookies
+		ReadBufferSize:  16 * 1024,
+		WriteBufferSize: 16 * 1024,
+		// 10 MB request body limit
+		MaxRequestBodySize: 10 * 1024 * 1024,
+
+		// --- Worker pool management ---
+		// Cleans up unused workers
+		MaxIdleWorkerDuration: 30 * time.Second,
+
+		// --- TCP keep-alive ---
+		TCPKeepalive:       true,
+		TCPKeepalivePeriod: 30 * time.Second,
+
+		// --- Logging ---
+		// Avoid log spam from common network errors
+		LogAllErrors: false,
+		// Do not log sensitive request data
+		SecureErrorLogMessage: true,
+	}
+
 	log.Printf("HTTP server listening on %s\n", addr)
 
-	err := fasthttp.ListenAndServe(addr, handler)
-	if err != nil {
+	go func() {
+		<-ctx.Done()
+		_ = server.Shutdown()
+	}()
+
+	err := server.ListenAndServe(addr)
+	if err != nil && ctx.Err() == nil {
 		s.logger.ErrorContext(ctx, fmt.Sprintf("error run server: %v", err))
 		return err
 	}
