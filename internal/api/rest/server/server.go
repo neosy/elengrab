@@ -59,12 +59,13 @@ func (s *httpServer) ListenAndServe(ctx context.Context, port string) error {
 		Handler: handler,
 
 		// --- Timeouts ---
-		// Protects against slowloris attacks
-		ReadTimeout: 5 * time.Second,
-		// Prevents hanging writes to slow clients
-		WriteTimeout: 10 * time.Second,
+		// Protects against slowloris during request read
+		ReadTimeout: 30 * time.Second,
+		// Disable the limit on the duration of recording the response
+		// otherwise the long download (10+ minutes) will be interrupted
+		WriteTimeout: 0,
 		// Limits keep-alive connection lifetime
-		IdleTimeout: 30 * time.Second,
+		IdleTimeout: 60 * time.Second,
 
 		// --- Concurrency and limits ---
 		// Maximum number of concurrent connections
@@ -76,8 +77,8 @@ func (s *httpServer) ListenAndServe(ctx context.Context, port string) error {
 
 		// --- Buffers and request sizes ---
 		// Sufficient for large headers and cookies
-		ReadBufferSize:  16 * 1024,
-		WriteBufferSize: 16 * 1024,
+		ReadBufferSize:  32 * 1024,
+		WriteBufferSize: 32 * 1024,
 		// 10 MB request body limit
 		MaxRequestBodySize: 10 * 1024 * 1024,
 
