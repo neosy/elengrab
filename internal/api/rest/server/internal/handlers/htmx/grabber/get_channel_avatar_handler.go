@@ -20,6 +20,7 @@ func (h *GrabberHandlers) GetChannelAvatar(ctx *fasthttp.RequestCtx) {
 
 		if channelInfo != nil && len(channelInfo.ImageRaw) > 0 {
 			ctx.SetContentType(h.mappers.MapImageFormatToContentType(channelInfo.ImageFormat))
+			ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
 			ctx.SetBody(channelInfo.ImageRaw)
 			ctx.SetStatusCode(fasthttp.StatusOK)
 			return
