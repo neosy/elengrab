@@ -31,11 +31,12 @@ type fileRowInfoData struct {
 }
 
 type cacheRowEntry struct {
-	youtubeTitle string
-	FileSize     int
-	Format       string
-	Status       dtypes.FileStatus
-	Updated      time.Time
+	youtubeChannelID string
+	youtubeTitle     string
+	FileSize         int
+	Format           string
+	Status           dtypes.FileStatus
+	Updated          time.Time
 }
 
 type cache[T any] struct {
@@ -54,10 +55,11 @@ var (
 func (h *GrabberHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHistory bool) (*bytes.Buffer, int, error) {
 	var (
 		cacheChanged = struct {
-			youtubeTitle bool
-			FileSize     bool
-			Format       bool
-			Status       bool
+			youtubeChannelID bool
+			youtubeTitle     bool
+			FileSize         bool
+			Format           bool
+			Status           bool
 		}{}
 	)
 
@@ -72,6 +74,9 @@ func (h *GrabberHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHistor
 		cacheRow.mu.RUnlock()
 
 		if exists {
+			if fileInfo.YoutubeChannelID != nil {
+				cacheChanged.youtubeChannelID = cached.youtubeChannelID != *fileInfo.YoutubeChannelID
+			}
 			cacheChanged.youtubeTitle = cached.youtubeTitle != fileInfo.YoutubeTitle
 			if fileInfo.FileSize != nil {
 				cacheChanged.FileSize = cached.FileSize != *fileInfo.FileSize
@@ -81,6 +86,7 @@ func (h *GrabberHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHistor
 		}
 
 		if exists && fileInfo.Status != dtypes.FileStatusDone &&
+			!cacheChanged.youtubeChannelID &&
 			!cacheChanged.youtubeTitle &&
 			!cacheChanged.FileSize &&
 			!cacheChanged.Format &&
@@ -92,17 +98,22 @@ func (h *GrabberHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHistor
 		}
 
 		// Updating the cache
+		var youtubeChannelID string
+		if fileInfo.YoutubeChannelID != nil {
+			youtubeChannelID = *fileInfo.YoutubeChannelID
+		}
 		var fileSize int
 		if fileInfo.FileSize != nil {
 			fileSize = *fileInfo.FileSize
 		}
 		cacheRow.mu.Lock()
 		cacheRow.data[fileInfo.FileId] = cacheRowEntry{
-			youtubeTitle: fileInfo.YoutubeTitle,
-			FileSize:     fileSize,
-			Format:       fileInfo.FileExt,
-			Status:       fileInfo.Status,
-			Updated:      time.Now(),
+			youtubeChannelID: youtubeChannelID,
+			youtubeTitle:     fileInfo.YoutubeTitle,
+			FileSize:         fileSize,
+			Format:           fileInfo.FileExt,
+			Status:           fileInfo.Status,
+			Updated:          time.Now(),
 		}
 		cacheRow.mu.Unlock()
 	}

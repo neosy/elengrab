@@ -37,7 +37,7 @@ func (s *DownloadState) InitFromDownloadResult(result *DownloadResult) {
 		return
 	}
 
-	if result.ChannelID != nil {
+	if result.ChannelID != nil && result.ChannelAvatar != nil {
 		s.File.YoutubeChannelID = result.ChannelID
 	}
 

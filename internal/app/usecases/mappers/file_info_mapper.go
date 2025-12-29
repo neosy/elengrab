@@ -43,5 +43,6 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(file *ddownload.File, download
 		MediaInfo:            file.MediaInfo,
 		MediaInfoText:        mediaInfoText,
 		CreatedAt:            file.CreatedAt,
+		UpdatedAt:            file.UpdatedAt,
 	}
 }

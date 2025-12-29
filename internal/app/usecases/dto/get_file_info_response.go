@@ -23,4 +23,5 @@ type GetFileInfoResponse struct {
 	MediaInfo            *ddownload.MediaInfo
 	MediaInfoText        string
 	CreatedAt            time.Time
+	UpdatedAt            time.Time
 }
