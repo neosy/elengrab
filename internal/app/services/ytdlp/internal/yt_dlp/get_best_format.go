@@ -52,29 +52,34 @@ func (y *YTDlp) getBestFormat(
 		return nil, fmt.Errorf("best format not found")
 	}
 
-	parts := strings.SplitN(outStr, " - ", 2)
-	bestFormatId := parts[0]
+	formats := strings.SplitN(outStr, "+", 2)
+	var bestFormatIds = make([]string, 0, len(formats))
+	for _, f := range formats {
+		parts := strings.SplitN(f, " - ", 2)
+		bestFormatIds = append(bestFormatIds, parts[0])
+	}
 
 	info, err := y.getFormats(ctx, url)
 	if err != nil {
 		return nil, err
 	}
 
-	var bestFormat *idto.Format
-	for _, f := range info.Formats {
-		if f.FormatID == bestFormatId {
-			bestFormat = &f
-			break
+	var bestFormats []idto.Format
+	for _, bf := range bestFormatIds {
+		for _, f := range info.Formats {
+			if bf == f.FormatID {
+				bestFormats = append(bestFormats, f)
+			}
 		}
 	}
 
-	if bestFormat == nil {
+	if len(bestFormats) == 0 {
 		err := fmt.Errorf("best format not found")
 		return nil, err
 	}
 
 	var bestInfo *idto.YouTubeInfo = uptr.Any(*info)
-	bestInfo.Formats = []idto.Format{*bestFormat}
+	bestInfo.Formats = bestFormats
 
 	return bestInfo, nil
 }
