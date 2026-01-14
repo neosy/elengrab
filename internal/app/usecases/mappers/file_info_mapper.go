@@ -15,19 +15,6 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(file *ddownload.File, download
 		youtubeTitle = file.YoutubeUrl
 	}
 
-	var mediaInfoText string
-	if file.MediaInfo != nil {
-		if file.MediaInfo.VideoCodec != dtypes.VideoCodecNone {
-			mediaInfoText = fmt.Sprintf(
-				"%v, %v, %dx%d",
-				file.MediaInfo.VideoCodec.Title(),
-				file.MediaInfo.Resolution,
-				file.MediaInfo.Width,
-				file.MediaInfo.Height,
-			)
-		}
-	}
-
 	return &dto.GetFileInfoResponse{
 		FileId:               file.FileId,
 		Status:               file.Status,
@@ -41,8 +28,46 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(file *ddownload.File, download
 		SafeReadableFullName: file.SafeReadableFullName,
 		StatusText:           uptr.Deref(file.ErrorMessage),
 		MediaInfo:            file.MediaInfo,
-		MediaInfoText:        mediaInfoText,
+		MediaInfoText:        mediaInfoText(file.MediaInfo),
 		CreatedAt:            file.CreatedAt,
 		UpdatedAt:            file.UpdatedAt,
 	}
+}
+
+func mediaInfoText(mediaInfo *ddownload.MediaInfo) string {
+	if mediaInfo == nil {
+		return ""
+	}
+
+	if mediaInfo.VideoInfo != nil {
+		if mediaInfo.VideoInfo.Codec != dtypes.VideoCodecNone {
+			videoInfo := mediaInfo.VideoInfo
+			return fmt.Sprintf(
+				"%v, %v, %dx%d",
+				videoInfo.Codec.Title(),
+				videoInfo.Resolution,
+				videoInfo.Width,
+				videoInfo.Height,
+			)
+		}
+		return ""
+	}
+
+	if mediaInfo.AudioInfo != nil {
+		if mediaInfo.AudioInfo.Codec != dtypes.AudioCodecNone {
+			audioInfo := mediaInfo.AudioInfo
+			text := fmt.Sprintf(
+				"%v, %d kbps",
+				audioInfo.Codec.Title(),
+				audioInfo.Bitrate,
+			)
+			if audioInfo.SampleRate != nil {
+				text += fmt.Sprintf(", %d Hz", *audioInfo.SampleRate)
+			}
+			return text
+		}
+		return ""
+	}
+
+	return ""
 }
