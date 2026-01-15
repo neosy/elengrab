@@ -186,9 +186,17 @@ func (y *YTDlp) prepareMetadata(
 	fileFullName := fmt.Sprintf("%s.%s", fileName, fileExt)
 	filePath := path.Join(dlDir, fileFullName)
 
-	var fileSize *int
-	if len(info.Formats) == 1 {
-		fileSize = info.Formats[0].Filesize
+	var (
+		fileSize *int
+		tmpSize  int
+	)
+	for _, f := range info.Formats {
+		if f.Filesize != nil {
+			tmpSize += *f.Filesize
+		}
+	}
+	if tmpSize != 0 {
+		fileSize = &tmpSize
 	}
 
 	var channelID *string
