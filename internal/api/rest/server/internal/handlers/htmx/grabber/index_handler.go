@@ -20,12 +20,13 @@ func (h *GrabberHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 		needLoadHistory = len(resps) != 0
 	}
 
+	ctx.Response.Header.SetCookie(cookiePageHasDivItemsKey.makeCookie(fmt.Sprint(needLoadHistory), "/", 7*24*60*60))
+
 	// Set content type so browser renders HTML properly
 	ctx.SetContentType("text/html; charset=utf-8")
 
 	dataMap := htmxvalues.MergeMaps(htmxvalues.IndexValues, htmxvalues.PathValues)
 	dataMap[htmxvalues.NeedLoadHistoryKey] = needLoadHistory
-	dataMap[htmxvalues.DataOnlyOneKey] = !needLoadHistory
 
 	// Execute template with PageTitle
 	if err := h.templates.ExecuteTemplate(ctx, htmxvalues.IndexHtmlFileName, dataMap); err != nil {

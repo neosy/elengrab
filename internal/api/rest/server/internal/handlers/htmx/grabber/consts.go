@@ -16,5 +16,7 @@ const (
 	beforeKey    = "before"
 	channelIDKey = "channelID"
 
+	cookiePageHasDivItemsKey cookieKey = "page_has_div_items"
+
 	channelIDValueNone = "none"
 )

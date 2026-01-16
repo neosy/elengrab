@@ -24,10 +24,7 @@ type grabResultData struct {
 }
 
 func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
-	var itemsOnlyOne = false
-	if itemsOnlyOneStr := string(ctx.Request.Header.Cookie("resultItemsOnlyOne")); itemsOnlyOneStr == "true" {
-		itemsOnlyOne = true
-	}
+	var pageHasDivItems = cookiePageHasDivItemsKey.compareValue(ctx, "true")
 
 	url := string(ctx.FormValue(formFieldYouTubeURLKey))
 	if url == "" {
@@ -77,6 +74,8 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	ctx.Response.Header.SetCookie(cookiePageHasDivItemsKey.makeCookie("true", "/", 7*24*60*60))
+
 	// Updating the cache
 	{
 		cacheRow.mu.Lock()
@@ -109,8 +108,7 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	dataMap[htmxvalues.GrabResultItemDeleteIconKey] = template.HTML(
 		htmxvalues.IconFileRaw(htmxvalues.IconFileName(htmxvalues.DownloadDeleteIconNameKey), iconsDir))
 	dataMap[htmxvalues.IsItemHTMXOptionRepeatKey] = true
-	dataMap[htmxvalues.IsItemFirstKey] = itemsOnlyOne
-	dataMap[htmxvalues.DataOnlyOneKey] = false
+	dataMap[htmxvalues.PageHasDivItemsKey] = pageHasDivItems
 	dataMap[htmxvalues.ItemFadeKey] = "fade-in"
 	dataMap[htmxvalues.GrabResultItemStatusTextKey] = ""
 	dataMap[htmxvalues.ResultYoutubeUrlFadeKey] = ""
