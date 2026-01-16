@@ -32,9 +32,9 @@ const SELECT_NAMES = {
 };
 
 const COOKIE_NAMES = {
-    qualityCodec: "selectQualityCodec",
-    qualityResolution: "selectQualityResolution",
-    format: "selectFormat"
+    qualityCodec: "select_quality_codec",
+    qualityResolution: "select_quality_resolution",
+    format: "select_format"
 };
 
 // -------------------------------------------------------------
@@ -197,14 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 }
             }
-        }
-    });
-
-    // Save resultItemsOnlyOne before HTMX request
-    document.body.addEventListener('htmx:beforeRequest', function (evt) {
-        const div = document.getElementById("grab-result-item-replaceme");
-        if (div) {
-            cookie.set('resultItemsOnlyOne', div.dataset.onlyOne, 7);
         }
     });
 

@@ -3,10 +3,9 @@ package htmxvalues
 const (
 	GrabResultItemStatusHtmlKey = "GrabResultItemStatusHtml"
 	GrabResultItemStatusTextKey = "GrabResultItemStatusText"
-	DataOnlyOneKey              = "DataOnlyOne"
 	NeedLoadHistoryKey          = "NeedLoadHistory"
 	ItemFadeKey                 = "ItemFade"
-	IsItemFirstKey              = "IsItemFirst"
+	PageHasDivItemsKey          = "PageHasDivItems"
 	IsItemHTMXOptionRepeatKey   = "IsItemHTMXOptionRepeat"
 	IsItemSpinerKey             = "IsItemSpiner"
 	ResultItemDeleteUrlKey      = "ResultItemDeleteUrl"
