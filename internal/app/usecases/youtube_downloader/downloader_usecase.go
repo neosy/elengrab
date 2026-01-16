@@ -11,6 +11,7 @@ import (
 	fileuc "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/file"
 	filestatus "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/file_status"
 	ytchannel "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader/internal/youtube_channel"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
@@ -37,7 +38,7 @@ type YouTubeDownloader struct {
 
 	// Options
 	downloadsDir string
-	loadHistory  bool
+	historyMode  dtypes.HistoryMode
 }
 
 func NewYouTubeDownloader(
@@ -61,7 +62,7 @@ func NewYouTubeDownloader(
 
 	// options
 	downloadsDir string,
-	loadHistory bool,
+	historyMode dtypes.HistoryMode,
 ) *YouTubeDownloader {
 	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRep)
 
@@ -92,6 +93,6 @@ func NewYouTubeDownloader(
 
 		// Options
 		downloadsDir: downloadsDir,
-		loadHistory:  loadHistory,
+		historyMode:  historyMode,
 	}
 }

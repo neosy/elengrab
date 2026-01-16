@@ -7,8 +7,8 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 )
 
-func (uc *File) Patch(ctx context.Context, fileId uuid.UUID, patch *dto.FileInfoPatch) error {
-	file, err := uc.FindByFileId(ctx, fileId, true)
+func (uc *File) Patch(ctx context.Context, userID *uuid.UUID, fileId uuid.UUID, patch *dto.FileInfoPatch) error {
+	file, err := uc.GetByFileId(ctx, userID, fileId)
 	if err != nil {
 		return err
 	}

@@ -8,6 +8,8 @@ import (
 
 // setupHtmxUIRoutes setup UI routes.
 func (s *httpServer) setupHtmxUIRoutes(r *router.Router, handlers *htmxh.HTMXHandlers) {
+	auth := s.authMiddleware.AutoRegister
+
 	// Static
 	group := r.Group(httppaths.GroupStatic)
 	{
@@ -20,11 +22,11 @@ func (s *httpServer) setupHtmxUIRoutes(r *router.Router, handlers *htmxh.HTMXHan
 	// Downloader
 	group = r.Group(httppaths.GroupDownloader)
 	{
-		group.GET(httppaths.PathHistory, handlers.Grabber.GetFilesHistoryHandler)
-		group.POST(httppaths.PathGrab, handlers.Grabber.GrabHandler)
-		group.GET(httppaths.PathDownload, handlers.Grabber.DownloadHandler)
-		group.GET(httppaths.PathFileRow, handlers.Grabber.GetFileRow)
-		group.DELETE(httppaths.PathFileRow, handlers.Grabber.DeleteFileRow)
+		group.GET(httppaths.PathHistory, auth(handlers.Grabber.GetFilesHistoryHandler))
+		group.POST(httppaths.PathGrab, auth(handlers.Grabber.GrabHandler))
+		group.GET(httppaths.PathDownload, auth(handlers.Grabber.DownloadHandler))
+		group.GET(httppaths.PathFileRow, auth(handlers.Grabber.GetFileRow))
+		group.DELETE(httppaths.PathFileRow, auth(handlers.Grabber.DeleteFileRow))
 		group.GET(httppaths.PathChannelAvatar, handlers.Grabber.GetChannelAvatar)
 	}
 }

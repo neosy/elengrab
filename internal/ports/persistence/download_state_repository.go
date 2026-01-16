@@ -14,6 +14,8 @@ type DownloadStateRepository interface {
 	Delete(ctx context.Context, fileId uuid.UUID) error
 	FindByFileId(ctx context.Context, fileId uuid.UUID) (*ddownload.DownloadState, error)
 	FindByTaskId(ctx context.Context, taskId uuid.UUID) (*ddownload.DownloadState, error)
+
+	WithUser(userID uuid.UUID) DownloadStateRepository
 }
 
 type DownloadStateCacheRepository interface {

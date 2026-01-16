@@ -9,6 +9,12 @@ import (
 )
 
 func (h *GrabberHandlers) DeleteFileRow(ctx *fasthttp.RequestCtx) {
+	userID, err := getUserIDFromContext(ctx)
+	if err != nil {
+		nfasthttp.WriteError(ctx, fmt.Errorf("authorization error: %v", err), fasthttp.StatusUnauthorized)
+		return
+	}
+
 	fileIdStr := ctx.UserValue(fileIdKey).(string)
 	if fileIdStr == "" {
 		nfasthttp.WriteError(ctx, fmt.Errorf("fileId is required"), fasthttp.StatusBadRequest)
@@ -21,7 +27,7 @@ func (h *GrabberHandlers) DeleteFileRow(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	err = h.usecases.Downloader.DeleteDownload(ctx, fileId)
+	err = h.usecases.Downloader.DeleteDownload(ctx, userID, fileId)
 	if err != nil {
 		nfasthttp.WriteError(ctx, err, fasthttp.StatusInternalServerError)
 		return

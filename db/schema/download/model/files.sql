@@ -2,6 +2,9 @@ CREATE TABLE IF NOT EXISTS files (
     -- Unique file identifier (UUID)
     file_id TEXT PRIMARY KEY,
 
+    -- Associated user identifier (UUID)
+    user_id TEXT NULL,
+
     -- Status
     file_status TEXT NOT NULL DEFAULT 'new', -- new, pending, working, done, failed
 
@@ -45,7 +48,10 @@ CREATE TABLE IF NOT EXISTS files (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- Record delete timestamp
-    deleted_at DATETIME NULL
+    deleted_at DATETIME NULL,
+
+    -- Foreign key linking files to user
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE RESTRICT
 );
 
 CREATE INDEX IF NOT EXISTS files_created_at_idx
@@ -57,3 +63,6 @@ ON files(partial_hash);
 CREATE INDEX files_deleted_at_null_idx
 ON files(deleted_at)
 WHERE deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS files_user_id_idx
+ON files(user_id);

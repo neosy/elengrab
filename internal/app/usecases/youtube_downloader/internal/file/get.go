@@ -2,27 +2,52 @@ package fileuc
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/pkg/errorx"
+	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
 )
 
-func (uc *File) FindByFileId(ctx context.Context, fileId uuid.UUID, checkNotFound bool) (*ddownload.File, error) {
-	file, err := uc.fileRep.FindByFileId(ctx, fileId)
+func (uc *File) FindByFileId(
+	ctx context.Context,
+	userID *uuid.UUID,
+	fileId uuid.UUID,
+) (*ddownload.File, error) {
+	fileRep := uc.fileRep
+	if userID != nil {
+		fileRep = uc.fileRep.WithUser(*userID)
+	}
+
+	file, err := fileRep.FindByFileId(ctx, fileId)
 	if err != nil {
 		uc.logger.Warn("Failed to find record", "error", err)
 		return nil, err
 	}
 
-	if checkNotFound && file == nil {
-		uc.logger.Warn("Record not found", "fileId", fileId)
-		return nil, errors.New("record not found")
+	return file, err
+}
+
+// GetByFileId
+// File MUST exist — otherwise NOT_FOUND
+func (uc *File) GetByFileId(
+	ctx context.Context,
+	userID *uuid.UUID,
+	fileID uuid.UUID,
+) (*ddownload.File, error) {
+	file, err := uc.FindByFileId(ctx, userID, fileID)
+	if err != nil {
+		return nil, errorx.NewByErr(err, exceptionx.ERROR)
 	}
 
-	return file, err
+	if file == nil {
+		uc.logger.Warn("File not found", "fileID", fileID)
+		return nil, errorx.New("file not found", exceptionx.NOT_FOUND)
+	}
+
+	return file, nil
 }
 
 func (uc *File) GetAll(ctx context.Context, includeDeleted bool) ([]*ddownload.File, error) {
@@ -45,8 +70,13 @@ func (uc *File) GetAllFullNames(ctx context.Context, includeDeleted bool) ([]str
 	return names, nil
 }
 
-func (uc *File) GetBeforeTime(ctx context.Context, before time.Time, limit uint64) ([]*ddownload.File, error) {
-	file, err := uc.fileRep.GetBeforeTime(ctx, before, limit)
+func (uc *File) GetBeforeTime(ctx context.Context, userID *uuid.UUID, before time.Time, limit uint64) ([]*ddownload.File, error) {
+	fileRep := uc.fileRep
+	if userID != nil {
+		fileRep = uc.fileRep.WithUser(*userID)
+	}
+
+	file, err := fileRep.GetBeforeTime(ctx, before, limit)
 	if err != nil {
 		uc.logger.Warn("Failed to get files", "error", err)
 		return nil, err

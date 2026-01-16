@@ -94,7 +94,7 @@ ELENGRAB_DOWNLOAD_WORKERS=3
 | `ELENGRAB_ASSETS_DIR` | `./assets` | Directory containing application assets. |
 | `ELENGRAB_DOWNLOADS_DIR` | `./downloads` | Directory where downloaded files are stored inside the container. Must be mapped to a host volume. |
 | `ELENGRAB_DOWNLOAD_WORKERS` | 3 | Number of concurrent workers used for processing YouTube video and audio tasks in parallel. |
-| `ELENGRAB_LOAD_HISTORY` | `true` | Whether to display the download history of files. Set to true to show the history, or false to hide it. |
+| `ELENGRAB_HISTORY_MODE` | `GLOBAL` | Defines how download history is displayed. Possible values: `GLOBAL`, `DISABLED`, `PER_USER`. |
 | `ELENGRAB_MAINTENANCE_ENABLE_MOVE_UNMATCHED_FILES` | `false`   | Enables the periodic operation that moves files not present in the database tables from the download folder to the `.lost` folder. Default is `false` (disabled). |
 
 ---

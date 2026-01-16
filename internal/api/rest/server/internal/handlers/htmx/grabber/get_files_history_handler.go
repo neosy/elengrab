@@ -15,6 +15,13 @@ func (h *GrabberHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 		bodyBuffer bytes.Buffer
 	)
 
+	userID, err := getUserIDFromContext(ctx)
+	if err != nil {
+		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
+		ctx.SetBodyString(fmt.Sprintf("Authorization error: %v", err))
+		return
+	}
+
 	beforeStr := string(ctx.QueryArgs().Peek(beforeKey))
 	if beforeStr != "" {
 		var err error
@@ -26,7 +33,7 @@ func (h *GrabberHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	resps, err := h.usecases.Downloader.LoadHistory(ctx, before, loadHistoryLimit)
+	resps, err := h.usecases.Downloader.LoadHistory(ctx, userID, before, loadHistoryLimit)
 	if err != nil {
 		ctx.SetStatusCode(fasthttp.StatusOK)
 		ctx.SetBodyString("")

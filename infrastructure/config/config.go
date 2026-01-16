@@ -38,8 +38,8 @@ type ElengrabConfig struct {
 	AssetsDir    string `env:"ASSETS_DIR" envDefault:"./assets"`
 	DownloadsDir string `env:"DOWNLOADS_DIR" envDefault:"./downloads"`
 
-	DownloadWorkers int  `env:"DOWNLOAD_WORKERS" envDefault:"3"`
-	LoadHistory     bool `env:"LOAD_HISTORY" envDefault:"true"`
+	DownloadWorkers int    `env:"DOWNLOAD_WORKERS" envDefault:"3"`
+	HistoryMode     string `env:"HISTORY_MODE" envDefault:"GLOBAL"`
 
 	Maintenance ElengrabMaintenanceConfig `envPrefix:"MAINTENANCE_"`
 }

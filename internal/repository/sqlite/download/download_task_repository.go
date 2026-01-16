@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/Masterminds/squirrel"
@@ -14,6 +13,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
+	"github.com/neosy/elengrab/internal/repository/sqlite/lock"
 	"github.com/neosy/elengrab/pkg/dbutils"
 	"modernc.org/sqlite"
 	sqlite3 "modernc.org/sqlite/lib"
@@ -22,7 +22,7 @@ import (
 type DownloadTaskRepository struct {
 	mappers *mappers.Mappers
 	db      *sql.DB
-	mu      *sync.RWMutex
+	lock    lock.WriteLocker
 
 	// options
 	retryOptions retryOptions
@@ -34,11 +34,11 @@ type taskByFields struct {
 }
 
 // NewTaskRepository returns a new object for the repository
-func NewDownloadTaskRepository(db *sql.DB, mu *sync.RWMutex) *DownloadTaskRepository {
+func NewDownloadTaskRepository(db *sql.DB, lock lock.WriteLocker) *DownloadTaskRepository {
 	return &DownloadTaskRepository{
 		mappers: mappers.NewMappers(),
 		db:      db,
-		mu:      mu,
+		lock:    lock,
 
 		// options
 		retryOptions: retryOptions{
@@ -85,7 +85,7 @@ func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.Downl
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.mu, sqlQuery, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save task: %v", err)
 	}
@@ -114,7 +114,7 @@ func (r *DownloadTaskRepository) UpdateStatusToNew(ctx context.Context) error {
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.mu, sqlStr, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to update file: %v", err)
 	}
@@ -253,7 +253,7 @@ func (r *DownloadTaskRepository) Delete(ctx context.Context, taskId uuid.UUID) e
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.mu, sqlStr, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete task: %v", err)
 	}
@@ -283,7 +283,7 @@ func (r *DownloadTaskRepository) deleteBy(ctx context.Context, byFields taskByFi
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.mu, sqlStr, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete task: %v", err)
 	}

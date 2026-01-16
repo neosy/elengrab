@@ -15,7 +15,7 @@ func (uc *FileStatus) updateStatus(
 	toStatus dtypes.FileStatus,
 	updateFieldsFunc func(file *ddownload.File),
 ) error {
-	file, err := uc.file.FindByFileId(ctx, fileId, true)
+	file, err := uc.file.GetByFileId(ctx, nil, fileId)
 	if err != nil {
 		return err
 	}

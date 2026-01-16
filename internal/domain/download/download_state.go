@@ -5,6 +5,7 @@ import (
 )
 
 type DownloadState struct {
+	UserID *uuid.UUID
 	FileId uuid.UUID
 	TaskId *uuid.UUID
 
@@ -20,6 +21,7 @@ func (s *DownloadState) InitFromFile(file *File) {
 		return
 	}
 
+	s.UserID = file.UserID
 	s.FileId = file.FileId
 	s.File = file
 

@@ -5,13 +5,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/Masterminds/squirrel"
 	dyoutube "github.com/neosy/elengrab/internal/domain/youtube_info"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
+	"github.com/neosy/elengrab/internal/repository/sqlite/lock"
 	"github.com/neosy/elengrab/pkg/dbutils"
 	"modernc.org/sqlite"
 	sqlite3 "modernc.org/sqlite/lib"
@@ -20,18 +20,18 @@ import (
 type YoutubeChannelRepository struct {
 	mappers *mappers.Mappers
 	db      *sql.DB
-	mu      *sync.RWMutex
+	lock    lock.WriteLocker
 
 	// options
 	retryOptions retryOptions
 }
 
 // NewYoutubeChannelRepository returns a new object for the repository
-func NewYoutubeChannelRepository(db *sql.DB, mu *sync.RWMutex) *YoutubeChannelRepository {
+func NewYoutubeChannelRepository(db *sql.DB, lock lock.WriteLocker) *YoutubeChannelRepository {
 	return &YoutubeChannelRepository{
 		mappers: mappers.NewMappers(),
 		db:      db,
-		mu:      mu,
+		lock:    lock,
 
 		// options
 		retryOptions: retryOptions{
@@ -78,7 +78,7 @@ func (r *YoutubeChannelRepository) Save(ctx context.Context, channel *dyoutube.Y
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.mu, sqlQuery, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save youtubeChannel: %v", err)
 	}

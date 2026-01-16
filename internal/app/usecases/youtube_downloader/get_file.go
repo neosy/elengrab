@@ -9,13 +9,23 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/pkg/errorx"
 	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
-func (uc *YouTubeDownloader) GetFileInfo(ctx context.Context, fileId uuid.UUID) (*dto.GetFileInfoResponse, error) {
-	resp, err := uc.findStateAndFileInfo(ctx, &fileId, nil, false)
+func (uc *YouTubeDownloader) GetFileInfo(
+	ctx context.Context,
+	userID uuid.UUID,
+	fileID uuid.UUID,
+) (*dto.GetFileInfoResponse, error) {
+	var accessByUserID *uuid.UUID
+	if uc.historyMode != dtypes.HistoryModeGlobal {
+		accessByUserID = &userID
+	}
+
+	resp, err := uc.findStateAndFileInfo(ctx, accessByUserID, &fileID, nil, false)
 	if err != nil {
 		uc.logger.Error("Failed get file info", "error", err)
 		return nil, errorx.NewByErr(err, exceptionx.ERROR)
@@ -26,7 +36,13 @@ func (uc *YouTubeDownloader) GetFileInfo(ctx context.Context, fileId uuid.UUID) 
 	return resp, nil
 }
 
-func (uc *YouTubeDownloader) findStateAndFileInfo(ctx context.Context, fileId *uuid.UUID, file *ddownload.File, checkNotFound bool) (*dto.GetFileInfoResponse, error) {
+func (uc *YouTubeDownloader) findStateAndFileInfo(
+	ctx context.Context,
+	userID *uuid.UUID,
+	fileId *uuid.UUID,
+	file *ddownload.File,
+	checkNotFound bool,
+) (*dto.GetFileInfoResponse, error) {
 	var id uuid.UUID
 
 	if file != nil {
@@ -42,7 +58,7 @@ func (uc *YouTubeDownloader) findStateAndFileInfo(ctx context.Context, fileId *u
 
 	var fileResp *ddownload.File
 
-	state, _ := uc.dlStateCache.FindByFileId(ctx, id)
+	state, _ := uc.dlStateCache.FindByFileId(ctx, userID, id)
 	if state != nil && state.File != nil {
 		fileResp = uptr.Any(*state.File)
 	}
@@ -52,9 +68,21 @@ func (uc *YouTubeDownloader) findStateAndFileInfo(ctx context.Context, fileId *u
 	}
 
 	if fileResp == nil {
-		file, err := uc.file.FindByFileId(ctx, id, checkNotFound)
-		if err != nil {
-			return nil, err
+		var (
+			file *ddownload.File
+			err  error
+		)
+
+		if checkNotFound {
+			file, err = uc.file.GetByFileId(ctx, userID, id)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			file, err = uc.file.FindByFileId(ctx, userID, id)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		if file == nil {
@@ -67,18 +95,33 @@ func (uc *YouTubeDownloader) findStateAndFileInfo(ctx context.Context, fileId *u
 	return uc.mappers.MapFileDomainToFileInfoResponse(fileResp, uc.downloadsDir), nil
 }
 
-func (uc *YouTubeDownloader) LoadHistory(ctx context.Context, before time.Time, limit uint64) ([]*dto.GetFileInfoResponse, error) {
-	if !uc.loadHistory {
+func (uc *YouTubeDownloader) LoadHistory(
+	ctx context.Context,
+	userID uuid.UUID,
+	before time.Time,
+	limit uint64,
+) ([]*dto.GetFileInfoResponse, error) {
+	if uc.historyMode == dtypes.HistoryModeDisabled {
 		return []*dto.GetFileInfoResponse{}, nil
 	}
 
-	return uc.getFilesInfo(ctx, before, limit)
+	var filterUserID *uuid.UUID
+	if uc.historyMode == dtypes.HistoryModePerUser {
+		filterUserID = &userID
+	}
+
+	return uc.getFilesInfo(ctx, filterUserID, before, limit)
 }
 
-func (uc *YouTubeDownloader) getFilesInfo(ctx context.Context, before time.Time, limit uint64) ([]*dto.GetFileInfoResponse, error) {
+func (uc *YouTubeDownloader) getFilesInfo(
+	ctx context.Context,
+	userID *uuid.UUID,
+	before time.Time,
+	limit uint64,
+) ([]*dto.GetFileInfoResponse, error) {
 	var resps []*dto.GetFileInfoResponse
 
-	files, err := uc.file.GetBeforeTime(ctx, before, limit)
+	files, err := uc.file.GetBeforeTime(ctx, userID, before, limit)
 	if err != nil {
 		uc.logger.Warn("Failed get files", "before", before, "limit", limit, "error", err)
 		return nil, err
@@ -86,7 +129,7 @@ func (uc *YouTubeDownloader) getFilesInfo(ctx context.Context, before time.Time,
 
 	resps = make([]*dto.GetFileInfoResponse, 0, len(files))
 	for _, file := range files {
-		resp, err := uc.findStateAndFileInfo(ctx, nil, file, true)
+		resp, err := uc.findStateAndFileInfo(ctx, userID, nil, file, true)
 		if err != nil {
 			continue
 		}
@@ -97,7 +140,7 @@ func (uc *YouTubeDownloader) getFilesInfo(ctx context.Context, before time.Time,
 }
 
 func (uc *YouTubeDownloader) GetFilePath(ctx context.Context, fileId uuid.UUID) (string, error) {
-	file, err := uc.file.FindByFileId(ctx, fileId, true)
+	file, err := uc.file.GetByFileId(ctx, nil, fileId)
 	if err != nil {
 		uc.logger.Error("Failed find file", "error", err)
 		return "", err
@@ -114,8 +157,17 @@ func (uc *YouTubeDownloader) GetFilePath(ctx context.Context, fileId uuid.UUID) 
 //	filename - the human-readable name of the file
 //	ext      - the file extension (without dot)
 //	err      - an error if the record is not found or a query fails
-func (uc *YouTubeDownloader) GetDownloadFileName(ctx context.Context, fileId uuid.UUID) (string, string, error) {
-	file, err := uc.file.FindByFileId(ctx, fileId, true)
+func (uc *YouTubeDownloader) GetDownloadFileName(
+	ctx context.Context,
+	userID uuid.UUID,
+	fileId uuid.UUID,
+) (string, string, error) {
+	var accessByUserID *uuid.UUID
+	if uc.historyMode != dtypes.HistoryModeGlobal {
+		accessByUserID = &userID
+	}
+
+	file, err := uc.file.GetByFileId(ctx, accessByUserID, fileId)
 	if err != nil {
 		uc.logger.Error("Failed find file", "error", err)
 		return "", "", err

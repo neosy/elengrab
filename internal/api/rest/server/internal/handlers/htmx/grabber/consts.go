@@ -1,6 +1,8 @@
 package grabberh
 
-import "time"
+import (
+	"time"
+)
 
 const (
 	dateFormate = time.RFC3339
@@ -15,6 +17,7 @@ const (
 	fileIdKey    = "fileId"
 	beforeKey    = "before"
 	channelIDKey = "channelID"
+	userIDKey    = "userId"
 
 	cookiePageHasDivItemsKey cookieKey = "page_has_div_items"
 
