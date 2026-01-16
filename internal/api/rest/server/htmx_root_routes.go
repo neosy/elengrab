@@ -8,6 +8,8 @@ import (
 
 // setupHtmxRootoutes setup root routes.
 func (s *httpServer) setupHtmxRootRoutes(r *router.Router, handlers *htmxh.HTMXHandlers) {
+	auth := s.authMiddleware.AutoRegister
+
 	// Index
-	r.GET(httppaths.PathIndex, handlers.Grabber.IndexHandler)
+	r.GET(httppaths.PathIndex, auth(handlers.Grabber.IndexHandler))
 }

@@ -15,7 +15,13 @@ func (h *GrabberHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 		needLoadHistory bool
 	)
 
-	resps, err := h.usecases.Downloader.LoadHistory(ctx, time.Now(), 1)
+	userID, err := getUserIDFromContext(ctx)
+	if err != nil {
+		nfasthttp.WriteError(ctx, fmt.Errorf("authorization error: %v", err), fasthttp.StatusUnauthorized)
+		return
+	}
+
+	resps, err := h.usecases.Downloader.LoadHistory(ctx, userID, time.Now(), 1)
 	if err == nil {
 		needLoadHistory = len(resps) != 0
 	}

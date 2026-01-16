@@ -8,12 +8,13 @@ import (
 // Repository provides a thread-safe wrapper for operations on cached items.
 // It handles locking and TTL for safe concurrent access.
 type Repository[T any] struct {
-	mu  sync.RWMutex
+	mu  *sync.RWMutex
 	ttl time.Duration
 }
 
 // Init sets the default TTL for the repository items.
 func (r *Repository[T]) Init(ttl time.Duration) {
+	r.mu = &sync.RWMutex{}
 	r.ttl = ttl
 }
 

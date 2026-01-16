@@ -21,6 +21,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	"github.com/neosy/elengrab/internal/app/workers"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	inmemoryrep "github.com/neosy/elengrab/internal/repository/in_memory"
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
 	"github.com/neosy/elengrab/pkg/nfile"
@@ -154,6 +155,8 @@ func main() {
 			File:           slRepositories.File,
 			DownloadTask:   slRepositories.DownloadTask,
 			YoutubeChannel: slRepositories.YoutubeChannel,
+			User:           slRepositories.User,
+			UserSession:    slRepositories.UserSession,
 
 			// in memory
 			DownloadStateCache:  inMemoryRepositories.DownloadState,
@@ -167,7 +170,7 @@ func main() {
 		DownloadsDir:        absPath(cfg.Elengrab.DownloadsDir),
 		DatabaseBackupsDir:  absPath(cfg.SQLite.BackupsDir),
 		DatabaseBackupsKeep: cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
-		LoadHistory:         cfg.Elengrab.LoadHistory,
+		HistoryMode:         dtypes.MustParseHistoryMode(cfg.Elengrab.HistoryMode),
 	}
 	uc := usecases.NewUsecases(ctx, logger, ucDeps)
 

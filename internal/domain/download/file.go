@@ -11,6 +11,9 @@ type File struct {
 	// Unique file identifier (UUID)
 	FileId uuid.UUID
 
+	// Associated user identifier (UUID)
+	UserID *uuid.UUID
+
 	// Status
 	Status dtypes.FileStatus
 

@@ -8,12 +8,14 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 func (uc *YouTubeDownloader) ScheduleDownload(
 	ctx context.Context,
+	userID uuid.UUID,
 	url string,
 	options *ddownload.DownloadOptions,
 ) (*dto.ScheduleDownloadResponse, error) {
@@ -26,6 +28,7 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 		ctx,
 		&ddownload.File{
 			FileId:     fileId,
+			UserID:     &userID,
 			FileName:   filename,
 			YoutubeUrl: url,
 		},
@@ -36,7 +39,12 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 		return nil, err
 	}
 
-	file, err := uc.file.FindByFileId(ctx, fileId, true)
+	var accessByUserID *uuid.UUID
+	if uc.historyMode != dtypes.HistoryModeGlobal {
+		accessByUserID = &userID
+	}
+
+	file, err := uc.file.GetByFileId(ctx, accessByUserID, fileId)
 	if err != nil {
 		uc.logger.Error("Failed find file", "error", err)
 		return nil, err
@@ -55,7 +63,7 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 		return nil, err
 	}
 
-	f, _ := uc.file.FindByFileId(ctx, fileId, true)
+	f, _ := uc.file.GetByFileId(ctx, accessByUserID, fileId)
 	if f != nil {
 		file = f
 	}
@@ -81,7 +89,7 @@ func (uc *YouTubeDownloader) addFileToQueueDownload(ctx context.Context, fileId 
 			return err
 		}
 
-		file, err = uc.file.FindByFileId(ctx, fileId, true)
+		file, err = uc.file.GetByFileId(ctx, nil, fileId)
 		if err != nil {
 			uc.dlStateCache.Delete(ctx, fileId)
 			return err

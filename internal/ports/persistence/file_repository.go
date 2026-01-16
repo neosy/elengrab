@@ -28,4 +28,6 @@ type FileRepository interface {
 	GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, error)
 	GetDuplicateHashes(ctx context.Context) ([]string, error)
 	GetDeleted(ctx context.Context, from, to *time.Time) ([]*ddownload.File, error)
+
+	WithUser(userID uuid.UUID) FileRepository
 }

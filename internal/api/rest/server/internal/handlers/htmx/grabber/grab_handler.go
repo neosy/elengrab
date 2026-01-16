@@ -26,6 +26,13 @@ type grabResultData struct {
 func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	var pageHasDivItems = cookiePageHasDivItemsKey.compareValue(ctx, "true")
 
+	userID, err := getUserIDFromContext(ctx)
+	if err != nil {
+		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
+		ctx.SetBodyString(fmt.Sprintf("Authorization error: %v", err))
+		return
+	}
+
 	url := string(ctx.FormValue(formFieldYouTubeURLKey))
 	if url == "" {
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
@@ -53,6 +60,7 @@ func (h *GrabberHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 
 	resp, err := h.usecases.Downloader.ScheduleDownload(
 		ctx,
+		userID,
 		url,
 		&ddownload.DownloadOptions{
 			FormatType:      h.mappers.MapFormatType(formSelectQualityCodec, formSelectFormat),

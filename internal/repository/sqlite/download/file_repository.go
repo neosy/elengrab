@@ -5,15 +5,16 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
+	"github.com/neosy/elengrab/internal/repository/sqlite/lock"
 	"github.com/neosy/elengrab/pkg/dbutils"
 	"modernc.org/sqlite"
 	sqlite3 "modernc.org/sqlite/lib"
@@ -22,7 +23,9 @@ import (
 type FileRepository struct {
 	mappers *mappers.Mappers
 	db      *sql.DB
-	mu      *sync.RWMutex
+	lock    lock.WriteLocker
+
+	userID *uuid.UUID
 
 	// options
 	retryOptions retryOptions
@@ -33,20 +36,34 @@ type fileByFields struct {
 	beforeTime  *time.Time
 	limit       *uint64
 	partialHash **string
+	userID      *uuid.UUID
 }
 
 // NewFileRepository returns a new object for the repository
-func NewFileRepository(db *sql.DB, mu *sync.RWMutex) *FileRepository {
+func NewFileRepository(db *sql.DB, lock lock.WriteLocker) *FileRepository {
 	return &FileRepository{
 		mappers: mappers.NewMappers(),
 		db:      db,
-		mu:      mu,
+		lock:    lock,
 
 		// options
 		retryOptions: retryOptions{
 			maxRetries: maxRetriesDefault,
 			delay:      retryDelayDefault,
 		},
+	}
+}
+
+func (r *FileRepository) WithUser(userID uuid.UUID) persistence.FileRepository {
+	return &FileRepository{
+		mappers: r.mappers,
+		db:      r.db,
+		lock:    r.lock,
+
+		userID: &userID,
+
+		// options
+		retryOptions: r.retryOptions,
 	}
 }
 
@@ -93,7 +110,7 @@ func (r *FileRepository) save(ctx context.Context, file *ddownload.File) error {
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.mu, sqlQuery, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save file: %v", err)
 	}
@@ -126,7 +143,7 @@ func (r *FileRepository) UpdateStatusToNew(ctx context.Context, statuses []dtype
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.mu, sqlQuery, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to update file: %v", err)
 	}
@@ -163,7 +180,7 @@ func (r *FileRepository) softDelete(ctx context.Context, fileId uuid.UUID) error
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.mu, sqlQuery, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save file: %v", err)
 	}
@@ -186,7 +203,7 @@ func (r *FileRepository) hardDelete(ctx context.Context, fileId uuid.UUID) error
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.mu, sqlStr, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete file: %v", err)
 	}
@@ -220,7 +237,7 @@ func (r *FileRepository) Restore(ctx context.Context, fileId uuid.UUID) error {
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.mu, sqlQuery, args, r.retryOptions)
+	err = execContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save file: %v", err)
 	}
@@ -242,6 +259,10 @@ func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*d
 	sqlWhere := squirrel.Eq{
 		eFile.FieldNameWithAlias(&eFile.FileId, aliasFiles):    fileId.String(),
 		eFile.FieldNameWithAlias(&eFile.DeletedAt, aliasFiles): nil,
+	}
+
+	if r.userID != nil {
+		sqlWhere[eFile.FieldNameWithAlias(&eFile.UserID, aliasFiles)] = r.userID
 	}
 
 	sqlQuery, args, err := squirrel.Select(selectFields...).
@@ -323,6 +344,9 @@ func (r *FileRepository) getAll(
 	var conditions = squirrel.And{}
 	if len(byFields.statuses) > 0 {
 		conditions = append(conditions, squirrel.Eq{eFile.FieldNameWithAlias(&eFile.Status, aliasFiles): byFields.statuses})
+	}
+	if byFields.userID != nil {
+		conditions = append(conditions, squirrel.Eq{eFile.FieldNameWithAlias(&eFile.UserID, aliasFiles): *byFields.userID})
 	}
 	if byFields.beforeTime != nil && !byFields.beforeTime.IsZero() {
 		t := byFields.beforeTime.Add(-1 * time.Nanosecond)
@@ -431,6 +455,7 @@ func (r *FileRepository) GetBeforeTime(ctx context.Context, before time.Time, li
 	return r.getAll(
 		ctx,
 		fileByFields{
+			userID:     r.userID,
 			beforeTime: &before,
 			limit:      &limit,
 		},
@@ -567,6 +592,9 @@ func (r *FileRepository) GetDeleted(ctx context.Context, from, to *time.Time) ([
 }
 
 func (r *FileRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
+	r.lock.Lock()
+	defer r.lock.Unlock()
+
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err

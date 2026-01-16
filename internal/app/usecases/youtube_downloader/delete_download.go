@@ -7,27 +7,40 @@ import (
 	"path"
 
 	"github.com/google/uuid"
-	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-func (uc *YouTubeDownloader) DeleteDownload(ctx context.Context, fileId uuid.UUID) error {
+func (uc *YouTubeDownloader) DeleteDownload(
+	ctx context.Context,
+	userID uuid.UUID,
+	fileId uuid.UUID,
+) error {
 	var (
 		needDeleteFileOnStorage bool
 		fileFullName            string
 	)
 
-	fnDelete := func(ctx context.Context, file *ddownload.File) error {
-		err := uc.file.HardDelete(ctx, fileId)
+	var accessByUserID *uuid.UUID
+	if uc.historyMode != dtypes.HistoryModeGlobal {
+		accessByUserID = &userID
+	}
+
+	_, err := uc.file.GetByFileId(ctx, accessByUserID, fileId)
+	if err != nil {
+		return err
+	}
+
+	fnDelete := func(ctx context.Context, fileID uuid.UUID) error {
+		err := uc.file.HardDelete(ctx, fileID)
 		if err != nil {
-			uc.logger.Error("Failed to delete file", "fileId", fileId, "error", err)
+			uc.logger.Error("Failed to delete file", "fileId", fileID, "error", err)
 			return err
 		}
 		return nil
 	}
 
 	fn := func(ctx context.Context) error {
-		file, err := uc.file.FindByFileId(ctx, fileId, false)
+		file, err := uc.file.FindByFileId(ctx, nil, fileId)
 		if err != nil {
 			return err
 		}
@@ -39,7 +52,7 @@ func (uc *YouTubeDownloader) DeleteDownload(ctx context.Context, fileId uuid.UUI
 
 		switch file.Status {
 		case dtypes.FileStatusNew:
-			if err := fnDelete(ctx, file); err != nil {
+			if err := fnDelete(ctx, file.FileId); err != nil {
 				return err
 			}
 		case dtypes.FileStatusPending, dtypes.FileStatusWorking:
@@ -50,11 +63,11 @@ func (uc *YouTubeDownloader) DeleteDownload(ctx context.Context, fileId uuid.UUI
 			if !uc.dlDispetcher.CancelJob(task.JobID.String()) {
 				return errors.New("job cannot be cancelled")
 			}
-			if err := fnDelete(ctx, file); err != nil {
+			if err := fnDelete(ctx, file.FileId); err != nil {
 				return err
 			}
 		case dtypes.FileStatusDone, dtypes.FileStatusFailed:
-			if err := fnDelete(ctx, file); err != nil {
+			if err := fnDelete(ctx, file.FileId); err != nil {
 				return err
 			}
 			needDeleteFileOnStorage = true
@@ -69,7 +82,7 @@ func (uc *YouTubeDownloader) DeleteDownload(ctx context.Context, fileId uuid.UUI
 		return nil
 	}
 
-	err := uc.file.Tx(ctx, fn)
+	err = uc.file.Tx(ctx, fn)
 	if err != nil {
 		return err
 	}

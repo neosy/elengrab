@@ -62,14 +62,14 @@ func (r *YoutubeChannelRepository) FindByChannelID(_ context.Context, channelID 
 	find := func() (*dyoutube.YoutubeChannel, error) {
 		return r.dataByChannelMap.Find(channelID, r.copyChannel), nil
 	}
-	return find()
+	return r.Repository.Find(find)
 }
 
 func (r *YoutubeChannelRepository) ExistsByChannelID(_ context.Context, channelID string) (bool, error) {
 	exists := func() (bool, error) {
 		return r.dataByChannelMap.Exists(channelID), nil
 	}
-	return exists()
+	return r.Repository.Exists(exists)
 }
 
 func (r *YoutubeChannelRepository) copyChannel(channel *dyoutube.YoutubeChannel) *dyoutube.YoutubeChannel {
@@ -91,5 +91,5 @@ func (r *YoutubeChannelRepository) CleanExpired(_ context.Context) error {
 		r.dataByChannelMap.CleanExpired()
 		return nil
 	}
-	return clean()
+	return r.Repository.CleanExpired(clean)
 }

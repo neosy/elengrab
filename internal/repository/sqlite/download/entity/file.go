@@ -11,6 +11,7 @@ import (
 type File struct {
 	dbentity.BaseEntity[File]
 	FileId               uuid.UUID  `db:"file_id"`
+	UserID               *uuid.UUID `db:"user_id"`
 	Status               string     `db:"file_status"`
 	YoutubeUrl           string     `db:"youtube_url"`
 	YoutubeTitle         string     `db:"youtube_title"`

@@ -5,8 +5,10 @@ import (
 	"log/slog"
 
 	"github.com/neosy/elengrab/internal/app/services"
+	"github.com/neosy/elengrab/internal/app/usecases/auth"
 	"github.com/neosy/elengrab/internal/app/usecases/maintenance"
 	ytdownloader "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
 )
@@ -25,7 +27,7 @@ type Dependencies struct {
 	DatabaseBackupsDir  string
 	DatabaseBackupsKeep int
 
-	LoadHistory bool
+	HistoryMode dtypes.HistoryMode
 }
 
 type DepRepositories struct {
@@ -34,6 +36,8 @@ type DepRepositories struct {
 	File           persistence.FileRepository
 	DownloadTask   persistence.DownloadTaskRepository
 	YoutubeChannel persistence.YoutubeChannelRepository
+	User           persistence.UserRepository
+	UserSession    persistence.UserSessionRepository
 
 	// in memory
 	DownloadStateCache  persistence.DownloadStateRepository
@@ -43,6 +47,7 @@ type DepRepositories struct {
 type Usecases struct {
 	Downloader  *ytdownloader.YouTubeDownloader
 	Maintenance *maintenance.Maintenance
+	Auth        *auth.Auth
 }
 
 func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *Usecases {
@@ -68,7 +73,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 
 			// options
 			deps.DownloadsDir,
-			deps.LoadHistory,
+			deps.HistoryMode,
 		),
 		Maintenance: maintenance.NewMaintenance(
 			logger,
@@ -78,6 +83,11 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.AppName,
 			deps.DatabaseBackupsDir,
 			deps.DatabaseBackupsKeep,
+		),
+		Auth: auth.NewAuth(
+			logger,
+			deps.Repositories.User,
+			deps.Repositories.UserSession,
 		),
 	}
 }

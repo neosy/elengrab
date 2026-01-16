@@ -9,13 +9,13 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func NewHandler(baseCtx context.Context, logger *slog.Logger, env appenv.AppEnv, h fasthttp.RequestHandler) fasthttp.RequestHandler {
-	return loggerMiddleware(logger, corsMiddleware(baseCtx, env, h))
+func NewHandler(baseCtx context.Context, logger *slog.Logger, env appenv.AppEnv, next fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return loggerMiddleware(logger, corsMiddleware(baseCtx, env, next))
 }
 
-func loggerMiddleware(logger *slog.Logger, h fasthttp.RequestHandler) fasthttp.RequestHandler {
+func loggerMiddleware(logger *slog.Logger, next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
-		h(ctx)
+		next(ctx)
 
 		status := ctx.Response.StatusCode()
 		if status >= 400 {
@@ -24,11 +24,11 @@ func loggerMiddleware(logger *slog.Logger, h fasthttp.RequestHandler) fasthttp.R
 	}
 }
 
-func corsMiddleware(baseCtx context.Context, env appenv.AppEnv, h fasthttp.RequestHandler) fasthttp.RequestHandler {
+func corsMiddleware(baseCtx context.Context, env appenv.AppEnv, next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
 		ctx.SetUserValue(RequestCtxKey, baseCtx)
 		ctx.SetUserValue(AppConfigCtxKey, env)
 
-		h(ctx)
+		next(ctx)
 	}
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func (uc *File) saveToDownloadStateCache(ctx context.Context, fileId uuid.UUID) {
-	file, _ := uc.FindByFileId(ctx, fileId, true)
+	file, _ := uc.GetByFileId(ctx, nil, fileId)
 	if file != nil {
 		err := uc.dlStateCache.SaveByFile(ctx, file)
 		if err != nil {

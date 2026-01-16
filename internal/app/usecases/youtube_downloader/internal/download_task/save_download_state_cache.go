@@ -7,7 +7,7 @@ import (
 )
 
 func (uc *DownloadTask) saveToDownloadStateCache(ctx context.Context, fileID uuid.UUID, taskID uuid.UUID) {
-	dlStateCache, _ := uc.dlStateCache.FindByFileId(ctx, fileID)
+	dlStateCache, _ := uc.dlStateCache.FindByFileId(ctx, nil, fileID)
 	if dlStateCache != nil && dlStateCache.File != nil {
 		task, _ := uc.FindByTaskId(ctx, taskID, false)
 		if task != nil {

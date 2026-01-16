@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"time"
 
+	authmiddleware "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	appenv "github.com/neosy/elengrab/pkg/nconfig/app_env"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
@@ -27,6 +28,9 @@ type httpServer struct {
 	logger *slog.Logger
 	appEnv appenv.AppEnv
 
+	// auth
+	authMiddleware *authmiddleware.AuthMiddleware
+
 	// usecases
 	usecases *usecases.Usecases
 
@@ -40,12 +44,13 @@ type httpServer struct {
 
 func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *httpServer {
 	return &httpServer{
-		logger:       logger,
-		appEnv:       appEnv,
-		usecases:     deps.Usecases,
-		templates:    deps.Templates,
-		assetsDir:    deps.AssetsDir,
-		downloadsDir: deps.DownloadsDir,
+		logger:         logger,
+		appEnv:         appEnv,
+		authMiddleware: authmiddleware.NewAuthMiddleware(logger, deps.Usecases.Auth),
+		usecases:       deps.Usecases,
+		templates:      deps.Templates,
+		assetsDir:      deps.AssetsDir,
+		downloadsDir:   deps.DownloadsDir,
 	}
 }
 

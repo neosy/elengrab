@@ -1,12 +1,21 @@
 package grabberh
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *GrabberHandlers) GetFileRow(ctx *fasthttp.RequestCtx) {
+	userID, err := getUserIDFromContext(ctx)
+	if err != nil {
+		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
+		ctx.SetBodyString(fmt.Sprintf("Authorization error: %v", err))
+		return
+	}
+
 	fileIdStr := ctx.UserValue(fileIdKey).(string)
 	if fileIdStr == "" {
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
@@ -21,7 +30,7 @@ func (h *GrabberHandlers) GetFileRow(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	fileInfo, err := h.usecases.Downloader.GetFileInfo(ctx, fileId)
+	fileInfo, err := h.usecases.Downloader.GetFileInfo(ctx, userID, fileId)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

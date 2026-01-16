@@ -2,6 +2,7 @@ package grabberh
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -27,6 +28,12 @@ var (
 )
 
 func (h *GrabberHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
+	userID, err := getUserIDFromContext(ctx)
+	if err != nil {
+		nfasthttp.WriteError(ctx, fmt.Errorf("authorization error: %v", err), fasthttp.StatusUnauthorized)
+		return
+	}
+
 	// Get the file name from the query parameter
 	fileIdStr := string(ctx.QueryArgs().Peek("file"))
 	if fileIdStr == "" {
@@ -37,7 +44,7 @@ func (h *GrabberHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	fileId := uuid.MustParse(fileIdStr)
 
 	// Build the full path to the file
-	fileInfo, err := h.usecases.Downloader.GetFileInfo(ctx, fileId)
+	fileInfo, err := h.usecases.Downloader.GetFileInfo(ctx, userID, fileId)
 	if err != nil {
 		nfasthttp.WriteError(ctx, err, fasthttp.StatusNotFound)
 		return
