@@ -11,7 +11,6 @@ import (
 
 type FileRepository interface {
 	Transactional
-
 	Insert(ctx context.Context, file *ddownload.File) error
 	Update(ctx context.Context, file *ddownload.File) error
 	// UpdateStatusToNew updates all jobs with status Working or Pending to New.

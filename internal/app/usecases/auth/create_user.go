@@ -25,7 +25,7 @@ func (u *Auth) CreateUser(ctx context.Context) (*dauth.User, error) {
 		IsActive: true,
 	}
 
-	userID, err := u.user.Create(ctx, user)
+	userID, err := u.user.Create(ctx, user, u.user.WithGuest(true))
 	if err != nil {
 		return nil, err
 	}

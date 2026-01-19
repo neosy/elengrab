@@ -8,6 +8,7 @@ import (
 )
 
 type UserRepository interface {
+	Transactional
 	Insert(ctx context.Context, user *dauth.User) error
 	Update(ctx context.Context, user *dauth.User) error
 	Save(ctx context.Context, user *dauth.User) error

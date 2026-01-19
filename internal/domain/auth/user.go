@@ -16,6 +16,9 @@ type User struct {
 	// User email address, optional
 	Email *string
 
+	// Indicates guest status
+	IsGuest bool
+
 	// Active status
 	IsActive bool
 

@@ -15,6 +15,8 @@ const (
 	sqliteBusyTimeoutMS = 5000
 	// Synchronous mode: balances write speed and reliability (NORMAL is usually sufficient with WAL)
 	sqliteSynchronous = "NORMAL"
+	// Enable SQLite foreign key constraints (required for ON DELETE CASCADE)
+	sqliteForeignKeys = "ON"
 )
 
 // InitDB opens the SQLite database with WAL mode
@@ -63,6 +65,10 @@ func InitDB(dbPath string) (*sql.DB, error) {
 		db.Close()
 		return nil, fmt.Errorf("failed to set synchronous mode: %w", err)
 	}
+	if _, err := db.Exec(fmt.Sprintf("PRAGMA foreign_keys = %s;", sqliteForeignKeys)); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("failed to set foreign_keys: %w", err)
+	}
 
 	// Test WAL
 	row := db.QueryRow("PRAGMA journal_mode;")
@@ -71,6 +77,16 @@ func InitDB(dbPath string) (*sql.DB, error) {
 		log.Println("failed to read journal_mode:", err)
 	}
 	log.Printf("SQLite initialized: PRAGMA journal_mode=%q", mode)
+
+	row = db.QueryRow("PRAGMA foreign_keys;")
+	if err := row.Scan(&mode); err != nil {
+		log.Println("failed to read foreign_keys:", err)
+	}
+	if mode != "1" {
+		log.Printf("failed to set PRAGMA foreign_keys = %s", sqliteForeignKeys)
+		db.Close()
+		return nil, fmt.Errorf("failed to set foreign_keys = %s", sqliteForeignKeys)
+	}
 
 	// 4. Return the live database connection
 	return db, nil
