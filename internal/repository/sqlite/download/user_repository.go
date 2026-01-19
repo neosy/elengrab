@@ -174,3 +174,24 @@ func (r *UserRepository) ExistsByUserID(ctx context.Context, userID uuid.UUID) (
 
 	return true, nil
 }
+
+func (r *UserRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
+	r.lock.Lock()
+	defer r.lock.Unlock()
+
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	if err := fn(ctxWithTx(ctx, tx)); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}

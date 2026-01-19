@@ -47,9 +47,23 @@ func (uc *UserSession) FindByToken(ctx context.Context, token string) (*dauth.Us
 
 	user, err := uc.userSessionRep.FindByToken(ctx, token)
 	if err != nil {
-		uc.logger.Warn("Failed get user session", "error", err)
+		uc.logger.Warn("Failed to find user session", "error", err)
 		return nil, errorx.NewByErr(err, exceptionx.ERROR)
 	}
 
 	return user, nil
+}
+
+func (uc *UserSession) GetByToken(ctx context.Context, token string) (*dauth.UserSession, error) {
+	session, err := uc.FindByToken(ctx, token)
+	if err != nil {
+		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+	}
+
+	if session == nil {
+		uc.logger.Warn("User session not found", "token", token)
+		return nil, errorx.New("user session not found", exceptionx.NOT_FOUND)
+	}
+
+	return session, nil
 }

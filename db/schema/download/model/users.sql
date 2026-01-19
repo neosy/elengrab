@@ -7,6 +7,9 @@ CREATE TABLE IF NOT EXISTS users (
 
     -- User email address, optional
     email TEXT NULL,
+
+    -- User is guest: 1 = guest, 0 = not guest
+    is_guest INTEGER NOT NULL DEFAULT 0,
     
     -- Active status: 1 = active, 0 = inactive
     is_active INTEGER NOT NULL DEFAULT 1,

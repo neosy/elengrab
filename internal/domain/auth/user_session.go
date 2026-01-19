@@ -22,3 +22,7 @@ type UserSession struct {
 	// Session expiration timestamp
 	ExpiresAt time.Time
 }
+
+func (s *UserSession) Expired() bool {
+	return time.Now().After(s.ExpiresAt)
+}

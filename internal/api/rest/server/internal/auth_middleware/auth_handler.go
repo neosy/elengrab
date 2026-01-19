@@ -40,17 +40,32 @@ func (a *AuthMiddleware) AutoRegister(next fasthttp.RequestHandler) fasthttp.Req
 
 		token := a.getSessionToken(ctx)
 		if token != "" {
-			session, err = a.auth.GetSessionByToken(ctx, token)
+			session, err = a.auth.FindSessionByToken(ctx, token)
 			if err != nil {
+				next(ctx)
+				return
+			}
+
+			if session == nil {
 				cookieSessionTokenKey.deleteCookie(ctx)
-				if session == nil {
-					next(ctx)
-					return
-				}
-				userID = session.UserID
-				session = nil
 			} else {
 				userID = session.UserID
+				if session.Expired() {
+					session = nil
+				}
+			}
+		}
+
+		if session != nil {
+			if a.auth.SessionNeedsRefresh(session.ExpiresAt) {
+				expiresAt, err := a.auth.RefreshSession(ctx, session.SessionID)
+				if err != nil {
+					a.logger.Warn("failed to refresh session: %v", "error", err)
+				}
+				if expiresAt.After(session.ExpiresAt) {
+					session.ExpiresAt = expiresAt
+					cookieSessionTokenKey.setCookie(ctx, session.SessionToken, expiresAt)
+				}
 			}
 		}
 
