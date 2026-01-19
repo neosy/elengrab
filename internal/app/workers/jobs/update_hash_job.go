@@ -21,6 +21,6 @@ func NewUpdateHashJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRu
 
 func (j *updateHashJob) Execute(ctx context.Context) error {
 	err := j.runner.UpdateHash(ctx)
-	j.logger.Debug("Job done", "name", "DeleteMissingFiles")
+	j.logger.Debug("Job done", "name", "UpdateHash")
 	return err
 }

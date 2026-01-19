@@ -70,7 +70,7 @@ func (a *AuthMiddleware) AutoRegister(next fasthttp.RequestHandler) fasthttp.Req
 		}
 
 		if userID == uuid.Nil {
-			user, err := a.auth.CreateUser(ctx)
+			user, err := a.auth.CreateGuestUser(ctx)
 			if err != nil {
 				next(ctx)
 				return
