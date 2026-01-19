@@ -59,21 +59,17 @@ func (uc *YouTubeDownloader) deleteMissingFiles(ctx context.Context) error {
 	// Mark records for deletion if the file is missing
 	for _, file := range files {
 		filePath := filepath.Join(uc.downloadsDir, file.FullName)
-		if file.FullName == "" {
-			exists, _ := nfile.FileExists(filePath)
-			if !exists {
-				err := uc.file.SoftDelete(ctx, file.FileId)
-				if err == nil {
-					uc.logger.Debug("Soft deleting file", "file_id", file.FileId, "fileName", file.FullName)
-				}
+		exists, _ := nfile.FileExists(filePath)
+		if !exists {
+			err := uc.file.SoftDelete(ctx, file.FileId)
+			if err == nil {
+				uc.logger.Debug("Soft deleting file", "file_id", file.FileId, "fileName", file.FullName)
 			}
 		}
 	}
 
-	toDate := time.Now().Add(-missingFileRetentionPeriod)
-
-	// Select all records previously marked for deletion and passed the grace period
-	files, err = uc.file.GetDeleted(ctx, nil, &toDate)
+	// Select all records previously marked for deletion
+	deletedFiles, err := uc.file.GetDeleted(ctx, nil, nil)
 	if err != nil {
 		return err
 
@@ -81,21 +77,29 @@ func (uc *YouTubeDownloader) deleteMissingFiles(ctx context.Context) error {
 
 	// Restore records if the file was found
 	// Permanently delete records if the file is still missing after the grace period
-	for _, file := range files {
+	for _, file := range deletedFiles {
+		if file.FullName == "" {
+			continue
+		}
 		filePath := filepath.Join(uc.downloadsDir, file.FullName)
-		exists, _ := nfile.FileExists(filePath)
-		if file.FullName != "" && exists {
+		if exists, _ := nfile.FileExists(filePath); exists {
 			err := uc.file.Restore(ctx, file.FileId)
 			if err != nil {
+				uc.logger.Warn("Failed to restore", "error", err)
 				continue
 			}
 			uc.logger.Debug("Restoring file in database", "fileId", file.FileId, "fileName", file.FullName)
-		} else {
+			continue
+		}
+
+		if time.Until(*file.DeletedAt) >= missingFileRetentionPeriod {
 			err := uc.file.HardDelete(ctx, file.FileId)
 			if err != nil {
+				uc.logger.Warn("Failed to hard delete", "fileID", file.FileId, "error", err)
 				continue
 			}
 			uc.logger.Debug("Hard deleting file from database", "fileId", file.FileId, "fileName", file.FullName)
+			continue
 		}
 	}
 
