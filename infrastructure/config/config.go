@@ -39,7 +39,7 @@ type ElengrabConfig struct {
 	DownloadsDir string `env:"DOWNLOADS_DIR" envDefault:"./downloads"`
 
 	DownloadWorkers int    `env:"DOWNLOAD_WORKERS" envDefault:"3"`
-	HistoryMode     string `env:"HISTORY_MODE" envDefault:"GLOBAL"`
+	HistoryMode     string `env:"HISTORY_MODE" envDefault:"global"`
 
 	Maintenance ElengrabMaintenanceConfig `envPrefix:"MAINTENANCE_"`
 }
@@ -66,7 +66,7 @@ type SQLiteConfig struct {
 
 type RedisConfig struct {
 	// SIMPLE(Обычный редис) or SENTINEL
-	ConnectionType     string   `env:"CONNECTION_TYPE" envDefault:"SIMPLE"`
+	ConnectionType     string   `env:"CONNECTION_TYPE" envDefault:"simple"`
 	Addresses          []string `env:"ADDRESSES" envSeparator:"," envDefault:"localhost:6379"`
 	SentinelMasterName string   `env:"SENTINEL_MASTER_NAME" envDefault:"mymaster"`
 	PrefixKey          string   `env:"PREFIX_KEY" envDefault:"microservice"`
