@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/pkg/nfile"
 )
 
@@ -32,38 +33,52 @@ func (m *Maintenance) BackupDatabase(ctx context.Context) error {
 		}
 	}
 
+	for _, dbName := range m.database.GetDBNames() {
+		err = m.backupDB(dbName, backupDir)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, dbName := range m.database.GetDBNames() {
+		err = m.cleanupOldBackups(dbName, backupDir)
+		if err != nil {
+			m.logger.Error("Failed cleanup old backups", "error", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Maintenance) backupDB(dbName persistence.DBName, backupDir string) error {
 	filename := fmt.Sprintf(
 		"%s_%s.%s",
-		m.prefixBackup(),
+		m.prefixBackup(dbName),
 		time.Now().Format(backupDateFormat),
 		backupFileExt,
 	)
 
 	path := filepath.Join(backupDir, filename)
 
-	if err := m.database.Backup(path); err != nil {
+	if err := m.database.Backup(dbName, path); err != nil {
 		m.logger.Error("Failed backup database", "error", err)
 		return err
 	}
 
 	m.logger.Info("Database backup completed", "path", path)
 
-	if err := m.cleanupOldBackups(); err != nil {
-		m.logger.Error("Failed cleanup old backups", "error", err)
-		return err
-	}
-
 	return nil
 }
 
-func (m *Maintenance) prefixBackup() string {
-	prefix := nfile.SanitizeFileName(m.appName)
+func (m *Maintenance) prefixBackup(dbName persistence.DBName) string {
+	prefix := nfile.SanitizeFileName(dbName.String())
 	prefix = strings.ToLower(prefix)
 	return prefix
 }
 
-func (m *Maintenance) cleanupOldBackups() error {
-	entries, err := os.ReadDir(m.databaseBackupsDir)
+func (m *Maintenance) cleanupOldBackups(dbName persistence.DBName, backupDir string) error {
+	entries, err := os.ReadDir(backupDir)
 	if err != nil {
 		return err
 	}
@@ -76,7 +91,7 @@ func (m *Maintenance) cleanupOldBackups() error {
 		name := entry.Name()
 
 		// Filter by prefix and extension
-		if strings.HasPrefix(name, m.prefixBackup()) && strings.HasSuffix(name, backupFileExt) {
+		if strings.HasPrefix(name, m.prefixBackup(dbName)) && strings.HasSuffix(name, backupFileExt) {
 			files = append(files, name)
 		}
 	}

@@ -1,43 +1,40 @@
-package sldownload
+package auth
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
-	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
-	"github.com/neosy/elengrab/internal/repository/sqlite/lock"
+	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
+	"github.com/neosy/elengrab/internal/repository/sqlite/auth/mappers"
+	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	"github.com/neosy/elengrab/pkg/dbutils"
-	"modernc.org/sqlite"
-	sqlite3 "modernc.org/sqlite/lib"
 )
 
 type UserRepository struct {
 	mappers *mappers.Mappers
 	db      *sql.DB
-	lock    lock.WriteLocker
+	lock    dbexec.WriteLocker
 
 	// options
-	retryOptions retryOptions
+	retryOptions dbexec.RetryOptions
 }
 
 // NewUserRepository returns a new object for the repository
-func NewUserRepository(db *sql.DB, lock lock.WriteLocker) *UserRepository {
+func NewUserRepository(db *sql.DB, lock dbexec.WriteLocker) *UserRepository {
 	return &UserRepository{
 		mappers: mappers.NewMappers(),
 		db:      db,
 		lock:    lock,
 
 		// options
-		retryOptions: retryOptions{
-			maxRetries: maxRetriesDefault,
-			delay:      retryDelayDefault,
+		retryOptions: dbexec.RetryOptions{
+			MaxRetries: maxRetriesDefault,
+			Delay:      retryDelayDefault,
 		},
 	}
 }
@@ -79,7 +76,7 @@ func (r *UserRepository) Save(ctx context.Context, user *dauth.User) error {
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save user: %v", err)
 	}
@@ -88,9 +85,9 @@ func (r *UserRepository) Save(ctx context.Context, user *dauth.User) error {
 }
 
 func (r *UserRepository) FindByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User, error) {
-	var eUser edownload.User
+	var eUser eauth.User
 
-	query, args, err := squirrel.Select(eUser.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eUser.FieldsAll()...).
 		From(eUser.TableName()).
 		Where(squirrel.Eq{eUser.FieldName(&eUser.UserID): userID}).
 		PlaceholderFormat(squirrel.Dollar).
@@ -102,37 +99,24 @@ func (r *UserRepository) FindByUserID(ctx context.Context, userID uuid.UUID) (*d
 	}
 
 	// Execute the query
-	db := dbOrTx(ctx, r.db)
-
-	for i := range r.retryOptions.maxRetries {
+	var notFound bool
+	db := dbexec.Resolve(ctx, r.db)
+	execQuery := func() error {
+		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
-		err := db.QueryRowContext(ctx, query, args...).Scan(eUser.FieldPointers()...)
-		if err == nil {
-			break
-		}
+		err := row.Scan(eUser.FieldPointers()...)
 		if err == sql.ErrNoRows {
-			return nil, nil
+			notFound = true
+			return nil
 		}
-
-		if sqlError, ok := err.(*sqlite.Error); ok && sqlError.Code() == sqlite3.SQLITE_BUSY {
-			if i+1 == r.retryOptions.maxRetries {
-				return nil, fmt.Errorf("failed to scan row: %w", err)
-			}
-
-			timer := time.NewTimer(r.retryOptions.delay)
-
-			select {
-			case <-ctx.Done():
-				timer.Stop()
-				return nil, ctx.Err()
-			case <-timer.C:
-				// Let's continue
-			}
-
-			continue
-		}
-
-		return nil, fmt.Errorf("failed to scan row: %w", err)
+		return err
+	}
+	err = dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
+	if err != nil {
+		return nil, err
+	}
+	if notFound {
+		return nil, nil
 	}
 
 	// Map entity to domain model
@@ -145,7 +129,7 @@ func (r *UserRepository) FindByUserID(ctx context.Context, userID uuid.UUID) (*d
 }
 
 func (r *UserRepository) ExistsByUserID(ctx context.Context, userID uuid.UUID) (bool, error) {
-	var eUser edownload.User
+	var eUser eauth.User
 
 	// Build SQL query: SELECT 1 FROM table WHERE <id> = $1 LIMIT 1
 	query, args, err := squirrel.Select("1").
@@ -160,7 +144,7 @@ func (r *UserRepository) ExistsByUserID(ctx context.Context, userID uuid.UUID) (
 	}
 
 	// Execute the query
-	db := dbOrTx(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.db)
 
 	// Execute query and check if any row exists
 	var exists int
@@ -184,7 +168,7 @@ func (r *UserRepository) Tx(ctx context.Context, fn func(ctx context.Context) er
 		return err
 	}
 
-	if err := fn(ctxWithTx(ctx, tx)); err != nil {
+	if err := fn(dbexec.CtxWithTx(ctx, tx)); err != nil {
 		tx.Rollback()
 		return err
 	}

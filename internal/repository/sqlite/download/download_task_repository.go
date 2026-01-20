@@ -1,31 +1,28 @@
-package sldownload
+package download
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
-	"github.com/neosy/elengrab/internal/repository/sqlite/lock"
 	"github.com/neosy/elengrab/pkg/dbutils"
-	"modernc.org/sqlite"
-	sqlite3 "modernc.org/sqlite/lib"
 )
 
 type DownloadTaskRepository struct {
 	mappers *mappers.Mappers
 	db      *sql.DB
-	lock    lock.WriteLocker
+	lock    dbexec.WriteLocker
 
 	// options
-	retryOptions retryOptions
+	retryOptions dbexec.RetryOptions
 }
 
 type taskByFields struct {
@@ -34,16 +31,16 @@ type taskByFields struct {
 }
 
 // NewTaskRepository returns a new object for the repository
-func NewDownloadTaskRepository(db *sql.DB, lock lock.WriteLocker) *DownloadTaskRepository {
+func NewDownloadTaskRepository(db *sql.DB, lock dbexec.WriteLocker) *DownloadTaskRepository {
 	return &DownloadTaskRepository{
 		mappers: mappers.NewMappers(),
 		db:      db,
 		lock:    lock,
 
 		// options
-		retryOptions: retryOptions{
-			maxRetries: maxRetriesDefault,
-			delay:      retryDelayDefault,
+		retryOptions: dbexec.RetryOptions{
+			MaxRetries: maxRetriesDefault,
+			Delay:      retryDelayDefault,
 		},
 	}
 }
@@ -85,7 +82,7 @@ func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.Downl
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save task: %v", err)
 	}
@@ -114,7 +111,7 @@ func (r *DownloadTaskRepository) UpdateStatusToNew(ctx context.Context) error {
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to update file: %v", err)
 	}
@@ -125,7 +122,7 @@ func (r *DownloadTaskRepository) UpdateStatusToNew(ctx context.Context) error {
 func (r *DownloadTaskRepository) FindByTaskId(ctx context.Context, taskId uuid.UUID) (*ddownload.DownloadTask, error) {
 	var ent edownload.DownloadTask
 
-	sqlBuilder, args, err := squirrel.Select(ent.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
 		From(ent.TableName()).
 		Where(squirrel.Eq{ent.FieldName(&ent.TaskId): taskId.String()}).
 		PlaceholderFormat(squirrel.Dollar).
@@ -137,38 +134,24 @@ func (r *DownloadTaskRepository) FindByTaskId(ctx context.Context, taskId uuid.U
 	}
 
 	// Execute the query
-	db := dbOrTx(ctx, r.db)
-
-	for i := range r.retryOptions.maxRetries {
-		row := db.QueryRowContext(ctx, sqlBuilder, args...)
+	var notFound bool
+	db := dbexec.Resolve(ctx, r.db)
+	execQuery := func() error {
+		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
 		err := row.Scan(ent.FieldPointers()...)
-		if err == nil {
-			break
-		}
 		if err == sql.ErrNoRows {
-			return nil, nil
+			notFound = true
+			return nil
 		}
-
-		if sqlError, ok := err.(*sqlite.Error); ok && sqlError.Code() == sqlite3.SQLITE_BUSY {
-			if i+1 == r.retryOptions.maxRetries {
-				return nil, fmt.Errorf("failed to scan row: %w", err)
-			}
-
-			timer := time.NewTimer(r.retryOptions.delay)
-
-			select {
-			case <-ctx.Done():
-				timer.Stop()
-				return nil, ctx.Err()
-			case <-timer.C:
-				// Let's continue
-			}
-
-			continue
-		}
-
-		return nil, fmt.Errorf("failed to scan row: %w", err)
+		return err
+	}
+	err = dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
+	if err != nil {
+		return nil, err
+	}
+	if notFound {
+		return nil, nil
 	}
 
 	// Map entity to domain model
@@ -183,7 +166,7 @@ func (r *DownloadTaskRepository) FindByTaskId(ctx context.Context, taskId uuid.U
 func (r *DownloadTaskRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*ddownload.DownloadTask, error) {
 	var ent edownload.DownloadTask
 
-	sqlBuilder, args, err := squirrel.Select(ent.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
 		From(ent.TableName()).
 		Where(squirrel.Eq{ent.FieldName(&ent.FileId): fileId.String()}).
 		PlaceholderFormat(squirrel.Dollar).
@@ -195,38 +178,24 @@ func (r *DownloadTaskRepository) FindByFileId(ctx context.Context, fileId uuid.U
 	}
 
 	// Execute the query
-	db := dbOrTx(ctx, r.db)
-
-	for i := range r.retryOptions.maxRetries {
-		row := db.QueryRowContext(ctx, sqlBuilder, args...)
+	var notFound bool
+	db := dbexec.Resolve(ctx, r.db)
+	execQuery := func() error {
+		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
 		err := row.Scan(ent.FieldPointers()...)
-		if err == nil {
-			break
-		}
 		if err == sql.ErrNoRows {
-			return nil, nil
+			notFound = true
+			return nil
 		}
-
-		if sqlError, ok := err.(*sqlite.Error); ok && sqlError.Code() == sqlite3.SQLITE_BUSY {
-			if i+1 == r.retryOptions.maxRetries {
-				return nil, fmt.Errorf("failed to scan row: %w", err)
-			}
-
-			timer := time.NewTimer(r.retryOptions.delay)
-
-			select {
-			case <-ctx.Done():
-				timer.Stop()
-				return nil, ctx.Err()
-			case <-timer.C:
-				// Let's continue
-			}
-
-			continue
-		}
-
-		return nil, fmt.Errorf("failed to scan row: %w", err)
+		return err
+	}
+	err = dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
+	if err != nil {
+		return nil, err
+	}
+	if notFound {
+		return nil, nil
 	}
 
 	// Map entity to domain model
@@ -253,7 +222,7 @@ func (r *DownloadTaskRepository) Delete(ctx context.Context, taskId uuid.UUID) e
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete task: %v", err)
 	}
@@ -283,7 +252,7 @@ func (r *DownloadTaskRepository) deleteBy(ctx context.Context, byFields taskByFi
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete task: %v", err)
 	}

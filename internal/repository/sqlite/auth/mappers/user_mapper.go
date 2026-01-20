@@ -2,10 +2,10 @@ package mappers
 
 import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
+	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
 )
 
-func (m *Mappers) MapUserDomainToEntity(user *dauth.User) (*edownload.User, error) {
+func (m *Mappers) MapUserDomainToEntity(user *dauth.User) (*eauth.User, error) {
 	var isGuest int = 0
 	if user.IsGuest {
 		isGuest = 1
@@ -16,7 +16,7 @@ func (m *Mappers) MapUserDomainToEntity(user *dauth.User) (*edownload.User, erro
 		isActive = 1
 	}
 
-	return &edownload.User{
+	return &eauth.User{
 		UserID:   user.UserID,
 		Login:    user.Login,
 		Email:    user.Email,
@@ -25,7 +25,7 @@ func (m *Mappers) MapUserDomainToEntity(user *dauth.User) (*edownload.User, erro
 	}, nil
 }
 
-func (m *Mappers) MapUserEntityToDomain(user *edownload.User) (*dauth.User, error) {
+func (m *Mappers) MapUserEntityToDomain(user *eauth.User) (*dauth.User, error) {
 	var isGuest bool = false
 	if user.IsGuest == 1 {
 		isGuest = true

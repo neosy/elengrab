@@ -1,8 +1,8 @@
 package database
 
 import (
-	"embed"
 	"fmt"
+	"io/fs"
 	"os"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -19,7 +19,7 @@ type migratorInterface interface {
 
 type migratorFS struct {
 	sqlDrv database.Driver
-	fs     embed.FS
+	fs     fs.FS
 }
 
 type migratorFile struct {
@@ -27,7 +27,7 @@ type migratorFile struct {
 	dir    string
 }
 
-func newMigratorFS(sqlDrv database.Driver, fs embed.FS) *migratorFS {
+func newMigratorFS(sqlDrv database.Driver, fs fs.FS) *migratorFS {
 	return &migratorFS{
 		sqlDrv: sqlDrv,
 		fs:     fs,
@@ -36,7 +36,7 @@ func newMigratorFS(sqlDrv database.Driver, fs embed.FS) *migratorFS {
 
 func (m *migratorFS) newSource() (source.Driver, error) {
 	// Check if migrations directory exists
-	drv, err := iofs.New(migrationsFS, "migrations")
+	drv, err := iofs.New(m.fs, ".")
 	if err != nil {
 		return nil, fmt.Errorf("migrations directory does not exist in embedded FS: %w", err)
 	}

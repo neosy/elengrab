@@ -4,14 +4,27 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
+	"io/fs"
 	"log"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 )
 
-//go:embed migrations/*
-var migrationsFS embed.FS
+//go:embed download/migrations/*
+var migrationsMainFS embed.FS
+
+//go:embed auth/migrations/*
+var migrationsAuthFS embed.FS
+
+func migrationsMainRoot() (fs.FS, error) {
+	return fs.Sub(migrationsMainFS, "download/migrations")
+}
+
+func migrationsAuthRoot() (fs.FS, error) {
+	return fs.Sub(migrationsAuthFS, "auth/migrations")
+}
 
 type MigrationConfig struct {
 	// path to migration files
@@ -21,6 +34,8 @@ type MigrationConfig struct {
 // Migrations represents a database migration manager.
 type Migrations struct {
 	db     *sql.DB
+	name   persistence.DBName
+	fs     fs.FS
 	config *MigrationConfig
 }
 
@@ -31,9 +46,19 @@ type Migrations struct {
 //
 // Returns:
 //   - *Migrations: a new Migrations manager instance.
-func NewMigrations(db *sql.DB, config *MigrationConfig) *Migrations {
+func NewMigrations(db *sql.DB, dbName persistence.DBName, config *MigrationConfig) *Migrations {
+	var fs fs.FS
+	switch dbName {
+	case persistence.DBMainName:
+		fs, _ = migrationsMainRoot()
+	case persistence.DBAuthName:
+		fs, _ = migrationsAuthRoot()
+	}
+
 	return &Migrations{
 		db:     db,
+		name:   dbName,
+		fs:     fs,
 		config: config,
 	}
 }
@@ -43,12 +68,12 @@ func (m *Migrations) applyUp(migrator *migrate.Migrate) error {
 	err := migrator.Up()
 	if err != nil {
 		if err == migrate.ErrNoChange {
-			log.Println("All migrations are already applied. Database is up to date.")
+			log.Printf("All migrations are already applied. Database '%s' is up to date.", m.name)
 			return nil
 		}
-		return fmt.Errorf("migration failed: %v", err)
+		return fmt.Errorf("migration db '%s' failed: %v", m.name, err)
 	}
-	log.Println("New migrations applied successfully.")
+	log.Printf("New migrations db '%s' applied successfully.", m.name)
 	return nil
 }
 
@@ -69,7 +94,7 @@ func (m *Migrations) ApplyMigrations() error {
 	}
 
 	if migrator == nil {
-		migrator = newMigratorFS(sqlDrv, migrationsFS)
+		migrator = newMigratorFS(sqlDrv, m.fs)
 	}
 
 	src, err := migrator.newSource()

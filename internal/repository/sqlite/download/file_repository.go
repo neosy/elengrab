@@ -1,4 +1,4 @@
-package sldownload
+package download
 
 import (
 	"context"
@@ -12,23 +12,21 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/ports/persistence"
+	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
-	"github.com/neosy/elengrab/internal/repository/sqlite/lock"
 	"github.com/neosy/elengrab/pkg/dbutils"
-	"modernc.org/sqlite"
-	sqlite3 "modernc.org/sqlite/lib"
 )
 
 type FileRepository struct {
 	mappers *mappers.Mappers
 	db      *sql.DB
-	lock    lock.WriteLocker
+	lock    dbexec.WriteLocker
 
 	userID *uuid.UUID
 
 	// options
-	retryOptions retryOptions
+	retryOptions dbexec.RetryOptions
 }
 
 type fileByFields struct {
@@ -40,16 +38,16 @@ type fileByFields struct {
 }
 
 // NewFileRepository returns a new object for the repository
-func NewFileRepository(db *sql.DB, lock lock.WriteLocker) *FileRepository {
+func NewFileRepository(db *sql.DB, lock dbexec.WriteLocker) *FileRepository {
 	return &FileRepository{
 		mappers: mappers.NewMappers(),
 		db:      db,
 		lock:    lock,
 
 		// options
-		retryOptions: retryOptions{
-			maxRetries: maxRetriesDefault,
-			delay:      retryDelayDefault,
+		retryOptions: dbexec.RetryOptions{
+			MaxRetries: maxRetriesDefault,
+			Delay:      retryDelayDefault,
 		},
 	}
 }
@@ -110,7 +108,7 @@ func (r *FileRepository) save(ctx context.Context, file *ddownload.File) error {
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save file: %v", err)
 	}
@@ -143,7 +141,7 @@ func (r *FileRepository) UpdateStatusToNew(ctx context.Context, statuses []dtype
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to update file: %v", err)
 	}
@@ -180,7 +178,7 @@ func (r *FileRepository) softDelete(ctx context.Context, fileId uuid.UUID) error
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save file: %v", err)
 	}
@@ -203,7 +201,7 @@ func (r *FileRepository) hardDelete(ctx context.Context, fileId uuid.UUID) error
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete file: %v", err)
 	}
@@ -237,7 +235,7 @@ func (r *FileRepository) Restore(ctx context.Context, fileId uuid.UUID) error {
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save file: %v", err)
 	}
@@ -282,37 +280,24 @@ func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*d
 	}
 
 	// Execute the query
-	db := dbOrTx(ctx, r.db)
-	for i := range r.retryOptions.maxRetries {
+	var notFound bool
+	db := dbexec.Resolve(ctx, r.db)
+	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
 		err := row.Scan(append(eFile.FieldPointers(), eTask.FieldPointers()...)...)
-		if err == nil {
-			break
-		}
 		if err == sql.ErrNoRows {
-			return nil, nil
+			notFound = true
+			return nil
 		}
-
-		if sqlError, ok := err.(*sqlite.Error); ok && sqlError.Code() == sqlite3.SQLITE_BUSY {
-			if i+1 == r.retryOptions.maxRetries {
-				return nil, fmt.Errorf("failed to scan row: %w", err)
-			}
-
-			timer := time.NewTimer(r.retryOptions.delay)
-
-			select {
-			case <-ctx.Done():
-				timer.Stop()
-				return nil, ctx.Err()
-			case <-timer.C:
-				// Let's continue
-			}
-
-			continue
-		}
-
-		return nil, fmt.Errorf("failed to scan row: %w", err)
+		return err
+	}
+	err = dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
+	if err != nil {
+		return nil, err
+	}
+	if notFound {
+		return nil, nil
 	}
 
 	// Map entity to domain model
@@ -387,7 +372,7 @@ func (r *FileRepository) getAll(
 	}
 
 	// Execute the query
-	db := dbOrTx(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.db)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		return nil, err
@@ -428,7 +413,7 @@ func (r *FileRepository) GetAllFullNames(ctx context.Context, includeDeleted boo
 	}
 
 	// Execute the query
-	db := dbOrTx(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.db)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		return nil, err
@@ -514,7 +499,7 @@ func (r *FileRepository) GetDuplicateHashes(ctx context.Context) ([]string, erro
 	var hashes []string
 
 	// Execute the query
-	db := dbOrTx(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.db)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -571,7 +556,7 @@ func (r *FileRepository) GetDeleted(ctx context.Context, from, to *time.Time) ([
 	var files []*ddownload.File
 
 	// Execute the query
-	db := dbOrTx(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.db)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -600,7 +585,7 @@ func (r *FileRepository) Tx(ctx context.Context, fn func(ctx context.Context) er
 		return err
 	}
 
-	if err := fn(ctxWithTx(ctx, tx)); err != nil {
+	if err := fn(dbexec.CtxWithTx(ctx, tx)); err != nil {
 		tx.Rollback()
 		return err
 	}

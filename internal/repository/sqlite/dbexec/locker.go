@@ -1,4 +1,4 @@
-package lock
+package dbexec
 
 type WriteLocker interface {
 	Lock()

@@ -1,42 +1,39 @@
-package sldownload
+package download
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/Masterminds/squirrel"
 	dyoutube "github.com/neosy/elengrab/internal/domain/youtube_info"
+	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
-	"github.com/neosy/elengrab/internal/repository/sqlite/lock"
 	"github.com/neosy/elengrab/pkg/dbutils"
-	"modernc.org/sqlite"
-	sqlite3 "modernc.org/sqlite/lib"
 )
 
 type YoutubeChannelRepository struct {
 	mappers *mappers.Mappers
 	db      *sql.DB
-	lock    lock.WriteLocker
+	lock    dbexec.WriteLocker
 
 	// options
-	retryOptions retryOptions
+	retryOptions dbexec.RetryOptions
 }
 
 // NewYoutubeChannelRepository returns a new object for the repository
-func NewYoutubeChannelRepository(db *sql.DB, lock lock.WriteLocker) *YoutubeChannelRepository {
+func NewYoutubeChannelRepository(db *sql.DB, lock dbexec.WriteLocker) *YoutubeChannelRepository {
 	return &YoutubeChannelRepository{
 		mappers: mappers.NewMappers(),
 		db:      db,
 		lock:    lock,
 
 		// options
-		retryOptions: retryOptions{
-			maxRetries: maxRetriesDefault,
-			delay:      retryDelayDefault,
+		retryOptions: dbexec.RetryOptions{
+			MaxRetries: maxRetriesDefault,
+			Delay:      retryDelayDefault,
 		},
 	}
 }
@@ -78,7 +75,7 @@ func (r *YoutubeChannelRepository) Save(ctx context.Context, channel *dyoutube.Y
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save youtubeChannel: %v", err)
 	}
@@ -89,7 +86,7 @@ func (r *YoutubeChannelRepository) Save(ctx context.Context, channel *dyoutube.Y
 func (r *YoutubeChannelRepository) FindByChannelID(ctx context.Context, channelID string) (*dyoutube.YoutubeChannel, error) {
 	var ent edownload.YoutubeChannel
 
-	query, args, err := squirrel.Select(ent.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
 		From(ent.TableName()).
 		Where(squirrel.Eq{ent.FieldName(&ent.ChannelID): channelID}).
 		PlaceholderFormat(squirrel.Dollar).
@@ -101,37 +98,24 @@ func (r *YoutubeChannelRepository) FindByChannelID(ctx context.Context, channelI
 	}
 
 	// Execute the query
-	db := dbOrTx(ctx, r.db)
-
-	for i := range r.retryOptions.maxRetries {
+	var notFound bool
+	db := dbexec.Resolve(ctx, r.db)
+	execQuery := func() error {
+		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
-		err := db.QueryRowContext(ctx, query, args...).Scan(ent.FieldPointers()...)
-		if err == nil {
-			break
-		}
+		err := row.Scan(ent.FieldPointers()...)
 		if err == sql.ErrNoRows {
-			return nil, nil
+			notFound = true
+			return nil
 		}
-
-		if sqlError, ok := err.(*sqlite.Error); ok && sqlError.Code() == sqlite3.SQLITE_BUSY {
-			if i+1 == r.retryOptions.maxRetries {
-				return nil, fmt.Errorf("failed to scan row: %w", err)
-			}
-
-			timer := time.NewTimer(r.retryOptions.delay)
-
-			select {
-			case <-ctx.Done():
-				timer.Stop()
-				return nil, ctx.Err()
-			case <-timer.C:
-				// Let's continue
-			}
-
-			continue
-		}
-
-		return nil, fmt.Errorf("failed to scan row: %w", err)
+		return err
+	}
+	err = dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
+	if err != nil {
+		return nil, err
+	}
+	if notFound {
+		return nil, nil
 	}
 
 	// Map entity to domain model
@@ -159,7 +143,7 @@ func (r *YoutubeChannelRepository) ExistsByChannelID(ctx context.Context, channe
 	}
 
 	// Execute the query
-	db := dbOrTx(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.db)
 
 	// Execute query and check if any row exists
 	var exists int

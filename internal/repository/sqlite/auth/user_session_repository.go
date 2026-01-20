@@ -1,43 +1,40 @@
-package sldownload
+package auth
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
-	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
-	"github.com/neosy/elengrab/internal/repository/sqlite/lock"
+	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
+	"github.com/neosy/elengrab/internal/repository/sqlite/auth/mappers"
+	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	"github.com/neosy/elengrab/pkg/dbutils"
-	"modernc.org/sqlite"
-	sqlite3 "modernc.org/sqlite/lib"
 )
 
 type UserSessionRepository struct {
 	mappers *mappers.Mappers
 	db      *sql.DB
-	lock    lock.WriteLocker
+	lock    dbexec.WriteLocker
 
 	// options
-	retryOptions retryOptions
+	retryOptions dbexec.RetryOptions
 }
 
 // NewUserSessionRepository returns a new object for the repository
-func NewUserSessionRepository(db *sql.DB, lock lock.WriteLocker) *UserSessionRepository {
+func NewUserSessionRepository(db *sql.DB, lock dbexec.WriteLocker) *UserSessionRepository {
 	return &UserSessionRepository{
 		mappers: mappers.NewMappers(),
 		db:      db,
 		lock:    lock,
 
 		// options
-		retryOptions: retryOptions{
-			maxRetries: maxRetriesDefault,
-			delay:      retryDelayDefault,
+		retryOptions: dbexec.RetryOptions{
+			MaxRetries: maxRetriesDefault,
+			Delay:      retryDelayDefault,
 		},
 	}
 }
@@ -79,7 +76,7 @@ func (r *UserSessionRepository) Save(ctx context.Context, session *dauth.UserSes
 	}
 
 	// Execute the query
-	err = execContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save user session: %v", err)
 	}
@@ -88,9 +85,9 @@ func (r *UserSessionRepository) Save(ctx context.Context, session *dauth.UserSes
 }
 
 func (r *UserSessionRepository) FindBySessionID(ctx context.Context, sessionID uuid.UUID) (*dauth.UserSession, error) {
-	var eSession edownload.UserSession
+	var eSession eauth.UserSession
 
-	query, args, err := squirrel.Select(eSession.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eSession.FieldsAll()...).
 		From(eSession.TableName()).
 		Where(squirrel.Eq{eSession.FieldName(&eSession.SessionID): sessionID}).
 		PlaceholderFormat(squirrel.Dollar).
@@ -102,37 +99,25 @@ func (r *UserSessionRepository) FindBySessionID(ctx context.Context, sessionID u
 	}
 
 	// Execute the query
-	db := dbOrTx(ctx, r.db)
-
-	for i := range r.retryOptions.maxRetries {
+	var notFound bool
+	db := dbexec.Resolve(ctx, r.db)
+	execQuery := func() error {
+		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
-		err := db.QueryRowContext(ctx, query, args...).Scan(eSession.FieldPointers()...)
-		if err == nil {
-			break
-		}
+		err := row.Scan(eSession.FieldPointers()...)
 		if err == sql.ErrNoRows {
-			return nil, nil
+			notFound = true
+			return nil
 		}
+		return err
+	}
+	err = dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
+	if err != nil {
+		return nil, err
+	}
 
-		if sqlError, ok := err.(*sqlite.Error); ok && sqlError.Code() == sqlite3.SQLITE_BUSY {
-			if i+1 == r.retryOptions.maxRetries {
-				return nil, fmt.Errorf("failed to scan row: %w", err)
-			}
-
-			timer := time.NewTimer(r.retryOptions.delay)
-
-			select {
-			case <-ctx.Done():
-				timer.Stop()
-				return nil, ctx.Err()
-			case <-timer.C:
-				// Let's continue
-			}
-
-			continue
-		}
-
-		return nil, fmt.Errorf("failed to scan row: %w", err)
+	if notFound {
+		return nil, nil
 	}
 
 	// Map entity to domain model
@@ -145,9 +130,9 @@ func (r *UserSessionRepository) FindBySessionID(ctx context.Context, sessionID u
 }
 
 func (r *UserSessionRepository) FindByToken(ctx context.Context, token string) (*dauth.UserSession, error) {
-	var eSession edownload.UserSession
+	var eSession eauth.UserSession
 
-	query, args, err := squirrel.Select(eSession.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eSession.FieldsAll()...).
 		From(eSession.TableName()).
 		Where(squirrel.Eq{eSession.FieldName(&eSession.SessionToken): token}).
 		PlaceholderFormat(squirrel.Dollar).
@@ -159,37 +144,25 @@ func (r *UserSessionRepository) FindByToken(ctx context.Context, token string) (
 	}
 
 	// Execute the query
-	db := dbOrTx(ctx, r.db)
-
-	for i := range r.retryOptions.maxRetries {
+	var notFound bool
+	db := dbexec.Resolve(ctx, r.db)
+	execQuery := func() error {
+		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
-		err := db.QueryRowContext(ctx, query, args...).Scan(eSession.FieldPointers()...)
-		if err == nil {
-			break
-		}
+		err := row.Scan(eSession.FieldPointers()...)
 		if err == sql.ErrNoRows {
-			return nil, nil
+			notFound = true
+			return nil
 		}
+		return err
+	}
+	err = dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
+	if err != nil {
+		return nil, err
+	}
 
-		if sqlError, ok := err.(*sqlite.Error); ok && sqlError.Code() == sqlite3.SQLITE_BUSY {
-			if i+1 == r.retryOptions.maxRetries {
-				return nil, fmt.Errorf("failed to scan row: %w", err)
-			}
-
-			timer := time.NewTimer(r.retryOptions.delay)
-
-			select {
-			case <-ctx.Done():
-				timer.Stop()
-				return nil, ctx.Err()
-			case <-timer.C:
-				// Let's continue
-			}
-
-			continue
-		}
-
-		return nil, fmt.Errorf("failed to scan row: %w", err)
+	if notFound {
+		return nil, nil
 	}
 
 	// Map entity to domain model
@@ -210,7 +183,7 @@ func (r *UserSessionRepository) Tx(ctx context.Context, fn func(ctx context.Cont
 		return err
 	}
 
-	if err := fn(ctxWithTx(ctx, tx)); err != nil {
+	if err := fn(dbexec.CtxWithTx(ctx, tx)); err != nil {
 		tx.Rollback()
 		return err
 	}
