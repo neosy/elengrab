@@ -38,7 +38,7 @@ RUN apk add --no-cache tzdata su-exec curl dcron python3 ffmpeg \
 # Copy the compiled Go binary from the builder stage
 COPY --from=builder /build/elengrab ${APP_DIR}/bin/elengrab
 COPY entrypoint.sh ${APP_DIR}/entrypoint.sh
-COPY internal/api/rest/server/internal/assets ${APP_DIR}/assets/
+COPY internal/api/rest/server/assets ${APP_DIR}/assets/
 
 # Create a non-root user and set ownership
 RUN adduser -D -h ${APP_DIR} elengrab \
