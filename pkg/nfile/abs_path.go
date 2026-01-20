@@ -1,6 +1,7 @@
 package nfile
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,9 +14,14 @@ import (
 //	path, err := AbsPathCwd("./downloads")
 //	// path -> "/home/user/project/downloads"
 func AbsPathCwd(path string) (string, error) {
+	if path == "" {
+		return "", errors.New("path is empty")
+	}
+
 	if filepath.IsAbs(path) {
 		return path, nil
 	}
+
 	cwd, err := os.Getwd()
 	if err != nil {
 		return "", fmt.Errorf("cannot get working directory: %v", err)
@@ -32,8 +38,25 @@ func AbsPathCwd(path string) (string, error) {
 //	path, err := AbsPath(appRoot, "./downloads")
 //	// path -> "/app_n/downloads"
 func AbsPath(root, path string) (string, error) {
+	if path == "" {
+		return "", errors.New("path is empty")
+	}
+
+	if filepath.IsAbs(path) {
+		return filepath.Clean(path), nil
+	}
+
+	if root == "" {
+		return "", errors.New("root path is empty")
+	}
+
+	if !filepath.IsAbs(root) {
+		return "", fmt.Errorf("root must be absolute: %s", root)
+	}
+
 	if filepath.IsAbs(path) {
 		return path, nil
 	}
-	return filepath.Join(root, path), nil
+
+	return filepath.Clean(filepath.Join(root, path)), nil
 }

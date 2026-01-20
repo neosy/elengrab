@@ -35,8 +35,9 @@ type HTTPServerConfig struct {
 type ElengrabConfig struct {
 	DownloaderBinDir string `env:"DOWNLOADER_BIN_DIR" envDefault:"/usr/local/bin"`
 
-	AssetsDir    string `env:"ASSETS_DIR" envDefault:"./assets"`
-	DownloadsDir string `env:"DOWNLOADS_DIR" envDefault:"./downloads"`
+	AppDir       string `env:"APP_DIR" envDefault:""`
+	AssetsDir    string `env:"ASSETS_DIR" envDefault:"assets"`
+	DownloadsDir string `env:"DOWNLOADS_DIR" envDefault:"downloads"`
 
 	DownloadWorkers int    `env:"DOWNLOAD_WORKERS" envDefault:"3"`
 	HistoryMode     string `env:"HISTORY_MODE" envDefault:"global"`
@@ -60,8 +61,8 @@ type ElengrabMaintenanceConfig struct {
 }
 
 type SQLiteConfig struct {
-	DataDir    string `env:"DATA_DIR" envDefault:"./sqlite/data"`
-	BackupsDir string `env:"BACKUPS_DIR" envDefault:"./sqlite/backups"`
+	DataDir    string `env:"DATA_DIR" envDefault:"sqlite/data"`
+	BackupsDir string `env:"BACKUPS_DIR" envDefault:"sqlite/backups"`
 }
 
 type RedisConfig struct {
@@ -73,13 +74,21 @@ type RedisConfig struct {
 }
 
 // Создание объекта Config
-func New(appName, appVersion *string) (*Config, error) {
+func New() (*Config, error) {
 	parseFlag()
 
 	c := &Config{}
 
 	if err := c.load(); err != nil {
 		return nil, err
+	}
+
+	if c.Elengrab.AppDir == "" {
+		var err error
+		c.Elengrab.AppDir, err = defaultAppDir()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return c, nil
