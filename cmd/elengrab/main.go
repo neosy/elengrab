@@ -18,6 +18,7 @@ import (
 	database "github.com/neosy/elengrab/db"
 	iconfig "github.com/neosy/elengrab/infrastructure/config"
 	httpsrv "github.com/neosy/elengrab/internal/api/rest/server"
+	"github.com/neosy/elengrab/internal/api/rest/server/assets"
 	httptemplates "github.com/neosy/elengrab/internal/api/rest/server/templates"
 	"github.com/neosy/elengrab/internal/app/services"
 	"github.com/neosy/elengrab/internal/app/usecases"
@@ -47,6 +48,34 @@ func absPath(root, path string) string {
 		log.Fatal(err.Error())
 	}
 	return path
+}
+
+func ensureAssets(path string) error {
+	_, err := os.Stat(path)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return fmt.Errorf("cannot access directory %s: %w", path, err)
+		}
+	} else {
+		return nfile.CheckDir(path)
+	}
+
+	if !assets.Embedded {
+		return fmt.Errorf("directory does not exist: %s", path)
+	}
+
+	err = os.MkdirAll(path, 0o755)
+	if err != nil {
+		return fmt.Errorf("cannot create directory %s: %w", path, err)
+	}
+
+	err = assets.CopyToDir(path, assets.AssetsFS)
+	if err != nil {
+		return err
+	}
+	log.Printf("Embedded assets have been copied to %s\n", path)
+
+	return nil
 }
 
 // ensureDirs verifies that all given directories exist and are directories.
@@ -90,7 +119,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	if err := nfile.CheckDir(absPath(cfg.Elengrab.AppDir, cfg.Elengrab.AssetsDir)); err != nil {
+	if err := ensureAssets(absPath(cfg.Elengrab.AppDir, cfg.Elengrab.AssetsDir)); err != nil {
 		log.Fatalln(err)
 	}
 
