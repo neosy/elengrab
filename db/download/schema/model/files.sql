@@ -49,9 +49,6 @@ CREATE TABLE IF NOT EXISTS files (
 
     -- Record delete timestamp
     deleted_at DATETIME NULL,
-
-    -- Foreign key linking files to user
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE RESTRICT
 );
 
 CREATE INDEX IF NOT EXISTS files_created_at_idx

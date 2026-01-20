@@ -1,10 +1,10 @@
-package edownload
+package eauth
 
 import (
 	"time"
 
 	"github.com/google/uuid"
-	tablenames "github.com/neosy/elengrab/internal/repository/sqlite/download/table_names"
+	tablenames "github.com/neosy/elengrab/internal/repository/sqlite/auth/table_names"
 	"github.com/neosy/elengrab/pkg/dbentity"
 )
 

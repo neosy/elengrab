@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"log/slog"
@@ -22,6 +23,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases"
 	"github.com/neosy/elengrab/internal/app/workers"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	inmemoryrep "github.com/neosy/elengrab/internal/repository/in_memory"
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
 	"github.com/neosy/elengrab/pkg/nfile"
@@ -32,7 +34,6 @@ import (
 )
 
 const (
-	databaseFileName                 = "elengrab.db"
 	downloadStateCacheTTLDefault     = 1 * time.Hour
 	youtubeChannelCacheTTLDefault    = 1 * 24 * time.Hour
 	intervalCleanYoutubeChannelCache = 12 * time.Hour
@@ -98,23 +99,37 @@ func main() {
 	log.Printf("Logging level set to '%s'.\n", cfg.AppConfig.LogLevel)
 
 	// Initialize SQLite database with migrations
-	sqliteDB, err := sqliterep.InitDB(filepath.Join(absPath(cfg.SQLite.DataDir), databaseFileName))
+	sqliteMainDB, err := sqliterep.InitDB(filepath.Join(absPath(cfg.SQLite.DataDir), sqliterep.DBFileName(persistence.DBMainName)))
 	if err != nil {
-		logger.Error(fmt.Sprintf("Failed to initialize SQLite database: %v", err))
+		logger.Error(fmt.Sprintf("Failed to initialize SQLite database: %v", persistence.DBMainName), "error", err)
 		return
 	}
 	// Close the database on exit
-	defer sqliterep.CloseDB(sqliteDB)
+	defer sqliterep.CloseDB(sqliteMainDB)
+	sqliteAuthDB, err := sqliterep.InitDB(filepath.Join(absPath(cfg.SQLite.DataDir), sqliterep.DBFileName(persistence.DBAuthName)))
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to initialize SQLite database: %v", persistence.DBAuthName), "error", err)
+		return
+	}
+	// Close the database on exit
+	defer sqliterep.CloseDB(sqliteAuthDB)
 
 	// Apply all up migrations
-	migrations := database.NewMigrations(sqliteDB, nil)
-	if err := migrations.ApplyMigrations(); err != nil {
-		logger.Error(fmt.Sprintf("Failed to initialize SQLite database: %v", err))
+	if err := database.NewMigrations(sqliteMainDB, persistence.DBMainName, nil).ApplyMigrations(); err != nil {
+		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", persistence.DBMainName), "error", err)
+		return
+	}
+	if err := database.NewMigrations(sqliteAuthDB, persistence.DBAuthName, nil).ApplyMigrations(); err != nil {
+		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", persistence.DBAuthName), "error", err)
 		return
 	}
 
 	// Create SQLite repositories
-	slRepositories := sqliterep.New(sqliteDB)
+	dbs := map[persistence.DBName]*sql.DB{
+		persistence.DBMainName: sqliteMainDB,
+		persistence.DBAuthName: sqliteAuthDB,
+	}
+	slRepositories := sqliterep.New(dbs)
 
 	// Create in memory repositories
 	inMemoryDeps := inmemoryrep.Dependencies{

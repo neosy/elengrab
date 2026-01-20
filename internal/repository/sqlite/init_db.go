@@ -94,7 +94,7 @@ func InitDB(dbPath string) (*sql.DB, error) {
 
 func CloseDB(db *sql.DB) {
 	// 1. Do a full checkpoint to flush WAL into main DB
-	if err := FlushWAL(db); err != nil {
+	if err := flushWAL(db); err != nil {
 		log.Printf("Failed to checkpoint WAL: %v", err)
 	}
 
