@@ -117,6 +117,9 @@ func SendFileBuffered(ctx *fasthttp.RequestCtx, path string, downloadName string
 //   - Uses fasthttp.SendFile, which leverages zero-copy sendfile on supported operating systems.
 //   - Simple and efficient implementation, suitable for production environments.
 func SendFileDirect(ctx *fasthttp.RequestCtx, path string, downloadName string, contentType string) {
+	// Disable compression for this response
+	ctx.Response.Header.Del("Content-Encoding")
+
 	// Set headers before sending the file
 	ctx.Response.Header.Set("Content-Type", contentType)
 	ctx.Response.Header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, downloadName))
