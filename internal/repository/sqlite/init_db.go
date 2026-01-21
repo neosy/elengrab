@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"log/slog"
 
 	_ "modernc.org/sqlite"
 )
@@ -21,7 +22,7 @@ const (
 
 // InitDB opens the SQLite database with WAL mode
 // dbPath - path to SQLite file
-func InitDB(dbPath string) (*sql.DB, error) {
+func InitDB(logger *slog.Logger, dbPath string) (*sql.DB, error) {
 	// 1. Build DSN with SQLite parameters:
 	// - WAL for concurrent reads
 	// - busy_timeout to wait for locks
@@ -74,16 +75,16 @@ func InitDB(dbPath string) (*sql.DB, error) {
 	row := db.QueryRow("PRAGMA journal_mode;")
 	var mode string
 	if err := row.Scan(&mode); err != nil {
-		log.Println("failed to read journal_mode:", err)
+		logger.Warn("failed to read journal_mode:", "error", err)
 	}
-	log.Printf("SQLite initialized: PRAGMA journal_mode=%q", mode)
+	logger.Debug(fmt.Sprintf("SQLite initialized: PRAGMA journal_mode=%s", mode))
 
 	row = db.QueryRow("PRAGMA foreign_keys;")
 	if err := row.Scan(&mode); err != nil {
-		log.Println("failed to read foreign_keys:", err)
+		logger.Warn("failed to read foreign_keys:", "error", err)
 	}
 	if mode != "1" {
-		log.Printf("failed to set PRAGMA foreign_keys = %s", sqliteForeignKeys)
+		logger.Warn(fmt.Sprintf("failed to set PRAGMA foreign_keys = %s", sqliteForeignKeys))
 		db.Close()
 		return nil, fmt.Errorf("failed to set foreign_keys = %s", sqliteForeignKeys)
 	}

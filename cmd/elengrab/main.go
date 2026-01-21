@@ -57,7 +57,6 @@ func main() {
 	dirs := []string{
 		absPath(cfg.Elengrab.AppDir, cfg.SQLite.DataDir),
 		absPath(cfg.Elengrab.AppDir, cfg.SQLite.BackupsDir),
-		absPath(cfg.Elengrab.AppDir, cfg.Elengrab.DownloaderBinDir),
 		absPath(cfg.Elengrab.AppDir, cfg.Elengrab.DownloadsDir),
 	}
 	if !ensureDirs(dirs) {
@@ -76,15 +75,22 @@ func main() {
 
 	log.Printf("Logging level set to '%s'.\n", cfg.AppConfig.LogLevel)
 
-	// Initialize SQLite database with migrations
-	sqliteMainDB, err := sqliterep.InitDB(filepath.Join(absPath(cfg.Elengrab.AppDir, cfg.SQLite.DataDir), sqliterep.DBFileName(persistence.DBMainName)))
+	// Initialize SQLite database
+	sqliteMainDB, err := sqliterep.InitDB(
+		logger,
+		filepath.Join(absPath(cfg.Elengrab.AppDir, cfg.SQLite.DataDir), sqliterep.DBFileName(persistence.DBMainName)),
+	)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to initialize SQLite database: %v", persistence.DBMainName), "error", err)
 		return
 	}
 	// Close the database on exit
 	defer sqliterep.CloseDB(sqliteMainDB)
-	sqliteAuthDB, err := sqliterep.InitDB(filepath.Join(absPath(cfg.Elengrab.AppDir, cfg.SQLite.DataDir), sqliterep.DBFileName(persistence.DBAuthName)))
+
+	sqliteAuthDB, err := sqliterep.InitDB(
+		logger,
+		filepath.Join(absPath(cfg.Elengrab.AppDir, cfg.SQLite.DataDir), sqliterep.DBFileName(persistence.DBAuthName)),
+	)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to initialize SQLite database: %v", persistence.DBAuthName), "error", err)
 		return
@@ -93,11 +99,11 @@ func main() {
 	defer sqliterep.CloseDB(sqliteAuthDB)
 
 	// Apply all up migrations
-	if err := database.NewMigrations(sqliteMainDB, persistence.DBMainName, nil).ApplyMigrations(); err != nil {
+	if err := database.NewMigrations(logger, sqliteMainDB, persistence.DBMainName, nil).ApplyMigrations(); err != nil {
 		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", persistence.DBMainName), "error", err)
 		return
 	}
-	if err := database.NewMigrations(sqliteAuthDB, persistence.DBAuthName, nil).ApplyMigrations(); err != nil {
+	if err := database.NewMigrations(logger, sqliteAuthDB, persistence.DBAuthName, nil).ApplyMigrations(); err != nil {
 		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", persistence.DBAuthName), "error", err)
 		return
 	}
