@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/google/uuid"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -88,7 +88,7 @@ func (uc *YouTubeDownloader) DeleteDownload(
 	}
 
 	if needDeleteFileOnStorage && fileFullName != "" {
-		fPath := path.Join(uc.downloadsDir, fileFullName)
+		fPath := filepath.Join(uc.downloadsDir, fileFullName)
 		if err := os.Remove(fPath); err != nil {
 			uc.logger.Warn("Failed delete file", "filePath", fPath, "error", err)
 		}

@@ -6,11 +6,9 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/google/uuid"
@@ -184,7 +182,7 @@ func (y *YTDlp) prepareMetadata(
 	}
 
 	fileFullName := fmt.Sprintf("%s.%s", fileName, fileExt)
-	filePath := path.Join(dlDir, fileFullName)
+	filePath := filepath.Join(dlDir, fileFullName)
 
 	var (
 		fileSize *int
@@ -269,13 +267,13 @@ func (y *YTDlp) runYtDlp(
 	var doneCh = make(chan struct{})
 	defer close(doneCh)
 
-	dlDir := path.Dir(meta.FilePath)
+	dlDir := filepath.Dir(meta.FilePath)
 
 	// Cache directory
-	cacheDir := path.Join(dlDir, ytDlpCacheDir)
+	cacheDir := filepath.Join(dlDir, ytDlpCacheDir)
 
 	// Running yt-dlp in a separate temporary directory
-	baseTmpDir := path.Join(dlDir, ytDlpTempDir)
+	baseTmpDir := filepath.Join(dlDir, ytDlpTempDir)
 
 	workDir, cleanup, err := helper.CreateTempDir(baseTmpDir, "job-*")
 	if err != nil {
@@ -312,9 +310,7 @@ func (y *YTDlp) runYtDlp(
 
 	// Start the process in a new process group
 	// so we can kill yt-dlp and all its children (ffmpeg).
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Setpgid: true,
-	}
+	cmd.SysProcAttr = newSysProcAttr()
 
 	// Capture stdout and stderr
 	// Prepare stdout pipe
@@ -361,15 +357,13 @@ func (y *YTDlp) runYtDlp(
 		pgid := -cmd.Process.Pid
 
 		// Try graceful shutdown first
-		_ = syscall.Kill(pgid, syscall.SIGTERM)
+		tryGracefulKill(pgid)
 
 		// Wait a bit for yt-dlp / ffmpeg to cleanup temp files
 		time.Sleep(2 * time.Second)
 
 		// Force kill if still running
-		if cmd.Process != nil {
-			_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
-		}
+		forceKill(cmd)
 	}()
 
 	// Read combined stdout + stderr
