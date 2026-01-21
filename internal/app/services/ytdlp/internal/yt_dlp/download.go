@@ -90,7 +90,15 @@ func (y *YTDlp) Download(
 
 	// Start asynchronous fetching of the channel avatar.
 	// Returns a channel from which the avatar can be read once the goroutine completes.
-	channelAvatarCh := y.fetchChannelAvatarAsync(&wg, *meta, sendData)
+	channelAvatarCh := y.fetchChannelAvatarAsync(
+		&wg,
+		*meta,
+		func(avatar *ddownload.DownloadResultChannelAvatar) {
+			result := meta.InitialResult()
+			result.ChannelAvatar = avatar
+			sendData(result)
+		},
+	)
 
 	// Run yt-dlp for the given URL and metadata.
 	// Capture output and error; send error if execution fails.
@@ -219,7 +227,7 @@ func (y *YTDlp) prepareMetadata(
 func (y *YTDlp) fetchChannelAvatarAsync(
 	wg *sync.WaitGroup,
 	meta idto.DownloadMeta,
-	send func(*ddownload.DownloadResult),
+	onAvatarDone func(*ddownload.DownloadResultChannelAvatar),
 ) <-chan *ddownload.DownloadResultChannelAvatar {
 	channelAvatar := make(chan *ddownload.DownloadResultChannelAvatar, 1)
 
@@ -260,10 +268,7 @@ func (y *YTDlp) fetchChannelAvatarAsync(
 		}
 		channelAvatar <- avatar
 
-		result := meta.InitialResult()
-		result.ChannelAvatar = avatar
-
-		send(result)
+		onAvatarDone(avatar)
 	})
 
 	return channelAvatar
