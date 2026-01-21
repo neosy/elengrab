@@ -67,11 +67,16 @@ func (c *formatCache) write(filePath string, data []byte) error {
 		return fmt.Errorf("failed to create temp file: %w", err)
 	}
 	tmpPath := tmpFile.Name()
-	defer tmpFile.Close()
 
-	_, err = tmpFile.Write(data)
-	if err != nil {
+	if _, err := tmpFile.Write(data); err != nil {
+		tmpFile.Close()
+		os.Remove(tmpPath)
 		return fmt.Errorf("failed to write file: %w", err)
+	}
+
+	if err := tmpFile.Close(); err != nil {
+		os.Remove(tmpPath)
+		return fmt.Errorf("failed to close temp file: %w", err)
 	}
 
 	_ = os.Remove(filePath)
