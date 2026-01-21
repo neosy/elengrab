@@ -103,6 +103,7 @@ func (s *httpServer) ListenAndServe(ctx context.Context, port string) error {
 	}
 
 	log.Printf("HTTP server listening on %s\n", addr)
+	log.Printf("Server started. Run locally: http://localhost:%s (Ctrl+C to stop)", port)
 
 	go func() {
 		<-ctx.Done()
@@ -114,6 +115,8 @@ func (s *httpServer) ListenAndServe(ctx context.Context, port string) error {
 		s.logger.ErrorContext(ctx, fmt.Sprintf("error run server: %v", err))
 		return err
 	}
+
+	log.Println("Server stopped")
 
 	return nil
 }
