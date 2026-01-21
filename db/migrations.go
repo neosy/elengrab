@@ -5,7 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
-	"log"
+	"log/slog"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite"
@@ -33,6 +33,7 @@ type MigrationConfig struct {
 
 // Migrations represents a database migration manager.
 type Migrations struct {
+	logger *slog.Logger
 	db     *sql.DB
 	name   persistence.DBName
 	fs     fs.FS
@@ -46,7 +47,7 @@ type Migrations struct {
 //
 // Returns:
 //   - *Migrations: a new Migrations manager instance.
-func NewMigrations(db *sql.DB, dbName persistence.DBName, config *MigrationConfig) *Migrations {
+func NewMigrations(logger *slog.Logger, db *sql.DB, dbName persistence.DBName, config *MigrationConfig) *Migrations {
 	var fs fs.FS
 	switch dbName {
 	case persistence.DBMainName:
@@ -56,6 +57,7 @@ func NewMigrations(db *sql.DB, dbName persistence.DBName, config *MigrationConfi
 	}
 
 	return &Migrations{
+		logger: logger,
 		db:     db,
 		name:   dbName,
 		fs:     fs,
@@ -68,12 +70,12 @@ func (m *Migrations) applyUp(migrator *migrate.Migrate) error {
 	err := migrator.Up()
 	if err != nil {
 		if err == migrate.ErrNoChange {
-			log.Printf("All migrations are already applied. Database '%s' is up to date.", m.name)
+			m.logger.Debug(fmt.Sprintf("All migrations are already applied. Database '%s' is up to date.", m.name))
 			return nil
 		}
 		return fmt.Errorf("migration db '%s' failed: %v", m.name, err)
 	}
-	log.Printf("New migrations db '%s' applied successfully.", m.name)
+	m.logger.Info(fmt.Sprintf("New migrations db '%s' applied successfully.", m.name))
 	return nil
 }
 
