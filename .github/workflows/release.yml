@@ -77,7 +77,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: elengrab-binaries
+          name: elengrab-binaries-${{ matrix.goos }}-${{ matrix.goarch }}
           path: dist/*
 
   publish:
@@ -85,11 +85,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download artifacts
+      - name: Download linux-amd64 artifact
         uses: actions/download-artifact@v4
         with:
-          name: elengrab-binaries
-          path: dist
+          name: elengrab-binaries-linux-amd64
+          path: dist/linux-amd64
+
+      - name: Download linux-arm64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: elengrab-binaries-linux-arm64
+          path: dist/linux-arm64
 
       - name: Publish Release
         uses: softprops/action-gh-release@v1
@@ -99,6 +105,6 @@ jobs:
           body: ${{ github.event.inputs.body }}
           draft: false
           prerelease: ${{ github.event.inputs.prerelease }}
-          files: dist/*
+          files: dist/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
