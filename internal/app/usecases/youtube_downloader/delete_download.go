@@ -3,8 +3,11 @@ package ytdownloader
 import (
 	"context"
 	"errors"
+	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/google/uuid"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -89,10 +92,33 @@ func (uc *YouTubeDownloader) DeleteDownload(
 
 	if needDeleteFileOnStorage && fileFullName != "" {
 		fPath := filepath.Join(uc.downloadsDir, fileFullName)
-		if err := os.Remove(fPath); err != nil {
-			uc.logger.Warn("Failed delete file", "filePath", fPath, "error", err)
-		}
+		go func(path string) {
+			err := uc.deleteWithRetry(ctx, path, 10, 5*time.Second)
+			if err != nil {
+				uc.logger.Warn("Failed delete file", "filePath", fPath, "error", err)
+			}
+		}(fPath)
 	}
 
 	return nil
+}
+
+func (uc *YouTubeDownloader) deleteWithRetry(ctx context.Context, path string, retries int, retryDelay time.Duration) error {
+	var err error
+	for range retries {
+		err = os.Remove(path)
+		if err == nil {
+			return nil
+		}
+		if errors.Is(err, fs.ErrNotExist) {
+			return nil
+		}
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("context was closed. The file was not deleted.")
+		case <-time.After(retryDelay):
+		}
+
+	}
+	return err
 }
