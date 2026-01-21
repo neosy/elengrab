@@ -1,0 +1,104 @@
+name: Release (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (example: v0.9.5)'
+        required: true
+      name:
+        description: 'Release name'
+        required: false
+      body:
+        description: 'Release notes'
+        required: false
+      prerelease:
+        description: 'Create prerelease?'
+        required: false
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            os_name: linux
+            goarch: amd64
+            ext: ""
+            archive: tar.gz
+          - goos: linux
+            os_name: linux
+            goarch: arm64
+            ext: ""
+            archive: tar.gz
+          - goos: windows
+            os_name: windows
+            goarch: amd64
+            ext: ".exe"
+            archive: zip
+          - goos: darwin
+            os_name: macos
+            goarch: amd64
+            ext: ""
+            archive: tar.gz
+          - goos: darwin
+            os_name: macos
+            goarch: arm64
+            ext: ""
+            archive: tar.gz
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Build
+        run: |
+          mkdir -p dist
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
+            go build -o dist/elengrab-${{ matrix.os_name }}-${{ matrix.goarch }}${{ matrix.ext }} ./cmd/elengrab
+
+      - name: Archive
+        run: |
+          cd dist
+          if [ "${{ matrix.archive }}" = "zip" ]; then
+            zip -r elengrab-${{ matrix.os_name }}-${{ matrix.goarch }}.zip elengrab-${{ matrix.os_name }}-${{ matrix.goarch }}${{ matrix.ext }}
+          else
+            tar -czf elengrab-${{ matrix.os_name }}-${{ matrix.goarch }}.tar.gz elengrab-${{ matrix.os_name }}-${{ matrix.goarch }}${{ matrix.ext }}
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: elengrab-binaries
+          path: dist/*
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: elengrab-binaries
+          path: dist
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          name: ${{ github.event.inputs.name }}
+          body: ${{ github.event.inputs.body }}
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease }}
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
