@@ -51,6 +51,7 @@ jobs:
           # - goos: darwin
           #   os_name: mac
           #   goarch: arm64
+          #   arch_name: arm64
           #   ext: ""
           #   archive: zip
 
