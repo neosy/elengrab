@@ -27,8 +27,7 @@ func GetImageFormatByHeader(resp *fasthttp.Response) (string, error) {
 
 // GetImage downloads an image from the given URL using fasthttp
 // and returns a safe-to-use copy of the image bytes along with its format.
-// bufferSize:  64 * 1024 (for youtube)
-func GetImage(url string, bufferSize int) ([]byte, string, error) {
+func GetImage(url string, opts ...ClientOption) ([]byte, string, error) {
 	var req fasthttp.Request
 	var resp fasthttp.Response
 
@@ -40,12 +39,16 @@ func GetImage(url string, bufferSize int) ([]byte, string, error) {
 	req.Header.SetUserAgent(linuxUserAgent)
 
 	// Create a client with increased read buffer size
-	client := &fasthttp.Client{
-		ReadBufferSize: bufferSize,
-	}
+	client := NewClient(opts...)
 
 	// Execute the HTTP request
-	if err := client.Do(&req, &resp); err != nil {
+	execRequest := func(client *fasthttp.Client) error {
+		if client.ReadTimeout > 0 {
+			return client.DoTimeout(&req, &resp, client.ReadTimeout)
+		}
+		return client.Do(&req, &resp)
+	}
+	if err := execRequest(client); err != nil {
 		return nil, "", fmt.Errorf("get image error: %v", err)
 	}
 

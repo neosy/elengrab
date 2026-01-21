@@ -233,22 +233,32 @@ func (y *YTDlp) fetchChannelAvatarAsync(
 
 		avatarSources, err := y.getChannelAvatar(meta.ChannelURL)
 		if err != nil {
-			y.logger.Debug("Failed get channel avatar", "error", err)
+			y.logger.Debug("Failed to get channel avatar", "channelURL", meta.ChannelURL, "error", err)
+			return
+		}
+		if len(avatarSources) == 0 {
+			y.logger.Debug("Avatar not found", "channelURL", meta.ChannelURL)
 			return
 		}
 
 		var avatar *ddownload.DownloadResultChannelAvatar
-		if len(avatarSources) > 0 {
-			src := avatarSources[0]
-			if len(src.Raw) > 0 {
-				avatar = &ddownload.DownloadResultChannelAvatar{
-					ImageURL:    src.URL,
-					ImageRAW:    src.Raw,
-					ImageFormat: src.Format,
-				}
-				channelAvatar <- avatar
-			}
+		src := avatarSources[0]
+		if len(src.Raw) == 0 {
+			y.logger.Debug("Avatar image not found", "channelURL", meta.ChannelURL)
+			return
 		}
+
+		y.logger.Info(
+			"YouTube channel avatar fetched successfully",
+			"channelURL", meta.ChannelURL,
+		)
+
+		avatar = &ddownload.DownloadResultChannelAvatar{
+			ImageURL:    src.URL,
+			ImageRAW:    src.Raw,
+			ImageFormat: src.Format,
+		}
+		channelAvatar <- avatar
 
 		result := meta.InitialResult()
 		result.ChannelAvatar = avatar

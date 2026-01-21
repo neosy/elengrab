@@ -2,6 +2,7 @@ package ytdlp
 
 import (
 	"encoding/json"
+	"fmt"
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp/helper"
@@ -12,9 +13,13 @@ import (
 // extracts the avatar JSON block, and returns all avatar URLs.
 // url: full URL of the YouTube channel
 func (y *YTDlp) getChannelAvatar(url string) ([]idto.AvatarSource, error) {
-	body, err := nfasthttp.GetHTML(url, 64*1024)
+	body, err := nfasthttp.GetHTML(
+		url,
+		nfasthttp.ClientOptionWithreadBufferSize(64*1024),
+		nfasthttp.ClientOptionWithTimeout(channelAvatarTimeout),
+	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get html: %w", err)
 	}
 
 	html := string(body)
@@ -32,7 +37,11 @@ func (y *YTDlp) getChannelAvatar(url string) ([]idto.AvatarSource, error) {
 	}
 
 	for i, src := range sources {
-		raw, format, err := nfasthttp.GetImage(src.URL, 64*1024)
+		raw, format, err := nfasthttp.GetImage(
+			src.URL,
+			nfasthttp.ClientOptionWithreadBufferSize(64*1024),
+			nfasthttp.ClientOptionWithTimeout(channelAvatarTimeout),
+		)
 		if err != nil {
 			continue
 		}
