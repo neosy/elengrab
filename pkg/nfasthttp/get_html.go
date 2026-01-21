@@ -8,8 +8,7 @@ import (
 
 // GetHTML performs an HTTP GET request using fasthttp and returns
 // the response body as a safe-to-use byte slice.
-// bufferSize:  64 * 1024 (for youtube)
-func GetHTML(url string, bufferSize int) ([]byte, error) {
+func GetHTML(url string, opts ...ClientOption) ([]byte, error) {
 	var req fasthttp.Request
 	var resp fasthttp.Response
 
@@ -26,12 +25,17 @@ func GetHTML(url string, bufferSize int) ([]byte, error) {
 	req.Header.Set("Accept", "*/*")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
 
-	client := &fasthttp.Client{
-		ReadBufferSize: bufferSize,
-	}
+	// Create a client with increased read buffer size
+	client := NewClient(opts...)
 
 	// Execute the HTTP request
-	if err := client.Do(&req, &resp); err != nil {
+	execRequest := func(client *fasthttp.Client) error {
+		if client.ReadTimeout > 0 {
+			return client.DoTimeout(&req, &resp, client.ReadTimeout)
+		}
+		return client.Do(&req, &resp)
+	}
+	if err := execRequest(client); err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
 
