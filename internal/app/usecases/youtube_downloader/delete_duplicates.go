@@ -3,7 +3,7 @@ package ytdownloader
 import (
 	"context"
 	"os"
-	"path"
+	"path/filepath"
 )
 
 func (uc *YouTubeDownloader) DeleteDuplicates(ctx context.Context) error {
@@ -34,7 +34,7 @@ func (uc *YouTubeDownloader) DeleteDuplicates(ctx context.Context) error {
 
 			delCnt++
 
-			fPath := path.Join(uc.downloadsDir, file.FullName)
+			fPath := filepath.Join(uc.downloadsDir, file.FullName)
 			if err := os.Remove(fPath); err != nil {
 				uc.logger.Warn("Failed delete file", "filePath", fPath, "error", err)
 				continue

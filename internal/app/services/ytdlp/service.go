@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	ytdlp "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp"
@@ -35,6 +36,10 @@ type YtDlpService struct {
 func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, options *Options) (*YtDlpService, error) {
 	cmdPath, err := resolveCmdPath(ytDlpName, binDir)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := checkFFmpeg(); err != nil {
 		return nil, err
 	}
 
@@ -67,14 +72,70 @@ func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, op
 }
 
 func resolveCmdPath(cmdName, binDir string) (string, error) {
-	if path, err := exec.LookPath(cmdName); err == nil {
+	// On Windows, add .exe suffix if missing
+	if runtime.GOOS == "windows" && !strings.HasSuffix(cmdName, ".exe") {
+		cmdName += ".exe"
+	}
+
+	// try PATH
+	if path, err := lookupExecutable(cmdName); err == nil {
 		return path, nil
 	}
 
+	// try config dir
 	cmdPath := filepath.Join(binDir, cmdName)
 	if fi, err := os.Stat(cmdPath); err == nil && !fi.IsDir() {
 		return cmdPath, nil
 	}
 
-	return "", fmt.Errorf("%s not found: tried config path %q and PATH lookup", cmdName, cmdPath)
+	// 3) try executable directory (same folder as your service binary)
+	exePath, err := os.Executable()
+	if err == nil {
+		exeDir := filepath.Dir(exePath)
+		cmdPath := filepath.Join(exeDir, cmdName)
+		if fi, err := os.Stat(cmdPath); err == nil && !fi.IsDir() {
+			return cmdPath, nil
+		}
+	}
+
+	return "", fmt.Errorf(
+		"%q executable not found. Tried PATH lookup and config directory %q (full path: %q)",
+		cmdName,
+		binDir,
+		cmdPath,
+	)
+}
+
+func lookupExecutable(cmdName string) (string, error) {
+	if runtime.GOOS == "windows" && !strings.HasSuffix(cmdName, ".exe") {
+		cmdName += ".exe"
+	}
+	return exec.LookPath(cmdName)
+}
+
+func checkFFmpeg() error {
+	var cmdName = "ffmpeg"
+
+	if runtime.GOOS == "windows" && !strings.HasSuffix(cmdName, ".exe") {
+		cmdName += ".exe"
+	}
+
+	// Ensure ffmpeg is available in PATH
+	cmd := exec.Command(cmdName, "-version")
+	if err := cmd.Run(); err == nil {
+		return nil
+	}
+
+	exePath, err := os.Executable()
+	if err == nil {
+		exeDir := filepath.Dir(exePath)
+		cmdPath := filepath.Join(exeDir, cmdName)
+
+		cmd = exec.Command(cmdPath, "-version")
+		if err := cmd.Run(); err == nil {
+			return nil
+		}
+	}
+
+	return errors.New("ffmpeg not found in PATH. Please install ffmpeg and add it to PATH")
 }

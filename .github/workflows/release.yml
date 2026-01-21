@@ -34,21 +34,21 @@ jobs:
             goarch: arm64
             ext: ""
             archive: tar.gz
-          # - goos: windows
-          #   os_name: windows
+          - goos: windows
+            os_name: win
+            goarch: amd64
+            ext: ".exe"
+            archive: zip
+          # - goos: darwin
+          #   os_name: mac
           #   goarch: amd64
-          #   ext: ".exe"
+          #   ext: ""
           #   archive: zip
           # - goos: darwin
-          #   os_name: macos
-          #   goarch: amd64
-          #   ext: ""
-          #   archive: tar.gz
-          # - goos: darwin
-          #   os_name: macos
+          #   os_name: mac
           #   goarch: arm64
           #   ext: ""
-          #   archive: tar.gz
+          #   archive: zip
 
     steps:
       - name: Checkout
@@ -59,19 +59,34 @@ jobs:
         with:
           go-version: '1.25'
 
+      - name: Set version
+        id: version
+        run: |
+          TAG="${{ github.event.inputs.tag }}"
+          VERSION="${TAG#v}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          
       - name: Build
         run: |
+          SUFFIX=""
+          if [[ "${{ matrix.os_name }}" == "win" || "${{ matrix.os_name }}" == "mac" ]]; then
+            SUFFIX="-${{ steps.version.outputs.version }}"
+          fi
           mkdir -p dist
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} CGO_ENABLED=0 \
-            go build -tags embed_assets -o dist/elengrab-${{ matrix.os_name }}-${{ matrix.goarch }}${{ matrix.ext }} ./cmd/elengrab
+            go build -tags embed_assets -o dist/elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.goarch }}${{ matrix.ext }} ./cmd/elengrab
 
       - name: Archive
         run: |
+          SUFFIX=""
+          if [[ "${{ matrix.os_name }}" == "win" || "${{ matrix.os_name }}" == "mac" ]]; then
+            SUFFIX="-${{ steps.version.outputs.version }}"
+          fi
           cd dist
           if [ "${{ matrix.archive }}" = "zip" ]; then
-            zip -r elengrab-${{ matrix.os_name }}-${{ matrix.goarch }}.zip elengrab-${{ matrix.os_name }}-${{ matrix.goarch }}${{ matrix.ext }}
+            zip -r elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.goarch }}.zip elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.goarch }}${{ matrix.ext }}
           else
-            tar -czf elengrab-${{ matrix.os_name }}-${{ matrix.goarch }}.tar.gz elengrab-${{ matrix.os_name }}-${{ matrix.goarch }}${{ matrix.ext }}
+            tar -czf elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.goarch }}.tar.gz elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.goarch }}${{ matrix.ext }}
           fi
 
       - name: Upload artifacts
