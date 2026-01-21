@@ -33,7 +33,7 @@ jobs:
           - goos: linux
             os_name: linux
             goarch: arm64
-            arch_name: amd64
+            arch_name: arm64
             ext: ""
             archive: tar.gz
           - goos: windows
