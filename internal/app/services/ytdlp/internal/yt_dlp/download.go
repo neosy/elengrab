@@ -1,12 +1,15 @@
 package ytdlp
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -82,7 +85,8 @@ func (y *YTDlp) Download(
 		})
 	}
 
-	meta, err := y.prepareMetadata(ctx, url, dlDir, fileName, includeTitleInFilename, dlOptions)
+	var meta idto.SafeDownloadMeta
+	meta.Meta, err = y.prepareMetadata(ctx, url, dlDir, fileName, includeTitleInFilename, dlOptions)
 	if err != nil {
 		sendError(&ddownload.DownloadResult{YoutubeTitle: title}, err)
 		return
@@ -92,19 +96,30 @@ func (y *YTDlp) Download(
 
 	// Start asynchronous fetching of the channel avatar.
 	// Returns a channel from which the avatar can be read once the goroutine completes.
-	channelAvatarCh := y.fetchChannelAvatarAsync(
+	y.fetchChannelAvatarAsync(
 		&wg,
-		*meta,
+		meta.CopyMeta(),
 		func(avatar *ddownload.DownloadResultChannelAvatar) {
-			result := meta.InitialResult()
-			result.ChannelAvatar = avatar
-			sendData(result)
+			meta.Lock()
+			meta.Meta.ChannelAvatar = avatar
+			meta.Unlock()
+			sendData(meta.InitialResult())
 		},
 	)
 
 	// Run yt-dlp for the given URL and metadata.
 	// Capture output and error; send error if execution fails.
-	out, err := y.runYtDlp(ctx, url, meta)
+	out, err := y.runYtDlp(
+		ctx,
+		url,
+		meta.CopyMeta(),
+		func(progress ddownload.DownloadProgress) {
+			meta.Lock()
+			meta.Meta.Progress = &progress
+			meta.Unlock()
+			sendData(meta.InitialResult())
+		},
+	)
 	if err != nil {
 		sendError(meta.InitialResult(), err)
 		return
@@ -118,14 +133,16 @@ func (y *YTDlp) Download(
 	)
 
 	// Get the actual file size
-	fileInfo, err := os.Stat(meta.FilePath)
+	fileInfo, err := os.Stat(meta.Meta.FilePath)
 	if err == nil {
-		meta.FileSize = uptr.Int(int(fileInfo.Size()))
+		meta.Lock()
+		meta.Meta.FileSize = uptr.Int(int(fileInfo.Size()))
+		meta.Unlock()
 	}
 
 	var partialHash *string
 	{
-		h, err := utils.HashPartialMedia(meta.FilePath)
+		h, err := utils.HashPartialMedia(meta.Meta.FilePath)
 		if err == nil && h != "" {
 			partialHash = &h
 		}
@@ -136,10 +153,7 @@ func (y *YTDlp) Download(
 
 	// Build response struct
 	result := meta.InitialResult()
-	{
-		result.PartialHash = partialHash
-		result.ChannelAvatar = <-channelAvatarCh
-	}
+	result.PartialHash = partialHash
 
 	// Build response struct
 	sendData(result)
@@ -148,11 +162,11 @@ func (y *YTDlp) Download(
 	// Info Download completed
 	y.logger.Info(
 		"Download completed",
-		"title", meta.Title,
+		"title", meta.Meta.Title,
 		"url", url,
 		"mediaInfo", result.MediaInfo,
 	)
-	y.logger.Debug("Download success", "meta", meta)
+	y.logger.Debug("Download success", "meta", meta.Meta)
 }
 
 func (y *YTDlp) prepareMetadata(
@@ -228,19 +242,14 @@ func (y *YTDlp) prepareMetadata(
 
 func (y *YTDlp) fetchChannelAvatarAsync(
 	wg *sync.WaitGroup,
-	meta idto.DownloadMeta,
+	meta *idto.DownloadMeta,
 	onAvatarDone func(*ddownload.DownloadResultChannelAvatar),
-) <-chan *ddownload.DownloadResultChannelAvatar {
-	channelAvatar := make(chan *ddownload.DownloadResultChannelAvatar, 1)
-
+) {
 	if meta.ChannelID == nil {
-		close(channelAvatar)
-		return channelAvatar
+		return
 	}
 
 	wg.Go(func() {
-		defer close(channelAvatar)
-
 		avatarSources, err := y.getChannelAvatar(meta.ChannelURL)
 		if err != nil {
 			y.logger.Debug("Failed to get channel avatar", "channelURL", meta.ChannelURL, "error", err)
@@ -268,18 +277,15 @@ func (y *YTDlp) fetchChannelAvatarAsync(
 			ImageRAW:    src.Raw,
 			ImageFormat: src.Format,
 		}
-		channelAvatar <- avatar
-
 		onAvatarDone(avatar)
 	})
-
-	return channelAvatar
 }
 
 func (y *YTDlp) runYtDlp(
 	ctx context.Context,
 	url string,
 	meta *idto.DownloadMeta,
+	onProgressUpdate func(ddownload.DownloadProgress),
 ) ([]byte, error) {
 	var (
 		done      = syncx.NewDoneSignal()
@@ -306,25 +312,36 @@ func (y *YTDlp) runYtDlp(
 		}
 	}()
 
+	// Copy args to avoid modifying the original slice
+	args := meta.Args[0:len(meta.Args):len(meta.Args)]
+
+	// Add progress output to yt-dlp arguments
+	args = append(
+		args,
+		"--newline",
+		"--progress-template",
+		"%(progress.downloaded_bytes)s|%(progress.total_bytes)s|%(progress.eta)s|%(progress.speed)s",
+	)
+
 	// Build full path to the output file inside the temp work directory
 	tmpFilePath := filepath.Join(workDir, meta.FileFullName)
 
 	// Add cache directory to yt-dlp arguments
-	meta.Args = append(meta.Args, "--cache-dir", cacheDir)
+	args = append(args, "--cache-dir", cacheDir)
 
 	// Force yt-dlp to store all temporary and intermediate files in the isolated work directory
-	meta.Args = append(meta.Args, "--paths", fmt.Sprintf("temp:%s", workDir))
+	args = append(args, "--paths", fmt.Sprintf("temp:%s", workDir))
 
 	// Add load info json to arguments
-	meta.Args = append(meta.Args, "--load-info-json", y.formatCache.cacheFilePath(url))
+	args = append(args, "--load-info-json", y.formatCache.cacheFilePath(url))
 
 	// Add output file path to yt-dlp arguments
-	meta.Args = append(meta.Args, "-o", tmpFilePath)
+	args = append(args, "-o", tmpFilePath)
 
 	// Execute yt-dlp command
 	// Create command without CommandContext.
 	// We manage cancellation manually to properly kill the whole process group.
-	cmd := exec.Command(y.ytDlpPath, meta.Args...)
+	cmd := exec.Command(y.ytDlpPath, args...)
 
 	cmd.Dir = workDir
 
@@ -399,12 +416,29 @@ func (y *YTDlp) runYtDlp(
 		forceKill(cmd)
 	}()
 
-	// Read combined stdout + stderr
-	out, _ := io.ReadAll(io.MultiReader(stdoutPipe, stderrPipe))
+	var wg sync.WaitGroup
+
+	// stdout reader (progress)
+	var outBuf bytes.Buffer
+	wg.Go(func() {
+		var fileSize *int64
+		if meta.FileSize != nil {
+			fs := int64(*meta.FileSize)
+			fileSize = &fs
+		}
+		// Watch progress output
+		y.watchProgress(fileSize, stdoutPipe, &outBuf, onProgressUpdate)
+	})
+
+	// stderr reader
+	wg.Go(func() {
+		_, _ = io.Copy(&outBuf, stderrPipe)
+	})
 
 	// Wait for the process to exit
 	err = cmd.Wait()
 	done.Close()
+	wg.Wait()
 	if err != nil {
 		// Context cancellation has priority
 		if ctx.Err() != nil {
@@ -420,7 +454,7 @@ func (y *YTDlp) runYtDlp(
 		y.formatCache.deleteByURL(url)
 
 		// Process exited with an error
-		return nil, fmt.Errorf("%s failed: %w, output: %s", y.ytDlpName, err, string(out))
+		return nil, fmt.Errorf("%s failed: %w, output: %s", y.ytDlpName, err, outBuf.String())
 	}
 
 	// Check if timeout occurred
@@ -435,5 +469,57 @@ func (y *YTDlp) runYtDlp(
 		return nil, fmt.Errorf("%s failed to move file from temp dir to target path: %w", y.ytDlpName, err)
 	}
 
-	return out, nil
+	return outBuf.Bytes(), nil
+}
+
+func (y *YTDlp) watchProgress(fileSize *int64, std io.Reader, outBuf *bytes.Buffer, onProgressUpdate func(ddownload.DownloadProgress)) {
+	var (
+		downloadedMap = make(map[int64]int64)
+		scanner       = bufio.NewScanner(std)
+	)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// Output line to buffer
+		outBuf.WriteString(line)
+		outBuf.WriteByte('\n')
+
+		// Parse progress line
+		parts := strings.Split(line, "|")
+		if len(parts) != 4 {
+			continue
+		}
+
+		// Parse progress parts
+		downloaded, _ := strconv.ParseInt(parts[0], 10, 64)
+		total, _ := strconv.ParseInt(parts[1], 10, 64)
+		eta, _ := strconv.Atoi(parts[2])
+		speed, _ := strconv.ParseInt(parts[3], 10, 64)
+
+		// Update downloaded map
+		downloadedMap[total] = downloaded
+		// Initialize downloaded and total
+		downloaded = 0
+		if fileSize != nil {
+			total = *fileSize
+		}
+
+		// Aggregate total and downloaded bytes
+		for k, v := range downloadedMap {
+			downloaded += v
+			if fileSize == nil {
+				total += k
+			}
+		}
+
+		// Call progress update callback
+		onProgressUpdate(
+			ddownload.DownloadProgress{
+				DownloadedBytes:  downloaded,
+				TotalBytes:       total,
+				ETASeconds:       eta,
+				SpeedBytesPerSec: speed,
+			})
+	}
 }

@@ -1,5 +1,15 @@
 # Releases
 
+## v0.10.0 — 2026-01-25
+
+### Feature
+- Add download progress. Closes #24
+
+### Fix
+- Add timeout for yt-dlp requests. Closes #152
+
+---
+
 ## v0.9.11 — 2026-01-24
 
 ### Hotfix

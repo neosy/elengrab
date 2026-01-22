@@ -9,15 +9,32 @@ import (
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
-func (m *Mappers) MapFileDomainToFileInfoResponse(file *ddownload.File, downloadsDir string) *dto.GetFileInfoResponse {
+func (m *Mappers) MapFileDomainToFileInfoResponse(
+	file *ddownload.File,
+	progress *ddownload.DownloadProgress,
+	downloadsDir string,
+) *dto.GetFileInfoResponse {
 	var youtubeTitle = file.YoutubeTitle
 	if file.YoutubeTitle == "" {
 		youtubeTitle = file.YoutubeUrl
 	}
 
+	workingStatus := dto.WorkingStatusNone
+	if file.Status == dtypes.FileStatusWorking {
+		workingStatus = dto.WorkingStatusStartDownload
+		if progress != nil {
+			if progress.Percent() < 100 {
+				workingStatus = dto.WorkingStatusDownloading
+			} else {
+				workingStatus = dto.WorkingStatusFinishDownload
+			}
+		}
+	}
+
 	return &dto.GetFileInfoResponse{
 		FileId:               file.FileId,
 		Status:               file.Status,
+		WorkingStatus:        workingStatus,
 		YoutubeChannelID:     file.YoutubeChannelID,
 		YoutubeUrl:           file.YoutubeUrl,
 		YoutubeTitle:         youtubeTitle,
@@ -29,6 +46,7 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(file *ddownload.File, download
 		StatusText:           uptr.Deref(file.ErrorMessage),
 		MediaInfo:            file.MediaInfo,
 		MediaInfoText:        mediaInfoText(file.MediaInfo),
+		Progress:             progress,
 		CreatedAt:            file.CreatedAt,
 		UpdatedAt:            file.UpdatedAt,
 	}

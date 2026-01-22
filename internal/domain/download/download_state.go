@@ -9,7 +9,8 @@ type DownloadState struct {
 	FileId uuid.UUID
 	TaskId *uuid.UUID
 
-	File *File
+	File     *File
+	Progress *DownloadProgress
 }
 
 func (s *DownloadState) InitFromFile(file *File) {
@@ -52,5 +53,9 @@ func (s *DownloadState) InitFromDownloadResult(result *DownloadResult) {
 
 	if result.PartialHash != nil {
 		s.File.PartialHash = result.PartialHash
+	}
+
+	if result.Progress != nil {
+		s.Progress = result.Progress
 	}
 }

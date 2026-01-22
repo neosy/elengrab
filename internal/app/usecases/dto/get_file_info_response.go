@@ -11,6 +11,7 @@ import (
 type GetFileInfoResponse struct {
 	FileId               uuid.UUID
 	Status               dtypes.FileStatus
+	WorkingStatus        WorkingStatus
 	YoutubeChannelID     *string
 	YoutubeUrl           string
 	YoutubeTitle         string
@@ -22,6 +23,7 @@ type GetFileInfoResponse struct {
 	StatusText           string
 	MediaInfo            *ddownload.MediaInfo
 	MediaInfoText        string
+	Progress             *ddownload.DownloadProgress
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
 }
