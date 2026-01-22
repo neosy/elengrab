@@ -49,6 +49,7 @@ type Migrations struct {
 //   - *Migrations: a new Migrations manager instance.
 func NewMigrations(logger *slog.Logger, db *sql.DB, dbName persistence.DBName, config *MigrationConfig) *Migrations {
 	var fs fs.FS
+
 	switch dbName {
 	case persistence.DBMainName:
 		fs, _ = migrationsMainRoot()
@@ -65,6 +66,7 @@ func NewMigrations(logger *slog.Logger, db *sql.DB, dbName persistence.DBName, c
 	}
 }
 
+// applyUp applies all up migrations using the provided migrator.
 func (m *Migrations) applyUp(migrator *migrate.Migrate) error {
 	// Apply all up migrations
 	err := migrator.Up()

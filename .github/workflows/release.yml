@@ -5,17 +5,11 @@ on:
     inputs:
       tag:
         description: 'Release tag (example: v0.9.5)'
-        required: true
-      name:
-        description: 'Release name'
-        required: false
-      body:
-        description: 'Release notes'
         required: false
       prerelease:
         description: 'Create prerelease?'
         required: false
-        default: false
+        default: "false"
 
 jobs:
   build:
@@ -59,6 +53,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Resolve build tag
+        id: build_tag
+        shell: bash
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            TAG="${{ github.event.inputs.tag }}"
+          fi
+
+          if [ -z "$TAG" ]; then
+            echo "Tag must be provided when running from a branch."
+            exit 1
+          fi
+
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
@@ -67,7 +78,7 @@ jobs:
       - name: Set version
         id: version
         run: |
-          TAG="${{ github.event.inputs.tag }}"
+          TAG="${{ steps.build_tag.outputs.tag }}"
           VERSION="${TAG#v}"
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           
@@ -109,8 +120,53 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve release tag
+        id: release_tag
+        shell: bash
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            TAG="${{ github.event.inputs.tag }}"
+          fi
+
+          if [ -z "$TAG" ]; then
+            echo "Tag must be provided when running from a branch."
+            exit 1
+          fi
+
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Set release name
+        id: release_name
+        shell: bash
+        run: |
+          TAG="${{ steps.release_tag.outputs.tag }}"
+          NAME="${TAG#v}"
+          echo "name=${NAME}" >> $GITHUB_OUTPUT
+
+      - name: Extract release notes from RELEASE.md
+        id: notes
+        shell: bash
+        run: |
+          TAG="${{ steps.release_tag.outputs.tag }}"
+
+          if ! grep -q "## $TAG" RELEASE.md; then
+            echo "Release notes for $TAG not found in RELEASE.md"
+            exit 1
+          fi
+
+          echo "BODY<<EOF" >> $GITHUB_OUTPUT
+          awk "/## $TAG/{flag=1;next}/## v/{flag=0}flag" RELEASE.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Download linux-amd64 artifact
         uses: actions/download-artifact@v4
         with:
@@ -132,11 +188,11 @@ jobs:
       - name: Publish Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.event.inputs.tag }}
-          name: ${{ github.event.inputs.name }}
-          body: ${{ github.event.inputs.body }}
-          draft: false
+          tag_name: ${{ steps.release_tag.outputs.tag }}
+          name: ${{ steps.release_name.outputs.name }}
+          body: ${{ steps.notes.outputs.BODY }}
           prerelease: ${{ github.event.inputs.prerelease }}
+          draft: false
           files: dist/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
