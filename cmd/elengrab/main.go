@@ -189,7 +189,7 @@ func main() {
 		// options
 		IntervalUpdateHash:               cfg.Elengrab.Maintenance.IntervalUpdateHash,
 		IntervalDeleteDuplicates:         cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
-		IntervalDeleteMissingFiles:       cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
+		IntervalDeleteMissingFiles:       cfg.Elengrab.Maintenance.IntervalDeleteMissingFiles,
 		IntervalDeleteFailedDownloads:    cfg.Elengrab.Maintenance.IntervalDeleteFailedDownloads,
 		EnableMoveUnmatchedFiles:         cfg.Elengrab.Maintenance.EnableMoveUnmatchedFiles,
 		IntervalCleanYoutubeChannelCache: intervalCleanYoutubeChannelCache,
