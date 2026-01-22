@@ -18,8 +18,10 @@ func (s *httpServer) newRouter() *router.Router {
 		DownloadsDir: s.downloadsDir,
 	})
 
-	s.setupHtmxRootRoutes(r, handlers.HTMX)
-	s.setupHtmxUIRoutes(r, handlers.HTMX)
+	s.setupStaticRoutes(r, handlers.Static)
+
+	s.setupUIRootRoutes(r, handlers.UI)
+	s.setupUIRoutes(r, handlers.UI)
 
 	s.setupAPIV1Routes(r, handlers.API)
 

@@ -1,0 +1,37 @@
+package downloaderh
+
+import (
+	"path/filepath"
+
+	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	"github.com/valyala/fasthttp"
+)
+
+func (h *DownloaderHandlers) GetChannelAvatar(ctx *fasthttp.RequestCtx) {
+	channelID := ctx.UserValue(channelIDKey).(string)
+	if channelID == "" {
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetBodyString("ChannelID is required")
+		return
+	}
+
+	if channelID != channelIDValueNone {
+		channelInfo, _ := h.usecases.Downloader.FindYoutubeChannelInfo(ctx, channelID)
+
+		if channelInfo != nil && len(channelInfo.ImageRaw) > 0 {
+			ctx.SetContentType(h.mappers.MapImageFormatToContentType(channelInfo.ImageFormat))
+			ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
+			ctx.SetBody(channelInfo.ImageRaw)
+			ctx.SetStatusCode(fasthttp.StatusOK)
+			return
+		}
+	}
+
+	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
+	defaultAvatarSVG := uivalues.IconFileRawByKey(uivalues.YoutubeChannelDefaultIconNameKey, iconsDir)
+
+	ctx.SetContentType("image/svg+xml")
+	ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
+	ctx.SetBody([]byte(defaultAvatarSVG))
+	ctx.SetStatusCode(fasthttp.StatusOK)
+}

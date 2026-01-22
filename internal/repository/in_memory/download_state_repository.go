@@ -141,6 +141,7 @@ func (r *DownloadStateRepository) copyDownloadState(state *ddownload.DownloadSta
 
 	copy := uptr.Copy(state)
 	copy.TaskId = uptr.Copy(state.TaskId)
+	copy.Progress = uptr.Copy(state.Progress)
 
 	if state.File != nil {
 		copy.File = uptr.Copy(state.File)

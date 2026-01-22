@@ -34,11 +34,13 @@
         <span class="result-separator">•</span>
         <div class="div-result-status" title="{{ .GrabResultItemStatusText }}">
         {{ if .IsItemSpiner }}
-            <div class="item-result-spinner"></div>
+            <div class="item-result-spinner {{ .WorkingStatus }}"></div>
+            {{ if eq .WorkingStatus "downloading" }}
+                <span class="result-progress-percent">{{ .DownloadingProgress }}</span>
+            {{ end }}
         {{ else }}
             {{ .GrabResultItemStatusHtml }}
         {{ end }}
-        </div>
         </div>
     </div>
 </div>
