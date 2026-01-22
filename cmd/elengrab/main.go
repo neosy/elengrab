@@ -173,7 +173,7 @@ func main() {
 	}
 	uc := usecases.NewUsecases(ctx, logger, ucDeps)
 
-	// Init
+	// Initialize stuck download jobs
 	if err := uc.Downloader.ResetStuckJobs(ctx); err != nil {
 		logger.Error("Failed to init downloader", "err", err)
 		return

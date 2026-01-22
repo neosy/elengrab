@@ -19,6 +19,7 @@ func absPath(root, path string) string {
 	return path
 }
 
+// ensureAssets checks if the assets directory exists
 func ensureAssets(path string) error {
 	_, err := os.Stat(path)
 	if err != nil {
