@@ -30,10 +30,24 @@ type DownloadResult struct {
 
 	// MediaInfo holds media metadata.
 	MediaInfo *MediaInfo
+
+	// Download progress
+	Progress *DownloadProgress
 }
 
 type DownloadResultChannelAvatar struct {
 	ImageURL    string
 	ImageRAW    []byte
 	ImageFormat string
+}
+
+func (a *DownloadResultChannelAvatar) Copy() *DownloadResultChannelAvatar {
+	if a == nil {
+		return nil
+	}
+
+	avatar := *a
+	avatar.ImageRAW = a.ImageRAW[0:len(a.ImageRAW):len(a.ImageRAW)]
+
+	return &avatar
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services"
 	"github.com/neosy/elengrab/internal/app/usecases/auth"
 	"github.com/neosy/elengrab/internal/app/usecases/maintenance"
-	ytdownloader "github.com/neosy/elengrab/internal/app/usecases/youtube_downloader"
+	ytdownloader "github.com/neosy/elengrab/internal/app/usecases/downloader"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
