@@ -1,5 +1,12 @@
 # Releases
 
+## v0.9.11 — 2026-01-24
+
+### Hotfix
+- Avoid creating fasthttp.FS per request
+
+---
+
 ## v0.9.10 — 2026-01-22
 
 ### Hotfix
