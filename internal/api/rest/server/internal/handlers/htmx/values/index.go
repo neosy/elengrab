@@ -1,7 +1,7 @@
 package htmxvalues
 
 const (
-	pageTitle = "Elengrab - Grab YouTube videos"
+	pageTitle = "Elengrab — Fast YouTube Downloader"
 	header    = "Elengrab"
 )
 
