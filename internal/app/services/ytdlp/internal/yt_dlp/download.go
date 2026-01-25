@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,6 +21,7 @@ import (
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/neosy/elengrab/pkg/nfile"
+	"github.com/neosy/elengrab/pkg/syncx"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
@@ -31,9 +33,9 @@ func (y *YTDlp) Download(
 	downloadResultCh chan<- *ddownload.DownloadResult,
 ) {
 	var wg sync.WaitGroup
-	doneCh := make(chan struct{})
+	done := syncx.NewDoneSignal()
 	defer func() {
-		close(doneCh)
+		done.Close()
 		wg.Wait()
 	}()
 
@@ -46,7 +48,7 @@ func (y *YTDlp) Download(
 			result.Error = err
 
 			select {
-			case <-doneCh:
+			case <-done.Done():
 			case downloadResultCh <- result:
 			case <-ctx.Done():
 			}
@@ -54,7 +56,7 @@ func (y *YTDlp) Download(
 
 		sendData = func(data *ddownload.DownloadResult) {
 			select {
-			case <-doneCh:
+			case <-done.Done():
 			case downloadResultCh <- data:
 			case <-ctx.Done():
 			}
@@ -279,8 +281,11 @@ func (y *YTDlp) runYtDlp(
 	url string,
 	meta *idto.DownloadMeta,
 ) ([]byte, error) {
-	var doneCh = make(chan struct{})
-	defer close(doneCh)
+	var (
+		done      = syncx.NewDoneSignal()
+		isTimeOut atomic.Bool
+	)
+	defer done.Close()
 
 	dlDir := filepath.Dir(meta.FilePath)
 
@@ -359,10 +364,23 @@ func (y *YTDlp) runYtDlp(
 
 	// Kill the entire process group on context cancellation
 	go func() {
+		timer := time.NewTimer(ytDlpTimeout)
+		defer timer.Stop()
+
 		select {
-		case <-doneCh:
+		case <-done.Done():
 			return
 		case <-ctx.Done():
+			y.logger.Debug(
+				fmt.Sprintf("context canceled, killing process %s", y.ytDlpName),
+				"url", url,
+			)
+		case <-timer.C:
+			y.logger.Warn(
+				fmt.Sprintf("%s timeout reached, killing process", y.ytDlpName),
+				"url", url,
+			)
+			isTimeOut.Store(true)
 		}
 
 		if cmd.Process == nil {
@@ -386,10 +404,16 @@ func (y *YTDlp) runYtDlp(
 
 	// Wait for the process to exit
 	err = cmd.Wait()
+	done.Close()
 	if err != nil {
 		// Context cancellation has priority
 		if ctx.Err() != nil {
 			return nil, fmt.Errorf("%s canceled: %w", y.ytDlpName, ctx.Err())
+		}
+
+		// Check if timeout occurred
+		if isTimeOut.Load() {
+			return nil, fmt.Errorf("%s timeout reached", y.ytDlpName)
 		}
 
 		// Deleting the cache, because Youtube could have changed the format
@@ -397,6 +421,11 @@ func (y *YTDlp) runYtDlp(
 
 		// Process exited with an error
 		return nil, fmt.Errorf("%s failed: %w, output: %s", y.ytDlpName, err, string(out))
+	}
+
+	// Check if timeout occurred
+	if isTimeOut.Load() {
+		return nil, fmt.Errorf("%s timeout reached", y.ytDlpName)
 	}
 
 	// Move final file from temp directory to target path
