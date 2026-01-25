@@ -7,4 +7,5 @@ const (
 	ytDlpCacheDir        = ".yt-dlp/cache"
 	ytDlpFormatCacheDir  = ".yt-dlp/format-cache"
 	channelAvatarTimeout = 5 * time.Second
+	ytDlpTimeout         = 2 * time.Hour
 )
