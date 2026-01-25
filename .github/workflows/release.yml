@@ -149,7 +149,7 @@ jobs:
         shell: bash
         run: |
           TAG="${{ steps.release_tag.outputs.tag }}"
-          NAME="${TAG#v}"
+          NAME="${TAG}"
           echo "name=${NAME}" >> $GITHUB_OUTPUT
 
       - name: Extract release notes from RELEASE.md
