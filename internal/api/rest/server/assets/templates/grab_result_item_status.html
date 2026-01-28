@@ -39,7 +39,16 @@
                 <span class="result-progress-percent">{{ .DownloadingProgress }}</span>
             {{ end }}
         {{ else }}
-            {{ .GrabResultItemStatusHtml }}
+            {{ if eq .DownloadStatus "failed" }}
+                <button class="btn-download-repeat"
+                    hx-post="{{.PathFileRepeat}}"
+                    hx-target="closest .div-grab-result-item"
+                    hx-swap="outerHTML">
+                    {{ .DownloadResultItemStatusFailedIcon }}
+                </button>            
+            {{ else }}
+                {{ .GrabResultItemStatusHtml }}
+            {{ end }}
         {{ end }}
         </div>
     </div>

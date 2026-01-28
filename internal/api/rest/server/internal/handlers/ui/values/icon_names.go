@@ -14,6 +14,7 @@ const (
 	GrabResultStatusIconNameKey      = "GrabResultStatusIconName"
 	DownloadDeleteIconNameKey        = "DownloadDeleteIconName"
 	YoutubeChannelDefaultIconNameKey = "YoutubeChannelDefaultIconName"
+	DownloadRepeatIconNameKey        = "DownloadRepeatIconName"
 )
 
 var iconFileNames = map[string]any{
@@ -22,6 +23,7 @@ var iconFileNames = map[string]any{
 	DownloadPendingIconNameKey:       "download-wait-icon.svg",
 	DownloadDeleteIconNameKey:        "download-delete-icon.svg",
 	YoutubeChannelDefaultIconNameKey: "youtube_channel_default_avatar-icon_3.svg",
+	DownloadRepeatIconNameKey:        "download-repeat-icon.svg",
 }
 
 func IconFileNames() map[string]any {
@@ -32,7 +34,7 @@ func IconFileName(key string) string {
 	return iconFileNames[key].(string)
 }
 
-func FrabResultStatusIconFileName(status dtypes.FileStatus) string {
+func DownloadResultStatusIconFileName(status dtypes.FileStatus) string {
 	var iconName string
 
 	switch status {
@@ -62,6 +64,6 @@ func IconFileRawByKey(key string, svgDir string) string {
 	return IconFileRaw(IconFileName(key), svgDir)
 }
 
-func GrabResultStatusIconSvgRaw(status dtypes.FileStatus, svgDir string) string {
-	return IconFileRaw(FrabResultStatusIconFileName(status), svgDir)
+func DownloadResultStatusIconSvgRaw(status dtypes.FileStatus, svgDir string) string {
+	return IconFileRaw(DownloadResultStatusIconFileName(status), svgDir)
 }

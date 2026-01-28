@@ -4,29 +4,23 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-// Failed set status to failed
-func (s *FileStatus) Failed(
+// Failed set status to done
+func (s *FileStatus) New(
 	ctx context.Context,
 	fileID uuid.UUID,
-	patch *dto.FileInfoPatch,
-	message *string,
 ) error {
-	updateFieldsFunc := func(file *ddownload.File) {
-		dto.PatchToFileDomain(patch, file)
-		file.ErrorMessage = message
-	}
+	updateFieldsFunc := func(file *ddownload.File) {}
 
 	task, err := s.dlTask.FindByFileId(ctx, fileID, true)
 	if err != nil {
 		return err
 	}
 
-	err = s.dlTaskStatus.Failed(ctx, task.TaskId)
+	err = s.dlTaskStatus.New(ctx, task.TaskId)
 	if err != nil {
 		return err
 	}
@@ -34,7 +28,7 @@ func (s *FileStatus) Failed(
 	return s.updateStatus(
 		ctx,
 		fileID,
-		dtypes.FileStatusFailed,
+		dtypes.FileStatusNew,
 		updateFieldsFunc,
 	)
 }
