@@ -398,6 +398,33 @@
     transform: scale(1.2);
 }
 
+.btn-download-repeat {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: auto;
+    height: auto;
+}
+
+.btn-download-repeat svg {
+    pointer-events: none; /* чтобы клик попадал на кнопку, а не на SVG */
+    color: var(--download-repeat);
+    transition: transform .3s ease;
+    font-size: 24px;
+}
+
+.btn-download-repeat:hover svg {
+    color: var(--download-repeat-hover);
+    transform: scale(1.1) rotate(360deg);
+}
+
 @media (max-width: 768px) {
     .div-grab-result-item {
         width: 100%;

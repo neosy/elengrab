@@ -20,6 +20,7 @@ import (
 
 type fileRowInfoData struct {
 	PathFileRow      string
+	PathFileRepeat   string
 	YoutubeChannelID string
 	YoutubeTitle     string
 	YoutubeURL       string
@@ -140,6 +141,7 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 		YoutubeChannelID: youtubeChannelID,
 		YoutubeTitle:     fileInfo.YoutubeTitle,
 		PathFileRow:      httppaths.BuildPathFileRow(fileInfo.FileId),
+		PathFileRepeat:   httppaths.BuildPathFileRepeat(fileInfo.FileId),
 		FileSize:         "-",
 		Format:           "-",
 		DataFormat:       "-",
@@ -170,15 +172,21 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 		isGrabResultItemHTMXOptionRepeat = true
 	}
 
-	dataMap[uivalues.GrabResultStatusIconNameKey] = uivalues.FrabResultStatusIconFileName(fileInfo.Status)
+	dataMap[uivalues.GrabResultStatusIconNameKey] = uivalues.DownloadResultStatusIconFileName(fileInfo.Status)
 	dataMap[uivalues.IsItemHTMXOptionRepeatKey] = isGrabResultItemHTMXOptionRepeat
 	dataMap[uivalues.GrabResultItemStatusHtmlKey] = template.HTML(
-		uivalues.GrabResultStatusIconSvgRaw(fileInfo.Status, iconsDir),
+		uivalues.DownloadResultStatusIconSvgRaw(fileInfo.Status, iconsDir),
 	)
 	dataMap[uivalues.GrabResultItemStatusTextKey] = fileInfo.StatusText
-	dataMap[uivalues.GrabResultItemDeleteIconKey] = template.HTML(
+	dataMap[uivalues.DownloadResultItemDeleteIconKey] = template.HTML(
 		uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadDeleteIconNameKey), iconsDir),
 	)
+
+	if fileInfo.Status == dtypes.FileStatusFailed {
+		dataMap[uivalues.DownloadResultItemStatusFailedIconKey] = template.HTML(
+			uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadRepeatIconNameKey), iconsDir),
+		)
+	}
 
 	dataMap[uivalues.ResultYoutubeUrlFadeKey] = ""
 	dataMap[uivalues.ResultSizeFadeKey] = ""
@@ -198,9 +206,10 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 		dataMap[uivalues.IsItemSpinerKey] = true
 	}
 
-	dataMap[uivalues.DownloadWorkingStatus] = dltypes.MapUsecaseWorkingStatusToUI(fileInfo.WorkingStatus)
+	dataMap[uivalues.DownloadStatusKey] = fileInfo.Status.String()
+	dataMap[uivalues.DownloadWorkingStatusKey] = dltypes.MapUsecaseWorkingStatusToUI(fileInfo.WorkingStatus)
 	if fileInfo.Progress != nil {
-		dataMap[uivalues.DownloadingProgress] = int(fileInfo.Progress.Percent())
+		dataMap[uivalues.DownloadingProgressKey] = int(fileInfo.Progress.Percent())
 	}
 
 	var tmplFileName = uivalues.GrabResultItemStatusHtmlFileName

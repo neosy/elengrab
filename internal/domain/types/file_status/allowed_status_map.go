@@ -20,6 +20,9 @@ var (
 			dtypes.FileStatusDone:   {},
 			dtypes.FileStatusFailed: {},
 		},
+		dtypes.FileStatusFailed: {
+			dtypes.FileStatusNew: {},
+		},
 	}
 )
 

@@ -8,7 +8,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) GetFileRowHanedler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) RepeatDownloadHandler(ctx *fasthttp.RequestCtx) {
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
 		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
@@ -30,7 +30,7 @@ func (h *DownloaderHandlers) GetFileRowHanedler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	fileInfo, err := h.usecases.Downloader.GetFileInfo(ctx, userID, fileId)
+	fileInfo, err := h.usecases.Downloader.RepeatDownload(ctx, userID, fileId)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

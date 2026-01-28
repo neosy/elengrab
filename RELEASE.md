@@ -1,12 +1,14 @@
 # Releases
 
-## v0.10.0 — 2026-01-25
+## v0.10.0 — 2026-01-29
 
 ### Feature
 - Add download progress. Closes #24
+- Add a Repeat button for the Failed status. Closes #159
 
 ### Fix
 - Add timeout for yt-dlp requests. Closes #152
+- Fix release title
 
 ---
 

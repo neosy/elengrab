@@ -79,6 +79,7 @@ func InitDB(logger *slog.Logger, dbPath string) (*sql.DB, error) {
 	}
 	logger.Debug(fmt.Sprintf("SQLite initialized: PRAGMA journal_mode=%s", mode))
 
+	// Verify foreign_keys
 	row = db.QueryRow("PRAGMA foreign_keys;")
 	if err := row.Scan(&mode); err != nil {
 		logger.Warn("failed to read foreign_keys:", "error", err)

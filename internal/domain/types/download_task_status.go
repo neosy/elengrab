@@ -15,6 +15,7 @@ const (
 	DownloadTaskStatusNew     DownloadTaskStatus = "new"
 	DownloadTaskStatusPending DownloadTaskStatus = "pending"
 	DownloadTaskStatusWorking DownloadTaskStatus = "working"
+	DownloadTaskStatusFailed  DownloadTaskStatus = "failed"
 )
 
 var (
@@ -24,6 +25,7 @@ var (
 		DownloadTaskStatusNew:     {},
 		DownloadTaskStatusPending: {},
 		DownloadTaskStatusWorking: {},
+		DownloadTaskStatusFailed:  {},
 	}
 )
 
