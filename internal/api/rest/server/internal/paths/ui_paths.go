@@ -13,11 +13,12 @@ const (
 	GroupDownloader = "/ui/downloader"
 
 	// Paths
-	PathGrab          = "/grab"
-	PathHistory       = "/history"
-	PathDownload      = "/download"
-	PathFileRow       = "/file/{fileId}/row"
-	PathChannelAvatar = "/channel/{channelID}/avatar"
+	PathGrab               = "/grab"
+	PathHistory            = "/history"
+	PathDownload           = "/download"
+	PathFileRow            = "/file/{fileId}/row"
+	PathFileDownloadRepeat = "/file/{fileId}/repeat"
+	PathChannelAvatar      = "/channel/{channelID}/avatar"
 )
 
 func BuildPathFileRow(fileId uuid.UUID) string {
@@ -26,4 +27,8 @@ func BuildPathFileRow(fileId uuid.UUID) string {
 
 func BuildPathFileDownload(fileId uuid.UUID) string {
 	return fmt.Sprintf("%s?file=%s", GroupDownloader+PathDownload, fileId)
+}
+
+func BuildPathFileRepeat(fileId uuid.UUID) string {
+	return GroupDownloader + strings.Replace(PathFileDownloadRepeat, "{fileId}", fileId.String(), 1)
 }

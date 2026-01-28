@@ -13,6 +13,13 @@ var (
 		},
 		dtypes.DownloadTaskStatusPending: {
 			dtypes.DownloadTaskStatusWorking: {},
+			dtypes.DownloadTaskStatusFailed:  {},
+		},
+		dtypes.DownloadTaskStatusWorking: {
+			dtypes.DownloadTaskStatusFailed: {},
+		},
+		dtypes.DownloadTaskStatusFailed: {
+			dtypes.DownloadTaskStatusNew: {},
 		},
 	}
 )

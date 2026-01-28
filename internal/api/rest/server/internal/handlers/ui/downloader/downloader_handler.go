@@ -110,10 +110,10 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
-	dataMap[uivalues.GrabResultStatusIconNameKey] = uivalues.FrabResultStatusIconFileName(resp.Status)
+	dataMap[uivalues.GrabResultStatusIconNameKey] = uivalues.DownloadResultStatusIconFileName(resp.Status)
 	dataMap[uivalues.GrabResultItemStatusHtmlKey] = template.HTML(
-		uivalues.GrabResultStatusIconSvgRaw(resp.Status, iconsDir))
-	dataMap[uivalues.GrabResultItemDeleteIconKey] = template.HTML(
+		uivalues.DownloadResultStatusIconSvgRaw(resp.Status, iconsDir))
+	dataMap[uivalues.DownloadResultItemDeleteIconKey] = template.HTML(
 		uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadDeleteIconNameKey), iconsDir))
 	dataMap[uivalues.IsItemHTMXOptionRepeatKey] = true
 	dataMap[uivalues.PageHasDivItemsKey] = pageHasDivItems

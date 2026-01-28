@@ -8,7 +8,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) DeleteFileRow(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) DeleteFileRowHanedler(ctx *fasthttp.RequestCtx) {
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
 		nfasthttp.WriteError(ctx, fmt.Errorf("authorization error: %v", err), fasthttp.StatusUnauthorized)

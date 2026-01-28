@@ -7,7 +7,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) GetChannelAvatar(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) GetChannelAvatarHandler(ctx *fasthttp.RequestCtx) {
 	channelID := ctx.UserValue(channelIDKey).(string)
 	if channelID == "" {
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
