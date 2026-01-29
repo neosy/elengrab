@@ -3,10 +3,10 @@ package ytchannel
 import (
 	"context"
 
-	dyoutube "github.com/neosy/elengrab/internal/domain/youtube_info"
+	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 
-func (uc *YoutubeChannel) Update(ctx context.Context, channel *dyoutube.YoutubeChannel) error {
+func (uc *YoutubeChannel) Update(ctx context.Context, channel *dmedia.YoutubeChannel) error {
 	err := uc.channelRep.Update(ctx, channel)
 	if err != nil {
 		uc.logger.Warn("Update record error", "error", err)

@@ -19,7 +19,7 @@ type File struct {
 	FileName             string     `db:"file_name"`
 	Ext                  string     `db:"ext"`
 	FullName             string     `db:"full_name"`
-	FileSize             *int       `db:"file_size"`
+	FileSize             *int64     `db:"file_size"`
 	PartialHash          *string    `db:"partial_hash"`
 	SafeReadableFullName string     `db:"safe_readable_full_name"`
 	MediaInfo            *string    `db:"media_info"`

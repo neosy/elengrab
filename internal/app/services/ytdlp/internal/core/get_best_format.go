@@ -1,54 +1,54 @@
-package ytdlp
+package core
 
 import (
 	"context"
 	"fmt"
 	"strings"
 
-	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp/dto"
-	dyoutubeinfo "github.com/neosy/elengrab/internal/domain/youtube_info"
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/dto"
+	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
-func (y *YTDlp) GetBestFormat(
+func (c *Core) GetBestFormat(
 	ctx context.Context,
 	url string,
 	format string,
-) (*dyoutubeinfo.YouTubeInfo, error) {
-	info, err := y.getBestFormat(ctx, url, format)
+) (*dmedia.MediaInfo, error) {
+	info, err := c.getBestFormat(ctx, url, format)
 	if err != nil {
 		return nil, err
 	}
 
-	return y.mappers.VideoInfoToDomain(info), nil
+	return c.mappers.MapMediaInfoToDomain(info), nil
 }
 
-func (y *YTDlp) getBestFormat(
+func (c *Core) getBestFormat(
 	ctx context.Context,
 	url string,
 	format string,
-) (*idto.YouTubeInfo, error) {
-	err := y.updateCache(ctx, url)
+) (*idto.MediaInfo, error) {
+	err := c.updateCache(ctx, url)
 	if err != nil {
 		return nil, err
 	}
 
-	out, err := y.execCommandContext(
-		ctx, y.ytDlpPath,
+	out, err := c.execCommandContext(
+		ctx, c.ytDlpPath,
 		"--no-warnings", "--quiet",
 		"-f", format,
 		"--load-info-json",
-		y.formatCache.cacheFilePath(url),
+		c.formatCache.CacheFilePath(url),
 		"--get-format",
 	)
 	if err != nil {
-		y.formatCache.deleteByURL(url)
+		c.formatCache.DeleteByURL(url)
 		return nil, err
 	}
 
 	outStr := strings.TrimSpace(string(out))
 	if outStr == "" {
-		y.formatCache.deleteByURL(url)
+		c.formatCache.DeleteByURL(url)
 		return nil, fmt.Errorf("best format not found")
 	}
 
@@ -59,12 +59,12 @@ func (y *YTDlp) getBestFormat(
 		bestFormatIds = append(bestFormatIds, parts[0])
 	}
 
-	info, err := y.getFormats(ctx, url)
+	info, err := c.getFormats(ctx, url)
 	if err != nil {
 		return nil, err
 	}
 
-	var bestFormats []idto.Format
+	var bestFormats []idto.MediaFormat
 	for _, bf := range bestFormatIds {
 		for _, f := range info.Formats {
 			if bf == f.FormatID {
@@ -78,7 +78,7 @@ func (y *YTDlp) getBestFormat(
 		return nil, err
 	}
 
-	var bestInfo *idto.YouTubeInfo = uptr.Any(*info)
+	bestInfo := uptr.Copy(info)
 	bestInfo.Formats = bestFormats
 
 	return bestInfo, nil

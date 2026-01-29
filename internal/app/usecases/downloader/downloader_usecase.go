@@ -34,7 +34,7 @@ type YouTubeDownloader struct {
 	dlStateCache *dlstate.DownloadStateCache
 
 	// services
-	downloaderSrv pservices.YouTubeDownloader
+	downloaderSrv pservices.Downloader
 
 	// Options
 	downloadsDir string
@@ -58,7 +58,7 @@ func NewYouTubeDownloader(
 	dlDispetcher nworkerpool.JobDispatcher,
 
 	// services
-	downloaderSrv pservices.YouTubeDownloader,
+	downloaderSrv pservices.Downloader,
 
 	// options
 	downloadsDir string,

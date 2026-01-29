@@ -1,4 +1,4 @@
-package ytdlp
+package helper
 
 import (
 	"encoding/json"
@@ -15,7 +15,7 @@ type embedInfoResponse struct {
 	Provider   string `json:"provider_name"`
 }
 
-func (y *YTDlp) getInfoFast(youtubeUrl string) (*embedInfoResponse, error) {
+func GetInfoFast(youtubeUrl string) (*embedInfoResponse, error) {
 	apiURL := "https://www.youtube.com/oembed?format=json&url=" + url.QueryEscape(youtubeUrl)
 
 	client := &http.Client{

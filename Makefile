@@ -44,6 +44,10 @@ img-rebuild: update-app-version ## Удаление и генерация обр
 	docker rmi -f $(APP_IMG_NAME)
 	docker build -t $(APP_IMG_NAME) .
 
+img-rebuild-no-cache: update-app-version ## Удаление и генерация образа docker контейнера без кэша
+	docker rmi -f $(APP_IMG_NAME)
+	docker build --no-cache -t $(APP_IMG_NAME) .
+
 img-rebuild-push: img-rebuild img-push ## Сборка images, обновление в репозитарии и очистка
 
 img-rm: ## Удаление image с тегом latest

@@ -1,7 +1,7 @@
 //go:build windows
 // +build windows
 
-package ytdlp
+package downloader
 
 import (
 	"os/exec"

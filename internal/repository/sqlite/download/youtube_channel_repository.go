@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
-	dyoutube "github.com/neosy/elengrab/internal/domain/youtube_info"
+	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
@@ -38,15 +38,15 @@ func NewYoutubeChannelRepository(db *sql.DB, lock dbexec.WriteLocker) *YoutubeCh
 	}
 }
 
-func (r *YoutubeChannelRepository) Insert(ctx context.Context, channel *dyoutube.YoutubeChannel) error {
+func (r *YoutubeChannelRepository) Insert(ctx context.Context, channel *dmedia.YoutubeChannel) error {
 	return r.Save(ctx, channel)
 }
 
-func (r *YoutubeChannelRepository) Update(ctx context.Context, channel *dyoutube.YoutubeChannel) error {
+func (r *YoutubeChannelRepository) Update(ctx context.Context, channel *dmedia.YoutubeChannel) error {
 	return r.Save(ctx, channel)
 }
 
-func (r *YoutubeChannelRepository) Save(ctx context.Context, channel *dyoutube.YoutubeChannel) error {
+func (r *YoutubeChannelRepository) Save(ctx context.Context, channel *dmedia.YoutubeChannel) error {
 	if channel == nil {
 		return errors.New("function parameter is a null pointer")
 	}
@@ -83,7 +83,7 @@ func (r *YoutubeChannelRepository) Save(ctx context.Context, channel *dyoutube.Y
 	return nil
 }
 
-func (r *YoutubeChannelRepository) FindByChannelID(ctx context.Context, channelID string) (*dyoutube.YoutubeChannel, error) {
+func (r *YoutubeChannelRepository) FindByChannelID(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, error) {
 	var ent edownload.YoutubeChannel
 
 	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).

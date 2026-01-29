@@ -20,7 +20,7 @@ type DownloadResult struct {
 	FileFullName string
 
 	// file size (byte)
-	Filesize *int
+	Filesize *int64
 
 	// Fast partial file hash (combined hash of multiple sampled blocks; not a full-file checksum)
 	PartialHash *string
