@@ -7,7 +7,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	dyoutube "github.com/neosy/elengrab/internal/domain/youtube_info"
+	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
@@ -109,7 +109,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		if lastResult != nil && lastResult.ChannelID != nil && lastResult.ChannelAvatar != nil {
 			exists, _ := uc.ytChannel.ExistsByChannelID(ctx, *lastResult.ChannelID)
 			if !exists {
-				channel := &dyoutube.YoutubeChannel{
+				channel := &dmedia.YoutubeChannel{
 					ChannelID: *lastResult.ChannelID,
 				}
 				channel.InitFromResultChannelAvatar(lastResult.ChannelAvatar)

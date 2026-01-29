@@ -3,14 +3,14 @@ package ytchannel
 import (
 	"context"
 
-	dyoutube "github.com/neosy/elengrab/internal/domain/youtube_info"
+	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	"github.com/neosy/elengrab/pkg/errorx"
 	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
 )
 
 // FindByChannelID
 // Channel may not exist — caller decides what to do
-func (uc *YoutubeChannel) FindByChannelID(ctx context.Context, channelID string) (*dyoutube.YoutubeChannel, error) {
+func (uc *YoutubeChannel) FindByChannelID(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, error) {
 	if channelID == "" {
 		return nil, nil
 	}
@@ -36,7 +36,7 @@ func (uc *YoutubeChannel) FindByChannelID(ctx context.Context, channelID string)
 
 // GetByChannelID
 // Channel MUST exist — otherwise NOT_FOUND
-func (uc *YoutubeChannel) GetByChannelID(ctx context.Context, channelID string) (*dyoutube.YoutubeChannel, error) {
+func (uc *YoutubeChannel) GetByChannelID(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, error) {
 	channel, err := uc.FindByChannelID(ctx, channelID)
 	if err != nil {
 		return nil, errorx.NewByErr(err, exceptionx.ERROR)

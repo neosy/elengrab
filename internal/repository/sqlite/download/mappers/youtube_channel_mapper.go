@@ -1,11 +1,11 @@
 package mappers
 
 import (
-	dyoutube "github.com/neosy/elengrab/internal/domain/youtube_info"
+	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 )
 
-func (m *Mappers) MapYoutubeChannelDomainToEntity(channel *dyoutube.YoutubeChannel) (*edownload.YoutubeChannel, error) {
+func (m *Mappers) MapYoutubeChannelDomainToEntity(channel *dmedia.YoutubeChannel) (*edownload.YoutubeChannel, error) {
 	return &edownload.YoutubeChannel{
 		ChannelID:   channel.ChannelID,
 		ImageURL:    channel.ImageURL,
@@ -14,8 +14,8 @@ func (m *Mappers) MapYoutubeChannelDomainToEntity(channel *dyoutube.YoutubeChann
 	}, nil
 }
 
-func (m *Mappers) MapYoutubeChannelEntityToDomain(eChannel *edownload.YoutubeChannel) (*dyoutube.YoutubeChannel, error) {
-	return &dyoutube.YoutubeChannel{
+func (m *Mappers) MapYoutubeChannelEntityToDomain(eChannel *edownload.YoutubeChannel) (*dmedia.YoutubeChannel, error) {
+	return &dmedia.YoutubeChannel{
 		ChannelID:   eChannel.ChannelID,
 		ImageURL:    eChannel.ImageURL,
 		ImageRaw:    eChannel.ImageRaw,

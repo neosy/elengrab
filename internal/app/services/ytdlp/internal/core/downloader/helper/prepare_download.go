@@ -4,22 +4,22 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
 	"strings"
 
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/dto"
-	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/pkg/fnx"
 )
 
-// BuildDownloadArgs build yt-dlp arguments and get file extension and title
-func BuildDownloadArgs(
+// PrepareDownload builds yt-dlp download arguments based on the provided options
+func PrepareDownload(
 	ctx context.Context,
 	url string,
 	dlOptions dto.DLOptions,
-	bestFormat func(ctx context.Context, url string, format string) (*idto.YouTubeInfo, error),
-) (args []string, fileExt string, info *idto.YouTubeInfo, mediaInfo *ddownload.MediaInfo, err error) {
+	bestFormat func(ctx context.Context, url string, format string) (*idto.MediaInfo, error),
+) (args []string, fileExt string, dtoMediaInfo *idto.MediaInfo, mediaInfo *ddownload.MediaInfo, err error) {
 	var (
 		infoVideoCodec = dtypes.VideoCodecNone
 		infoAudioCodec = dtypes.AudioCodecNone
@@ -32,12 +32,11 @@ func BuildDownloadArgs(
 		audioQualityOPUS = audioQualityOPUSDefault
 	)
 
-	var infoFormat idto.Format
+	var mediaFormat idto.MediaFormat
 
 	// prevent downloading the entire playlist, only fetch single video
 	args = append(args, "--no-playlist")
 	args = append(args, "--no-warnings")
-	args = append(args, "--concurrent-fragments", strconv.Itoa(int(dlOptions.ConcurrentFragments)))
 
 	switch dlOptions.FormatType {
 	// Video + Audio or Video only
@@ -58,9 +57,9 @@ func BuildDownloadArgs(
 		switch dlOptions.VideoFormat {
 		case dtypes.VideoFormatAuto:
 			formatQuery = fmt.Sprintf(
-				"bestvideo[ext=mp4]%s+bestaudio[ext=m4a]/best[ext=mp4]%s/best%s/best",
-				resolution, resolution, resolution,
-			)
+				"bestvideo[ext=mp4]%s+bestaudio[ext=m4a]/best[ext=mp4]%s",
+				resolution, resolution,
+			) + "/best" + fnx.Ternary(resolution != "", resolution, "")
 			if dlOptions.VideoCodec == dtypes.VideoCodecH264 {
 				formatQuery = fmt.Sprintf("%s/%s", formatAVC1Query, formatQuery)
 			}
@@ -71,18 +70,18 @@ func BuildDownloadArgs(
 		case dtypes.VideoFormatWebM:
 			formatQuery = fmt.Sprintf("bestvideo[ext=webm]%s+bestaudio[ext=webm]", resolution)
 			bestFormatQuery = fmt.Sprintf(
-				"bestvideo[ext=webm]%s+bestaudio[ext=webm]/bestvideo[ext=webm]%s/best[ext=mp4]%s/best%s/best",
-				resolution, resolution, resolution, resolution,
-			)
+				"bestvideo[ext=webm]%s+bestaudio[ext=webm]/bestvideo[ext=webm]%s/best[ext=mp4]%s",
+				resolution, resolution, resolution,
+			) + "/best" + fnx.Ternary(resolution != "", resolution, "")
 			if dlOptions.VideoCodec == dtypes.VideoCodecAV1 {
 				formatQuery = fmt.Sprintf("%s/%s", formatAV01Query, formatQuery)
 				bestFormatQuery = fmt.Sprintf("%s/%s", formatAV01Query, bestFormatQuery)
 			}
 		default:
 			formatQuery = fmt.Sprintf(
-				"bestvideo[ext=mp4]%s+bestaudio[ext=m4a]/bestvideo%s+bestaudio/best%s/best",
-				resolution, resolution, resolution,
-			)
+				"bestvideo[ext=mp4]%s+bestaudio[ext=m4a]/bestvideo%s+bestaudio",
+				resolution, resolution,
+			) + "/best" + fnx.Ternary(resolution != "", resolution, "")
 			if dlOptions.VideoCodec == dtypes.VideoCodecH264 {
 				formatQuery = fmt.Sprintf("%s/%s", formatAVC1Query, formatQuery)
 			}
@@ -94,20 +93,20 @@ func BuildDownloadArgs(
 
 		// Get information about the best format from yt-dlp
 		var err error
-		info, err = bestFormat(ctx, url, bestFormatQuery)
+		dtoMediaInfo, err = bestFormat(ctx, url, bestFormatQuery)
 		if err != nil {
 			return nil, "", nil, nil, err
 		}
 
-		if len(info.Formats) == 0 {
+		if len(dtoMediaInfo.Formats) == 0 {
 			return nil, "", nil, nil, errors.New("not found best format")
 		}
 
-		infoFormat = info.Formats[0]
-		if len(info.Formats) == 2 {
-			infoFormat.ACodec = info.Formats[1].ACodec
-			infoFormat.Abr = info.Formats[1].Abr
-			infoFormat.Asr = info.Formats[1].Asr
+		mediaFormat = dtoMediaInfo.Formats[0]
+		if len(dtoMediaInfo.Formats) == 2 {
+			mediaFormat.ACodec = dtoMediaInfo.Formats[1].ACodec
+			mediaFormat.Abr = dtoMediaInfo.Formats[1].Abr
+			mediaFormat.Asr = dtoMediaInfo.Formats[1].Asr
 		}
 
 		// Add format option to yt-dlp arguments
@@ -116,7 +115,7 @@ func BuildDownloadArgs(
 		// Determine output file extension
 		switch dlOptions.VideoFormat {
 		case dtypes.VideoFormatAuto:
-			fileExt = infoFormat.FileExt
+			fileExt = mediaFormat.FileExt
 		case dtypes.VideoFormatWebM:
 			fileExt = "webm"
 		case dtypes.VideoFormatMP4:
@@ -132,8 +131,8 @@ func BuildDownloadArgs(
 		)
 		if dlOptions.VideoFormat != dtypes.VideoFormatWebM {
 			scaleValue := ScaleValue(
-				uint16(infoFormat.Width),
-				uint16(infoFormat.Height),
+				uint16(mediaFormat.Width),
+				uint16(mediaFormat.Height),
 				dlOptions.VideoResolution,
 			)
 			if scaleValue != "" {
@@ -142,8 +141,8 @@ func BuildDownloadArgs(
 			isVideoScale = videoScaleArgs != ""
 		}
 
-		infoVideoCodec = infoFormat.VideoCodec()
-		infoAudioCodec = infoFormat.AudioCodec()
+		infoVideoCodec = mediaFormat.VideoCodec()
+		infoAudioCodec = mediaFormat.AudioCodec()
 
 		isInfoFormatWebMCodec := infoVideoCodec == dtypes.VideoCodecAV1 || infoVideoCodec == dtypes.VideoCodecVP9
 		isInfoFormatMP4Codec := infoVideoCodec == dtypes.VideoCodecAV1 || infoVideoCodec == dtypes.VideoCodecH264
@@ -236,35 +235,35 @@ func BuildDownloadArgs(
 		// Choose audio format string based on requested audio format
 		switch dlOptions.AudioFormat {
 		case dtypes.AudioFormatM4A:
-			format = "bestaudio[ext=m4a]/bestaudio"
+			format = "bestaudio[ext=m4a]/bestaudio/best"
 		default:
-			format = "bestaudio"
+			format = "bestaudio/best"
 		}
 
 		// Get information about the best audio format
 		var err error
-		info, err = bestFormat(ctx, url, format)
+		dtoMediaInfo, err = bestFormat(ctx, url, format)
 		if err != nil {
 			return nil, "", nil, nil, err
 		}
 
-		if len(info.Formats) == 0 {
+		if len(dtoMediaInfo.Formats) == 0 {
 			return nil, "", nil, nil, errors.New("not found best format")
 		}
 
-		infoFormat = info.Formats[0]
-		infoAudioCodec = infoFormat.AudioCodec()
+		mediaFormat = dtoMediaInfo.Formats[0]
+		infoAudioCodec = mediaFormat.AudioCodec()
 
 		args = append(args, "-f", format)
 
 		// Choose audio processing based on requested audio format
 		switch dlOptions.AudioFormat {
 		case dtypes.AudioFormatAuto:
-			if infoFormat.ACodec != "" && infoFormat.ACodec == "opus" {
+			if mediaFormat.ACodec != "" && mediaFormat.ACodec == "opus" {
 				args = append(args, "--extract-audio", "--audio-format", "opus")
 				fileExt = "opus"
 			} else {
-				fileExt = infoFormat.FileExt
+				fileExt = mediaFormat.FileExt
 			}
 		case dtypes.AudioFormatM4A:
 			infoAudioCodec = dtypes.AudioCodecAAC
@@ -272,12 +271,12 @@ func BuildDownloadArgs(
 			fileExt = "m4a"
 		case dtypes.AudioFormatFLAC:
 			infoAudioCodec = dtypes.AudioCodecFLAC
-			infoFormat.Abr = audioQualityFLACBitrateDefault
+			mediaFormat.Abr = audioQualityFLACBitrateDefault
 			args = append(args, "--extract-audio", "--audio-format", "flac", "--postprocessor-args", "-compression_level 8")
 			fileExt = "flac"
 		case dtypes.AudioFormatOPUS:
 			infoAudioCodec = dtypes.AudioCodecOPUS
-			if infoFormat.ACodec != "" && infoFormat.ACodec == "opus" {
+			if mediaFormat.ACodec != "" && mediaFormat.ACodec == "opus" {
 				args = append(args, "--extract-audio", "--audio-format", "opus")
 			} else {
 				args = append(args, "--extract-audio", "--audio-format", "opus", "--audio-quality", audioQualityOPUS)
@@ -285,7 +284,7 @@ func BuildDownloadArgs(
 			fileExt = "opus"
 		default:
 			infoAudioCodec = dtypes.AudioCodecMP3
-			infoFormat.Abr = audioQualityMP3BitrateDefault
+			mediaFormat.Abr = audioQualityMP3BitrateDefault
 			args = append(args, "--extract-audio", "--audio-format", "mp3", "--audio-quality", audioQualityMP3)
 			fileExt = "mp3"
 		}
@@ -298,27 +297,27 @@ func BuildDownloadArgs(
 		AudioInfo:  nil,
 	}
 
-	if info != nil && len(info.Formats) > 0 {
+	if dtoMediaInfo != nil && len(dtoMediaInfo.Formats) > 0 {
 		if infoVideoCodec != dtypes.VideoCodecNone {
 			mediaInfo.VideoInfo = &ddownload.VideoInfo{
 				Codec: infoVideoCodec,
 				Resolution: dtypes.ParseVideoResolutionWH(
-					uint16(infoFormat.Width),
-					uint16(infoFormat.Height),
+					uint16(mediaFormat.Width),
+					uint16(mediaFormat.Height),
 				),
-				Bitrate: int(infoFormat.Vbr),
-				Width:   infoFormat.Width,
-				Height:  infoFormat.Height,
+				Bitrate: int(mediaFormat.Vbr),
+				Width:   mediaFormat.Width,
+				Height:  mediaFormat.Height,
 			}
 		}
 		if infoAudioCodec != dtypes.AudioCodecNone {
 			mediaInfo.AudioInfo = &ddownload.AudioInfo{
 				Codec:      infoAudioCodec,
-				Bitrate:    int(infoFormat.Abr),
-				SampleRate: infoFormat.Asr,
+				Bitrate:    int(mediaFormat.Abr),
+				SampleRate: mediaFormat.Asr,
 			}
 		}
 	}
 
-	return args, fileExt, info, mediaInfo, nil
+	return args, fileExt, dtoMediaInfo, mediaInfo, nil
 }

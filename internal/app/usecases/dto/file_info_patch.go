@@ -8,7 +8,7 @@ type FileInfoPatch struct {
 	FileName             *string
 	Ext                  *string
 	FullName             *string
-	FileSize             **int
+	FileSize             **int64
 	PartialHash          **string
 	SafeReadableFullName *string
 	MediaInfo            **ddownload.MediaInfo

@@ -36,7 +36,7 @@ type File struct {
 	FullName string
 
 	// File size (byte)
-	FileSize *int
+	FileSize *int64
 
 	// Fast partial file hash (combined hash of multiple sampled blocks; not a full-file checksum)
 	PartialHash *string

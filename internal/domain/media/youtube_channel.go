@@ -1,4 +1,4 @@
-package dyoutube
+package dmedia
 
 import (
 	"time"

@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	dyoutube "github.com/neosy/elengrab/internal/domain/youtube_info"
+	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 
-func (uc *YoutubeChannel) Create(ctx context.Context, channel *dyoutube.YoutubeChannel) error {
+func (uc *YoutubeChannel) Create(ctx context.Context, channel *dmedia.YoutubeChannel) error {
 	if channel == nil {
 		uc.logger.Warn("Nil pointer in function")
 		return errors.New("function parameter is a null pointer")

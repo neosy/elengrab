@@ -8,18 +8,26 @@ import (
 )
 
 type DownloadMeta struct {
+	URL           string
 	Title         string
 	FileName      string
 	FileExt       string
 	FileFullName  string
 	FilePath      string
-	FileSize      *int
+	FileSize      *int64
 	ChannelID     *string
 	ChannelURL    string
 	MediaInfo     *ddownload.MediaInfo
 	ChannelAvatar *ddownload.DownloadResultChannelAvatar
 	Progress      *ddownload.DownloadProgress
-	Args          []string
+	Options       DownloadOptions
+}
+
+type DownloadOptions struct {
+	ConcurrentFragments uint8
+	Extractor           string
+	ExtractorArgs       *string
+	Args                []string
 }
 
 type SafeDownloadMeta struct {
@@ -43,15 +51,16 @@ func (m *SafeDownloadMeta) CopyMeta() *DownloadMeta {
 		return nil
 	}
 
-	meta := *m.Meta
-	meta.FileSize = uptr.Copy(m.Meta.FileSize)
-	meta.ChannelID = uptr.Copy(m.Meta.ChannelID)
-	meta.MediaInfo = m.Meta.MediaInfo.Copy()
-	meta.ChannelAvatar = m.Meta.ChannelAvatar.Copy()
-	meta.Progress = uptr.Copy(m.Meta.Progress)
-	meta.Args = m.Meta.Args[0:len(m.Meta.Args):len(m.Meta.Args)]
+	metaCopy := *m.Meta
+	metaCopy.FileSize = uptr.Copy(m.Meta.FileSize)
+	metaCopy.ChannelID = uptr.Copy(m.Meta.ChannelID)
+	metaCopy.MediaInfo = m.Meta.MediaInfo.Copy()
+	metaCopy.ChannelAvatar = m.Meta.ChannelAvatar.Copy()
+	metaCopy.Progress = uptr.Copy(m.Meta.Progress)
+	metaCopy.Options.ExtractorArgs = uptr.Copy(m.Meta.Options.ExtractorArgs)
+	metaCopy.Options.Args = m.Meta.Options.Args[0:len(m.Meta.Options.Args):len(m.Meta.Options.Args)]
 
-	return &meta
+	return &metaCopy
 }
 
 func (m *SafeDownloadMeta) InitialResult() *ddownload.DownloadResult {

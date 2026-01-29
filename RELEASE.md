@@ -1,6 +1,6 @@
 # Releases
 
-## v0.10.0 — 2026-01-29
+## v0.10.0 — 2026-01-30
 
 ### Feature
 - Add download progress. Closes #24
@@ -9,6 +9,7 @@
 ### Fix
 - Add timeout for yt-dlp requests. Closes #152
 - Fix release title
+- Fix yt-dlp - HTTP Error 403: Forbidden
 
 ---
 

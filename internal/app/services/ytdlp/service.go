@@ -10,17 +10,22 @@ import (
 	"runtime"
 	"strings"
 
-	ytdlp "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core"
 	"github.com/neosy/elengrab/pkg/nfile"
 )
 
-const (
-	ytDlpName = "yt-dlp"
-)
-
+// Options holds configuration options for YtDlpService
 type Options struct {
 	// Number of fragments of a dash/hlsnative video that should be downloaded concurrently (default is 1)
 	ConcurrentFragments uint8
+}
+
+// setDefaults sets default values for Options fields if they are not set
+// or if force is true
+func (o *Options) setDefaults(force bool) {
+	if o.ConcurrentFragments == 0 || force {
+		o.ConcurrentFragments = concurrentFragmentsDefault
+	}
 }
 
 type YtDlpService struct {
@@ -30,7 +35,7 @@ type YtDlpService struct {
 	options Options
 
 	// internal
-	ytdlp *ytdlp.YTDlp
+	core *core.Core
 }
 
 func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, options *Options) (*YtDlpService, error) {
@@ -59,6 +64,7 @@ func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, op
 	if options != nil {
 		opts = *options
 	}
+	opts.setDefaults(false)
 
 	return &YtDlpService{
 		logger: logger,
@@ -67,7 +73,7 @@ func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, op
 		options: opts,
 
 		// internal
-		ytdlp: ytdlp.NewYTDlp(logger, cmdPath, downloadsDir),
+		core: core.NewCore(logger, cmdPath, downloadsDir),
 	}, nil
 }
 
