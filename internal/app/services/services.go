@@ -3,8 +3,8 @@ package services
 import (
 	"log/slog"
 
-	pservices "github.com/neosy/elengrab/internal/ports/services"
 	ytdlpsrv "github.com/neosy/elengrab/internal/app/services/ytdlp"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
 type Dependencies struct {
@@ -15,7 +15,7 @@ type Dependencies struct {
 }
 
 type Services struct {
-	YouTubeDownloader pservices.YouTubeDownloader
+	YouTubeDownloader pservices.Downloader
 }
 
 func New(logger *slog.Logger, deps *Dependencies) (*Services, error) {

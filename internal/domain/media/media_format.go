@@ -1,8 +1,8 @@
-package dyoutube
+package dmedia
 
 import dtypes "github.com/neosy/elengrab/internal/domain/types"
 
-type Format struct {
+type MediaFormat struct {
 	// Type of the format (e.g., only_audio, only_video, video_audio)
 	FormatType dtypes.FormatType
 
@@ -45,5 +45,5 @@ type Format struct {
 	Asr *int
 
 	// File size in bytes
-	Filesize *int
+	Filesize *int64
 }

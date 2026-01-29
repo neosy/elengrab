@@ -9,7 +9,7 @@ const (
 	TB = GB * 1024
 )
 
-func BytesToHuman(b int) string {
+func BytesToHuman(b int64) string {
 	switch {
 	case b >= TB:
 		return fmt.Sprintf("%.2f TiB", float64(b)/float64(TB))

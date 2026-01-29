@@ -35,7 +35,7 @@ type fileRowInfoData struct {
 type cacheRowEntry struct {
 	youtubeChannelID string
 	youtubeTitle     string
-	FileSize         int
+	FileSize         int64
 	Format           string
 	Status           dtypes.FileStatus
 	ProgressPercent  int
@@ -75,6 +75,9 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 	{
 		cacheRow.mu.RLock()
 		cached, exists := cacheRow.data[fileInfo.FileId]
+		if !exists {
+			cached.ProgressPercent = -1
+		}
 		cacheRow.mu.RUnlock()
 
 		if exists {
@@ -110,11 +113,11 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 		if fileInfo.YoutubeChannelID != nil {
 			youtubeChannelID = *fileInfo.YoutubeChannelID
 		}
-		var fileSize int
+		var fileSize int64
 		if fileInfo.FileSize != nil {
 			fileSize = *fileInfo.FileSize
 		}
-		var progressPercent int
+		var progressPercent int = -1
 		if fileInfo.Progress != nil {
 			progressPercent = int(fileInfo.Progress.Percent())
 		}

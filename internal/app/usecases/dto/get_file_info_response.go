@@ -18,7 +18,7 @@ type GetFileInfoResponse struct {
 	FileName             string
 	FileExt              string
 	FileFullName         string
-	FileSize             *int
+	FileSize             *int64
 	SafeReadableFullName string
 	StatusText           string
 	MediaInfo            *ddownload.MediaInfo

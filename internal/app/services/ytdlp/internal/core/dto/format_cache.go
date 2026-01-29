@@ -1,13 +1,14 @@
-package ytdlp
+package idto
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
 
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp/helper"
 	"github.com/neosy/elengrab/pkg/nfile"
 )
 
@@ -15,36 +16,35 @@ const (
 	formatCacheTTL = 2 * time.Hour
 )
 
-type formatCache struct {
-	mu sync.RWMutex
-
+type FormatCache struct {
+	mu  sync.RWMutex
 	dir string
 }
 
-func NewFormatCache(dir string) *formatCache {
-	return &formatCache{
+func NewFormatCache(dir string) *FormatCache {
+	return &FormatCache{
 		dir: dir,
 	}
 }
 
-func (c *formatCache) cacheDir() string {
+func (c *FormatCache) CacheDir() string {
 	return c.dir
 }
 
-func (c *formatCache) cacheFileName(url string) string {
-	return helper.FormatCacheFileName(url)
+func (c *FormatCache) CacheFileName(url string) string {
+	return FormatCacheFileName(url)
 }
 
-func (c *formatCache) cacheFilePath(url string) string {
-	filePath := filepath.Join(c.dir, c.cacheFileName(url))
+func (c *FormatCache) CacheFilePath(url string) string {
+	filePath := filepath.Join(c.dir, c.CacheFileName(url))
 	return filePath
 }
 
-func (c *formatCache) writeByURL(url string, data []byte) error {
-	return c.write(c.cacheFilePath(url), data)
+func (c *FormatCache) WriteByURL(url string, data []byte) error {
+	return c.write(c.CacheFilePath(url), data)
 }
 
-func (c *formatCache) write(filePath string, data []byte) error {
+func (c *FormatCache) write(filePath string, data []byte) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -87,23 +87,23 @@ func (c *formatCache) write(filePath string, data []byte) error {
 	return nil
 }
 
-func (c *formatCache) delete(filePath string) error {
+func (c *FormatCache) delete(filePath string) error {
 	return os.Remove(filePath)
 }
 
-func (c *formatCache) deleteByURL(url string) error {
-	return c.delete(c.cacheFilePath(url))
+func (c *FormatCache) DeleteByURL(url string) error {
+	return c.delete(c.CacheFilePath(url))
 }
 
-func (c *formatCache) loadByURL(url string) ([]byte, error) {
-	return c.load(c.cacheFilePath(url))
+func (c *FormatCache) LoadByURL(url string) ([]byte, error) {
+	return c.load(c.CacheFilePath(url))
 }
 
-func (c *formatCache) load(filePath string) ([]byte, error) {
+func (c *FormatCache) load(filePath string) ([]byte, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	isTTLValid, err := c.isTTLValid(filePath)
+	isTTLValid, err := c.IsTTLValid(filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -123,11 +123,11 @@ func (c *formatCache) load(filePath string) ([]byte, error) {
 	return data, nil
 }
 
-func (c *formatCache) isTTLValidByURL(url string) (bool, error) {
-	return c.isTTLValid(c.cacheFilePath(url))
+func (c *FormatCache) IsTTLValidByURL(url string) (bool, error) {
+	return c.IsTTLValid(c.CacheFilePath(url))
 }
 
-func (c *formatCache) isTTLValid(filePath string) (bool, error) {
+func (c *FormatCache) IsTTLValid(filePath string) (bool, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -141,4 +141,9 @@ func (c *formatCache) isTTLValid(filePath string) (bool, error) {
 
 	expiredTime := fileInfo.ModTime().Add(formatCacheTTL)
 	return time.Now().Before(expiredTime), nil
+}
+
+func FormatCacheFileName(url string) string {
+	hash := sha256.Sum256([]byte(url))
+	return fmt.Sprintf("%s.json", hex.EncodeToString(hash[:16]))
 }

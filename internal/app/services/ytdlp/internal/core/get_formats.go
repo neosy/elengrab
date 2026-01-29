@@ -1,4 +1,4 @@
-package ytdlp
+package core
 
 import (
 	"bytes"
@@ -8,26 +8,26 @@ import (
 	"fmt"
 	"strings"
 
-	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/yt_dlp/dto"
-	dyoutubeinfo "github.com/neosy/elengrab/internal/domain/youtube_info"
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/dto"
+	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 
 // GetFormats retrieves and parses video formats for the given URL.
-func (y *YTDlp) GetFormats(ctx context.Context, url string) (*dyoutubeinfo.YouTubeInfo, error) {
-	info, err := y.getFormats(ctx, url)
+func (c *Core) GetFormats(ctx context.Context, url string) (*dmedia.MediaInfo, error) {
+	info, err := c.getFormats(ctx, url)
 	if err != nil {
 		return nil, err
 	}
 
-	return y.mappers.VideoInfoToDomain(info), nil
+	return c.mappers.MapMediaInfoToDomain(info), nil
 }
 
-func (y *YTDlp) fetchFormatsJSON(
+func (c *Core) fetchFormatsJSON(
 	ctx context.Context,
 	url string,
 ) ([]byte, error) {
-	out, err := y.execCommandContext(
-		ctx, y.ytDlpPath,
+	out, err := c.execCommandContext(
+		ctx, c.ytDlpPath,
 		"--no-playlist", "--no-warnings", "--quiet",
 		"--dump-json",
 		url,
@@ -56,17 +56,17 @@ func (y *YTDlp) fetchFormatsJSON(
 	return dataJSON, nil
 }
 
-func (y *YTDlp) fetchAndCacheFormatsJSON(
+func (c *Core) fetchAndCacheFormatsJSON(
 	ctx context.Context,
 	url string,
 ) ([]byte, error) {
-	dataJSON, err := y.fetchFormatsJSON(ctx, url)
+	dataJSON, err := c.fetchFormatsJSON(ctx, url)
 	if err != nil {
-		y.formatCache.deleteByURL(url)
+		c.formatCache.DeleteByURL(url)
 		return nil, err
 	}
 
-	err = y.formatCache.writeByURL(url, dataJSON)
+	err = c.formatCache.WriteByURL(url, dataJSON)
 	if err != nil {
 		return nil, err
 	}
@@ -74,11 +74,11 @@ func (y *YTDlp) fetchAndCacheFormatsJSON(
 	return dataJSON, nil
 }
 
-func (y *YTDlp) updateCache(
+func (c *Core) updateCache(
 	ctx context.Context,
 	url string,
 ) error {
-	valid, err := y.formatCache.isTTLValidByURL(url)
+	valid, err := c.formatCache.IsTTLValidByURL(url)
 	if err != nil {
 		return err
 	}
@@ -87,14 +87,14 @@ func (y *YTDlp) updateCache(
 		return nil
 	}
 
-	return y.updateCacheForce(ctx, url)
+	return c.updateCacheForce(ctx, url)
 }
 
-func (y *YTDlp) updateCacheForce(
+func (c *Core) updateCacheForce(
 	ctx context.Context,
 	url string,
 ) error {
-	_, err := y.fetchAndCacheFormatsJSON(ctx, url)
+	_, err := c.fetchAndCacheFormatsJSON(ctx, url)
 	if err != nil {
 		return err
 	}
@@ -102,11 +102,11 @@ func (y *YTDlp) updateCacheForce(
 	return nil
 }
 
-func (y *YTDlp) getFormatsJSON(
+func (c *Core) getFormatsJSON(
 	ctx context.Context,
 	url string,
 ) ([]byte, error) {
-	dataJSON, err := y.formatCache.loadByURL(url)
+	dataJSON, err := c.formatCache.LoadByURL(url)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func (y *YTDlp) getFormatsJSON(
 		return dataJSON, nil
 	}
 
-	dataJSON, err = y.fetchAndCacheFormatsJSON(ctx, url)
+	dataJSON, err = c.fetchAndCacheFormatsJSON(ctx, url)
 	if err != nil {
 		return nil, err
 	}
@@ -123,20 +123,26 @@ func (y *YTDlp) getFormatsJSON(
 	return dataJSON, nil
 }
 
-func (y *YTDlp) getFormats(
+func (c *Core) getFormats(
 	ctx context.Context,
 	url string,
-) (*idto.YouTubeInfo, error) {
-	dataJSON, err := y.getFormatsJSON(ctx, url)
+) (*idto.MediaInfo, error) {
+	dataJSON, err := c.getFormatsJSON(ctx, url)
 	if err != nil {
 		return nil, err
 	}
 
-	var info = &idto.YouTubeInfo{}
+	var info = &idto.MediaInfo{}
 	err = json.NewDecoder(bytes.NewReader(dataJSON)).Decode(info)
 	if err != nil {
-		y.formatCache.deleteByURL(url)
+		c.formatCache.DeleteByURL(url)
 		return nil, fmt.Errorf("json decode error: %v", err)
+	}
+	for i, f := range info.Formats {
+		if f.Tbr != 0 && info.Duration != 0 {
+			size := int64(int64(f.Tbr*1000) / 8 * int64(info.Duration))
+			info.Formats[i].FilesizeApprox = &size
+		}
 	}
 
 	return info, nil
