@@ -257,6 +257,11 @@
     pointer-events: none;
 }
 
+@keyframes spin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 .item-result-spinner.start {
     border-top-color: var(--spinner-dl-start);
 }
@@ -270,7 +275,22 @@
 }
 
 .item-result-spinner.finish {
+    width: 15px;
+    height: 15px;
+    border-width: 4px;
+    border-top-width: 4px;
     border-top-color: var(--spinner-dl-finish);
+    border-right-color: var(--spinner-dl-downloading);
+    border-bottom-color: #e74c3c;
+    border-left-color: #f39c12;
+    filter: brightness(0.8);
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin-and-pulse {
+    0%   { transform: rotate(0deg) scale(1); }
+    50%  { transform: rotate(180deg) scale(0.1); }
+    100% { transform: rotate(360deg) scale(1); }
 }
 
 .result-progress-percent {
@@ -327,20 +347,6 @@
     font-weight: 500;
     width: fit-content;
     margin-top: 25px;
-}
-
-.result-spinner {
-    width: 15px;
-    height: 15px;
-    border: 3px solid var(--spinner-light);
-    border-top: 3px solid var(--spinner-accent);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0%   { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
 }
 
 .result-loading-text {

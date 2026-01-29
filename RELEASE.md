@@ -5,6 +5,7 @@
 ### Feature
 - Add download progress. Closes #24
 - Add a Repeat button for the Failed status. Closes #159
+- Add a color spinner for different statuses
 
 ### Fix
 - Add timeout for yt-dlp requests. Closes #152
