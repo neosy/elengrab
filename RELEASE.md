@@ -1,5 +1,12 @@
 # Releases
 
+## v0.10.1 — 2026-01-30
+
+### Build
+- Add an update to the assets folder after updating the version. Closes #167
+
+---
+
 ## v0.10.0 — 2026-01-30
 
 ### Feature
