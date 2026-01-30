@@ -14,7 +14,7 @@ VERSION := $(shell cat $(VERSION_FILE))
 
 .DEFAULT_GOAL := help
 
-help: ## Список команд
+help: ## List of commands
 	@awk 'BEGIN { \
 		FS = ":.*##"; \
 		printf "Usage: make <commands> \033[36m\033[0m\n" \
@@ -25,52 +25,52 @@ help: ## Список команд
 		printf "\n\033[1m%s\033[0m\n", substr($$0, 5) \
 	} ' $(MAKEFILE_LIST)
 
-server-run: ## Запуск fastHTTP сервера
+server-run: ## FastHTTP server startup
 	@echo "***** SERVER RUN *****"
 	@set -o allexport; \
 	. ./cmd/${APP_NAME}/.env; \
 	go run ./cmd/${APP_NAME}/main.go
 
-build: update-app-version ## Билд исполняемого файла
+build: update-app-version ## Build executable file
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o $(APP_NAME) ./cmd/$(APP_NAME)/main.go
 
-build-embedded: update-app-version ## Билд исполняемого файла со встроенными assets
+build-embedded: update-app-version ## Build executable file with embedded assets
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags embed_assets -v -o $(APP_NAME) ./cmd/$(APP_NAME)/main.go
 
-img-build: update-app-version ## Генерация образа docker контейнера
+img-build: update-app-version ## Build Docker container image
 	docker build -t $(APP_IMG_NAME) .
 
-img-rebuild: update-app-version ## Удаление и генерация образа docker контейнера
+img-rebuild: update-app-version ## Remove and rebuild Docker container image
 	docker rmi -f $(APP_IMG_NAME)
 	docker build -t $(APP_IMG_NAME) .
 
-img-rebuild-no-cache: update-app-version ## Удаление и генерация образа docker контейнера без кэша
+img-rebuild-no-cache: update-app-version ## Remove and rebuild Docker container image without cache
 	docker rmi -f $(APP_IMG_NAME)
 	docker build --no-cache -t $(APP_IMG_NAME) .
 
-img-rebuild-push: img-rebuild img-push ## Сборка images, обновление в репозитарии и очистка
+img-rebuild-push: img-rebuild img-push ## Build images, push to repository, and clean up
 
-img-rm: ## Удаление image с тегом latest
+img-rm: ## Remove image with the latest tag
 	-docker rmi -f $(APP_IMG_NAME)
 	
-img-push: ## Отправка images в репозитарий с тегом latest
+img-push: ## Push images to the repository with the latest tag
 	docker tag $(APP_IMG_NAME) $(APP_IMG_LATEST)
 	docker push $(APP_IMG_LATEST)
 	
-img-push-version: ## Отправка images в репозитарий с тегом актуальной версии
+img-push-version: ## Push images to the repository with the current version tag
 	docker tag $(APP_IMG_NAME) $(APP_IMG):$(VERSION)
 	docker push $(APP_IMG):$(VERSION)
 	docker rmi $(APP_IMG):$(VERSION)
 
-img-push-version-dev: ## Отправка images в репозитарий с тегом актуальной версии + dev
+img-push-version-dev: ## Push images to the repository with the current version + dev tag
 	docker tag $(APP_IMG_NAME) $(APP_IMG):$(VERSION)-dev
 	docker push $(APP_IMG):$(VERSION)-dev
 	docker rmi $(APP_IMG):$(VERSION)-dev
 
-img-pull: ## Загрузка images из репозитария
+img-pull: ## Pull images from the repository
 	@docker pull $(APP_IMG_LATEST)
 
-docker-run: ## Запуск докера
+docker-run: ## Run Docker container
 	docker run -d \
 		--name $(APP_NAME) \
 		-p $(HTTP_PORT):8080 \
@@ -78,30 +78,30 @@ docker-run: ## Запуск докера
 		-v $(APP_NAME)_downloads:/app_n/downloads \
 		$(APP_IMG_NAME_LATEST)
 
-git-push-tag-version: ## Создание тега в git для актуальной версии
+git-push-tag-version: ## Create a Git tag for the current version
 	-git tag v$(VERSION)
 	git push --tags
 
-git-push-update-tag-version: ## Обновление тега в git для актуальной версии
+git-push-update-tag-version: ## Update the Git tag for the current version
 	git tag -f v$(VERSION)
 	git push origin -f v$(VERSION)
 
 update-app-version: ## Update AppVersion in Go
 	@sed -i "s|AppVersion = \".*\"|AppVersion = \"${VERSION}\"|" ./infrastructure/config/constants.go
 
-version-create: ## Создание файла с номер версии программы
+version-create: ## Create a file with the application version number
 	echo -n $(VERSION_START) > $(VERSION_FILE)
 	
-version-inc: ## Увеличение номера версии программы и сохранение в файл
+version-inc: ## Increment application version and save it to file
 	@VERSION_NEW=$$(echo $(VERSION) | awk -F. '{print $$1"."$$2"."$$3+1}'); \
 	echo -n $$VERSION_NEW > $(VERSION_FILE)
 	@$(MAKE) --no-print-directory update-app-version
 
-version-img-list: ## Список версий images
+version-img-list: ## List image versions
 	curl -s $(DOCKER_HTTP_ADRR_TAG_LIST) | jq .
 
-stack-deploy: ## Развертывание контейнеров
+stack-deploy: ## Deploy containers
 	@docker stack deploy -c docker-compose.yml --detach=true $(STACK_NAME)
 
-stack-rm: ## Удаление контейнеров
+stack-rm: ## Remove containers
 	@docker stack rm $(STACK_NAME)
