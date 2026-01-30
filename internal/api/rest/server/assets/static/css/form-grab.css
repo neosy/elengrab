@@ -49,7 +49,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 24px;
     color: var(--text-button-input-action);
     background: transparent;
     cursor: pointer;

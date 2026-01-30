@@ -18,6 +18,7 @@ function setIcon(btn, url, alt) {
     if (svgCache[url]) {
         btn.innerHTML = svgCache[url];
         btn.setAttribute('aria-label', alt);
+        btn.setAttribute('title', alt);
         return;
     }
 
@@ -31,6 +32,7 @@ function setIcon(btn, url, alt) {
             svgCache[url] = svgText; // cache the SVG
             btn.innerHTML = svgText;
             btn.setAttribute('aria-label', alt);
+            btn.setAttribute('title', alt);
         })
         .catch(err => console.error(err));
 }
