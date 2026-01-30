@@ -1,88 +1,16 @@
-// -------------------------------------------------------------
-// Cookie Helper Module
-// -------------------------------------------------------------
-const cookie = (() => {
-
-    // Get cookie by name
-    const get = (name) => {
-        return document.cookie
-            .split("; ")
-            .find(row => row.startsWith(name + "="))
-            ?.split("=")[1];
-    };
-
-    // Set cookie with expiration (days)
-    const set = (name, value, days = 365) => {
-        const d = new Date();
-        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
-        document.cookie =
-            `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/`;
-    };
-
-    return { get, set };
-})();
-
-// -------------------------------------------------------------
-// Element selectors and cookie names
-// -------------------------------------------------------------
-const SELECT_NAMES = {
-    qualityCodec: "quality-codec",
-    qualityResolution: "quality-resolution",
-    format: "format"
-};
-
-const COOKIE_NAMES = {
-    qualityCodec: "select_quality_codec",
-    qualityResolution: "select_quality_resolution",
-    format: "select_format"
-};
-
-// -------------------------------------------------------------
-// Helper: get select element by name
-// -------------------------------------------------------------
-function getSelectByName(name) {
-    return document.querySelector(`select[name="${name}"]`);
-}
-
-// -------------------------------------------------------------
-// Save all select values to cookies
-// -------------------------------------------------------------
-function saveAllSelectsToCookie() {
-    Object.entries(SELECT_NAMES).forEach(([key, name]) => {
-        const el = getSelectByName(name);
-        if (el) cookie.set(COOKIE_NAMES[key], el.value);
-    });
-}
-
-// -------------------------------------------------------------
-// Restore select value from cookie
-// -------------------------------------------------------------
-function setupCookieSelectSync(selectName, cookieName) {
-    const selectElement = getSelectByName(selectName);
-    if (!selectElement) return;
-
-    const savedValue = cookie.get(cookieName);
-    if (savedValue) {
-        const option = selectElement.querySelector(`option[value="${savedValue}"]`);
-        if (option) option.selected = true;
-    }
-
-    // For resolution, save only its value on change
-    if (selectElement.name === SELECT_NAMES.qualityResolution) {
-        selectElement.addEventListener("change", () => {
-            cookie.set(cookieName, selectElement.value);
-        });
-    }
-}
+import * as helper from './helper.js';
+import * as cookie from './cookie.js';
+import * as actionButton from './action-button.js';
+import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
 
 // -------------------------------------------------------------
 // Function: setupQualityFormatLogic
 // Handles enabling/disabling format options based on quality
 // -------------------------------------------------------------
 function setupQualityFormatLogic() {
-    const qualityCodecSelect = getSelectByName(SELECT_NAMES.qualityCodec);
-    const qualityResolutionSelect = getSelectByName(SELECT_NAMES.qualityResolution);
-    const formatSelect = getSelectByName(SELECT_NAMES.format);
+    const qualityCodecSelect = helper.getSelectByName(SELECT_NAMES.qualityCodec);
+    const qualityResolutionSelect = helper.getSelectByName(SELECT_NAMES.qualityResolution);
+    const formatSelect = helper.getSelectByName(SELECT_NAMES.format);
 
     if (!qualityCodecSelect || !qualityResolutionSelect || !formatSelect) return;
 
@@ -144,7 +72,7 @@ function setupQualityFormatLogic() {
                 formatSelect.value = videoFormatDefault;
             }
         }
-        saveAllSelectsToCookie();
+        cookie.saveAllSelectsToCookie();
     };
 
     updateFormatOptions();
@@ -157,16 +85,15 @@ function setupQualityFormatLogic() {
 // Main Init
 // -------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
-
     const formGrab = document.querySelector('#form-grab');
     const buttonGrab = document.querySelector('.button-grab-get');
     const inputURL = document.querySelector('#youtubeURL');
     const resultDivInfo = document.querySelector('#grab-result-info');
 
     // Sync selects with cookies
-    setupCookieSelectSync(SELECT_NAMES.qualityCodec, COOKIE_NAMES.qualityCodec);
-    setupCookieSelectSync(SELECT_NAMES.qualityResolution, COOKIE_NAMES.qualityResolution);
-    setupCookieSelectSync(SELECT_NAMES.format, COOKIE_NAMES.format);
+    cookie.setupCookieSelectSync(SELECT_NAMES.qualityCodec, COOKIE_NAMES.qualityCodec);
+    cookie.setupCookieSelectSync(SELECT_NAMES.qualityResolution, COOKIE_NAMES.qualityResolution);
+    cookie.setupCookieSelectSync(SELECT_NAMES.format, COOKIE_NAMES.format);
 
     // Submit on Enter
     inputURL.addEventListener('keydown', (event) => {
@@ -178,7 +105,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Clear before HTMX request
     htmx.on('#form-grab', 'htmx:beforeRequest', () => {
-        if (inputURL) inputURL.value = '';
+        if (inputURL) {
+            inputURL.value = '';
+            // update action button after clearing
+            actionButton.updateActionButton();
+        }
         if (resultDivInfo) resultDivInfo.innerHTML = '';
     });
 
@@ -202,4 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Init quality/format sync
     setupQualityFormatLogic();
+
+    // Init action button for input field
+    actionButton.updateActionButton();
+    inputURL.addEventListener('input', actionButton.updateActionButton);
 });

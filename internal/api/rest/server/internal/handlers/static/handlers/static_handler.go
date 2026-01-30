@@ -12,6 +12,10 @@ func (h *StaticHandlers) StaticImgHandler(ctx *fasthttp.RequestCtx) {
 	h.imgHandler(ctx)
 }
 
+func (h *StaticHandlers) StaticIconHandler(ctx *fasthttp.RequestCtx) {
+	h.iconHandler(ctx)
+}
+
 func (h *StaticHandlers) StaticJsHandler(ctx *fasthttp.RequestCtx) {
 	h.jsHandler(ctx)
 }
