@@ -34,7 +34,7 @@
   <meta name="theme-color" id="theme-color-meta" content="#171717">
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
   <script defer src="{{.PathStaticJs}}/theme-switcher.js"></script>
-  <script defer src="{{.PathStaticJs}}/downloader.js"></script>
+  <script type="module" src="{{.PathStaticJs}}/downloader.js"></script>
 </head>
 <body>
   {{ template "theme-switcher.html" . }}
