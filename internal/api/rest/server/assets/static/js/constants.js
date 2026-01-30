@@ -16,5 +16,5 @@ export const COOKIE_NAMES = {
 };
 
 // Action button icon URLs
-export const ICON_PASTE = 'static/icon/action-paste-icon.svg';
+export const ICON_PASTE = 'static/icon/action-paste-v2-icon.svg';
 export const ICON_CLEAR = 'static/icon/action-clear-icon.svg';
