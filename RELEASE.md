@@ -1,5 +1,12 @@
 # Releases
 
+## v0.11.0 — 2026-02-01
+
+### Feature
+- Add “Paste from Clipboard” button to input field. Closes #149
+
+---
+
 ## v0.10.1 — 2026-01-30
 
 ### Build
