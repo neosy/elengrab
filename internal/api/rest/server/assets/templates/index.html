@@ -10,11 +10,11 @@
       }
     } catch(e){}
   </script>
-  <link rel="stylesheet" href="{{.PathStaticCss}}/variables.css">
-  <link rel="stylesheet" href="{{.PathStaticCss}}/theme-switcher.css">
-  <link rel="stylesheet" href="{{.PathStaticCss}}/style.css">
-  <link rel="stylesheet" href="{{.PathStaticCss}}/form-grab.css">
-  <link rel="stylesheet" href="{{.PathStaticCss}}/result-items.css">
+  <link rel="stylesheet" href="{{.PathStaticCss}}/variables.css?v={{.AppVersion}}">
+  <link rel="stylesheet" href="{{.PathStaticCss}}/theme-switcher.css?v={{.AppVersion}}">
+  <link rel="stylesheet" href="{{.PathStaticCss}}/style.css?v={{.AppVersion}}">
+  <link rel="stylesheet" href="{{.PathStaticCss}}/form-grab.css?v={{.AppVersion}}">
+  <link rel="stylesheet" href="{{.PathStaticCss}}/result-items.css?v={{.AppVersion}}">
   <link rel="manifest" href="{{.PathStaticPwa}}/manifest.json">
   <link rel="icon" type="image/png" sizes="16x16" href="{{.PathStaticImg}}/favicon-16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="{{.PathStaticImg}}/favicon-32.png">
@@ -33,8 +33,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" id="theme-color-meta" content="#171717">
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-  <script defer src="{{.PathStaticJs}}/theme-switcher.js"></script>
-  <script type="module" src="{{.PathStaticJs}}/downloader.js"></script>
+  <script defer src="{{.PathStaticJs}}/theme-switcher.js?v={{.AppVersion}}"></script>
+  <script type="module" src="{{.PathStaticJs}}/downloader.js?v={{.AppVersion}}"></script>
 </head>
 <body>
   {{ template "theme-switcher.html" . }}
