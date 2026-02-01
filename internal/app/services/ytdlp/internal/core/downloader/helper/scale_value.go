@@ -45,10 +45,10 @@ func ScaleValue(width, height uint16, toResolution dtypes.VideoResolution) strin
 	var scaleValue string
 	if sourceIsLandscape {
 		// landscape -> fix height
-		scaleValue = fmt.Sprintf("-1:%d", targetH)
+		scaleValue = fmt.Sprintf("-2:%d", targetH)
 	} else {
 		// portrait  -> fix width (using targetH per your convention)
-		scaleValue = fmt.Sprintf("%d:-1", targetH)
+		scaleValue = fmt.Sprintf("%d:-2", targetH)
 	}
 
 	return scaleValue

@@ -39,6 +39,7 @@ func (d *Downloader) watchProgress(fileSize *int64, std io.Reader, outBuf *bytes
 		downloadedMap[total] = downloaded
 		// Initialize downloaded and total
 		downloaded = 0
+		total = 0
 		if fileSize != nil {
 			total = *fileSize
 		}

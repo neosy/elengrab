@@ -1,4 +1,4 @@
-package ffmpeginfo
+package ffmpeg
 
 type videoInfoSetter struct {
 	codec      bool

@@ -96,7 +96,7 @@ func ParseVideoResolution(s string) (VideoResolution, error) {
 
 // ParseVideoResolutionWH
 func ParseVideoResolutionWH(w, h uint16) VideoResolution {
-	if h > w {
+	if w != 0 && h > w {
 		h = w
 	}
 	resolution, exists := heightToResolutionMap[h]
