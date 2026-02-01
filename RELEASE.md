@@ -8,6 +8,7 @@
 
 ### Fix
 - Correct video decoding and resolution
+- Resolve ffmpeg audio codec handling error
 
 ### Style
 - Change paste icon and add title tooltip
