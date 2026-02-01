@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/dto"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/utils"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 
@@ -26,7 +27,7 @@ func (c *Core) fetchFormatsJSON(
 	ctx context.Context,
 	url string,
 ) ([]byte, error) {
-	out, err := c.execCommandContext(
+	out, err := utils.ExecCommandContext(
 		ctx, c.ytDlpPath,
 		"--no-playlist", "--no-warnings", "--quiet",
 		"--dump-json",

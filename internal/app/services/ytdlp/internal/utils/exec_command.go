@@ -1,13 +1,14 @@
-package core
+package utils
 
 import (
 	"bytes"
 	"context"
 	"fmt"
 	"os/exec"
+	"path/filepath"
 )
 
-func (c *Core) execCommandContext(ctx context.Context, name string, arg ...string) ([]byte, error) {
+func ExecCommandContext(ctx context.Context, name string, arg ...string) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, name, arg...)
 
 	// Buffers to capture stdout and stderr
@@ -20,7 +21,7 @@ func (c *Core) execCommandContext(ctx context.Context, name string, arg ...strin
 		if ctx.Err() != nil {
 			return nil, fmt.Errorf("process canceled: %w", ctx.Err())
 		}
-		errOut := fmt.Errorf("%s failed: %v, stderr: %s", c.ytDlpName, err, stderr.String())
+		errOut := fmt.Errorf("%s failed: %v, stderr: %s", filepath.Base(name), err, stderr.String())
 		return nil, errOut
 	}
 
