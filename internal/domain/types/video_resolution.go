@@ -2,6 +2,9 @@ package dtypes
 
 import (
 	"errors"
+	"fmt"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -101,6 +104,42 @@ func ParseVideoResolutionWH(w, h uint16) VideoResolution {
 		resolution = VideoResolutionNone
 	}
 	return resolution
+}
+
+// VideoResolutionStringToWH parses a resolution string in the form "WIDTHxHEIGHT"
+// and returns width and height as uint16. Returns an error if the string is not valid.
+func VideoResolutionStringToWH(res string) (uint16, uint16, error) {
+	re := regexp.MustCompile(`^\d+x\d+$`)
+	if !re.MatchString(res) {
+		return 0, 0, fmt.Errorf("invalid video resolution format: %q", res)
+	}
+
+	values := strings.SplitN(res, "x", 2)
+	if len(values) != 2 {
+		return 0, 0, fmt.Errorf("cannot split resolution string: %q", res)
+	}
+
+	v1, err := strconv.Atoi(values[0])
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid width in resolution: %q, %w", values[0], err)
+	}
+	v2, err := strconv.Atoi(values[1])
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid height in resolution: %q, %w", values[1], err)
+	}
+
+	return uint16(v1), uint16(v2), nil
+}
+
+// ParseVideoResolutionFromString parses a resolution string in the form "WIDTHxHEIGHT"
+// and returns a VideoResolution. Returns an error if the string is invalid.
+func ParseVideoResolutionFromString(res string) (VideoResolution, error) {
+	w, h, err := VideoResolutionStringToWH(res)
+	if err != nil {
+		return "", fmt.Errorf("invalid value for VideoResolution: %w", err)
+	}
+
+	return ParseVideoResolutionWH(w, h), nil
 }
 
 // ValidateVideoResolution checks if the field value is a valid VideoResolution enum.

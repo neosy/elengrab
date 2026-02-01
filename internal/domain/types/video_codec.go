@@ -28,6 +28,16 @@ var (
 		VideoCodecVP9:  {},
 	}
 
+	parseVideoCodecMap = map[string]VideoCodec{
+		string(VideoCodecNone): VideoCodecNone,
+		string(VideoCodecBest): VideoCodecBest,
+		string(VideoCodecH264): VideoCodecH264,
+		string(VideoCodecH265): VideoCodecH265,
+		string("hevc"):         VideoCodecH265,
+		string(VideoCodecAV1):  VideoCodecAV1,
+		string(VideoCodecVP9):  VideoCodecVP9,
+	}
+
 	videoCodecTitleMap = map[VideoCodec]string{
 		VideoCodecBest: "Best",
 		VideoCodecH264: "H.264",
@@ -60,13 +70,20 @@ func (v VideoCodec) Exists() bool {
 
 // ParseVideoCodec converting string to VideoCodec
 func ParseVideoCodec(s string) (VideoCodec, error) {
-	videoCodec := VideoCodec(strings.ToLower(s))
-
-	if _, exists := videoCodecMap[videoCodec]; !exists {
+	videoCodec, exists := parseVideoCodecMap[strings.ToLower(s)]
+	if !exists {
 		return "", errors.New("invalid value for VideoCodec")
 	}
-
 	return videoCodec, nil
+}
+
+// MustParseVideoCodec
+func MustParseVideoCodec(s string) VideoCodec {
+	codec, err := ParseVideoCodec(s)
+	if err != nil {
+		return VideoCodecNone
+	}
+	return codec
 }
 
 // ValidateVideoCodec checks if the field value is a valid VideoCodec enum.
