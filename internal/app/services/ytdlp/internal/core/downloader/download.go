@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/downloader/ffmpeginfo"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/downloader/helper"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/dto"
 	"github.com/neosy/elengrab/internal/app/utils"
@@ -160,6 +161,19 @@ func (d *Downloader) Download(
 
 	// Waiting for background processes to complete
 	wg.Wait()
+
+	// Reading metadata from the given file.
+	vInfo, aInfo := ffmpeginfo.NewInfo().GetVideoAudioInfoFromFile(ctx, meta.Meta.FilePath, meta.Meta.MediaInfo)
+	if vInfo != nil {
+		meta.Lock()
+		meta.Meta.MediaInfo.VideoInfo = vInfo
+		meta.Unlock()
+	}
+	if aInfo != nil {
+		meta.Lock()
+		meta.Meta.MediaInfo.AudioInfo = aInfo
+		meta.Unlock()
+	}
 
 	// Build response struct
 	result := meta.InitialResult()

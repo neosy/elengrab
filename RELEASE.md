@@ -4,6 +4,16 @@
 
 ### Feature
 - Add “Paste from Clipboard” button to input field. Closes #149
+- Update the audio and video info at the end of the download
+
+### Fix
+- 
+
+### Style
+- Change paste icon and add title tooltip
+
+### Chore
+- Update CSS cache version
 
 ---
 

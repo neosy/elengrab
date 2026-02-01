@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/dto"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/utils"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
@@ -33,7 +34,7 @@ func (c *Core) getBestFormat(
 		return nil, err
 	}
 
-	out, err := c.execCommandContext(
+	out, err := utils.ExecCommandContext(
 		ctx, c.ytDlpPath,
 		"--no-warnings", "--quiet",
 		"-f", format,

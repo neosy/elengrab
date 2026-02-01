@@ -47,6 +47,12 @@ func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.
 			if err != nil {
 				return nil, err
 			}
+			if mediaInfo.AudioInfo != nil {
+				mediaInfo.AudioInfo.Codec = dtypes.MustParseAudioCodec(string(mediaInfo.AudioInfo.Codec))
+			}
+			if mediaInfo.VideoInfo != nil {
+				mediaInfo.VideoInfo.Codec = dtypes.MustParseVideoCodec(string(mediaInfo.VideoInfo.Codec))
+			}
 		}
 	}
 

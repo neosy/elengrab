@@ -13,8 +13,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/downloader/helper"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/dto"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/utils"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/pkg/syncx"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
@@ -40,7 +40,7 @@ func (d *Downloader) runYtDlp(
 	// Running yt-dlp in a separate temporary directory
 	baseTmpDir := filepath.Join(dlDir, ytDlpTempDir)
 
-	workDir, cleanup, err := helper.CreateTempDir(baseTmpDir, "job-*")
+	workDir, cleanup, err := utils.CreateTempDir(baseTmpDir, "job-*")
 	if err != nil {
 		return nil, fmt.Errorf("%s failed to create tmp dir: %w", d.ytDlpName, err)
 	}

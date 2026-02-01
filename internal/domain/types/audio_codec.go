@@ -11,10 +11,10 @@ type AudioCodec string
 
 const (
 	AudioCodecNone AudioCodec = "none"
-	AudioCodecMP3  AudioCodec = "MP3"
-	AudioCodecAAC  AudioCodec = "AAC"
-	AudioCodecFLAC AudioCodec = "FLAC"
-	AudioCodecOPUS AudioCodec = "Opus"
+	AudioCodecMP3  AudioCodec = "mp3"
+	AudioCodecAAC  AudioCodec = "aac"
+	AudioCodecFLAC AudioCodec = "flac"
+	AudioCodecOPUS AudioCodec = "opus"
 )
 
 var (
@@ -64,6 +64,15 @@ func ParseAudioCodec(s string) (AudioCodec, error) {
 	}
 
 	return audioCodec, nil
+}
+
+// MustParseAudioCodec
+func MustParseAudioCodec(s string) AudioCodec {
+	codec, err := ParseAudioCodec(s)
+	if err != nil {
+		return AudioCodecNone
+	}
+	return codec
 }
 
 // ValidateAudioCodec checks if the field value is a valid AudioCodec enum.
