@@ -147,18 +147,18 @@ func PrepareDownload(
 		outVideoCodec = srcVideoCodec
 		outAudioCodec = mediaFormat.AudioCodec()
 
-		isSrcOutFormatWebMCodec := outVideoCodec == dtypes.VideoCodecAV1 || outVideoCodec == dtypes.VideoCodecVP9
-		isSrcOutFormatMP4Codec := outVideoCodec == dtypes.VideoCodecAV1 || outVideoCodec == dtypes.VideoCodecH264
+		isSrcFormatWebMCodec := outVideoCodec == dtypes.VideoCodecAV1 || outVideoCodec == dtypes.VideoCodecVP9
+		isSrcFormatMP4Codec := outVideoCodec == dtypes.VideoCodecAV1 || outVideoCodec == dtypes.VideoCodecH264
 
 		var ffmpegArgs string
 
-		outVideoCodec := dlOptions.VideoCodec
+		downloadVideoCodec := dlOptions.VideoCodec
 		if dlOptions.VideoFormat == dtypes.VideoFormatWebM && outVideoCodec == dtypes.VideoCodecBest {
-			outVideoCodec = dtypes.VideoCodecAV1
+			downloadVideoCodec = dtypes.VideoCodecAV1
 		}
 
 		// Determine the output video codec
-		switch outVideoCodec {
+		switch downloadVideoCodec {
 		case dtypes.VideoCodecBest:
 			if isVideoScale {
 				audioCodecArgs := "copy"
@@ -238,13 +238,13 @@ func PrepareDownload(
 
 		switch fileExt {
 		case "mp4":
-			if ffmpegArgs != "" || !isSrcOutFormatMP4Codec {
+			if ffmpegArgs != "" || !isSrcFormatMP4Codec {
 				args = append(args, "--recode-video", "mp4")
 			} else {
 				args = append(args, "--remux-video", "mp4")
 			}
 		case "webm":
-			if ffmpegArgs != "" || !isSrcOutFormatWebMCodec {
+			if ffmpegArgs != "" || !isSrcFormatWebMCodec {
 				args = append(args, "--recode-video", "webm")
 			} else {
 				args = append(args, "--merge-output-format", "webm")
