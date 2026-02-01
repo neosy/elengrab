@@ -82,7 +82,7 @@ func PrepareDownload(
 			formatQuery = fmt.Sprintf(
 				"bestvideo[ext=mp4]%s+bestaudio[ext=m4a]/bestvideo%s+bestaudio",
 				resolution, resolution,
-			) + fnx.Ternary(resolution != "/bestvideo+bestaudio/best", resolution, "/best")
+			) + fnx.Ternary(resolution != "", "/bestvideo+bestaudio/best", "/best")
 			if dlOptions.VideoCodec == dtypes.VideoCodecH264 {
 				formatQuery = fmt.Sprintf("%s/%s", formatAVC1Query, formatQuery)
 			}
@@ -214,7 +214,7 @@ func PrepareDownload(
 		case dtypes.VideoCodecH265:
 			infoVideoCodec = dtypes.VideoCodecH265
 			videoCodecArgs := ffmpeg.VideoEncoderArgs(dlOptions.VideoCodec)
-			audioCodecArgs := "-b:a 160k"
+			audioCodecArgs := "aac -b:a 160k"
 			ffmpegArgs = fmt.Sprintf(
 				"%s -c:v %s -c:a %s",
 				videoScaleArgs,
