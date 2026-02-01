@@ -42,6 +42,18 @@ var (
 		"flac": FileFormatFLAC,
 		"opus": FileFormatOPUS,
 	}
+
+	fileFormatIsVideoMap = map[FileFormat]struct{}{
+		FileFormatMP4:  {},
+		FileFormatWebM: {},
+	}
+
+	fileFormatIsAudioMap = map[FileFormat]struct{}{
+		FileFormatMP3:  {},
+		FileFormatM4A:  {},
+		FileFormatFLAC: {},
+		FileFormatOPUS: {},
+	}
 )
 
 // String returns the value as a string.
@@ -58,6 +70,18 @@ func (v FileFormat) Ptr() *FileFormat {
 func (v FileFormat) Exists() bool {
 	_, exists := fileFormatMap[v]
 	return exists
+}
+
+// IsVideo returns true if a video format.
+func (v FileFormat) IsVideo() bool {
+	_, exitsts := fileFormatIsVideoMap[v]
+	return exitsts
+}
+
+// IsAudio returns true if an audio format.
+func (v FileFormat) IsAudio() bool {
+	_, exitsts := fileFormatIsAudioMap[v]
+	return exitsts
 }
 
 // ParseFileFormat converting string to FileFormat
