@@ -60,13 +60,15 @@ func mediaInfoText(mediaInfo *ddownload.MediaInfo) string {
 	if mediaInfo.VideoInfo != nil {
 		if mediaInfo.VideoInfo.Codec != dtypes.VideoCodecNone {
 			videoInfo := mediaInfo.VideoInfo
-			return fmt.Sprintf(
-				"%v, %v, %dx%d",
+			text := fmt.Sprintf(
+				"%v, %v",
 				videoInfo.Codec.Title(),
 				videoInfo.Resolution,
-				videoInfo.Width,
-				videoInfo.Height,
 			)
+			if videoInfo.Width != 0 && videoInfo.Height != 0 {
+				text += fmt.Sprintf(", %dx%d", videoInfo.Width, videoInfo.Height)
+			}
+			return text
 		}
 		return ""
 	}
@@ -74,12 +76,11 @@ func mediaInfoText(mediaInfo *ddownload.MediaInfo) string {
 	if mediaInfo.AudioInfo != nil {
 		if mediaInfo.AudioInfo.Codec != dtypes.AudioCodecNone {
 			audioInfo := mediaInfo.AudioInfo
-			text := fmt.Sprintf(
-				"%v, %d kbps",
-				audioInfo.Codec.Title(),
-				audioInfo.Bitrate,
-			)
-			if audioInfo.SampleRate != nil {
+			text := audioInfo.Codec.Title()
+			if audioInfo.Bitrate != 0 {
+				text += fmt.Sprintf(", %d kbps", audioInfo.Bitrate)
+			}
+			if audioInfo.SampleRate != nil && *audioInfo.SampleRate != 0 {
 				text += fmt.Sprintf(", %d Hz", *audioInfo.SampleRate)
 			}
 			return text

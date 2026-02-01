@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/downloader/ffmpeg"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -57,9 +58,9 @@ func PrepareDownload(
 		switch dlOptions.VideoFormat {
 		case dtypes.VideoFormatAuto:
 			formatQuery = fmt.Sprintf(
-				"bestvideo[ext=mp4]%s+bestaudio[ext=m4a]/best[ext=mp4]%s",
-				resolution, resolution,
-			) + "/best" + fnx.Ternary(resolution != "", resolution, "")
+				"bestvideo[ext=mp4]%s+bestaudio[ext=m4a]/best[ext=mp4]%s/best%s",
+				resolution, resolution, resolution,
+			) + fnx.Ternary(resolution != "", "/best", "")
 			if dlOptions.VideoCodec == dtypes.VideoCodecH264 {
 				formatQuery = fmt.Sprintf("%s/%s", formatAVC1Query, formatQuery)
 			}
@@ -68,11 +69,11 @@ func PrepareDownload(
 			}
 			bestFormatQuery = formatQuery
 		case dtypes.VideoFormatWebM:
-			formatQuery = fmt.Sprintf("bestvideo[ext=webm]%s+bestaudio[ext=webm]", resolution)
+			formatQuery = fmt.Sprintf("bestvideo[ext=webm]%s+bestaudio[ext=webm]/best", resolution)
 			bestFormatQuery = fmt.Sprintf(
-				"bestvideo[ext=webm]%s+bestaudio[ext=webm]/bestvideo[ext=webm]%s/best[ext=mp4]%s",
-				resolution, resolution, resolution,
-			) + "/best" + fnx.Ternary(resolution != "", resolution, "")
+				"bestvideo[ext=webm]%s+bestaudio[ext=webm]/bestvideo[ext=webm]%s/best[ext=mp4]%s/best%s",
+				resolution, resolution, resolution, resolution,
+			) + fnx.Ternary(resolution != "", "best", "")
 			if dlOptions.VideoCodec == dtypes.VideoCodecAV1 {
 				formatQuery = fmt.Sprintf("%s/%s", formatAV01Query, formatQuery)
 				bestFormatQuery = fmt.Sprintf("%s/%s", formatAV01Query, bestFormatQuery)
@@ -81,7 +82,7 @@ func PrepareDownload(
 			formatQuery = fmt.Sprintf(
 				"bestvideo[ext=mp4]%s+bestaudio[ext=m4a]/bestvideo%s+bestaudio",
 				resolution, resolution,
-			) + "/best" + fnx.Ternary(resolution != "", resolution, "")
+			) + fnx.Ternary(resolution != "/bestvideo+bestaudio/best", resolution, "/best")
 			if dlOptions.VideoCodec == dtypes.VideoCodecH264 {
 				formatQuery = fmt.Sprintf("%s/%s", formatAVC1Query, formatQuery)
 			}
@@ -130,15 +131,16 @@ func PrepareDownload(
 			videoScaleArgs string
 		)
 		if dlOptions.VideoFormat != dtypes.VideoFormatWebM {
+			resolution := dtypes.ParseVideoResolutionWH(uint16(mediaFormat.Width), uint16(mediaFormat.Height))
 			scaleValue := ScaleValue(
-				uint16(mediaFormat.Width),
-				uint16(mediaFormat.Height),
+				resolution.Width(),
+				resolution.Height(),
 				dlOptions.VideoResolution,
 			)
 			if scaleValue != "" {
 				videoScaleArgs = fmt.Sprintf("-vf scale=%s", scaleValue)
+				isVideoScale = true
 			}
-			isVideoScale = videoScaleArgs != ""
 		}
 
 		infoVideoCodec = mediaFormat.VideoCodec()
@@ -153,33 +155,40 @@ func PrepareDownload(
 		switch dlOptions.VideoCodec {
 		case dtypes.VideoCodecBest:
 			if isVideoScale {
-				audioCodecArgs := "-c:a copy"
-				ffmpegArgs = fmt.Sprintf("%s %s", videoScaleArgs, audioCodecArgs)
+				audioCodecArgs := "copy"
+				ffmpegArgs = fmt.Sprintf(
+					"%s -c:v %s -c:a %s",
+					videoScaleArgs,
+					ffmpeg.VideoEncoderArgs(infoVideoCodec),
+					audioCodecArgs,
+				)
 			}
 		case dtypes.VideoCodecAV1:
 			infoVideoCodec = dtypes.VideoCodecAV1
 			var (
 				isVideoArgs    bool
-				isAudioArgs    bool
 				videoCodecArgs string
 				audioCodecArgs string
 			)
-			if infoVideoCodec != dtypes.VideoCodecAV1 {
-				videoCodecArgs = "-c:v libaom-av1 -crf 0 -b:v 0"
+			if isVideoScale || infoVideoCodec != dtypes.VideoCodecAV1 {
+				videoCodecArgs = ffmpeg.VideoEncoderArgs(dlOptions.VideoCodec)
 				isVideoArgs = true
 			}
-			if isVideoArgs || isVideoScale {
-				audioCodecArgs = "-c:a copy"
-				isAudioArgs = true
+			if isVideoArgs {
+				audioCodecArgs = "copy"
 			}
-			if isVideoArgs || isAudioArgs {
-				ffmpegArgs = fmt.Sprintf("%s %s %s", videoScaleArgs, videoCodecArgs, audioCodecArgs)
+			if isVideoArgs {
+				ffmpegArgs = fmt.Sprintf(
+					"%s -c:v %s -c:a %s",
+					videoScaleArgs,
+					videoCodecArgs,
+					audioCodecArgs,
+				)
 			}
 		case dtypes.VideoCodecH264:
 			infoVideoCodec = dtypes.VideoCodecH264
 			var (
 				isVideoArgs    bool
-				isAudioArgs    bool
 				videoCodecArgs string
 				audioCodecArgs string
 			)
@@ -187,22 +196,31 @@ func PrepareDownload(
 			// ffmpeg:-c:v libx264 -crf 18 -preset slow -c:a aac -b:a 192k
 			// ffmpeg:-c:v libx264 -crf 22 -preset slow -c:a aac -b:a 160k
 			// ffmpeg:-c:v libx264 -crf 24 -preset slow -c:a aac -b:a 128k
-			if infoVideoCodec != dtypes.VideoCodecH264 {
-				videoCodecArgs = "-c:v libx264 -crf 22 -preset slow"
+			if isVideoScale || infoVideoCodec != dtypes.VideoCodecH264 {
+				videoCodecArgs = ffmpeg.VideoEncoderArgs(dlOptions.VideoCodec)
 				isVideoArgs = true
 			}
-			if isVideoArgs || isVideoScale {
-				audioCodecArgs = "-c:a aac -b:a 160k"
+			if isVideoArgs {
+				audioCodecArgs = "aac -b:a 160k"
 			}
-			if isVideoArgs || isAudioArgs {
-				ffmpegArgs = fmt.Sprintf("%s %s %s", videoScaleArgs, videoCodecArgs, audioCodecArgs)
-				isAudioArgs = true
+			if isVideoArgs {
+				ffmpegArgs = fmt.Sprintf(
+					"%s -c:v %s -c:a %s",
+					videoScaleArgs,
+					videoCodecArgs,
+					audioCodecArgs,
+				)
 			}
 		case dtypes.VideoCodecH265:
 			infoVideoCodec = dtypes.VideoCodecH265
-			videoCodecArgs := "-c:v libx265 -crf 22 -preset slow"
-			audioCodecArgs := "-c:a aac -b:a 160k"
-			ffmpegArgs = fmt.Sprintf("%s %s %s", ffmpegArgs, videoCodecArgs, audioCodecArgs)
+			videoCodecArgs := ffmpeg.VideoEncoderArgs(dlOptions.VideoCodec)
+			audioCodecArgs := "-b:a 160k"
+			ffmpegArgs = fmt.Sprintf(
+				"%s -c:v %s -c:a %s",
+				videoScaleArgs,
+				videoCodecArgs,
+				audioCodecArgs,
+			)
 		default:
 			ffmpegArgs = ""
 		}
@@ -225,7 +243,7 @@ func PrepareDownload(
 		}
 
 		if ffmpegArgs != "" {
-			args = append(args, "--postprocessor-args", fmt.Sprintf("ffmpeg:%s", ffmpegArgs))
+			args = append(args, "--ppa", fmt.Sprintf("ffmpeg:%s", ffmpegArgs))
 		}
 
 	// Audio only

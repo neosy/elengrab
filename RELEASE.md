@@ -7,7 +7,7 @@
 - Update the audio and video info at the end of the download
 
 ### Fix
-- 
+- Correct video decoding and resolution
 
 ### Style
 - Change paste icon and add title tooltip
