@@ -9,6 +9,7 @@
 ### Fix
 - Correct video decoding and resolution
 - Resolve ffmpeg audio codec handling error
+- Auto-detect and convert audio-only media
 
 ### Style
 - Change paste icon and add title tooltip

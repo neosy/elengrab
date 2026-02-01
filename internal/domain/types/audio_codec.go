@@ -32,6 +32,13 @@ var (
 		AudioCodecFLAC: "FLAC",
 		AudioCodecOPUS: "Opus",
 	}
+
+	audioCodecToAudioFormatMap = map[AudioCodec]AudioFormat{
+		AudioCodecMP3:  AudioFormatMP3,
+		AudioCodecAAC:  AudioFormatM4A,
+		AudioCodecFLAC: AudioFormatFLAC,
+		AudioCodecOPUS: AudioFormatOPUS,
+	}
 )
 
 // String returns the value as a string.
@@ -53,6 +60,15 @@ func (v AudioCodec) Ptr() *AudioCodec {
 func (v AudioCodec) Exists() bool {
 	_, exists := audioCodecMap[v]
 	return exists
+}
+
+// AudioFormat returns the corresponding AudioFormat for the AudioCodec.
+func (v AudioCodec) AudioFormat() AudioFormat {
+	format, exists := audioCodecToAudioFormatMap[v]
+	if !exists {
+		return AudioFormatNone
+	}
+	return format
 }
 
 // ParseAudioCodec converting string to AudioCodec

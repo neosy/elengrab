@@ -153,7 +153,9 @@ func PrepareDownload(
 		var ffmpegArgs string
 
 		downloadVideoCodec := dlOptions.VideoCodec
-		if dlOptions.VideoFormat == dtypes.VideoFormatWebM && outVideoCodec == dtypes.VideoCodecBest {
+		if dlOptions.VideoFormat == dtypes.VideoFormatWebM &&
+			dlOptions.VideoCodec == dtypes.VideoCodecBest &&
+			!isSrcFormatWebMCodec {
 			downloadVideoCodec = dtypes.VideoCodecAV1
 		}
 
@@ -283,10 +285,21 @@ func PrepareDownload(
 
 		args = append(args, "-f", format)
 
+		downloadAudioFormat := dlOptions.AudioFormat
+		if downloadAudioFormat == dtypes.AudioFormatAuto {
+			format, _ := dtypes.ParseFileFormat(mediaFormat.FileExt)
+			if !format.IsAudio() {
+				downloadAudioFormat = outAudioCodec.AudioFormat()
+				if downloadAudioFormat == dtypes.AudioFormatNone {
+					downloadAudioFormat = dtypes.AudioFormatMP3
+				}
+			}
+		}
+
 		// Choose audio processing based on requested audio format
-		switch dlOptions.AudioFormat {
+		switch downloadAudioFormat {
 		case dtypes.AudioFormatAuto:
-			if mediaFormat.ACodec != "" && mediaFormat.ACodec == "opus" {
+			if outAudioCodec == dtypes.AudioCodecOPUS {
 				args = append(args, "--extract-audio", "--audio-format", "opus")
 				fileExt = "opus"
 			} else {
