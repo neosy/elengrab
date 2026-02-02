@@ -16,6 +16,7 @@ import (
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
 	"github.com/neosy/elengrab/pkg/dbutils"
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 type FileRepository struct {
@@ -23,6 +24,7 @@ type FileRepository struct {
 	db      *sql.DB
 	lock    dbexec.WriteLocker
 
+	// filters
 	userID *uuid.UUID
 
 	// options
@@ -34,7 +36,6 @@ type fileByFields struct {
 	beforeTime  *time.Time
 	limit       *uint64
 	partialHash **string
-	userID      *uuid.UUID
 }
 
 // NewFileRepository returns a new object for the repository
@@ -52,17 +53,30 @@ func NewFileRepository(db *sql.DB, lock dbexec.WriteLocker) *FileRepository {
 	}
 }
 
-func (r *FileRepository) WithUser(userID uuid.UUID) persistence.FileRepository {
-	return &FileRepository{
-		mappers: r.mappers,
-		db:      r.db,
-		lock:    r.lock,
+func (r *FileRepository) Copy() *FileRepository {
+	rep := uptr.Copy(r)
 
-		userID: &userID,
+	rep.mappers = r.mappers
+	rep.db = r.db
+	rep.lock = r.lock
 
-		// options
-		retryOptions: r.retryOptions,
+	rep.userID = uptr.Copy(r.userID)
+
+	return rep
+}
+
+func (r *FileRepository) fileStatusesToStrings(statuses []dtypes.FileStatus) []string {
+	var statuseStrings = make([]string, 0, len(statuses))
+	for _, status := range statuses {
+		statuseStrings = append(statuseStrings, status.String())
 	}
+	return statuseStrings
+}
+
+func (r *FileRepository) WithUser(userID uuid.UUID) persistence.FileRepository {
+	rep := r.Copy()
+	rep.userID = &userID
+	return rep
 }
 
 func (r *FileRepository) Insert(ctx context.Context, file *ddownload.File) error {
@@ -121,16 +135,18 @@ func (r *FileRepository) UpdateStatusToNew(ctx context.Context, statuses []dtype
 		return nil
 	}
 
+	statusStrings := r.fileStatusesToStrings(statuses)
+
 	var ent edownload.File
 
 	sqlWhere := squirrel.And{
-		squirrel.Eq{ent.FieldName(&ent.Status): statuses},
+		squirrel.Eq{ent.FieldName(&ent.Status): statusStrings},
 		squirrel.Eq{ent.FieldName(&ent.DeletedAt): nil},
 	}
 
 	// Build query
 	sqlBuilder := squirrel.Update(ent.TableName()).
-		Set(ent.FieldName(&ent.Status), dtypes.FileStatusNew).
+		Set(ent.FieldName(&ent.Status), dtypes.FileStatusNew.String()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar)
 
@@ -328,10 +344,11 @@ func (r *FileRepository) getAll(
 
 	var conditions = squirrel.And{}
 	if len(byFields.statuses) > 0 {
-		conditions = append(conditions, squirrel.Eq{eFile.FieldNameWithAlias(&eFile.Status, aliasFiles): byFields.statuses})
+		statusStrings := r.fileStatusesToStrings(byFields.statuses)
+		conditions = append(conditions, squirrel.Eq{eFile.FieldNameWithAlias(&eFile.Status, aliasFiles): statusStrings})
 	}
-	if byFields.userID != nil {
-		conditions = append(conditions, squirrel.Eq{eFile.FieldNameWithAlias(&eFile.UserID, aliasFiles): *byFields.userID})
+	if r.userID != nil {
+		conditions = append(conditions, squirrel.Eq{eFile.FieldNameWithAlias(&eFile.UserID, aliasFiles): *r.userID})
 	}
 	if byFields.beforeTime != nil && !byFields.beforeTime.IsZero() {
 		t := byFields.beforeTime.Add(-1 * time.Nanosecond)
@@ -356,8 +373,8 @@ func (r *FileRepository) getAll(
 		OrderBy(dbutils.OrderBy(dbutils.Flds{eFile.FieldNameWithAlias(&eFile.CreatedAt, aliasFiles): sortOrderByCreatedAt})).
 		LeftJoin(
 			eTask.TableName() + " AS " + aliasTasks +
-				" ON " + aliasTasks + "." + eTask.FieldName(&eTask.FileId) +
-				" = " + aliasFiles + "." + eFile.FieldName(&eFile.FileId),
+				" ON " + eTask.FieldNameWithAlias(&eTask.FileId, aliasTasks) +
+				" = " + eFile.FieldNameWithAlias(&eFile.FileId, aliasFiles),
 		).
 		PlaceholderFormat(squirrel.Dollar)
 
@@ -402,6 +419,10 @@ func (r *FileRepository) GetAllFullNames(ctx context.Context, includeDeleted boo
 		sqlWhere = append(sqlWhere, squirrel.Eq{eFile.FieldName(&eFile.DeletedAt): nil})
 	}
 
+	if r.userID != nil {
+		sqlWhere = append(sqlWhere, squirrel.Eq{eFile.FieldName(&eFile.UserID): *r.userID})
+	}
+
 	sqlQuery, args, err := squirrel.Select(eFile.FieldName(&eFile.FullName)).
 		From(eFile.TableName()).
 		Where(sqlWhere).
@@ -440,7 +461,6 @@ func (r *FileRepository) GetBeforeTime(ctx context.Context, before time.Time, li
 	return r.getAll(
 		ctx,
 		fileByFields{
-			userID:     r.userID,
 			beforeTime: &before,
 			limit:      &limit,
 		},
@@ -459,7 +479,14 @@ func (r *FileRepository) GetByStatuses(ctx context.Context, statuses []dtypes.Fi
 
 func (r *FileRepository) GetByPartialHash(ctx context.Context, hash string) ([]*ddownload.File, error) {
 	var h = &hash
-	return r.getAll(ctx, fileByFields{partialHash: &h, statuses: []dtypes.FileStatus{dtypes.FileStatusDone}}, dbutils.OrderDesc, false)
+	return r.getAll(
+		ctx, fileByFields{
+			statuses:    []dtypes.FileStatus{dtypes.FileStatusDone},
+			partialHash: &h,
+		},
+		dbutils.OrderDesc,
+		false,
+	)
 }
 
 func (r *FileRepository) GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, error) {
@@ -467,16 +494,33 @@ func (r *FileRepository) GetWithoutPartialHash(ctx context.Context) ([]*ddownloa
 	return r.getAll(ctx, fileByFields{partialHash: &h}, dbutils.OrderAsc, false)
 }
 
-func (r *FileRepository) GetDuplicateHashes(ctx context.Context) ([]string, error) {
+func (r *FileRepository) GetDuplicateHashes(ctx context.Context, scope dtypes.UniquenessScope) ([]ddownload.DuplicateHashRow, error) {
 	var eFile edownload.File
 
 	sqlWhere := squirrel.And{
 		squirrel.Expr(eFile.FieldName(&eFile.PartialHash) + " IS NOT NULL"),
 		squirrel.NotEq{eFile.FieldName(&eFile.FullName): ""},
 		squirrel.Eq{
-			eFile.FieldName(&eFile.Status):    dtypes.FileStatusDone,
+			eFile.FieldName(&eFile.Status):    dtypes.FileStatusDone.String(),
 			eFile.FieldName(&eFile.DeletedAt): nil,
 		},
+	}
+
+	if r.userID != nil {
+		sqlWhere = append(sqlWhere, squirrel.Eq{eFile.FieldName(&eFile.UserID): *r.userID})
+	}
+
+	fields := make([]string, 0, 2)
+	groupByFields := make([]string, 0, 2)
+
+	fields = append(fields, eFile.FieldName(&eFile.PartialHash))
+	groupByFields = append(groupByFields, eFile.FieldName(&eFile.PartialHash))
+
+	if scope == dtypes.UniquenessScopePerUser {
+		fields = append(fields, eFile.FieldName(&eFile.UserID))
+		groupByFields = append(groupByFields, eFile.FieldName(&eFile.UserID))
+	} else {
+		fields = append(fields, "NULL AS "+eFile.FieldName(&eFile.UserID))
 	}
 
 	// SELECT partial_hash
@@ -484,10 +528,10 @@ func (r *FileRepository) GetDuplicateHashes(ctx context.Context) ([]string, erro
 	// WHERE partial_hash IS NOT NULL
 	// GROUP BY partial_hash
 	// HAVING COUNT(*) > 1;
-	sqlQuery, args, err := squirrel.Select(eFile.FieldName(&eFile.PartialHash)).
+	sqlQuery, args, err := squirrel.Select(fields...).
 		From(eFile.TableName()).
 		Where(sqlWhere).
-		GroupBy(eFile.FieldName(&eFile.PartialHash)).
+		GroupBy(groupByFields...).
 		Having("COUNT(*) > 1").
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
@@ -496,14 +540,14 @@ func (r *FileRepository) GetDuplicateHashes(ctx context.Context) ([]string, erro
 		return nil, fmt.Errorf("error generating SQL: %v", err)
 	}
 
-	var hashes []string
+	var hashRows []ddownload.DuplicateHashRow
 
 	// Execute the query
 	db := dbexec.Resolve(ctx, r.db)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return hashes, nil
+			return hashRows, nil
 		}
 		return nil, err
 	}
@@ -511,16 +555,26 @@ func (r *FileRepository) GetDuplicateHashes(ctx context.Context) ([]string, erro
 
 	if rows != nil {
 		for rows.Next() {
-			var hash string
-			err := rows.Scan(&hash)
+			var (
+				hashRow ddownload.DuplicateHashRow
+				userID  sql.NullString
+			)
+			err := rows.Scan(&hashRow.Hash, &userID)
 			if err != nil {
 				continue
 			}
-			hashes = append(hashes, hash)
+			if userID.Valid {
+				uid, err := uuid.Parse(userID.String)
+				if err != nil {
+					return nil, err
+				}
+				hashRow.UserID = &uid
+			}
+			hashRows = append(hashRows, hashRow)
 		}
 	}
 
-	return hashes, nil
+	return hashRows, nil
 }
 
 func (r *FileRepository) GetDeleted(ctx context.Context, from, to *time.Time) ([]*ddownload.File, error) {
@@ -528,6 +582,10 @@ func (r *FileRepository) GetDeleted(ctx context.Context, from, to *time.Time) ([
 
 	sqlWhere := squirrel.And{
 		squirrel.NotEq{eFile.FieldName(&eFile.DeletedAt): nil},
+	}
+
+	if r.userID != nil {
+		sqlWhere = append(sqlWhere, squirrel.Eq{eFile.FieldName(&eFile.UserID): *r.userID})
 	}
 
 	if from != nil {

@@ -58,7 +58,7 @@ func (m *Mappers) MapDownloadTaskEntityToDomain(eTask *edownload.DownloadTask) (
 	return &ddownload.DownloadTask{
 		TaskId:     uuid.MustParse(usql.String(eTask.TaskId)),
 		FileId:     uuid.MustParse(usql.String(eTask.FileId)),
-		Status:     dtypes.DownloadTaskStatus(usql.String(eTask.Status)),
+		Status:     dtypes.MustParseDownloadTaskStatus(usql.String(eTask.Status)),
 		YoutubeUrl: usql.String(eTask.YoutubeUrl),
 		Options:    options,
 		JobID:      jobID,

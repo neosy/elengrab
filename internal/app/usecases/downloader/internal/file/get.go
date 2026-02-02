@@ -95,8 +95,12 @@ func (uc *File) GetByStatus(ctx context.Context, status dtypes.FileStatus) ([]*d
 	return file, err
 }
 
-func (uc *File) GetByPartialHash(ctx context.Context, hash string) ([]*ddownload.File, error) {
-	file, err := uc.fileRep.GetByPartialHash(ctx, hash)
+func (uc *File) GetByPartialHash(ctx context.Context, criteria ddownload.DuplicateHashRow) ([]*ddownload.File, error) {
+	fileRep := uc.fileRep
+	if criteria.UserID != nil {
+		fileRep = uc.fileRep.WithUser(*criteria.UserID)
+	}
+	file, err := fileRep.GetByPartialHash(ctx, criteria.Hash)
 	if err != nil {
 		uc.logger.Warn("Failed to get files", "error", err)
 		return nil, err
@@ -127,14 +131,14 @@ func (uc *File) GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, e
 	return files[:len(files):len(files)], nil
 }
 
-func (uc *File) GetDuplicateHashes(ctx context.Context) ([]string, error) {
-	hashes, err := uc.fileRep.GetDuplicateHashes(ctx)
+func (uc *File) GetDuplicateHashes(ctx context.Context, scope dtypes.UniquenessScope) ([]ddownload.DuplicateHashRow, error) {
+	rows, err := uc.fileRep.GetDuplicateHashes(ctx, scope)
 	if err != nil {
 		uc.logger.Warn("Failed to get dublicate hashes", "error", err)
 		return nil, err
 	}
 
-	return hashes, nil
+	return rows, nil
 }
 
 func (uc *File) GetDeleted(ctx context.Context, from, to *time.Time) ([]*ddownload.File, error) {

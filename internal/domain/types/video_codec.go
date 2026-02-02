@@ -77,7 +77,7 @@ func ParseVideoCodec(s string) (VideoCodec, error) {
 	return videoCodec, nil
 }
 
-// MustParseVideoCodec
+// MustParseVideoCodec converting string to VideoCodec, ignoring any errors.
 func MustParseVideoCodec(s string) VideoCodec {
 	codec, err := ParseVideoCodec(s)
 	if err != nil {

@@ -165,11 +165,12 @@ func main() {
 		Services:           services,
 
 		// Options
-		AppName:             iconfig.AppName,
-		DownloadsDir:        absPath(cfg.Elengrab.AppDir, cfg.Elengrab.DownloadsDir),
-		DatabaseBackupsDir:  absPath(cfg.Elengrab.AppDir, cfg.SQLite.BackupsDir),
-		DatabaseBackupsKeep: cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
-		HistoryMode:         dtypes.MustParseHistoryMode(cfg.Elengrab.HistoryMode),
+		AppName:               iconfig.AppName,
+		DownloadsDir:          absPath(cfg.Elengrab.AppDir, cfg.Elengrab.DownloadsDir),
+		DatabaseBackupsDir:    absPath(cfg.Elengrab.AppDir, cfg.SQLite.BackupsDir),
+		DatabaseBackupsKeep:   cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
+		HistoryMode:           dtypes.MustParseHistoryMode(cfg.Elengrab.HistoryMode),
+		DeleteDuplicatesScope: dtypes.MustParseUniquenessScope(cfg.Elengrab.DeleteDuplicatesScope),
 	}
 	uc := usecases.NewUsecases(ctx, logger, ucDeps)
 

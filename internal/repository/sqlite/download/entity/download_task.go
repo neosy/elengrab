@@ -33,6 +33,14 @@ func (e *DownloadTask) FieldName(field any) string {
 	return e.BaseEntity.FieldName(e, field)
 }
 
+// FieldNameWithAlias field name with alieas from sql tag by structure field pointer
+// Example:
+// var ent <TableEntity>
+// ent.FieldName(ent, &ent.SalesId, "alias")
+func (e *DownloadTask) FieldNameWithAlias(fieldPtr any, alias string) string {
+	return e.BaseEntity.FieldNameWithAlias(e, fieldPtr, alias)
+}
+
 // Values returns a list of values for fields that will be used for updates
 func (e *DownloadTask) Values() []any {
 	return e.BaseEntity.Values(e)

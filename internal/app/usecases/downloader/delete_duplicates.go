@@ -7,13 +7,13 @@ import (
 )
 
 func (uc *YouTubeDownloader) DeleteDuplicates(ctx context.Context) error {
-	hashes, err := uc.file.GetDuplicateHashes(ctx)
+	rows, err := uc.file.GetDuplicateHashes(ctx, uc.deleteDuplicatesScope)
 	if err != nil {
 		return err
 	}
 
-	for _, h := range hashes {
-		files, err := uc.file.GetByPartialHash(ctx, h)
+	for _, r := range rows {
+		files, err := uc.file.GetByPartialHash(ctx, r)
 		if err != nil {
 			continue
 		}

@@ -5,6 +5,7 @@
 ### Feature
 - Add “Paste from Clipboard” button to input field. Closes #149
 - Update the audio and video info at the end of the download
+- Delete duplicates per user
 
 ### Fix
 - Correct video decoding and resolution

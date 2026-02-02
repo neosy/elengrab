@@ -37,8 +37,9 @@ type YouTubeDownloader struct {
 	downloaderSrv pservices.Downloader
 
 	// Options
-	downloadsDir string
-	historyMode  dtypes.HistoryMode
+	downloadsDir          string
+	historyMode           dtypes.HistoryMode
+	deleteDuplicatesScope dtypes.UniquenessScope
 }
 
 func NewYouTubeDownloader(
@@ -63,6 +64,7 @@ func NewYouTubeDownloader(
 	// options
 	downloadsDir string,
 	historyMode dtypes.HistoryMode,
+	deleteDuplicatesScope dtypes.UniquenessScope,
 ) *YouTubeDownloader {
 	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRep)
 
@@ -92,7 +94,8 @@ func NewYouTubeDownloader(
 		downloaderSrv: downloaderSrv,
 
 		// Options
-		downloadsDir: downloadsDir,
-		historyMode:  historyMode,
+		downloadsDir:          downloadsDir,
+		historyMode:           historyMode,
+		deleteDuplicatesScope: deleteDuplicatesScope,
 	}
 }
