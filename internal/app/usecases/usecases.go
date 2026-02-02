@@ -6,8 +6,8 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/services"
 	"github.com/neosy/elengrab/internal/app/usecases/auth"
-	"github.com/neosy/elengrab/internal/app/usecases/maintenance"
 	ytdownloader "github.com/neosy/elengrab/internal/app/usecases/downloader"
+	"github.com/neosy/elengrab/internal/app/usecases/maintenance"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
@@ -27,7 +27,8 @@ type Dependencies struct {
 	DatabaseBackupsDir  string
 	DatabaseBackupsKeep int
 
-	HistoryMode dtypes.HistoryMode
+	HistoryMode           dtypes.HistoryMode
+	DeleteDuplicatesScope dtypes.UniquenessScope
 }
 
 type DepRepositories struct {
@@ -74,6 +75,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			// options
 			deps.DownloadsDir,
 			deps.HistoryMode,
+			deps.DeleteDuplicatesScope,
 		),
 		Maintenance: maintenance.NewMaintenance(
 			logger,
