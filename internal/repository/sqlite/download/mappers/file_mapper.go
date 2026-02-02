@@ -68,7 +68,7 @@ func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.
 	return &ddownload.File{
 		FileId:               eFile.FileId,
 		UserID:               eFile.UserID,
-		Status:               dtypes.FileStatus(eFile.Status),
+		Status:               dtypes.MustParseFileStatus(eFile.Status),
 		YoutubeUrl:           eFile.YoutubeUrl,
 		YoutubeTitle:         eFile.YoutubeTitle,
 		YoutubeChannelID:     eFile.YoutubeChannelID,

@@ -39,8 +39,9 @@ type ElengrabConfig struct {
 	AssetsDir    string `env:"ASSETS_DIR" envDefault:"assets"`
 	DownloadsDir string `env:"DOWNLOADS_DIR" envDefault:"downloads"`
 
-	DownloadWorkers int    `env:"DOWNLOAD_WORKERS" envDefault:"3"`
-	HistoryMode     string `env:"HISTORY_MODE" envDefault:"global"`
+	DownloadWorkers       int    `env:"DOWNLOAD_WORKERS" envDefault:"3"`
+	HistoryMode           string `env:"HISTORY_MODE" envDefault:"global"`
+	DeleteDuplicatesScope string `env:"DELETE_DUPLICATES_SCOPE" envDefault:"per_user"`
 
 	Maintenance ElengrabMaintenanceConfig `envPrefix:"MAINTENANCE_"`
 }

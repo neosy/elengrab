@@ -25,7 +25,7 @@ type FileRepository interface {
 	GetByStatuses(ctx context.Context, statuses []dtypes.FileStatus) ([]*ddownload.File, error)
 	GetByPartialHash(ctx context.Context, hash string) ([]*ddownload.File, error)
 	GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, error)
-	GetDuplicateHashes(ctx context.Context) ([]string, error)
+	GetDuplicateHashes(ctx context.Context, scope dtypes.UniquenessScope) ([]ddownload.DuplicateHashRow, error)
 	GetDeleted(ctx context.Context, from, to *time.Time) ([]*ddownload.File, error)
 
 	WithUser(userID uuid.UUID) FileRepository

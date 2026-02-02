@@ -94,13 +94,13 @@ func (r *DownloadTaskRepository) UpdateStatusToNew(ctx context.Context) error {
 	var ent edownload.DownloadTask
 
 	sqlWhere := squirrel.Or{
-		squirrel.Eq{ent.FieldName(&ent.Status): dtypes.DownloadTaskStatusPending},
-		squirrel.Eq{ent.FieldName(&ent.Status): dtypes.DownloadTaskStatusWorking},
+		squirrel.Eq{ent.FieldName(&ent.Status): dtypes.DownloadTaskStatusPending.String()},
+		squirrel.Eq{ent.FieldName(&ent.Status): dtypes.DownloadTaskStatusWorking.String()},
 	}
 
 	// Build query
 	sqlBuilder := squirrel.Update(ent.TableName()).
-		Set(ent.FieldName(&ent.Status), dtypes.DownloadTaskStatusNew).
+		Set(ent.FieldName(&ent.Status), dtypes.DownloadTaskStatusNew.String()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar)
 
