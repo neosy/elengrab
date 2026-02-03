@@ -37,12 +37,15 @@ type DepRepositories struct {
 	File           persistence.FileRepository
 	DownloadTask   persistence.DownloadTaskRepository
 	YoutubeChannel persistence.YoutubeChannelRepository
-	User           persistence.UserRepository
-	UserSession    persistence.UserSessionRepository
+	SiteLogo       persistence.SiteLogoRepository
+
+	User        persistence.UserRepository
+	UserSession persistence.UserSessionRepository
 
 	// in memory
 	DownloadStateCache  persistence.DownloadStateRepository
 	YoutubeChannelCache persistence.YoutubeChannelRepository
+	SiteLogoCache       persistence.SiteLogoCacheRepository
 }
 
 type Usecases struct {
@@ -61,10 +64,12 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.Repositories.File,
 			deps.Repositories.DownloadTask,
 			deps.Repositories.YoutubeChannel,
+			deps.Repositories.SiteLogo,
 
 			// in memory
 			deps.Repositories.DownloadStateCache,
 			deps.Repositories.YoutubeChannelCache,
+			deps.Repositories.SiteLogoCache,
 
 			// dispetchers
 			deps.DownloadDispetcher,

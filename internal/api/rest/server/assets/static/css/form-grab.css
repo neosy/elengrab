@@ -64,7 +64,7 @@
 .button-input-action:active {
     padding: 4px 4px;
     border: 2px solid transparent;
-    border-color: var(--download);
+    /* border-color: var(--download); */
     transform: scale(0.95);
 }
 
@@ -95,7 +95,7 @@
 }
 
 .button-grab-get:active {
-    transform: scale(0.9);
+    transform: scale(0.95);
     background-color: rgba(76, 175, 80, 0.1);
 }
 

@@ -9,6 +9,8 @@ import (
 	dltasktatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task_status"
 	fileuc "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/file"
 	filestatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/file_status"
+	sitelogo "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_logo"
+	logofetcher "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_logo_fetcher"
 	ytchannel "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/youtube_channel"
 	"github.com/neosy/elengrab/internal/app/usecases/mappers"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -26,12 +28,14 @@ type YouTubeDownloader struct {
 	dlDispetcher nworkerpool.JobDispatcher
 
 	// internal
-	file         *fileuc.File
-	dlTask       *dltask.DownloadTask
-	fileStatus   *filestatus.FileStatus
-	dlTaskStatus *dltasktatus.DownloadTaskStatus
-	ytChannel    *ytchannel.YoutubeChannel
-	dlStateCache *dlstate.DownloadStateCache
+	file            *fileuc.File
+	dlTask          *dltask.DownloadTask
+	fileStatus      *filestatus.FileStatus
+	dlTaskStatus    *dltasktatus.DownloadTaskStatus
+	ytChannel       *ytchannel.YoutubeChannel
+	siteLogo        *sitelogo.SiteLogo
+	dlStateCache    *dlstate.DownloadStateCache
+	siteLogoFetcher *logofetcher.SiteLogoFetcher
 
 	// services
 	downloaderSrv pservices.Downloader
@@ -50,10 +54,12 @@ func NewYouTubeDownloader(
 	fileRep persistence.FileRepository,
 	dlTaskRep persistence.DownloadTaskRepository,
 	ytChannelRep persistence.YoutubeChannelRepository,
+	siteLogoRep persistence.SiteLogoRepository,
 
 	// in memory
 	downloadStateCacheRep persistence.DownloadStateRepository,
 	ytChannelCacheRep persistence.YoutubeChannelRepository,
+	siteLogoCacheRep persistence.SiteLogoCacheRepository,
 
 	// dispetchers
 	dlDispetcher nworkerpool.JobDispatcher,
@@ -84,11 +90,13 @@ func NewYouTubeDownloader(
 		dlDispetcher: dlDispetcher,
 
 		// internal
-		file:         file,
-		dlTask:       dlTask,
-		fileStatus:   filestatus.NewFileStatus(logger, file, dlTask, dlTaskStatus),
-		dlTaskStatus: dlTaskStatus,
-		ytChannel:    ytchannel.NewYoutubeChannel(logger, ytChannelRep, ytChannelCacheRep),
+		file:            file,
+		dlTask:          dlTask,
+		fileStatus:      filestatus.NewFileStatus(logger, file, dlTask, dlTaskStatus),
+		dlTaskStatus:    dlTaskStatus,
+		ytChannel:       ytchannel.NewYoutubeChannel(logger, ytChannelRep, ytChannelCacheRep),
+		siteLogo:        sitelogo.NewSiteLogo(logger, siteLogoRep, siteLogoCacheRep),
+		siteLogoFetcher: logofetcher.NewSiteLogoFetcher(logger),
 
 		// services
 		downloaderSrv: downloaderSrv,

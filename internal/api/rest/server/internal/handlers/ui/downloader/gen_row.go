@@ -2,6 +2,7 @@ package downloaderh
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"path/filepath"
 	"sync"
@@ -19,6 +20,7 @@ import (
 )
 
 type fileRowInfoData struct {
+	FileID           string
 	PathFileRow      string
 	PathFileRepeat   string
 	YoutubeChannelID string
@@ -30,6 +32,7 @@ type fileRowInfoData struct {
 	FormatTitle      string
 	DownloadURL      string
 	DeleteURL        string
+	LogoVersion      string
 }
 
 type cacheRowEntry struct {
@@ -46,6 +49,15 @@ type cache[T any] struct {
 	data map[uuid.UUID]T
 	mu   sync.RWMutex
 	ttl  time.Duration
+}
+
+func (c *cache[T]) Get(uid uuid.UUID) (T, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	v, exists := c.data[uid]
+
+	return v, exists
 }
 
 var (
@@ -73,12 +85,10 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 
 	// Checking the cache
 	{
-		cacheRow.mu.RLock()
-		cached, exists := cacheRow.data[fileInfo.FileId]
+		cached, exists := cacheRow.Get(fileInfo.FileId)
 		if !exists {
 			cached.ProgressPercent = -1
 		}
-		cacheRow.mu.RUnlock()
 
 		if exists {
 			if fileInfo.YoutubeChannelID != nil {
@@ -139,7 +149,18 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 		youtubeChannelID = *fileInfo.YoutubeChannelID
 	}
 
+	logoVersion := ""
+	if fileInfo.YoutubeChannelID != nil {
+		logoVersion = "yt-channel"
+	} else if fileInfo.HasSiteLogo {
+		logoVersion = "site-logo"
+	}
+	if logoVersion == "" {
+		logoVersion = fmt.Sprintf("%d", time.Now().Unix())
+	}
+
 	data := fileRowInfoData{
+		FileID:           fileInfo.FileId.String(),
 		YoutubeURL:       fileInfo.YoutubeUrl,
 		YoutubeChannelID: youtubeChannelID,
 		YoutubeTitle:     fileInfo.YoutubeTitle,
@@ -151,6 +172,7 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 		FormatTitle:      fileInfo.MediaInfoText,
 		DownloadURL:      httppaths.BuildPathFileDownload(fileInfo.FileId),
 		DeleteURL:        httppaths.BuildPathFileRow(fileInfo.FileId),
+		LogoVersion:      logoVersion,
 	}
 
 	if fileInfo.FileSize != nil && *fileInfo.FileSize > 0 {

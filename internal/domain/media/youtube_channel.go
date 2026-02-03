@@ -4,6 +4,7 @@ import (
 	"time"
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 type YoutubeChannel struct {
@@ -32,4 +33,18 @@ func (c *YoutubeChannel) InitFromResultChannelAvatar(chAvatar *ddownload.Downloa
 		c.ImageRaw = chAvatar.ImageRAW
 		c.ImageFormat = chAvatar.ImageFormat
 	}
+}
+
+func (src *YoutubeChannel) Copy() *YoutubeChannel {
+	if src == nil {
+		return nil
+	}
+
+	copy := uptr.Copy(src)
+
+	if len(src.ImageRaw) > 1 {
+		copy.ImageRaw = append([]byte{}, src.ImageRaw...)
+	}
+
+	return copy
 }

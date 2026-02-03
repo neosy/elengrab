@@ -2,6 +2,7 @@ package ddownload
 
 import (
 	"github.com/google/uuid"
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 type DownloadState struct {
@@ -58,4 +59,19 @@ func (s *DownloadState) InitFromDownloadResult(result *DownloadResult) {
 	if result.Progress != nil {
 		s.Progress = result.Progress
 	}
+}
+
+func (src *DownloadState) Copy() *DownloadState {
+	if src == nil {
+		return nil
+	}
+
+	copy := uptr.Copy(src)
+	copy.UserID = uptr.Copy(src.UserID)
+	copy.TaskId = uptr.Copy(src.TaskId)
+	copy.File = src.File.Copy()
+	copy.Progress = src.Progress.Copy()
+
+	return copy
+
 }

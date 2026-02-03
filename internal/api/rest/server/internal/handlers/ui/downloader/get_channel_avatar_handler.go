@@ -28,7 +28,7 @@ func (h *DownloaderHandlers) GetChannelAvatarHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
-	defaultAvatarSVG := uivalues.IconFileRawByKey(uivalues.YoutubeChannelDefaultIconNameKey, iconsDir)
+	defaultAvatarSVG := uivalues.IconFileRawByKey(uivalues.MediaDefaultIconNameKey, iconsDir)
 
 	ctx.SetContentType("image/svg+xml")
 	ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")

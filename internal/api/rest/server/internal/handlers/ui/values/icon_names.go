@@ -8,22 +8,22 @@ import (
 )
 
 const (
-	DownloadIconNameKey              = "DownloadIconName"
-	DownloadFailedIconNameKey        = "DownloadFailedIconName"
-	DownloadPendingIconNameKey       = "DownloadPendingIconName"
-	GrabResultStatusIconNameKey      = "GrabResultStatusIconName"
-	DownloadDeleteIconNameKey        = "DownloadDeleteIconName"
-	YoutubeChannelDefaultIconNameKey = "YoutubeChannelDefaultIconName"
-	DownloadRepeatIconNameKey        = "DownloadRepeatIconName"
+	DownloadIconNameKey         = "DownloadIconName"
+	DownloadFailedIconNameKey   = "DownloadFailedIconName"
+	DownloadPendingIconNameKey  = "DownloadPendingIconName"
+	GrabResultStatusIconNameKey = "GrabResultStatusIconName"
+	DownloadDeleteIconNameKey   = "DownloadDeleteIconName"
+	MediaDefaultIconNameKey     = "MediaDefaultIconName"
+	DownloadRepeatIconNameKey   = "DownloadRepeatIconName"
 )
 
 var iconFileNames = map[string]any{
-	DownloadIconNameKey:              "download-light-icon.svg",
-	DownloadFailedIconNameKey:        "download-warning-icon.svg",
-	DownloadPendingIconNameKey:       "download-wait-icon.svg",
-	DownloadDeleteIconNameKey:        "download-delete-icon.svg",
-	YoutubeChannelDefaultIconNameKey: "youtube_channel_default_avatar-icon_3.svg",
-	DownloadRepeatIconNameKey:        "download-repeat-icon.svg",
+	DownloadIconNameKey:        "download-light-icon.svg",
+	DownloadFailedIconNameKey:  "download-warning-icon.svg",
+	DownloadPendingIconNameKey: "download-wait-icon.svg",
+	DownloadDeleteIconNameKey:  "download-delete-icon.svg",
+	MediaDefaultIconNameKey:    "media-default-icon.svg",
+	DownloadRepeatIconNameKey:  "download-repeat-icon.svg",
 }
 
 func IconFileNames() map[string]any {

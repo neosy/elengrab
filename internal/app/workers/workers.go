@@ -19,6 +19,7 @@ const (
 	intervalDeleteFailedDownloadsDefault    = 1 * time.Hour
 	intervalCleanYoutubeChannelCacheDefault = 12 * time.Hour
 	intervalCleanDownloadStateCacheDefault  = 12 * time.Hour
+	intervalCleanSiteLogoCacheDefault       = 12 * time.Hour
 	intervalBackupDatabaseDefault           = 1 * 24 * time.Hour
 	intervalFlushWALDefault                 = 1 * time.Hour
 )
@@ -27,6 +28,7 @@ type Dependencies struct {
 	// cache in memory
 	DownloadStateCache  persistence.DownloadStateCacheRepository
 	YoutubeChannelCache persistence.YoutubeChannelCacheRepository
+	SiteLogoCache       persistence.SiteLogoCacheRepository
 
 	// runners
 	DownloaderMaintenance pworkers.DownloadMaintenanceRunner
@@ -40,6 +42,7 @@ type Dependencies struct {
 	EnableMoveUnmatchedFiles         bool
 	IntervalCleanYoutubeChannelCache time.Duration
 	IntervalCleanDownloadStateCache  time.Duration
+	IntervalCleanSiteLogoCache       time.Duration
 	IntervalBackupDatabase           time.Duration
 	IntervalFlushWAL                 time.Duration
 }
@@ -52,6 +55,7 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 		intervalDeleteFailedDownloads    = nworkers.NewInterval(intervalDeleteFailedDownloadsDefault, deps.IntervalDeleteFailedDownloads)
 		intervalCleanYoutubeChannelCache = nworkers.NewInterval(intervalCleanYoutubeChannelCacheDefault, deps.IntervalCleanYoutubeChannelCache)
 		intervalCleanDownloadStateCache  = nworkers.NewInterval(intervalCleanDownloadStateCacheDefault, deps.IntervalCleanDownloadStateCache)
+		intervalCleanSiteLogoCache       = nworkers.NewInterval(intervalCleanSiteLogoCacheDefault, deps.IntervalCleanSiteLogoCache)
 		intervalBackupDatabase           = nworkers.NewInterval(intervalBackupDatabaseDefault, deps.IntervalBackupDatabase)
 		intervalFlushWAL                 = nworkers.NewInterval(intervalFlushWALDefault, deps.IntervalFlushWAL)
 	)
@@ -111,6 +115,14 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 		&nworkers.WorkerOptions{
 			Name:     "CleanDownloadStateCache",
 			Interval: intervalCleanDownloadStateCache.DurationPtr(),
+		},
+	))
+
+	ws.Add(nworkers.NewWorker(
+		cachejobs.NewCleanCacheJob(logger, deps.SiteLogoCache),
+		&nworkers.WorkerOptions{
+			Name:     "CleanSiteLogoCache",
+			Interval: intervalCleanSiteLogoCache.DurationPtr(),
 		},
 	))
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -27,6 +28,13 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		uc.logger.Error("Failed update status", "error", err)
 		return err
 	}
+
+	var wg sync.WaitGroup
+	defer wg.Wait()
+
+	wg.Go(func() {
+		uc.fetchLogo(ctx, task.YoutubeUrl)
+	})
 
 	resultCh, err := uc.downloaderSrv.Download(ctx, task.YoutubeUrl, uc.mappers.MapDownloadOptionsDomainToService(task.Options))
 	if err != nil {
@@ -122,6 +130,10 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 			ctx,
 			state,
 		)
+	}
+
+	if lastResult == nil {
+		return fmt.Errorf("service downloader returned an empty value")
 	}
 
 	safeReadableFullName := uptr.String(

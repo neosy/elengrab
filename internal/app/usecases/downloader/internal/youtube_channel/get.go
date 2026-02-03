@@ -26,6 +26,10 @@ func (uc *YoutubeChannel) FindByChannelID(ctx context.Context, channelID string)
 		return nil, errorx.NewByErr(err, exceptionx.ERROR)
 	}
 
+	if channel == nil {
+		return nil, nil
+	}
+
 	err = uc.channelCacheRep.Insert(ctx, channel)
 	if err != nil {
 		uc.logger.Warn("Failed to insert youtubeChannel cache", "error", err)
