@@ -14,6 +14,7 @@ import (
 )
 
 type grabResultData struct {
+	FileID           string
 	PathFileRow      string
 	YoutubeChannelID string
 	YoutubeTitle     string
@@ -21,6 +22,7 @@ type grabResultData struct {
 	FileSize         string
 	Format           string
 	DownloadURL      string
+	LogoVersion      string
 }
 
 func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
@@ -55,6 +57,7 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		data = grabResultData{
 			YoutubeURL:       url,
 			YoutubeChannelID: channelIDValueNone,
+			LogoVersion:      fmt.Sprintf("%d", time.Now().Unix()),
 		}
 	)
 
@@ -95,6 +98,7 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		cacheRow.mu.Unlock()
 	}
 
+	data.FileID = resp.FileId.String()
 	data.YoutubeTitle = url
 	data.PathFileRow = httppaths.BuildPathFileRow(resp.FileId)
 	data.FileSize = "-"

@@ -50,17 +50,20 @@ func PrepareDownload(
 		}
 
 		var (
-			formatAVC1Query = fmt.Sprintf("bestvideo[ext=mp4][vcodec^=avc1]%s+bestaudio[ext=m4a]", resolution)
-			formatAV01Query = fmt.Sprintf("bestvideo[vcodec^=av01]%s+bestaudio[ext=webm]", resolution)
+			formatAVC1Query = fmt.Sprintf(
+				"bestvideo[ext=mp4][vcodec^=avc1]%s+bestaudio[ext=m4a]/bestvideo[vcodec^=avc1]%s+bestaudio",
+				resolution, resolution,
+			)
+			formatAV01Query = fmt.Sprintf("bestvideo[vcodec^=av01]%s+bestaudio/bestvideo[vcodec^=av01]+bestaudio", resolution)
 		)
 
 		// Choose video format string based on requested video format
 		switch dlOptions.VideoFormat {
 		case dtypes.VideoFormatAuto:
 			formatQuery = fmt.Sprintf(
-				"bestvideo[ext=mp4]%s+bestaudio[ext=m4a]/best[ext=mp4]%s/best%s",
-				resolution, resolution, resolution,
-			) + fnx.Ternary(resolution != "", "/best", "")
+				"bestvideo[ext=mp4]%s+bestaudio[ext=m4a]/best[ext=mp4]%s/bestvideo%s+bestaudio/best%s",
+				resolution, resolution, resolution, resolution,
+			) + fnx.Ternary(resolution != "", "bestvideo+bestaudio/best", "")
 			if dlOptions.VideoCodec == dtypes.VideoCodecH264 {
 				formatQuery = fmt.Sprintf("%s/%s", formatAVC1Query, formatQuery)
 			}
@@ -69,15 +72,15 @@ func PrepareDownload(
 			}
 			bestFormatQuery = formatQuery
 		case dtypes.VideoFormatWebM:
-			formatQuery = fmt.Sprintf("bestvideo[ext=webm]%s+bestaudio[ext=webm]/best", resolution)
-			bestFormatQuery = fmt.Sprintf(
-				"bestvideo[ext=webm]%s+bestaudio[ext=webm]/bestvideo[ext=webm]%s/best[ext=mp4]%s/best%s",
+			formatQuery = fmt.Sprintf(
+				"bestvideo[ext=webm]%s+bestaudio/bestvideo[vcodec^=av01]%s+bestaudio/bestvideo[vcodec^=vp09]%s+bestaudio/bestvideo%s+bestaudio",
 				resolution, resolution, resolution, resolution,
-			) + fnx.Ternary(resolution != "", "best", "")
+			) + fnx.Ternary(resolution != "", "/bestvideo[vcodec^=av01]+bestaudio/bestvideo[vcodec^=vp09]+bestaudio/bestvideo+bestaudio", "") +
+				fnx.Ternary(resolution != "", fmt.Sprintf("/best%s/best", resolution), "/best")
 			if dlOptions.VideoCodec == dtypes.VideoCodecAV1 {
 				formatQuery = fmt.Sprintf("%s/%s", formatAV01Query, formatQuery)
-				bestFormatQuery = fmt.Sprintf("%s/%s", formatAV01Query, bestFormatQuery)
 			}
+			bestFormatQuery = formatQuery
 		default:
 			formatQuery = fmt.Sprintf(
 				"bestvideo[ext=mp4]%s+bestaudio[ext=m4a]/bestvideo%s+bestaudio",

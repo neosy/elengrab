@@ -12,6 +12,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/pkg/errorx"
 	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
+	"github.com/neosy/elengrab/pkg/httpx"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
@@ -96,7 +97,9 @@ func (uc *YouTubeDownloader) findStateAndFileInfo(
 		fileResp = uptr.Any(*file)
 	}
 
-	return uc.mappers.MapFileDomainToFileInfoResponse(fileResp, dlProgress, uc.downloadsDir), nil
+	hasSiteLogo, _ := uc.siteLogo.ExistsBySiteURLFromCache(ctx, httpx.GetBaseURL(fileResp.YoutubeUrl))
+
+	return uc.mappers.MapFileDomainToFileInfoResponse(fileResp, dlProgress, uc.downloadsDir, hasSiteLogo), nil
 }
 
 func (uc *YouTubeDownloader) LoadHistory(

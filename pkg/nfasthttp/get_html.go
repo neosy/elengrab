@@ -18,7 +18,7 @@ func GetHTML(url string, opts ...ClientOption) ([]byte, error) {
 
 	// Set a realistic browser User-Agent to match curl / browser behavior
 	req.Header.SetUserAgent(
-		linuxUserAgent,
+		LinuxUserAgent,
 	)
 
 	// Basic headers similar to curl defaults

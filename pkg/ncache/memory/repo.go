@@ -24,41 +24,46 @@ func (r *Repository[T]) TTL() time.Duration {
 }
 
 // Save executes a write operation safely under a write lock.
-func (r *Repository[T]) Save(save func() error) error {
+func (r *Repository[T]) Save(fnSave func() error) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	return save()
+	return fnSave()
 }
 
 // Delete executes a deletion operation safely under a write lock.
-func (r *Repository[T]) Delete(delete func() error) error {
+func (r *Repository[T]) Delete(fnDelete func() error) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	return delete()
+	return fnDelete()
 }
 
 // Find executes a read operation safely under a read lock.
-func (r *Repository[T]) Find(find func() (*T, error)) (*T, error) {
+func (r *Repository[T]) Find(fnFind func() (*T, error)) (*T, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	return find()
+	return fnFind()
 }
 
 // Exists executes a read operation to check existence safely under a read lock.
-func (r *Repository[T]) Exists(exists func() (bool, error)) (bool, error) {
+func (r *Repository[T]) Exists(fnExists func() (bool, error)) (bool, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	return exists()
+	return fnExists()
 }
 
 // CleanExpired executes a cleanup operation safely under a write lock.
-func (r *Repository[T]) CleanExpired(clean func() error) error {
+func (r *Repository[T]) CleanExpired(fnClean func() error) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	return clean()
+	return fnClean()
+}
+
+// CopyAdapter converts a copy function into a CacheCopier that ignores its input.
+func (r *Repository[T]) CopyAdapter(makeCopy func() *T) CacheCopier[T] {
+	return func(*T) *T { return makeCopy() }
 }

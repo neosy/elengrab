@@ -8,7 +8,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) GetFileRowHanedler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) GetFileRowHandler(ctx *fasthttp.RequestCtx) {
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
 		ctx.SetStatusCode(fasthttp.StatusUnauthorized)

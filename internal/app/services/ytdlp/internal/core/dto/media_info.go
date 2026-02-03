@@ -55,7 +55,7 @@ func (f *MediaFormat) VideoCodec() dtypes.VideoCodec {
 	if strings.HasPrefix(f.VCodec, "av01") {
 		return dtypes.VideoCodecAV1
 	}
-	if strings.HasPrefix(f.VCodec, "vp9") {
+	if strings.HasPrefix(f.VCodec, "vp9") || strings.HasPrefix(f.VCodec, "vp09") {
 		return dtypes.VideoCodecVP9
 	}
 	if strings.HasPrefix(f.VCodec, "avc1") {

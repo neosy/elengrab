@@ -34,8 +34,10 @@ import (
 const (
 	downloadStateCacheTTLDefault     = 1 * time.Hour
 	youtubeChannelCacheTTLDefault    = 1 * 24 * time.Hour
+	siteLogoCacheTTLDefault          = 1 * 24 * time.Hour
 	intervalCleanYoutubeChannelCache = 12 * time.Hour
 	intervalCleanDownloadStateCache  = 12 * time.Hour
+	intervalCleanSiteLogoCache       = 12 * time.Hour
 )
 
 func main() {
@@ -119,6 +121,7 @@ func main() {
 	inMemoryDeps := inmemoryrep.Dependencies{
 		DownloadStateCacheTTL:  downloadStateCacheTTLDefault,
 		YoutubeChannelCacheTTL: youtubeChannelCacheTTLDefault,
+		SiteLogoCacheTTL:       siteLogoCacheTTLDefault,
 	}
 	inMemoryRepositories := inmemoryrep.New(inMemoryDeps)
 
@@ -132,7 +135,7 @@ func main() {
 		logger.Error("Failed to start worker pool", "err", err)
 		return
 	}
-	// Stop workers on exit
+	// Stop workers poll on exit
 	defer dlManager.Stop()
 
 	// Initialize services
@@ -154,12 +157,14 @@ func main() {
 			File:           slRepositories.File,
 			DownloadTask:   slRepositories.DownloadTask,
 			YoutubeChannel: slRepositories.YoutubeChannel,
+			SiteLogo:       slRepositories.SiteLogo,
 			User:           slRepositories.User,
 			UserSession:    slRepositories.UserSession,
 
 			// in memory
 			DownloadStateCache:  inMemoryRepositories.DownloadState,
 			YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
+			SiteLogoCache:       inMemoryRepositories.SiteLogo,
 		},
 		DownloadDispetcher: dlManager,
 		Services:           services,
@@ -184,6 +189,7 @@ func main() {
 	wsDeps := &workers.Dependencies{
 		DownloadStateCache:  inMemoryRepositories.DownloadState,
 		YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
+		SiteLogoCache:       inMemoryRepositories.SiteLogo,
 		// runners
 		DownloaderMaintenance: uc.Downloader,
 		Maintenance:           uc.Maintenance,
@@ -195,6 +201,7 @@ func main() {
 		EnableMoveUnmatchedFiles:         cfg.Elengrab.Maintenance.EnableMoveUnmatchedFiles,
 		IntervalCleanYoutubeChannelCache: intervalCleanYoutubeChannelCache,
 		IntervalCleanDownloadStateCache:  intervalCleanDownloadStateCache,
+		IntervalCleanSiteLogoCache:       intervalCleanSiteLogoCache,
 	}
 	ws := nworkers.NewWorkers(logger, wsDeps, workers.InitWorkers)
 	if err := ws.StartWorkers(ctx); err != nil {

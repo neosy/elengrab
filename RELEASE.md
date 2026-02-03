@@ -1,11 +1,12 @@
 # Releases
 
-## v0.11.0 — 2026-02-01
+## v0.11.0 — 2026-02-04
 
 ### Feature
 - Add “Paste from Clipboard” button to input field. Closes #149
 - Update the audio and video info at the end of the download
 - Delete duplicates per user
+- Add site logos for uploaded videos. Closes #180
 
 ### Fix
 - Correct video decoding and resolution

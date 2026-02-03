@@ -19,6 +19,20 @@ func (d *Downloader) watchProgress(fileSize *int64, std io.Reader, outBuf *bytes
 	for scanner.Scan() {
 		line := scanner.Text()
 
+		if strings.HasPrefix(line, "[VideoConvertor]") || strings.HasPrefix(line, "[Merger]") {
+			var downloaded int64
+			for _, v := range downloadedMap {
+				downloaded += v
+			}
+
+			// Call progress update callback
+			onProgressUpdate(
+				ddownload.DownloadProgress{
+					DownloadedBytes: downloaded,
+					TotalBytes:      downloaded,
+				})
+		}
+
 		// Parse progress line
 		parts := strings.Split(line, "|")
 		if len(parts) != 4 {

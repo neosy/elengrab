@@ -13,6 +13,7 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 	file *ddownload.File,
 	progress *ddownload.DownloadProgress,
 	downloadsDir string,
+	hasSiteLogo bool,
 ) *dto.GetFileInfoResponse {
 	var youtubeTitle = file.YoutubeTitle
 	if file.YoutubeTitle == "" {
@@ -38,6 +39,7 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 		YoutubeChannelID:     file.YoutubeChannelID,
 		YoutubeUrl:           file.YoutubeUrl,
 		YoutubeTitle:         youtubeTitle,
+		HasSiteLogo:          hasSiteLogo,
 		FileName:             file.FileName,
 		FileExt:              file.Ext,
 		FileFullName:         file.FullName,

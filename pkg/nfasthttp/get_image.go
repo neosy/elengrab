@@ -36,7 +36,7 @@ func GetImage(url string, opts ...ClientOption) ([]byte, string, error) {
 	req.Header.SetMethod(fasthttp.MethodGet)
 
 	// Set a realistic User-Agent to emulate a browser
-	req.Header.SetUserAgent(linuxUserAgent)
+	req.Header.SetUserAgent(LinuxUserAgent)
 
 	// Create a client with increased read buffer size
 	client := NewClient(opts...)
