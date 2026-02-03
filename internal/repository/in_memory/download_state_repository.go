@@ -8,7 +8,6 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	nmemory "github.com/neosy/elengrab/pkg/ncache/memory"
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 type userIDFileIDKey struct {
@@ -21,17 +20,17 @@ type DownloadStateRepository struct {
 
 	userID *uuid.UUID
 
-	dataByFileIdMap       nmemory.Cache[uuid.UUID, ddownload.DownloadState]
-	dataByUserIDFileIDMap nmemory.Cache[userIDFileIDKey, ddownload.DownloadState]
-	dataByTaskIdMap       nmemory.Cache[uuid.UUID, ddownload.DownloadState]
+	cacheByFileId       nmemory.Cache[uuid.UUID, ddownload.DownloadState]
+	cacheByUserIDFileID nmemory.Cache[userIDFileIDKey, ddownload.DownloadState]
+	cacheByTaskId       nmemory.Cache[uuid.UUID, ddownload.DownloadState]
 }
 
 // newDownloadStateRepository returns a new object for the repository
 func newDownloadStateRepository(ttl time.Duration) *DownloadStateRepository {
 	r := &DownloadStateRepository{
-		dataByFileIdMap:       make(nmemory.Cache[uuid.UUID, ddownload.DownloadState]),
-		dataByUserIDFileIDMap: make(nmemory.Cache[userIDFileIDKey, ddownload.DownloadState]),
-		dataByTaskIdMap:       make(nmemory.Cache[uuid.UUID, ddownload.DownloadState]),
+		cacheByFileId:       nmemory.NewCacheWithDeaultCopier[uuid.UUID, ddownload.DownloadState, *ddownload.DownloadState](),
+		cacheByUserIDFileID: nmemory.NewCacheWithDeaultCopier[userIDFileIDKey, ddownload.DownloadState, *ddownload.DownloadState](),
+		cacheByTaskId:       nmemory.NewCacheWithDeaultCopier[uuid.UUID, ddownload.DownloadState, *ddownload.DownloadState](),
 	}
 	r.Repository.Init(ttl)
 	return r
@@ -39,11 +38,11 @@ func newDownloadStateRepository(ttl time.Duration) *DownloadStateRepository {
 
 func (r *DownloadStateRepository) WithUser(userID uuid.UUID) persistence.DownloadStateRepository {
 	return &DownloadStateRepository{
-		Repository:            r.Repository,
-		userID:                &userID,
-		dataByFileIdMap:       r.dataByFileIdMap,
-		dataByUserIDFileIDMap: r.dataByUserIDFileIDMap,
-		dataByTaskIdMap:       r.dataByTaskIdMap,
+		Repository:          r.Repository,
+		userID:              &userID,
+		cacheByFileId:       r.cacheByFileId,
+		cacheByUserIDFileID: r.cacheByUserIDFileID,
+		cacheByTaskId:       r.cacheByTaskId,
 	}
 }
 
@@ -54,24 +53,22 @@ func (r *DownloadStateRepository) Save(_ context.Context, state *ddownload.Downl
 
 	save := func() error {
 		if state.TaskId == nil {
-			stateLast := r.dataByFileIdMap.Find(state.FileId, nil)
+			stateLast := r.cacheByFileId.Find(state.FileId)
 			if stateLast != nil && stateLast.TaskId != nil {
-				r.dataByTaskIdMap.Delete(*stateLast.TaskId)
+				r.cacheByTaskId.Delete(*stateLast.TaskId)
 			}
 		}
 
-		stateCopy := r.copyDownloadState(state)
-
-		r.dataByFileIdMap.Save(state.FileId, stateCopy, nil, r.TTL())
+		r.cacheByFileId.Save(state.FileId, state, r.TTL())
 
 		var userID uuid.UUID
 		if state.File != nil && state.File.UserID != nil {
 			userID = *state.File.UserID
 		}
-		r.dataByUserIDFileIDMap.Save(userIDFileIDKey{userID, state.FileId}, stateCopy, nil, r.TTL())
+		r.cacheByUserIDFileID.Save(userIDFileIDKey{userID, state.FileId}, state, r.TTL())
 
 		if state.TaskId != nil {
-			r.dataByTaskIdMap.Save(*state.TaskId, stateCopy, nil, r.TTL())
+			r.cacheByTaskId.Save(*state.TaskId, state, r.TTL())
 		}
 
 		return nil
@@ -90,22 +87,22 @@ func (r *DownloadStateRepository) Update(ctx context.Context, state *ddownload.D
 
 func (r *DownloadStateRepository) Delete(_ context.Context, fileId uuid.UUID) error {
 	delete := func() error {
-		file := r.dataByFileIdMap.Find(fileId, nil)
+		file := r.cacheByFileId.Find(fileId)
 		if file == nil {
 			return nil
 		}
 
 		if file.TaskId != nil {
-			r.dataByTaskIdMap.Delete(*file.TaskId)
+			r.cacheByTaskId.Delete(*file.TaskId)
 		}
 
 		var userID uuid.UUID
 		if file.UserID != nil {
 			userID = *file.UserID
 		}
-		r.dataByUserIDFileIDMap.Delete(userIDFileIDKey{userID, file.FileId})
+		r.cacheByUserIDFileID.Delete(userIDFileIDKey{userID, file.FileId})
 
-		r.dataByFileIdMap.Delete(fileId)
+		r.cacheByFileId.Delete(fileId)
 
 		return nil
 	}
@@ -117,11 +114,11 @@ func (r *DownloadStateRepository) FindByFileId(_ context.Context, fileId uuid.UU
 
 	if r.userID == nil {
 		find = func() (*ddownload.DownloadState, error) {
-			return r.dataByFileIdMap.Find(fileId, r.copyDownloadState), nil
+			return r.cacheByFileId.Find(fileId), nil
 		}
 	} else {
 		find = func() (*ddownload.DownloadState, error) {
-			return r.dataByUserIDFileIDMap.Find(userIDFileIDKey{*r.userID, fileId}, r.copyDownloadState), nil
+			return r.cacheByUserIDFileID.Find(userIDFileIDKey{*r.userID, fileId}), nil
 		}
 	}
 	return r.Repository.Find(find)
@@ -129,40 +126,16 @@ func (r *DownloadStateRepository) FindByFileId(_ context.Context, fileId uuid.UU
 
 func (r *DownloadStateRepository) FindByTaskId(_ context.Context, taskId uuid.UUID) (*ddownload.DownloadState, error) {
 	find := func() (*ddownload.DownloadState, error) {
-		return r.dataByTaskIdMap.Find(taskId, r.copyDownloadState), nil
+		return r.cacheByTaskId.Find(taskId), nil
 	}
 	return r.Repository.Find(find)
 }
 
-func (r *DownloadStateRepository) copyDownloadState(state *ddownload.DownloadState) *ddownload.DownloadState {
-	if state == nil {
-		return nil
-	}
-
-	copy := uptr.Copy(state)
-	copy.TaskId = uptr.Copy(state.TaskId)
-	copy.Progress = uptr.Copy(state.Progress)
-
-	if state.File != nil {
-		copy.File = uptr.Copy(state.File)
-		copy.File.UserID = uptr.Copy(state.File.UserID)
-		copy.File.YoutubeChannelID = uptr.Copy(state.File.YoutubeChannelID)
-		copy.File.FileSize = uptr.Copy(state.File.FileSize)
-		copy.File.PartialHash = uptr.Copy(state.File.PartialHash)
-		copy.File.MediaInfo = uptr.Copy(state.File.MediaInfo)
-		copy.File.ErrorMessage = uptr.Copy(state.File.ErrorMessage)
-		copy.File.DeletedAt = uptr.Copy(state.File.DeletedAt)
-		copy.File.DownloadTask = uptr.Copy(state.File.DownloadTask)
-	}
-
-	return copy
-}
-
 func (r *DownloadStateRepository) CleanExpired(_ context.Context) error {
 	clean := func() error {
-		r.dataByFileIdMap.CleanExpired()
-		r.dataByTaskIdMap.CleanExpired()
-		r.dataByUserIDFileIDMap.CleanExpired()
+		r.cacheByFileId.CleanExpired()
+		r.cacheByTaskId.CleanExpired()
+		r.cacheByUserIDFileID.CleanExpired()
 		return nil
 	}
 	return r.Repository.CleanExpired(clean)

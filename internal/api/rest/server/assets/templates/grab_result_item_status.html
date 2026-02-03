@@ -6,8 +6,12 @@
         hx-swap="outerHTML"
     {{end }}>
     <div class="result-left">
-        <span class="result-youtube-channel-avatar">
-            <img class="img-youtube-channel-avatar" src="/ui/downloader/channel/{{ .YoutubeChannelID }}/avatar" alt="Channel avatar">
+        <span class="result-channel-avatar">
+            {{ $logoAttr := "" }}
+            {{ if ne .DownloadStatus "failed" }}
+                {{ $logoAttr = printf "?v=%s" .LogoVersion }}
+            {{ end }}
+            <img class="img-channel-avatar" src="/ui/downloader/file/{{ .FileID }}/logo{{ $logoAttr }}" alt="Channel avatar">
         </span>
         <span class="result-youtube-url {{.ResultYoutubeUrlFade}}">
             <a href="{{ .YoutubeURL }}" target="_blank">{{ .YoutubeTitle }}</a>

@@ -13,7 +13,9 @@ func (s *FileStatus) New(
 	ctx context.Context,
 	fileID uuid.UUID,
 ) error {
-	updateFieldsFunc := func(file *ddownload.File) {}
+	updateFieldsFunc := func(file *ddownload.File) {
+		file.ErrorMessage = nil
+	}
 
 	task, err := s.dlTask.FindByFileId(ctx, fileID, true)
 	if err != nil {

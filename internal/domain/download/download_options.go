@@ -1,6 +1,9 @@
 package ddownload
 
-import dtypes "github.com/neosy/elengrab/internal/domain/types"
+import (
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
+)
 
 // DownloadOptions defines optional parameters for a download operation.
 type DownloadOptions struct {
@@ -27,4 +30,21 @@ type DownloadOptions struct {
 
 	// Desired audio quality
 	AudioQuality *string `json:"audio_quality,omitempty"`
+}
+
+func (src *DownloadOptions) Copy() *DownloadOptions {
+	if src == nil {
+		return nil
+	}
+
+	copy := uptr.Copy(src)
+	copy.VideoFormat = uptr.Copy(src.VideoFormat)
+	copy.VideoCodec = uptr.Copy(src.VideoCodec)
+	copy.VideoResolution = uptr.Copy(src.VideoResolution)
+	copy.AudioFormat = uptr.Copy(src.AudioFormat)
+	copy.Filename = uptr.Copy(src.Filename)
+	copy.VideoQuality = uptr.Copy(src.VideoQuality)
+	copy.AudioQuality = uptr.Copy(src.AudioQuality)
+
+	return copy
 }

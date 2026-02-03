@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 type File struct {
@@ -61,4 +62,22 @@ type File struct {
 
 	// Related task
 	DownloadTask *DownloadTask
+}
+
+func (src *File) Copy() *File {
+	if src == nil {
+		return nil
+	}
+
+	copy := uptr.Copy(src)
+	copy.UserID = uptr.Copy(src.UserID)
+	copy.YoutubeChannelID = uptr.Copy(src.YoutubeChannelID)
+	copy.FileSize = uptr.Copy(src.FileSize)
+	copy.PartialHash = uptr.Copy(src.PartialHash)
+	copy.MediaInfo = src.MediaInfo.Copy()
+	copy.ErrorMessage = uptr.Copy(src.ErrorMessage)
+	copy.DeletedAt = uptr.Copy(src.DeletedAt)
+	copy.DownloadTask = src.DownloadTask.Copy()
+
+	return copy
 }

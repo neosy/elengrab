@@ -19,7 +19,7 @@ func (h *DownloaderHandlers) GetChannelAvatarHandler(ctx *fasthttp.RequestCtx) {
 		channelInfo, _ := h.usecases.Downloader.FindYoutubeChannelInfo(ctx, channelID)
 
 		if channelInfo != nil && len(channelInfo.ImageRaw) > 0 {
-			ctx.SetContentType(h.mappers.MapImageFormatToContentType(channelInfo.ImageFormat))
+			ctx.SetContentType(h.mappers.MapImageExtToContentType(channelInfo.ImageFormat))
 			ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
 			ctx.SetBody(channelInfo.ImageRaw)
 			ctx.SetStatusCode(fasthttp.StatusOK)
@@ -28,7 +28,7 @@ func (h *DownloaderHandlers) GetChannelAvatarHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
-	defaultAvatarSVG := uivalues.IconFileRawByKey(uivalues.YoutubeChannelDefaultIconNameKey, iconsDir)
+	defaultAvatarSVG := uivalues.IconFileRawByKey(uivalues.MediaDefaultIconNameKey, iconsDir)
 
 	ctx.SetContentType("image/svg+xml")
 	ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")

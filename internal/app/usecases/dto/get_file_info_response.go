@@ -15,6 +15,7 @@ type GetFileInfoResponse struct {
 	YoutubeChannelID     *string
 	YoutubeUrl           string
 	YoutubeTitle         string
+	HasSiteLogo          bool
 	FileName             string
 	FileExt              string
 	FileFullName         string

@@ -52,6 +52,12 @@
     font-size: 24px;
     color: var(--text-button-input-action);
     background: transparent;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
     cursor: pointer;
     transition: border-color 0.5s ease, background-color 0.5s ease, color 0.5s ease, transform 0.3s ease;
 }
@@ -64,7 +70,6 @@
 .button-input-action:active {
     padding: 4px 4px;
     border: 2px solid transparent;
-    border-color: var(--download);
     transform: scale(0.95);
 }
 
@@ -84,19 +89,25 @@
     font-size: 18px;
     color: var(--text-primary);
     background-color: var(--bg-button);
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
     cursor: pointer;
-    transition: border-color 0.5s ease, background-color 0.5s ease, color 0.5s ease, transform 0.5s ease;
+    transition: border-color 0.5s ease, background-color 0.5s ease, color 0.5s ease, transform 0.3s ease;
 }
 
 .button-grab-get:hover {
-    border-color: var(--download);
+    border-color: var(--border-input);
     background-color: var(--bg-button-hover);
     color: var(--text-primary);
 }
 
 .button-grab-get:active {
-    transform: scale(0.9);
-    background-color: rgba(76, 175, 80, 0.1);
+    border-color: transparent;
+    transform: scale(0.95);
 }
 
 .div-select-options {

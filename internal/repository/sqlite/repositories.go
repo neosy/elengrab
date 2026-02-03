@@ -20,6 +20,7 @@ type Repositories struct {
 	File           persistence.FileRepository
 	DownloadTask   persistence.DownloadTaskRepository
 	YoutubeChannel persistence.YoutubeChannelRepository
+	SiteLogo       persistence.SiteLogoRepository
 
 	User        persistence.UserRepository
 	UserSession persistence.UserSessionRepository
@@ -38,14 +39,17 @@ func New(dbByName map[persistence.DBName]*sql.DB) *Repositories {
 	}
 
 	return &Repositories{
-		lock:           lock,
-		dbByName:       dbByName,
-		dbNames:        dbNames,
+		lock:     lock,
+		dbByName: dbByName,
+		dbNames:  dbNames,
+
 		File:           download.NewFileRepository(dbDownload, lock),
 		DownloadTask:   download.NewDownloadTaskRepository(dbDownload, lock),
 		YoutubeChannel: download.NewYoutubeChannelRepository(dbDownload, lock),
-		User:           auth.NewUserRepository(dbAuth, lock),
-		UserSession:    auth.NewUserSessionRepository(dbAuth, lock),
+		SiteLogo:       download.NewSiteLogoRepository(dbDownload, lock),
+
+		User:        auth.NewUserRepository(dbAuth, lock),
+		UserSession: auth.NewUserSessionRepository(dbAuth, lock),
 	}
 }
 
