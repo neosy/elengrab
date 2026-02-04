@@ -11,7 +11,6 @@ const (
 	PageHasDivItemsKey                    = "PageHasDivItems"
 	IsItemHTMXOptionRepeatKey             = "IsItemHTMXOptionRepeat"
 	IsItemSpinerKey                       = "IsItemSpiner"
-	ResultItemDeleteUrlKey                = "ResultItemDeleteUrl"
 	DownloadResultItemDeleteIconKey       = "GrabResultItemDeleteIcon"
 	DownloadResultItemStatusFailedIconKey = "DownloadResultItemStatusFailedIcon"
 
