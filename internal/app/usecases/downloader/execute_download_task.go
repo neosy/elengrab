@@ -33,10 +33,10 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 	defer wg.Wait()
 
 	wg.Go(func() {
-		uc.fetchLogo(ctx, task.YoutubeUrl)
+		uc.fetchLogo(ctx, task.MediaUrl)
 	})
 
-	resultCh, err := uc.downloaderSrv.Download(ctx, task.YoutubeUrl, uc.mappers.MapDownloadOptionsDomainToService(task.Options))
+	resultCh, err := uc.downloaderSrv.Download(ctx, task.MediaUrl, uc.mappers.MapDownloadOptionsDomainToService(task.Options))
 	if err != nil {
 		// The context was canceled
 		if ctx.Err() != nil {
@@ -86,8 +86,8 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 				patch = &dto.FileInfoPatch{
 					YoutubeChannelID: &lastResult.ChannelID,
 				}
-				if lastResult.YoutubeTitle != "" {
-					patch.YoutubeTitle = &lastResult.YoutubeTitle
+				if lastResult.MediaTitle != "" {
+					patch.MediaTitle = &lastResult.MediaTitle
 				}
 				if lastResult.FileExt != "" {
 					patch.Ext = &lastResult.FileExt
@@ -137,12 +137,12 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 	}
 
 	safeReadableFullName := uptr.String(
-		fmt.Sprintf("%s.%s", nfasthttp.SanitizeFileName(lastResult.YoutubeTitle), lastResult.FileExt),
+		fmt.Sprintf("%s.%s", nfasthttp.SanitizeFileName(lastResult.MediaTitle), lastResult.FileExt),
 	)
 
 	patch := &dto.FileInfoPatch{
 		YoutubeChannelID:     &lastResult.ChannelID,
-		YoutubeTitle:         &lastResult.YoutubeTitle,
+		MediaTitle:           &lastResult.MediaTitle,
 		FileName:             &lastResult.Filename,
 		Ext:                  &lastResult.FileExt,
 		FullName:             &lastResult.FileFullName,

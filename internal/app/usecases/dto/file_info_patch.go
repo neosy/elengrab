@@ -4,7 +4,7 @@ import ddownload "github.com/neosy/elengrab/internal/domain/download"
 
 type FileInfoPatch struct {
 	YoutubeChannelID     **string
-	YoutubeTitle         *string
+	MediaTitle           *string
 	FileName             *string
 	Ext                  *string
 	FullName             *string
@@ -23,8 +23,8 @@ func PatchToFileDomain(patch *FileInfoPatch, file *ddownload.File) {
 		file.YoutubeChannelID = *patch.YoutubeChannelID
 	}
 
-	if patch.YoutubeTitle != nil {
-		file.YoutubeTitle = *patch.YoutubeTitle
+	if patch.MediaTitle != nil {
+		file.MediaTitle = *patch.MediaTitle
 	}
 
 	if patch.FileName != nil {

@@ -31,7 +31,7 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	// Set content type so browser renders HTML properly
 	ctx.SetContentType("text/html; charset=utf-8")
 
-	dataMap := uivalues.MergeMaps(uivalues.IndexValues, uivalues.PathValues)
+	dataMap := uivalues.MergeMaps(uivalues.IndexValues, uivalues.FormGrabValues, uivalues.PathValues)
 	dataMap[uivalues.NeedLoadHistoryKey] = needLoadHistory
 
 	// Execute template with PageTitle

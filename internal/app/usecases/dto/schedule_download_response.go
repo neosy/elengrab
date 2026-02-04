@@ -7,9 +7,9 @@ import (
 
 type ScheduleDownloadResponse struct {
 	// file id
-	FileId       uuid.UUID
-	Status       dtypes.FileStatus
-	YoutubeTitle string
+	FileId     uuid.UUID
+	Status     dtypes.FileStatus
+	MediaTitle string
 	// format type
 	Format string
 }

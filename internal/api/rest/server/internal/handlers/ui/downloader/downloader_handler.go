@@ -17,8 +17,8 @@ type grabResultData struct {
 	FileID           string
 	PathFileRow      string
 	YoutubeChannelID string
-	YoutubeTitle     string
-	YoutubeURL       string
+	MediaTitle       string
+	MediaURL         string
 	FileSize         string
 	Format           string
 	DownloadURL      string
@@ -35,7 +35,7 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	url := string(ctx.FormValue(formFieldYouTubeURLKey))
+	url := string(ctx.FormValue(formFieldMediaURLKey))
 	if url == "" {
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
 		ctx.SetBodyString("URL is required")
@@ -55,7 +55,7 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 
 	var (
 		data = grabResultData{
-			YoutubeURL:       url,
+			MediaURL:         url,
 			YoutubeChannelID: channelIDValueNone,
 			LogoVersion:      fmt.Sprintf("%d", time.Now().Unix()),
 		}
@@ -91,15 +91,15 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	{
 		cacheRow.mu.Lock()
 		cacheRow.data[resp.FileId] = cacheRowEntry{
-			youtubeTitle: resp.YoutubeTitle,
-			Format:       resp.Format,
-			Updated:      time.Now(),
+			mediaTitle: resp.MediaTitle,
+			Format:     resp.Format,
+			Updated:    time.Now(),
 		}
 		cacheRow.mu.Unlock()
 	}
 
 	data.FileID = resp.FileId.String()
-	data.YoutubeTitle = url
+	data.MediaTitle = url
 	data.PathFileRow = httppaths.BuildPathFileRow(resp.FileId)
 	data.FileSize = "-"
 	data.Format = "-"
@@ -123,7 +123,7 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	dataMap[uivalues.PageHasDivItemsKey] = pageHasDivItems
 	dataMap[uivalues.ItemFadeKey] = "fade-in"
 	dataMap[uivalues.GrabResultItemStatusTextKey] = ""
-	dataMap[uivalues.ResultYoutubeUrlFadeKey] = ""
+	dataMap[uivalues.ResultMediaUrlFadeKey] = ""
 	dataMap[uivalues.ResultSizeFadeKey] = ""
 	dataMap[uivalues.ResultFormatFadeKey] = ""
 

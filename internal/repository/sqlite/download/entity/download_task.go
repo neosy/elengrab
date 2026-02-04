@@ -9,15 +9,15 @@ import (
 
 type DownloadTask struct {
 	dbentity.BaseEntity[DownloadTask]
-	TaskId     sql.NullString `db:"task_id"`
-	FileId     sql.NullString `db:"file_id"`
-	Status     sql.NullString `db:"task_status"`
-	YoutubeUrl sql.NullString `db:"youtube_url"`
-	Options    sql.NullString `db:"options"`
-	WorkerId   sql.NullInt64  `db:"worker_id"`
-	JobID      sql.NullString `db:"job_id"`
-	CreatedAt  sql.NullTime   `db:"created_at" insert:"false"`
-	UpdatedAt  sql.NullTime   `db:"updated_at" sqlexpr:"CURRENT_TIMESTAMP"`
+	TaskId    sql.NullString `db:"task_id"`
+	FileId    sql.NullString `db:"file_id"`
+	Status    sql.NullString `db:"task_status"`
+	MediaUrl  sql.NullString `db:"youtube_url"`
+	Options   sql.NullString `db:"options"`
+	WorkerId  sql.NullInt64  `db:"worker_id"`
+	JobID     sql.NullString `db:"job_id"`
+	CreatedAt sql.NullTime   `db:"created_at" insert:"false"`
+	UpdatedAt sql.NullTime   `db:"updated_at" sqlexpr:"CURRENT_TIMESTAMP"`
 }
 
 // TableName returns the table name

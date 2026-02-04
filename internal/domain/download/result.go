@@ -5,7 +5,7 @@ type DownloadResult struct {
 
 	ChannelID *string
 
-	YoutubeTitle string
+	MediaTitle string
 
 	// full path to the downloaded file
 	FilePath string

@@ -27,10 +27,10 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 	err := uc.file.Create(
 		ctx,
 		&ddownload.File{
-			FileId:     fileId,
-			UserID:     &userID,
-			FileName:   filename,
-			YoutubeUrl: url,
+			FileId:   fileId,
+			UserID:   &userID,
+			FileName: filename,
+			MediaUrl: url,
 		},
 		options,
 	)
@@ -69,10 +69,10 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 	}
 
 	return &dto.ScheduleDownloadResponse{
-		FileId:       file.FileId,
-		Status:       file.Status,
-		YoutubeTitle: file.YoutubeTitle,
-		Format:       file.Ext,
+		FileId:     file.FileId,
+		Status:     file.Status,
+		MediaTitle: file.MediaTitle,
+		Format:     file.Ext,
 	}, nil
 }
 

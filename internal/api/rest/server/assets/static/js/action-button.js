@@ -41,7 +41,7 @@ function setIcon(btn, url, alt) {
 // Update action button based on input field state
 // -------------------------------------------------------------
 export function updateActionButton() {
-    const input = document.getElementById('youtubeURL');
+    const input = document.getElementById('mediaURL');
     const btn = document.getElementById('inputActionBtn');
 
     if (!input || !btn) return;

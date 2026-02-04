@@ -24,8 +24,8 @@ type fileRowInfoData struct {
 	PathFileRow      string
 	PathFileRepeat   string
 	YoutubeChannelID string
-	YoutubeTitle     string
-	YoutubeURL       string
+	MediaTitle       string
+	MediaURL         string
 	FileSize         string
 	Format           string
 	DataFormat       string
@@ -37,7 +37,7 @@ type fileRowInfoData struct {
 
 type cacheRowEntry struct {
 	youtubeChannelID string
-	youtubeTitle     string
+	mediaTitle       string
 	FileSize         int64
 	Format           string
 	Status           dtypes.FileStatus
@@ -71,7 +71,7 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 	var (
 		cacheChanged = struct {
 			youtubeChannelID bool
-			youtubeTitle     bool
+			mediaTitle       bool
 			FileSize         bool
 			Format           bool
 			Status           bool
@@ -94,7 +94,7 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 			if fileInfo.YoutubeChannelID != nil {
 				cacheChanged.youtubeChannelID = cached.youtubeChannelID != *fileInfo.YoutubeChannelID
 			}
-			cacheChanged.youtubeTitle = cached.youtubeTitle != fileInfo.YoutubeTitle
+			cacheChanged.mediaTitle = cached.mediaTitle != fileInfo.MediaTitle
 			if fileInfo.FileSize != nil {
 				cacheChanged.FileSize = cached.FileSize != *fileInfo.FileSize
 			}
@@ -107,7 +107,7 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 
 		if exists && fileInfo.Status != dtypes.FileStatusDone &&
 			!cacheChanged.youtubeChannelID &&
-			!cacheChanged.youtubeTitle &&
+			!cacheChanged.mediaTitle &&
 			!cacheChanged.FileSize &&
 			!cacheChanged.Format &&
 			!cacheChanged.Status &&
@@ -134,7 +134,7 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 		cacheRow.mu.Lock()
 		cacheRow.data[fileInfo.FileId] = cacheRowEntry{
 			youtubeChannelID: youtubeChannelID,
-			youtubeTitle:     fileInfo.YoutubeTitle,
+			mediaTitle:       fileInfo.MediaTitle,
 			FileSize:         fileSize,
 			Format:           fileInfo.FileExt,
 			Status:           fileInfo.Status,
@@ -161,9 +161,9 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 
 	data := fileRowInfoData{
 		FileID:           fileInfo.FileId.String(),
-		YoutubeURL:       fileInfo.YoutubeUrl,
+		MediaURL:         fileInfo.MediaUrl,
 		YoutubeChannelID: youtubeChannelID,
-		YoutubeTitle:     fileInfo.YoutubeTitle,
+		MediaTitle:       fileInfo.MediaTitle,
 		PathFileRow:      httppaths.BuildPathFileRow(fileInfo.FileId),
 		PathFileRepeat:   httppaths.BuildPathFileRepeat(fileInfo.FileId),
 		FileSize:         "-",
@@ -213,11 +213,11 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 		)
 	}
 
-	dataMap[uivalues.ResultYoutubeUrlFadeKey] = ""
+	dataMap[uivalues.ResultMediaUrlFadeKey] = ""
 	dataMap[uivalues.ResultSizeFadeKey] = ""
 	dataMap[uivalues.ResultFormatFadeKey] = ""
-	if cacheChanged.youtubeTitle {
-		dataMap[uivalues.ResultYoutubeUrlFadeKey] = "fade-text"
+	if cacheChanged.mediaTitle {
+		dataMap[uivalues.ResultMediaUrlFadeKey] = "fade-text"
 	}
 	if cacheChanged.FileSize {
 		dataMap[uivalues.ResultSizeFadeKey] = "fade-text"
