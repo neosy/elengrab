@@ -31,7 +31,7 @@ type MediaInfo struct {
 	Extractor  string        `json:"extractor"`
 	ChannelID  string        `json:"channel_id"`
 	ChannelUrl string        `json:"channel_url"`
-	Duration   int           `json:"duration"`
+	Duration   float64       `json:"duration"`
 	Formats    []MediaFormat `json:"formats"`
 }
 
