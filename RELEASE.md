@@ -1,5 +1,12 @@
 # Releases
 
+## v0.11.1 — 2026-02-04
+
+### Hotfix
+- Fix json decoding error in yt-dlp service. Closes #190
+
+---
+
 ## v0.11.0 — 2026-02-04
 
 ### Feature
