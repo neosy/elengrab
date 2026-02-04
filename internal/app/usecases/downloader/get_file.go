@@ -97,7 +97,7 @@ func (uc *YouTubeDownloader) findStateAndFileInfo(
 		fileResp = uptr.Any(*file)
 	}
 
-	hasSiteLogo, _ := uc.siteLogo.ExistsBySiteURLFromCache(ctx, httpx.GetBaseURL(fileResp.YoutubeUrl))
+	hasSiteLogo, _ := uc.siteLogo.ExistsBySiteURLFromCache(ctx, httpx.GetBaseURL(fileResp.MediaUrl))
 
 	return uc.mappers.MapFileDomainToFileInfoResponse(fileResp, dlProgress, uc.downloadsDir, hasSiteLogo), nil
 }

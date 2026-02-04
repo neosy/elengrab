@@ -28,13 +28,13 @@ func (m *Mappers) MapDownloadTaskDomainToEntity(task *ddownload.DownloadTask) (*
 	}
 
 	return &edownload.DownloadTask{
-		TaskId:     sql.NullString{String: task.TaskId.String(), Valid: true},
-		FileId:     sql.NullString{String: task.FileId.String(), Valid: true},
-		Status:     sql.NullString{String: task.Status.String(), Valid: true},
-		YoutubeUrl: sql.NullString{String: task.YoutubeUrl, Valid: true},
-		Options:    sql.NullString{String: optionsJson, Valid: task.Options != nil},
-		WorkerId:   sql.NullInt64{Int64: int64(uptr.Deref(task.WorkerId)), Valid: task.WorkerId != nil},
-		JobID:      sql.NullString{String: jobID, Valid: task.JobID != nil},
+		TaskId:   sql.NullString{String: task.TaskId.String(), Valid: true},
+		FileId:   sql.NullString{String: task.FileId.String(), Valid: true},
+		Status:   sql.NullString{String: task.Status.String(), Valid: true},
+		MediaUrl: sql.NullString{String: task.MediaUrl, Valid: true},
+		Options:  sql.NullString{String: optionsJson, Valid: task.Options != nil},
+		WorkerId: sql.NullInt64{Int64: int64(uptr.Deref(task.WorkerId)), Valid: task.WorkerId != nil},
+		JobID:    sql.NullString{String: jobID, Valid: task.JobID != nil},
 	}, nil
 }
 
@@ -56,14 +56,14 @@ func (m *Mappers) MapDownloadTaskEntityToDomain(eTask *edownload.DownloadTask) (
 	}
 
 	return &ddownload.DownloadTask{
-		TaskId:     uuid.MustParse(usql.String(eTask.TaskId)),
-		FileId:     uuid.MustParse(usql.String(eTask.FileId)),
-		Status:     dtypes.MustParseDownloadTaskStatus(usql.String(eTask.Status)),
-		YoutubeUrl: usql.String(eTask.YoutubeUrl),
-		Options:    options,
-		JobID:      jobID,
-		WorkerId:   uptr.NonZero(uint(usql.Int64(eTask.WorkerId))),
-		CreatedAt:  usql.Time(eTask.CreatedAt),
-		UpdatedAt:  usql.Time(eTask.UpdatedAt),
+		TaskId:    uuid.MustParse(usql.String(eTask.TaskId)),
+		FileId:    uuid.MustParse(usql.String(eTask.FileId)),
+		Status:    dtypes.MustParseDownloadTaskStatus(usql.String(eTask.Status)),
+		MediaUrl:  usql.String(eTask.MediaUrl),
+		Options:   options,
+		JobID:     jobID,
+		WorkerId:  uptr.NonZero(uint(usql.Int64(eTask.WorkerId))),
+		CreatedAt: usql.Time(eTask.CreatedAt),
+		UpdatedAt: usql.Time(eTask.UpdatedAt),
 	}, nil
 }

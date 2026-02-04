@@ -67,7 +67,7 @@ func (m *SafeDownloadMeta) InitialResult() *ddownload.DownloadResult {
 	meta := m.CopyMeta()
 	return &ddownload.DownloadResult{
 		ChannelID:     meta.ChannelID,
-		YoutubeTitle:  meta.Title,
+		MediaTitle:    meta.Title,
 		FilePath:      meta.FilePath,
 		Filename:      meta.FileName,
 		FileExt:       meta.FileExt,

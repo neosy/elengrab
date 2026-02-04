@@ -18,11 +18,11 @@ type File struct {
 	// Status
 	Status dtypes.FileStatus
 
-	// Youtube URL
-	YoutubeUrl string
+	// Media URL
+	MediaUrl string
 
 	// Youtube title
-	YoutubeTitle string
+	MediaTitle string
 
 	// Youtube Channel ID
 	YoutubeChannelID *string

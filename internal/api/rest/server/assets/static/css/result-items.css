@@ -127,14 +127,14 @@
     display: block;
 }
 
-.result-youtube-url {
+.result-media-url {
     margin-left: 5px;
     text-align: left;
     overflow-wrap: anywhere;
     word-break: break-word;
 }
 
-.result-youtube-url a {
+.result-media-url a {
     color: inherit;
     font-family: "Inter", sans-serif;
     font-weight: 500;
@@ -142,7 +142,7 @@
     transition: opacity 0.2s ease;
 }
 
-.result-youtube-url a:hover {
+.result-media-url a:hover {
     opacity: 0.7;
     text-decoration: underline;
 }
@@ -485,7 +485,7 @@
         gap: 6px;
     }
 
-    .result-youtube-url {
+    .result-media-url {
         /* text-align: center; */
         width: 100%;
     }

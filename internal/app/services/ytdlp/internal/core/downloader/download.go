@@ -86,7 +86,7 @@ func (d *Downloader) Download(
 			"title", title,
 		)
 		sendData(&ddownload.DownloadResult{
-			YoutubeTitle: title,
+			MediaTitle: title,
 		})
 	}
 
@@ -103,7 +103,7 @@ func (d *Downloader) Download(
 		getTitle,
 	)
 	if err != nil {
-		sendError(&ddownload.DownloadResult{YoutubeTitle: title}, err)
+		sendError(&ddownload.DownloadResult{MediaTitle: title}, err)
 		return
 	}
 
