@@ -171,7 +171,7 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 		DataFormat:       "-",
 		FormatTitle:      fileInfo.MediaInfoText,
 		DownloadURL:      httppaths.BuildPathFileDownload(fileInfo.FileId),
-		DeleteURL:        httppaths.BuildPathFileRow(fileInfo.FileId),
+		DeleteURL:        httppaths.BuildPathFile(fileInfo.FileId),
 		LogoVersion:      logoVersion,
 	}
 
