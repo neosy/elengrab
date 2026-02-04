@@ -9,6 +9,9 @@
 - Change the placeholder for the input field. Closes #188
 - Change the title in the index. Closes #193
 
+### Fix
+- Update delete endpoint path
+
 ---
 
 ## v0.11.1 — 2026-02-04
