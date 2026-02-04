@@ -15,9 +15,9 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 	downloadsDir string,
 	hasSiteLogo bool,
 ) *dto.GetFileInfoResponse {
-	var youtubeTitle = file.YoutubeTitle
-	if file.YoutubeTitle == "" {
-		youtubeTitle = file.YoutubeUrl
+	var mediaTitle = file.MediaTitle
+	if file.MediaTitle == "" {
+		mediaTitle = file.MediaUrl
 	}
 
 	workingStatus := dto.WorkingStatusNone
@@ -37,8 +37,8 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 		Status:               file.Status,
 		WorkingStatus:        workingStatus,
 		YoutubeChannelID:     file.YoutubeChannelID,
-		YoutubeUrl:           file.YoutubeUrl,
-		YoutubeTitle:         youtubeTitle,
+		MediaUrl:             file.MediaUrl,
+		MediaTitle:           mediaTitle,
 		HasSiteLogo:          hasSiteLogo,
 		FileName:             file.FileName,
 		FileExt:              file.Ext,

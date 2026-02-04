@@ -15,7 +15,7 @@ const (
 	DownloadResultItemDeleteIconKey       = "GrabResultItemDeleteIcon"
 	DownloadResultItemStatusFailedIconKey = "DownloadResultItemStatusFailedIcon"
 
-	ResultYoutubeUrlFadeKey = "ResultYoutubeUrlFade"
-	ResultSizeFadeKey       = "ResultSizeFade"
-	ResultFormatFadeKey     = "ResultFormatFade"
+	ResultMediaUrlFadeKey = "ResultMediaUrlFade"
+	ResultSizeFadeKey     = "ResultSizeFade"
+	ResultFormatFadeKey   = "ResultFormatFade"
 )

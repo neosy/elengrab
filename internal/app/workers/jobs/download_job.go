@@ -38,5 +38,5 @@ func (j *downloadJob) ID() string {
 
 func (j *downloadJob) Name() string {
 
-	return fmt.Sprintf("Youtube Download: %s", j.task.YoutubeUrl)
+	return fmt.Sprintf("Media Download: %s", j.task.MediaUrl)
 }

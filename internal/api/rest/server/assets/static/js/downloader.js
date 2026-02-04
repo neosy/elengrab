@@ -87,7 +87,7 @@ function setupQualityFormatLogic() {
 document.addEventListener('DOMContentLoaded', () => {
     const formGrab = document.querySelector('#form-grab');
     const buttonGrab = document.querySelector('.button-grab-get');
-    const inputURL = document.querySelector('#youtubeURL');
+    const inputURL = document.querySelector('#mediaURL');
     const resultDivInfo = document.querySelector('#grab-result-info');
 
     // Sync selects with cookies

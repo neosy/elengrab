@@ -2,10 +2,10 @@
       <form id="form-grab"
             hx-post="{{.PathDownloaderGrab}}"
             hx-target="#grab-result-item-replaceme"
-            hx-include="#youtubeURL, [name='formatType']"
+            hx-include="#mediaURL, [name='formatType']"
             hx-swap="outerHTML">
         <div class="div-grab-area">
-          <input class="input-grab" type="text" id="youtubeURL" name="youtubeURL" placeholder="Enter YouTube URL" maxlength="255">
+          <input class="input-grab" type="text" id="mediaURL" name="mediaURL" placeholder="{{ .InputGrabPlaceholder }}" maxlength="255">
           <div class="div-button-input-action">
             <button type="button" class="button-input-action" id="inputActionBtn"></button>
           </div>

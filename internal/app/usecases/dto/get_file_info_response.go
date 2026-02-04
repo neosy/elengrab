@@ -13,8 +13,8 @@ type GetFileInfoResponse struct {
 	Status               dtypes.FileStatus
 	WorkingStatus        WorkingStatus
 	YoutubeChannelID     *string
-	YoutubeUrl           string
-	YoutubeTitle         string
+	MediaUrl             string
+	MediaTitle           string
 	HasSiteLogo          bool
 	FileName             string
 	FileExt              string

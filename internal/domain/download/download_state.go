@@ -45,7 +45,7 @@ func (s *DownloadState) InitFromDownloadResult(result *DownloadResult) {
 		s.File.YoutubeChannelID = result.ChannelID
 	}
 
-	s.File.YoutubeTitle = result.YoutubeTitle
+	s.File.MediaTitle = result.MediaTitle
 	s.File.Ext = result.FileExt
 
 	if result.Filesize != nil {

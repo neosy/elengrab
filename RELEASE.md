@@ -1,5 +1,15 @@
 # Releases
 
+## v0.11.0 — 2026-02-10
+
+### Feature
+- 
+
+### Style
+- Change the placeholder for the input field. Closes #188
+
+---
+
 ## v0.11.0 — 2026-02-04
 
 ### Feature

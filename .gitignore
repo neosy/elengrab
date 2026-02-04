@@ -14,7 +14,7 @@
 
 # ignore files
 .md
-branch-current-changes.txt
+issues.txt
 
 # go.work
 go.work

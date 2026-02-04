@@ -18,10 +18,10 @@ type DownloadTask struct {
 	// Status
 	Status dtypes.DownloadTaskStatus
 
-	// Youtube URL
-	YoutubeUrl string
+	// Media URL
+	MediaUrl string
 
-	// Youtube download options
+	// Media download options
 	Options *DownloadOptions
 
 	// Id worker
