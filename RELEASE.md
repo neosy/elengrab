@@ -7,6 +7,7 @@
 
 ### Style
 - Change the placeholder for the input field. Closes #188
+- Change the title in the index. Closes #193
 
 ---
 
