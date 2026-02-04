@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>{{ .Title }}</title>
+  <meta name="description" content="{{ .Description }}">
   <script>
     try {
       if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme: dark)').matches)){
