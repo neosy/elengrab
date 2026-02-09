@@ -10,11 +10,15 @@ import (
 	"github.com/neosy/elengrab/pkg/httpx"
 )
 
+// FetchLogo fetches the logo from the given site and returns ImageData.
 func (lf *SiteLogoFetcher) FetchLogo(ctx context.Context, siteURL string) (*dmedia.ImageData, error) {
 	links, err := httpx.GetLinksInHead(
 		ctx,
 		siteURL,
-		httpx.GetOptions{IgnoreStatusCode: true},
+		httpx.GetOptions{
+			Limit:            limitHTML,
+			IgnoreStatusCode: true,
+		},
 		httpx.ClientOptionWithTimeout(getHTMLTimeout),
 	)
 	if err != nil {

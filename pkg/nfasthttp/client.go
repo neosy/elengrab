@@ -9,6 +9,7 @@ import (
 
 type ClientOption func(*fasthttp.Client)
 
+// NewClient creates a new FastHTTP client with the specified options.
 func NewClient(opts ...ClientOption) *fasthttp.Client {
 	c := &fasthttp.Client{
 		ReadBufferSize: readBufferSizeDefault,
@@ -19,6 +20,7 @@ func NewClient(opts ...ClientOption) *fasthttp.Client {
 	return c
 }
 
+// ClientOptionWithTimeout sets the read and write buffer sizes for the client
 func ClientOptionWithTimeout(d time.Duration) ClientOption {
 	return func(c *fasthttp.Client) {
 		c.ReadTimeout = d
@@ -26,6 +28,7 @@ func ClientOptionWithTimeout(d time.Duration) ClientOption {
 	}
 }
 
+// ClientOptionWithreadBufferSize sets the read buffer size for the client
 func ClientOptionWithreadBufferSize(bufferSize int) ClientOption {
 	return func(c *fasthttp.Client) {
 		c.ReadBufferSize = bufferSize

@@ -13,8 +13,8 @@ import (
 )
 
 type migratorInterface interface {
-	newSource() (source.Driver, error)
 	newMigrator(src source.Driver) (*migrate.Migrate, error)
+	newSource(wrapper sourceDriverWrapper) (source.Driver, sourceCleanup, error)
 }
 
 type migratorFS struct {
@@ -34,14 +34,19 @@ func newMigratorFS(sqlDrv database.Driver, fs fs.FS) *migratorFS {
 	}
 }
 
-func (m *migratorFS) newSource() (source.Driver, error) {
+func (m *migratorFS) newSource(wrapper sourceDriverWrapper) (source.Driver, sourceCleanup, error) {
 	// Check if migrations directory exists
 	drv, err := iofs.New(m.fs, ".")
 	if err != nil {
-		return nil, fmt.Errorf("migrations directory does not exist in embedded FS: %w", err)
+		return nil, nil, fmt.Errorf("migrations directory does not exist in embedded FS: %w", err)
 	}
 
-	return drv, nil
+	// Wrap driver if necessary
+	if wrapper != nil {
+		return wrapper(drv)
+	}
+
+	return drv, nil, nil
 }
 
 func (m *migratorFS) newMigrator(src source.Driver) (*migrate.Migrate, error) {
@@ -64,23 +69,28 @@ func newMigratorFile(sqlDrv database.Driver, dir string) *migratorFile {
 	}
 }
 
-func (m *migratorFile) newSource() (source.Driver, error) {
+func (m *migratorFile) newSource(wrapper sourceDriverWrapper) (source.Driver, sourceCleanup, error) {
 	if m.dir == "" {
-		return nil, fmt.Errorf("migration directory is not specified")
+		return nil, nil, fmt.Errorf("migration directory is not specified")
 	}
 
 	// Check if migrations directory exists
 	if _, err := os.Stat(m.dir); os.IsNotExist(err) {
-		return nil, fmt.Errorf("migrations directory does not exist: %s", m.dir)
+		return nil, nil, fmt.Errorf("migrations directory does not exist: %s", m.dir)
 	}
 
 	// Create file source driver
 	drv, err := (&file.File{}).Open("file://" + m.dir)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return drv, nil
+	// Wrap driver if necessary
+	if wrapper != nil {
+		return wrapper(drv)
+	}
+
+	return drv, nil, nil
 }
 
 func (m *migratorFile) newMigrator(src source.Driver) (*migrate.Migrate, error) {

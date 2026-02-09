@@ -13,6 +13,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
+// DeleteDownload deletes a download from the system.
 func (uc *YouTubeDownloader) DeleteDownload(
 	ctx context.Context,
 	userID uuid.UUID,

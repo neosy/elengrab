@@ -51,6 +51,7 @@ func (uc *SiteLogo) GetByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia.
 	return logo, nil
 }
 
+// Checks if a site logo exists by its unique identifier.
 func (uc *SiteLogo) ExistsByLogoID(ctx context.Context, logoID uuid.UUID) (bool, error) {
 	exists, _ := uc.logoCacheRep.ExistsByLogoID(ctx, logoID)
 	if exists {
@@ -111,6 +112,7 @@ func (uc *SiteLogo) GetBySiteURL(ctx context.Context, siteURL string) (*dmedia.S
 	return logo, nil
 }
 
+// ExistsBySiteURL returns true if siteURL exists in the repository.
 func (uc *SiteLogo) ExistsBySiteURL(ctx context.Context, siteURL string) (bool, error) {
 	exists, _ := uc.logoCacheRep.ExistsBySiteURL(ctx, siteURL)
 	if exists {
@@ -125,6 +127,7 @@ func (uc *SiteLogo) ExistsBySiteURL(ctx context.Context, siteURL string) (bool, 
 	return exists, nil
 }
 
+// ExistsBySiteURLFromCache returns true if siteURL exists in the cache.
 func (uc *SiteLogo) ExistsBySiteURLFromCache(ctx context.Context, siteURL string) (bool, error) {
 	if siteURL == "" {
 		return false, nil

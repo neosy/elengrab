@@ -7,6 +7,7 @@ import (
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 
+// Create creates a new YouTube channel in the database.
 func (uc *YoutubeChannel) Create(ctx context.Context, channel *dmedia.YoutubeChannel) error {
 	if channel == nil {
 		uc.logger.Warn("Nil pointer in function")

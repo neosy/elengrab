@@ -7,6 +7,7 @@ import (
 	"github.com/neosy/elengrab/pkg/httpx"
 )
 
+// downloadImage downloads an image from the given URL and returns it.
 func (lf *SiteLogoFetcher) downloadImage(ctx context.Context, imgURL string) (*dmedia.ImageData, error) {
 	data, format, err := httpx.GetImage(
 		ctx,
