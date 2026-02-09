@@ -2,12 +2,12 @@ package sqliterep
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download"
+	"github.com/neosy/elengrab/internal/repository/sqlite/media"
 )
 
 // Repositories groups all database repositories.
@@ -30,8 +30,9 @@ type Repositories struct {
 func New(dbByName map[persistence.DBName]*sql.DB) *Repositories {
 	lock := dbexec.NewSQLiteLock()
 
-	dbDownload := dbByName[persistence.DBMainName]
-	dbAuth := dbByName[persistence.DBAuthName]
+	authDB := dbByName[persistence.DBAuthName]
+	mainDB := dbByName[persistence.DBMainName]
+	mediaDB := dbByName[persistence.DBMediaName]
 
 	var dbNames []persistence.DBName
 	for name := range dbByName {
@@ -43,24 +44,17 @@ func New(dbByName map[persistence.DBName]*sql.DB) *Repositories {
 		dbByName: dbByName,
 		dbNames:  dbNames,
 
-		File:           download.NewFileRepository(dbDownload, lock),
-		DownloadTask:   download.NewDownloadTaskRepository(dbDownload, lock),
-		YoutubeChannel: download.NewYoutubeChannelRepository(dbDownload, lock),
-		SiteLogo:       download.NewSiteLogoRepository(dbDownload, lock),
+		User:        auth.NewUserRepository(authDB, lock),
+		UserSession: auth.NewUserSessionRepository(authDB, lock),
 
-		User:        auth.NewUserRepository(dbAuth, lock),
-		UserSession: auth.NewUserSessionRepository(dbAuth, lock),
+		File:         download.NewFileRepository(mainDB, lock),
+		DownloadTask: download.NewDownloadTaskRepository(mainDB, lock),
+
+		YoutubeChannel: media.NewYoutubeChannelRepository(mediaDB, lock),
+		SiteLogo:       media.NewSiteLogoRepository(mediaDB, lock),
 	}
 }
 
 func (r *Repositories) GetDBNames() []persistence.DBName {
 	return r.dbNames
-}
-
-func (r *Repositories) DBFileName(dbName persistence.DBName) string {
-	return DBFileName(dbName)
-}
-
-func DBFileName(dbName persistence.DBName) string {
-	return fmt.Sprintf("%s.db", dbName)
 }

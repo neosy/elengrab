@@ -1,4 +1,4 @@
-package download
+package media
 
 import (
 	"context"
@@ -9,8 +9,8 @@ import (
 	"github.com/Masterminds/squirrel"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
-	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
-	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
+	emedia "github.com/neosy/elengrab/internal/repository/sqlite/media/entity"
+	"github.com/neosy/elengrab/internal/repository/sqlite/media/mappers"
 	"github.com/neosy/elengrab/pkg/dbutils"
 )
 
@@ -84,7 +84,7 @@ func (r *YoutubeChannelRepository) Save(ctx context.Context, channel *dmedia.You
 }
 
 func (r *YoutubeChannelRepository) FindByChannelID(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, error) {
-	var ent edownload.YoutubeChannel
+	var ent emedia.YoutubeChannel
 
 	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
 		From(ent.TableName()).
@@ -128,7 +128,7 @@ func (r *YoutubeChannelRepository) FindByChannelID(ctx context.Context, channelI
 }
 
 func (r *YoutubeChannelRepository) ExistsByChannelID(ctx context.Context, channelID string) (bool, error) {
-	var ent edownload.YoutubeChannel
+	var ent emedia.YoutubeChannel
 
 	// Build SQL query: SELECT 1 FROM table WHERE channel_id = $1 LIMIT 1
 	query, args, err := squirrel.Select("1").
