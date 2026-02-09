@@ -8,5 +8,5 @@ const (
 		" AppleWebKit/537.36 (KHTML, like Gecko)" +
 		" Chrome/143.0.0.0 Safari/537.36"
 
-	readBufferSizeDefault = 32 * 1024
+	readBufferSizeDefault = 32 * 1024 // 32KB
 )

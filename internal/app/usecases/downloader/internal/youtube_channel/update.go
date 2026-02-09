@@ -6,6 +6,7 @@ import (
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 
+// Update updates an existing YouTube channel in the database.
 func (uc *YoutubeChannel) Update(ctx context.Context, channel *dmedia.YoutubeChannel) error {
 	err := uc.channelRep.Update(ctx, channel)
 	if err != nil {

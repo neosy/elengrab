@@ -6,6 +6,7 @@ import (
 	"golang.org/x/net/html"
 )
 
+// ExtractIcons extracts icon candidates from the given HTML links.
 func (lf *SiteLogoFetcher) extractIcons(links [][]html.Attribute, base string) []iconCandidate {
 	var icons []iconCandidate
 

@@ -4,9 +4,13 @@ import uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 
 // Progress of the download
 type DownloadProgress struct {
-	DownloadedBytes  int64
-	TotalBytes       int64
-	ETASeconds       int
+	// Total bytes downloaded
+	DownloadedBytes int64
+	// Total bytes to download
+	TotalBytes int64
+	// ETA Seconds remaining
+	ETASeconds int
+	// Speed bytes per second
 	SpeedBytesPerSec int64
 }
 
