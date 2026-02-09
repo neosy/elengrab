@@ -12,8 +12,6 @@ import (
 
 // Repositories groups all database repositories.
 type Repositories struct {
-	lock dbexec.WriteLocker
-
 	dbByName map[persistence.DBName]*sql.DB
 	dbNames  []persistence.DBName
 
@@ -28,7 +26,10 @@ type Repositories struct {
 
 // New returns a new Repositories struct with database connections.
 func New(dbByName map[persistence.DBName]*sql.DB) *Repositories {
-	lock := dbexec.NewSQLiteLock()
+	lockByDBName := make(map[persistence.DBName]dbexec.WriteLocker, len(dbByName))
+	for name := range dbByName {
+		lockByDBName[name] = dbexec.NewSQLiteLock()
+	}
 
 	authDB := dbByName[persistence.DBAuthName]
 	mainDB := dbByName[persistence.DBMainName]
@@ -40,18 +41,17 @@ func New(dbByName map[persistence.DBName]*sql.DB) *Repositories {
 	}
 
 	return &Repositories{
-		lock:     lock,
 		dbByName: dbByName,
 		dbNames:  dbNames,
 
-		User:        auth.NewUserRepository(authDB, lock),
-		UserSession: auth.NewUserSessionRepository(authDB, lock),
+		User:        auth.NewUserRepository(authDB, lockByDBName[persistence.DBAuthName]),
+		UserSession: auth.NewUserSessionRepository(authDB, lockByDBName[persistence.DBAuthName]),
 
-		File:         download.NewFileRepository(mainDB, lock),
-		DownloadTask: download.NewDownloadTaskRepository(mainDB, lock),
+		File:         download.NewFileRepository(mainDB, lockByDBName[persistence.DBMainName]),
+		DownloadTask: download.NewDownloadTaskRepository(mainDB, lockByDBName[persistence.DBMainName]),
 
-		YoutubeChannel: media.NewYoutubeChannelRepository(mediaDB, lock),
-		SiteLogo:       media.NewSiteLogoRepository(mediaDB, lock),
+		YoutubeChannel: media.NewYoutubeChannelRepository(mediaDB, lockByDBName[persistence.DBMediaName]),
+		SiteLogo:       media.NewSiteLogoRepository(mediaDB, lockByDBName[persistence.DBMediaName]),
 	}
 }
 
