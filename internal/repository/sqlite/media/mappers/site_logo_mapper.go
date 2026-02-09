@@ -3,11 +3,11 @@ package mappers
 import (
 	"github.com/google/uuid"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
-	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
+	emedia "github.com/neosy/elengrab/internal/repository/sqlite/media/entity"
 )
 
-func (m *Mappers) MapSiteLogoDomainToEntity(logo *dmedia.SiteLogo) (*edownload.SiteLogo, error) {
-	return &edownload.SiteLogo{
+func (m *Mappers) MapSiteLogoDomainToEntity(logo *dmedia.SiteLogo) (*emedia.SiteLogo, error) {
+	return &emedia.SiteLogo{
 		LogoID:      logo.LogoID.String(),
 		SiteURL:     logo.SiteURL,
 		ImageURL:    logo.ImageURL,
@@ -16,7 +16,7 @@ func (m *Mappers) MapSiteLogoDomainToEntity(logo *dmedia.SiteLogo) (*edownload.S
 	}, nil
 }
 
-func (m *Mappers) MapSiteLogoEntityToDomain(eLogo *edownload.SiteLogo) (*dmedia.SiteLogo, error) {
+func (m *Mappers) MapSiteLogoEntityToDomain(eLogo *emedia.SiteLogo) (*dmedia.SiteLogo, error) {
 	logoID, err := uuid.Parse(eLogo.LogoID)
 	if err != nil {
 		return nil, err

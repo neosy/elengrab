@@ -9,6 +9,9 @@
 - Change the placeholder for the input field. Closes #188
 - Change the title in the index. Closes #193
 
+### Refactor
+- Moved media tables to a separate media.db file. Closes #197
+
 ### Fix
 - Update delete endpoint path
 

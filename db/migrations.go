@@ -18,6 +18,9 @@ var migrationsMainFS embed.FS
 //go:embed auth/migrations/*
 var migrationsAuthFS embed.FS
 
+//go:embed media/migrations/*
+var migrationsMediaFS embed.FS
+
 func migrationsMainRoot() (fs.FS, error) {
 	return fs.Sub(migrationsMainFS, "download/migrations")
 }
@@ -26,9 +29,19 @@ func migrationsAuthRoot() (fs.FS, error) {
 	return fs.Sub(migrationsAuthFS, "auth/migrations")
 }
 
+func migrationsMediaRoot() (fs.FS, error) {
+	return fs.Sub(migrationsMediaFS, "media/migrations")
+}
+
 type MigrationConfig struct {
+	// Path to SQLite database directory
+	SQLiteDir string
 	// path to migration files
 	Dir string
+	// Disable automatic transaction wrapping for migrations (required for ATTACH, etc.)
+	NoTxWrap bool
+	// Enable copying migrations and resolving ${SOURCE_DB} placeholders
+	ResolveSourceDB bool
 }
 
 // Migrations represents a database migration manager.
@@ -55,6 +68,8 @@ func NewMigrations(logger *slog.Logger, db *sql.DB, dbName persistence.DBName, c
 		fs, _ = migrationsMainRoot()
 	case persistence.DBAuthName:
 		fs, _ = migrationsAuthRoot()
+	case persistence.DBMediaName:
+		fs, _ = migrationsMediaRoot()
 	}
 
 	return &Migrations{
@@ -86,8 +101,13 @@ func (m *Migrations) applyUp(migrator *migrate.Migrate) error {
 // Returns:
 //   - error: non-nil if any step fails.
 func (m *Migrations) ApplyMigrations() error {
+	sqliteConfig := &sqlite.Config{}
+	if m.config != nil {
+		sqliteConfig.NoTxWrap = m.config.NoTxWrap
+	}
+
 	// Create SQLite driver instance for golang-migrate
-	sqlDrv, err := sqlite.WithInstance(m.db, &sqlite.Config{})
+	sqlDrv, err := sqlite.WithInstance(m.db, sqliteConfig)
 	if err != nil {
 		return fmt.Errorf("failed to create migrate driver: %w", err)
 	}
@@ -101,9 +121,17 @@ func (m *Migrations) ApplyMigrations() error {
 		migrator = newMigratorFS(sqlDrv, m.fs)
 	}
 
-	src, err := migrator.newSource()
+	var driver sourceDriverWrapper = nil
+	if m.config != nil && m.config.ResolveSourceDB {
+		driver = newSQLiteDriverSource(m.config.SQLiteDir)
+	}
+
+	src, cleanup, err := migrator.newSource(driver)
 	if err != nil {
 		return fmt.Errorf("failed to create migration source: %w", err)
+	}
+	if cleanup != nil {
+		defer cleanup()
 	}
 
 	mgr, err := migrator.newMigrator(src)

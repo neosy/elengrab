@@ -1,4 +1,4 @@
-package download
+package media
 
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 	"github.com/google/uuid"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
-	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
-	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
+	emedia "github.com/neosy/elengrab/internal/repository/sqlite/media/entity"
+	"github.com/neosy/elengrab/internal/repository/sqlite/media/mappers"
 	"github.com/neosy/elengrab/pkg/dbutils"
 )
 
@@ -85,7 +85,7 @@ func (r *SiteLogoRepository) Save(ctx context.Context, logo *dmedia.SiteLogo) er
 }
 
 func (r *SiteLogoRepository) FindByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia.SiteLogo, error) {
-	var ent edownload.SiteLogo
+	var ent emedia.SiteLogo
 
 	// Build SQL query
 	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
@@ -130,7 +130,7 @@ func (r *SiteLogoRepository) FindByLogoID(ctx context.Context, logoID uuid.UUID)
 }
 
 func (r *SiteLogoRepository) ExistsByLogoID(ctx context.Context, logoID uuid.UUID) (bool, error) {
-	var ent edownload.SiteLogo
+	var ent emedia.SiteLogo
 
 	// Build SQL query: SELECT 1 FROM table WHERE logo_id = $1 LIMIT 1
 	query, args, err := squirrel.Select("1").
@@ -161,7 +161,7 @@ func (r *SiteLogoRepository) ExistsByLogoID(ctx context.Context, logoID uuid.UUI
 }
 
 func (r *SiteLogoRepository) FindBySiteURL(ctx context.Context, siteURL string) (*dmedia.SiteLogo, error) {
-	var ent edownload.SiteLogo
+	var ent emedia.SiteLogo
 
 	// Build SQL query
 	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
@@ -206,7 +206,7 @@ func (r *SiteLogoRepository) FindBySiteURL(ctx context.Context, siteURL string) 
 }
 
 func (r *SiteLogoRepository) ExistsBySiteURL(ctx context.Context, siteURL string) (bool, error) {
-	var ent edownload.SiteLogo
+	var ent emedia.SiteLogo
 
 	// Build SQL query: SELECT 1 FROM table WHERE site_url = $1 LIMIT 1
 	query, args, err := squirrel.Select("1").

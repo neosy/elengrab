@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// parseSize parses a size string in the resolution format.
 func parseSize(s string) int {
 	// "180x180" → 180
 	if s == "" {
@@ -19,6 +20,7 @@ func parseSize(s string) int {
 	return v
 }
 
+// resolveURL resolves a relative URL to an absolute URL.
 func resolveURL(base, ref string) string {
 	u, err := url.Parse(ref)
 	if err != nil {
