@@ -30,5 +30,6 @@ CREATE TABLE IF NOT EXISTS download_tasks (
     FOREIGN KEY (file_id) REFERENCES files(file_id) ON DELETE CASCADE
 );
 
+-- Create an index on the file_id column for faster querying by file.
 CREATE INDEX IF NOT EXISTS download_tasks_file_id_idx
 ON download_tasks(file_id);

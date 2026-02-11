@@ -24,6 +24,7 @@ type File struct {
 	SafeReadableFullName string     `db:"safe_readable_full_name"`
 	MediaInfo            *string    `db:"media_info"`
 	ErrorMessage         *string    `db:"error_message"`
+	DownloadedAt         *string    `db:"downloaded_at"`
 	CreatedAt            time.Time  `db:"created_at" insert:"false"`
 	UpdatedAt            time.Time  `db:"updated_at" sqlexpr:"CURRENT_TIMESTAMP"`
 	DeletedAt            *time.Time `db:"deleted_at" insert:"false"`

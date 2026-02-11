@@ -24,5 +24,5 @@ type UserSession struct {
 }
 
 func (s *UserSession) Expired() bool {
-	return time.Now().After(s.ExpiresAt)
+	return time.Now().UTC().After(s.ExpiresAt)
 }

@@ -71,7 +71,7 @@ func (u *User) genLogin() (string, error) {
 		return "", err
 	}
 
-	ts := strconv.FormatInt(time.Now().Unix(), 36)
+	ts := strconv.FormatInt(time.Now().UTC().Unix(), 36)
 
 	return fmt.Sprintf("user-%s%s", hex.EncodeToString(b), ts), nil
 }

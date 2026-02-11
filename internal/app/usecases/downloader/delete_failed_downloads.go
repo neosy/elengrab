@@ -24,7 +24,7 @@ func (uc *YouTubeDownloader) DeleteFailedDownloads(ctx context.Context) error {
 	}
 
 	for _, file := range files {
-		if time.Now().After(file.CreatedAt.Add(failedDownloadRetentionPeriod)) {
+		if time.Now().UTC().After(file.CreatedAt.UTC().Add(failedDownloadRetentionPeriod)) {
 			err := uc.file.HardDelete(ctx, file.FileId)
 			if err != nil {
 				uc.logger.Warn("Failed to hard delete file", "fileId", file.FileId, "error", err)

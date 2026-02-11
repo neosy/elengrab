@@ -25,7 +25,7 @@ func (u *Auth) RefreshSession(ctx context.Context, sessionID uuid.UUID) (time.Ti
 			return nil
 		}
 
-		newExpiry := time.Now().Add(sessionTTL)
+		newExpiry := time.Now().UTC().Add(sessionTTL)
 		session.ExpiresAt = newExpiry
 		err = u.userSession.Update(ctx, session)
 		if err != nil {
