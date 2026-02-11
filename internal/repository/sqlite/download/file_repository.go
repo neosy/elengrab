@@ -367,10 +367,11 @@ func (r *FileRepository) getAll(
 
 	sqlWhere := conditions
 
-	coalesce := "COALESCE(" +
-		eFile.FieldNameWithAlias(&eFile.DownloadedAt, aliasFiles) + ", " +
-		eFile.FieldNameWithAlias(&eFile.CreatedAt, aliasFiles) + ")"
-	orderBy := dbutils.OrderBy(dbutils.Flds{coalesce: sortOrderBy})
+	// Create an ORDER BY clause based on fieldы with the specified sort order.
+	orderBy := dbutils.OrderBy(
+		dbutils.Flds{
+			eFile.FieldNameWithAlias(&eFile.CreatedAt, aliasFiles): sortOrderBy,
+		})
 
 	qb := squirrel.Select(selectFields...).
 		From(eFile.TableName() + " AS " + aliasFiles).
