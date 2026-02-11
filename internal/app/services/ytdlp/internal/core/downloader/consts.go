@@ -9,4 +9,6 @@ const (
 	channelAvatarTimeout = 5 * time.Second
 	ytDlpTimeout         = 2 * time.Hour
 	ytDlpRetryDelay      = 2 * time.Second
+
+	maxTitleLengthInFilename = 100
 )

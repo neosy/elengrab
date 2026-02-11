@@ -47,6 +47,10 @@ func (d *Downloader) prepareMetadata(
 	}
 
 	if includeTitleInFilename {
+		// Sanitize the title to ensure it is a valid file name.
+		title := nfasthttp.SanitizeFileName(title)
+		// Truncate the title to fit within the maximum length allowed for filenames.
+		title = helper.TruncateUTF8(title, maxTitleLengthInFilename)
 		fileName = fmt.Sprintf("%s_%s", nfasthttp.SanitizeFileName(title), fileName)
 	}
 

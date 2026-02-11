@@ -1,5 +1,12 @@
 # Releases
 
+## v0.11.2 — 2026-02-11
+
+### Fix
+- Reduce the length of the file name
+
+---
+
 ## v0.11.1 — 2026-02-04
 
 ### Hotfix
