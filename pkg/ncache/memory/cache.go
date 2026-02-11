@@ -82,7 +82,7 @@ func (c *Cache[K, T]) Save(key K, value *T, ttl time.Duration) {
 
 	expiresAt := time.Time{}
 	if ttl > 0 {
-		expiresAt = time.Now().Add(ttl)
+		expiresAt = time.Now().UTC().Add(ttl)
 	}
 
 	c.cache[key] = &Item[T]{
@@ -137,7 +137,7 @@ func (c Cache[K, T]) Exists(key K) bool {
 
 // CleanExpired removes all expired items from the cache.
 func (c Cache[K, T]) CleanExpired() {
-	now := time.Now()
+	now := time.Now().UTC()
 	for key, cacheValue := range c.cache {
 		if cacheValue.ExpiredAt(now) {
 			delete(c.cache, key)

@@ -51,6 +51,9 @@ type File struct {
 	// Error message
 	ErrorMessage *string
 
+	// Downloaded timestamp
+	DownloadedAt *time.Time
+
 	// Timestamp when the record was created
 	CreatedAt time.Time
 
@@ -76,6 +79,7 @@ func (src *File) Copy() *File {
 	copy.PartialHash = uptr.Copy(src.PartialHash)
 	copy.MediaInfo = src.MediaInfo.Copy()
 	copy.ErrorMessage = uptr.Copy(src.ErrorMessage)
+	copy.DownloadedAt = uptr.Copy(src.DownloadedAt)
 	copy.DeletedAt = uptr.Copy(src.DeletedAt)
 	copy.DownloadTask = src.DownloadTask.Copy()
 

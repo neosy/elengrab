@@ -139,7 +139,7 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 			Format:           fileInfo.FileExt,
 			Status:           fileInfo.Status,
 			ProgressPercent:  progressPercent,
-			Updated:          time.Now(),
+			Updated:          time.Now().UTC(),
 		}
 		cacheRow.mu.Unlock()
 	}
@@ -156,7 +156,7 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 		logoVersion = "site-logo"
 	}
 	if logoVersion == "" {
-		logoVersion = fmt.Sprintf("%d", time.Now().Unix())
+		logoVersion = fmt.Sprintf("%d", time.Now().UTC().Unix())
 	}
 
 	data := fileRowInfoData{

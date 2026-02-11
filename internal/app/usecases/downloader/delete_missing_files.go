@@ -150,7 +150,7 @@ func (uc *YouTubeDownloader) moveUnmatchedFiles(ctx context.Context) error {
 			continue
 		}
 
-		if time.Now().Before(info.ModTime().Add(moveUnmatchedFileRetentionPeriod)) {
+		if time.Now().UTC().Before(info.ModTime().UTC().Add(moveUnmatchedFileRetentionPeriod)) {
 			continue
 		}
 

@@ -57,7 +57,7 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		data = grabResultData{
 			MediaURL:         url,
 			YoutubeChannelID: channelIDValueNone,
-			LogoVersion:      fmt.Sprintf("%d", time.Now().Unix()),
+			LogoVersion:      fmt.Sprintf("%d", time.Now().UTC().Unix()),
 		}
 	)
 
@@ -93,7 +93,7 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		cacheRow.data[resp.FileId] = cacheRowEntry{
 			mediaTitle: resp.MediaTitle,
 			Format:     resp.Format,
-			Updated:    time.Now(),
+			Updated:    time.Now().UTC(),
 		}
 		cacheRow.mu.Unlock()
 	}
