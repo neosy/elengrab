@@ -40,6 +40,9 @@ CREATE TABLE IF NOT EXISTS files (
 
     -- Error message
     error_message TEXT NULL,
+
+    -- Downloaded timestamp
+    downloaded_at DATETIME NULL,
     
     -- Record creation timestamp, set automatically
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -48,18 +51,28 @@ CREATE TABLE IF NOT EXISTS files (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- Record delete timestamp
-    deleted_at DATETIME NULL,
+    deleted_at DATETIME NULL
 );
 
+-- Index for faster querying by creation date
 CREATE INDEX IF NOT EXISTS files_created_at_idx
 ON files(created_at);
 
+
+-- Create index for partial_hash field.
 CREATE INDEX IF NOT EXISTS files_partial_hash_idx
 ON files(partial_hash);
 
+-- Create index for deleted_at field where it is null.
+-- This allows us to query only non-deleted records efficiently.
 CREATE INDEX files_deleted_at_null_idx
 ON files(deleted_at)
 WHERE deleted_at IS NULL;
 
+-- Create index for user_id field
 CREATE INDEX IF NOT EXISTS files_user_id_idx
 ON files(user_id);
+
+-- Create index for sorting by download or update time, prioritizing downloads if available.
+CREATE INDEX files_downloaded_created_sort_idx
+ON files(COALESCE(downloaded_at, created_at) DESC);

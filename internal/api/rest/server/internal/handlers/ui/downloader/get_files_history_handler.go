@@ -11,7 +11,7 @@ import (
 
 func (h *DownloaderHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 	var (
-		before     = time.Now()
+		before     = time.Now().UTC()
 		bodyBuffer bytes.Buffer
 	)
 

@@ -10,7 +10,7 @@ type Item[T any] struct {
 
 // Valid reports whether the item is still valid (not expired).
 func (e *Item[T]) Valid() bool {
-	return e.expiresAt.IsZero() || !time.Now().After(e.expiresAt)
+	return e.expiresAt.IsZero() || !time.Now().UTC().After(e.expiresAt)
 }
 
 // Expired reports whether the item has expired.

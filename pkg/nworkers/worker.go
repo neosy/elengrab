@@ -96,7 +96,7 @@ func (w *worker) Run(ctx context.Context, stop <-chan struct{}) error {
 
 	if w.optons.StartAt != nil && w.optons.Interval != nil {
 		startAt := *w.optons.StartAt
-		now := time.Now()
+		now := time.Now().UTC()
 
 		if startAt.Before(now) {
 			// move startAt forward to the next valid interval

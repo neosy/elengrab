@@ -60,7 +60,7 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 		intervalFlushWAL                 = nworkers.NewInterval(intervalFlushWALDefault, deps.IntervalFlushWAL)
 	)
 
-	now := time.Now()
+	now := time.Now().UTC()
 	backupDatabaseStartAt := time.Date(
 		now.Year(), now.Month(), now.Day(),
 		0, 0, 0, 0, now.Location(),

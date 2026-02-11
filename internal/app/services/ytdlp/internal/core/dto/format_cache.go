@@ -140,7 +140,7 @@ func (c *FormatCache) IsTTLValid(filePath string) (bool, error) {
 	}
 
 	expiredTime := fileInfo.ModTime().Add(formatCacheTTL)
-	return time.Now().Before(expiredTime), nil
+	return time.Now().UTC().Before(expiredTime), nil
 }
 
 func FormatCacheFileName(url string) string {

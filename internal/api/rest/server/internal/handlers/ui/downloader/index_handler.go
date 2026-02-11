@@ -21,7 +21,7 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	resps, err := h.usecases.Downloader.LoadHistory(ctx, userID, time.Now(), 1)
+	resps, err := h.usecases.Downloader.LoadHistory(ctx, userID, time.Now().UTC(), 1)
 	if err == nil {
 		needLoadHistory = len(resps) != 0
 	}

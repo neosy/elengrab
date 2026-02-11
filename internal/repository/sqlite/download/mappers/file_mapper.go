@@ -3,10 +3,13 @@ package mappers
 import (
 	"database/sql"
 	"encoding/json"
+	"time"
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
+	"github.com/neosy/elengrab/pkg/dbutils"
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 func (m *Mappers) MapFileDomainToEntity(file *ddownload.File) (*edownload.File, error) {
@@ -17,6 +20,11 @@ func (m *Mappers) MapFileDomainToEntity(file *ddownload.File) (*edownload.File, 
 			return nil, err
 		}
 		mediaInfoJson = string(data)
+	}
+
+	var downloadedAt *string
+	if file.DownloadedAt != nil {
+		downloadedAt = uptr.String(file.DownloadedAt.Format(dbutils.SQLiteDateTimeFormat))
 	}
 
 	return &edownload.File{
@@ -34,6 +42,7 @@ func (m *Mappers) MapFileDomainToEntity(file *ddownload.File) (*edownload.File, 
 		SafeReadableFullName: file.SafeReadableFullName,
 		MediaInfo:            &mediaInfoJson,
 		ErrorMessage:         file.ErrorMessage,
+		DownloadedAt:         downloadedAt,
 	}, nil
 }
 
@@ -65,6 +74,15 @@ func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.
 		}
 	}
 
+	var downloadedAt *time.Time
+	if eFile.DownloadedAt != nil {
+		t, err := time.Parse(time.RFC3339, *eFile.DownloadedAt)
+		if err != nil {
+			return nil, err
+		}
+		downloadedAt = &t
+	}
+
 	return &ddownload.File{
 		FileId:               eFile.FileId,
 		UserID:               eFile.UserID,
@@ -80,6 +98,7 @@ func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.
 		SafeReadableFullName: eFile.SafeReadableFullName,
 		MediaInfo:            mediaInfo,
 		ErrorMessage:         eFile.ErrorMessage,
+		DownloadedAt:         downloadedAt,
 		CreatedAt:            eFile.CreatedAt,
 		UpdatedAt:            eFile.UpdatedAt,
 		DeletedAt:            eFile.DeletedAt,

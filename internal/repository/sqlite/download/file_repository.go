@@ -328,7 +328,7 @@ func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*d
 func (r *FileRepository) getAll(
 	ctx context.Context,
 	byFields fileByFields,
-	sortOrderByCreatedAt string,
+	sortOrderBy string,
 	includeDeleted bool,
 ) ([]*ddownload.File, error) {
 	var (
@@ -367,10 +367,15 @@ func (r *FileRepository) getAll(
 
 	sqlWhere := conditions
 
+	coalesce := "COALESCE(" +
+		eFile.FieldNameWithAlias(&eFile.DownloadedAt, aliasFiles) + ", " +
+		eFile.FieldNameWithAlias(&eFile.CreatedAt, aliasFiles) + ")"
+	orderBy := dbutils.OrderBy(dbutils.Flds{coalesce: sortOrderBy})
+
 	qb := squirrel.Select(selectFields...).
 		From(eFile.TableName() + " AS " + aliasFiles).
 		Where(sqlWhere).
-		OrderBy(dbutils.OrderBy(dbutils.Flds{eFile.FieldNameWithAlias(&eFile.CreatedAt, aliasFiles): sortOrderByCreatedAt})).
+		OrderBy(orderBy).
 		LeftJoin(
 			eTask.TableName() + " AS " + aliasTasks +
 				" ON " + eTask.FieldNameWithAlias(&eTask.FileId, aliasTasks) +
@@ -600,10 +605,12 @@ func (r *FileRepository) GetDeleted(ctx context.Context, from, to *time.Time) ([
 		})
 	}
 
+	orderBy := dbutils.OrderBy(dbutils.Flds{eFile.FieldName(&eFile.DeletedAt): dbutils.OrderAsc})
+
 	sqlQuery, args, err := squirrel.Select(eFile.FieldsAll()...).
 		From(eFile.TableName()).
 		Where(sqlWhere).
-		OrderBy(dbutils.OrderBy(dbutils.Flds{eFile.FieldName(&eFile.DeletedAt): dbutils.OrderAsc})).
+		OrderBy(orderBy).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 
