@@ -69,6 +69,7 @@ func (r *SiteLogoRepository) Delete(_ context.Context, logoID uuid.UUID) error {
 	return r.Repository.Delete(fnDelete)
 }
 
+// FindByLogoID retrieves a site logo by its unique ID from the repository.
 func (r *SiteLogoRepository) FindByLogoID(_ context.Context, logoID uuid.UUID) (*dmedia.SiteLogo, error) {
 	fnFind := func() (*dmedia.SiteLogo, error) {
 		return r.cacheByLogoID.Find(logoID), nil
@@ -76,6 +77,7 @@ func (r *SiteLogoRepository) FindByLogoID(_ context.Context, logoID uuid.UUID) (
 	return r.Repository.Find(fnFind)
 }
 
+// Checks if a site logo exists in the repository by its logo ID.
 func (r *SiteLogoRepository) ExistsByLogoID(_ context.Context, logoID uuid.UUID) (bool, error) {
 	fnExists := func() (bool, error) {
 		return r.cacheByLogoID.Exists(logoID), nil
@@ -83,13 +85,16 @@ func (r *SiteLogoRepository) ExistsByLogoID(_ context.Context, logoID uuid.UUID)
 	return r.Repository.Exists(fnExists)
 }
 
+// FindBySiteURL retrieves a site logo by its URL from the repository.
 func (r *SiteLogoRepository) FindBySiteURL(_ context.Context, siteURL string) (*dmedia.SiteLogo, error) {
+	// Define a function to find the site logo in the cache.
 	fnFind := func() (*dmedia.SiteLogo, error) {
 		return r.cacheBySiteURL.Find(siteURL), nil
 	}
 	return r.Repository.Find(fnFind)
 }
 
+// Checks if a site logo exists in the repository based on the provided site URL.
 func (r *SiteLogoRepository) ExistsBySiteURL(_ context.Context, siteURL string) (bool, error) {
 	fnExists := func() (bool, error) {
 		return r.cacheBySiteURL.Exists(siteURL), nil
@@ -97,6 +102,7 @@ func (r *SiteLogoRepository) ExistsBySiteURL(_ context.Context, siteURL string) 
 	return r.Repository.Exists(fnExists)
 }
 
+// CleanExpired cleans expired items from the cache and calls the provided clean function.
 func (r *SiteLogoRepository) CleanExpired(_ context.Context) error {
 	clean := func() error {
 		r.cacheByLogoID.CleanExpired()

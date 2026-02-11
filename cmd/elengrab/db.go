@@ -12,6 +12,7 @@ import (
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
 )
 
+// newDB initializes a new SQLite database connection.
 func newDB(logger *slog.Logger, dbPath string) (*sql.DB, error) {
 	db, err := sqliterep.InitDB(logger, dbPath)
 	if err != nil {
@@ -22,6 +23,7 @@ func newDB(logger *slog.Logger, dbPath string) (*sql.DB, error) {
 	return db, nil
 }
 
+// applyMigrations applies the necessary database migrations for the SQLite databases.
 func applyMigrations(
 	logger *slog.Logger,
 	cfg *iconfig.Config,

@@ -12,6 +12,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/file"
 )
 
+// SQLiteDriverSource creates a new source driver for SQLite.
 func newSQLiteDriverSource(sqliteDir string) sourceDriverWrapper {
 	return func(drv source.Driver) (source.Driver, sourceCleanup, error) {
 		if sqliteDir == "" {
