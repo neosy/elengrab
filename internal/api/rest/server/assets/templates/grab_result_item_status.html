@@ -6,7 +6,7 @@
         hx-swap="outerHTML"
     {{end }}>
     <div class="result-left">
-        <span class="result-channel-avatar">
+        <span class="result-channel-avatar" title="{{ .AvatarTitle }}">
             {{ $logoAttr := "" }}
             {{ if ne .DownloadStatus "failed" }}
                 {{ $logoAttr = printf "?v=%s" .LogoVersion }}

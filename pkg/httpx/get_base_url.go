@@ -5,9 +5,9 @@ import (
 	"net/url"
 )
 
-// GetBaseURL returns the base URL (scheme + host) from a full URL string.
+// BaseURL returns the base URL (scheme + host) from a full URL string.
 // If parsing fails, it returns an empty string.
-func GetBaseURL(raw string) string {
+func BaseURL(raw string) string {
 	u, err := url.Parse(raw)
 	if err != nil || u.Scheme == "" || u.Host == "" {
 		return ""

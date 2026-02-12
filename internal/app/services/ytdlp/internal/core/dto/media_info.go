@@ -26,13 +26,14 @@ type MediaFormat struct {
 }
 
 type MediaInfo struct {
-	ID         string        `json:"id"`
-	Title      string        `json:"title"`
-	Extractor  string        `json:"extractor"`
-	ChannelID  string        `json:"channel_id"`
-	ChannelUrl string        `json:"channel_url"`
-	Duration   float64       `json:"duration"`
-	Formats    []MediaFormat `json:"formats"`
+	ID           string        `json:"id"`
+	Title        string        `json:"title"`
+	Extractor    string        `json:"extractor"`
+	ChannelID    string        `json:"channel_id"`
+	ChannelUrl   string        `json:"channel_url"`
+	ChannelTitle string        `json:"uploader"`
+	Duration     float64       `json:"duration"`
+	Formats      []MediaFormat `json:"formats"`
 }
 
 func (f *MediaFormat) AudioCodec() dtypes.AudioCodec {

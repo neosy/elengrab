@@ -2,6 +2,8 @@ package nmemory
 
 import (
 	"time"
+
+	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 // Cache is a generic in-memory cache that maps keys of type K to Items of type T.
@@ -71,13 +73,12 @@ func NewCacheWithDeaultCopier[K comparable, T any, PT copyable[T]]() Cache[K, T]
 // Save stores a value in the cache with an optional copy function and TTL.
 // If ttl > 0, the item expires after the specified duration.
 func (c *Cache[K, T]) Save(key K, value *T, ttl time.Duration) {
-	if value == nil {
-		return
-	}
-
-	valueCopy := value
-	if c.copier != nil {
-		valueCopy = c.copier(value)
+	var valueCopy *T
+	if value != nil {
+		valueCopy = uptr.Copy(value)
+		if c.copier != nil {
+			valueCopy = c.copier(value)
+		}
 	}
 
 	expiresAt := time.Time{}
@@ -85,8 +86,14 @@ func (c *Cache[K, T]) Save(key K, value *T, ttl time.Duration) {
 		expiresAt = time.Now().UTC().Add(ttl)
 	}
 
+	var cacheStatus = CacheStatusHit
+	if valueCopy == nil {
+		cacheStatus = CacheStatusNegativeHit
+	}
+
 	c.cache[key] = &Item[T]{
 		value:     valueCopy,
+		status:    cacheStatus,
 		expiresAt: expiresAt,
 	}
 }
@@ -97,6 +104,27 @@ func (c Cache[K, T]) Delete(key K) {
 		return
 	}
 	delete(c.cache, key)
+}
+
+// FindWithStatus returns the cached value for the given key, or nil if not found or expired.
+// An optional copy function can be used to return a copy of the value.
+func (c Cache[K, T]) FindWithStatus(key K) (*T, CacheStatus) {
+	cacheData, exists := c.cache[key]
+	if !exists {
+		return nil, CacheStatusMiss
+	}
+
+	if cacheData.Expired() {
+		delete(c.cache, key)
+		return nil, CacheStatusMiss
+	}
+
+	valueCopy := cacheData.value
+	if c.copier != nil {
+		valueCopy = c.copier(cacheData.value)
+	}
+
+	return valueCopy, cacheData.status
 }
 
 // Find returns the cached value for the given key, or nil if not found or expired.
@@ -122,17 +150,11 @@ func (c Cache[K, T]) Find(key K) *T {
 
 // Exists checks if the cache contains a non-expired item for the given key.
 func (c Cache[K, T]) Exists(key K) bool {
-	cacheData, exists := c.cache[key]
-	if !exists {
-		return false
+	_, status := c.FindWithStatus(key)
+	if status == CacheStatusHit {
+		return true
 	}
-
-	if cacheData.Expired() {
-		delete(c.cache, key)
-		return false
-	}
-
-	return true
+	return false
 }
 
 // CleanExpired removes all expired items from the cache.

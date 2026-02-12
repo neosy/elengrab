@@ -111,12 +111,12 @@ func (d *Downloader) Download(
 
 	// Start asynchronous fetching of the channel avatar.
 	// Returns a channel from which the avatar can be read once the goroutine completes.
-	d.fetchChannelAvatarAsync(
+	d.fetchChannelAsync(
 		&wg,
 		meta.CopyMeta(),
-		func(avatar *ddownload.DownloadResultChannelAvatar) {
+		func(channel *ddownload.DownloadChannel) {
 			meta.Lock()
-			meta.Meta.ChannelAvatar = avatar
+			meta.Meta.Channel = channel
 			meta.Unlock()
 			sendData(meta.InitialResult())
 		},

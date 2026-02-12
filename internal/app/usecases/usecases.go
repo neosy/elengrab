@@ -43,8 +43,8 @@ type DepRepositories struct {
 	UserSession persistence.UserSessionRepository
 
 	// in memory
-	DownloadStateCache  persistence.DownloadStateRepository
-	YoutubeChannelCache persistence.YoutubeChannelRepository
+	DownloadStateCache  persistence.DownloadStateCacheRepository
+	YoutubeChannelCache persistence.YoutubeChannelCacheRepository
 	SiteLogoCache       persistence.SiteLogoCacheRepository
 }
 

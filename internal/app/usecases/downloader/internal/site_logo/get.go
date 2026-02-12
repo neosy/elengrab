@@ -7,6 +7,7 @@ import (
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	"github.com/neosy/elengrab/pkg/errorx"
 	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
+	nmemory "github.com/neosy/elengrab/pkg/ncache/memory"
 )
 
 // FindByLogoID
@@ -27,7 +28,7 @@ func (uc *SiteLogo) FindByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia
 		return nil, errorx.NewByErr(err, exceptionx.ERROR)
 	}
 
-	err = uc.logoCacheRep.Insert(ctx, logo)
+	err = uc.logoCacheRep.Save(ctx, logo)
 	if err != nil {
 		uc.logger.Warn("Failed to insert siteLogo cache", "error", err)
 	}
@@ -73,9 +74,12 @@ func (uc *SiteLogo) FindBySiteURL(ctx context.Context, siteURL string) (*dmedia.
 		return nil, nil
 	}
 
-	logo, _ := uc.logoCacheRep.FindBySiteURL(ctx, siteURL)
+	logo, cacheStatus, _ := uc.logoCacheRep.FindBySiteURL(ctx, siteURL)
 	if logo != nil {
 		return logo, nil
+	}
+	if cacheStatus == nmemory.CacheStatusNegativeHit {
+		return nil, nil
 	}
 
 	logo, err := uc.logoRep.FindBySiteURL(ctx, siteURL)
@@ -85,10 +89,11 @@ func (uc *SiteLogo) FindBySiteURL(ctx context.Context, siteURL string) (*dmedia.
 	}
 
 	if logo == nil {
+		err = uc.logoCacheRep.SaveNegative(ctx, siteURL)
 		return nil, nil
 	}
 
-	err = uc.logoCacheRep.Insert(ctx, logo)
+	err = uc.logoCacheRep.Save(ctx, logo)
 	if err != nil {
 		uc.logger.Warn("Failed to insert siteLogo cache", "error", err)
 	}

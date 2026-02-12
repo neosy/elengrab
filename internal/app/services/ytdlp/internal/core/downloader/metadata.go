@@ -94,6 +94,7 @@ func (d *Downloader) prepareMetadata(
 		FileSize:     fileSize,
 		ChannelID:    channelID,
 		ChannelURL:   dtoMediaInfo.ChannelUrl,
+		ChannelTitle: dtoMediaInfo.ChannelTitle,
 		MediaInfo:    mediaInfo,
 		Options:      options,
 	}, nil

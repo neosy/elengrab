@@ -23,5 +23,17 @@ func (uc *YoutubeChannel) Create(ctx context.Context, channel *dmedia.YoutubeCha
 		return err
 	}
 
+	channel, _ = uc.channelRep.FindByChannelID(ctx, channel.ChannelID)
+	if channel != nil {
+		err := uc.channelCacheRep.Save(ctx, channel)
+		if err != nil {
+			uc.logger.Warn(
+				"Failed to save cache",
+				"channelID", channel.ChannelID,
+				"error", err,
+			)
+		}
+	}
+
 	return nil
 }

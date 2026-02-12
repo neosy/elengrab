@@ -97,9 +97,24 @@ func (uc *YouTubeDownloader) findStateAndFileInfo(
 		fileResp = uptr.Any(*file)
 	}
 
-	hasSiteLogo, _ := uc.siteLogo.ExistsBySiteURLFromCache(ctx, httpx.GetBaseURL(fileResp.MediaUrl))
+	var avatarTitle string
+	if fileResp.YoutubeChannelID != nil {
+		channel, _ := uc.ytChannel.FindByChannelID(ctx, *fileResp.YoutubeChannelID)
+		if channel != nil {
+			avatarTitle = channel.ChannelTitle
+		}
+	}
 
-	return uc.mappers.MapFileDomainToFileInfoResponse(fileResp, dlProgress, uc.downloadsDir, hasSiteLogo), nil
+	var hasSiteLogo bool
+	siteLogo, _ := uc.siteLogo.FindBySiteURL(ctx, httpx.BaseURL(fileResp.MediaUrl))
+	if siteLogo != nil {
+		hasSiteLogo = true
+		if avatarTitle == "" {
+			avatarTitle = siteLogo.SiteTitle
+		}
+	}
+
+	return uc.mappers.MapFileDomainToFileInfoResponse(fileResp, avatarTitle, dlProgress, uc.downloadsDir, hasSiteLogo), nil
 }
 
 func (uc *YouTubeDownloader) LoadHistory(

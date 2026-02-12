@@ -25,7 +25,7 @@ func (uc *YouTubeDownloader) GetLogo(ctx context.Context, userID uuid.UUID, file
 		}
 	}
 
-	logo, err := uc.siteLogo.GetBySiteURL(ctx, httpx.GetBaseURL(resp.MediaUrl))
+	logo, err := uc.siteLogo.GetBySiteURL(ctx, httpx.BaseURL(resp.MediaUrl))
 	if err != nil {
 		return nil, err
 	}
