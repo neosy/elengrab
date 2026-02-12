@@ -47,6 +47,14 @@ func (r *Repository[T]) Find(fnFind func() (*T, error)) (*T, error) {
 	return fnFind()
 }
 
+// FindWithStatus executes a read operation safely under a read lock, returning the cache status.
+func (r *Repository[T]) FindWithStatus(fnFind func() (*T, CacheStatus, error)) (*T, CacheStatus, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	return fnFind()
+}
+
 // Exists executes a read operation to check existence safely under a read lock.
 func (r *Repository[T]) Exists(fnExists func() (bool, error)) (bool, error) {
 	r.mu.RLock()

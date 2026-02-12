@@ -4,6 +4,7 @@ import (
 	"context"
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	nmemory "github.com/neosy/elengrab/pkg/ncache/memory"
 )
 
 type YoutubeChannelRepository interface {
@@ -15,6 +16,9 @@ type YoutubeChannelRepository interface {
 }
 
 type YoutubeChannelCacheRepository interface {
-	YoutubeChannelRepository
+	Save(ctx context.Context, channel *dmedia.YoutubeChannel) error
+	SaveNegative(ctx context.Context, channelID string) error
+	FindByChannelID(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, nmemory.CacheStatus, error)
+	ExistsByChannelID(ctx context.Context, channelID string) (bool, error)
 	CleanExpired(ctx context.Context) error
 }

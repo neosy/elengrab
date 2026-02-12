@@ -26,6 +26,7 @@ func newSiteLogoRepository(ttl time.Duration) *SiteLogoRepository {
 	return r
 }
 
+// Save saves a new logo to the repository.
 func (r *SiteLogoRepository) Save(_ context.Context, logo *dmedia.SiteLogo) error {
 	if logo == nil || logo.LogoID == uuid.Nil || logo.SiteURL == "" {
 		return nil
@@ -48,22 +49,32 @@ func (r *SiteLogoRepository) Save(_ context.Context, logo *dmedia.SiteLogo) erro
 	return r.Repository.Save(save)
 }
 
-func (r *SiteLogoRepository) Insert(ctx context.Context, logo *dmedia.SiteLogo) error {
-	return r.Save(ctx, logo)
+// SaveNegative saves a negative entry for a given site URL to the repository.
+func (r *SiteLogoRepository) SaveNegative(_ context.Context, siteURL string) error {
+	if siteURL == "" {
+		return nil
+	}
+
+	save := func() error {
+		r.cacheBySiteURL.Save(
+			siteURL,
+			nil,
+			r.TTL(),
+		)
+		return nil
+	}
+
+	return r.Repository.Save(save)
 }
 
-func (r *SiteLogoRepository) Update(ctx context.Context, logo *dmedia.SiteLogo) error {
-	return r.Save(ctx, logo)
-}
-
-func (r *SiteLogoRepository) Delete(_ context.Context, logoID uuid.UUID) error {
+func (r *SiteLogoRepository) Delete(_ context.Context, logoID uuid.UUID, siteURL string) error {
 	fnDelete := func() error {
-		logo := r.cacheByLogoID.Find(logoID)
-		if logo == nil {
-			return nil
+		if logoID != uuid.Nil {
+			r.cacheByLogoID.Delete(logoID)
 		}
-		r.cacheByLogoID.Delete(logoID)
-		r.cacheBySiteURL.Delete(logo.SiteURL)
+		if siteURL != "" {
+			r.cacheBySiteURL.Delete(siteURL)
+		}
 		return nil
 	}
 	return r.Repository.Delete(fnDelete)
@@ -86,12 +97,13 @@ func (r *SiteLogoRepository) ExistsByLogoID(_ context.Context, logoID uuid.UUID)
 }
 
 // FindBySiteURL retrieves a site logo by its URL from the repository.
-func (r *SiteLogoRepository) FindBySiteURL(_ context.Context, siteURL string) (*dmedia.SiteLogo, error) {
+func (r *SiteLogoRepository) FindBySiteURL(_ context.Context, siteURL string) (*dmedia.SiteLogo, nmemory.CacheStatus, error) {
 	// Define a function to find the site logo in the cache.
-	fnFind := func() (*dmedia.SiteLogo, error) {
-		return r.cacheBySiteURL.Find(siteURL), nil
+	fnFind := func() (*dmedia.SiteLogo, nmemory.CacheStatus, error) {
+		data, status := r.cacheBySiteURL.FindWithStatus(siteURL)
+		return data, status, nil
 	}
-	return r.Repository.Find(fnFind)
+	return r.Repository.FindWithStatus(fnFind)
 }
 
 // Checks if a site logo exists in the repository based on the provided site URL.

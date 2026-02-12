@@ -2,6 +2,12 @@ CREATE TABLE IF NOT EXISTS youtube_channels (
     -- Unique ID for the channel
     channel_id TEXT PRIMARY KEY,
 
+    -- Site URL
+    channel_url TEXT NOT NULL,
+
+    -- Title of the channel
+    channel_title TEXT NOT NULL,
+
     -- URL of the image channel avatar
     image_url TEXT NOT NULL,
 

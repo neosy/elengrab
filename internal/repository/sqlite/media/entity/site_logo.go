@@ -16,6 +16,9 @@ type SiteLogo struct {
 	// Site URL
 	SiteURL string `db:"site_url"`
 
+	// Title of the site
+	SiteTitle string `db:"site_title"`
+
 	// URL of the logo image
 	ImageURL string `db:"image_url"`
 

@@ -31,5 +31,18 @@ func (uc *SiteLogo) Create(ctx context.Context, logo *dmedia.SiteLogo) error {
 		return err
 	}
 
+	logo, _ = uc.logoRep.FindByLogoID(ctx, logo.LogoID)
+	if logo != nil {
+		err := uc.logoCacheRep.Save(ctx, logo)
+		if err != nil {
+			uc.logger.Error(
+				"Failed to save siteLogo cache",
+				"logoURL", logo.ImageURL,
+				"error", err,
+			)
+			return err
+		}
+	}
+
 	return nil
 }

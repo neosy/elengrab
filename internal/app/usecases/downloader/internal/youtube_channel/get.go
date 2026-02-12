@@ -6,6 +6,7 @@ import (
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	"github.com/neosy/elengrab/pkg/errorx"
 	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
+	nmemory "github.com/neosy/elengrab/pkg/ncache/memory"
 )
 
 // FindByChannelID
@@ -15,9 +16,12 @@ func (uc *YoutubeChannel) FindByChannelID(ctx context.Context, channelID string)
 		return nil, nil
 	}
 
-	channel, _ := uc.channelCacheRep.FindByChannelID(ctx, channelID)
+	channel, cacheStatus, _ := uc.channelCacheRep.FindByChannelID(ctx, channelID)
 	if channel != nil {
 		return channel, nil
+	}
+	if cacheStatus == nmemory.CacheStatusNegativeHit {
+		return nil, nil
 	}
 
 	channel, err := uc.channelRep.FindByChannelID(ctx, channelID)
@@ -27,12 +31,16 @@ func (uc *YoutubeChannel) FindByChannelID(ctx context.Context, channelID string)
 	}
 
 	if channel == nil {
+		err := uc.channelCacheRep.SaveNegative(ctx, channelID)
+		if err != nil {
+			uc.logger.Warn("Failed to insert youtubeChannel cache", "channelID", channelID, "error", err)
+		}
 		return nil, nil
 	}
 
-	err = uc.channelCacheRep.Insert(ctx, channel)
+	err = uc.channelCacheRep.Save(ctx, channel)
 	if err != nil {
-		uc.logger.Warn("Failed to insert youtubeChannel cache", "error", err)
+		uc.logger.Warn("Failed to insert youtubeChannel cache", "channelID", channelID, "error", err)
 	}
 
 	return channel, nil

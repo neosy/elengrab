@@ -10,7 +10,16 @@ import (
 )
 
 func (uc *YouTubeDownloader) fetchLogo(ctx context.Context, url string) error {
-	baseURL := httpx.GetBaseURL(url)
+	title, err := httpx.GetTitle(
+		ctx,
+		httpx.BaseURL(url),
+		httpx.ClientOptionWithTimeout(getHTMLTimeout),
+	)
+	if err != nil {
+		uc.logger.Warn("Failed to get title of site", "error", err)
+	}
+
+	baseURL := httpx.BaseURL(url)
 	image, err := uc.siteLogoFetcher.FetchLogo(ctx, baseURL)
 	if err != nil {
 		uc.logger.Warn("Failed to fetch logo", "url", baseURL, "error", err)
@@ -27,6 +36,9 @@ func (uc *YouTubeDownloader) fetchLogo(ctx context.Context, url string) error {
 			return nil
 		}
 
+		// Update existing logo if it's outdated.
+		logo.SetRequired(baseURL, title, image)
+
 		err := uc.siteLogo.Update(ctx, logo)
 		if err != nil {
 			return err
@@ -34,12 +46,8 @@ func (uc *YouTubeDownloader) fetchLogo(ctx context.Context, url string) error {
 		return nil
 	}
 
-	logo = &dmedia.SiteLogo{
-		SiteURL:     baseURL,
-		ImageURL:    image.URL,
-		ImageRaw:    image.Raw,
-		ImageFormat: image.Format,
-	}
+	// Create new siteLogo
+	logo = dmedia.NewSiteLogo(baseURL, title, image)
 
 	err = uc.siteLogo.Create(ctx, logo)
 	if err != nil {

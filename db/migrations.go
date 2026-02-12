@@ -139,6 +139,11 @@ func (m *Migrations) ApplyMigrations() error {
 		return fmt.Errorf("failed to create migrator instance: %w", err)
 	}
 
+	// Rollback the migration
+	if err := m.rollbackMigration(mgr); err != nil {
+		return err
+	}
+
 	// ******** rollback migration
 	// if err := migrator.Force(2); err != nil {
 	// 	log.Fatalf("failed to force version: %v", err)
@@ -148,4 +153,30 @@ func (m *Migrations) ApplyMigrations() error {
 	// }
 
 	return m.applyUp(mgr)
+}
+
+// rollbackMigration checks the state of the migration
+// and restores the database (rollback migration) if it is dirty.
+func (m *Migrations) rollbackMigration(mgr *migrate.Migrate) error {
+	version, dirty, err := mgr.Version()
+	if err != nil {
+		// If version is not yet set (new database)
+		if err == migrate.ErrNilVersion {
+			return nil
+		}
+		return fmt.Errorf("failed to get migration version: %w", err)
+	}
+
+	if dirty {
+		m.logger.Warn("Database dirty forcing...", "version", version)
+		if err := mgr.Force(int(version)); err != nil {
+			return fmt.Errorf("failed to force migration version: %w", err)
+		}
+		if err := mgr.Steps(-1); err != nil {
+			return fmt.Errorf("failed to rollback migration: %w", err)
+		}
+		m.logger.Info("Dirty state cleared.")
+	}
+
+	return nil
 }

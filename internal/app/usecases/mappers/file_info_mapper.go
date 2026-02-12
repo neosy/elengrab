@@ -11,6 +11,7 @@ import (
 
 func (m *Mappers) MapFileDomainToFileInfoResponse(
 	file *ddownload.File,
+	avatarTitle string,
 	progress *ddownload.DownloadProgress,
 	downloadsDir string,
 	hasSiteLogo bool,
@@ -37,6 +38,7 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 		Status:               file.Status,
 		WorkingStatus:        workingStatus,
 		YoutubeChannelID:     file.YoutubeChannelID,
+		AvatarTitle:          avatarTitle,
 		MediaUrl:             file.MediaUrl,
 		MediaTitle:           mediaTitle,
 		HasSiteLogo:          hasSiteLogo,

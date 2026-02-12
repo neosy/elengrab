@@ -13,7 +13,7 @@ func (uc *SiteLogo) Update(ctx context.Context, logo *dmedia.SiteLogo) error {
 		return err
 	}
 
-	if err := uc.logoCacheRep.Update(ctx, logo); err != nil {
+	if err := uc.logoCacheRep.Save(ctx, logo); err != nil {
 		uc.logger.Warn("Update siteLogo cache error", "error", err)
 		return err
 	}

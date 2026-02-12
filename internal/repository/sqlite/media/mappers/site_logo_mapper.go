@@ -10,6 +10,7 @@ func (m *Mappers) MapSiteLogoDomainToEntity(logo *dmedia.SiteLogo) (*emedia.Site
 	return &emedia.SiteLogo{
 		LogoID:      logo.LogoID.String(),
 		SiteURL:     logo.SiteURL,
+		SiteTitle:   logo.SiteTitle,
 		ImageURL:    logo.ImageURL,
 		ImageRaw:    logo.ImageRaw,
 		ImageFormat: logo.ImageFormat,
@@ -25,6 +26,7 @@ func (m *Mappers) MapSiteLogoEntityToDomain(eLogo *emedia.SiteLogo) (*dmedia.Sit
 	return &dmedia.SiteLogo{
 		LogoID:      logoID,
 		SiteURL:     eLogo.SiteURL,
+		SiteTitle:   eLogo.SiteTitle,
 		ImageURL:    eLogo.ImageURL,
 		ImageRaw:    eLogo.ImageRaw,
 		ImageFormat: eLogo.ImageFormat,

@@ -57,8 +57,8 @@ func NewYouTubeDownloader(
 	siteLogoRep persistence.SiteLogoRepository,
 
 	// in memory
-	downloadStateCacheRep persistence.DownloadStateRepository,
-	ytChannelCacheRep persistence.YoutubeChannelRepository,
+	downloadStateCacheRep persistence.DownloadStateCacheRepository,
+	ytChannelCacheRep persistence.YoutubeChannelCacheRepository,
 	siteLogoCacheRep persistence.SiteLogoCacheRepository,
 
 	// dispetchers

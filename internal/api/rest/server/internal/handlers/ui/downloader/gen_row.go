@@ -24,6 +24,7 @@ type fileRowInfoData struct {
 	PathFileRow      string
 	PathFileRepeat   string
 	YoutubeChannelID string
+	AvatarTitle      string
 	MediaTitle       string
 	MediaURL         string
 	FileSize         string
@@ -159,12 +160,11 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 		logoVersion = fmt.Sprintf("%d", time.Now().UTC().Unix())
 	}
 
-	fmt.Println(fileInfo.MediaInfoText)
-
 	data := fileRowInfoData{
 		FileID:           fileInfo.FileId.String(),
 		MediaURL:         fileInfo.MediaUrl,
 		YoutubeChannelID: youtubeChannelID,
+		AvatarTitle:      fileInfo.AvatarTitle,
 		MediaTitle:       fileInfo.MediaTitle,
 		PathFileRow:      httppaths.BuildPathFileRow(fileInfo.FileId),
 		PathFileRepeat:   httppaths.BuildPathFileRepeat(fileInfo.FileId),

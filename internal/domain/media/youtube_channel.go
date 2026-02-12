@@ -11,6 +11,12 @@ type YoutubeChannel struct {
 	// Unique ID for the channel
 	ChannelID string
 
+	// Site URL
+	ChannelURL string
+
+	// Title of the channel
+	ChannelTitle string
+
 	// URL of the channel avatar
 	ImageURL string
 
@@ -27,11 +33,15 @@ type YoutubeChannel struct {
 	UpdatedAt time.Time
 }
 
-func (c *YoutubeChannel) InitFromResultChannelAvatar(chAvatar *ddownload.DownloadResultChannelAvatar) {
-	if chAvatar != nil {
-		c.ImageURL = chAvatar.ImageURL
-		c.ImageRaw = chAvatar.ImageRAW
-		c.ImageFormat = chAvatar.ImageFormat
+func (c *YoutubeChannel) InitFromChannel(channel *ddownload.DownloadChannel) {
+	if channel != nil {
+		c.ChannelURL = channel.URL
+		c.ChannelTitle = channel.Title
+		if channel.Avatar != nil {
+			c.ImageURL = channel.Avatar.ImageURL
+			c.ImageRaw = channel.Avatar.ImageRAW
+			c.ImageFormat = channel.Avatar.ImageFormat
+		}
 	}
 }
 
