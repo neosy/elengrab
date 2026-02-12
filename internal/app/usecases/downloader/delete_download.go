@@ -104,6 +104,7 @@ func (uc *YouTubeDownloader) DeleteDownload(
 	return nil
 }
 
+// deleteWithRetry attempts to delete a file at the specified path with retries.
 func (uc *YouTubeDownloader) deleteWithRetry(ctx context.Context, path string, retries int, retryDelay time.Duration) error {
 	var err error
 	for range retries {

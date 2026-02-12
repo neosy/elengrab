@@ -159,6 +159,8 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 		logoVersion = fmt.Sprintf("%d", time.Now().UTC().Unix())
 	}
 
+	fmt.Println(fileInfo.MediaInfoText)
+
 	data := fileRowInfoData{
 		FileID:           fileInfo.FileId.String(),
 		MediaURL:         fileInfo.MediaUrl,

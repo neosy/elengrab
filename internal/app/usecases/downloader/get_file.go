@@ -64,7 +64,7 @@ func (uc *YouTubeDownloader) findStateAndFileInfo(
 
 	state, _ := uc.dlStateCache.FindByFileId(ctx, userID, id)
 	if state != nil && state.File != nil {
-		fileResp = uptr.Copy(state.File)
+		fileResp = state.File.Copy()
 		dlProgress = uptr.Copy(state.Progress)
 	}
 
