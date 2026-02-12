@@ -37,6 +37,9 @@ build: update-app-version ## Build executable file
 build-embedded: update-app-version ## Build executable file with embedded assets
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags embed_assets -v -o $(APP_NAME) ./cmd/$(APP_NAME)/
 
+build-win-embedded: update-app-version ## Build executable file with embedded assets
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -tags embed_assets -v -o $(APP_NAME).exe ./cmd/$(APP_NAME)/
+
 img-build: update-app-version ## Build Docker container image
 	docker build -t $(APP_IMG_NAME) .
 
