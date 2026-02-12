@@ -146,5 +146,7 @@ func (c *Core) getFormats(
 		}
 	}
 
+	info.ChannelTitle = strings.TrimSpace(info.ChannelTitle)
+
 	return info, nil
 }
