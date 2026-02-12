@@ -3,7 +3,7 @@
 ## v0.12.0 — 2026-02-12
 
 ### Feature
-- Change the history sorting date to the upload date. Closes #183
+- Add saving the download date. Closes #183
 
 ### Style
 - Change the placeholder for the input field. Closes #188

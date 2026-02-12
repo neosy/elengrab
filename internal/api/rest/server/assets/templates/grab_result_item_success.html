@@ -10,7 +10,7 @@
     <div class="result-right">
         <span class="result-separator first">•</span>
         <div class="div-result-size">
-            <span class="result-size">{{ .FileSize }}</span>
+            <span class="result-size" title="Actual file size">{{ .FileSize }}</span>
         </div>
         <span class="result-separator">•</span>
         <div class="div-result-format">
@@ -19,6 +19,7 @@
         <span class="result-separator">•</span>
         <div class="div-result-delete">
             <button class="btn-delete-row"
+                title="Delete downloaded media file"
                 hx-delete="{{ .DeleteURL }}"
                 hx-target="closest .div-grab-result-item"
                 hx-swap="outerHTML swap:0.5s">
@@ -27,7 +28,11 @@
         </div>
         <span class="result-separator">•</span>
         <div class="div-result-status">
-            <a class="result-download-link" href="{{ .DownloadURL }}">{{ .GrabResultItemStatusHtml }}</a>
+            <a class="result-download-link" 
+            href="{{ .DownloadURL }}" 
+            title="Download media file">
+            {{ .GrabResultItemStatusHtml }}
+            </a>
         </div>
     </div>
 </div>

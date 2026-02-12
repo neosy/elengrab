@@ -56,6 +56,10 @@ func (s *DownloadState) InitFromDownloadResult(result *DownloadResult) {
 		s.File.PartialHash = result.PartialHash
 	}
 
+	if result.MediaInfo != nil {
+		s.File.MediaInfo = result.MediaInfo
+	}
+
 	if result.Progress != nil {
 		s.Progress = result.Progress
 	}
