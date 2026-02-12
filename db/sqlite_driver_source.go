@@ -95,10 +95,11 @@ func newSQLiteDriverSource(sqliteDir string) sourceDriverWrapper {
 		}
 
 		// Create file source driver
-		drv, err = (&file.File{}).Open("file://" + tmpDir)
+		sourceURL := filePathForMigrate(tmpDir)
+		drv, err = (&file.File{}).Open(sourceURL)
 		if err != nil {
 			cleanup()
-			return nil, nil, fmt.Errorf("failed to open file source: %w", err)
+			return nil, nil, fmt.Errorf("failed to open file source %s: %w", sourceURL, err)
 		}
 
 		return drv, cleanup, nil
