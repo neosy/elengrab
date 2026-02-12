@@ -20,15 +20,16 @@
     <div class="result-right">
         <span class="result-separator first">•</span>
         <div class="div-result-size">
-            <span class="result-size {{.ResultSizeFade}}" data-id="size">{{ .FileSize }}</span>
+            <span class="result-size {{.ResultSizeFade}}" data-id="size" title="Estimated file size">{{ .FileSize }}</span>
         </div>
         <span class="result-separator">•</span>
         <div class="div-result-format">
-            <span class="result-format {{.ResultFormatFade}}" data-id="format">{{ .Format }}</span>
+            <span class="result-format {{.ResultFormatFade}}" title="{{ .FormatTitle }}" data-id="format">{{ .Format }}</span>
         </div>
         <span class="result-separator">•</span>
         <div class="div-result-delete">
             <button class="btn-delete-row"
+                title="Delete this download task"
                 hx-delete="{{ .DeleteURL }}"
                 hx-target="closest .div-grab-result-item"
                 hx-swap="outerHTML swap:0.5s">
@@ -45,6 +46,7 @@
         {{ else }}
             {{ if eq .DownloadStatus "failed" }}
                 <button class="btn-download-repeat"
+                    title="Retry downloading this media"
                     hx-post="{{.PathFileRepeat}}"
                     hx-target="closest .div-grab-result-item"
                     hx-swap="outerHTML">
