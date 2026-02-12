@@ -3,6 +3,7 @@ package usecases
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/neosy/elengrab/internal/app/services"
 	"github.com/neosy/elengrab/internal/app/usecases/auth"
@@ -29,6 +30,9 @@ type Dependencies struct {
 
 	HistoryMode           dtypes.HistoryMode
 	DeleteDuplicatesScope dtypes.UniquenessScope
+
+	LogoUpdateInterval    time.Duration
+	ChannelUpdateInterval time.Duration
 }
 
 type DepRepositories struct {
@@ -81,6 +85,8 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.DownloadsDir,
 			deps.HistoryMode,
 			deps.DeleteDuplicatesScope,
+			deps.LogoUpdateInterval,
+			deps.ChannelUpdateInterval,
 		),
 		Maintenance: maintenance.NewMaintenance(
 			logger,

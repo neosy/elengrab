@@ -3,6 +3,7 @@ package downloader
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	dlstate "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_state_cache"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task"
@@ -44,6 +45,8 @@ type YouTubeDownloader struct {
 	downloadsDir          string
 	historyMode           dtypes.HistoryMode
 	deleteDuplicatesScope dtypes.UniquenessScope
+	logoUpdateInterval    time.Duration
+	channelUpdateInterval time.Duration
 }
 
 func NewYouTubeDownloader(
@@ -71,6 +74,9 @@ func NewYouTubeDownloader(
 	downloadsDir string,
 	historyMode dtypes.HistoryMode,
 	deleteDuplicatesScope dtypes.UniquenessScope,
+	logoUpdateInterval time.Duration,
+	channelUpdateInterval time.Duration,
+
 ) *YouTubeDownloader {
 	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRep)
 
@@ -105,5 +111,7 @@ func NewYouTubeDownloader(
 		downloadsDir:          downloadsDir,
 		historyMode:           historyMode,
 		deleteDuplicatesScope: deleteDuplicatesScope,
+		logoUpdateInterval:    logoUpdateInterval,
+		channelUpdateInterval: channelUpdateInterval,
 	}
 }

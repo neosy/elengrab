@@ -118,7 +118,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		if lastResult != nil && lastResult.ChannelID != nil && lastResult.Channel != nil {
 			channel, _ := uc.ytChannel.FindByChannelID(ctx, *lastResult.ChannelID)
 			if channel != nil {
-				if time.Since(channel.UpdatedAt) > channelUpdateInterval {
+				if time.Since(channel.UpdatedAt) > uc.channelUpdateInterval {
 					channel.InitFromChannel(lastResult.Channel)
 					uc.ytChannel.Update(ctx, channel)
 				}

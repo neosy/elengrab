@@ -30,12 +30,22 @@ import (
 )
 
 const (
-	downloadStateCacheTTLDefault     = 1 * time.Hour
-	youtubeChannelCacheTTLDefault    = 1 * 24 * time.Hour
-	siteLogoCacheTTLDefault          = 1 * 24 * time.Hour
-	intervalCleanYoutubeChannelCache = 12 * time.Hour
-	intervalCleanDownloadStateCache  = 12 * time.Hour
-	intervalCleanSiteLogoCache       = 12 * time.Hour
+	// Default TTL for download state cache
+	downloadStateCacheTTLDefault = 1 * time.Hour
+	// Default TTL for channel information cache
+	youtubeChannelCacheTTLDefault = 1 * 24 * time.Hour
+	// Default TTL for site logo information cache
+	siteLogoCacheTTLDefault = 1 * 24 * time.Hour
+
+	// Update interval for site logo information
+	logoUpdateInterval = 24 * time.Hour
+	// Update interval for channel information
+	channelUpdateInterval = 30 * 24 * time.Hour
+
+	// Cache cleanup intervals
+	cleanYoutubeChannelCacheInterval = 12 * time.Hour
+	cleanDownloadStateCacheinterval  = 12 * time.Hour
+	cleanSiteLogoCacheInterval       = 12 * time.Hour
 )
 
 func main() {
@@ -171,6 +181,8 @@ func main() {
 		DatabaseBackupsKeep:   cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
 		HistoryMode:           dtypes.MustParseHistoryMode(cfg.Elengrab.HistoryMode),
 		DeleteDuplicatesScope: dtypes.MustParseUniquenessScope(cfg.Elengrab.DeleteDuplicatesScope),
+		LogoUpdateInterval:    logoUpdateInterval,
+		ChannelUpdateInterval: channelUpdateInterval,
 	}
 	uc := usecases.NewUsecases(ctx, logger, ucDeps)
 
@@ -194,9 +206,9 @@ func main() {
 		IntervalDeleteMissingFiles:       cfg.Elengrab.Maintenance.IntervalDeleteMissingFiles,
 		IntervalDeleteFailedDownloads:    cfg.Elengrab.Maintenance.IntervalDeleteFailedDownloads,
 		EnableMoveUnmatchedFiles:         cfg.Elengrab.Maintenance.EnableMoveUnmatchedFiles,
-		IntervalCleanYoutubeChannelCache: intervalCleanYoutubeChannelCache,
-		IntervalCleanDownloadStateCache:  intervalCleanDownloadStateCache,
-		IntervalCleanSiteLogoCache:       intervalCleanSiteLogoCache,
+		IntervalCleanYoutubeChannelCache: cleanYoutubeChannelCacheInterval,
+		IntervalCleanDownloadStateCache:  cleanDownloadStateCacheinterval,
+		IntervalCleanSiteLogoCache:       cleanSiteLogoCacheInterval,
 	}
 	ws := nworkers.NewWorkers(logger, wsDeps, workers.InitWorkers)
 	if err := ws.StartWorkers(ctx); err != nil {

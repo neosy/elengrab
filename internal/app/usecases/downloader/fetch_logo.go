@@ -32,7 +32,7 @@ func (uc *YouTubeDownloader) fetchLogo(ctx context.Context, url string) error {
 
 	logo, _ := uc.siteLogo.FindBySiteURL(ctx, baseURL)
 	if logo != nil {
-		if time.Since(logo.UpdatedAt) <= logoUpdateInterval {
+		if time.Since(logo.UpdatedAt) <= uc.logoUpdateInterval {
 			return nil
 		}
 
