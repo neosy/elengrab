@@ -7,6 +7,12 @@ const (
 
 	acceptLanguageDefault = "en-US,en;q=0.9"
 
-	LimitImageDefault int64 = 5 << 20   // 5 MB
-	LimitHTMLDefault  int64 = 512 << 10 // 512 KB
+	// Limit for the size of the image to avoid excessive memory usage.
+	LimitImageDefault int64 = 5 << 20 // 5 MB
+
+	// Limit for the size of the HTML to avoid excessive memory usage.
+	LimitHTMLDefault int64 = 512 << 10 // 512 KB
+
+	// Limit for the size of the HTML for reading the TITLE to avoid excessive memory usage.
+	LimitHTMLTitleDefault int64 = 1024 << 10 // 1024 KB
 )

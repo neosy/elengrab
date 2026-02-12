@@ -5,6 +5,9 @@ CREATE TABLE IF NOT EXISTS site_logos (
     -- Site URL
     site_url TEXT NOT NULL,
 
+    -- Title of the site
+    site_title TEXT NOT NULL,
+
     -- URL of the logo image
     image_url TEXT NOT NULL,
 

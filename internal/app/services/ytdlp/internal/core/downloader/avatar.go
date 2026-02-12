@@ -11,10 +11,10 @@ import (
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 )
 
-func (d *Downloader) fetchChannelAvatarAsync(
+func (d *Downloader) fetchChannelAsync(
 	wg *sync.WaitGroup,
 	meta *idto.DownloadMeta,
-	onAvatarDone func(*ddownload.DownloadResultChannelAvatar),
+	onChannelDone func(*ddownload.DownloadChannel),
 ) {
 	if meta.ChannelID == nil {
 		return
@@ -31,7 +31,7 @@ func (d *Downloader) fetchChannelAvatarAsync(
 			return
 		}
 
-		var avatar *ddownload.DownloadResultChannelAvatar
+		var channel *ddownload.DownloadChannel
 		src := avatarSources[0]
 		if len(src.Raw) == 0 {
 			d.logger.Debug("Avatar image not found", "channelURL", meta.ChannelURL)
@@ -43,12 +43,16 @@ func (d *Downloader) fetchChannelAvatarAsync(
 			"channelURL", meta.ChannelURL,
 		)
 
-		avatar = &ddownload.DownloadResultChannelAvatar{
-			ImageURL:    src.URL,
-			ImageRAW:    src.Raw,
-			ImageFormat: src.Format,
+		channel = &ddownload.DownloadChannel{
+			URL:   meta.ChannelURL,
+			Title: meta.ChannelTitle,
+			Avatar: &ddownload.DownloadChannelAvatar{
+				ImageURL:    src.URL,
+				ImageRAW:    src.Raw,
+				ImageFormat: src.Format,
+			},
 		}
-		onAvatarDone(avatar)
+		onChannelDone(channel)
 	})
 }
 

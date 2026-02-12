@@ -14,8 +14,8 @@ func (uc *YoutubeChannel) Update(ctx context.Context, channel *dmedia.YoutubeCha
 		return err
 	}
 
-	if err := uc.channelCacheRep.Update(ctx, channel); err != nil {
-		uc.logger.Warn("Update youtubeChannel cache error", "error", err)
+	if err := uc.channelCacheRep.Save(ctx, channel); err != nil {
+		uc.logger.Warn("Update youtubeChannel cache error", "channelID", channel.ChannelID, "error", err)
 		return err
 	}
 

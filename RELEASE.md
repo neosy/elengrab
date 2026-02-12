@@ -8,6 +8,8 @@
 ### Style
 - Change the placeholder for the input field. Closes #188
 - Change the title in the index. Closes #193
+- Add tooltips for Quality and Format. Closes #186
+- Add tooltips to media logos. Closes #195
 
 ### Refactor
 - Moved media tables to a separate media.db file. Closes #197

@@ -13,6 +13,12 @@ type YoutubeChannel struct {
 	// Unique ID for the channel
 	ChannelID string `db:"channel_id"`
 
+	// Site URL
+	ChannelURL string `db:"channel_url"`
+
+	// Title of the channel
+	ChannelTitle string `db:"channel_title"`
+
 	// URL of the channel avatar
 	ImageURL string `db:"image_url"`
 

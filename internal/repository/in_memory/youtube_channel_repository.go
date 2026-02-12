@@ -43,31 +43,44 @@ func (r *YoutubeChannelRepository) Save(_ context.Context, channel *dmedia.Youtu
 	return r.Repository.Save(save)
 }
 
-// Inserts a new YouTube channel into the in-memory repository.
-func (r *YoutubeChannelRepository) Insert(ctx context.Context, channel *dmedia.YoutubeChannel) error {
-	return r.Save(ctx, channel)
-}
+func (r *YoutubeChannelRepository) SaveNegative(_ context.Context, channelID string) error {
+	if channelID == "" {
+		return nil
+	}
 
-// Updates an existing YouTube channel into the in-memory repository.
-func (r *YoutubeChannelRepository) Update(ctx context.Context, channel *dmedia.YoutubeChannel) error {
-	return r.Save(ctx, channel)
+	save := func() error {
+		r.cacheByChannel.Save(
+			channelID,
+			nil,
+			r.TTL(),
+		)
+		return nil
+	}
+
+	return r.Repository.Save(save)
 }
 
 // Delete removes a YouTube channel from the in-memory repository using its ID.
 func (r *YoutubeChannelRepository) Delete(_ context.Context, channelID string) error {
 	delete := func() error {
-		r.cacheByChannel.Delete(channelID)
+		if channelID != "" {
+			r.cacheByChannel.Delete(channelID)
+		}
 		return nil
 	}
 	return r.Repository.Delete(delete)
 }
 
 // FindByChannelID retrieves a YouTube channel by its channel ID from the repository.
-func (r *YoutubeChannelRepository) FindByChannelID(_ context.Context, channelID string) (*dmedia.YoutubeChannel, error) {
-	find := func() (*dmedia.YoutubeChannel, error) {
-		return r.cacheByChannel.Find(channelID), nil
+func (r *YoutubeChannelRepository) FindByChannelID(
+	_ context.Context,
+	channelID string,
+) (*dmedia.YoutubeChannel, nmemory.CacheStatus, error) {
+	find := func() (*dmedia.YoutubeChannel, nmemory.CacheStatus, error) {
+		data, status := r.cacheByChannel.FindWithStatus(channelID)
+		return data, status, nil
 	}
-	return r.Repository.Find(find)
+	return r.Repository.FindWithStatus(find)
 }
 
 // Checks if a YouTube channel exists by its channel ID.

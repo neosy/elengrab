@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -114,13 +115,18 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		lastResult = r
 
 		// Adding a record to the YouTube Channel table
-		if lastResult != nil && lastResult.ChannelID != nil && lastResult.ChannelAvatar != nil {
-			exists, _ := uc.ytChannel.ExistsByChannelID(ctx, *lastResult.ChannelID)
-			if !exists {
+		if lastResult != nil && lastResult.ChannelID != nil && lastResult.Channel != nil {
+			channel, _ := uc.ytChannel.FindByChannelID(ctx, *lastResult.ChannelID)
+			if channel != nil {
+				if time.Since(channel.UpdatedAt) > channelUpdateInterval {
+					channel.InitFromChannel(lastResult.Channel)
+					uc.ytChannel.Update(ctx, channel)
+				}
+			} else {
 				channel := &dmedia.YoutubeChannel{
 					ChannelID: *lastResult.ChannelID,
 				}
-				channel.InitFromResultChannelAvatar(lastResult.ChannelAvatar)
+				channel.InitFromChannel(lastResult.Channel)
 				uc.ytChannel.Create(ctx, channel)
 			}
 		}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	nmemory "github.com/neosy/elengrab/pkg/ncache/memory"
 )
 
 type SiteLogoRepository interface {
@@ -18,6 +19,11 @@ type SiteLogoRepository interface {
 }
 
 type SiteLogoCacheRepository interface {
-	SiteLogoRepository
+	Save(ctx context.Context, logo *dmedia.SiteLogo) error
+	SaveNegative(ctx context.Context, siteURL string) error
+	FindByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia.SiteLogo, error)
+	ExistsByLogoID(ctx context.Context, logoID uuid.UUID) (bool, error)
+	FindBySiteURL(ctx context.Context, siteURL string) (*dmedia.SiteLogo, nmemory.CacheStatus, error)
+	ExistsBySiteURL(ctx context.Context, siteURL string) (bool, error)
 	CleanExpired(ctx context.Context) error
 }

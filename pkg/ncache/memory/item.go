@@ -6,6 +6,7 @@ import "time"
 type Item[T any] struct {
 	value     *T
 	expiresAt time.Time
+	status    CacheStatus
 }
 
 // Valid reports whether the item is still valid (not expired).
