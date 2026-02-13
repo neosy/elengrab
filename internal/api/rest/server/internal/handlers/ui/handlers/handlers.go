@@ -1,10 +1,10 @@
-package downloaderh
+package handlers
 
 import (
 	"html/template"
 
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/mappers"
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/validators"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/mappers"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/validators"
 	"github.com/neosy/elengrab/internal/app/usecases"
 )
 

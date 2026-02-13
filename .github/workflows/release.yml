@@ -81,6 +81,16 @@ jobs:
           TAG="${{ steps.build_tag.outputs.tag }}"
           VERSION="${TAG#v}"
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Install rsrc
+        if: matrix.goos == 'windows'
+        run: go install github.com/akavel/rsrc@latest
+
+      - name: Generate Windows resources
+        if: matrix.goos == 'windows'
+        run: |
+          cd cmd/elengrab
+          rsrc -ico icon.ico
           
       - name: Build
         run: |
@@ -93,7 +103,8 @@ jobs:
           mkdir -p "${TARGET_DIR}"
                     
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} CGO_ENABLED=0 \
-            go build -tags embed_assets -o "${TARGET_DIR}/elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.arch_name }}${{ matrix.ext }}" ./cmd/elengrab
+            go build -tags embed_assets \
+            -o "${TARGET_DIR}/elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.arch_name }}${{ matrix.ext }}" ./cmd/elengrab
 
       - name: Archive
         run: |

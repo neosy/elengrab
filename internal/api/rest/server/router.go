@@ -20,7 +20,7 @@ func (s *httpServer) newRouter() *router.Router {
 
 	s.setupStaticRoutes(r, handlers.Static)
 
-	s.setupUIRootRoutes(r, handlers.UI)
+	s.setupUIRootRoutes(r, handlers.UI, handlers.Static)
 	s.setupUIRoutes(r, handlers.UI)
 
 	s.setupAPIV1Routes(r, handlers.API)

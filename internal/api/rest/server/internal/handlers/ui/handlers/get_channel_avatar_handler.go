@@ -1,4 +1,4 @@
-package downloaderh
+package handlers
 
 import (
 	"path/filepath"

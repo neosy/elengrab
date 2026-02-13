@@ -1,5 +1,12 @@
 # Releases
 
+## v0.13.0 — 2026-02-15
+
+### Feature
+- Add an icon when compiling an .exe file. Closes #192
+
+---
+
 ## v0.12.0 — 2026-02-12
 
 ### Feature
