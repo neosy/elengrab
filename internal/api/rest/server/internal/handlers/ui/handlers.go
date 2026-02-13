@@ -3,12 +3,12 @@ package uih
 import (
 	"html/template"
 
-	downloaderh "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers"
 	"github.com/neosy/elengrab/internal/app/usecases"
 )
 
 type UIHandlers struct {
-	Downloader *downloaderh.DownloaderHandlers
+	Downloader *handlers.DownloaderHandlers
 }
 
 func NewUIHandlers(
@@ -18,6 +18,6 @@ func NewUIHandlers(
 	downloadsDir string,
 ) *UIHandlers {
 	return &UIHandlers{
-		Downloader: downloaderh.NewDownloaderHandlers(usecases, templates, assetsDir, downloadsDir),
+		Downloader: handlers.NewDownloaderHandlers(usecases, templates, assetsDir, downloadsDir),
 	}
 }

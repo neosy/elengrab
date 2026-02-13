@@ -20,6 +20,9 @@ issues.txt
 go.work
 go.work.sum
 
+# Ignoring Windows resources
+cmd/elengrab/rsrc_*.syso
+
 # Dependency directories (remove the comment below to include it)
 vendor/
 

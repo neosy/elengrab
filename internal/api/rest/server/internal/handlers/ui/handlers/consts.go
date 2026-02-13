@@ -1,4 +1,4 @@
-package downloaderh
+package handlers
 
 import (
 	"time"
@@ -9,7 +9,7 @@ const (
 
 	loadHistoryLimit = 30
 
-	formFieldMediaURLKey        = "mediaURL"
+	formFieldMediaURLKey          = "mediaURL"
 	formFieldQualityCodecKey      = "quality-codec"
 	formFieldQualityResolutionKey = "quality-resolution"
 	formFieldFormatKey            = "format"
