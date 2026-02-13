@@ -10,16 +10,18 @@ import (
 func (srv *YtDlpService) GetBestFormat(
 	ctx context.Context,
 	url string,
+	useCookies bool,
 ) (*dmedia.MediaInfo, error) {
-	return srv.getBestFormat(ctx, url, "b")
+	return srv.getBestFormat(ctx, url, "b", useCookies)
 }
 
 func (srv *YtDlpService) getBestFormat(
 	ctx context.Context,
 	url string,
 	format string,
+	useCookies bool,
 ) (*dmedia.MediaInfo, error) {
-	bestInfo, err := srv.core.GetBestFormat(ctx, url, format)
+	bestInfo, err := srv.core.GetBestFormat(ctx, url, format, useCookies)
 	if err != nil {
 		return nil, err
 	}

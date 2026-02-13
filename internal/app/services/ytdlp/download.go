@@ -18,7 +18,7 @@ func (srv *YtDlpService) Download(
 	// Launch the goroutine that writes into the channel
 	go func() {
 		defer close(resultCh)
-		srv.core.Download(ctx, url, srv.options.ConcurrentFragments, options, resultCh)
+		srv.core.Download(ctx, url, options, resultCh)
 	}()
 
 	return resultCh, nil

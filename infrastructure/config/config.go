@@ -38,10 +38,16 @@ type ElengrabConfig struct {
 	AppDir       string `env:"APP_DIR" envDefault:""`
 	AssetsDir    string `env:"ASSETS_DIR" envDefault:"assets"`
 	DownloadsDir string `env:"DOWNLOADS_DIR" envDefault:"downloads"`
+	// CookiesDir defines the directory where cookies are stored.
+	// Default is "cookies".
+	CookiesDir string `env:"COOKIES_DIR" envDefault:"cookies"`
 
 	DownloadWorkers       int    `env:"DOWNLOAD_WORKERS" envDefault:"3"`
 	HistoryMode           string `env:"HISTORY_MODE" envDefault:"global"`
 	DeleteDuplicatesScope string `env:"DELETE_DUPLICATES_SCOPE" envDefault:"per_user"`
+	// YoutubeAllowCookies allow cookies when downloading YouTube videos.
+	// Default is false (disabled).
+	YoutubeAllowCookies bool `env:"YOUTUBE_ALLOW_COOKIES" envDefault:"false"`
 
 	Maintenance ElengrabMaintenanceConfig `envPrefix:"MAINTENANCE_"`
 }

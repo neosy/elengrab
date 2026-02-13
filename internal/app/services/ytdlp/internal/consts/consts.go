@@ -1,0 +1,21 @@
+package consts
+
+import "time"
+
+const (
+	YtDlpName  = "yt-dlp"
+	FFmpegName = "ffmpeg"
+	DenoName   = "deno"
+
+	YtDlpTempDir               = ".yt-dlp"
+	YtDlpCacheDir              = ".yt-dlp/cache"
+	YtDlpFormatCacheDir        = ".yt-dlp/format-cache"
+	YtDlpYouTubeCookieFileName = "youtube-cookies.txt"
+
+	ChannelAvatarTimeout = 5 * time.Second
+	YtDlpTimeout         = 2 * time.Hour
+	YtDlpRetryDelay      = 2 * time.Second
+
+	ConcurrentFragmentsDefault = 5
+	MaxTitleLengthInFilename   = 100
+)

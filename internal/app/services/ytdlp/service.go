@@ -4,45 +4,57 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"path/filepath"
 	"strings"
 
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/utils"
 	"github.com/neosy/elengrab/pkg/nfile"
 )
 
-// Options holds configuration options for YtDlpService
-type Options struct {
-	// Number of fragments of a dash/hlsnative video that should be downloaded concurrently (default is 1)
-	ConcurrentFragments uint8
-}
-
-// setDefaults sets default values for Options fields if they are not set
-// or if force is true
-func (o *Options) setDefaults(force bool) {
-	if o.ConcurrentFragments == 0 || force {
-		o.ConcurrentFragments = concurrentFragmentsDefault
-	}
-}
-
 type YtDlpService struct {
 	logger *slog.Logger
 
 	// options
-	options Options
+	options dto.Options
 
 	// internal
 	core *core.Core
 }
 
-func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, options *Options) (*YtDlpService, error) {
-	cmdPath, err := utils.ResolveCmdPath(ytDlpName, binDir)
+func NewYtDlpService(
+	logger *slog.Logger,
+	binDir string,
+	downloadsDir string,
+	options *dto.Options,
+) (*YtDlpService, error) {
+	cmdPath, err := utils.ResolveCmdPath(consts.YtDlpName, binDir)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := utils.CheckCmd(ffmpegName); err != nil {
+	err = utils.CheckFFmpeg(consts.FFmpegName)
+	if err != nil {
 		return nil, err
+	} else {
+		logger.Debug("FFmpeg executable found in PATH", "executable", consts.FFmpegName)
+	}
+
+	_, err = utils.LookupExecutable(consts.DenoName)
+	if err != nil {
+		if options != nil && options.YoutubeAllowCookies {
+			options.YoutubeAllowCookies = false
+			logger.Warn(
+				"Deno executable not found in PATH",
+				"executable", consts.DenoName,
+				"error", err,
+			)
+			logger.Info("YoutubeAllowCookies has been disabled")
+		}
+	} else {
+		logger.Debug("Deno executable found in PATH", "executable", consts.DenoName)
 	}
 
 	if downloadsDir == "" {
@@ -57,11 +69,52 @@ func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, op
 		return nil, err
 	}
 
-	var opts Options
+	var opts dto.Options
 	if options != nil {
 		opts = *options
 	}
-	opts.setDefaults(false)
+	opts.SetDefaults(false)
+
+	if opts.YoutubeAllowCookies && opts.CookiesDir == "" {
+		opts.YoutubeAllowCookies = false
+		logger.Warn("YoutubeAllowCookies enabled but CookiesDir is empty")
+		logger.Info("YoutubeAllowCookies has been disabled")
+	}
+
+	if opts.YoutubeAllowCookies {
+		exists, err := nfile.DirExists(opts.CookiesDir)
+		if err != nil {
+			opts.YoutubeAllowCookies = false
+			logger.Warn("Error checking if directory exists", "dir", opts.CookiesDir, "error", err)
+			logger.Info("YoutubeAllowCookies has been disabled")
+		} else if !exists {
+			opts.YoutubeAllowCookies = false
+			logger.Warn("Directory cookies does not exist", "dir", opts.CookiesDir)
+			logger.Info("YoutubeAllowCookies has been disabled")
+		} else {
+			logger.Debug("Cookies directory exists", "dir", opts.CookiesDir)
+		}
+	}
+
+	if opts.YoutubeAllowCookies {
+		path := filepath.Join(opts.CookiesDir, consts.YtDlpYouTubeCookieFileName)
+		exists, err := nfile.FileExists(path)
+		if err != nil {
+			opts.YoutubeAllowCookies = false
+			logger.Warn("Failed to check cookies file existence", "path", path, "error", err)
+			logger.Info("YoutubeAllowCookies has been disabled")
+		} else if !exists {
+			opts.YoutubeAllowCookies = false
+			logger.Warn("Cookies file does not exist", "path", path)
+			logger.Info("YoutubeAllowCookies has been disabled")
+		} else {
+			logger.Debug("Cookies file exists", "path", path)
+		}
+	}
+
+	if opts.YoutubeAllowCookies {
+		logger.Info("YoutubeAllowCookies option is enabled")
+	}
 
 	return &YtDlpService{
 		logger: logger,
@@ -70,6 +123,6 @@ func NewYtDlpService(logger *slog.Logger, binDir string, downloadsDir string, op
 		options: opts,
 
 		// internal
-		core: core.NewCore(logger, cmdPath, downloadsDir),
+		core: core.NewCore(logger, cmdPath, downloadsDir, options),
 	}, nil
 }

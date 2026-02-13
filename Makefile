@@ -40,35 +40,36 @@ build-embedded: update-app-version ## Build executable file with embedded assets
 build-win-embedded: update-app-version ## Build executable file with embedded assets
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -tags embed_assets -v -o $(APP_NAME).exe ./cmd/$(APP_NAME)/
 
-img-build: update-app-version ## Build Docker container image
-	docker build -t $(APP_IMG_NAME) .
+img-build: update-app-version ## Build Docker image. Arguments: INSTALL_DENO=true
+	docker build \
+		--build-arg INSTALL_DENO=$(INSTALL_DENO) \
+		-t $(APP_IMG_LATEST)$(if $(INSTALL_DENO),-deno) .
 
-img-rebuild: update-app-version ## Remove and rebuild Docker container image
-	docker rmi -f $(APP_IMG_NAME)
-	docker build -t $(APP_IMG_NAME) .
+img-rebuild: update-app-version ## Remove and rebuild Docker image. Arguments: INSTALL_DENO=true
+	docker rmi -f $(APP_IMG_LATEST)$(if $(INSTALL_DENO),-deno)
+	docker build \
+		--build-arg INSTALL_DENO=$(INSTALL_DENO) \
+		-t $(APP_IMG_LATEST)$(if $(INSTALL_DENO),-deno) .
 
-img-rebuild-no-cache: update-app-version ## Remove and rebuild Docker container image without cache
-	docker rmi -f $(APP_IMG_NAME)
-	docker build --no-cache -t $(APP_IMG_NAME) .
+img-rebuild-no-cache: update-app-version ## Remove and rebuild Docker image without cache. Arguments: INSTALL_DENO=true
+	docker rmi -f $(APP_IMG_LATEST)$(if $(INSTALL_DENO),-deno)
+	docker build --no-cache \
+		--build-arg INSTALL_DENO=$(INSTALL_DENO) \
+		-t $(APP_IMG_LATEST)$(if $(INSTALL_DENO),-deno) .
 
 img-rebuild-push: img-rebuild img-push ## Build images, push to repository, and clean up
 
 img-rm: ## Remove image with the latest tag
-	-docker rmi -f $(APP_IMG_NAME)
+	-docker rmi -f $(APP_IMG)
 	
 img-push: ## Push images to the repository with the latest tag
-	docker tag $(APP_IMG_NAME) $(APP_IMG_LATEST)
-	docker push $(APP_IMG_LATEST)
+	docker tag $(APP_IMG_LATEST)$(if $(SUFFIX),-$(SUFFIX)) $(APP_IMG_LATEST)$(if $(SUFFIX),-$(SUFFIX))
+	docker push $(APP_IMG_LATEST)$(if $(SUFFIX),-$(SUFFIX))
 	
 img-push-version: ## Push images to the repository with the current version tag
-	docker tag $(APP_IMG_NAME) $(APP_IMG):$(VERSION)
-	docker push $(APP_IMG):$(VERSION)
-	docker rmi $(APP_IMG):$(VERSION)
-
-img-push-version-dev: ## Push images to the repository with the current version + dev tag
-	docker tag $(APP_IMG_NAME) $(APP_IMG):$(VERSION)-dev
-	docker push $(APP_IMG):$(VERSION)-dev
-	docker rmi $(APP_IMG):$(VERSION)-dev
+	docker tag $(APP_IMG_LATEST)$(if $(SUFFIX),-$(SUFFIX)) $(APP_IMG):$(VERSION)$(if $(SUFFIX),-$(SUFFIX))
+	docker push $(APP_IMG):$(VERSION)$(if $(SUFFIX),-$(SUFFIX))
+	docker rmi $(APP_IMG):$(VERSION)$(if $(SUFFIX),-$(SUFFIX))
 
 img-pull: ## Pull images from the repository
 	@docker pull $(APP_IMG_LATEST)
@@ -79,7 +80,7 @@ docker-run: ## Run Docker container
 		-p $(HTTP_PORT):8080 \
 		-v $(APP_NAME)_db:/app_n/sqlite/data \
 		-v $(APP_NAME)_downloads:/app_n/downloads \
-		$(APP_IMG_NAME_LATEST)
+		$(APP_IMG_LATEST)
 
 git-push-tag-version: ## Create a Git tag for the current version
 	-git tag v$(VERSION)

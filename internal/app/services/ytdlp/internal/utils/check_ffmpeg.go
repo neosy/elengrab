@@ -9,13 +9,13 @@ import (
 	"strings"
 )
 
-func CheckCmd(cmdName string) error {
-	if runtime.GOOS == "windows" && !strings.HasSuffix(cmdName, ".exe") {
-		cmdName += ".exe"
+func CheckFFmpeg(ffmpegName string) error {
+	if runtime.GOOS == "windows" && !strings.HasSuffix(ffmpegName, ".exe") {
+		ffmpegName += ".exe"
 	}
 
 	// Ensure ffmpeg is available in PATH
-	cmd := exec.Command(cmdName, "-version")
+	cmd := exec.Command(ffmpegName, "-version")
 	if err := cmd.Run(); err == nil {
 		return nil
 	}
@@ -23,7 +23,7 @@ func CheckCmd(cmdName string) error {
 	exePath, err := os.Executable()
 	if err == nil {
 		exeDir := filepath.Dir(exePath)
-		cmdPath := filepath.Join(exeDir, cmdName)
+		cmdPath := filepath.Join(exeDir, ffmpegName)
 
 		cmd = exec.Command(cmdPath, "-version")
 		if err := cmd.Run(); err == nil {
@@ -31,5 +31,5 @@ func CheckCmd(cmdName string) error {
 		}
 	}
 
-	return fmt.Errorf("%s not found in PATH. Please install %s and add it to PATH", cmdName, cmdName)
+	return fmt.Errorf("%s not found in PATH. Please install %s and add it to PATH", ffmpegName, ffmpegName)
 }

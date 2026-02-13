@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/downloader/helper"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/utils"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
@@ -15,8 +16,9 @@ func (c *Core) GetBestFormat(
 	ctx context.Context,
 	url string,
 	format string,
+	useCookies bool,
 ) (*dmedia.MediaInfo, error) {
-	info, err := c.getBestFormat(ctx, url, format)
+	info, err := c.getBestFormat(ctx, url, format, useCookies)
 	if err != nil {
 		return nil, err
 	}
@@ -28,20 +30,29 @@ func (c *Core) getBestFormat(
 	ctx context.Context,
 	url string,
 	format string,
+	useCookies bool,
 ) (*idto.MediaInfo, error) {
-	err := c.updateCache(ctx, url)
+	err := c.updateFormatCache(ctx, url, useCookies)
 	if err != nil {
 		return nil, err
 	}
 
-	out, err := utils.ExecCommandContext(
-		ctx, c.ytDlpPath,
-		"--no-warnings", "--quiet",
-		"-f", format,
-		"--load-info-json",
-		c.formatCache.CacheFilePath(url),
-		"--get-format",
-	)
+	// Prepare command arguments
+	var args []string
+
+	args = append(args, "--no-warnings", "--quiet")
+
+	// Add YouTube cookies if allowed in service options
+	if useCookies {
+		args = helper.AddYouTubeCookiesToArgs(c.logger, args, c.serviceOptions)
+	}
+
+	args = append(args, "-f", format)
+	args = append(args, "--load-info-json", c.formatCache.CacheFilePath(url))
+	args = append(args, "--get-format")
+
+	// Execute the command to get the best format ID
+	out, err := utils.ExecCommandContext(ctx, c.ytDlpPath, args...)
 	if err != nil {
 		c.formatCache.DeleteByURL(url)
 		return nil, err
@@ -60,7 +71,7 @@ func (c *Core) getBestFormat(
 		bestFormatIds = append(bestFormatIds, parts[0])
 	}
 
-	info, err := c.getFormats(ctx, url)
+	info, err := c.getFormats(ctx, url, useCookies)
 	if err != nil {
 		return nil, err
 	}

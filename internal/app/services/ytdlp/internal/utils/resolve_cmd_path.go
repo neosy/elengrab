@@ -3,7 +3,6 @@ package utils
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -16,7 +15,7 @@ func ResolveCmdPath(cmdName, binDir string) (string, error) {
 	}
 
 	// try PATH
-	if path, err := lookupExecutable(cmdName); err == nil {
+	if path, err := LookupExecutable(cmdName); err == nil {
 		return path, nil
 	}
 
@@ -44,11 +43,4 @@ func ResolveCmdPath(cmdName, binDir string) (string, error) {
 		binDir,
 		filepath.Join(binDir, cmdName),
 	)
-}
-
-func lookupExecutable(cmdName string) (string, error) {
-	if runtime.GOOS == "windows" && !strings.HasSuffix(cmdName, ".exe") {
-		cmdName += ".exe"
-	}
-	return exec.LookPath(cmdName)
 }

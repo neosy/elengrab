@@ -18,13 +18,18 @@ RUN apk add --no-cache git \
 FROM alpine:latest
 
 ARG APP_DIR=/app_n
+ARG INSTALL_DENO=false
 
 RUN apk add --no-cache tzdata su-exec curl dcron python3 ffmpeg \
+    # Install Deno
+    && if [ "$INSTALL_DENO" = "true" ]; then \
+        apk add --no-cache deno; \
+    fi \
     # Create necessary directories and install dependencies
     && mkdir ${APP_DIR} \
     && cd ${APP_DIR} \
         && mkdir -p bin assets downloads sqlite/data sqlite/backups \
-    # Download yt-dlp binary
+    # Download and install yt-dlp binary
     && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
     && chmod a+rx /usr/local/bin/yt-dlp \
     # time Zone
