@@ -18,12 +18,14 @@ import (
 	httpsrv "github.com/neosy/elengrab/internal/api/rest/server"
 	httptemplates "github.com/neosy/elengrab/internal/api/rest/server/templates"
 	"github.com/neosy/elengrab/internal/app/services"
+	ytdlpdto "github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	"github.com/neosy/elengrab/internal/app/workers"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	inmemoryrep "github.com/neosy/elengrab/internal/repository/in_memory"
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
+	"github.com/neosy/elengrab/pkg/nfile"
 	"github.com/neosy/elengrab/pkg/nlogger"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
 	"github.com/neosy/elengrab/pkg/nworkers"
@@ -83,6 +85,15 @@ func main() {
 
 	log.Printf("Logging level set to '%s'.\n", cfg.AppConfig.LogLevel)
 
+	cookiesDir, err := nfile.AbsPath(cfg.Elengrab.AppDir, cfg.Elengrab.CookiesDir)
+	if err != nil && cfg.Elengrab.YoutubeAllowCookies {
+		logger.Warn(
+			"Failed to get abs path for cookies directory",
+			"path", cfg.Elengrab.CookiesDir,
+			"error", err,
+		)
+	}
+
 	// Initialize SQLite database
 	sqliteDir := absPath(cfg.Elengrab.AppDir, cfg.SQLite.DataDir)
 	sqliteAuthDB, err := newDB(logger, persistence.DBAuthName.Path(sqliteDir))
@@ -133,7 +144,12 @@ func main() {
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
 	// Start worker pool
-	dlManager := nworkerpool.NewWorkerPool(logger, &nworkerpool.WorkerPoolOptions{PoolSize: cfg.Elengrab.DownloadWorkers})
+	dlManager := nworkerpool.NewWorkerPool(
+		logger,
+		&nworkerpool.WorkerPoolOptions{
+			PoolSize: cfg.Elengrab.DownloadWorkers,
+		},
+	)
 	if err := dlManager.Start(ctx); err != nil {
 		logger.Error("Failed to start worker pool", "err", err)
 		return
@@ -145,6 +161,10 @@ func main() {
 	srvDeps := &services.Dependencies{
 		DownloaderBinDir: cfg.Elengrab.DownloaderBinDir,
 		DownloadsDir:     absPath(cfg.Elengrab.AppDir, cfg.Elengrab.DownloadsDir),
+		YtDlpOptions: &ytdlpdto.Options{
+			CookiesDir:          cookiesDir,
+			YoutubeAllowCookies: cfg.Elengrab.YoutubeAllowCookies,
+		},
 	}
 	services, err := services.New(logger, srvDeps)
 	if err != nil {

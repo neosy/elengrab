@@ -8,14 +8,15 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/downloader/helper"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/utils"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 
 // GetFormats retrieves and parses video formats for the given URL.
-func (c *Core) GetFormats(ctx context.Context, url string) (*dmedia.MediaInfo, error) {
-	info, err := c.getFormats(ctx, url)
+func (c *Core) GetFormats(ctx context.Context, url string, useCookies bool) (*dmedia.MediaInfo, error) {
+	info, err := c.getFormats(ctx, url, useCookies)
 	if err != nil {
 		return nil, err
 	}
@@ -26,13 +27,23 @@ func (c *Core) GetFormats(ctx context.Context, url string) (*dmedia.MediaInfo, e
 func (c *Core) fetchFormatsJSON(
 	ctx context.Context,
 	url string,
+	useCookies bool,
 ) ([]byte, error) {
-	out, err := utils.ExecCommandContext(
-		ctx, c.ytDlpPath,
-		"--no-playlist", "--no-warnings", "--quiet",
-		"--dump-json",
-		url,
-	)
+	// Prepare command arguments
+	var args []string
+
+	args = append(args, "--no-playlist", "--no-warnings", "--quiet")
+	args = append(args, "--dump-json")
+
+	// Add YouTube cookies if allowed in service options
+	if useCookies {
+		args = helper.AddYouTubeCookiesToArgs(c.logger, args, c.serviceOptions)
+	}
+
+	args = append(args, url)
+
+	// Execute the command to get video formats in JSON format
+	out, err := utils.ExecCommandContext(ctx, c.ytDlpPath, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +71,9 @@ func (c *Core) fetchFormatsJSON(
 func (c *Core) fetchAndCacheFormatsJSON(
 	ctx context.Context,
 	url string,
+	useCookies bool,
 ) ([]byte, error) {
-	dataJSON, err := c.fetchFormatsJSON(ctx, url)
+	dataJSON, err := c.fetchFormatsJSON(ctx, url, useCookies)
 	if err != nil {
 		c.formatCache.DeleteByURL(url)
 		return nil, err
@@ -75,37 +87,10 @@ func (c *Core) fetchAndCacheFormatsJSON(
 	return dataJSON, nil
 }
 
-func (c *Core) updateCache(
-	ctx context.Context,
-	url string,
-) error {
-	valid, err := c.formatCache.IsTTLValidByURL(url)
-	if err != nil {
-		return err
-	}
-
-	if valid {
-		return nil
-	}
-
-	return c.updateCacheForce(ctx, url)
-}
-
-func (c *Core) updateCacheForce(
-	ctx context.Context,
-	url string,
-) error {
-	_, err := c.fetchAndCacheFormatsJSON(ctx, url)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (c *Core) getFormatsJSON(
 	ctx context.Context,
 	url string,
+	useCookies bool,
 ) ([]byte, error) {
 	dataJSON, err := c.formatCache.LoadByURL(url)
 	if err != nil {
@@ -116,7 +101,7 @@ func (c *Core) getFormatsJSON(
 		return dataJSON, nil
 	}
 
-	dataJSON, err = c.fetchAndCacheFormatsJSON(ctx, url)
+	dataJSON, err = c.fetchAndCacheFormatsJSON(ctx, url, useCookies)
 	if err != nil {
 		return nil, err
 	}
@@ -127,8 +112,9 @@ func (c *Core) getFormatsJSON(
 func (c *Core) getFormats(
 	ctx context.Context,
 	url string,
+	useCookies bool,
 ) (*idto.MediaInfo, error) {
-	dataJSON, err := c.getFormatsJSON(ctx, url)
+	dataJSON, err := c.getFormatsJSON(ctx, url, useCookies)
 	if err != nil {
 		return nil, err
 	}

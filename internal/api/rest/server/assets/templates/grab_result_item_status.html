@@ -46,7 +46,6 @@
         {{ else }}
             {{ if eq .DownloadStatus "failed" }}
                 <button class="btn-download-repeat"
-                    title="Retry downloading this media"
                     hx-post="{{.PathFileRepeat}}"
                     hx-target="closest .div-grab-result-item"
                     hx-swap="outerHTML">

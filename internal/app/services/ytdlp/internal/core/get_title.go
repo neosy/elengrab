@@ -6,20 +6,36 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/downloader/helper"
 )
 
-func (c *Core) GetTitle(ctx context.Context, url string) (string, error) {
+func (c *Core) GetTitle(ctx context.Context, url string, useCookies bool) (string, error) {
 	var cmd *exec.Cmd
 
+	// Prepare command arguments
+	var args []string
+
 	if ok, _ := c.formatCache.IsTTLValidByURL(url); ok {
-		cmd = exec.CommandContext(
-			ctx, c.ytDlpPath,
-			"--no-playlist", "--no-warnings",
-			"-e",
-			"--load-info-json", c.formatCache.CacheFilePath(url),
-		)
+		args = append(args, "--no-playlist", "--no-warnings", "-e")
+
+		// Add YouTube cookies if allowed in service options
+		if useCookies {
+			args = helper.AddYouTubeCookiesToArgs(c.logger, args, c.serviceOptions)
+		}
+
+		args = append(args, "--load-info-json", c.formatCache.CacheFilePath(url))
+		cmd = exec.CommandContext(ctx, c.ytDlpPath, args...)
 	} else {
-		cmd = exec.CommandContext(ctx, c.ytDlpPath, "--no-playlist", "--no-warnings", "-e", url)
+		args = append(args, "--no-playlist", "--no-warnings", "-e")
+
+		// Add YouTube cookies if allowed in service options
+		if useCookies {
+			args = helper.AddYouTubeCookiesToArgs(c.logger, args, c.serviceOptions)
+		}
+
+		args = append(args, url)
+		cmd = exec.CommandContext(ctx, c.ytDlpPath, args...)
 	}
 
 	// Buffers to capture stdout and stderr

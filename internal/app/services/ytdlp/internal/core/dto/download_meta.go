@@ -25,10 +25,11 @@ type DownloadMeta struct {
 }
 
 type DownloadOptions struct {
-	ConcurrentFragments uint8
-	Extractor           string
-	ExtractorArgs       *string
-	Args                []string
+	ConcurrentFragments    uint8
+	RequiresYouTubeCookies bool
+	Extractor              string
+	ExtractorArgs          *string
+	Args                   []string
 }
 
 type SafeDownloadMeta struct {

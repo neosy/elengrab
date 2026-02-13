@@ -19,7 +19,7 @@ func PrepareDownload(
 	ctx context.Context,
 	url string,
 	dlOptions dto.DLOptions,
-	bestFormat func(ctx context.Context, url string, format string) (*idto.MediaInfo, error),
+	bestFormat func(ctx context.Context, url string, format string, useCookies bool) (*idto.MediaInfo, error),
 ) (args []string, fileExt string, dtoMediaInfo *idto.MediaInfo, mediaInfo *ddownload.MediaInfo, err error) {
 	var (
 		outVideoCodec = dtypes.VideoCodecNone
@@ -97,7 +97,7 @@ func PrepareDownload(
 
 		// Get information about the best format from yt-dlp
 		var err error
-		dtoMediaInfo, err = bestFormat(ctx, url, bestFormatQuery)
+		dtoMediaInfo, err = bestFormat(ctx, url, bestFormatQuery, dlOptions.RequiresYouTubeCookies)
 		if err != nil {
 			return nil, "", nil, nil, err
 		}
@@ -274,7 +274,7 @@ func PrepareDownload(
 
 		// Get information about the best audio format
 		var err error
-		dtoMediaInfo, err = bestFormat(ctx, url, format)
+		dtoMediaInfo, err = bestFormat(ctx, url, format, dlOptions.RequiresYouTubeCookies)
 		if err != nil {
 			return nil, "", nil, nil, err
 		}
