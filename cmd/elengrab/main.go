@@ -49,8 +49,6 @@ const (
 )
 
 func main() {
-	var err error
-
 	// Version output at startup
 	fmt.Fprintf(os.Stderr, "%s v%s\n", iconfig.AppName, iconfig.AppVersion)
 

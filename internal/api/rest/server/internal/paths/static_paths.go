@@ -5,9 +5,10 @@ const (
 	GroupStatic = "/static"
 
 	// Path files
-	PathCssFiles  = "/css/{filepath:*}"
-	PathImgFiles  = "/img/{filepath:*}"
-	PathIconFiles = "/icon/{filepath:*}"
-	PathJsFiles   = "/js/{filepath:*}"
-	PathPwaFiles  = "/pwa/{filepath:*}"
+	PathCssFiles      = "/css/{filepath:*}"
+	PathImgFiles      = "/img/{filepath:*}"
+	PathImgFaviconICO = "/img/favicon.ico"
+	PathIconFiles     = "/icon/{filepath:*}"
+	PathJsFiles       = "/js/{filepath:*}"
+	PathPwaFiles      = "/pwa/{filepath:*}"
 )
