@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/downloader/helper"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/dto"
@@ -17,8 +18,8 @@ func (d *Downloader) prepareMetadata(
 	url, dlDir, fileName string,
 	includeTitleInFilename bool,
 	dlOptions dto.DLOptions,
-	getBestFormat func(ctx context.Context, url string, format string) (*idto.MediaInfo, error),
-	getTitle func(ctx context.Context, url string) (string, error),
+	getBestFormat func(ctx context.Context, url string, format string, useCookies bool) (*idto.MediaInfo, error),
+	getTitle func(ctx context.Context, url string, useCookies bool) (string, error),
 ) (*idto.DownloadMeta, error) {
 	// Build yt-dlp arguments and get file extension and title
 	args, fileExt, dtoMediaInfo, mediaInfo, err := helper.PrepareDownload(
@@ -35,7 +36,7 @@ func (d *Downloader) prepareMetadata(
 	title := dtoMediaInfo.Title
 	if title == "" {
 		var err error
-		title, err = getTitle(ctx, url)
+		title, err = getTitle(ctx, url, dlOptions.RequiresYouTubeCookies)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get title: %w", err)
 		}
@@ -50,7 +51,7 @@ func (d *Downloader) prepareMetadata(
 		// Sanitize the title to ensure it is a valid file name.
 		title := nfasthttp.SanitizeFileName(title)
 		// Truncate the title to fit within the maximum length allowed for filenames.
-		title = helper.TruncateUTF8(title, maxTitleLengthInFilename)
+		title = helper.TruncateUTF8(title, consts.MaxTitleLengthInFilename)
 		fileName = fmt.Sprintf("%s_%s", nfasthttp.SanitizeFileName(title), fileName)
 	}
 
@@ -78,10 +79,11 @@ func (d *Downloader) prepareMetadata(
 	}
 
 	options := idto.DownloadOptions{
-		ConcurrentFragments: dlOptions.ConcurrentFragments,
-		Extractor:           dtoMediaInfo.Extractor,
-		ExtractorArgs:       nil,
-		Args:                args,
+		ConcurrentFragments:    dlOptions.ConcurrentFragments,
+		RequiresYouTubeCookies: dlOptions.RequiresYouTubeCookies,
+		Extractor:              dtoMediaInfo.Extractor,
+		ExtractorArgs:          nil,
+		Args:                   args,
 	}
 
 	return &idto.DownloadMeta{

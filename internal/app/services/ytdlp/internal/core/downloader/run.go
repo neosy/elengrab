@@ -13,6 +13,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/downloader/helper"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/utils"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -35,10 +37,10 @@ func (d *Downloader) runYtDlp(
 	dlDir := filepath.Dir(meta.FilePath)
 
 	// Cache directory
-	cacheDir := filepath.Join(dlDir, ytDlpCacheDir)
+	cacheDir := filepath.Join(dlDir, consts.YtDlpCacheDir)
 
 	// Running yt-dlp in a separate temporary directory
-	baseTmpDir := filepath.Join(dlDir, ytDlpTempDir)
+	baseTmpDir := filepath.Join(dlDir, consts.YtDlpTempDir)
 
 	workDir, cleanup, err := utils.CreateTempDir(baseTmpDir, "job-*")
 	if err != nil {
@@ -84,6 +86,11 @@ func (d *Downloader) runYtDlp(
 
 		// Do not use cache for custom extractor args
 		args = append(args, meta.URL)
+	}
+
+	// Add YouTube cookies if allowed in service options
+	if meta.Options.RequiresYouTubeCookies {
+		args = helper.AddYouTubeCookiesToArgs(d.logger, args, d.serviceOptions)
 	}
 
 	// Add output file path to yt-dlp arguments
@@ -132,7 +139,7 @@ func (d *Downloader) runYtDlp(
 
 	// Kill the entire process group on context cancellation
 	go func() {
-		timer := time.NewTimer(ytDlpTimeout)
+		timer := time.NewTimer(consts.YtDlpTimeout)
 		defer timer.Stop()
 
 		select {

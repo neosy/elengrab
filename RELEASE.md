@@ -4,6 +4,7 @@
 
 ### Feature
 - Add an icon when compiling an .exe file. Closes #192
+- Add authorization parameters for downloading from youtube. Closes #185
 
 ---
 

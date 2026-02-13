@@ -21,10 +21,10 @@ import (
 func (d *Downloader) Download(
 	ctx context.Context,
 	url string,
-	concurrentFragments uint8,
 	options *dservices.DownloadOptions,
-	getBestFormat func(ctx context.Context, url string, format string) (*idto.MediaInfo, error),
-	getTitle func(ctx context.Context, url string) (string, error),
+	updateFormatCache func(ctx context.Context, url string, useCookies bool) error,
+	getBestFormat func(ctx context.Context, url string, format string, useCookies bool) (*idto.MediaInfo, error),
+	getTitle func(ctx context.Context, url string, useCookies bool) (string, error),
 	downloadResultCh chan<- *ddownload.DownloadResult,
 ) {
 	var wg sync.WaitGroup
@@ -62,7 +62,7 @@ func (d *Downloader) Download(
 
 	// Prepare download options with defaults and user overrides
 	dlOptions, dlDir, fileName, includeTitleInFilename :=
-		helper.PrepareDownloadOptions(d.downloadsDir, concurrentFragments, options)
+		helper.PrepareDownloadOptions(d.downloadsDir, d.serviceOptions.ConcurrentFragments, options)
 
 	// Ensure download directory exists
 	if err := nfile.CheckDir(dlDir); err != nil {
@@ -89,6 +89,32 @@ func (d *Downloader) Download(
 			MediaTitle: title,
 		})
 	}
+
+	var requiresYouTubeCookies = false
+	err = updateFormatCache(ctx, url, false)
+	if err != nil {
+		requiresYouTubeCookies = d.serviceOptions.YoutubeAllowCookies &&
+			helper.CheckForYouTubeCookiesError(err)
+		if !requiresYouTubeCookies {
+			sendError(nil, fmt.Errorf("Failed request: %w", err))
+			return
+		}
+	}
+
+	if requiresYouTubeCookies {
+		d.logger.Debug(
+			"YouTube cookies are enabled",
+			"title", title,
+			"url", url,
+		)
+		err = updateFormatCache(ctx, url, true)
+		if err != nil {
+			sendError(nil, fmt.Errorf("Failed request: %w", err))
+			return
+		}
+	}
+
+	dlOptions.RequiresYouTubeCookies = requiresYouTubeCookies
 
 	// Prepare download metadata
 	var meta idto.SafeDownloadMeta

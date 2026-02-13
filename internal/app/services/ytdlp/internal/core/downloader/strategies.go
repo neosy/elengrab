@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
@@ -67,7 +68,7 @@ func (d *Downloader) downloadWithStrategies(
 	// Try download attempts
 	for i, attempt := range attempts {
 		if i > 0 {
-			if err := waitOrCancel(ytDlpRetryDelay); err != nil {
+			if err := waitOrCancel(consts.YtDlpRetryDelay); err != nil {
 				return nil, err
 			}
 		}

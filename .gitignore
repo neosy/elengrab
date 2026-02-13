@@ -3,7 +3,6 @@
 /elengrab
 
 # Exclude
-/secrets/*
 /.vscode/*
 
 # Exception to the rule
@@ -12,16 +11,18 @@
 # godotenv file
 .env
 
-# ignore files
+# ignore local files
+/secrets/
+/local/
 .md
 issues.txt
+
+# Ignoring Windows resources
+cmd/elengrab/rsrc_*.syso
 
 # go.work
 go.work
 go.work.sum
-
-# Ignoring Windows resources
-cmd/elengrab/rsrc_*.syso
 
 # Dependency directories (remove the comment below to include it)
 vendor/

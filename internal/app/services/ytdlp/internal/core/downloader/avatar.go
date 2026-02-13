@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/downloader/helper"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -63,7 +64,7 @@ func (d *Downloader) getChannelAvatar(url string) ([]idto.AvatarSource, error) {
 	body, err := nfasthttp.GetHTML(
 		url,
 		nfasthttp.ClientOptionWithreadBufferSize(64*1024),
-		nfasthttp.ClientOptionWithTimeout(channelAvatarTimeout),
+		nfasthttp.ClientOptionWithTimeout(consts.ChannelAvatarTimeout),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get html: %w", err)
@@ -87,7 +88,7 @@ func (d *Downloader) getChannelAvatar(url string) ([]idto.AvatarSource, error) {
 		raw, format, err := nfasthttp.GetImage(
 			src.URL,
 			nfasthttp.ClientOptionWithreadBufferSize(64*1024),
-			nfasthttp.ClientOptionWithTimeout(channelAvatarTimeout),
+			nfasthttp.ClientOptionWithTimeout(consts.ChannelAvatarTimeout),
 		)
 		if err != nil {
 			continue
