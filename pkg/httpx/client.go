@@ -2,11 +2,10 @@ package httpx
 
 import (
 	"net/http"
-	"time"
 )
 
-type ClientOption func(*http.Client)
-
+// NewClient creates a new http.Client and applies any number of ClientOptions.
+// opts: variadic list of ClientOption functions to customize the client.
 func NewClient(opts ...ClientOption) *http.Client {
 	c := &http.Client{}
 
@@ -15,10 +14,4 @@ func NewClient(opts ...ClientOption) *http.Client {
 	}
 
 	return c
-}
-
-func ClientOptionWithTimeout(d time.Duration) ClientOption {
-	return func(c *http.Client) {
-		c.Timeout = d
-	}
 }

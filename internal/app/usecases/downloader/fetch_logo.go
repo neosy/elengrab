@@ -2,7 +2,6 @@ package downloader
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
@@ -20,23 +19,24 @@ func (uc *YouTubeDownloader) fetchLogo(ctx context.Context, url string) error {
 	}
 
 	baseURL := httpx.BaseURL(url)
-	image, err := uc.siteLogoFetcher.FetchLogo(ctx, baseURL)
+
+	logo, err := uc.siteLogo.FindBySiteURL(ctx, baseURL)
+	if err != nil {
+		return err
+	}
+
+	if logo != nil && time.Since(logo.UpdatedAt) <= uc.logoUpdateInterval {
+		return nil
+	}
+
+	image, err := uc.siteLogoFetcher.FetchBestLogo(ctx, baseURL)
 	if err != nil {
 		uc.logger.Warn("Failed to fetch logo", "url", baseURL, "error", err)
 		return err
 	}
-	if image == nil {
-		uc.logger.Warn("Site log not found", "url", baseURL)
-		return fmt.Errorf("site logo not found")
-	}
 
-	logo, _ := uc.siteLogo.FindBySiteURL(ctx, baseURL)
+	// Update existing logo if it's outdated.
 	if logo != nil {
-		if time.Since(logo.UpdatedAt) <= uc.logoUpdateInterval {
-			return nil
-		}
-
-		// Update existing logo if it's outdated.
 		logo.SetRequired(baseURL, title, image)
 
 		err := uc.siteLogo.Update(ctx, logo)
@@ -47,7 +47,7 @@ func (uc *YouTubeDownloader) fetchLogo(ctx context.Context, url string) error {
 	}
 
 	// Create new siteLogo
-	logo = dmedia.NewSiteLogo(baseURL, title, image)
+	logo = dmedia.NewSiteLogo(baseURL, title, logo.ImageData())
 
 	err = uc.siteLogo.Create(ctx, logo)
 	if err != nil {
