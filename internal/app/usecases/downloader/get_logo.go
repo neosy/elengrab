@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	"github.com/neosy/elengrab/pkg/httpx"
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 func (uc *YouTubeDownloader) GetLogo(ctx context.Context, userID uuid.UUID, fileID uuid.UUID) (*dmedia.ImageData, error) {
@@ -30,5 +29,5 @@ func (uc *YouTubeDownloader) GetLogo(ctx context.Context, userID uuid.UUID, file
 		return nil, err
 	}
 
-	return uptr.Any(logo.ImageData()), nil
+	return logo.ImageData(), nil
 }
