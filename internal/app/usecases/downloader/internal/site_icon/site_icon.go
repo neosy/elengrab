@@ -1,4 +1,4 @@
-package sitelogo
+package siteicon
 
 import (
 	"log/slog"
@@ -6,7 +6,7 @@ import (
 	"github.com/neosy/elengrab/internal/ports/persistence"
 )
 
-type SiteLogo struct {
+type SiteIcon struct {
 	logger *slog.Logger
 
 	// repositories
@@ -16,12 +16,12 @@ type SiteLogo struct {
 	logoCacheRep persistence.SiteLogoCacheRepository
 }
 
-func NewSiteLogo(
+func NewSiteIcon(
 	logger *slog.Logger,
 	logoRep persistence.SiteLogoRepository,
 	logoCacheRep persistence.SiteLogoCacheRepository,
-) *SiteLogo {
-	return &SiteLogo{
+) *SiteIcon {
+	return &SiteIcon{
 		logger:       logger,
 		logoRep:      logoRep,
 		logoCacheRep: logoCacheRep,

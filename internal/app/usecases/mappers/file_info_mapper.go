@@ -14,7 +14,7 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 	avatarTitle string,
 	progress *ddownload.DownloadProgress,
 	downloadsDir string,
-	hasSiteLogo bool,
+	hasSiteIcon bool,
 ) *dto.GetFileInfoResponse {
 	var mediaTitle = file.MediaTitle
 	if file.MediaTitle == "" {
@@ -41,7 +41,7 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 		AvatarTitle:          avatarTitle,
 		MediaUrl:             file.MediaUrl,
 		MediaTitle:           mediaTitle,
-		HasSiteLogo:          hasSiteLogo,
+		HasSiteIcon:          hasSiteIcon,
 		FileName:             file.FileName,
 		FileExt:              file.Ext,
 		FileFullName:         file.FullName,

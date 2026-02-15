@@ -1,4 +1,4 @@
-package sitelogo
+package siteicon
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 )
 
 // Create creates a new site logo entry.
-func (uc *SiteLogo) Create(ctx context.Context, logo *dmedia.SiteLogo) error {
+func (uc *SiteIcon) Create(ctx context.Context, logo *dmedia.SiteLogo) error {
 	if logo == nil {
 		uc.logger.Warn("Nil pointer in function")
 		return errors.New("function parameter is a nil pointer")

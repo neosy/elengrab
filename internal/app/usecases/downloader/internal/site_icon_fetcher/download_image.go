@@ -1,4 +1,4 @@
-package logofetcher
+package iconfetcher
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 )
 
 // downloadImage downloads an image from the given URL and returns it.
-func (lf *SiteLogoFetcher) downloadImage(ctx context.Context, imgURL string) (*dmedia.ImageData, error) {
+func (lf *SiteIconFetcher) downloadImage(ctx context.Context, imgURL string) (*dmedia.ImageData, error) {
 	data, format, err := httpx.GetImage(
 		ctx,
 		imgURL,

@@ -74,7 +74,7 @@ func (d *Downloader) Download(
 	title, err := helper.GetTitleFast(url)
 	if err != nil {
 		d.logger.Debug(
-			"Get title fast",
+			"Failed to get title fast",
 			"url", url,
 			"error", err,
 		)

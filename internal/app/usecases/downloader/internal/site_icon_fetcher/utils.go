@@ -1,4 +1,4 @@
-package logofetcher
+package iconfetcher
 
 import (
 	"net/url"

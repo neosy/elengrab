@@ -105,16 +105,16 @@ func (uc *YouTubeDownloader) findStateAndFileInfo(
 		}
 	}
 
-	var hasSiteLogo bool
-	siteLogo, _ := uc.siteLogo.FindBySiteURL(ctx, httpx.BaseURL(fileResp.MediaUrl))
+	var hasSiteIcon bool
+	siteLogo, _ := uc.siteIcon.FindBySiteURL(ctx, httpx.BaseURL(fileResp.MediaUrl))
 	if siteLogo != nil {
-		hasSiteLogo = true
+		hasSiteIcon = true
 		if avatarTitle == "" {
 			avatarTitle = siteLogo.SiteTitle
 		}
 	}
 
-	return uc.mappers.MapFileDomainToFileInfoResponse(fileResp, avatarTitle, dlProgress, uc.downloadsDir, hasSiteLogo), nil
+	return uc.mappers.MapFileDomainToFileInfoResponse(fileResp, avatarTitle, dlProgress, uc.downloadsDir, hasSiteIcon), nil
 }
 
 func (uc *YouTubeDownloader) LoadHistory(

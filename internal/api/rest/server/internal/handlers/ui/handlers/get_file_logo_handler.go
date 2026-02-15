@@ -31,12 +31,12 @@ func (h *DownloaderHandlers) GetFileLogoHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	logoImage, err := h.usecases.Downloader.GetLogo(ctx, userID, fileID)
+	iconImage, err := h.usecases.Downloader.GetIcon(ctx, userID, fileID)
 
-	if err == nil && logoImage != nil && len(logoImage.Raw) > 0 {
-		ctx.SetContentType(h.mappers.MapImageExtToContentType(logoImage.Format))
+	if err == nil && iconImage != nil && len(iconImage.Raw) > 0 {
+		ctx.SetContentType(h.mappers.MapImageExtToContentType(iconImage.Format))
 		ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
-		ctx.SetBody(logoImage.Raw)
+		ctx.SetBody(iconImage.Raw)
 		ctx.SetStatusCode(fasthttp.StatusOK)
 		return
 	}
