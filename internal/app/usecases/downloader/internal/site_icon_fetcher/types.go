@@ -1,4 +1,4 @@
-package logofetcher
+package iconfetcher
 
 type iconCandidate struct {
 	url     string

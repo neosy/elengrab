@@ -10,8 +10,8 @@ import (
 	dltasktatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task_status"
 	fileuc "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/file"
 	filestatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/file_status"
-	sitelogo "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_logo"
-	logofetcher "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_logo_fetcher"
+	siteicon "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon"
+	iconfetcher "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon_fetcher"
 	ytchannel "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/youtube_channel"
 	"github.com/neosy/elengrab/internal/app/usecases/mappers"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -34,9 +34,9 @@ type YouTubeDownloader struct {
 	fileStatus      *filestatus.FileStatus
 	dlTaskStatus    *dltasktatus.DownloadTaskStatus
 	ytChannel       *ytchannel.YoutubeChannel
-	siteLogo        *sitelogo.SiteLogo
+	siteIcon        *siteicon.SiteIcon
 	dlStateCache    *dlstate.DownloadStateCache
-	siteLogoFetcher *logofetcher.SiteLogoFetcher
+	siteIconFetcher *iconfetcher.SiteIconFetcher
 
 	// services
 	downloaderSrv pservices.Downloader
@@ -101,8 +101,8 @@ func NewYouTubeDownloader(
 		fileStatus:      filestatus.NewFileStatus(logger, file, dlTask, dlTaskStatus),
 		dlTaskStatus:    dlTaskStatus,
 		ytChannel:       ytchannel.NewYoutubeChannel(logger, ytChannelRep, ytChannelCacheRep),
-		siteLogo:        sitelogo.NewSiteLogo(logger, siteLogoRep, siteLogoCacheRep),
-		siteLogoFetcher: logofetcher.NewSiteLogoFetcher(logger),
+		siteIcon:        siteicon.NewSiteIcon(logger, siteLogoRep, siteLogoCacheRep),
+		siteIconFetcher: iconfetcher.NewSiteIconFetcher(logger),
 
 		// services
 		downloaderSrv: downloaderSrv,

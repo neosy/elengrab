@@ -1,4 +1,4 @@
-package sitelogo
+package siteicon
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 
 // FindByLogoID
 // Record may not exist — caller decides what to do
-func (uc *SiteLogo) FindByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia.SiteLogo, error) {
+func (uc *SiteIcon) FindByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia.SiteLogo, error) {
 	if logoID == uuid.Nil {
 		return nil, nil
 	}
@@ -38,7 +38,7 @@ func (uc *SiteLogo) FindByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia
 
 // GetByLogoID
 // Record MUST exist — otherwise NOT_FOUND
-func (uc *SiteLogo) GetByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia.SiteLogo, error) {
+func (uc *SiteIcon) GetByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia.SiteLogo, error) {
 	logo, err := uc.FindByLogoID(ctx, logoID)
 	if err != nil {
 		return nil, errorx.NewByErr(err, exceptionx.ERROR)
@@ -53,7 +53,7 @@ func (uc *SiteLogo) GetByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia.
 }
 
 // Checks if a site logo exists by its unique identifier.
-func (uc *SiteLogo) ExistsByLogoID(ctx context.Context, logoID uuid.UUID) (bool, error) {
+func (uc *SiteIcon) ExistsByLogoID(ctx context.Context, logoID uuid.UUID) (bool, error) {
 	exists, _ := uc.logoCacheRep.ExistsByLogoID(ctx, logoID)
 	if exists {
 		return exists, nil
@@ -69,7 +69,7 @@ func (uc *SiteLogo) ExistsByLogoID(ctx context.Context, logoID uuid.UUID) (bool,
 
 // FindBySiteURL
 // Record may not exist — caller decides what to do
-func (uc *SiteLogo) FindBySiteURL(ctx context.Context, siteURL string) (*dmedia.SiteLogo, error) {
+func (uc *SiteIcon) FindBySiteURL(ctx context.Context, siteURL string) (*dmedia.SiteLogo, error) {
 	if siteURL == "" {
 		return nil, nil
 	}
@@ -103,14 +103,13 @@ func (uc *SiteLogo) FindBySiteURL(ctx context.Context, siteURL string) (*dmedia.
 
 // GetBySiteURL
 // Record MUST exist — otherwise NOT_FOUND
-func (uc *SiteLogo) GetBySiteURL(ctx context.Context, siteURL string) (*dmedia.SiteLogo, error) {
+func (uc *SiteIcon) GetBySiteURL(ctx context.Context, siteURL string) (*dmedia.SiteLogo, error) {
 	logo, err := uc.FindBySiteURL(ctx, siteURL)
 	if err != nil {
 		return nil, errorx.NewByErr(err, exceptionx.ERROR)
 	}
 
 	if logo == nil {
-		uc.logger.Warn("Logo not found", "siteURL", siteURL)
 		return nil, errorx.New("logo not found", exceptionx.NOT_FOUND)
 	}
 
@@ -118,7 +117,7 @@ func (uc *SiteLogo) GetBySiteURL(ctx context.Context, siteURL string) (*dmedia.S
 }
 
 // ExistsBySiteURL returns true if siteURL exists in the repository.
-func (uc *SiteLogo) ExistsBySiteURL(ctx context.Context, siteURL string) (bool, error) {
+func (uc *SiteIcon) ExistsBySiteURL(ctx context.Context, siteURL string) (bool, error) {
 	exists, _ := uc.logoCacheRep.ExistsBySiteURL(ctx, siteURL)
 	if exists {
 		return exists, nil
@@ -133,7 +132,7 @@ func (uc *SiteLogo) ExistsBySiteURL(ctx context.Context, siteURL string) (bool, 
 }
 
 // ExistsBySiteURLFromCache returns true if siteURL exists in the cache.
-func (uc *SiteLogo) ExistsBySiteURLFromCache(ctx context.Context, siteURL string) (bool, error) {
+func (uc *SiteIcon) ExistsBySiteURLFromCache(ctx context.Context, siteURL string) (bool, error) {
 	if siteURL == "" {
 		return false, nil
 	}

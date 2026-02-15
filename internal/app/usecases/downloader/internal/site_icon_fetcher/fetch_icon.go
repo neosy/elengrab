@@ -1,4 +1,4 @@
-package logofetcher
+package iconfetcher
 
 import (
 	"context"
@@ -10,13 +10,13 @@ import (
 	"github.com/neosy/elengrab/pkg/httpx"
 )
 
-var ErrLogoNotFound = errors.New("logo not found")
+var ErrIconNotFound = errors.New("icon not found")
 
-// FetchBestLogo fetches the best available logo for the given site URL.
+// FetchBestIcon fetches the best available icon for the given site URL.
 // It retrieves icon candidates from the site, downloads them in priority order,
 // and returns the first successfully downloaded image.
-// Returns ErrLogoNotFound if no valid logo could be retrieved.
-func (lf *SiteLogoFetcher) FetchBestLogo(ctx context.Context, siteURL string) (*dmedia.ImageData, error) {
+// Returns ErrIconNotFound if no valid icon could be retrieved.
+func (lf *SiteIconFetcher) FetchBestIcon(ctx context.Context, siteURL string) (*dmedia.ImageData, error) {
 	candidates, err := lf.fetchCandidatesFromURL(ctx, siteURL)
 	if err != nil {
 		return nil, err
@@ -29,33 +29,33 @@ func (lf *SiteLogoFetcher) FetchBestLogo(ctx context.Context, siteURL string) (*
 		}
 	}
 
-	return nil, ErrLogoNotFound
+	return nil, ErrIconNotFound
 }
 
-// FetchLogos fetches all available logos for the given site URL.
+// FetchIcons fetches all available icons for the given site URL.
 // It retrieves icon candidates from the site, downloads each candidate,
 // and returns all successfully downloaded images.
-func (lf *SiteLogoFetcher) FetchLogos(ctx context.Context, siteURL string) ([]*dmedia.ImageData, error) {
+func (lf *SiteIconFetcher) FetchIcons(ctx context.Context, siteURL string) ([]*dmedia.ImageData, error) {
 	candidates, err := lf.fetchCandidatesFromURL(ctx, siteURL)
 	if err != nil {
 		return nil, err
 	}
 
 	capHint := min(len(candidates), 4)
-	logos := make([]*dmedia.ImageData, 0, capHint)
+	icons := make([]*dmedia.ImageData, 0, capHint)
 	for _, c := range candidates {
-		logo, err := lf.downloadImage(ctx, c.url)
+		icon, err := lf.downloadImage(ctx, c.url)
 		if err == nil {
-			logos = append(logos, logo)
+			icons = append(icons, icon)
 		}
 	}
 
-	return logos, nil
+	return icons, nil
 }
 
 // fetchCandidatesFromURL retrieves icon candidates from the site's HTML head,
 // applies a fallback to /favicon.ico, and sorts candidates by priority.
-func (lf *SiteLogoFetcher) fetchCandidatesFromURL(ctx context.Context, siteURL string) ([]iconCandidate, error) {
+func (lf *SiteIconFetcher) fetchCandidatesFromURL(ctx context.Context, siteURL string) ([]iconCandidate, error) {
 	links, err := httpx.GetLinksInHead(
 		ctx,
 		siteURL,
@@ -63,7 +63,7 @@ func (lf *SiteLogoFetcher) fetchCandidatesFromURL(ctx context.Context, siteURL s
 			Limit:            limitHTML,
 			IgnoreStatusCode: true,
 		},
-		httpx.ClientOptionWithTimeout(fetchLogoTimeout),
+		httpx.ClientOptionWithTimeout(fetchIconTimeout),
 		httpx.ClientOptionWithDefaultCookieJar(),
 	)
 	if err != nil {

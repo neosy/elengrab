@@ -1,4 +1,4 @@
-package sitelogo
+package siteicon
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 
-func (uc *SiteLogo) Update(ctx context.Context, logo *dmedia.SiteLogo) error {
+func (uc *SiteIcon) Update(ctx context.Context, logo *dmedia.SiteLogo) error {
 	err := uc.logoRep.Update(ctx, logo)
 	if err != nil {
 		uc.logger.Warn("Update record error", "error", err)

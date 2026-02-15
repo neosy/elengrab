@@ -1,4 +1,4 @@
-package logofetcher
+package iconfetcher
 
 import (
 	"strings"
@@ -7,7 +7,7 @@ import (
 )
 
 // ExtractIcons extracts icon candidates from the given HTML links.
-func (lf *SiteLogoFetcher) extractIcons(links [][]html.Attribute, baseURL string) []iconCandidate {
+func (lf *SiteIconFetcher) extractIcons(links [][]html.Attribute, baseURL string) []iconCandidate {
 	var icons []iconCandidate
 
 	for _, link := range links {
