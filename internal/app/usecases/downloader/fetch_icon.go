@@ -8,19 +8,23 @@ import (
 	"github.com/neosy/elengrab/pkg/httpx"
 )
 
-func (uc *YouTubeDownloader) fetchLogo(ctx context.Context, url string) error {
+func (uc *YouTubeDownloader) fetchIcon(ctx context.Context, url string) error {
 	title, err := httpx.GetTitle(
 		ctx,
 		httpx.BaseURL(url),
 		httpx.ClientOptionWithTimeout(getHTMLTimeout),
+		httpx.ClientOptionWithDefaultCookieJar(),
 	)
 	if err != nil {
-		uc.logger.Warn("Failed to get title of site", "error", err)
+		uc.logger.Debug("Failed to get title of site", "url", url, "error", err)
+	}
+	if title != "" {
+		uc.logger.Debug("Site title fetched", "title", title, "url", url)
 	}
 
 	baseURL := httpx.BaseURL(url)
 
-	logo, err := uc.siteLogo.FindBySiteURL(ctx, baseURL)
+	logo, err := uc.siteIcon.FindBySiteURL(ctx, baseURL)
 	if err != nil {
 		return err
 	}
@@ -29,17 +33,18 @@ func (uc *YouTubeDownloader) fetchLogo(ctx context.Context, url string) error {
 		return nil
 	}
 
-	image, err := uc.siteLogoFetcher.FetchBestLogo(ctx, baseURL)
+	image, err := uc.siteIconFetcher.FetchBestIcon(ctx, baseURL)
 	if err != nil {
-		uc.logger.Warn("Failed to fetch logo", "url", baseURL, "error", err)
+		uc.logger.Warn("Failed to fetch icon", "url", baseURL, "error", err)
 		return err
 	}
+	uc.logger.Debug("Best icon fetched", "url", baseURL)
 
 	// Update existing logo if it's outdated.
 	if logo != nil {
 		logo.SetRequired(baseURL, title, image)
 
-		err := uc.siteLogo.Update(ctx, logo)
+		err := uc.siteIcon.Update(ctx, logo)
 		if err != nil {
 			return err
 		}
@@ -47,9 +52,9 @@ func (uc *YouTubeDownloader) fetchLogo(ctx context.Context, url string) error {
 	}
 
 	// Create new siteLogo
-	logo = dmedia.NewSiteLogo(baseURL, title, logo.ImageData())
+	logo = dmedia.NewSiteLogo(baseURL, title, image)
 
-	err = uc.siteLogo.Create(ctx, logo)
+	err = uc.siteIcon.Create(ctx, logo)
 	if err != nil {
 		return err
 	}

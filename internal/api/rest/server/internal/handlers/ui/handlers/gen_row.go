@@ -153,7 +153,7 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 	logoVersion := ""
 	if fileInfo.YoutubeChannelID != nil {
 		logoVersion = "yt-channel"
-	} else if fileInfo.HasSiteLogo {
+	} else if fileInfo.HasSiteIcon {
 		logoVersion = "site-logo"
 	}
 	if logoVersion == "" {

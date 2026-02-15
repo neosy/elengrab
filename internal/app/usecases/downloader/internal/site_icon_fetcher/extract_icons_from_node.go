@@ -1,4 +1,4 @@
-package logofetcher
+package iconfetcher
 
 import (
 	"strings"
@@ -6,7 +6,7 @@ import (
 	"golang.org/x/net/html"
 )
 
-func (lf *SiteLogoFetcher) extractIconsFromNode(n *html.Node, base string) []iconCandidate {
+func (lf *SiteIconFetcher) extractIconsFromNode(n *html.Node, base string) []iconCandidate {
 	var icons []iconCandidate
 
 	var walk func(*html.Node)

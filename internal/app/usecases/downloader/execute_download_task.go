@@ -34,7 +34,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 	defer wg.Wait()
 
 	wg.Go(func() {
-		uc.fetchLogo(ctx, task.MediaUrl)
+		uc.fetchIcon(ctx, task.MediaUrl)
 	})
 
 	resultCh, err := uc.downloaderSrv.Download(ctx, task.MediaUrl, uc.mappers.MapDownloadOptionsDomainToService(task.Options))

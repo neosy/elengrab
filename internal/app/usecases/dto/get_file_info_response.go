@@ -16,7 +16,7 @@ type GetFileInfoResponse struct {
 	AvatarTitle          string
 	MediaUrl             string
 	MediaTitle           string
-	HasSiteLogo          bool
+	HasSiteIcon          bool
 	FileName             string
 	FileExt              string
 	FileFullName         string

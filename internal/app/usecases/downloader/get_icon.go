@@ -8,7 +8,7 @@ import (
 	"github.com/neosy/elengrab/pkg/httpx"
 )
 
-func (uc *YouTubeDownloader) GetLogo(ctx context.Context, userID uuid.UUID, fileID uuid.UUID) (*dmedia.ImageData, error) {
+func (uc *YouTubeDownloader) GetIcon(ctx context.Context, userID uuid.UUID, fileID uuid.UUID) (*dmedia.ImageData, error) {
 	resp, err := uc.GetFileInfo(ctx, userID, fileID)
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func (uc *YouTubeDownloader) GetLogo(ctx context.Context, userID uuid.UUID, file
 		}
 	}
 
-	logo, err := uc.siteLogo.GetBySiteURL(ctx, httpx.BaseURL(resp.MediaUrl))
+	logo, err := uc.siteIcon.GetBySiteURL(ctx, httpx.BaseURL(resp.MediaUrl))
 	if err != nil {
 		return nil, err
 	}
