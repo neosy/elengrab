@@ -6,6 +6,9 @@
 - Add an icon when compiling an .exe file. Closes #192
 - Add authorization parameters for downloading from youtube. Closes #185
 
+### Refactor
+-  Improve FetchLogos and FetchBestLogo API
+
 ---
 
 ## v0.12.0 — 2026-02-12

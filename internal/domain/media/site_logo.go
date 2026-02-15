@@ -71,8 +71,8 @@ func (l *SiteLogo) SetImage(imgData *ImageData) {
 	}
 }
 
-func (l *SiteLogo) ImageData() ImageData {
-	return ImageData{
+func (l *SiteLogo) ImageData() *ImageData {
+	return &ImageData{
 		URL:    l.ImageURL,
 		Raw:    l.ImageRaw,
 		Format: l.ImageFormat,

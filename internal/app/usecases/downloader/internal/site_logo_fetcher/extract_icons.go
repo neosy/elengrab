@@ -7,7 +7,7 @@ import (
 )
 
 // ExtractIcons extracts icon candidates from the given HTML links.
-func (lf *SiteLogoFetcher) extractIcons(links [][]html.Attribute, base string) []iconCandidate {
+func (lf *SiteLogoFetcher) extractIcons(links [][]html.Attribute, baseURL string) []iconCandidate {
 	var icons []iconCandidate
 
 	for _, link := range links {
@@ -26,7 +26,7 @@ func (lf *SiteLogoFetcher) extractIcons(links [][]html.Attribute, base string) [
 		}
 
 		if href != "" && strings.Contains(rel, "icon") {
-			iconURL := resolveURL(base, href)
+			iconURL := resolveURL(baseURL, href)
 			size := parseSize(sizes)
 			imgType := strings.TrimPrefix(imgType, "image/")
 
