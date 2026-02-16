@@ -13,6 +13,7 @@ const (
 	YtDlpYouTubeCookieFileName = "youtube-cookies.txt"
 
 	ChannelAvatarTimeout = 5 * time.Second
+	FetchTitleTimeout    = 3 * time.Second
 	YtDlpTimeout         = 2 * time.Hour
 	YtDlpRetryDelay      = 2 * time.Second
 

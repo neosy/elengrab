@@ -8,5 +8,5 @@ import (
 
 // GetFormats retrieves and parses video formats for the given URL.
 func (srv *YtDlpService) GetFormats(ctx context.Context, url string, useCookies bool) (*dmedia.MediaInfo, error) {
-	return srv.core.GetFormats(ctx, url, useCookies)
+	return srv.downloader.GetFormats(ctx, url, useCookies)
 }
