@@ -12,16 +12,7 @@ func (srv *YtDlpService) GetBestFormat(
 	url string,
 	useCookies bool,
 ) (*dmedia.MediaInfo, error) {
-	return srv.getBestFormat(ctx, url, "b", useCookies)
-}
-
-func (srv *YtDlpService) getBestFormat(
-	ctx context.Context,
-	url string,
-	format string,
-	useCookies bool,
-) (*dmedia.MediaInfo, error) {
-	bestInfo, err := srv.core.GetBestFormat(ctx, url, format, useCookies)
+	bestInfo, err := srv.downloader.GetBestFormat(ctx, url, "b", useCookies)
 	if err != nil {
 		return nil, err
 	}

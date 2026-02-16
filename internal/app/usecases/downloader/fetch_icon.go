@@ -9,20 +9,19 @@ import (
 )
 
 func (uc *YouTubeDownloader) fetchIcon(ctx context.Context, url string) error {
+	baseURL := httpx.BaseURL(url)
 	title, err := httpx.GetTitle(
 		ctx,
-		httpx.BaseURL(url),
+		baseURL,
 		httpx.ClientOptionWithTimeout(getHTMLTimeout),
 		httpx.ClientOptionWithDefaultCookieJar(),
 	)
 	if err != nil {
-		uc.logger.Debug("Failed to get title of site", "url", url, "error", err)
+		uc.logger.Debug("Failed to fetch site title", "baseURL", baseURL, "error", err)
 	}
 	if title != "" {
-		uc.logger.Debug("Site title fetched", "title", title, "url", url)
+		uc.logger.Debug("Site title fetched", "title", title, "baseURL", baseURL)
 	}
-
-	baseURL := httpx.BaseURL(url)
 
 	logo, err := uc.siteIcon.FindBySiteURL(ctx, baseURL)
 	if err != nil {

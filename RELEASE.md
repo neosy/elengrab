@@ -1,5 +1,13 @@
 # Releases
 
+## v0.13.1 — 2026-02-17
+
+### Refactor
+- Added more detailed logging
+- Improved yt-dlp service structure
+
+---
+
 ## v0.13.0 — 2026-02-15
 
 ### Feature

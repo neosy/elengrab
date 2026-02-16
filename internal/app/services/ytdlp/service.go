@@ -9,8 +9,9 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/core"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/utils"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/ffmpeg"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
 	"github.com/neosy/elengrab/pkg/nfile"
 )
 
@@ -21,7 +22,7 @@ type YtDlpService struct {
 	options dto.Options
 
 	// internal
-	core *core.Core
+	downloader *downloader.Downloader
 }
 
 func NewYtDlpService(
@@ -35,7 +36,7 @@ func NewYtDlpService(
 		return nil, err
 	}
 
-	err = utils.CheckFFmpeg(consts.FFmpegName)
+	err = ffmpeg.CheckFFmpeg(consts.FFmpegName)
 	if err != nil {
 		return nil, err
 	} else {
@@ -123,6 +124,6 @@ func NewYtDlpService(
 		options: opts,
 
 		// internal
-		core: core.NewCore(logger, cmdPath, downloadsDir, options),
+		downloader: downloader.NewDownloader(logger, cmdPath, downloadsDir, options),
 	}, nil
 }
