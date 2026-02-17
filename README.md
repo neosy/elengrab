@@ -9,22 +9,27 @@
 
 # Elengrab
 
-**Fast web interface for your own YouTube video/audio processing server with format and quality options. The project integrates with existing open-source media processing utilities
-(such as [yt-dlp](https://github.com/yt-dlp/yt-dlp)) as an optional backend component.**
+**Fast self-hosted web interface for video/audio downloading with format and quality options.
+The project integrates with existing open-source media processing utilities (such as [yt-dlp](https://github.com/yt-dlp/yt-dlp)) as an optional backend component. IIt allows downloading and processing media from other popular websites such as Facebook, Instagram, Twitter/X, Twitch, Pinterest, Reddit, VK Video, Rutube and many more.**
 
-Elengrab provides a simple and **very fast** web interface to work with YouTube videos and audio tracks, allowing selection of formats and quality settings. The project is fully written in **Go**, and the frontend is powered by **HTMX**, ensuring high responsiveness and minimal overhead. It runs in a lightweight Docker container, is easy to deploy, and serves as a self-hosted frontend for managing your personal media server.
+Elengrab provides a simple and **very fast** web interface to quickly download with videos and audio tracks, allowing selection of formats and quality settings. The project is fully written in **Go**, and the frontend is powered by **HTMX**, ensuring high responsiveness and minimal overhead. It runs in a lightweight Docker container, is easy to deploy, and serves as a self-hosted frontend for managing your personal media server.
 
 ---
 
 ## Features
 
-- Support for YouTube video content in various formats.
-- Support for audio tracks from YouTube content.
+- Support for video and audio content from YouTube in various formats.
+- Support for downloading media from multiple websites, powered by yt-dlp extractors.
 - Configurable format and quality settings.
+- Concurrent processing of multiple tasks (3 by default).
+- Cookie-based authentication support for YouTube (optional, requires Deno).
 - Task queue for media processing.
 - Instant addition/removal from queue.
-- Concurrent processing of multiple tasks (3 by default).
 - Dark theme.
+- Animated status indicators for download and processing tasks.
+- Channel and website icons displayed in the interface.
+- Option to customize how download history is displayed: globally, per user, or disabled.
+- Cross-platform support: Windows, macOS/Linux.
 
 ---
 
@@ -36,19 +41,6 @@ Users are responsible for ensuring compliance with applicable laws and platform 
 
 ---
 
-## Quick Start
-### Run with default settings
-
-```
-docker run -d \
-  --name elengrab \
-  -v elengrab_downloads:/app_n/downloads \
-  -p 8080:8080 \
-  neosy/elengrab:latest
-```
-
----
-
 ## Requirements
 
 ### Minimum
@@ -56,6 +48,7 @@ docker run -d \
 * **CPU:** 1–2 cores
 * **Memory:** ~1 GB RAM
 * **Concurrent downloads:** 1 worker
+* **Dependencies:** `yt-dlp` and `ffmpeg` must be installed
 
 This configuration is suitable for low-resource servers. To limit concurrency, set:
 
@@ -68,17 +61,31 @@ ELENGRAB_DOWNLOAD_WORKERS=1
 * **CPU:** 4-6 cores
 * **Memory:** 4 GB RAM
 * **Concurrent downloads:** 3 workers (default)
+* **Dependencies:** `yt-dlp` and `ffmpeg` must be installed
 
 By default, the Docker container is configured to use this setup.
 
 ### Notes
 
-The main resource consumers are **yt-dlp** and **ffmpeg**, especially during video downloading, merging, and transcoding.
+The main resource consumers are `yt-dlp` and `ffmpeg`, especially during video downloading, merging, and transcoding.
 
 The number of concurrent workers can be adjusted using the following environment variable:
 
 ```
 ELENGRAB_DOWNLOAD_WORKERS=3
+```
+
+---
+
+## Quick Start
+### Run docker with minimum settings
+
+```
+docker run -d \
+  --name elengrab \
+  -v elengrab_downloads:/app_n/downloads \
+  -p 8080:8080 \
+  neosy/elengrab:latest
 ```
 
 ---
@@ -94,15 +101,28 @@ ELENGRAB_DOWNLOAD_WORKERS=3
 | `ELENGRAB_DOWNLOADER_BIN_DIR` | `/usr/local/bin` | Directory containing yt-dlp binary. |
 | `ELENGRAB_ASSETS_DIR` | `assets` | Directory containing application assets. |
 | `ELENGRAB_DOWNLOADS_DIR` | `downloads` | Directory where downloaded files are stored inside the container. Must be mapped to a host volume. |
+| `ELENGRAB_COOKIES_DIR` | `cookies` | Directory where cookie files are stored. Files must be in Netscape cookies.txt format (compatible with yt-dlp). |
 | `ELENGRAB_DOWNLOAD_WORKERS` | 3 | Number of concurrent workers used for processing YouTube video and audio tasks in parallel. |
 | `ELENGRAB_HISTORY_MODE` | `global` | Defines how download history is displayed. Possible values: `global`, `disabled`, `per_user`. |
+| `ELENGRAB_YOUTUBE_ALLOW_COOKIES` | `false` | Enables use of cookies for YouTube. Requires **Deno**. The `youtube-cookies.txt` file should be located in the directory specified by `ELENGRAB_COOKIES_DIR`. |
 | `ELENGRAB_MAINTENANCE_ENABLE_MOVE_UNMATCHED_FILES` | `false`   | Enables the periodic operation that moves files not present in the database tables from the download folder to the `.lost` folder. Default is `false` (disabled). |
+
+---
+
+## Volumes
+
+| Volume                | Description                                                               |
+| --------------------- | ------------------------------------------------------------------------- |
+| `db:/app_n/sqlite/data`         | Stores SQLite database files.                                             |
+| `db_backups:/app_n/sqlite/backups` | Stores backups of SQLite databases.                                       |
+| `downloads:/app_n/downloads`  | Stores downloaded files.                                                  |
+| `cookies:/app_n/cookies`    | Stores cookie files used by the application (see `ELENGRAB_COOKIES_DIR`). |
 
 ---
 
 ## Usage
 
-### Run with default settings
+### Run Docker with default settings
 
 ```
 docker run -d \
@@ -110,6 +130,7 @@ docker run -d \
   -v elengrab_db:/app_n/sqlite/data \
   -v elengrab_db_backups:/app_n/sqlite/backups \
   -v elengrab_downloads:/app_n/downloads \
+  -v elengrab_cookies:/app_n/cookies \
   -p 8080:8080 \
   neosy/elengrab:latest
 ```
@@ -131,11 +152,13 @@ services:
     ports:
       - "8080:8080"
     environment:
-      TZ: "Europe/Moscow"   # your time zone
+      TZ: "Europe/Moscow"
+      ELENGRAB_DOWNLOAD_WORKERS: "3"
     volumes:
       - elengrab_db:/app_n/sqlite/data
       - elengrab_db_backups:/app_n/sqlite/backups
       - elengrab_downloads:/app_n/downloads
+      - elengrab_cookies:/app_n/cookies
 ```
 
 Then:
@@ -167,6 +190,7 @@ services:
       - db:/app_n/sqlite/data
       - db_backups:/app_n/sqlite/backups
       - downloads:/app_n/downloads
+      - cookies:/app_n/cookies
     deploy:
       mode: replicated
       replicas: 1
@@ -179,6 +203,7 @@ volumes:
   db:
   db_backups:
   downloads:
+  cookies:
 ```
 
 ---

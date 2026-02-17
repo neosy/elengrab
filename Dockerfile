@@ -54,8 +54,9 @@ RUN adduser -D -h ${APP_DIR} elengrab \
 # Set working directory
 WORKDIR ${APP_DIR}
 
-# Declare downloads folder as a volume
+# Declare folders as a volume
 VOLUME ["/app_n/downloads"]
+VOLUME ["/app_n/cookies"]
 VOLUME ["/app_n/sqlite/data"]
 VOLUME ["/app_n/sqlite/backups"]
 
