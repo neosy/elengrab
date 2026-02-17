@@ -5,6 +5,9 @@
 ### Refactor
 - Added more detailed logging
 
+### Perfomance
+-- Speed up fetching site title
+
 ---
 
 ## v0.13.1 — 2026-02-17

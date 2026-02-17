@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
@@ -45,7 +46,9 @@ func (e *Executor) loadFormatsJSON(
 	url string,
 	useCookies bool,
 ) ([]byte, error) {
+	startTime := time.Now()
 	dataJSON, err := e.formatCache.LoadByURL(url)
+	elapsed := time.Since(startTime)
 	if err != nil {
 		return nil, err
 	}
@@ -54,6 +57,7 @@ func (e *Executor) loadFormatsJSON(
 		e.logger.Debug(
 			"Loaded formats JSON from cache",
 			"url", url,
+			"elapsed", elapsed,
 		)
 		return dataJSON, nil
 	}
@@ -71,14 +75,24 @@ func (e *Executor) fetchAndCacheFormatsJSON(
 	url string,
 	useCookies bool,
 ) ([]byte, error) {
+	startTime := time.Now()
 	dataJSON, err := e.fetchFormatsJSON(ctx, url, useCookies)
+	elapsed := time.Since(startTime)
 	if err != nil {
 		e.formatCache.DeleteByURL(url)
-		e.logger.Debug("Failed to fetch formats JSON", "url", url, "error", err)
+		e.logger.Debug(
+			"Failed to fetch formats JSON",
+			"url", url,
+			"error", err,
+		)
 		return nil, err
 	}
 
-	e.logger.Debug("Fetched formats JSON", "url", url)
+	e.logger.Debug(
+		"Fetched formats JSON",
+		"url", url,
+		"elapsed", elapsed,
+	)
 
 	err = e.formatCache.WriteByURL(url, dataJSON)
 	if err != nil {

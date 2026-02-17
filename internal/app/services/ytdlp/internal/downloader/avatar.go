@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
@@ -12,7 +13,7 @@ import (
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 )
 
-func (d *Downloader) fetchChannelAsync(
+func (d *Downloader) fetchChannelAvatarAsync(
 	wg *sync.WaitGroup,
 	meta *idto.DownloadMeta,
 	onChannelDone func(*ddownload.DownloadChannel),
@@ -22,7 +23,9 @@ func (d *Downloader) fetchChannelAsync(
 	}
 
 	wg.Go(func() {
-		avatarSources, err := d.getChannelAvatar(meta.ChannelURL)
+		startTime := time.Now()
+		avatarSources, err := d.fetchChannelAvatar(meta.ChannelURL)
+		elapsed := time.Since(startTime)
 		if err != nil {
 			d.logger.Debug("Failed to get channel avatar", "channelURL", meta.ChannelURL, "error", err)
 			return
@@ -42,6 +45,7 @@ func (d *Downloader) fetchChannelAsync(
 		d.logger.Info(
 			"YouTube channel avatar fetched",
 			"channelURL", meta.ChannelURL,
+			"elapsed", elapsed,
 		)
 
 		channel = &ddownload.DownloadChannel{
@@ -57,10 +61,10 @@ func (d *Downloader) fetchChannelAsync(
 	})
 }
 
-// getChannelAvatar fetches the HTML of a YouTube channel page,
+// fetchChannelAvatar fetches the HTML of a YouTube channel page,
 // extracts the avatar JSON block, and returns all avatar URLs.
 // url: full URL of the YouTube channel
-func (d *Downloader) getChannelAvatar(url string) ([]idto.AvatarSource, error) {
+func (d *Downloader) fetchChannelAvatar(url string) ([]idto.AvatarSource, error) {
 	body, err := nfasthttp.GetHTML(
 		url,
 		nfasthttp.ClientOptionWithreadBufferSize(64*1024),

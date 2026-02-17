@@ -33,4 +33,15 @@ type DownloadOptions struct {
 
 	// Desired audio quality
 	AudioQuality *string
+
+	// DownloadChannelAvatar indicates whether to download the channel's avatar
+	DownloadChannelAvatar bool
+}
+
+// NewDefaultDownloadOptions creates a DownloadOptions struct with default values.
+func NewDefaultDownloadOptions() *DownloadOptions {
+	return &DownloadOptions{
+		IncludeTitleInFilename: true,
+		DownloadChannelAvatar:  true,
+	}
 }
