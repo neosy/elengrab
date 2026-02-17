@@ -1,6 +1,9 @@
 package executor
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 func (e *Executor) UpdateFormatCache(
 	ctx context.Context,
@@ -9,7 +12,7 @@ func (e *Executor) UpdateFormatCache(
 ) error {
 	valid, err := e.formatCache.IsTTLValidByURL(url)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to check TTL validity for URL %q: %w", url, err)
 	}
 
 	if valid {
@@ -26,7 +29,7 @@ func (e *Executor) updateFormatCacheForce(
 ) error {
 	_, err := e.fetchAndCacheFormatsJSON(ctx, url, useCookies)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to fetch and cache formats JSON for URL %q: %w", url, err)
 	}
 
 	return nil

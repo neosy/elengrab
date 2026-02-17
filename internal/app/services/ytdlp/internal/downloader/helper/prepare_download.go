@@ -348,8 +348,8 @@ func PrepareDownload(
 					uint16(mediaFormat.Height),
 				),
 				Bitrate: int(mediaFormat.Vbr),
-				Width:   mediaFormat.Width,
-				Height:  mediaFormat.Height,
+				Width:   int(mediaFormat.Width),
+				Height:  int(mediaFormat.Height),
 			}
 		}
 		if outAudioCodec != dtypes.AudioCodecNone {
