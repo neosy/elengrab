@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 type Worker interface {
@@ -89,10 +90,17 @@ func (w *worker) Start(ctx context.Context, taskStream chan *task, quit <-chan s
 					go func() {
 						defer close(done)
 
+						startTime := time.Now()
 						task.job.Execute(task.ctx, w.workerId)
+						elapsed := time.Since(startTime)
 
 						if w.logger != nil {
-							w.logger.Debug("Worker: job done", "workerId", w.workerId, "jobName", task.job.Name())
+							w.logger.Debug(
+								"Worker: job done",
+								"workerId", w.workerId,
+								"jobName", task.job.Name(),
+								"elapsed", elapsed,
+							)
 						}
 					}()
 

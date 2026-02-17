@@ -3,6 +3,7 @@ package wjobs
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
@@ -26,7 +27,15 @@ func NewDeleteMissingFilesJob(logger *slog.Logger, runner pworkers.DownloadMaint
 }
 
 func (j *deleteMissingFilesJob) Execute(ctx context.Context) error {
+	startTime := time.Now()
 	err := j.runner.DeleteMissingFiles(ctx, j.enableMoveUnmatchedFiles)
-	j.logger.Debug("Job done", "name", "DeleteMissingFiles")
+	elapsed := time.Since(startTime)
+
+	j.logger.Debug(
+		"Job done",
+		"name", "DeleteMissingFiles",
+		"elapsed", elapsed,
+	)
+
 	return err
 }

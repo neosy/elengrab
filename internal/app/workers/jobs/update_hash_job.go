@@ -3,6 +3,7 @@ package wjobs
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
@@ -20,7 +21,15 @@ func NewUpdateHashJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRu
 }
 
 func (j *updateHashJob) Execute(ctx context.Context) error {
+	startTime := time.Now()
 	err := j.runner.UpdateHash(ctx)
-	j.logger.Debug("Job done", "name", "UpdateHash")
+	elapsed := time.Since(startTime)
+
+	j.logger.Debug(
+		"Job done",
+		"name", "UpdateHash",
+		"elapsed", elapsed,
+	)
+
 	return err
 }
