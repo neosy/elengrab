@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 )
 
 func (e *Executor) GetTitle(ctx context.Context, url string, useCookies bool) (string, error) {
@@ -22,7 +21,7 @@ func (e *Executor) GetTitle(ctx context.Context, url string, useCookies bool) (s
 
 		// Add YouTube cookies if allowed in service options
 		if useCookies {
-			args = helper.AddYouTubeCookiesToArgs(e.logger, args, e.serviceOptions)
+			args = addYouTubeCookiesToArgs(e.logger, args, e.serviceOptions)
 		}
 
 		args = append(args, "--load-info-json", e.formatCache.CacheFilePath(url))
@@ -32,7 +31,7 @@ func (e *Executor) GetTitle(ctx context.Context, url string, useCookies bool) (s
 
 		// Add YouTube cookies if allowed in service options
 		if useCookies {
-			args = helper.AddYouTubeCookiesToArgs(e.logger, args, e.serviceOptions)
+			args = addYouTubeCookiesToArgs(e.logger, args, e.serviceOptions)
 		}
 
 		args = append(args, url)

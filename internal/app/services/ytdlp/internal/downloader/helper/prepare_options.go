@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -33,7 +34,7 @@ func PrepareDownloadOptions(
 	}
 
 	if dlOptions.ConcurrentFragments == 0 || dlOptions.ConcurrentFragments > 20 {
-		dlOptions.ConcurrentFragments = concurrentFragmentsDefault
+		dlOptions.ConcurrentFragments = consts.ConcurrentFragmentsDefault
 	}
 
 	// Override format type if provided

@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
@@ -15,11 +14,18 @@ func (e *Executor) GetBestFormat(
 	ctx context.Context,
 	url string,
 	format string,
-	useCookies bool,
+	opts ...Option,
 ) (*idto.MediaInfo, error) {
-	err := e.UpdateFormatCache(ctx, url, useCookies)
-	if err != nil {
-		return nil, err
+	var opt = newDefaultOptions()
+	for _, o := range opts {
+		o(opt)
+	}
+
+	if opt.ensureCache {
+		err := e.EnsureFormatCache(ctx, url, opt.useCookies)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Prepare command arguments
@@ -28,8 +34,8 @@ func (e *Executor) GetBestFormat(
 	args = append(args, "--no-warnings", "--quiet")
 
 	// Add YouTube cookies if allowed in service options
-	if useCookies {
-		args = helper.AddYouTubeCookiesToArgs(e.logger, args, e.serviceOptions)
+	if opt.useCookies {
+		args = addYouTubeCookiesToArgs(e.logger, args, e.serviceOptions)
 	}
 
 	args = append(args, "-f", format)
@@ -56,7 +62,7 @@ func (e *Executor) GetBestFormat(
 		bestFormatIds = append(bestFormatIds, parts[0])
 	}
 
-	info, err := e.GetFormats(ctx, url, useCookies)
+	info, err := e.GetFormats(ctx, url, opt.useCookies)
 	if err != nil {
 		return nil, fmt.Errorf("get formats error: %w", err)
 	}

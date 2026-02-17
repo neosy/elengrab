@@ -3,6 +3,7 @@ package downloader
 import (
 	"context"
 
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 
@@ -12,7 +13,12 @@ func (d *Downloader) GetBestFormat(
 	format string,
 	useCookies bool,
 ) (*dmedia.MediaInfo, error) {
-	info, err := d.executor.GetBestFormat(ctx, url, format, useCookies)
+	info, err := d.executor.GetBestFormat(
+		ctx,
+		url,
+		format,
+		executor.WithUseCookies(useCookies),
+	)
 	if err != nil {
 		return nil, err
 	}

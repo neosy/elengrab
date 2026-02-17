@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/ffmpeg"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -18,7 +19,7 @@ func PrepareDownload(
 	ctx context.Context,
 	url string,
 	dlOptions idto.DLOptions,
-	bestFormat func(ctx context.Context, url string, format string, useCookies bool) (*idto.MediaInfo, error),
+	bestFormat func(ctx context.Context, url string, format string, opts ...executor.Option) (*idto.MediaInfo, error),
 ) (args []string, fileExt string, dtoMediaInfo *idto.MediaInfo, mediaInfo *ddownload.MediaInfo, err error) {
 	var (
 		outVideoCodec = dtypes.VideoCodecNone
@@ -96,7 +97,7 @@ func PrepareDownload(
 
 		// Get information about the best format from yt-dlp
 		var err error
-		dtoMediaInfo, err = bestFormat(ctx, url, bestFormatQuery, dlOptions.RequiresYouTubeCookies)
+		dtoMediaInfo, err = bestFormat(ctx, url, bestFormatQuery, executor.WithUseCookies(dlOptions.RequiresYouTubeCookies))
 		if err != nil {
 			return nil, "", nil, nil, err
 		}
@@ -273,7 +274,7 @@ func PrepareDownload(
 
 		// Get information about the best audio format
 		var err error
-		dtoMediaInfo, err = bestFormat(ctx, url, format, dlOptions.RequiresYouTubeCookies)
+		dtoMediaInfo, err = bestFormat(ctx, url, format, executor.WithUseCookies(dlOptions.RequiresYouTubeCookies))
 		if err != nil {
 			return nil, "", nil, nil, err
 		}

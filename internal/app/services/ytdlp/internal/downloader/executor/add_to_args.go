@@ -1,4 +1,4 @@
-package helper
+package executor
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"github.com/neosy/elengrab/pkg/nfile"
 )
 
-func AddYouTubeCookiesToArgs(logger *slog.Logger, args []string, serviceOptions *dto.Options) []string {
+func addYouTubeCookiesToArgs(logger *slog.Logger, args []string, serviceOptions *dto.Options) []string {
 	// Check if cookies are allowed in the service options
 	if serviceOptions.YoutubeAllowCookies {
 		path, err := ensureYouTubeCookiePath(serviceOptions.CookiesDir)

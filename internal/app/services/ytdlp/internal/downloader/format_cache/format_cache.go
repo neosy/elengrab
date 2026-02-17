@@ -5,10 +5,8 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
-)
 
-const (
-	formatCacheTTL = 2 * time.Hour
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 )
 
 type FormatCache struct {
@@ -51,6 +49,6 @@ func (c *FormatCache) IsTTLValid(filePath string) (bool, error) {
 		return false, err
 	}
 
-	expiredTime := fileInfo.ModTime().Add(formatCacheTTL)
+	expiredTime := fileInfo.ModTime().Add(consts.FormatCacheTTL)
 	return time.Now().UTC().Before(expiredTime), nil
 }
