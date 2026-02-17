@@ -37,7 +37,11 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		uc.fetchIcon(ctx, task.MediaUrl)
 	})
 
-	resultCh, err := uc.downloaderSrv.Download(ctx, task.MediaUrl, uc.mappers.MapDownloadOptionsDomainToService(task.Options))
+	resultCh, err := uc.downloaderSrv.Download(
+		ctx,
+		task.MediaUrl,
+		uc.mappers.MapDownloadOptionsDomainToService(task.Options),
+	)
 	if err != nil {
 		// The context was canceled
 		if ctx.Err() != nil {

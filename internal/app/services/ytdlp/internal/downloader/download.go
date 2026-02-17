@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/ffmpeg"
@@ -68,7 +69,9 @@ func (d *Downloader) Download(
 	}
 
 	// Try to fetch the title fast
+	startTime := time.Now()
 	title, err := helper.FetchTitleFast(ctx, url)
+	elapsed := time.Since(startTime)
 	if err != nil {
 		d.logger.Debug(
 			"Failed to fetch title fast",
@@ -81,6 +84,7 @@ func (d *Downloader) Download(
 			"Fetched title (fast)",
 			"title", title,
 			"url", url,
+			"elapsed", elapsed,
 		)
 		sendData(&ddownload.DownloadResult{
 			MediaTitle: title,
@@ -132,16 +136,18 @@ func (d *Downloader) Download(
 
 	// Start asynchronous fetching of the channel avatar.
 	// Returns a channel from which the avatar can be read once the goroutine completes.
-	d.fetchChannelAsync(
-		&wg,
-		meta.CopyMeta(),
-		func(channel *ddownload.DownloadChannel) {
-			meta.Lock()
-			meta.Meta.Channel = channel
-			meta.Unlock()
-			sendData(meta.InitialResult())
-		},
-	)
+	if options.DownloadChannelAvatar {
+		d.fetchChannelAvatarAsync(
+			&wg,
+			meta.CopyMeta(),
+			func(channel *ddownload.DownloadChannel) {
+				meta.Lock()
+				meta.Meta.Channel = channel
+				meta.Unlock()
+				sendData(meta.InitialResult())
+			},
+		)
+	}
 
 	out, err := d.downloadWithStrategies(
 		ctx,

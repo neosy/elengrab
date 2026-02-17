@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
@@ -43,11 +44,20 @@ func (e *Executor) GetBestFormat(
 	args = append(args, "--get-format")
 
 	// Execute the command to get the best format ID
+	startTime := time.Now()
 	out, err := utils.ExecCommandContext(ctx, e.ytDlpPath, args...)
+	elapsed := time.Since(startTime)
 	if err != nil {
 		e.formatCache.DeleteByURL(url)
 		return nil, fmt.Errorf("exec command error: %w", err)
 	}
+
+	e.logger.Debug(
+		"Fetched best format",
+		"url", url,
+		"args", args,
+		"elapsed", elapsed,
+	)
 
 	outStr := strings.TrimSpace(string(out))
 	if outStr == "" {

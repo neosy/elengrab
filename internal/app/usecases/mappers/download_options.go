@@ -6,15 +6,16 @@ import (
 )
 
 func (m *Mappers) MapDownloadOptionsDomainToService(options *ddownload.DownloadOptions) *dservices.DownloadOptions {
-	return &dservices.DownloadOptions{
-		FormatType:             options.FormatType,
-		VideoFormat:            options.VideoFormat,
-		VideoCodec:             options.VideoCodec,
-		VideoResolution:        options.VideoResolution,
-		AudioFormat:            options.AudioFormat,
-		Filename:               options.Filename,
-		IncludeTitleInFilename: true,
-		VideoQuality:           options.VideoQuality,
-		AudioQuality:           options.AudioQuality,
-	}
+	opt := dservices.NewDefaultDownloadOptions()
+
+	opt.FormatType = options.FormatType
+	opt.VideoFormat = options.VideoFormat
+	opt.VideoCodec = options.VideoCodec
+	opt.VideoResolution = options.VideoResolution
+	opt.AudioFormat = options.AudioFormat
+	opt.Filename = options.Filename
+	opt.VideoQuality = options.VideoQuality
+	opt.AudioQuality = options.AudioQuality
+
+	return opt
 }

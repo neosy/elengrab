@@ -10,18 +10,6 @@ import (
 
 func (uc *YouTubeDownloader) fetchIcon(ctx context.Context, url string) error {
 	baseURL := httpx.BaseURL(url)
-	title, err := httpx.GetTitle(
-		ctx,
-		baseURL,
-		httpx.ClientOptionWithTimeout(getHTMLTimeout),
-		httpx.ClientOptionWithDefaultCookieJar(),
-	)
-	if err != nil {
-		uc.logger.Debug("Failed to fetch site title", "baseURL", baseURL, "error", err)
-	}
-	if title != "" {
-		uc.logger.Debug("Site title fetched", "title", title, "baseURL", baseURL)
-	}
 
 	logo, err := uc.siteIcon.FindBySiteURL(ctx, baseURL)
 	if err != nil {
@@ -32,12 +20,49 @@ func (uc *YouTubeDownloader) fetchIcon(ctx context.Context, url string) error {
 		return nil
 	}
 
-	image, err := uc.siteIconFetcher.FetchBestIcon(ctx, baseURL)
+	// Fetch the site title.
+	startTime := time.Now()
+	title, err := httpx.GetTitle(
+		ctx,
+		baseURL,
+		httpx.ClientOptionWithTimeout(getHTMLTimeout),
+		httpx.ClientOptionWithDefaultCookieJar(),
+	)
+	elapsed := time.Since(startTime)
 	if err != nil {
-		uc.logger.Warn("Failed to fetch icon", "url", baseURL, "error", err)
+		uc.logger.Debug(
+			"Failed to fetch site title",
+			"baseURL", baseURL,
+			"elapsed", elapsed,
+			"error", err)
+	}
+	if title != "" {
+		uc.logger.Debug(
+			"Site title fetched",
+			"title", title,
+			"baseURL", baseURL,
+			"elapsed", elapsed,
+		)
+	}
+
+	// Fetch the best icon.
+	startTime = time.Now()
+	image, err := uc.siteIconFetcher.FetchBestIcon(ctx, baseURL)
+	elapsed = time.Since(startTime)
+	if err != nil {
+		uc.logger.Warn(
+			"Failed to fetch icon",
+			"url", baseURL,
+			"elapsed", elapsed,
+			"error", err,
+		)
 		return err
 	}
-	uc.logger.Debug("Best icon fetched", "url", baseURL)
+	uc.logger.Debug(
+		"Best icon fetched",
+		"url", baseURL,
+		"elapsed", elapsed,
+	)
 
 	// Update existing logo if it's outdated.
 	if logo != nil {
