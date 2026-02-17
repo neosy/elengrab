@@ -49,7 +49,7 @@ func (e *Executor) GetTitle(ctx context.Context, url string, useCookies bool) (s
 		if ctx.Err() != nil {
 			return "", fmt.Errorf("process canceled: %w", ctx.Err())
 		}
-		errOut := fmt.Errorf("%s failed: %v, stderr: %s", consts.YtDlpName, err, stderr.String())
+		errOut := fmt.Errorf("%s failed: %w, stderr: %s", consts.YtDlpName, err, stderr.String())
 		return "", errOut
 	}
 

@@ -9,8 +9,8 @@ import (
 type MediaFormat struct {
 	FormatID       string  `json:"format_id"`
 	FileExt        string  `json:"ext"`
-	Height         int     `json:"height"`
-	Width          int     `json:"width"`
+	Height         float32 `json:"height"`
+	Width          float32 `json:"width"`
 	FPS            float32 `json:"fps"`
 	Format         string  `json:"format"`
 	FormatNote     string  `json:"format_note"`

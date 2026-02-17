@@ -40,7 +40,7 @@ func (e *Executor) GetBestFormat(
 	out, err := utils.ExecCommandContext(ctx, e.ytDlpPath, args...)
 	if err != nil {
 		e.formatCache.DeleteByURL(url)
-		return nil, err
+		return nil, fmt.Errorf("exec command error: %w", err)
 	}
 
 	outStr := strings.TrimSpace(string(out))
@@ -58,7 +58,7 @@ func (e *Executor) GetBestFormat(
 
 	info, err := e.GetFormats(ctx, url, useCookies)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get formats error: %w", err)
 	}
 
 	var bestFormats []idto.MediaFormat

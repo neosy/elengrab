@@ -17,7 +17,7 @@ func (d *Downloader) fetchChannelAsync(
 	meta *idto.DownloadMeta,
 	onChannelDone func(*ddownload.DownloadChannel),
 ) {
-	if meta.ChannelID == nil {
+	if meta.ChannelURL == "" {
 		return
 	}
 

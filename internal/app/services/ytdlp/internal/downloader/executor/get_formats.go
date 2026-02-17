@@ -109,14 +109,14 @@ func (e *Executor) GetFormats(
 ) (*idto.MediaInfo, error) {
 	dataJSON, err := e.getFormatsJSON(ctx, url, useCookies)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get formats json error: %w", err)
 	}
 
 	var info = &idto.MediaInfo{}
 	err = json.NewDecoder(bytes.NewReader(dataJSON)).Decode(info)
 	if err != nil {
 		e.formatCache.DeleteByURL(url)
-		return nil, fmt.Errorf("json decode error: %v", err)
+		return nil, fmt.Errorf("json decode error: %w", err)
 	}
 	for i, f := range info.Formats {
 		if f.Tbr != 0 && info.Duration != 0 {
