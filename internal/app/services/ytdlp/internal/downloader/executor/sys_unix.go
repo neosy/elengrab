@@ -3,8 +3,9 @@
 
 package executor
 
-
 import (
+	"errors"
+	"fmt"
 	"os/exec"
 	"syscall"
 )
@@ -15,12 +16,28 @@ func newSysProcAttr() *syscall.SysProcAttr {
 	}
 }
 
-func tryGracefulKill(pgid int) {
-	_ = syscall.Kill(pgid, syscall.SIGTERM)
+func tryGracefulKill(pgid int) error {
+	err := syscall.Kill(pgid, syscall.SIGTERM)
+	if err != nil {
+		if !errors.Is(err, syscall.ESRCH) {
+			return fmt.Errorf("failed SIGTERM pgid %v: %w", pgid, err)
+		}
+	}
+	return nil
 }
 
-func forceKill(cmd *exec.Cmd) {
+func forceKill(cmd *exec.Cmd) error {
 	if cmd.Process != nil {
-		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		return nil
 	}
+
+	pgid := cmd.Process.Pid
+	err := syscall.Kill(-pgid, syscall.SIGKILL)
+	if err != nil {
+		if !errors.Is(err, syscall.ESRCH) {
+			return fmt.Errorf("failed SIGKILL pgid %v: %w", pgid, err)
+		}
+	}
+
+	return nil
 }

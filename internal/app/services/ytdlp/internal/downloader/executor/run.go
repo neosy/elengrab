@@ -143,34 +143,82 @@ func (e *Executor) RunYtDlp(
 
 		select {
 		case <-done.Done():
-			return
+			e.logger.Debug(
+				"Done signal received, attempting to kill process",
+				"name", consts.YtDlpName,
+				"url", url,
+			)
 		case <-ctx.Done():
 			e.logger.Debug(
-				fmt.Sprintf("Context canceled, killing process %s", consts.YtDlpName),
+				"Context canceled, killing process",
+				"name", consts.YtDlpName,
 				"url", url,
 			)
 		case <-timer.C:
 			e.logger.Warn(
-				fmt.Sprintf("Timeout reached, killing process %s", consts.YtDlpName),
+				"Timeout reached, killing process",
+				"name", consts.YtDlpName,
 				"url", url,
 			)
 			isTimeOut.Store(true)
 		}
 
 		if cmd.Process == nil {
+			e.logger.Debug(
+				"Process already exited, nothing to kill",
+				"name", consts.YtDlpName,
+				"url", url,
+			)
 			return
 		}
 
-		pgid := -cmd.Process.Pid
+		pgid := cmd.Process.Pid
+
+		e.logger.Debug(
+			"Attempting graceful kill",
+			"name", consts.YtDlpName,
+			"pgid", pgid,
+			"url", url,
+		)
 
 		// Try graceful shutdown first
-		tryGracefulKill(pgid)
+		tryGracefulKill(-pgid)
 
 		// Wait a bit for yt-dlp / ffmpeg to cleanup temp files
 		time.Sleep(2 * time.Second)
 
+		e.logger.Debug(
+			"Attempting force kill",
+			"name", consts.YtDlpName,
+			"pgid", pgid,
+			"url", url,
+		)
+
 		// Force kill if still running
 		forceKill(cmd)
+
+		if cmd.ProcessState != nil && cmd.ProcessState.Exited() {
+			if cmd.ProcessState.Success() {
+				e.logger.Debug(
+					"Process completed successfully after kill",
+					"name", consts.YtDlpName,
+					"url", url,
+				)
+			} else {
+				e.logger.Debug(
+					"Process completed with error after kill",
+					"name", consts.YtDlpName,
+					"url", url,
+					"exitCode", cmd.ProcessState.ExitCode(),
+				)
+			}
+		} else {
+			e.logger.Debug(
+				"Process still running or unknown state after kill attempts",
+				"name", consts.YtDlpName,
+				"url", url,
+			)
+		}
 	}()
 
 	var wg sync.WaitGroup

@@ -1,12 +1,19 @@
 # Releases
 
+## v0.13.3 — 2026-02-17
+
+### Fix
+- Improve process kill handling
+
+---
+
 ## v0.13.2 — 2026-02-17
 
 ### Refactor
 - Added more detailed logging
 
 ### Perfomance
--- Speed up fetching site title
+- Speed up fetching site title
 
 ---
 
