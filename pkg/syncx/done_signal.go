@@ -23,7 +23,7 @@ func (d *DoneSignal) Done() <-chan struct{} {
 
 // Close closes the done signal channel safely.
 func (d *DoneSignal) Close() {
-	if d.closed.Swap(true) {
+	if d.closed.CompareAndSwap(false, true) {
 		close(d.ch)
 	}
 }

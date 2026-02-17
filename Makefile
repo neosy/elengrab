@@ -43,19 +43,19 @@ build-win-embedded: update-app-version ## Build executable file with embedded as
 img-build: update-app-version ## Build Docker image. Arguments: INSTALL_DENO=true
 	docker build \
 		--build-arg INSTALL_DENO=$(INSTALL_DENO) \
-		-t $(APP_IMG_LATEST)$(if $(INSTALL_DENO),-deno) .
+		-t $(APP_IMG_LATEST)$(if $(filter true,$(INSTALL_DENO)),-deno) .
 
 img-rebuild: update-app-version ## Remove and rebuild Docker image. Arguments: INSTALL_DENO=true
-	docker rmi -f $(APP_IMG_LATEST)$(if $(INSTALL_DENO),-deno)
+	docker rmi -f $(APP_IMG_LATEST)$(if $(filter true,$(INSTALL_DENO)),-deno)
 	docker build \
 		--build-arg INSTALL_DENO=$(INSTALL_DENO) \
-		-t $(APP_IMG_LATEST)$(if $(INSTALL_DENO),-deno) .
+		-t $(APP_IMG_LATEST)$(if $(filter true,$(INSTALL_DENO)),-deno) .
 
 img-rebuild-no-cache: update-app-version ## Remove and rebuild Docker image without cache. Arguments: INSTALL_DENO=true
-	docker rmi -f $(APP_IMG_LATEST)$(if $(INSTALL_DENO),-deno)
+	docker rmi -f $(APP_IMG_LATEST)$(if $(filter true,$(INSTALL_DENO)),-deno)
 	docker build --no-cache \
 		--build-arg INSTALL_DENO=$(INSTALL_DENO) \
-		-t $(APP_IMG_LATEST)$(if $(INSTALL_DENO),-deno) .
+		-t $(APP_IMG_LATEST)$(if $(filter true,$(INSTALL_DENO)),-deno) .
 
 img-rebuild-push: img-rebuild img-push ## Build images, push to repository, and clean up
 
