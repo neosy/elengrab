@@ -146,12 +146,12 @@ func (e *Executor) RunYtDlp(
 			return
 		case <-ctx.Done():
 			e.logger.Debug(
-				fmt.Sprintf("context canceled, killing process %s", consts.YtDlpName),
+				fmt.Sprintf("Context canceled, killing process %s", consts.YtDlpName),
 				"url", url,
 			)
 		case <-timer.C:
 			e.logger.Warn(
-				fmt.Sprintf("%s timeout reached, killing process", consts.YtDlpName),
+				fmt.Sprintf("Timeout reached, killing process %s", consts.YtDlpName),
 				"url", url,
 			)
 			isTimeOut.Store(true)

@@ -1,5 +1,12 @@
 # Releases
 
+## v0.13.2 — 2026-02-17
+
+### Refactor
+- Added more detailed logging
+
+---
+
 ## v0.13.1 — 2026-02-17
 
 ### Fix
