@@ -62,11 +62,11 @@ img-rebuild-push: img-rebuild img-push ## Build images, push to repository, and 
 img-rm: ## Remove image with the latest tag
 	-docker rmi -f $(APP_IMG)
 	
-img-push: ## Push images to the repository with the latest tag
+img-push: ## Push images to the repository with the latest tag. Arguments: SUFFIX=deno
 	docker tag $(APP_IMG_LATEST)$(if $(SUFFIX),-$(SUFFIX)) $(APP_IMG_LATEST)$(if $(SUFFIX),-$(SUFFIX))
 	docker push $(APP_IMG_LATEST)$(if $(SUFFIX),-$(SUFFIX))
 	
-img-push-version: ## Push images to the repository with the current version tag
+img-push-version: ## Push images to the repository with the current version tag. Arguments: SUFFIX=deno
 	docker tag $(APP_IMG_LATEST)$(if $(SUFFIX),-$(SUFFIX)) $(APP_IMG):$(VERSION)$(if $(SUFFIX),-$(SUFFIX))
 	docker push $(APP_IMG):$(VERSION)$(if $(SUFFIX),-$(SUFFIX))
 	docker rmi $(APP_IMG):$(VERSION)$(if $(SUFFIX),-$(SUFFIX))
