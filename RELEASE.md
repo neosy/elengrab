@@ -1,5 +1,12 @@
 # Releases
 
+## v0.13.4 — 2026-02-18
+
+### Fix
+- Add graceful shutdown delay before force killing
+
+---
+
 ## v0.13.3 — 2026-02-17
 
 ### Fix

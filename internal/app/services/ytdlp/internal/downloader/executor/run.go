@@ -136,15 +136,17 @@ func (e *Executor) RunYtDlp(
 		)
 	}
 
+	var wg sync.WaitGroup
+
 	// Kill the entire process group on context cancellation
-	go func() {
+	wg.Go(func() {
 		timer := time.NewTimer(consts.YtDlpTimeout)
 		defer timer.Stop()
 
 		select {
 		case <-done.Done():
 			e.logger.Debug(
-				"Done signal received, attempting to kill process",
+				"Done signal received, cleaning up processes",
 				"name", consts.YtDlpName,
 				"url", url,
 			)
@@ -174,54 +176,20 @@ func (e *Executor) RunYtDlp(
 
 		pgid := cmd.Process.Pid
 
-		e.logger.Debug(
-			"Attempting graceful kill",
-			"name", consts.YtDlpName,
-			"pgid", pgid,
-			"url", url,
-		)
-
 		// Try graceful shutdown first
 		tryGracefulKill(-pgid)
 
 		// Wait a bit for yt-dlp / ffmpeg to cleanup temp files
-		time.Sleep(2 * time.Second)
-
-		e.logger.Debug(
-			"Attempting force kill",
-			"name", consts.YtDlpName,
-			"pgid", pgid,
-			"url", url,
-		)
+		select {
+		case <-time.After(500 * time.Millisecond):
+			// wait
+		case <-ctx.Done():
+			// force kill
+		}
 
 		// Force kill if still running
 		forceKill(cmd)
-
-		if cmd.ProcessState != nil && cmd.ProcessState.Exited() {
-			if cmd.ProcessState.Success() {
-				e.logger.Debug(
-					"Process completed successfully after kill",
-					"name", consts.YtDlpName,
-					"url", url,
-				)
-			} else {
-				e.logger.Debug(
-					"Process completed with error after kill",
-					"name", consts.YtDlpName,
-					"url", url,
-					"exitCode", cmd.ProcessState.ExitCode(),
-				)
-			}
-		} else {
-			e.logger.Debug(
-				"Process still running or unknown state after kill attempts",
-				"name", consts.YtDlpName,
-				"url", url,
-			)
-		}
-	}()
-
-	var wg sync.WaitGroup
+	})
 
 	// stdout reader (progress)
 	var outBuf bytes.Buffer
