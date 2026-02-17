@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
@@ -34,7 +35,11 @@ func (d *Downloader) prepareMetadata(
 
 	// If no title, try to get title manually
 	if title == "" {
-		title, err = d.executor.GetTitle(ctx, url, dlOptions.RequiresYouTubeCookies)
+		title, err = d.executor.GetTitle(
+			ctx,
+			url,
+			executor.WithUseCookies(dlOptions.RequiresYouTubeCookies),
+		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get title: %w", err)
 		}

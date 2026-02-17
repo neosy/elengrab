@@ -16,8 +16,14 @@ func (e *Executor) EnsureFormatCache(
 	}
 
 	if valid {
+		e.logger.Debug(
+			"Format cache TTL is still valid, no update needed",
+			"url", url,
+		)
 		return nil
 	}
+
+	e.logger.Debug("Format cache TTL expired", "url", url)
 
 	_, err = e.fetchAndCacheFormatsJSON(ctx, url, useCookies)
 	if err != nil {

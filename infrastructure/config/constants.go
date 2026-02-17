@@ -2,5 +2,5 @@ package iconfig
 
 const (
 	AppName    = "Elengrab"
-	AppVersion = "0.13.1"
+	AppVersion = "0.13.2"
 )

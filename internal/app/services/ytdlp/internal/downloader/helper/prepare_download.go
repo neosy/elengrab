@@ -97,7 +97,13 @@ func PrepareDownload(
 
 		// Get information about the best format from yt-dlp
 		var err error
-		dtoMediaInfo, err = bestFormat(ctx, url, bestFormatQuery, executor.WithUseCookies(dlOptions.RequiresYouTubeCookies))
+		dtoMediaInfo, err = bestFormat(
+			ctx,
+			url,
+			bestFormatQuery,
+			executor.WithUseCookies(dlOptions.RequiresYouTubeCookies),
+			executor.WithEnsureCache(false),
+		)
 		if err != nil {
 			return nil, "", nil, nil, err
 		}
@@ -274,7 +280,13 @@ func PrepareDownload(
 
 		// Get information about the best audio format
 		var err error
-		dtoMediaInfo, err = bestFormat(ctx, url, format, executor.WithUseCookies(dlOptions.RequiresYouTubeCookies))
+		dtoMediaInfo, err = bestFormat(
+			ctx,
+			url,
+			format,
+			executor.WithUseCookies(dlOptions.RequiresYouTubeCookies),
+			executor.WithEnsureCache(false),
+		)
 		if err != nil {
 			return nil, "", nil, nil, err
 		}
