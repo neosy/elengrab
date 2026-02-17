@@ -13,6 +13,7 @@ services:
       - db:/app_n/sqlite/data
       - db_backups:/app_n/sqlite/backups
       - downloads:/app_n/downloads
+      - cookies:/app_n/cookies
     deploy:
       mode: replicated
       replicas: 1
@@ -25,3 +26,4 @@ volumes:
   db:
   db_backups:
   downloads:
+  cookies:
