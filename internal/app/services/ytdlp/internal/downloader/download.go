@@ -78,7 +78,7 @@ func (d *Downloader) Download(
 	}
 	if err == nil && title != "" {
 		d.logger.Debug(
-			"Title fetched",
+			"Fetched title (fast)",
 			"title", title,
 			"url", url,
 		)
@@ -88,12 +88,12 @@ func (d *Downloader) Download(
 	}
 
 	var requiresYouTubeCookies = false
-	err = d.executor.UpdateFormatCache(ctx, url, false)
+	err = d.executor.EnsureFormatCache(ctx, url, false)
 	if err != nil {
 		requiresYouTubeCookies = d.serviceOptions.YoutubeAllowCookies &&
 			helper.CheckForYouTubeCookiesError(err)
 		if !requiresYouTubeCookies {
-			sendError(nil, fmt.Errorf("Failed request: %w", err))
+			sendError(nil, fmt.Errorf("failed to ensure format cache: %w", err))
 			return
 		}
 	}
@@ -104,9 +104,9 @@ func (d *Downloader) Download(
 			"title", title,
 			"url", url,
 		)
-		err = d.executor.UpdateFormatCache(ctx, url, true)
+		err = d.executor.EnsureFormatCache(ctx, url, true)
 		if err != nil {
-			sendError(nil, fmt.Errorf("Failed request: %w", err))
+			sendError(nil, fmt.Errorf("failed to ensure format cache: %w", err))
 			return
 		}
 	}

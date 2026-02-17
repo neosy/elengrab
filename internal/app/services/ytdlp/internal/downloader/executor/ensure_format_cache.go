@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func (e *Executor) UpdateFormatCache(
+func (e *Executor) EnsureFormatCache(
 	ctx context.Context,
 	url string,
 	useCookies bool,
@@ -19,15 +19,7 @@ func (e *Executor) UpdateFormatCache(
 		return nil
 	}
 
-	return e.updateFormatCacheForce(ctx, url, useCookies)
-}
-
-func (e *Executor) updateFormatCacheForce(
-	ctx context.Context,
-	url string,
-	useCookies bool,
-) error {
-	_, err := e.fetchAndCacheFormatsJSON(ctx, url, useCookies)
+	_, err = e.fetchAndCacheFormatsJSON(ctx, url, useCookies)
 	if err != nil {
 		return fmt.Errorf("failed to fetch and cache formats JSON for URL %q: %w", url, err)
 	}

@@ -9,12 +9,11 @@ const (
 	videoCodecDefault      = dtypes.VideoCodecBest
 	videoResolutionDefault = dtypes.VideoResolutionMax
 
-	audioFormatDefault             = dtypes.AudioFormatMP3
+	audioFormatDefault = dtypes.AudioFormatMP3
+
 	audioQualityMP3Default         = "2"
 	audioQualityMP3BitrateDefault  = 192
 	audioQualityM4ADefault         = "2"
 	audioQualityOPUSDefault        = "160K"
 	audioQualityFLACBitrateDefault = 965
-
-	concurrentFragmentsDefault = 5
 )

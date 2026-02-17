@@ -15,7 +15,6 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/pkg/syncx"
@@ -90,7 +89,7 @@ func (e *Executor) RunYtDlp(
 
 	// Add YouTube cookies if allowed in service options
 	if meta.Options.RequiresYouTubeCookies {
-		args = helper.AddYouTubeCookiesToArgs(e.logger, args, e.serviceOptions)
+		args = addYouTubeCookiesToArgs(e.logger, args, e.serviceOptions)
 	}
 
 	// Add output file path to yt-dlp arguments

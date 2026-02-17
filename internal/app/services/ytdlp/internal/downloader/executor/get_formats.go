@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
 )
 
@@ -26,7 +25,7 @@ func (e *Executor) fetchFormatsJSON(
 
 	// Add YouTube cookies if allowed in service options
 	if useCookies {
-		args = helper.AddYouTubeCookiesToArgs(e.logger, args, e.serviceOptions)
+		args = addYouTubeCookiesToArgs(e.logger, args, e.serviceOptions)
 	}
 
 	args = append(args, url)
@@ -80,7 +79,7 @@ func (e *Executor) fetchAndCacheFormatsJSON(
 	return dataJSON, nil
 }
 
-func (e *Executor) getFormatsJSON(
+func (e *Executor) loadFormatsJSON(
 	ctx context.Context,
 	url string,
 	useCookies bool,
@@ -107,7 +106,7 @@ func (e *Executor) GetFormats(
 	url string,
 	useCookies bool,
 ) (*idto.MediaInfo, error) {
-	dataJSON, err := e.getFormatsJSON(ctx, url, useCookies)
+	dataJSON, err := e.loadFormatsJSON(ctx, url, useCookies)
 	if err != nil {
 		return nil, fmt.Errorf("get formats json error: %w", err)
 	}

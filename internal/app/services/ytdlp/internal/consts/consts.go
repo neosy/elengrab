@@ -17,6 +17,8 @@ const (
 	YtDlpTimeout         = 2 * time.Hour
 	YtDlpRetryDelay      = 2 * time.Second
 
+	FormatCacheTTL = 2 * time.Hour
+
 	ConcurrentFragmentsDefault = 5
 	MaxTitleLengthInFilename   = 100
 )
