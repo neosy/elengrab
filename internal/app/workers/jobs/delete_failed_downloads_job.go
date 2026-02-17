@@ -3,6 +3,7 @@ package wjobs
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
@@ -20,7 +21,15 @@ func NewDeleteFailedDownloadsJob(logger *slog.Logger, runner pworkers.DownloadMa
 }
 
 func (j *deleteFailedDownloadsJob) Execute(ctx context.Context) error {
+	startTime := time.Now()
 	err := j.runner.DeleteFailedDownloads(ctx)
-	j.logger.Debug("Job done", "name", "DeleteFailedDownloads")
+	elapsed := time.Since(startTime)
+
+	j.logger.Debug(
+		"Job done",
+		"name", "DeleteFailedDownloads",
+		"elapsed", elapsed,
+	)
+
 	return err
 }

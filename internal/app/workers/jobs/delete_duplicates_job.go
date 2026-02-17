@@ -3,6 +3,7 @@ package wjobs
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
@@ -20,7 +21,15 @@ func NewDeleteDuplicatesJob(logger *slog.Logger, runner pworkers.DownloadMainten
 }
 
 func (j *deleteDuplicatesJob) Execute(ctx context.Context) error {
+	startTime := time.Now()
 	err := j.runner.DeleteDuplicates(ctx)
-	j.logger.Debug("Job done", "name", "DeleteDuplicates")
+	elapsed := time.Since(startTime)
+
+	j.logger.Debug(
+		"Job done",
+		"name", "DeleteDuplicates",
+		"elapsed", elapsed,
+	)
+
 	return err
 }

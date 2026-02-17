@@ -3,6 +3,7 @@ package wjobs
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
@@ -20,7 +21,15 @@ func NewbackupDatabaseJob(logger *slog.Logger, runner pworkers.MaintenanceRunner
 }
 
 func (j *backupDatabaseJob) Execute(ctx context.Context) error {
+	startTime := time.Now()
 	err := j.runner.BackupDatabase(ctx)
-	j.logger.Debug("Job done", "name", "BackupDatabase")
+	elapsed := time.Since(startTime)
+
+	j.logger.Debug(
+		"Job done",
+		"name", "BackupDatabase",
+		"elapsed", elapsed,
+	)
+
 	return err
 }

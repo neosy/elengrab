@@ -3,6 +3,7 @@ package wjobs
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
@@ -20,7 +21,15 @@ func NewFlushWALJob(logger *slog.Logger, runner pworkers.MaintenanceRunner) *flu
 }
 
 func (j *flushWALJob) Execute(ctx context.Context) error {
+	startTime := time.Now()
 	err := j.runner.FlushWAL()
-	j.logger.Debug("Job done", "name", "FlushWAL")
+	elapsed := time.Since(startTime)
+
+	j.logger.Debug(
+		"Job done",
+		"name", "FlushWAL",
+		"elapsed", elapsed,
+	)
+
 	return err
 }
