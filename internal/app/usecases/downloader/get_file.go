@@ -13,9 +13,9 @@ import (
 	"github.com/neosy/elengrab/pkg/errorx"
 	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
 	"github.com/neosy/elengrab/pkg/httpx"
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
+// GetFileInfo retrieves file information by file ID for a specific user.
 func (uc *YouTubeDownloader) GetFileInfo(
 	ctx context.Context,
 	userID uuid.UUID,
@@ -26,7 +26,7 @@ func (uc *YouTubeDownloader) GetFileInfo(
 		accessByUserID = &userID
 	}
 
-	resp, err := uc.findStateAndFileInfo(ctx, accessByUserID, &fileID, nil, false)
+	resp, err := uc.findActualFileInfo(ctx, accessByUserID, fileID)
 	if err != nil {
 		uc.logger.Error("Failed get file info", "error", err)
 		return nil, errorx.NewByErr(err, exceptionx.ERROR)
@@ -37,76 +37,68 @@ func (uc *YouTubeDownloader) GetFileInfo(
 	return resp, nil
 }
 
-func (uc *YouTubeDownloader) findStateAndFileInfo(
+// findActualFileInfo retrieves the actual file information based on user ID and file ID.
+func (uc *YouTubeDownloader) findActualFileInfo(
 	ctx context.Context,
 	userID *uuid.UUID,
-	fileId *uuid.UUID,
-	file *ddownload.File,
-	checkNotFound bool,
+	fileID uuid.UUID,
 ) (*dto.GetFileInfoResponse, error) {
-	var id uuid.UUID
+	var file *ddownload.File
 
-	if file != nil {
-		id = file.FileId
-	} else if fileId != nil {
-		id = *fileId
-	}
-
-	if id == uuid.Nil {
-		uc.logger.Warn("Id for the FileId field is not defined")
+	if fileID == uuid.Nil {
+		uc.logger.Warn("Id for the FileID field is not defined")
 		return nil, errors.New("fileId not specified")
 	}
 
+	state, _ := uc.dlStateCache.FindByFileID(ctx, userID, fileID)
+	if state != nil && state.File != nil {
+		file = state.File.Copy()
+	}
+
+	if file == nil {
+		var err error
+		file, err = uc.file.FindByFileID(ctx, userID, fileID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if file == nil {
+		return nil, nil
+	}
+
+	return uc.findActualFileInfoByFile(ctx, file)
+}
+
+// findActualFileInfoByFile retrieves the actual file information based on the provided file.
+func (uc *YouTubeDownloader) findActualFileInfoByFile(
+	ctx context.Context,
+	file *ddownload.File,
+) (*dto.GetFileInfoResponse, error) {
 	var (
-		fileResp   *ddownload.File
 		dlProgress *ddownload.DownloadProgress
 	)
 
-	state, _ := uc.dlStateCache.FindByFileId(ctx, userID, id)
+	if file == nil {
+		return nil, nil
+	}
+
+	state, _ := uc.dlStateCache.FindByFileID(ctx, file.UserID, file.FileID)
 	if state != nil && state.File != nil {
-		fileResp = state.File.Copy()
-		dlProgress = uptr.Copy(state.Progress)
-	}
-
-	if fileResp == nil && file != nil {
-		fileResp = uptr.Any(*file)
-	}
-
-	if fileResp == nil {
-		var (
-			file *ddownload.File
-			err  error
-		)
-
-		if checkNotFound {
-			file, err = uc.file.GetByFileId(ctx, userID, id)
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			file, err = uc.file.FindByFileId(ctx, userID, id)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		if file == nil {
-			return nil, nil
-		}
-
-		fileResp = uptr.Any(*file)
+		file = state.File.Copy()
+		dlProgress = state.Progress.Copy()
 	}
 
 	var avatarTitle string
-	if fileResp.YoutubeChannelID != nil {
-		channel, _ := uc.ytChannel.FindByChannelID(ctx, *fileResp.YoutubeChannelID)
+	if file.YoutubeChannelID != nil {
+		channel, _ := uc.ytChannel.FindByChannelID(ctx, *file.YoutubeChannelID)
 		if channel != nil {
 			avatarTitle = channel.ChannelTitle
 		}
 	}
 
 	var hasSiteIcon bool
-	siteLogo, _ := uc.siteIcon.FindBySiteURL(ctx, httpx.BaseURL(fileResp.MediaUrl))
+	siteLogo, _ := uc.siteIcon.FindBySiteURL(ctx, httpx.BaseURL(file.MediaUrl))
 	if siteLogo != nil {
 		hasSiteIcon = true
 		if avatarTitle == "" {
@@ -114,9 +106,10 @@ func (uc *YouTubeDownloader) findStateAndFileInfo(
 		}
 	}
 
-	return uc.mappers.MapFileDomainToFileInfoResponse(fileResp, avatarTitle, dlProgress, uc.downloadsDir, hasSiteIcon), nil
+	return uc.mappers.MapFileDomainToFileInfoResponse(file, avatarTitle, dlProgress, uc.downloadsDir, hasSiteIcon), nil
 }
 
+// LoadHistory retrieves the download history for a user.
 func (uc *YouTubeDownloader) LoadHistory(
 	ctx context.Context,
 	userID uuid.UUID,
@@ -151,7 +144,7 @@ func (uc *YouTubeDownloader) getFilesInfo(
 
 	resps = make([]*dto.GetFileInfoResponse, 0, len(files))
 	for _, file := range files {
-		resp, err := uc.findStateAndFileInfo(ctx, userID, nil, file, true)
+		resp, err := uc.findActualFileInfoByFile(ctx, file)
 		if err != nil {
 			continue
 		}
@@ -162,7 +155,7 @@ func (uc *YouTubeDownloader) getFilesInfo(
 }
 
 func (uc *YouTubeDownloader) GetFilePath(ctx context.Context, fileId uuid.UUID) (string, error) {
-	file, err := uc.file.GetByFileId(ctx, nil, fileId)
+	file, err := uc.file.GetByFileID(ctx, nil, fileId)
 	if err != nil {
 		uc.logger.Error("Failed find file", "error", err)
 		return "", err
@@ -189,7 +182,7 @@ func (uc *YouTubeDownloader) GetDownloadFileName(
 		accessByUserID = &userID
 	}
 
-	file, err := uc.file.GetByFileId(ctx, accessByUserID, fileId)
+	file, err := uc.file.GetByFileID(ctx, accessByUserID, fileId)
 	if err != nil {
 		uc.logger.Error("Failed find file", "error", err)
 		return "", "", err

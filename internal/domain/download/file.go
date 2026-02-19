@@ -10,7 +10,7 @@ import (
 
 type File struct {
 	// Unique file identifier (UUID)
-	FileId uuid.UUID
+	FileID uuid.UUID
 
 	// Associated user identifier (UUID)
 	UserID *uuid.UUID

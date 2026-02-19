@@ -14,7 +14,7 @@ func (s *DownloadTaskStatus) New(
 	taskId uuid.UUID,
 ) error {
 	updateFieldsFunc := func(task *ddownload.DownloadTask) {
-		task.WorkerId = nil
+		task.WorkerID = nil
 		task.JobID = nil
 	}
 

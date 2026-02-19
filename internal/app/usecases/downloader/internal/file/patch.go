@@ -8,7 +8,7 @@ import (
 )
 
 func (uc *File) Patch(ctx context.Context, userID *uuid.UUID, fileId uuid.UUID, patch *dto.FileInfoPatch) error {
-	file, err := uc.GetByFileId(ctx, userID, fileId)
+	file, err := uc.GetByFileID(ctx, userID, fileId)
 	if err != nil {
 		return err
 	}

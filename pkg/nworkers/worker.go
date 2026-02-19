@@ -32,13 +32,14 @@ type worker struct {
 }
 
 // NewWorker creates a new Worker with the given job and options.
-func NewWorker(job WorkerJob, options *WorkerOptions) Worker {
+func NewWorker(job WorkerJob, opts ...WorkerOption) Worker {
 	w := &worker{
-		job: job,
+		job:    job,
+		optons: DefaultWorkerOptions(),
 	}
 
-	if options != nil {
-		w.optons = *options
+	for _, opt := range opts {
+		opt(&w.optons)
 	}
 
 	return w
@@ -82,6 +83,12 @@ func (w *worker) Run(ctx context.Context, stop <-chan struct{}) error {
 		}
 	}()
 
+	// Immediate one-shot execution if no other options are set.
+	if w.optons.OneShotDelay == nil && w.optons.Interval == 0 {
+		timer = time.NewTimer(0)
+		timerC = timer.C
+	}
+
 	// One-shot execution after an optional initial delay.
 	if w.optons.OneShotDelay != nil {
 		timer = time.NewTimer(*w.optons.OneShotDelay)
@@ -89,20 +96,21 @@ func (w *worker) Run(ctx context.Context, stop <-chan struct{}) error {
 	}
 
 	// Periodic execution
-	if w.optons.StartAt == nil && w.optons.Interval != nil {
-		ticker = time.NewTicker(*w.optons.Interval)
+	if w.optons.StartAt.IsZero() && w.optons.Interval != 0 {
+		ticker = time.NewTicker(w.optons.Interval)
 		tickerC = ticker.C
 	}
 
-	if w.optons.StartAt != nil && w.optons.Interval != nil {
-		startAt := *w.optons.StartAt
+	if !w.optons.StartAt.IsZero() && w.optons.Interval != 0 {
 		now := time.Now().UTC()
+
+		startAt := w.optons.StartAt
 
 		if startAt.Before(now) {
 			// move startAt forward to the next valid interval
 			elapsed := now.Sub(startAt)
-			steps := elapsed / *w.optons.Interval
-			startAt = startAt.Add((steps + 1) * (*w.optons.Interval))
+			steps := elapsed / w.optons.Interval
+			startAt = w.optons.StartAt.Add((steps + 1) * (w.optons.Interval))
 		}
 
 		delay := time.Until(startAt)
@@ -147,7 +155,7 @@ func (w *worker) Run(ctx context.Context, stop <-chan struct{}) error {
 			}
 
 			if ticker == nil {
-				ticker = time.NewTicker(*w.optons.Interval)
+				ticker = time.NewTicker(w.optons.Interval)
 				tickerC = ticker.C
 			}
 		case <-tickerC:

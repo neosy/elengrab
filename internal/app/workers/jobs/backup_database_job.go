@@ -6,6 +6,7 @@ import (
 	"time"
 
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
+	uformat "github.com/neosy/elengrab/pkg/utils/format"
 )
 
 type backupDatabaseJob struct {
@@ -28,7 +29,7 @@ func (j *backupDatabaseJob) Execute(ctx context.Context) error {
 	j.logger.Debug(
 		"Job done",
 		"name", "BackupDatabase",
-		"elapsed", elapsed,
+		"elapsed", uformat.DurationFormat(elapsed),
 	)
 
 	return err

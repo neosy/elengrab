@@ -11,6 +11,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
+	uformat "github.com/neosy/elengrab/pkg/utils/format"
 )
 
 func (d *Downloader) fetchChannelAvatarAsync(
@@ -45,7 +46,7 @@ func (d *Downloader) fetchChannelAvatarAsync(
 		d.logger.Info(
 			"YouTube channel avatar fetched",
 			"channelURL", meta.ChannelURL,
-			"elapsed", elapsed,
+			"elapsed", uformat.DurationFormat(elapsed),
 		)
 
 		channel = &ddownload.DownloadChannel{

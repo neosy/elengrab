@@ -1,5 +1,4 @@
 //go:build windows
-// +build windows
 
 package executor
 
@@ -13,13 +12,15 @@ func newSysProcAttr() *syscall.SysProcAttr {
 	return &syscall.SysProcAttr{}
 }
 
-func tryGracefulKill(pgid int) {
+func tryGracefulKill(int) error {
 	// Windows does not support process group kill via syscall.
 	// No-op on Windows.
+	return nil
 }
 
-func forceKill(cmd *exec.Cmd) {
-	if cmd.Process != nil {
-		_ = cmd.Process.Kill()
+func forceKill(cmd *exec.Cmd) error {
+	if cmd.Process == nil {
+		return nil
 	}
+	return cmd.Process.Kill()
 }

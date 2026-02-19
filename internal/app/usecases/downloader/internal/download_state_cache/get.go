@@ -7,7 +7,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-func (uc *DownloadStateCache) FindByFileId(
+func (uc *DownloadStateCache) FindByFileID(
 	ctx context.Context,
 	userID *uuid.UUID,
 	fileId uuid.UUID,
@@ -16,9 +16,9 @@ func (uc *DownloadStateCache) FindByFileId(
 	if userID != nil {
 		stateRep = uc.stateRep.WithUser(*userID)
 	}
-	return stateRep.FindByFileId(ctx, fileId)
+	return stateRep.FindByFileID(ctx, fileId)
 }
 
-func (uc *DownloadStateCache) FindByTaskId(ctx context.Context, taskId uuid.UUID) (*ddownload.DownloadState, error) {
-	return uc.stateRep.FindByTaskId(ctx, taskId)
+func (uc *DownloadStateCache) FindByTaskID(ctx context.Context, taskId uuid.UUID) (*ddownload.DownloadState, error) {
+	return uc.stateRep.FindByTaskID(ctx, taskId)
 }

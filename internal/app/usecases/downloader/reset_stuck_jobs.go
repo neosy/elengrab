@@ -33,7 +33,7 @@ func (uc *YouTubeDownloader) ResetStuckJobs(ctx context.Context) error {
 
 	for _, file := range files {
 		if file.DownloadTask != nil {
-			uc.addFileToQueueDownload(ctx, file.FileId, file.DownloadTask.TaskId)
+			uc.addFileToQueueDownload(ctx, file.FileID, file.DownloadTask.TaskID)
 		}
 	}
 

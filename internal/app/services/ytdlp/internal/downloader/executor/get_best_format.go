@@ -8,6 +8,7 @@ import (
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
+	uformat "github.com/neosy/elengrab/pkg/utils/format"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
@@ -56,7 +57,7 @@ func (e *Executor) GetBestFormat(
 		"Fetched best format",
 		"url", url,
 		"args", args,
-		"elapsed", elapsed,
+		"elapsed", uformat.DurationFormat(elapsed),
 	)
 
 	outStr := strings.TrimSpace(string(out))

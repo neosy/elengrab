@@ -9,7 +9,7 @@ import (
 )
 
 type GetFileInfoResponse struct {
-	FileId               uuid.UUID
+	FileID               uuid.UUID
 	Status               dtypes.FileStatus
 	WorkingStatus        WorkingStatus
 	YoutubeChannelID     *string

@@ -24,7 +24,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		return errors.New("function parameter is a null pointer")
 	}
 
-	err := uc.fileStatus.Working(ctx, task.FileId, task.TaskId, workerId)
+	err := uc.fileStatus.Working(ctx, task.FileID, task.TaskID, workerId)
 	if err != nil {
 		uc.logger.Error("Failed update status", "error", err)
 		return err
@@ -49,11 +49,11 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 				"Failed to download: The context was canceled",
 				"error", err,
 			)
-			file, e := uc.file.FindByFileId(uc.appCtx, nil, task.FileId)
+			file, e := uc.file.FindByFileID(uc.appCtx, nil, task.FileID)
 			if e == nil && file != nil {
-				uc.fileStatus.Failed(uc.appCtx, task.FileId, nil, uptr.String(err.Error()))
+				uc.fileStatus.Failed(uc.appCtx, task.FileID, nil, uptr.String(err.Error()))
 			}
-			uc.dlStateCache.Delete(uc.appCtx, task.FileId)
+			uc.dlStateCache.Delete(uc.appCtx, task.FileID)
 			return ctx.Err()
 		}
 
@@ -62,7 +62,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 			"error", err,
 		)
 
-		uc.fileStatus.Failed(ctx, task.FileId, nil, uptr.String(err.Error()))
+		uc.fileStatus.Failed(ctx, task.FileID, nil, uptr.String(err.Error()))
 
 		return err
 	}
@@ -72,17 +72,17 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		if r.Error != nil {
 			// The context was canceled
 			if ctx.Err() != nil {
-				file, e := uc.file.FindByFileId(uc.appCtx, nil, task.FileId)
+				file, e := uc.file.FindByFileID(uc.appCtx, nil, task.FileID)
 				if e == nil && file != nil {
-					uc.fileStatus.Failed(uc.appCtx, task.FileId, nil, uptr.String(r.Error.Error()))
+					uc.fileStatus.Failed(uc.appCtx, task.FileID, nil, uptr.String(r.Error.Error()))
 				}
-				uc.dlStateCache.Delete(uc.appCtx, task.FileId)
+				uc.dlStateCache.Delete(uc.appCtx, task.FileID)
 				return ctx.Err()
 			}
 
 			uc.logger.Error(
 				"Failed to download",
-				"fileId", task.FileId,
+				"fileId", task.FileID,
 				"error", r.Error,
 			)
 
@@ -101,18 +101,18 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 					patch.FileSize = &lastResult.Filesize
 				}
 			}
-			uc.fileStatus.Failed(ctx, task.FileId, patch, uptr.String(r.Error.Error()))
+			uc.fileStatus.Failed(ctx, task.FileID, patch, uptr.String(r.Error.Error()))
 			return r.Error
 		}
 
-		state, err := uc.dlStateCache.FindByFileId(ctx, nil, task.FileId)
+		state, err := uc.dlStateCache.FindByFileID(ctx, nil, task.FileID)
 		if err != nil {
 			uc.logger.Error(
 				"Failed to download",
 				"action", "Find by fileId",
 				"error", err,
 			)
-			uc.fileStatus.Failed(ctx, task.FileId, nil, uptr.String(err.Error()))
+			uc.fileStatus.Failed(ctx, task.FileID, nil, uptr.String(err.Error()))
 			return err
 		}
 
@@ -162,9 +162,9 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		MediaInfo:            &lastResult.MediaInfo,
 	}
 
-	err = uc.fileStatus.Done(ctx, task.FileId, patch)
+	err = uc.fileStatus.Done(ctx, task.FileID, patch)
 	if err != nil {
-		uc.fileStatus.Failed(ctx, task.FileId, patch, uptr.String(err.Error()))
+		uc.fileStatus.Failed(ctx, task.FileID, patch, uptr.String(err.Error()))
 		return err
 	}
 

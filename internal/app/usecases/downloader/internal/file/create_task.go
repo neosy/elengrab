@@ -8,7 +8,7 @@ import (
 
 func (uc *File) CreateTask(ctx context.Context, file *ddownload.File, dlOptions *ddownload.DownloadOptions) error {
 	task := &ddownload.DownloadTask{
-		FileId:   file.FileId,
+		FileID:   file.FileID,
 		MediaUrl: file.MediaUrl,
 		Options:  dlOptions,
 	}

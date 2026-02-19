@@ -15,7 +15,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/pkg/errorx"
-	"github.com/neosy/elengrab/pkg/utils"
+	uformat "github.com/neosy/elengrab/pkg/utils/format"
 	"github.com/valyala/fasthttp"
 )
 
@@ -86,7 +86,7 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 
 	// Checking the cache
 	{
-		cached, exists := cacheRow.Get(fileInfo.FileId)
+		cached, exists := cacheRow.Get(fileInfo.FileID)
 		if !exists {
 			cached.ProgressPercent = -1
 		}
@@ -133,7 +133,7 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 			progressPercent = int(fileInfo.Progress.Percent())
 		}
 		cacheRow.mu.Lock()
-		cacheRow.data[fileInfo.FileId] = cacheRowEntry{
+		cacheRow.data[fileInfo.FileID] = cacheRowEntry{
 			youtubeChannelID: youtubeChannelID,
 			mediaTitle:       fileInfo.MediaTitle,
 			FileSize:         fileSize,
@@ -161,24 +161,24 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 	}
 
 	data := fileRowInfoData{
-		FileID:           fileInfo.FileId.String(),
+		FileID:           fileInfo.FileID.String(),
 		MediaURL:         fileInfo.MediaUrl,
 		YoutubeChannelID: youtubeChannelID,
 		AvatarTitle:      fileInfo.AvatarTitle,
 		MediaTitle:       fileInfo.MediaTitle,
-		PathFileRow:      httppaths.BuildPathFileRow(fileInfo.FileId),
-		PathFileRepeat:   httppaths.BuildPathFileRepeat(fileInfo.FileId),
+		PathFileRow:      httppaths.BuildPathFileRow(fileInfo.FileID),
+		PathFileRepeat:   httppaths.BuildPathFileRepeat(fileInfo.FileID),
 		FileSize:         "-",
 		Format:           "-",
 		DataFormat:       "-",
 		FormatTitle:      fileInfo.MediaInfoText,
-		DownloadURL:      httppaths.BuildPathFileDownload(fileInfo.FileId),
-		DeleteURL:        httppaths.BuildPathFile(fileInfo.FileId),
+		DownloadURL:      httppaths.BuildPathFileDownload(fileInfo.FileID),
+		DeleteURL:        httppaths.BuildPathFile(fileInfo.FileID),
 		LogoVersion:      logoVersion,
 	}
 
 	if fileInfo.FileSize != nil && *fileInfo.FileSize > 0 {
-		data.FileSize = utils.BytesToHuman(*fileInfo.FileSize)
+		data.FileSize = uformat.BytesHuman(*fileInfo.FileSize)
 	}
 	if fileInfo.FileExt != "" {
 		data.Format = fileInfo.FileExt

@@ -113,7 +113,7 @@ func (r *FileRepository) save(ctx context.Context, file *ddownload.File) error {
 		Insert(eFile.TableName()).
 		Columns(fields...).
 		Values(values...).
-		Suffix(dbutils.UpsertSuffix(fields, eFile.FieldName(&eFile.FileId))).
+		Suffix(dbutils.UpsertSuffix(fields, eFile.FieldName(&eFile.FileID))).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 	// If SQL generation failed — return an error
@@ -185,7 +185,7 @@ func (r *FileRepository) softDelete(ctx context.Context, fileId uuid.UUID) error
 	sqlQuery, args, err := squirrel.
 		Update(eFile.TableName()).
 		SetMap(fieldsToUpdate).
-		Where(squirrel.Eq{eFile.FieldName(&eFile.FileId): fileId}).
+		Where(squirrel.Eq{eFile.FieldName(&eFile.FileID): fileId}).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 	// If SQL generation failed — return an error
@@ -207,7 +207,7 @@ func (r *FileRepository) hardDelete(ctx context.Context, fileId uuid.UUID) error
 
 	// Build DELETE query
 	sqlBuilder := squirrel.Delete(ent.TableName()).
-		Where(squirrel.Eq{ent.FieldName(&ent.FileId): fileId.String()}).
+		Where(squirrel.Eq{ent.FieldName(&ent.FileID): fileId.String()}).
 		PlaceholderFormat(squirrel.Dollar)
 
 	// Generate SQL and args
@@ -234,7 +234,7 @@ func (r *FileRepository) Restore(ctx context.Context, fileId uuid.UUID) error {
 	}
 
 	sqlWhere := squirrel.And{
-		squirrel.Eq{eFile.FieldName(&eFile.FileId): fileId},
+		squirrel.Eq{eFile.FieldName(&eFile.FileID): fileId},
 		squirrel.NotEq{eFile.FieldName(&eFile.DeletedAt): nil},
 	}
 
@@ -259,7 +259,7 @@ func (r *FileRepository) Restore(ctx context.Context, fileId uuid.UUID) error {
 	return nil
 }
 
-func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*ddownload.File, error) {
+func (r *FileRepository) FindByFileID(ctx context.Context, fileId uuid.UUID) (*ddownload.File, error) {
 	var (
 		eFile edownload.File
 		eTask edownload.DownloadTask
@@ -271,7 +271,7 @@ func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*d
 	selectFields := append(eFile.FieldsAllWithAlias(aliasFiles), eTask.FieldsAllWithAlias(aliasTasks)...)
 
 	sqlWhere := squirrel.Eq{
-		eFile.FieldNameWithAlias(&eFile.FileId, aliasFiles):    fileId.String(),
+		eFile.FieldNameWithAlias(&eFile.FileID, aliasFiles):    fileId.String(),
 		eFile.FieldNameWithAlias(&eFile.DeletedAt, aliasFiles): nil,
 	}
 
@@ -283,8 +283,8 @@ func (r *FileRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*d
 		From(eFile.TableName() + " AS " + aliasFiles).
 		LeftJoin(
 			eTask.TableName() + " AS " + aliasTasks +
-				" ON " + aliasTasks + "." + eTask.FieldName(&eTask.FileId) +
-				" = " + aliasFiles + "." + eFile.FieldName(&eFile.FileId),
+				" ON " + aliasTasks + "." + eTask.FieldName(&eTask.FileID) +
+				" = " + aliasFiles + "." + eFile.FieldName(&eFile.FileID),
 		).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).
@@ -379,8 +379,8 @@ func (r *FileRepository) getAll(
 		OrderBy(orderBy).
 		LeftJoin(
 			eTask.TableName() + " AS " + aliasTasks +
-				" ON " + eTask.FieldNameWithAlias(&eTask.FileId, aliasTasks) +
-				" = " + eFile.FieldNameWithAlias(&eFile.FileId, aliasFiles),
+				" ON " + eTask.FieldNameWithAlias(&eTask.FileID, aliasTasks) +
+				" = " + eFile.FieldNameWithAlias(&eFile.FileID, aliasFiles),
 		).
 		PlaceholderFormat(squirrel.Dollar)
 

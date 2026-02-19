@@ -11,6 +11,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
+	uformat "github.com/neosy/elengrab/pkg/utils/format"
 )
 
 func (e *Executor) GetFormats(
@@ -57,7 +58,7 @@ func (e *Executor) loadFormatsJSON(
 		e.logger.Debug(
 			"Loaded formats JSON from cache",
 			"url", url,
-			"elapsed", elapsed,
+			"elapsed", uformat.DurationFormat(elapsed),
 		)
 		return dataJSON, nil
 	}
@@ -91,7 +92,7 @@ func (e *Executor) fetchAndCacheFormatsJSON(
 	e.logger.Debug(
 		"Fetched formats JSON",
 		"url", url,
-		"elapsed", elapsed,
+		"elapsed", uformat.DurationFormat(elapsed),
 	)
 
 	err = e.formatCache.WriteByURL(url, dataJSON)

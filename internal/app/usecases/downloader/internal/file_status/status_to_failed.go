@@ -21,12 +21,12 @@ func (s *FileStatus) Failed(
 		file.ErrorMessage = message
 	}
 
-	task, err := s.dlTask.FindByFileId(ctx, fileID, true)
+	task, err := s.dlTask.FindByFileID(ctx, fileID, true)
 	if err != nil {
 		return err
 	}
 
-	err = s.dlTaskStatus.Failed(ctx, task.TaskId)
+	err = s.dlTaskStatus.Failed(ctx, task.TaskID)
 	if err != nil {
 		return err
 	}

@@ -29,7 +29,7 @@ func (uc *YouTubeDownloader) DeleteDownload(
 		accessByUserID = &userID
 	}
 
-	_, err := uc.file.GetByFileId(ctx, accessByUserID, fileId)
+	_, err := uc.file.GetByFileID(ctx, accessByUserID, fileId)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func (uc *YouTubeDownloader) DeleteDownload(
 	}
 
 	fn := func(ctx context.Context) error {
-		file, err := uc.file.FindByFileId(ctx, nil, fileId)
+		file, err := uc.file.FindByFileID(ctx, nil, fileId)
 		if err != nil {
 			return err
 		}
@@ -56,7 +56,7 @@ func (uc *YouTubeDownloader) DeleteDownload(
 
 		switch file.Status {
 		case dtypes.FileStatusNew:
-			if err := fnDelete(ctx, file.FileId); err != nil {
+			if err := fnDelete(ctx, file.FileID); err != nil {
 				return err
 			}
 		case dtypes.FileStatusPending, dtypes.FileStatusWorking:
@@ -67,11 +67,11 @@ func (uc *YouTubeDownloader) DeleteDownload(
 			if !uc.dlDispetcher.CancelJob(task.JobID.String()) {
 				return errors.New("job cannot be cancelled")
 			}
-			if err := fnDelete(ctx, file.FileId); err != nil {
+			if err := fnDelete(ctx, file.FileID); err != nil {
 				return err
 			}
 		case dtypes.FileStatusDone, dtypes.FileStatusFailed:
-			if err := fnDelete(ctx, file.FileId); err != nil {
+			if err := fnDelete(ctx, file.FileID); err != nil {
 				return err
 			}
 			needDeleteFileOnStorage = true
