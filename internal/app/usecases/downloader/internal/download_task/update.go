@@ -13,7 +13,7 @@ func (uc *DownloadTask) Update(ctx context.Context, task *ddownload.DownloadTask
 		return err
 	}
 
-	uc.saveToDownloadStateCache(ctx, task.FileId, task.TaskId)
+	uc.saveToDownloadStateCache(ctx, task.FileID, task.TaskID)
 
 	return err
 }

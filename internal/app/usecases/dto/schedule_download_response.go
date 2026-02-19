@@ -6,8 +6,8 @@ import (
 )
 
 type ScheduleDownloadResponse struct {
-	// file id
-	FileId     uuid.UUID
+	// file ID
+	FileID     uuid.UUID
 	Status     dtypes.FileStatus
 	MediaTitle string
 	// format type

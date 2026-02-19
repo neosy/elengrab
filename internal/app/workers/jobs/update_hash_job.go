@@ -6,6 +6,7 @@ import (
 	"time"
 
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
+	uformat "github.com/neosy/elengrab/pkg/utils/format"
 )
 
 type updateHashJob struct {
@@ -28,7 +29,7 @@ func (j *updateHashJob) Execute(ctx context.Context) error {
 	j.logger.Debug(
 		"Job done",
 		"name", "UpdateHash",
-		"elapsed", elapsed,
+		"elapsed", uformat.DurationFormat(elapsed),
 	)
 
 	return err

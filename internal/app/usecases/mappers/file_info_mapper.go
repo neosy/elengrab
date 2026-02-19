@@ -34,7 +34,7 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 	}
 
 	return &dto.GetFileInfoResponse{
-		FileId:               file.FileId,
+		FileID:               file.FileID,
 		Status:               file.Status,
 		WorkingStatus:        workingStatus,
 		YoutubeChannelID:     file.YoutubeChannelID,

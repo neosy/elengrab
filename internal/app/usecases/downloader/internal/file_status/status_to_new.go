@@ -17,12 +17,12 @@ func (s *FileStatus) New(
 		file.ErrorMessage = nil
 	}
 
-	task, err := s.dlTask.FindByFileId(ctx, fileID, true)
+	task, err := s.dlTask.FindByFileID(ctx, fileID, true)
 	if err != nil {
 		return err
 	}
 
-	err = s.dlTaskStatus.New(ctx, task.TaskId)
+	err = s.dlTaskStatus.New(ctx, task.TaskID)
 	if err != nil {
 		return err
 	}

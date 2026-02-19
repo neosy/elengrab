@@ -28,12 +28,12 @@ func (m *Mappers) MapDownloadTaskDomainToEntity(task *ddownload.DownloadTask) (*
 	}
 
 	return &edownload.DownloadTask{
-		TaskId:   sql.NullString{String: task.TaskId.String(), Valid: true},
-		FileId:   sql.NullString{String: task.FileId.String(), Valid: true},
+		TaskID:   sql.NullString{String: task.TaskID.String(), Valid: true},
+		FileID:   sql.NullString{String: task.FileID.String(), Valid: true},
 		Status:   sql.NullString{String: task.Status.String(), Valid: true},
 		MediaUrl: sql.NullString{String: task.MediaUrl, Valid: true},
 		Options:  sql.NullString{String: optionsJson, Valid: task.Options != nil},
-		WorkerId: sql.NullInt64{Int64: int64(uptr.Deref(task.WorkerId)), Valid: task.WorkerId != nil},
+		WorkerID: sql.NullInt64{Int64: int64(uptr.Deref(task.WorkerID)), Valid: task.WorkerID != nil},
 		JobID:    sql.NullString{String: jobID, Valid: task.JobID != nil},
 	}, nil
 }
@@ -56,13 +56,13 @@ func (m *Mappers) MapDownloadTaskEntityToDomain(eTask *edownload.DownloadTask) (
 	}
 
 	return &ddownload.DownloadTask{
-		TaskId:    uuid.MustParse(usql.String(eTask.TaskId)),
-		FileId:    uuid.MustParse(usql.String(eTask.FileId)),
+		TaskID:    uuid.MustParse(usql.String(eTask.TaskID)),
+		FileID:    uuid.MustParse(usql.String(eTask.FileID)),
 		Status:    dtypes.MustParseDownloadTaskStatus(usql.String(eTask.Status)),
 		MediaUrl:  usql.String(eTask.MediaUrl),
 		Options:   options,
 		JobID:     jobID,
-		WorkerId:  uptr.NonZero(uint(usql.Int64(eTask.WorkerId))),
+		WorkerID:  uptr.NonZero(uint(usql.Int64(eTask.WorkerID))),
 		CreatedAt: usql.Time(eTask.CreatedAt),
 		UpdatedAt: usql.Time(eTask.UpdatedAt),
 	}, nil

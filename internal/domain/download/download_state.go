@@ -7,13 +7,14 @@ import (
 
 type DownloadState struct {
 	UserID *uuid.UUID
-	FileId uuid.UUID
-	TaskId *uuid.UUID
+	FileID uuid.UUID
+	TaskID *uuid.UUID
 
 	File     *File
 	Progress *DownloadProgress
 }
 
+// InitFromFile initializes the state from a file.
 func (s *DownloadState) InitFromFile(file *File) {
 	if s == nil {
 		return
@@ -24,14 +25,15 @@ func (s *DownloadState) InitFromFile(file *File) {
 	}
 
 	s.UserID = file.UserID
-	s.FileId = file.FileId
+	s.FileID = file.FileID
 	s.File = file
 
 	if file.DownloadTask != nil {
-		s.TaskId = &file.DownloadTask.TaskId
+		s.TaskID = &file.DownloadTask.TaskID
 	}
 }
 
+// InitFromDownloadResult initializes the state from a downloadResult.
 func (s *DownloadState) InitFromDownloadResult(result *DownloadResult) {
 	if s == nil {
 		return
@@ -65,6 +67,7 @@ func (s *DownloadState) InitFromDownloadResult(result *DownloadResult) {
 	}
 }
 
+// Copy creates a deep copy of the DownloadState.
 func (src *DownloadState) Copy() *DownloadState {
 	if src == nil {
 		return nil
@@ -72,7 +75,7 @@ func (src *DownloadState) Copy() *DownloadState {
 
 	copy := uptr.Copy(src)
 	copy.UserID = uptr.Copy(src.UserID)
-	copy.TaskId = uptr.Copy(src.TaskId)
+	copy.TaskID = uptr.Copy(src.TaskID)
 	copy.File = src.File.Copy()
 	copy.Progress = src.Progress.Copy()
 

@@ -16,6 +16,7 @@ import (
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	"github.com/neosy/elengrab/pkg/nfile"
 	"github.com/neosy/elengrab/pkg/syncx"
+	uformat "github.com/neosy/elengrab/pkg/utils/format"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
@@ -84,7 +85,7 @@ func (d *Downloader) Download(
 			"Fetched title (fast)",
 			"title", title,
 			"url", url,
-			"elapsed", elapsed,
+			"elapsed", uformat.DurationFormat(elapsed),
 		)
 		sendData(&ddownload.DownloadResult{
 			MediaTitle: title,

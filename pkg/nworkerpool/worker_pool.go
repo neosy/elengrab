@@ -8,28 +8,19 @@ import (
 	"sync/atomic"
 )
 
-const (
-	defaultWorkerPoolSize int = 3
-	defaultJobQueueCap    int = 100
-)
-
-// WorkerPoolOptions configures the worker pool behavior.
-type WorkerPoolOptions struct {
-	// PoolSize  specifies the number of worker goroutines to run.
-	// If zero or negative, defaults to defaultWorkerPoolSize.
-	PoolSize int
-}
-
 type workerPool struct {
-	logger   *slog.Logger
-	workers  []Worker
+	logger  *slog.Logger
+	workers []Worker
+
 	poolSize int
 
-	quit    chan struct{}
-	wg      sync.WaitGroup
-	mu      sync.Mutex
+	quit chan struct{}
+	wg   sync.WaitGroup
+
+	mu   sync.Mutex
+	cond *sync.Cond
+
 	running atomic.Bool
-	cond    *sync.Cond
 
 	semaphore    chan struct{}
 	taskStream   chan *task

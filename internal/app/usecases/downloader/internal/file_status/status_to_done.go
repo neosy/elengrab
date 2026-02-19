@@ -23,7 +23,7 @@ func (s *FileStatus) Done(
 	}
 
 	return s.file.Tx(ctx, func(ctx context.Context) error {
-		err := s.dlTask.DeleteByFileId(ctx, fileId)
+		err := s.dlTask.DeleteByFileID(ctx, fileId)
 		if err != nil {
 			return err
 		}

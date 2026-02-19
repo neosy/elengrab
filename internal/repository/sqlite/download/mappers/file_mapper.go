@@ -28,7 +28,7 @@ func (m *Mappers) MapFileDomainToEntity(file *ddownload.File) (*edownload.File, 
 	}
 
 	return &edownload.File{
-		FileId:               file.FileId,
+		FileID:               file.FileID,
 		UserID:               file.UserID,
 		Status:               file.Status.String(),
 		MediaUrl:             file.MediaUrl,
@@ -66,7 +66,7 @@ func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.
 	}
 
 	var task *ddownload.DownloadTask
-	if eTask != nil && eTask.TaskId.String != "" {
+	if eTask != nil && eTask.TaskID.String != "" {
 		var err error
 		task, err = m.MapDownloadTaskEntityToDomain(eTask)
 		if err != nil {
@@ -84,7 +84,7 @@ func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.
 	}
 
 	return &ddownload.File{
-		FileId:               eFile.FileId,
+		FileID:               eFile.FileID,
 		UserID:               eFile.UserID,
 		Status:               dtypes.MustParseFileStatus(eFile.Status),
 		MediaUrl:             eFile.MediaUrl,

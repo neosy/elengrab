@@ -1,4 +1,4 @@
-package utils
+package uformat
 
 import "fmt"
 
@@ -9,7 +9,8 @@ const (
 	TB = GB * 1024
 )
 
-func BytesToHuman(b int64) string {
+// BytesHuman formats a byte count in the most appropriate unit.
+func BytesHuman(b int64) string {
 	switch {
 	case b >= TB:
 		return fmt.Sprintf("%.2f TiB", float64(b)/float64(TB))

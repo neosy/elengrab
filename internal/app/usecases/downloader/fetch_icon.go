@@ -6,6 +6,7 @@ import (
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	"github.com/neosy/elengrab/pkg/httpx"
+	uformat "github.com/neosy/elengrab/pkg/utils/format"
 )
 
 func (uc *YouTubeDownloader) fetchIcon(ctx context.Context, url string) error {
@@ -33,7 +34,7 @@ func (uc *YouTubeDownloader) fetchIcon(ctx context.Context, url string) error {
 		uc.logger.Debug(
 			"Failed to fetch site title",
 			"baseURL", baseURL,
-			"elapsed", elapsed,
+			"elapsed", uformat.DurationFormat(elapsed),
 			"error", err)
 	}
 	if title != "" {
@@ -41,7 +42,7 @@ func (uc *YouTubeDownloader) fetchIcon(ctx context.Context, url string) error {
 			"Site title fetched",
 			"title", title,
 			"baseURL", baseURL,
-			"elapsed", elapsed,
+			"elapsed", uformat.DurationFormat(elapsed),
 		)
 	}
 
@@ -53,7 +54,7 @@ func (uc *YouTubeDownloader) fetchIcon(ctx context.Context, url string) error {
 		uc.logger.Warn(
 			"Failed to fetch icon",
 			"url", baseURL,
-			"elapsed", elapsed,
+			"elapsed", uformat.DurationFormat(elapsed),
 			"error", err,
 		)
 		return err
@@ -61,7 +62,7 @@ func (uc *YouTubeDownloader) fetchIcon(ctx context.Context, url string) error {
 	uc.logger.Debug(
 		"Best icon fetched",
 		"url", baseURL,
-		"elapsed", elapsed,
+		"elapsed", uformat.DurationFormat(elapsed),
 	)
 
 	// Update existing logo if it's outdated.

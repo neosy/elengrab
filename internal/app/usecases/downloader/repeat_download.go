@@ -8,6 +8,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
+// RepeatDownload repeats the download process for a specific file.
 func (uc *YouTubeDownloader) RepeatDownload(
 	ctx context.Context,
 	userID uuid.UUID,
@@ -21,12 +22,12 @@ func (uc *YouTubeDownloader) RepeatDownload(
 	err := uc.file.Tx(
 		ctx,
 		func(ctx context.Context) error {
-			file, err := uc.file.GetByFileId(ctx, accessByUserID, fileID)
+			file, err := uc.file.GetByFileID(ctx, accessByUserID, fileID)
 			if err != nil {
 				return err
 			}
 
-			err = uc.fileStatus.New(ctx, file.FileId)
+			err = uc.fileStatus.New(ctx, file.FileID)
 			if err != nil {
 				uc.logger.Error("Failed to set file status to new", "error", err)
 				return err
@@ -38,23 +39,23 @@ func (uc *YouTubeDownloader) RepeatDownload(
 		return nil, err
 	}
 
-	file, err := uc.file.GetByFileId(ctx, accessByUserID, fileID)
+	file, err := uc.file.GetByFileID(ctx, accessByUserID, fileID)
 	if err != nil {
 		return nil, err
 	}
 
-	err = uc.addFileToQueueDownload(ctx, fileID, file.DownloadTask.TaskId)
+	err = uc.addFileToQueueDownload(ctx, fileID, file.DownloadTask.TaskID)
 	if err != nil {
 		uc.logger.Error("Failed add to queue", "error", err)
 		return nil, err
 	}
 
-	file, err = uc.file.GetByFileId(ctx, accessByUserID, fileID)
+	file, err = uc.file.GetByFileID(ctx, accessByUserID, fileID)
 	if err != nil {
 		return nil, err
 	}
 
 	uc.dlStateCache.SaveByFile(ctx, file)
 
-	return uc.findStateAndFileInfo(ctx, nil, nil, file, false)
+	return uc.findActualFileInfoByFile(ctx, file)
 }

@@ -15,8 +15,8 @@ func (uc *File) Create(ctx context.Context, file *ddownload.File, dlOptions *ddo
 		return errors.New("function parameter is a null pointer")
 	}
 
-	if file.FileId == uuid.Nil {
-		file.FileId = uuid.New()
+	if file.FileID == uuid.Nil {
+		file.FileID = uuid.New()
 	}
 	file.Status = dtypes.FileStatusNew
 
@@ -34,7 +34,7 @@ func (uc *File) Create(ctx context.Context, file *ddownload.File, dlOptions *ddo
 		return err
 	}
 
-	uc.saveToDownloadStateCache(ctx, file.FileId)
+	uc.saveToDownloadStateCache(ctx, file.FileID)
 
 	return nil
 }

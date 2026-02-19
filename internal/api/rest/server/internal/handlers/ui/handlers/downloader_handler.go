@@ -90,7 +90,7 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	// Updating the cache
 	{
 		cacheRow.mu.Lock()
-		cacheRow.data[resp.FileId] = cacheRowEntry{
+		cacheRow.data[resp.FileID] = cacheRowEntry{
 			mediaTitle: resp.MediaTitle,
 			Format:     resp.Format,
 			Updated:    time.Now().UTC(),
@@ -98,13 +98,17 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		cacheRow.mu.Unlock()
 	}
 
-	data.FileID = resp.FileId.String()
+	data.FileID = resp.FileID.String()
 	data.MediaTitle = url
-	data.PathFileRow = httppaths.BuildPathFileRow(resp.FileId)
+	data.PathFileRow = httppaths.BuildPathFileRow(resp.FileID)
 	data.FileSize = "-"
 	data.Format = "-"
 	// Set URL for download endpoint
-	data.DownloadURL = fmt.Sprintf("%s?file=%s", httppaths.GroupDownloader+httppaths.PathDownload, resp.FileId)
+	data.DownloadURL = fmt.Sprintf(
+		"%s?file=%s",
+		httppaths.GroupDownloader+httppaths.PathDownload,
+		resp.FileID,
+	)
 
 	dataMap := uivalues.MergeMaps(
 		uivalues.PathValues,

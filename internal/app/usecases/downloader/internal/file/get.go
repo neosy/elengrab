@@ -11,7 +11,7 @@ import (
 	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
 )
 
-func (uc *File) FindByFileId(
+func (uc *File) FindByFileID(
 	ctx context.Context,
 	userID *uuid.UUID,
 	fileId uuid.UUID,
@@ -21,7 +21,7 @@ func (uc *File) FindByFileId(
 		fileRep = uc.fileRep.WithUser(*userID)
 	}
 
-	file, err := fileRep.FindByFileId(ctx, fileId)
+	file, err := fileRep.FindByFileID(ctx, fileId)
 	if err != nil {
 		uc.logger.Warn("Failed to find record", "error", err)
 		return nil, err
@@ -30,14 +30,14 @@ func (uc *File) FindByFileId(
 	return file, err
 }
 
-// GetByFileId
+// GetByFileID
 // File MUST exist — otherwise NOT_FOUND
-func (uc *File) GetByFileId(
+func (uc *File) GetByFileID(
 	ctx context.Context,
 	userID *uuid.UUID,
 	fileID uuid.UUID,
 ) (*ddownload.File, error) {
-	file, err := uc.FindByFileId(ctx, userID, fileID)
+	file, err := uc.FindByFileID(ctx, userID, fileID)
 	if err != nil {
 		return nil, errorx.NewByErr(err, exceptionx.ERROR)
 	}

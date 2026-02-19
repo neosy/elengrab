@@ -18,12 +18,12 @@ func (uc *DownloadStateCache) SaveByFile(ctx context.Context, file *ddownload.Fi
 
 	var taskId *uuid.UUID
 	if file.DownloadTask != nil {
-		taskId = &file.DownloadTask.TaskId
+		taskId = &file.DownloadTask.TaskID
 	}
 
 	state := &ddownload.DownloadState{
-		FileId: file.FileId,
-		TaskId: taskId,
+		FileID: file.FileID,
+		TaskID: taskId,
 		File:   file,
 	}
 

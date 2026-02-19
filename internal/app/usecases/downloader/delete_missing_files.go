@@ -61,9 +61,9 @@ func (uc *YouTubeDownloader) deleteMissingFiles(ctx context.Context) error {
 		filePath := filepath.Join(uc.downloadsDir, file.FullName)
 		exists, _ := nfile.FileExists(filePath)
 		if !exists {
-			err := uc.file.SoftDelete(ctx, file.FileId)
+			err := uc.file.SoftDelete(ctx, file.FileID)
 			if err == nil {
-				uc.logger.Debug("Soft deleting file", "file_id", file.FileId, "fileName", file.FullName)
+				uc.logger.Debug("Soft deleting file", "file_id", file.FileID, "fileName", file.FullName)
 			}
 		}
 	}
@@ -83,22 +83,22 @@ func (uc *YouTubeDownloader) deleteMissingFiles(ctx context.Context) error {
 		}
 		filePath := filepath.Join(uc.downloadsDir, file.FullName)
 		if exists, _ := nfile.FileExists(filePath); exists {
-			err := uc.file.Restore(ctx, file.FileId)
+			err := uc.file.Restore(ctx, file.FileID)
 			if err != nil {
 				uc.logger.Warn("Failed to restore", "error", err)
 				continue
 			}
-			uc.logger.Debug("Restoring file in database", "fileId", file.FileId, "fileName", file.FullName)
+			uc.logger.Debug("Restoring file in database", "fileId", file.FileID, "fileName", file.FullName)
 			continue
 		}
 
 		if time.Until(*file.DeletedAt) >= missingFileRetentionPeriod {
-			err := uc.file.HardDelete(ctx, file.FileId)
+			err := uc.file.HardDelete(ctx, file.FileID)
 			if err != nil {
-				uc.logger.Warn("Failed to hard delete", "fileID", file.FileId, "error", err)
+				uc.logger.Warn("Failed to hard delete", "fileID", file.FileID, "error", err)
 				continue
 			}
-			uc.logger.Debug("Hard deleting file from database", "fileId", file.FileId, "fileName", file.FullName)
+			uc.logger.Debug("Hard deleting file from database", "fileId", file.FileID, "fileName", file.FullName)
 			continue
 		}
 	}

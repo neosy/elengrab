@@ -6,6 +6,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	uformat "github.com/neosy/elengrab/pkg/utils/format"
 )
 
 type Worker interface {
@@ -99,7 +101,7 @@ func (w *worker) Start(ctx context.Context, taskStream chan *task, quit <-chan s
 								"Worker: job done",
 								"workerId", w.workerId,
 								"jobName", task.job.Name(),
-								"elapsed", elapsed,
+								"elapsed", uformat.DurationFormat(elapsed),
 							)
 						}
 					}()

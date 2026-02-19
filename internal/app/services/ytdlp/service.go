@@ -15,6 +15,7 @@ import (
 	"github.com/neosy/elengrab/pkg/nfile"
 )
 
+// YtDlpService represents a service for interacting with yt-dlp.
 type YtDlpService struct {
 	logger *slog.Logger
 
@@ -25,6 +26,7 @@ type YtDlpService struct {
 	downloader *downloader.Downloader
 }
 
+// NewYtDlpService creates a new YtDlpService instance.
 func NewYtDlpService(
 	logger *slog.Logger,
 	binDir string,

@@ -15,8 +15,8 @@ func (uc *DownloadTask) Create(ctx context.Context, task *ddownload.DownloadTask
 		return errors.New("function parameter is a null pointer")
 	}
 
-	if task.TaskId == uuid.Nil {
-		task.TaskId = uuid.New()
+	if task.TaskID == uuid.Nil {
+		task.TaskID = uuid.New()
 	}
 	task.Status = dtypes.DownloadTaskStatusNew
 
@@ -29,7 +29,7 @@ func (uc *DownloadTask) Create(ctx context.Context, task *ddownload.DownloadTask
 		return err
 	}
 
-	uc.saveToDownloadStateCache(ctx, task.FileId, task.TaskId)
+	uc.saveToDownloadStateCache(ctx, task.FileID, task.TaskID)
 
 	return nil
 }

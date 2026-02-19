@@ -10,10 +10,10 @@ import (
 
 type DownloadTask struct {
 	// Unique task identifier (UUID)
-	TaskId uuid.UUID
+	TaskID uuid.UUID
 
 	// Unique file identifier (UUID)
-	FileId uuid.UUID
+	FileID uuid.UUID
 
 	// Status
 	Status dtypes.DownloadTaskStatus
@@ -25,7 +25,7 @@ type DownloadTask struct {
 	Options *DownloadOptions
 
 	// Id worker
-	WorkerId *uint
+	WorkerID *uint
 
 	// ID job
 	JobID *uuid.UUID
@@ -44,7 +44,7 @@ func (src *DownloadTask) Copy() *DownloadTask {
 
 	copy := uptr.Copy(src)
 	copy.Options = src.Options.Copy()
-	copy.WorkerId = uptr.Copy(src.WorkerId)
+	copy.WorkerID = uptr.Copy(src.WorkerID)
 	copy.JobID = uptr.Copy(src.JobID)
 
 	return copy

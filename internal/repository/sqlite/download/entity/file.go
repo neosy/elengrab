@@ -10,7 +10,7 @@ import (
 
 type File struct {
 	dbentity.BaseEntity[File]
-	FileId               uuid.UUID  `db:"file_id"`
+	FileID               uuid.UUID  `db:"file_id"`
 	UserID               *uuid.UUID `db:"user_id"`
 	Status               string     `db:"file_status"`
 	MediaUrl             string     `db:"youtube_url"`

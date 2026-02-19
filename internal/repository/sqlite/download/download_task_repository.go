@@ -26,7 +26,7 @@ type DownloadTaskRepository struct {
 }
 
 type taskByFields struct {
-	fileId *uuid.UUID
+	fileID *uuid.UUID
 	status *dtypes.DownloadTaskStatus
 }
 
@@ -73,7 +73,7 @@ func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.Downl
 		Insert(eTask.TableName()).
 		Columns(fields...).
 		Values(values...).
-		Suffix(dbutils.UpsertSuffix(fields, eTask.FieldName(&eTask.TaskId))).
+		Suffix(dbutils.UpsertSuffix(fields, eTask.FieldName(&eTask.TaskID))).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 	// If SQL generation failed — return an error
@@ -119,12 +119,12 @@ func (r *DownloadTaskRepository) UpdateStatusToNew(ctx context.Context) error {
 	return nil
 }
 
-func (r *DownloadTaskRepository) FindByTaskId(ctx context.Context, taskId uuid.UUID) (*ddownload.DownloadTask, error) {
+func (r *DownloadTaskRepository) FindByTaskID(ctx context.Context, taskID uuid.UUID) (*ddownload.DownloadTask, error) {
 	var ent edownload.DownloadTask
 
 	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
 		From(ent.TableName()).
-		Where(squirrel.Eq{ent.FieldName(&ent.TaskId): taskId.String()}).
+		Where(squirrel.Eq{ent.FieldName(&ent.TaskID): taskID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()
@@ -163,12 +163,12 @@ func (r *DownloadTaskRepository) FindByTaskId(ctx context.Context, taskId uuid.U
 	return task, nil
 }
 
-func (r *DownloadTaskRepository) FindByFileId(ctx context.Context, fileId uuid.UUID) (*ddownload.DownloadTask, error) {
+func (r *DownloadTaskRepository) FindByFileID(ctx context.Context, fileID uuid.UUID) (*ddownload.DownloadTask, error) {
 	var ent edownload.DownloadTask
 
 	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
 		From(ent.TableName()).
-		Where(squirrel.Eq{ent.FieldName(&ent.FileId): fileId.String()}).
+		Where(squirrel.Eq{ent.FieldName(&ent.FileID): fileID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()
@@ -207,12 +207,12 @@ func (r *DownloadTaskRepository) FindByFileId(ctx context.Context, fileId uuid.U
 	return task, nil
 }
 
-func (r *DownloadTaskRepository) Delete(ctx context.Context, taskId uuid.UUID) error {
+func (r *DownloadTaskRepository) Delete(ctx context.Context, taskID uuid.UUID) error {
 	var ent edownload.DownloadTask
 
 	// Build DELETE query
 	sqlBuilder := squirrel.Delete(ent.TableName()).
-		Where(squirrel.Eq{ent.FieldName(&ent.TaskId): taskId.String()}).
+		Where(squirrel.Eq{ent.FieldName(&ent.TaskID): taskID.String()}).
 		PlaceholderFormat(squirrel.Dollar)
 
 	// Generate SQL and args
@@ -234,8 +234,8 @@ func (r *DownloadTaskRepository) deleteBy(ctx context.Context, byFields taskByFi
 	var ent edownload.DownloadTask
 
 	sqlWhere := squirrel.Expr("TRUE")
-	if byFields.fileId != nil {
-		sqlWhere = squirrel.Eq{ent.FieldName(&ent.FileId): byFields.fileId.String()}
+	if byFields.fileID != nil {
+		sqlWhere = squirrel.Eq{ent.FieldName(&ent.FileID): byFields.fileID.String()}
 	} else if byFields.status != nil {
 		sqlWhere = squirrel.Eq{ent.FieldName(&ent.Status): byFields.status.String()}
 	}
@@ -260,8 +260,8 @@ func (r *DownloadTaskRepository) deleteBy(ctx context.Context, byFields taskByFi
 	return nil
 }
 
-func (r *DownloadTaskRepository) DeleteByFileId(ctx context.Context, fileId uuid.UUID) error {
-	return r.deleteBy(ctx, taskByFields{fileId: &fileId})
+func (r *DownloadTaskRepository) DeleteByFileID(ctx context.Context, fileID uuid.UUID) error {
+	return r.deleteBy(ctx, taskByFields{fileID: &fileID})
 }
 
 func (r *DownloadTaskRepository) DeleteByStatus(ctx context.Context, status dtypes.DownloadTaskStatus) error {

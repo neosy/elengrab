@@ -15,7 +15,7 @@ func (s *DownloadTaskStatus) Working(
 	workerId uint,
 ) error {
 	updateFieldsFunc := func(task *ddownload.DownloadTask) {
-		task.WorkerId = &workerId
+		task.WorkerID = &workerId
 	}
 
 	return s.updateStatus(
