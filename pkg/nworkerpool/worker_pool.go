@@ -10,7 +10,9 @@ import (
 type workerPool struct {
 	options WorkerPoolOptions
 
-	workers []Worker
+	workers map[uint64]Worker
+
+	nextWorkerID atomic.Uint64
 
 	quit chan struct{}
 	wg   sync.WaitGroup
@@ -43,14 +45,14 @@ func NewWorkerPool(opts ...WorkerPoolOption) *workerPool {
 
 	wp := &workerPool{
 		options:      options,
-		workers:      make([]Worker, 0, options.MaxWorkers),
-		quit:         make(chan struct{}),
+		workers:      make(map[uint64]Worker, options.MaxWorkers),
 		semaphore:    make(chan struct{}, options.MaxWorkers),
 		taskStream:   make(chan *task, 1),
 		jobQueue:     newJobQueue(defaultJobQueueCap), // Initial but not final queue size
 		runningTasks: make(map[string]*task, options.MaxWorkers),
 	}
 
+	wp.nextWorkerID.Store(1)
 	wp.cond = sync.NewCond(&wp.mu)
 
 	return wp
@@ -67,6 +69,9 @@ func (wp *workerPool) Start(ctx context.Context) error {
 		return errors.New("manager already running")
 	}
 
+	// Initialize quit channel and worker pool stop channels.
+	wp.quit = make(chan struct{})
+
 	// Create and start all workers
 	wp.mu.Lock()
 	for range wp.options.MaxWorkers {
@@ -79,19 +84,11 @@ func (wp *workerPool) Start(ctx context.Context) error {
 		select {
 		// If manager is already stopping, exit immediately
 		case <-wp.quit:
+			wp.Stop()
 			return
 		// On context cancellation: signal shutdown and wake dispatcher
 		case <-ctx.Done():
-			wp.mu.Lock()
-
-			select {
-			case <-wp.quit:
-			default:
-				close(wp.quit)
-			}
-			wp.cond.Broadcast() // Wake dispatcher from cond.Wait()
-
-			wp.mu.Unlock()
+			wp.Stop()
 			return
 		}
 	}(ctx)
@@ -167,6 +164,7 @@ func (wp *workerPool) Start(ctx context.Context) error {
 // Blocks until all goroutines exit.
 func (wp *workerPool) Stop() {
 	if !wp.running.CompareAndSwap(true, false) {
+		wp.wg.Wait()
 		return
 	}
 
@@ -189,6 +187,10 @@ func (wp *workerPool) Stop() {
 
 	// Wait for dispatcher and workers to finish
 	wp.wg.Wait()
+
+	if wp.options.logger != nil {
+		wp.options.logger.Debug("Worker pool manager stopped")
+	}
 }
 
 // AddJob enqueues a new job for execution.
@@ -232,15 +234,28 @@ func (wp *workerPool) CancelJob(jobID string) bool {
 // ctx: context passed to worker for lifecycle control.
 // Must be called with wp.mu held.
 func (wp *workerPool) addWorker(ctx context.Context) {
-	worker := newWorker(wp.options.logger, uint64(len(wp.workers)))
-	wp.workers = append(wp.workers, worker)
+	id := wp.nextWorkerID.Load()
+	wp.nextWorkerID.Add(1)
 
+	worker := newWorker(wp.options.logger, id)
+	wp.workers[id] = worker
+
+	wp.wg.Add(1)
 	worker.Start(
 		ctx,
 		wp.taskStream,
 		wp.quit,
 		wp.notifyJobDone,
+		wp.notifyStopWorker,
 	)
+}
+
+// notifyStopWorker notifies the manager that a worker is stopping.
+func (wp *workerPool) notifyStopWorker(workerID uint64) {
+	wp.mu.Lock()
+	defer wp.mu.Unlock()
+
+	wp.wg.Add(-1)
 }
 
 // PoolSize returns the number of worker goroutines in the pool.

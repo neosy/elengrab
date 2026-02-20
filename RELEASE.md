@@ -1,5 +1,12 @@
 # Releases
 
+## v0.14.1 — 2026-02-20
+
+### Fix
+- Avoid panic on multiple quit channel closes
+
+---
+
 ## v0.14.0 — 2026-02-20
 
 ### Feature

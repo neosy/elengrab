@@ -62,7 +62,6 @@ func NewDynamicWorkerPool(opts ...WorkerPoolOption) *dynamicWorkerPool {
 		options:         options,
 		workers:         make(map[uint64]Worker, options.MaxWorkers),
 		stoppingWorkers: make(map[uint64]struct{}, options.MaxWorkers),
-		quit:            make(chan struct{}),
 		semaphore:       make(chan struct{}, options.MaxWorkers),
 		taskStream:      make(chan *task, 1),
 		jobQueue:        newJobQueue(defaultJobQueueCap),
@@ -86,24 +85,19 @@ func (wp *dynamicWorkerPool) Start(ctx context.Context) error {
 		return errors.New("manager already running")
 	}
 
+	// Initialize quit channel and worker pool stop channels.
+	wp.quit = make(chan struct{})
+
 	// Bridge ctx cancellation to quit signal and wake dispatcher
 	go func(ctx context.Context) {
 		select {
 		// If manager is already stopping, exit immediately
 		case <-wp.quit:
+			wp.Stop()
 			return
 		// On context cancellation: signal shutdown and wake dispatcher
 		case <-ctx.Done():
-			wp.mu.Lock()
-
-			select {
-			case <-wp.quit:
-			default:
-				close(wp.quit)
-			}
-			wp.cond.Broadcast() // Wake dispatcher from cond.Wait()
-
-			wp.mu.Unlock()
+			wp.Stop()
 			return
 		}
 	}(ctx)
@@ -112,9 +106,6 @@ func (wp *dynamicWorkerPool) Start(ctx context.Context) error {
 		// Ensure running flag is cleared when dispatcher exits
 		defer func() {
 			wp.running.Store(false)
-			if wp.options.logger != nil {
-				wp.options.logger.Debug("Worker pool manager stopped")
-			}
 		}()
 
 		for {
@@ -186,6 +177,7 @@ func (wp *dynamicWorkerPool) Start(ctx context.Context) error {
 // Blocks until all goroutines exit.
 func (wp *dynamicWorkerPool) Stop() {
 	if !wp.running.CompareAndSwap(true, false) {
+		wp.wg.Wait()
 		return
 	}
 
@@ -208,6 +200,10 @@ func (wp *dynamicWorkerPool) Stop() {
 
 	// Wait for dispatcher and workers to finish
 	wp.wg.Wait()
+
+	if wp.options.logger != nil {
+		wp.options.logger.Debug("Worker pool manager stopped")
+	}
 }
 
 // AddJob enqueues a new job for execution.
@@ -268,6 +264,7 @@ func (wp *dynamicWorkerPool) addWorker(ctx context.Context) {
 	worker := newWorker(wp.options.logger, id)
 	wp.workers[id] = worker
 
+	wp.wg.Add(1)
 	worker.StartWithIdleTimeout(
 		ctx,
 		wp.options.IdleTime,
@@ -315,6 +312,7 @@ func (wp *dynamicWorkerPool) removeWorker(workerID uint64) {
 	delete(wp.workers, workerID)
 	delete(wp.stoppingWorkers, workerID)
 	wp.activeWorkers.Add(^uint32(0))
+	wp.wg.Add(-1)
 
 	if wp.options.logger != nil {
 		wp.options.logger.Debug(

@@ -11,7 +11,13 @@ import (
 )
 
 type Worker interface {
-	Start(ctx context.Context, task chan *task, quit <-chan struct{}, onJobDone func(jobID string))
+	Start(
+		ctx context.Context,
+		task chan *task,
+		quit <-chan struct{},
+		onJobDone func(jobID string),
+		onWorkerStop func(workerID uint64),
+	)
 	Stop()
 	Status() WorkerStatus
 	Running() bool
@@ -47,6 +53,7 @@ func (w *worker) Start(
 	taskStream chan *task,
 	quit <-chan struct{},
 	onJobDone func(jobID string),
+	onWorkerStop func(workerID uint64),
 ) {
 	if !w.running.CompareAndSwap(false, true) {
 		if w.logger != nil {
@@ -62,11 +69,12 @@ func (w *worker) Start(
 
 	go func() {
 		defer func() {
-			w.running.Store(false)
-			w.status.Store(WorkerStatusStopped)
 			if w.logger != nil {
 				w.logger.Debug("Worker stopped", "workerID", w.workerID)
 			}
+			w.running.Store(false)
+			w.status.Store(WorkerStatusStopped)
+			onWorkerStop(w.workerID)
 		}()
 
 		for {
@@ -90,13 +98,7 @@ func (w *worker) Start(
 
 					done := make(chan struct{})
 					go func() {
-						w.status.Store(WorkerStatusWorking)
-
-						defer func() {
-							close(done)
-							onJobDone(task.job.ID())
-							w.status.Store(WorkerStatusIdle)
-						}()
+						defer close(done)
 
 						startTime := time.Now()
 						task.job.Execute(task.ctx, w.workerID)
@@ -115,12 +117,13 @@ func (w *worker) Start(
 					return done
 				}
 
-				jobDone := jobRun()
+				w.status.Store(WorkerStatusWorking)
 
-				select {
-				case <-task.ctx.Done():
-				case <-jobDone:
-				}
+				// Run the job and wait for it to complete.
+				<-jobRun()
+
+				onJobDone(task.job.ID())
+				w.status.Store(WorkerStatusIdle)
 			}
 		}
 	}()
@@ -153,6 +156,8 @@ func (w *worker) StartWithIdleTimeout(
 
 	go func() {
 		idleTimer := time.NewTimer(idleTime)
+
+		// Reset the timer safely
 		idleTimeSafeReset := func() {
 			if !idleTimer.Stop() {
 				select {
@@ -196,13 +201,7 @@ func (w *worker) StartWithIdleTimeout(
 
 					done := make(chan struct{})
 					go func() {
-						w.status.Store(WorkerStatusWorking)
-
-						defer func() {
-							close(done)
-							onJobDone(task.job.ID())
-							w.status.Store(WorkerStatusIdle)
-						}()
+						defer close(done)
 
 						startTime := time.Now()
 						task.job.Execute(task.ctx, w.workerID)
@@ -221,12 +220,13 @@ func (w *worker) StartWithIdleTimeout(
 					return done
 				}
 
-				jobDone := jobRun()
+				w.status.Store(WorkerStatusWorking)
 
-				select {
-				case <-task.ctx.Done():
-				case <-jobDone:
-				}
+				// Run the job and wait for it to complete.
+				<-jobRun()
+
+				onJobDone(task.job.ID())
+				w.status.Store(WorkerStatusIdle)
 
 				idleTimeSafeReset()
 			}
