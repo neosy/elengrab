@@ -20,18 +20,22 @@ FROM alpine:latest
 ARG APP_DIR=/app_n
 ARG INSTALL_DENO=false
 
-RUN apk add --no-cache tzdata su-exec curl dcron python3 ffmpeg \
+    # Install packages
+RUN apk add --no-cache tzdata su-exec curl dcron python3 ffmpeg
+
+    # Download and install yt-dlp binary
+RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
+    && chmod a+rx /usr/local/bin/yt-dlp
+
     # Install Deno
-    && if [ "$INSTALL_DENO" = "true" ]; then \
+RUN  if [ "$INSTALL_DENO" = "true" ]; then \
         apk add --no-cache deno; \
-    fi \
+    fi
+  
     # Create necessary directories and install dependencies
-    && mkdir ${APP_DIR} \
+RUN mkdir ${APP_DIR} \
     && cd ${APP_DIR} \
         && mkdir -p bin assets downloads sqlite/data sqlite/backups \
-    # Download and install yt-dlp binary
-    && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
-    && chmod a+rx /usr/local/bin/yt-dlp \
     # time Zone
     && ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime \
     # Remove packages to keep image small
