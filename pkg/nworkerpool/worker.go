@@ -13,9 +13,18 @@ import (
 type Worker interface {
 	Start(
 		ctx context.Context,
-		task chan *task,
+		taskStream chan *task,
 		quit <-chan struct{},
 		onJobDone func(jobID string),
+		onWorkerStop func(workerID uint64),
+	)
+	StartWithIdleTimeout(
+		ctx context.Context,
+		idleTime time.Duration,
+		taskStream chan *task,
+		quit <-chan struct{},
+		onJobDone func(jobID string),
+		canStopOnIdleTimeout func(workerID uint64) bool,
 		onWorkerStop func(workerID uint64),
 	)
 	Stop()

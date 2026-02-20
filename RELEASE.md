@@ -2,6 +2,9 @@
 
 ## v0.14.2 — 2026-02-21
 
+### Fix
+- Add terminated flag to prevent use after Stop
+
 ### Chore
 - Make it easier to build an image
 

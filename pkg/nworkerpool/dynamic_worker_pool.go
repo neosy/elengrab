@@ -23,7 +23,8 @@ type dynamicWorkerPool struct {
 	mu   sync.Mutex
 	cond *sync.Cond
 
-	running atomic.Bool
+	running    atomic.Bool
+	terminated atomic.Bool
 
 	semaphore    chan struct{}
 	taskStream   chan *task
@@ -78,6 +79,10 @@ func NewDynamicWorkerPool(opts ...WorkerPoolOption) *dynamicWorkerPool {
 // ctx: passed to each worker for cancellation and timeouts.
 // Returns error if manager is already running.
 func (wp *dynamicWorkerPool) Start(ctx context.Context) error {
+	if wp.terminated.Load() {
+		return errors.New("worker pool is terminated")
+	}
+
 	if !wp.running.CompareAndSwap(false, true) {
 		if wp.options.logger != nil {
 			wp.options.logger.Warn("Manager already running")
@@ -180,6 +185,9 @@ func (wp *dynamicWorkerPool) Stop() {
 		wp.wg.Wait()
 		return
 	}
+
+	// Set the terminated flag to true, indicating that the worker pool is shutting down.
+	wp.terminated.Store(true)
 
 	// Acquire lock to safely cancel job
 	wp.mu.Lock()
