@@ -91,7 +91,7 @@ git-push-update-tag-version: ## Update the Git tag for the current version
 	git push origin -f v$(VERSION)
 
 update-app-version: ## Update AppVersion in Go
-	@sed -i "s|AppVersion = \".*\"|AppVersion = \"${VERSION}\"|" ./infrastructure/config/constants.go
+	@sed -i "s|AppVersion = \".*\"|AppVersion = \"${VERSION}\"|" ./infrastructure/config/const.go
 
 version-create: ## Create a file with the application version number
 	echo -n $(VERSION_START) > $(VERSION_FILE)
