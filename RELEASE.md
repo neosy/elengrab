@@ -1,5 +1,12 @@
 # Releases
 
+## v0.14.2 — 2026-02-21
+
+### Chore
+- Make it easier to build an image
+
+---
+
 ## v0.14.1 — 2026-02-20
 
 ### Fix
