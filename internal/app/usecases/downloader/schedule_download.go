@@ -82,7 +82,8 @@ func (uc *YouTubeDownloader) addFileToQueueDownload(ctx context.Context, fileId 
 	)
 
 	err := uc.file.Tx(ctx, func(ctx context.Context) error {
-		err := uc.fileStatus.Pending(ctx, fileId, taskId, uuid.New())
+		jobID := uuid.New()
+		err := uc.fileStatus.Pending(ctx, fileId, taskId, jobID)
 		if err != nil {
 			uc.logger.Warn("Failed update status", "fileId", fileId, "error", err)
 			uc.dlStateCache.Delete(ctx, fileId)

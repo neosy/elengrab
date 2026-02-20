@@ -62,7 +62,7 @@ func (m *Mappers) MapDownloadTaskEntityToDomain(eTask *edownload.DownloadTask) (
 		MediaUrl:  usql.String(eTask.MediaUrl),
 		Options:   options,
 		JobID:     jobID,
-		WorkerID:  uptr.NonZero(uint(usql.Int64(eTask.WorkerID))),
+		WorkerID:  uptr.NonZero(uint64(usql.Int64(eTask.WorkerID))),
 		CreatedAt: usql.Time(eTask.CreatedAt),
 		UpdatedAt: usql.Time(eTask.UpdatedAt),
 	}, nil

@@ -1,18 +1,21 @@
 package nworkerpool
 
 import (
-	"log/slog"
+	"context"
+	"errors"
 	"sync"
 	"sync/atomic"
-	"time"
 )
 
 type dynamicWorkerPool struct {
-	logger  *slog.Logger
-	workers []Worker
+	options WorkerPoolOptions
 
-	poolSize int
-	idleTime time.Duration
+	workers         map[uint64]Worker
+	stoppingWorkers map[uint64]struct{}
+
+	busyWorkers   uint32
+	activeWorkers atomic.Uint32
+	nextWorkerID  atomic.Uint64
 
 	quit chan struct{}
 	wg   sync.WaitGroup
@@ -40,30 +43,319 @@ type dynamicWorkerPool struct {
 //   - IdleTime: duration a worker stays alive when idle (defaults to defaultIdleTime)
 //
 // Returns an initialized *dynamicWorkerPool ready to Start().
-func NewDynamicWorkerPool(logger *slog.Logger, opt *DynamicWorkerPoolOptions) *dynamicWorkerPool {
-	var poolSize = defaultDynamicWorkerPoolSize
-	if opt != nil && opt.PoolSize > 0 {
-		poolSize = opt.PoolSize
+func NewDynamicWorkerPool(opts ...WorkerPoolOption) *dynamicWorkerPool {
+	options := DefaultDynamicWorkerPoolOptions()
+
+	for _, opt := range opts {
+		opt(&options)
 	}
 
-	var idleTime time.Duration = defaultIdleTime
-	if opt != nil && opt.IdleTime > 0 {
-		idleTime = opt.IdleTime
+	if options.MaxWorkers == 0 {
+		options.MaxWorkers = defaultDynamicWorkerMaxWorkers
+	}
+
+	if options.IdleTime == 0 {
+		options.IdleTime = defaultIdleTime
 	}
 
 	wp := &dynamicWorkerPool{
-		logger:       logger,
-		workers:      make([]Worker, 0, poolSize),
-		poolSize:     poolSize,
-		idleTime:     idleTime,
-		quit:         make(chan struct{}),
-		semaphore:    make(chan struct{}, poolSize),
-		taskStream:   make(chan *task, 1),
-		jobQueue:     newJobQueue(defaultJobQueueCap), // Initial but not final queue size
-		runningTasks: make(map[string]*task, poolSize),
+		options:         options,
+		workers:         make(map[uint64]Worker, options.MaxWorkers),
+		stoppingWorkers: make(map[uint64]struct{}, options.MaxWorkers),
+		quit:            make(chan struct{}),
+		semaphore:       make(chan struct{}, options.MaxWorkers),
+		taskStream:      make(chan *task, 1),
+		jobQueue:        newJobQueue(defaultJobQueueCap),
+		runningTasks:    make(map[string]*task, options.MaxWorkers),
 	}
 
+	wp.nextWorkerID.Store(1)
 	wp.cond = sync.NewCond(&wp.mu)
 
 	return wp
+}
+
+// Start initializes workers and begins job dispatching.
+// ctx: passed to each worker for cancellation and timeouts.
+// Returns error if manager is already running.
+func (wp *dynamicWorkerPool) Start(ctx context.Context) error {
+	if !wp.running.CompareAndSwap(false, true) {
+		if wp.options.logger != nil {
+			wp.options.logger.Warn("Manager already running")
+		}
+		return errors.New("manager already running")
+	}
+
+	// Bridge ctx cancellation to quit signal and wake dispatcher
+	go func(ctx context.Context) {
+		select {
+		// If manager is already stopping, exit immediately
+		case <-wp.quit:
+			return
+		// On context cancellation: signal shutdown and wake dispatcher
+		case <-ctx.Done():
+			wp.mu.Lock()
+
+			select {
+			case <-wp.quit:
+			default:
+				close(wp.quit)
+			}
+			wp.cond.Broadcast() // Wake dispatcher from cond.Wait()
+
+			wp.mu.Unlock()
+			return
+		}
+	}(ctx)
+
+	wp.wg.Go(func() {
+		// Ensure running flag is cleared when dispatcher exits
+		defer func() {
+			wp.running.Store(false)
+			if wp.options.logger != nil {
+				wp.options.logger.Debug("Worker pool manager stopped")
+			}
+		}()
+
+		for {
+			// Fast-path: exit immediately if quit signal received
+			select {
+			case <-wp.quit:
+				return
+			default:
+			}
+
+			// Acquire lock to safely inspect queue and semaphore
+			wp.mu.Lock()
+
+			// Wait until there is at least one job AND a free worker slot
+			for wp.jobQueue.Len() == 0 || len(wp.semaphore) == cap(wp.semaphore) {
+				select {
+				// Stop loop if quit signal is received during wait
+				case <-wp.quit:
+					wp.mu.Unlock()
+					return
+				default:
+					// Release the mutex lock and sleep until notified (job added or slot freed)
+					wp.cond.Wait()
+				}
+			}
+
+			// Extract next job from queue
+			job, _ := wp.jobQueue.Pop()
+			task := newTask(ctx, job)
+			wp.runningTasks[job.ID()] = task
+
+			// Release lock before sending job to worker
+			wp.mu.Unlock()
+
+			if job != nil {
+				// Claim a worker slot (non-blocking due to prior check)
+				select {
+				case <-wp.quit:
+					return
+				case wp.semaphore <- struct{}{}:
+					wp.mu.Lock()
+					freeWorkers := wp.activeWorkers.Load() - wp.busyWorkers - uint32(len(wp.stoppingWorkers))
+					if freeWorkers == 0 {
+						wp.addWorker(ctx)
+					}
+					wp.busyWorkers++
+					wp.mu.Unlock()
+				}
+
+				// Dispatch job to an available worker
+				select {
+				case <-wp.quit:
+					return
+				case wp.taskStream <- task:
+				}
+			}
+		}
+	})
+
+	if wp.options.logger != nil {
+		wp.options.logger.Info("Worker pool manager running...", "count", wp.ActiveWorkers(), "max", wp.options.MaxWorkers)
+	}
+
+	return nil
+}
+
+// Stop gracefully shuts down the manager and all workers.
+// Idempotent; safe to call multiple times.
+// Blocks until all goroutines exit.
+func (wp *dynamicWorkerPool) Stop() {
+	if !wp.running.CompareAndSwap(true, false) {
+		return
+	}
+
+	// Acquire lock to safely cancel job
+	wp.mu.Lock()
+
+	// Signal all components to stop
+	close(wp.quit)
+
+	// Signal all jobs to cancel
+	for _, task := range wp.runningTasks {
+		task.Cancel()
+	}
+
+	// Wake up dispatcher if waiting
+	wp.cond.Broadcast()
+
+	// Release lock
+	wp.mu.Unlock()
+
+	// Wait for dispatcher and workers to finish
+	wp.wg.Wait()
+}
+
+// AddJob enqueues a new job for execution.
+// job: the job to be executed by a worker.
+// Thread-safe; can be called from any goroutine.
+func (wp *dynamicWorkerPool) AddJob(job Job) bool {
+	wp.mu.Lock()
+	defer wp.mu.Unlock()
+
+	if !wp.jobQueue.Push(job) {
+		return false
+	}
+
+	wp.cond.Signal() // Notify dispatcher of new job
+
+	return true
+}
+
+// CancelJob removes a job with the given ID from the queue.
+// Returns true if the job was found and removed, false otherwise.
+// If the job is removed, it signals the dispatcher to wake up
+// and re-evaluate available jobs.
+func (wp *dynamicWorkerPool) CancelJob(jobID string) bool {
+	wp.mu.Lock()
+	defer wp.mu.Unlock()
+
+	if wp.jobQueue.Remove(jobID) {
+		wp.cond.Signal()
+		return true
+	}
+
+	if task, exists := wp.runningTasks[jobID]; exists {
+		task.Cancel()
+		return true
+	}
+
+	return false
+}
+
+// addWorker creates and starts a new worker.
+// ctx: context passed to worker for lifecycle control.
+// Must be called with wp.mu held.
+func (wp *dynamicWorkerPool) addWorker(ctx context.Context) {
+	if wp.activeWorkers.Load() >= wp.options.MaxWorkers {
+		if wp.options.logger != nil {
+			wp.options.logger.Warn(
+				"Maximum number of workers reached",
+				"count", wp.ActiveWorkers(),
+			)
+		}
+	}
+
+	id := wp.nextWorkerID.Load()
+	wp.nextWorkerID.Add(1)
+
+	wp.activeWorkers.Add(1)
+
+	worker := newWorker(wp.options.logger, id)
+	wp.workers[id] = worker
+
+	worker.StartWithIdleTimeout(
+		ctx,
+		wp.options.IdleTime,
+		wp.taskStream,
+		wp.quit,
+		wp.notifyJobDone,
+		wp.canStopWorkerOnIdleTimeout,
+		wp.removeWorker,
+	)
+
+	if wp.options.logger != nil {
+		wp.options.logger.Debug(
+			"Worker started in pool",
+			"workerID", id,
+			"count", wp.ActiveWorkers(),
+			"max", wp.options.MaxWorkers,
+		)
+	}
+}
+
+// deleteWorker removes a stopped worker from the pool.
+func (wp *dynamicWorkerPool) removeWorker(workerID uint64) {
+	wp.mu.Lock()
+	defer wp.mu.Unlock()
+
+	worker, exists := wp.workers[workerID]
+	if !exists {
+		if wp.options.logger != nil {
+			wp.options.logger.Warn("Attempted to remove non-existent worker", "workerID", workerID)
+		}
+		return
+	}
+
+	if worker.Status() != WorkerStatusStopped {
+		if wp.options.logger != nil {
+			wp.options.logger.Warn(
+				"Attempted to remove non-stopped worker",
+				"workerID", workerID,
+				"status", worker.Status(),
+			)
+		}
+		return
+	}
+
+	delete(wp.workers, workerID)
+	delete(wp.stoppingWorkers, workerID)
+	wp.activeWorkers.Add(^uint32(0))
+
+	if wp.options.logger != nil {
+		wp.options.logger.Debug(
+			"Worker stopped in pool",
+			"workerID", workerID,
+			"count", wp.ActiveWorkers(),
+			"max", wp.options.MaxWorkers,
+		)
+	}
+}
+
+// ActiveWorkers returns the current number of worker goroutines in the pool.
+func (wp *dynamicWorkerPool) ActiveWorkers() uint32 {
+	return wp.activeWorkers.Load()
+}
+
+// notifyJobDone notifies the manager that a worker finished a job.
+func (wp *dynamicWorkerPool) notifyJobDone(jobID string) {
+	wp.mu.Lock()
+	defer wp.mu.Unlock()
+
+	select {
+	case <-wp.quit:
+		return
+	case <-wp.semaphore:
+		delete(wp.runningTasks, jobID)
+		wp.busyWorkers--
+	}
+
+	wp.cond.Signal() // Notify dispatcher that a slot is free
+}
+
+// canStopWorkerOnIdleTimeout checks if a worker can be stopped due to being idle for too long.
+func (wp *dynamicWorkerPool) canStopWorkerOnIdleTimeout(workerID uint64) bool {
+	wp.mu.Lock()
+	defer wp.mu.Unlock()
+
+	if wp.activeWorkers.Load()-wp.busyWorkers > 0 {
+		wp.stoppingWorkers[workerID] = struct{}{}
+		return true
+	}
+
+	return false
 }

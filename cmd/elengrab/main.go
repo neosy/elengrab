@@ -48,6 +48,9 @@ const (
 	cleanYoutubeChannelCacheInterval = 12 * time.Hour
 	cleanDownloadStateCacheinterval  = 12 * time.Hour
 	cleanSiteLogoCacheInterval       = 12 * time.Hour
+
+	// defaultWorkerIdleTime is the default idle duration before a dynamic pool worker can exit.
+	defaultWorkerIdleTime = 15 * time.Minute
 )
 
 func main() {
@@ -144,11 +147,10 @@ func main() {
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
 	// Start worker pool
-	dlManager := nworkerpool.NewWorkerPool(
-		logger,
-		&nworkerpool.WorkerPoolOptions{
-			PoolSize: cfg.Elengrab.DownloadWorkers,
-		},
+	dlManager := nworkerpool.NewDynamicWorkerPool(
+		nworkerpool.WorkerPoolOptionLogger(logger),
+		nworkerpool.WorkerPoolOptionMaxWorkers(cfg.Elengrab.DownloadWorkers),
+		nworkerpool.WorkerPoolOptionIdleTime(defaultWorkerIdleTime),
 	)
 	if err := dlManager.Start(ctx); err != nil {
 		logger.Error("Failed to start worker pool", "err", err)

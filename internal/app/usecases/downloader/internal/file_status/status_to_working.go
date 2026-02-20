@@ -12,7 +12,7 @@ func (uc *FileStatus) Working(
 	ctx context.Context,
 	fileId uuid.UUID,
 	taskId uuid.UUID,
-	workerId uint,
+	workerId uint64,
 ) error {
 	err := uc.dlTaskStatus.Working(ctx, taskId, workerId)
 	if err != nil {
