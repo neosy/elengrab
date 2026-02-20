@@ -28,7 +28,7 @@ func NewDownloadJob(task *ddownload.DownloadTask, runner pworkers.DownloadTaskRu
 	}
 }
 
-func (j *downloadJob) Execute(ctx context.Context, workerId uint) error {
+func (j *downloadJob) Execute(ctx context.Context, workerId uint64) error {
 	return j.runner.ExecuteDownloadTask(ctx, workerId, j.task)
 }
 

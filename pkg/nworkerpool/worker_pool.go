@@ -3,16 +3,14 @@ package nworkerpool
 import (
 	"context"
 	"errors"
-	"log/slog"
 	"sync"
 	"sync/atomic"
 )
 
 type workerPool struct {
-	logger  *slog.Logger
-	workers []Worker
+	options WorkerPoolOptions
 
-	poolSize int
+	workers []Worker
 
 	quit chan struct{}
 	wg   sync.WaitGroup
@@ -32,21 +30,25 @@ type workerPool struct {
 // logger: used for logging events and errors.
 // options: optional configuration; nil uses defaults.
 // Returns initialized worker pool ready for Start().
-func NewWorkerPool(logger *slog.Logger, options *WorkerPoolOptions) *workerPool {
-	var poolSize = defaultWorkerPoolSize
-	if options != nil && options.PoolSize > 0 {
-		poolSize = options.PoolSize
+func NewWorkerPool(opts ...WorkerPoolOption) *workerPool {
+	options := DefaultWorkerPoolOptions()
+
+	for _, opt := range opts {
+		opt(&options)
+	}
+
+	if options.MaxWorkers == 0 {
+		options.MaxWorkers = defaultWorkerMaxWorkers
 	}
 
 	wp := &workerPool{
-		logger:       logger,
-		workers:      make([]Worker, 0, poolSize),
-		poolSize:     poolSize,
+		options:      options,
+		workers:      make([]Worker, 0, options.MaxWorkers),
 		quit:         make(chan struct{}),
-		semaphore:    make(chan struct{}, poolSize),
+		semaphore:    make(chan struct{}, options.MaxWorkers),
 		taskStream:   make(chan *task, 1),
 		jobQueue:     newJobQueue(defaultJobQueueCap), // Initial but not final queue size
-		runningTasks: make(map[string]*task, poolSize),
+		runningTasks: make(map[string]*task, options.MaxWorkers),
 	}
 
 	wp.cond = sync.NewCond(&wp.mu)
@@ -59,15 +61,15 @@ func NewWorkerPool(logger *slog.Logger, options *WorkerPoolOptions) *workerPool 
 // Returns error if manager is already running.
 func (wp *workerPool) Start(ctx context.Context) error {
 	if !wp.running.CompareAndSwap(false, true) {
-		if wp.logger != nil {
-			wp.logger.Warn("Manager already running")
+		if wp.options.logger != nil {
+			wp.options.logger.Warn("Manager already running")
 		}
 		return errors.New("manager already running")
 	}
 
 	// Create and start all workers
 	wp.mu.Lock()
-	for range wp.poolSize {
+	for range wp.options.MaxWorkers {
 		wp.addWorker(ctx)
 	}
 	wp.mu.Unlock()
@@ -98,8 +100,8 @@ func (wp *workerPool) Start(ctx context.Context) error {
 		// Ensure running flag is cleared when dispatcher exits
 		defer func() {
 			wp.running.Store(false)
-			if wp.logger != nil {
-				wp.logger.Debug("Worker pool manager stopped")
+			if wp.options.logger != nil {
+				wp.options.logger.Debug("Worker pool manager stopped")
 			}
 		}()
 
@@ -153,8 +155,8 @@ func (wp *workerPool) Start(ctx context.Context) error {
 		}
 	})
 
-	if wp.logger != nil {
-		wp.logger.Info("Worker pool manager running...", "count", wp.poolSize)
+	if wp.options.logger != nil {
+		wp.options.logger.Info("Worker pool manager running...", "count", wp.options.MaxWorkers)
 	}
 
 	return nil
@@ -230,7 +232,7 @@ func (wp *workerPool) CancelJob(jobID string) bool {
 // ctx: context passed to worker for lifecycle control.
 // Must be called with wp.mu held.
 func (wp *workerPool) addWorker(ctx context.Context) {
-	worker := newWorker(wp.logger, uint(len(wp.workers)))
+	worker := newWorker(wp.options.logger, uint64(len(wp.workers)))
 	wp.workers = append(wp.workers, worker)
 
 	worker.Start(
@@ -242,10 +244,10 @@ func (wp *workerPool) addWorker(ctx context.Context) {
 }
 
 // PoolSize returns the number of worker goroutines in the pool.
-func (wp *workerPool) PoolSize() int {
+func (wp *workerPool) PoolSize() uint32 {
 	wp.mu.Lock()
 	defer wp.mu.Unlock()
-	return wp.poolSize
+	return wp.options.MaxWorkers
 }
 
 // notifyJobDone notifies the manager that a worker finished a job.

@@ -12,7 +12,7 @@ import (
 func (s *DownloadTaskStatus) Working(
 	ctx context.Context,
 	taskId uuid.UUID,
-	workerId uint,
+	workerId uint64,
 ) error {
 	updateFieldsFunc := func(task *ddownload.DownloadTask) {
 		task.WorkerID = &workerId

@@ -7,5 +7,5 @@ import (
 )
 
 type DownloadTaskRunner interface {
-	ExecuteDownloadTask(ctx context.Context, workerId uint, task *ddownload.DownloadTask) error
+	ExecuteDownloadTask(ctx context.Context, workerId uint64, task *ddownload.DownloadTask) error
 }

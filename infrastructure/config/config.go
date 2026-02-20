@@ -42,7 +42,7 @@ type ElengrabConfig struct {
 	// Default is "cookies".
 	CookiesDir string `env:"COOKIES_DIR" envDefault:"cookies"`
 
-	DownloadWorkers       int    `env:"DOWNLOAD_WORKERS" envDefault:"3"`
+	DownloadWorkers       uint32 `env:"DOWNLOAD_WORKERS" envDefault:"3"`
 	HistoryMode           string `env:"HISTORY_MODE" envDefault:"global"`
 	DeleteDuplicatesScope string `env:"DELETE_DUPLICATES_SCOPE" envDefault:"per_user"`
 	// YoutubeAllowCookies allow cookies when downloading YouTube videos.

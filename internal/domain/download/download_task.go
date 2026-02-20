@@ -25,7 +25,7 @@ type DownloadTask struct {
 	Options *DownloadOptions
 
 	// Id worker
-	WorkerID *uint
+	WorkerID *uint64
 
 	// ID job
 	JobID *uuid.UUID

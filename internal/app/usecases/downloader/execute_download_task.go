@@ -16,7 +16,7 @@ import (
 
 func (uc *YouTubeDownloader) ExecuteDownloadTask(
 	ctx context.Context,
-	workerId uint,
+	workerId uint64,
 	task *ddownload.DownloadTask,
 ) error {
 	if task == nil {

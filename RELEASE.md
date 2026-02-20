@@ -1,5 +1,15 @@
 # Releases
 
+## v0.14.0 — 2026-02-20
+
+### Feature
+- Add dynamic worker pool
+
+### Refactor
+- Simplify the code and add comments
+
+---
+
 ## v0.13.4 — 2026-02-18
 
 ### Fix
