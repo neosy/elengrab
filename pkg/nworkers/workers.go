@@ -107,10 +107,8 @@ func (ws *Workers) StartWorkers(ctx context.Context) error {
 	}
 
 	ws.mu.Lock()
-	{
-		for _, item := range ws.items {
-			ws.startWorker(ctx, item)
-		}
+	for _, item := range ws.items {
+		ws.startWorker(ctx, item)
 	}
 	ws.mu.Unlock()
 
