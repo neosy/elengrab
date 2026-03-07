@@ -3,6 +3,7 @@ package executor
 import (
 	"context"
 	"fmt"
+	"os"
 )
 
 func (e *Executor) EnsureFormatCache(
@@ -12,7 +13,11 @@ func (e *Executor) EnsureFormatCache(
 ) error {
 	valid, err := e.formatCache.IsTTLValidByURL(url)
 	if err != nil {
-		return fmt.Errorf("failed to check TTL validity for URL %q: %w", url, err)
+		if os.IsNotExist(err) {
+			e.logger.Debug("File format cache miss", "url", url)
+		} else {
+			return fmt.Errorf("failed to check TTL validity for URL %q: %w", url, err)
+		}
 	}
 
 	if valid {
@@ -23,7 +28,9 @@ func (e *Executor) EnsureFormatCache(
 		return nil
 	}
 
-	e.logger.Debug("Format cache TTL expired", "url", url)
+	if err == nil {
+		e.logger.Debug("Format cache TTL expired", "url", url)
+	}
 
 	_, err = e.fetchAndCacheFormatsJSON(ctx, url, useCookies)
 	if err != nil {
