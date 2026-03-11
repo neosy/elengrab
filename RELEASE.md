@@ -1,5 +1,12 @@
 # Releases
 
+## v0.14.4 — 2026-03-11
+
+### Fix
+- Improve yt-dlp format selection logic
+
+---
+
 ## v0.14.3 — 2026-03-07
 
 ### Fix
