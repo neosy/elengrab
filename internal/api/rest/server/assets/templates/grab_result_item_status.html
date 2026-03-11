@@ -6,12 +6,12 @@
         hx-swap="outerHTML"
     {{end }}>
     <div class="result-left">
-        <span class="result-channel-avatar" title="{{ .AvatarTitle }}">
+        <span class="result-avatar" title="{{ .AvatarTitle }}">
             {{ $logoAttr := "" }}
             {{ if ne .DownloadStatus "failed" }}
                 {{ $logoAttr = printf "?v=%s" .LogoVersion }}
             {{ end }}
-            <img class="img-channel-avatar" src="/ui/downloader/file/{{ .FileID }}/logo{{ $logoAttr }}" alt="Channel avatar">
+            <img class="img-avatar" src="/ui/downloader/file/{{ .FileID }}/logo{{ $logoAttr }}" alt="Channel avatar">
         </span>
         <span class="result-media-url {{.ResultMediaUrlFade}}">
             <a href="{{ .MediaURL }}" target="_blank">{{ .MediaTitle }}</a>

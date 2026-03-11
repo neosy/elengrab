@@ -1,7 +1,12 @@
-<div class="div-grab-result-item success">
+<div class="div-grab-result-item success" data-media="{{ .StreamURL }}" data-is-audio="{{ .IsAudio }}">
     <div class="result-left">
-        <span class="result-channel-avatar" title="{{ .AvatarTitle }}">
-            <img class="img-channel-avatar" src="/ui/downloader/file/{{ .FileID }}/logo" alt="Channel avatar">
+        <span class="result-avatar" title="{{ .AvatarTitle }}">
+            <img class="img-avatar" src="/ui/downloader/file/{{ .FileID }}/logo" alt="Channel avatar">
+            <button class="avatar-play-btn">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+                </svg>
+            </button>
         </span>
         <span class="result-media-url">
             <a href="{{ .MediaURL }}" target="_blank">{{ .MediaTitle }}</a>

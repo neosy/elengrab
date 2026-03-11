@@ -16,6 +16,7 @@ const (
 	PathGrab               = "/grab"
 	PathHistory            = "/history"
 	PathDownload           = "/download"
+	PathStream             = "/stream"
 	PathFile               = "/file/{fileId}"
 	PathFileRow            = "/file/{fileId}/row"
 	PathFileDownloadRepeat = "/file/{fileId}/repeat"
@@ -33,6 +34,10 @@ func BuildPathFileRow(fileID uuid.UUID) string {
 
 func BuildPathFileDownload(fileID uuid.UUID) string {
 	return fmt.Sprintf("%s?file=%s", GroupDownloader+PathDownload, fileID)
+}
+
+func BuildPathFileStream(fileID uuid.UUID) string {
+	return fmt.Sprintf("%s?file=%s", GroupDownloader+PathStream, fileID)
 }
 
 func BuildPathFileRepeat(fileID uuid.UUID) string {

@@ -2,13 +2,12 @@ package httpsrv
 
 import (
 	"github.com/fasthttp/router"
-	statich "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/static"
 	uih "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 )
 
 // setupUIRootRoutes setup root routes.
-func (s *httpServer) setupUIRootRoutes(r *router.Router, handlers *uih.UIHandlers, staticHandlers *statich.StaticHandlers) {
+func (s *httpServer) setupUIRootRoutes(r *router.Router, handlers *uih.UIHandlers) {
 	auth := s.authMiddleware.AutoRegister
 
 	// Index

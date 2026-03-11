@@ -104,11 +104,7 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	data.FileSize = "-"
 	data.Format = "-"
 	// Set URL for download endpoint
-	data.DownloadURL = fmt.Sprintf(
-		"%s?file=%s",
-		httppaths.GroupDownloader+httppaths.PathDownload,
-		resp.FileID,
-	)
+	data.DownloadURL = httppaths.BuildPathFileDownload(resp.FileID)
 
 	dataMap := uivalues.MergeMaps(
 		uivalues.PathValues,
