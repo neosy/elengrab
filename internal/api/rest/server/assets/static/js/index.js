@@ -1,6 +1,7 @@
 import * as helper from './helper.js';
 import * as cookie from './cookie.js';
 import * as actionButton from './action-button.js';
+import * as player from './player.js';
 import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
 
 // -------------------------------------------------------------
@@ -137,4 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init action button for input field
     actionButton.updateActionButton();
     inputURL.addEventListener('input', actionButton.updateActionButton);
+
+    // Init inline media player
+    player.initPlayer();
 });

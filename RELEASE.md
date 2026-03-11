@@ -1,5 +1,12 @@
 # Releases
 
+## v0.15.0 — 2026-03-12
+
+### Feature
+- Add in-line playback. Closes #224
+
+---
+
 ## v0.14.4 — 2026-03-11
 
 ### Fix
