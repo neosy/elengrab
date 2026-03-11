@@ -16,6 +16,7 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		group.GET(httppaths.PathHistory, auth(handlers.Downloader.GetFilesHistoryHandler))
 		group.POST(httppaths.PathGrab, auth(handlers.Downloader.GrabHandler))
 		group.GET(httppaths.PathDownload, auth(handlers.Downloader.DownloadHandler))
+		group.GET(httppaths.PathStream, auth(handlers.Downloader.StreamHandler))
 		group.GET(httppaths.PathFileRow, auth(handlers.Downloader.GetFileRowHandler))
 		group.GET(httppaths.PathFileLogo, auth(handlers.Downloader.GetFileLogoHandler))
 		group.DELETE(httppaths.PathFile, auth(handlers.Downloader.DeleteFileRowHandler))

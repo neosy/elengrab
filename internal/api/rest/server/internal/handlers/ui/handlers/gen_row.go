@@ -31,7 +31,9 @@ type fileRowInfoData struct {
 	Format           string
 	DataFormat       string
 	FormatTitle      string
+	IsAudio          string
 	DownloadURL      string
+	StreamURL        string
 	DeleteURL        string
 	LogoVersion      string
 }
@@ -173,6 +175,7 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 		DataFormat:       "-",
 		FormatTitle:      fileInfo.MediaInfoText,
 		DownloadURL:      httppaths.BuildPathFileDownload(fileInfo.FileID),
+		StreamURL:        httppaths.BuildPathFileStream(fileInfo.FileID),
 		DeleteURL:        httppaths.BuildPathFile(fileInfo.FileID),
 		LogoVersion:      logoVersion,
 	}
@@ -183,6 +186,9 @@ func (h *DownloaderHandlers) genRow(fileInfo *dto.GetFileInfoResponse, isLoadHis
 	if fileInfo.FileExt != "" {
 		data.Format = fileInfo.FileExt
 		data.DataFormat = fileInfo.FileExt
+	}
+	if fileInfo.MediaInfo != nil {
+		data.IsAudio = fmt.Sprint(fileInfo.MediaInfo.FormatType == dtypes.FormatTypeAudioOnly)
 	}
 
 	dataMap := uivalues.MergeMaps(

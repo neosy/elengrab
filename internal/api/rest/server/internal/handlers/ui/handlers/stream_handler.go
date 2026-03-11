@@ -11,14 +11,15 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) StreamHandler(ctx *fasthttp.RequestCtx) {
+	// Get user ID from context
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
 		nfasthttp.WriteError(ctx, fmt.Errorf("authorization error: %v", err), fasthttp.StatusUnauthorized)
 		return
 	}
 
-	// Get the file name from the query parameter
+	// Get the file ID from query parameter
 	fileIdStr := string(ctx.QueryArgs().Peek("file"))
 	if fileIdStr == "" {
 		nfasthttp.WriteError(ctx, errors.New("file is required"), fasthttp.StatusBadRequest)
@@ -27,13 +28,14 @@ func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 
 	fileId := uuid.MustParse(fileIdStr)
 
-	// Build the full path to the file
+	// Retrieve file info
 	fileInfo, err := h.usecases.Downloader.GetFileInfo(ctx, userID, fileId)
 	if err != nil {
 		nfasthttp.WriteError(ctx, err, fasthttp.StatusNotFound)
 		return
 	}
 
+	// Build the full path to the file
 	var filePath string
 	if fileInfo.FileFullName != "" {
 		filePath = filepath.Join(h.downloadsDir, fileInfo.FileFullName)
@@ -51,6 +53,12 @@ func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 		contentType = "application/octet-stream"
 	}
 
-	// Send file via streaming
+	// Set headers for streaming in browser
+	ctx.Response.Header.Set("Content-Type", contentType)
+	ctx.Response.Header.Set("Content-Disposition", "inline") // Play in browser
+	ctx.Response.Header.Set("Accept-Ranges", "bytes")        // Allow seeking
+	ctx.Response.Header.Set("Cache-Control", "public, max-age=3600")
+
+	// Stream the file directly (memory-efficient, supports Range)
 	nfasthttp.SendFileDirect(ctx, filePath, fileInfo.SafeReadableFullName, contentType)
 }
