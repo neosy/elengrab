@@ -68,7 +68,10 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 		file = f
 	}
 
+	uc.broadcastFileAdd(file)
+
 	return &dto.ScheduleDownloadResponse{
+		URL:        url,
 		FileID:     file.FileID,
 		Status:     file.Status,
 		MediaTitle: file.MediaTitle,

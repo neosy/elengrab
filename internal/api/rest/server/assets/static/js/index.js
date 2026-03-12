@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (resultDivInfo) {
                     resultDivInfo.innerHTML = `
-                        <div class="div-grab-result-info-item">
+                        <div class="div-grab-result-info-row">
                             <span class="result-failed">Error: ${event.detail.xhr.responseText}</span>
                         </div>
                     `;
@@ -138,6 +138,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init action button for input field
     actionButton.updateActionButton();
     inputURL.addEventListener('input', actionButton.updateActionButton);
+
+    // Subscribe to SSE row-delete event
+    const es = new EventSource("/ui/downloader/files/events");
+    es.addEventListener("row-add", actionButton.handleRowAdd);
+    es.addEventListener("row-update", actionButton.handleRowUpdate);
+    es.addEventListener("row-delete", actionButton.handleRowDelete);
 
     // Init inline media player
     player.initPlayer();

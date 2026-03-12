@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="{{.PathStaticCss}}/theme-switcher.css?v={{.AppVersion}}">
   <link rel="stylesheet" href="{{.PathStaticCss}}/index.css?v={{.AppVersion}}">
   <link rel="stylesheet" href="{{.PathStaticCss}}/form-grab.css?v={{.AppVersion}}">
-  <link rel="stylesheet" href="{{.PathStaticCss}}/result-items.css?v={{.AppVersion}}">
+  <link rel="stylesheet" href="{{.PathStaticCss}}/result-rows.css?v={{.AppVersion}}">
   <link rel="stylesheet" href="{{.PathStaticCss}}/player.css?v={{.AppVersion}}">
   <link rel="manifest" href="{{.PathStaticPwa}}/manifest.json">
   <link rel="icon" type="image/png" sizes="16x16" href="{{.PathStaticImg}}/favicon-16.png">
@@ -35,7 +35,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" id="theme-color-meta" content="#171717">
-  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.4/dist/sse.min.js"></script>   -->
+  <script src="{{.PathStaticJs}}/htmx.min.js?v={{.AppVersion}}"></script>
+  <script src="{{.PathStaticJs}}/sse.min.js?v={{.AppVersion}}"></script>  
   <script defer src="{{.PathStaticJs}}/theme-switcher.js?v={{.AppVersion}}"></script>
   <script type="module" src="{{.PathStaticJs}}/index.js?v={{.AppVersion}}"></script>
 </head>

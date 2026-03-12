@@ -42,7 +42,7 @@ func (h *DownloaderHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 
 	before = time.Time{}
 	for _, fileInfo := range resps {
-		buf, _, err := h.genRow(fileInfo, true)
+		buf, _, err := h.genRow(fileInfo, false)
 		if err != nil || buf == nil {
 			continue
 		}

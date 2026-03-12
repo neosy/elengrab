@@ -56,6 +56,7 @@ func (uc *YouTubeDownloader) RepeatDownload(
 	}
 
 	uc.dlStateCache.SaveByFile(ctx, file)
+	uc.broadcastFileUpdate(ctx, fileID)
 
 	return uc.findActualFileInfoByFile(ctx, file)
 }
