@@ -24,7 +24,7 @@ export function initPlayer() {
         const playBtn = event.target.closest(".avatar-play-btn");
         if (!playBtn) return;
 
-        const row = playBtn.closest(".div-grab-result-item");
+        const row = playBtn.closest(".div-grab-result-row");
         if (!row) return;
 
         const mediaURL = row.dataset.media;

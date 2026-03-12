@@ -6,6 +6,7 @@ import (
 )
 
 type ScheduleDownloadResponse struct {
+	URL string
 	// file ID
 	FileID     uuid.UUID
 	Status     dtypes.FileStatus
