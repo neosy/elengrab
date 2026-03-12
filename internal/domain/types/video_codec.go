@@ -28,6 +28,15 @@ var (
 		VideoCodecVP9:  {},
 	}
 
+	videoCodeToFormatMap = map[VideoCodec]VideoFormat{
+		VideoCodecNone: VideoFormatNone,
+		VideoCodecBest: VideoFormatNone,
+		VideoCodecH264: VideoFormatMP4,
+		VideoCodecH265: VideoFormatMP4,
+		VideoCodecAV1:  VideoFormatWebM,
+		VideoCodecVP9:  VideoFormatWebM,
+	}
+
 	parseVideoCodecMap = map[string]VideoCodec{
 		string(VideoCodecNone): VideoCodecNone,
 		string(VideoCodecBest): VideoCodecBest,
@@ -55,6 +64,11 @@ func (v VideoCodec) String() string {
 // Title
 func (v VideoCodec) Title() string {
 	return videoCodecTitleMap[v]
+}
+
+// Format returns the corresponding VideoFormat for the VideoCodec.
+func (v VideoCodec) Format() VideoFormat {
+	return videoCodeToFormatMap[v]
 }
 
 // Ptr returns the pointer.

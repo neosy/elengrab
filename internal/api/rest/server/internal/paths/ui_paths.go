@@ -21,6 +21,7 @@ const (
 	PathFileRow            = "/file/{fileId}/row"
 	PathFileDownloadRepeat = "/file/{fileId}/repeat"
 	PathFileLogo           = "/file/{fileId}/logo"
+	PathFilesEvents        = "/files/events"
 	PathChannelAvatar      = "/channel/{channelID}/avatar"
 )
 

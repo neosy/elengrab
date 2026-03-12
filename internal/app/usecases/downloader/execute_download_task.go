@@ -30,12 +30,17 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		return err
 	}
 
+	uc.broadcastFileUpdate(ctx, task.FileID)
+
 	var wg sync.WaitGroup
 	defer wg.Wait()
 
 	wg.Go(func() {
 		uc.fetchIcon(ctx, task.MediaUrl)
 	})
+
+	// Broadcast update file info to clients
+	defer uc.broadcastFileUpdate(ctx, task.FileID)
 
 	resultCh, err := uc.downloaderSrv.Download(
 		ctx,
@@ -67,7 +72,7 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 		return err
 	}
 
-	var lastResult *ddownload.DownloadResult
+	var lastResult, resultBeforeBroadcast, resultProgressBeforeBroadcast *ddownload.DownloadResult
 	for r := range resultCh {
 		if r.Error != nil {
 			// The context was canceled
@@ -140,6 +145,18 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 			ctx,
 			state,
 		)
+
+		if resultProgressBeforeBroadcast == nil {
+			resultProgressBeforeBroadcast = r
+		}
+
+		if r.MetadataChanged(resultBeforeBroadcast) {
+			uc.broadcastFileUpdate(ctx, task.FileID)
+			resultBeforeBroadcast = r
+		} else if r.ProgressChanged(resultProgressBeforeBroadcast) {
+			uc.broadcastFileProgressUpdate(ctx, task.FileID)
+			resultProgressBeforeBroadcast = r
+		}
 	}
 
 	if lastResult == nil {

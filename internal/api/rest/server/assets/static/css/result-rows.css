@@ -19,7 +19,7 @@
     font-size: 16px;
 }
 
-.div-grab-result-info-item {
+.div-grab-result-info-row {
     display: flex;
     max-width: 100%;
     align-items: center;
@@ -30,7 +30,7 @@
     transition: all 0.2s ease;
 }
 
-.div-grab-result-items {
+.div-grab-result-rows {
     display: flex;
     flex-direction: column;
     max-width: 100%;
@@ -44,7 +44,7 @@
     font-size: 16px;
 }
 
-.div-grab-result-items:empty {
+.div-grab-result-rows:empty {
     border: none;
     background: transparent;
     box-shadow: none;
@@ -53,7 +53,7 @@
     padding: 0;
 }
 
-.div-grab-result-item {
+.div-grab-result-row {
     display: flex;
     width: 100%;
     max-width: 100%;
@@ -73,46 +73,12 @@
     opacity: 1;
 }
 
-.div-grab-result-item.htmx-swapping {
-    height: 0;
-    padding: 0;
-    margin: 0;
-    opacity: 0;
-    transition: height 0.5s ease, padding 0.5s ease, margin 0.5s ease, opacity 0.5s ease;
-}
-
-.div-grab-result-item-replaceme {
-    height: 0;
-    padding: 0;
-    margin: 0;
-    opacity: 0;
-}
-
-.div-grab-result-item-replaceme.htmx-swapping {
-    height: auto;
-    padding: 12px 20px;
-    margin-top: 0px;
-    opacity: 1;
-    transition: height 0.5s ease, padding 0.5s ease, margin 0.5s ease, opacity 0.5s ease;
-}
-
-.div-grab-result-item.inprogress {
+.div-grab-result-row.inprogress {
     color: var(--text-muted);
 }
 
-.div-grab-result-item.success {
+.div-grab-result-row.success {
     color: var(--text-primary);
-}
-
-.div-grab-result-item.fade-in {
-    opacity: 0;
-    transform: translateY(-20px);
-    animation: fadeInAnim 0.75s ease forwards;
-}
-
-@keyframes fadeInAnim {
-    from { opacity: 0; transform: translateY(-20px); }
-    to   { opacity: 1; transform: translateY(0); }
 }
 
 .result-avatar {
@@ -489,20 +455,20 @@
 }
 
 @media (max-width: 768px) {
-    .div-grab-result-item {
+    .div-grab-result-row {
         width: 100%;
     }
 }
 
 @media (max-width: 580px) {
-    .div-grab-result-items {
+    .div-grab-result-rows {
         padding: 5px 10px;
         border: 1px solid var(--border-result);
         border-radius: 15px;
         box-shadow: 0 1px 3px var(--shadow);
     }
 
-    .div-grab-result-item {
+    .div-grab-result-row {
         flex-direction: column;
         justify-content: center;
         align-items: center;
@@ -512,7 +478,7 @@
         gap: 10px;
     }
 
-    .div-grab-result-item::after {
+    .div-grab-result-row::after {
         content: "";
         position: absolute;
         bottom: 10px;

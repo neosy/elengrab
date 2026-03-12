@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/broadcaster"
 	dlstate "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_state_cache"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task"
 	dltasktatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task_status"
@@ -37,6 +38,9 @@ type YouTubeDownloader struct {
 	siteIcon        *siteicon.SiteIcon
 	dlStateCache    *dlstate.DownloadStateCache
 	siteIconFetcher *iconfetcher.SiteIconFetcher
+
+	//broadcasters
+	broadcaster *broadcaster.Broadcaster
 
 	// services
 	downloaderSrv pservices.Downloader
@@ -103,6 +107,9 @@ func NewYouTubeDownloader(
 		ytChannel:       ytchannel.NewYoutubeChannel(logger, ytChannelRep, ytChannelCacheRep),
 		siteIcon:        siteicon.NewSiteIcon(logger, siteLogoRep, siteLogoCacheRep),
 		siteIconFetcher: iconfetcher.NewSiteIconFetcher(logger),
+
+		//broadcasters
+		broadcaster: broadcaster.NewBroadcaster(),
 
 		// services
 		downloaderSrv: downloaderSrv,
