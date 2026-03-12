@@ -51,6 +51,7 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 		MediaInfo:            file.MediaInfo,
 		MediaInfoText:        mediaInfoText(file.MediaInfo),
 		Progress:             progress,
+		UserID:               file.UserID,
 		CreatedAt:            file.CreatedAt,
 		UpdatedAt:            file.UpdatedAt,
 	}

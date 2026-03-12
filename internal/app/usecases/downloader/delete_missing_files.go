@@ -64,6 +64,7 @@ func (uc *YouTubeDownloader) deleteMissingFiles(ctx context.Context) error {
 			err := uc.file.SoftDelete(ctx, file.FileID)
 			if err == nil {
 				uc.logger.Debug("Soft deleting file", "file_id", file.FileID, "fileName", file.FullName)
+				uc.broadcastFileDelete(file.UserID, file.FileID)
 			}
 		}
 	}

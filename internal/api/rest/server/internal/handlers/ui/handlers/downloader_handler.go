@@ -1,32 +1,14 @@
 package handlers
 
 import (
-	"bytes"
 	"fmt"
-	"html/template"
-	"path/filepath"
-	"time"
 
-	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
-	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/valyala/fasthttp"
 )
 
-type grabResultData struct {
-	FileID           string
-	PathFileRow      string
-	YoutubeChannelID string
-	MediaTitle       string
-	MediaURL         string
-	FileSize         string
-	Format           string
-	DownloadURL      string
-	LogoVersion      string
-}
-
 func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
-	var pageHasDivItems = cookiePageHasDivItemsKey.compareValue(ctx, "true")
+	// var pageHasDivItems = cookiePageHasDivItemsKey.compareValue(ctx, "true")
 
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
@@ -52,14 +34,6 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	formSelectQualityCodec := string(ctx.FormValue(formFieldQualityCodecKey))
 	formSelectQualityResolution := string(ctx.FormValue(formFieldQualityResolutionKey))
 	formSelectFormat := string(ctx.FormValue(formFieldFormatKey))
-
-	var (
-		data = grabResultData{
-			MediaURL:         url,
-			YoutubeChannelID: channelIDValueNone,
-			LogoVersion:      fmt.Sprintf("%d", time.Now().UTC().Unix()),
-		}
-	)
 
 	resp, err := h.usecases.Downloader.ScheduleDownload(
 		ctx,
@@ -87,48 +61,5 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 
 	ctx.Response.Header.SetCookie(cookiePageHasDivItemsKey.makeCookie("true", "/", 7*24*60*60))
 
-	// Updating the cache
-	{
-		cacheRow.mu.Lock()
-		cacheRow.data[resp.FileID] = cacheRowEntry{
-			mediaTitle: resp.MediaTitle,
-			Format:     resp.Format,
-			Updated:    time.Now().UTC(),
-		}
-		cacheRow.mu.Unlock()
-	}
-
-	data.FileID = resp.FileID.String()
-	data.MediaTitle = url
-	data.PathFileRow = httppaths.BuildPathFileRow(resp.FileID)
-	data.FileSize = "-"
-	data.Format = "-"
-	// Set URL for download endpoint
-	data.DownloadURL = httppaths.BuildPathFileDownload(resp.FileID)
-
-	dataMap := uivalues.MergeMaps(
-		uivalues.PathValues,
-		uivalues.IconFileNames(),
-		uivalues.StructToMap(data),
-	)
-
-	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
-
-	dataMap[uivalues.GrabResultStatusIconNameKey] = uivalues.DownloadResultStatusIconFileName(resp.Status)
-	dataMap[uivalues.GrabResultItemStatusHtmlKey] = template.HTML(
-		uivalues.DownloadResultStatusIconSvgRaw(resp.Status, iconsDir))
-	dataMap[uivalues.DownloadResultItemDeleteIconKey] = template.HTML(
-		uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadDeleteIconNameKey), iconsDir))
-	dataMap[uivalues.IsItemHTMXOptionRepeatKey] = true
-	dataMap[uivalues.PageHasDivItemsKey] = pageHasDivItems
-	dataMap[uivalues.ItemFadeKey] = "fade-in"
-	dataMap[uivalues.GrabResultItemStatusTextKey] = ""
-	dataMap[uivalues.ResultMediaUrlFadeKey] = ""
-	dataMap[uivalues.ResultSizeFadeKey] = ""
-	dataMap[uivalues.ResultFormatFadeKey] = ""
-
-	var buf bytes.Buffer
-	h.templates.ExecuteTemplate(&buf, uivalues.GrabResultNewItemHtmlFileName, dataMap)
-	ctx.SetBody(buf.Bytes())
 	ctx.SetStatusCode(fasthttp.StatusOK)
 }

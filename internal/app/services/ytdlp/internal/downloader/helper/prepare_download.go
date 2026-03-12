@@ -125,11 +125,14 @@ func PrepareDownload(
 		// Determine output file extension
 		switch dlOptions.VideoFormat {
 		case dtypes.VideoFormatAuto:
-			fileExt = mediaFormat.FileExt
+			fileExt = dlOptions.VideoCodec.Format().FileFormat().Ext()
+			if fileExt == "" {
+				fileExt = mediaFormat.FileExt
+			}
 		case dtypes.VideoFormatWebM:
-			fileExt = "webm"
+			fileExt = dtypes.VideoFormatWebM.FileFormat().Ext()
 		case dtypes.VideoFormatMP4:
-			fileExt = "mp4"
+			fileExt = dtypes.VideoFormatMP4.FileFormat().Ext()
 		default:
 			fileExt = "mp4"
 		}
@@ -156,8 +159,8 @@ func PrepareDownload(
 		outVideoCodec = srcVideoCodec
 		outAudioCodec = mediaFormat.AudioCodec()
 
-		isSrcFormatWebMCodec := outVideoCodec == dtypes.VideoCodecAV1 || outVideoCodec == dtypes.VideoCodecVP9
-		isSrcFormatMP4Codec := outVideoCodec == dtypes.VideoCodecAV1 || outVideoCodec == dtypes.VideoCodecH264
+		isSrcFormatWebMCodec := srcVideoCodec == dtypes.VideoCodecAV1 || srcVideoCodec == dtypes.VideoCodecVP9
+		isSrcFormatMP4Codec := srcVideoCodec == dtypes.VideoCodecAV1 || srcVideoCodec == dtypes.VideoCodecH264
 
 		var ffmpegArgs string
 
@@ -263,7 +266,7 @@ func PrepareDownload(
 		}
 
 		if ffmpegArgs != "" {
-			args = append(args, "--ppa", fmt.Sprintf("ffmpeg:%s", ffmpegArgs))
+			args = append(args, "--ppa", fmt.Sprintf("VideoConvertor:%s", ffmpegArgs))
 		}
 
 	// Audio only

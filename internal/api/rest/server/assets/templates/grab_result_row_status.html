@@ -1,10 +1,4 @@
-<div class="div-grab-result-item inprogress {{ .ItemFade }}" 
-    {{ if .IsItemHTMXOptionRepeat }}
-        hx-get="{{.PathFileRow}}"
-        hx-trigger="every 1000ms"
-        hx-target="this"
-        hx-swap="outerHTML"
-    {{end }}>
+<div id="{{ .RowID }}" class="div-grab-result-row inprogress {{ .ItemFade }}">
     <div class="result-left">
         <span class="result-avatar" title="{{ .AvatarTitle }}">
             {{ $logoAttr := "" }}
@@ -31,8 +25,7 @@
             <button class="btn-delete-row"
                 title="Delete this download task"
                 hx-delete="{{ .DeleteURL }}"
-                hx-target="closest .div-grab-result-item"
-                hx-swap="outerHTML swap:0.5s">
+                hx-swap="none">
                 {{ .GrabResultItemDeleteIcon }}
             </button>            
         </div>
@@ -41,14 +34,13 @@
         {{ if .IsItemSpiner }}
             <div class="item-result-spinner {{ .WorkingStatus }}"></div>
             {{ if eq .WorkingStatus "downloading" }}
-                <span class="result-progress-percent">{{ .DownloadingProgress }}</span>
+                {{ template "grab_result_progress.html" . }}
             {{ end }}
         {{ else }}
             {{ if eq .DownloadStatus "failed" }}
                 <button class="btn-download-repeat"
                     hx-post="{{.PathFileRepeat}}"
-                    hx-target="closest .div-grab-result-item"
-                    hx-swap="outerHTML">
+                    hx-swap="none">
                     {{ .DownloadResultItemStatusFailedIcon }}
                 </button>            
             {{ else }}

@@ -34,6 +34,15 @@ var (
 		FileFormatOPUS: {},
 	}
 
+	fileFormatToExtMap = map[FileFormat]string{
+		FileFormatMP4:  "mp4",
+		FileFormatWebM: "webm",
+		FileFormatMP3:  "mp3",
+		FileFormatM4A:  "m4a",
+		FileFormatFLAC: "flac",
+		FileFormatOPUS: "opus",
+	}
+
 	fileExtToFileFormatMap = map[string]FileFormat{
 		"mp4":  FileFormatMP4,
 		"webm": FileFormatWebM,
@@ -59,6 +68,11 @@ var (
 // String returns the value as a string.
 func (v FileFormat) String() string {
 	return string(v)
+}
+
+// Ext returns the file extension for the FileFormat.
+func (v FileFormat) Ext() string {
+	return fileFormatToExtMap[v]
 }
 
 // Ptr returns the pointer.

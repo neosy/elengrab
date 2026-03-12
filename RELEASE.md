@@ -5,6 +5,9 @@
 ### Feature
 - Add in-line playback. Closes #224
 
+### Performance
+- Replace row polling with SSE updates. Closes #227
+
 ---
 
 ## v0.14.4 — 2026-03-11

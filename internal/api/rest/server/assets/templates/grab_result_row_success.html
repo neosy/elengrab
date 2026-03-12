@@ -1,4 +1,4 @@
-<div class="div-grab-result-item success" data-media="{{ .StreamURL }}" data-is-audio="{{ .IsAudio }}">
+<div id="{{ .RowID }}" class="div-grab-result-row success" data-media="{{ .StreamURL }}" data-is-audio="{{ .IsAudio }}">
     <div class="result-left">
         <span class="result-avatar" title="{{ .AvatarTitle }}">
             <img class="img-avatar" src="/ui/downloader/file/{{ .FileID }}/logo" alt="Channel avatar">
@@ -26,8 +26,7 @@
             <button class="btn-delete-row"
                 title="Delete downloaded media file"
                 hx-delete="{{ .DeleteURL }}"
-                hx-target="closest .div-grab-result-item"
-                hx-swap="outerHTML swap:0.5s">
+                hx-swap="none">
                 {{ .GrabResultItemDeleteIcon }}
             </button>            
         </div>

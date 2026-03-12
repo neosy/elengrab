@@ -29,7 +29,7 @@ func (uc *YouTubeDownloader) DeleteDownload(
 		accessByUserID = &userID
 	}
 
-	_, err := uc.file.GetByFileID(ctx, accessByUserID, fileId)
+	file, err := uc.file.GetByFileID(ctx, accessByUserID, fileId)
 	if err != nil {
 		return err
 	}
@@ -40,6 +40,7 @@ func (uc *YouTubeDownloader) DeleteDownload(
 			uc.logger.Error("Failed to delete file", "fileId", fileID, "error", err)
 			return err
 		}
+		uc.broadcastFileDelete(file.UserID, fileID)
 		return nil
 	}
 
