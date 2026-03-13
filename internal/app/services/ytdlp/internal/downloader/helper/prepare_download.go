@@ -122,10 +122,20 @@ func PrepareDownload(
 		// Add format option to yt-dlp arguments
 		args = append(args, "-f", formatQuery)
 
+		srcVideoCodec := mediaFormat.VideoCodec()
+		outVideoCodec = srcVideoCodec
+		outAudioCodec = mediaFormat.AudioCodec()
+
+		isSrcFormatWebMCodec := srcVideoCodec == dtypes.VideoCodecAV1 || srcVideoCodec == dtypes.VideoCodecVP9
+		isSrcFormatMP4Codec := srcVideoCodec == dtypes.VideoCodecAV1 || srcVideoCodec == dtypes.VideoCodecH264
+
 		// Determine output file extension
 		switch dlOptions.VideoFormat {
 		case dtypes.VideoFormatAuto:
 			fileExt = dlOptions.VideoCodec.Format().FileFormat().Ext()
+			if fileExt == "" && isSrcFormatWebMCodec {
+				fileExt = "webm"
+			}
 			if fileExt == "" {
 				fileExt = mediaFormat.FileExt
 			}
@@ -154,13 +164,6 @@ func PrepareDownload(
 				isVideoScale = true
 			}
 		}
-
-		srcVideoCodec := mediaFormat.VideoCodec()
-		outVideoCodec = srcVideoCodec
-		outAudioCodec = mediaFormat.AudioCodec()
-
-		isSrcFormatWebMCodec := srcVideoCodec == dtypes.VideoCodecAV1 || srcVideoCodec == dtypes.VideoCodecVP9
-		isSrcFormatMP4Codec := srcVideoCodec == dtypes.VideoCodecAV1 || srcVideoCodec == dtypes.VideoCodecH264
 
 		var ffmpegArgs string
 
@@ -261,12 +264,23 @@ func PrepareDownload(
 			if ffmpegArgs != "" || !isSrcFormatWebMCodec {
 				args = append(args, "--recode-video", "webm")
 			} else {
-				args = append(args, "--merge-output-format", "webm")
+				if mediaFormat.FileExt != "webm" {
+					args = append(args, "--recode-video", "webm")
+					if ffmpegArgs == "" {
+						ffmpegArgs = "-c:v copy -c:a libopus -b:a 128k"
+					}
+				} else {
+					args = append(args, "--merge-output-format", "webm")
+				}
 			}
 		}
 
 		if ffmpegArgs != "" {
-			args = append(args, "--ppa", fmt.Sprintf("VideoConvertor:%s", ffmpegArgs))
+			if mediaFormat.FileExt == fileExt {
+				args = append(args, "--ppa", fmt.Sprintf("ffmpeg:%s", ffmpegArgs))
+			} else {
+				args = append(args, "--ppa", fmt.Sprintf("VideoConvertor:%s", ffmpegArgs))
+			}
 		}
 
 	// Audio only
