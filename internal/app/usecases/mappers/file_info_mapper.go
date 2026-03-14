@@ -2,6 +2,7 @@ package mappers
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -33,6 +34,8 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 		}
 	}
 
+	mediaInfoText := mediaInfoText(file.MediaInfo)
+
 	return &dto.GetFileInfoResponse{
 		FileID:               file.FileID,
 		Status:               file.Status,
@@ -49,7 +52,8 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 		SafeReadableFullName: file.SafeReadableFullName,
 		StatusText:           uptr.Deref(file.ErrorMessage),
 		MediaInfo:            file.MediaInfo,
-		MediaInfoText:        mediaInfoText(file.MediaInfo),
+		MediaInfoText:        mediaInfoText,
+		MediaInfoTooltip:     mediaInfoTooltip(mediaInfoText),
 		Progress:             progress,
 		UserID:               file.UserID,
 		CreatedAt:            file.CreatedAt,
@@ -62,36 +66,42 @@ func mediaInfoText(mediaInfo *ddownload.MediaInfo) string {
 		return ""
 	}
 
-	if mediaInfo.VideoInfo != nil {
-		if mediaInfo.VideoInfo.Codec != dtypes.VideoCodecNone {
-			videoInfo := mediaInfo.VideoInfo
-			text := fmt.Sprintf(
-				"%v, %v",
-				videoInfo.Codec.Title(),
-				videoInfo.Resolution,
-			)
-			if videoInfo.Width != 0 && videoInfo.Height != 0 {
-				text += fmt.Sprintf(", %dx%d", videoInfo.Width, videoInfo.Height)
-			}
-			return text
+	var parts []string
+
+	if mediaInfo.VideoInfo != nil && mediaInfo.VideoInfo.Codec != dtypes.VideoCodecNone {
+		videoInfo := mediaInfo.VideoInfo
+		text := fmt.Sprintf(
+			"%v",
+			videoInfo.Codec.Title(),
+		)
+		if videoInfo.Resolution != dtypes.VideoResolutionNone {
+			text += fmt.Sprintf(", %v", videoInfo.Resolution)
 		}
-		return ""
+		if videoInfo.Width != 0 && videoInfo.Height != 0 {
+			text += fmt.Sprintf(", %dx%d", videoInfo.Width, videoInfo.Height)
+		}
+		if text != "" {
+			parts = append(parts, text)
+		}
 	}
 
-	if mediaInfo.AudioInfo != nil {
-		if mediaInfo.AudioInfo.Codec != dtypes.AudioCodecNone {
-			audioInfo := mediaInfo.AudioInfo
-			text := audioInfo.Codec.Title()
-			if audioInfo.Bitrate != 0 {
-				text += fmt.Sprintf(", %d kbps", audioInfo.Bitrate)
-			}
-			if audioInfo.SampleRate != nil && *audioInfo.SampleRate != 0 {
-				text += fmt.Sprintf(", %d Hz", *audioInfo.SampleRate)
-			}
-			return text
+	if mediaInfo.AudioInfo != nil && mediaInfo.AudioInfo.Codec != dtypes.AudioCodecNone {
+		audioInfo := mediaInfo.AudioInfo
+		text := audioInfo.Codec.Title()
+		if audioInfo.Bitrate != 0 {
+			text += fmt.Sprintf(", %d kbps", audioInfo.Bitrate)
 		}
-		return ""
+		if audioInfo.SampleRate != nil && *audioInfo.SampleRate != 0 {
+			text += fmt.Sprintf(", %d Hz", *audioInfo.SampleRate)
+		}
+		if text != "" {
+			parts = append(parts, text)
+		}
 	}
 
-	return ""
+	return strings.Join(parts, "; ")
+}
+
+func mediaInfoTooltip(text string) string {
+	return strings.ReplaceAll(text, "; ", "\n")
 }

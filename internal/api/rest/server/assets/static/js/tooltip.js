@@ -10,7 +10,7 @@ function showTooltip(el) {
     const text = el.dataset.tooltip || el.title;
     if (!text) return;
 
-    tooltip.textContent = text;
+    tooltip.innerHTML = text.replace(/\n\s*/g, "<br>");
 
     const rect = el.getBoundingClientRect();
 

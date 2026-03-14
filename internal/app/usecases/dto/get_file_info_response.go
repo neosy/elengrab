@@ -25,6 +25,7 @@ type GetFileInfoResponse struct {
 	StatusText           string
 	MediaInfo            *ddownload.MediaInfo
 	MediaInfoText        string
+	MediaInfoTooltip     string
 	Progress             *ddownload.DownloadProgress
 	UserID               *uuid.UUID
 	CreatedAt            time.Time
