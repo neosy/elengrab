@@ -6,6 +6,9 @@
 - Add in-line playback. Closes #224
 - Add tap tooltip support for format info on mobile devices
 
+### Style
+- Improve row display
+
 ### Performance
 - Replace row polling with SSE updates. Closes #227
 
