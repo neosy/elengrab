@@ -2,6 +2,7 @@ import * as helper from './helper.js';
 import * as cookie from './cookie.js';
 import * as actionButton from './action-button.js';
 import * as player from './player.js';
+import * as tooltip from './tooltip.js';
 import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
 
 // -------------------------------------------------------------
@@ -135,6 +136,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init quality/format sync
     setupQualityFormatLogic();
 
+    // Init tooltips
+    tooltip.initTooltips();
+    
+    // Init inline media player
+    player.initPlayer();
+
     // Init action button for input field
     actionButton.updateActionButton();
     inputURL.addEventListener('input', actionButton.updateActionButton);
@@ -144,7 +151,4 @@ document.addEventListener('DOMContentLoaded', () => {
     es.addEventListener("row-add", actionButton.handleRowAdd);
     es.addEventListener("row-update", actionButton.handleRowUpdate);
     es.addEventListener("row-delete", actionButton.handleRowDelete);
-
-    // Init inline media player
-    player.initPlayer();
 });
