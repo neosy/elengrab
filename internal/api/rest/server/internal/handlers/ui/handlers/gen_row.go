@@ -29,6 +29,7 @@ type fileRowInfoData struct {
 	Format           string
 	DataFormat       string
 	FormatTitle      string
+	FormatTooltip    string
 	IsAudio          string
 	DownloadURL      string
 	StreamURL        string
@@ -84,6 +85,7 @@ func (h *DownloaderHandlers) genRow(
 		Format:           "-",
 		DataFormat:       "-",
 		FormatTitle:      fileInfo.MediaInfoText,
+		FormatTooltip:    fileInfo.MediaInfoTooltip,
 		DownloadURL:      httppaths.BuildPathFileDownload(fileInfo.FileID),
 		StreamURL:        httppaths.BuildPathFileStream(fileInfo.FileID),
 		DeleteURL:        httppaths.BuildPathFile(fileInfo.FileID),
