@@ -52,16 +52,16 @@ var (
 		"opus": FileFormatOPUS,
 	}
 
-	fileFormatIsVideoMap = map[FileFormat]struct{}{
-		FileFormatMP4:  {},
-		FileFormatWebM: {},
+	fileFormatToVideoFormatMap = map[FileFormat]VideoFormat{
+		FileFormatMP4:  VideoFormatMP4,
+		FileFormatWebM: VideoFormatWebM,
 	}
 
-	fileFormatIsAudioMap = map[FileFormat]struct{}{
-		FileFormatMP3:  {},
-		FileFormatM4A:  {},
-		FileFormatFLAC: {},
-		FileFormatOPUS: {},
+	fileFormatToAudioFormatMap = map[FileFormat]AudioFormat{
+		FileFormatMP3:  AudioFormatMP3,
+		FileFormatM4A:  AudioFormatM4A,
+		FileFormatFLAC: AudioFormatFLAC,
+		FileFormatOPUS: AudioFormatOPUS,
 	}
 )
 
@@ -88,14 +88,32 @@ func (v FileFormat) Exists() bool {
 
 // IsVideo returns true if a video format.
 func (v FileFormat) IsVideo() bool {
-	_, exitsts := fileFormatIsVideoMap[v]
+	_, exitsts := fileFormatToVideoFormatMap[v]
 	return exitsts
 }
 
 // IsAudio returns true if an audio format.
 func (v FileFormat) IsAudio() bool {
-	_, exitsts := fileFormatIsAudioMap[v]
+	_, exitsts := fileFormatToAudioFormatMap[v]
 	return exitsts
+}
+
+// VideoFormat returns the corresponding VideoFormat for the FileFormat.
+func (v FileFormat) VideoFormat() VideoFormat {
+	videoFormat, exitsts := fileFormatToVideoFormatMap[v]
+	if !exitsts {
+		return VideoFormatNone
+	}
+	return videoFormat
+}
+
+// AudioFormat returns the corresponding AudioFormat for the FileFormat.
+func (v FileFormat) AudioFormat() AudioFormat {
+	audioFormat, exitsts := fileFormatToAudioFormatMap[v]
+	if !exitsts {
+		return AudioFormatNone
+	}
+	return audioFormat
 }
 
 // ParseFileFormat converting string to FileFormat

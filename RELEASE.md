@@ -1,12 +1,18 @@
 # Releases
 
-## v0.15.0 — 2026-03-12
+## v0.15.0 — 2026-03-14
 
 ### Feature
 - Add in-line playback. Closes #224
 
 ### Performance
 - Replace row polling with SSE updates. Closes #227
+
+### Fix
+- Postprocessor yt-dlp
+
+### Refactor
+- Simplify transcoding parameter selection
 
 ---
 
