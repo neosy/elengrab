@@ -23,6 +23,12 @@ var (
 		VideoFormatMP4:  {},
 		VideoFormatWebM: {},
 	}
+	parseVideoFormatMap = map[string]VideoFormat{
+		"none": VideoFormatNone,
+		"auto": VideoFormatAuto,
+		"mp4":  VideoFormatMP4,
+		"webm": VideoFormatWebM,
+	}
 	videoFormatToFileFormatMap = map[VideoFormat]FileFormat{
 		VideoFormatNone: FileFormatNone,
 		VideoFormatAuto: FileFormatAuto,
@@ -54,12 +60,10 @@ func (v VideoFormat) Exists() bool {
 
 // ParseVideoFormat converting string to VideoFormat
 func ParseVideoFormat(s string) (VideoFormat, error) {
-	videoFormat := VideoFormat(strings.ToLower(s))
-
-	if _, exists := videoFormatMap[videoFormat]; !exists {
+	videoFormat, exists := parseVideoFormatMap[strings.ToLower(s)]
+	if !exists {
 		return "", errors.New("invalid value for VideoFormat")
 	}
-
 	return videoFormat, nil
 }
 
