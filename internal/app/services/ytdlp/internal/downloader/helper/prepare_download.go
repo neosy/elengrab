@@ -273,7 +273,7 @@ func PrepareDownload(
 		}
 
 		if ffmpegArgs != "" {
-			if srcVideoFormat != outVideoFormat {
+			if srcVideoFormat == outVideoFormat {
 				args = append(args, "--ppa", fmt.Sprintf("ffmpeg:%s", ffmpegArgs))
 			} else {
 				args = append(args, "--ppa", fmt.Sprintf("VideoConvertor:%s", ffmpegArgs))
