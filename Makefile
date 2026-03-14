@@ -97,7 +97,9 @@ version-create: ## Create a file with the application version number
 	echo -n $(VERSION_START) > $(VERSION_FILE)
 	
 version-inc: ## Increment application version and save it to file
-	@VERSION_NEW=$$(echo $(VERSION) | awk -F. '{print $$1"."$$2"."$$3+1}'); \
+# 	@VERSION_NEW=$$(echo $(VERSION) | awk -F. '{print $$1"."$$2"."$$3+1}'); \
+# 	echo -n $$VERSION_NEW > $(VERSION_FILE)
+	@VERSION_NEW=$$(echo $(VERSION) | awk '{match($$0,/[0-9]+$$/); printf "%s%d\n", substr($$0,1,RSTART-1), substr($$0,RSTART,RLENGTH)+1}'); \
 	echo -n $$VERSION_NEW > $(VERSION_FILE)
 	@$(MAKE) --no-print-directory update-app-version
 
