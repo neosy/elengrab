@@ -122,37 +122,42 @@ func PrepareDownload(
 		// Add format option to yt-dlp arguments
 		args = append(args, "-f", formatQuery)
 
+		srcVideoFormat := dtypes.MapFileExtToFileFormat(mediaFormat.FileExt).VideoFormat()
 		srcVideoCodec := mediaFormat.VideoCodec()
-		outVideoCodec = srcVideoCodec
+
+		outVideoFormat := dlOptions.VideoFormat
+		outVideoCodec = mediaFormat.VideoCodec()
+
 		outAudioCodec = mediaFormat.AudioCodec()
 
 		isSrcFormatWebMCodec := srcVideoCodec == dtypes.VideoCodecAV1 || srcVideoCodec == dtypes.VideoCodecVP9
 		isSrcFormatMP4Codec := srcVideoCodec == dtypes.VideoCodecAV1 || srcVideoCodec == dtypes.VideoCodecH264
 
-		// Determine output file extension
-		switch dlOptions.VideoFormat {
+		// Determine output video format
+		switch outVideoFormat {
 		case dtypes.VideoFormatAuto:
-			fileExt = dlOptions.VideoCodec.Format().FileFormat().Ext()
-			if fileExt == "" && isSrcFormatWebMCodec {
-				fileExt = "webm"
+			outVideoFormat = dlOptions.VideoCodec.Format()
+			// fileExt = dlOptions.VideoCodec.Format().FileFormat().Ext()
+			if outVideoFormat == dtypes.VideoFormatNone && isSrcFormatWebMCodec {
+				outVideoFormat = dtypes.VideoFormatWebM
 			}
-			if fileExt == "" {
-				fileExt = mediaFormat.FileExt
+			if outVideoFormat == dtypes.VideoFormatNone {
+				outVideoFormat = srcVideoFormat
 			}
 		case dtypes.VideoFormatWebM:
-			fileExt = dtypes.VideoFormatWebM.FileFormat().Ext()
 		case dtypes.VideoFormatMP4:
-			fileExt = dtypes.VideoFormatMP4.FileFormat().Ext()
 		default:
-			fileExt = "mp4"
+			outVideoFormat = dtypes.VideoFormatMP4
 		}
+
+		fileExt = outVideoFormat.FileFormat().Ext()
 
 		// Video resolution
 		var (
 			isVideoScale   bool
 			videoScaleArgs string
 		)
-		if dlOptions.VideoFormat != dtypes.VideoFormatNone {
+		{
 			resolution := dtypes.ParseVideoResolutionWH(uint16(mediaFormat.Width), uint16(mediaFormat.Height))
 			scaleValue := ScaleValue(
 				resolution.Width(),
@@ -168,7 +173,7 @@ func PrepareDownload(
 		var ffmpegArgs string
 
 		downloadVideoCodec := dlOptions.VideoCodec
-		if dlOptions.VideoFormat == dtypes.VideoFormatWebM &&
+		if outVideoFormat == dtypes.VideoFormatWebM &&
 			dlOptions.VideoCodec == dtypes.VideoCodecBest &&
 			!isSrcFormatWebMCodec {
 			downloadVideoCodec = dtypes.VideoCodecAV1
@@ -177,33 +182,38 @@ func PrepareDownload(
 		// Determine the output video codec
 		switch downloadVideoCodec {
 		case dtypes.VideoCodecBest:
-			if isVideoScale {
+			needConvert := isVideoScale ||
+				(outVideoFormat == dtypes.VideoFormatWebM && outAudioCodec != dtypes.AudioCodecOPUS)
+			if needConvert {
+				videoCodecArgs := "copy"
+				if videoScaleArgs != "" {
+					videoCodecArgs = ffmpeg.VideoEncoderArgs(outVideoCodec)
+				}
 				audioCodecArgs := "copy"
+				if outVideoFormat == dtypes.VideoFormatWebM {
+					audioCodecArgs = ffmpeg.AudioEncoderArgs(dtypes.AudioCodecOPUS)
+				}
 				ffmpegArgs = fmt.Sprintf(
 					"%s -c:v %s -c:a %s",
 					videoScaleArgs,
-					ffmpeg.VideoEncoderArgs(srcVideoCodec),
+					videoCodecArgs,
 					audioCodecArgs,
 				)
 			}
 		case dtypes.VideoCodecAV1:
 			outVideoCodec = dtypes.VideoCodecAV1
-			var (
-				isVideoArgs    bool
-				videoCodecArgs string
-				audioCodecArgs string
-			)
-			if isVideoScale || srcVideoCodec != dtypes.VideoCodecAV1 {
-				videoCodecArgs = ffmpeg.VideoEncoderArgs(outVideoCodec)
-				isVideoArgs = true
-			}
-			if isVideoArgs {
-				audioCodecArgs = "copy"
-				if dlOptions.VideoFormat == dtypes.VideoFormatWebM {
-					audioCodecArgs = "libopus"
+			needConvert := isVideoScale ||
+				srcVideoCodec != dtypes.VideoCodecAV1 ||
+				(outVideoFormat == dtypes.VideoFormatWebM && outAudioCodec != dtypes.AudioCodecOPUS)
+			if needConvert {
+				videoCodecArgs := "copy"
+				if isVideoScale || srcVideoCodec != dtypes.VideoCodecAV1 {
+					videoCodecArgs = ffmpeg.VideoEncoderArgs(outVideoCodec)
 				}
-			}
-			if isVideoArgs {
+				audioCodecArgs := "copy"
+				if outVideoFormat == dtypes.VideoFormatWebM {
+					audioCodecArgs = ffmpeg.AudioEncoderArgs(dtypes.AudioCodecOPUS)
+				}
 				ffmpegArgs = fmt.Sprintf(
 					"%s -c:v %s -c:a %s",
 					videoScaleArgs,
@@ -212,24 +222,15 @@ func PrepareDownload(
 				)
 			}
 		case dtypes.VideoCodecH264:
-			outVideoCodec = dtypes.VideoCodecH264
-			var (
-				isVideoArgs    bool
-				videoCodecArgs string
-				audioCodecArgs string
-			)
 			// Codec options (lower - better)
 			// ffmpeg:-c:v libx264 -crf 18 -preset slow -c:a aac -b:a 192k
 			// ffmpeg:-c:v libx264 -crf 22 -preset slow -c:a aac -b:a 160k
 			// ffmpeg:-c:v libx264 -crf 24 -preset slow -c:a aac -b:a 128k
-			if isVideoScale || srcVideoCodec != dtypes.VideoCodecH264 {
-				videoCodecArgs = ffmpeg.VideoEncoderArgs(outVideoCodec)
-				isVideoArgs = true
-			}
-			if isVideoArgs {
-				audioCodecArgs = "aac -b:a 160k"
-			}
-			if isVideoArgs {
+			outVideoCodec = dtypes.VideoCodecH264
+			needConvert := isVideoScale || outVideoCodec != srcVideoCodec
+			if needConvert {
+				videoCodecArgs := ffmpeg.VideoEncoderArgs(outVideoCodec)
+				audioCodecArgs := ffmpeg.AudioEncoderArgs(dtypes.AudioCodecAAC)
 				ffmpegArgs = fmt.Sprintf(
 					"%s -c:v %s -c:a %s",
 					videoScaleArgs,
@@ -239,44 +240,40 @@ func PrepareDownload(
 			}
 		case dtypes.VideoCodecH265:
 			outVideoCodec = dtypes.VideoCodecH265
-			videoCodecArgs := ffmpeg.VideoEncoderArgs(outVideoCodec)
-			audioCodecArgs := "aac -b:a 160k"
-			ffmpegArgs = fmt.Sprintf(
-				"%s -c:v %s -c:a %s",
-				videoScaleArgs,
-				videoCodecArgs,
-				audioCodecArgs,
-			)
+			needConvert := isVideoScale || outVideoCodec != srcVideoCodec
+			if needConvert {
+				videoCodecArgs := ffmpeg.VideoEncoderArgs(outVideoCodec)
+				audioCodecArgs := ffmpeg.AudioEncoderArgs(dtypes.AudioCodecAAC)
+				ffmpegArgs = fmt.Sprintf(
+					"%s -c:v %s -c:a %s",
+					videoScaleArgs,
+					videoCodecArgs,
+					audioCodecArgs,
+				)
+			}
 		default:
 			ffmpegArgs = ""
 		}
 
 		ffmpegArgs = strings.TrimSpace(ffmpegArgs)
 
-		switch fileExt {
-		case "mp4":
+		switch outVideoFormat {
+		case dtypes.VideoFormatMP4:
 			if ffmpegArgs != "" || !isSrcFormatMP4Codec {
 				args = append(args, "--recode-video", "mp4")
 			} else {
 				args = append(args, "--remux-video", "mp4")
 			}
-		case "webm":
-			if ffmpegArgs != "" || !isSrcFormatWebMCodec {
+		case dtypes.VideoFormatWebM:
+			if ffmpegArgs != "" || !isSrcFormatWebMCodec || outVideoFormat != srcVideoFormat {
 				args = append(args, "--recode-video", "webm")
 			} else {
-				if mediaFormat.FileExt != "webm" {
-					args = append(args, "--recode-video", "webm")
-					if ffmpegArgs == "" {
-						ffmpegArgs = "-c:v copy -c:a libopus -b:a 128k"
-					}
-				} else {
-					args = append(args, "--merge-output-format", "webm")
-				}
+				args = append(args, "--merge-output-format", "webm")
 			}
 		}
 
 		if ffmpegArgs != "" {
-			if mediaFormat.FileExt == fileExt {
+			if srcVideoFormat != outVideoFormat {
 				args = append(args, "--ppa", fmt.Sprintf("ffmpeg:%s", ffmpegArgs))
 			} else {
 				args = append(args, "--ppa", fmt.Sprintf("VideoConvertor:%s", ffmpegArgs))
@@ -313,39 +310,40 @@ func PrepareDownload(
 		}
 
 		mediaFormat = dtoMediaInfo.Formats[0]
-		outAudioCodec = mediaFormat.AudioCodec()
+
+		srcAudioFormat := dtypes.MapFileExtToFileFormat(mediaFormat.FileExt).AudioFormat()
+		srcAudioCodec := mediaFormat.AudioCodec()
+
+		outAudioFormat := dlOptions.AudioFormat
+		outAudioCodec = srcAudioCodec
 
 		args = append(args, "-f", format)
 
-		downloadAudioFormat := dlOptions.AudioFormat
-		if downloadAudioFormat == dtypes.AudioFormatAuto {
-			format, _ := dtypes.ParseFileFormat(mediaFormat.FileExt)
-			if !format.IsAudio() {
-				downloadAudioFormat = outAudioCodec.AudioFormat()
-				if downloadAudioFormat == dtypes.AudioFormatNone {
-					downloadAudioFormat = dtypes.AudioFormatMP3
-				}
+		if outAudioFormat == dtypes.AudioFormatAuto {
+			if srcAudioFormat == dtypes.AudioFormatNone {
+				outAudioFormat = outAudioCodec.AudioFormat()
 			}
+		}
+		if outAudioFormat == dtypes.AudioFormatNone {
+			outAudioFormat = dtypes.AudioFormatMP3
 		}
 
 		// Choose audio processing based on requested audio format
-		switch downloadAudioFormat {
+		switch outAudioFormat {
 		case dtypes.AudioFormatAuto:
-			if outAudioCodec == dtypes.AudioCodecOPUS {
+			if srcAudioCodec == dtypes.AudioCodecOPUS {
 				args = append(args, "--extract-audio", "--audio-format", "opus")
-				fileExt = "opus"
+				outAudioFormat = dtypes.AudioFormatOPUS
 			} else {
-				fileExt = mediaFormat.FileExt
+				outAudioFormat = srcAudioFormat
 			}
 		case dtypes.AudioFormatM4A:
 			outAudioCodec = dtypes.AudioCodecAAC
 			args = append(args, "--extract-audio", "--audio-format", "m4a", "--audio-quality", audioQualityM4A)
-			fileExt = "m4a"
 		case dtypes.AudioFormatFLAC:
 			outAudioCodec = dtypes.AudioCodecFLAC
 			mediaFormat.Abr = audioQualityFLACBitrateDefault
 			args = append(args, "--extract-audio", "--audio-format", "flac", "--postprocessor-args", "-compression_level 8")
-			fileExt = "flac"
 		case dtypes.AudioFormatOPUS:
 			outAudioCodec = dtypes.AudioCodecOPUS
 			if mediaFormat.ACodec != "" && mediaFormat.ACodec == "opus" {
@@ -353,13 +351,13 @@ func PrepareDownload(
 			} else {
 				args = append(args, "--extract-audio", "--audio-format", "opus", "--audio-quality", audioQualityOPUS)
 			}
-			fileExt = "opus"
 		default:
+			outAudioFormat = dtypes.AudioFormatMP3
 			outAudioCodec = dtypes.AudioCodecMP3
 			mediaFormat.Abr = audioQualityMP3BitrateDefault
 			args = append(args, "--extract-audio", "--audio-format", "mp3", "--audio-quality", audioQualityMP3)
-			fileExt = "mp3"
 		}
+		fileExt = outAudioFormat.FileFormat().Ext()
 	}
 
 	mediaInfo = &ddownload.MediaInfo{

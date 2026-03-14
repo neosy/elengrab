@@ -27,6 +27,7 @@ var (
 		AudioFormatFLAC: {},
 		AudioFormatOPUS: {},
 	}
+
 	audioFormatToFileFormatMap = map[AudioFormat]FileFormat{
 		AudioFormatNone: FileFormatNone,
 		AudioFormatAuto: FileFormatAuto,
