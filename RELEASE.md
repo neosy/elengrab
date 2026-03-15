@@ -1,5 +1,12 @@
 # Releases
 
+## v0.15.0 — 2026-03-15
+
+### Fix
+- Preload warning for font
+
+---
+
 ## v0.15.0 — 2026-03-14
 
 ### Feature
