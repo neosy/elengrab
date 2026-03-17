@@ -18,4 +18,5 @@ const (
 	ResultMediaUrlFadeKey = "ResultMediaUrlFade"
 	ResultSizeFadeKey     = "ResultSizeFade"
 	ResultFormatFadeKey   = "ResultFormatFade"
+	DisableHTMXEventKey   = "DisableHTMXEvent"
 )

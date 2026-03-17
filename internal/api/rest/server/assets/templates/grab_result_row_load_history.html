@@ -1,8 +1,10 @@
-    <div class="div-grab-result-row-load-history"
-        hx-get="{{.PathItemsHistory}}"
-        hx-trigger="revealed"
-        hx-target="this"
-        hx-swap="outerHTML">
+    <div id="row-load-history" class="div-grab-result-row-load-history"
+{{ if not .DisableHTMXEvent }}
+    hx-get="{{.PathItemsHistory}}"
+    hx-trigger="revealed once"
+    hx-target="this"
+    hx-swap="outerHTML"
+{{ end }}>
         <span class="result-history-loading">
             Loading...
         </span>
