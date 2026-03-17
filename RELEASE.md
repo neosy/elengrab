@@ -1,9 +1,12 @@
 # Releases
 
-## v0.15.0 — 2026-03-15
+## v0.15.1 — 2026-03-17
 
 ### Fix
 - Preload warning for font
+
+### Perf
+- Optimize infinite scroll history loading
 
 ---
 

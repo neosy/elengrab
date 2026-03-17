@@ -7,7 +7,8 @@ import (
 const (
 	dateFormate = time.RFC3339
 
-	loadHistoryLimit = 30
+	loadHistoryLimit    = 30
+	preloadHistoryAfter = 10
 
 	formFieldMediaURLKey          = "mediaURL"
 	formFieldQualityCodecKey      = "quality-codec"
