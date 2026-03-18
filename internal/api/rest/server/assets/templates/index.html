@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="{{.PathStaticCss}}/variables.css?v={{.AppVersion}}">
   <link rel="stylesheet" href="{{.PathStaticCss}}/theme-switcher.css?v={{.AppVersion}}">
   <link rel="stylesheet" href="{{.PathStaticCss}}/index.css?v={{.AppVersion}}">
-  <link rel="stylesheet" href="{{.PathStaticCss}}/form-grab.css?v={{.AppVersion}}">
+  <link rel="stylesheet" href="{{.PathStaticCss}}/grab-form.css?v={{.AppVersion}}">
   <link rel="stylesheet" href="{{.PathStaticCss}}/result-rows.css?v={{.AppVersion}}">
   <link rel="stylesheet" href="{{.PathStaticCss}}/player.css?v={{.AppVersion}}">
   <link rel="manifest" href="{{.PathStaticPwa}}/manifest.json">
@@ -28,7 +28,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="{{.PathStaticImg}}/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
   <meta name="theme-color" id="theme-color-meta" content="#171717">
   <!-- <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.4/dist/sse.min.js"></script>   -->
@@ -41,10 +41,12 @@
   {{ template "theme-switcher.html" . }}
   <div class="div-main-area">
       <div class="div-header-main">
-        <img class="img-header-logo" src="{{.PathStaticImg}}/logo-512.png">
-        <h1 class="header">{{.Header}}</h1>
+        <a class="header-link" href="/">
+          <img class="img-header-logo" src="{{.PathStaticImg}}/logo-512.png">
+          <h1 class="header">{{.Header}}</h1>
+        </a>
       </div>
-      {{ template "form-grab" . }}
+      {{ template "grab-form" . }}
       {{ template "grab-result.html" . }}
   </div>
   <div id="media-player-overlay">

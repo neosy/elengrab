@@ -70,10 +70,10 @@ func (uc *File) GetAllFullNames(ctx context.Context, includeDeleted bool) ([]str
 	return names, nil
 }
 
-func (uc *File) GetBeforeTime(ctx context.Context, userID *uuid.UUID, before time.Time, limit uint64) ([]*ddownload.File, error) {
+func (uc *File) GetBeforeTime(ctx context.Context, before time.Time, limit uint64, filters map[string]any) ([]*ddownload.File, error) {
 	fileRep := uc.fileRep
-	if userID != nil {
-		fileRep = uc.fileRep.WithUser(*userID)
+	if filters != nil {
+		fileRep = uc.fileRep.WithFilters(filters)
 	}
 
 	file, err := fileRep.GetBeforeTime(ctx, before, limit)

@@ -14,6 +14,9 @@ CREATE TABLE IF NOT EXISTS files (
     -- Title from youtube
     youtube_title TEXT NOT NULL,
 
+    -- MediaTitleLower in lowercase for efficient case-insensitive searches
+    media_title_lower TEXT NOT NULL,
+
     -- Youtube channel ID
     youtube_channel_id TEXT NULL,
 
@@ -58,7 +61,6 @@ CREATE TABLE IF NOT EXISTS files (
 CREATE INDEX IF NOT EXISTS files_created_at_idx
 ON files(created_at);
 
-
 -- Create index for partial_hash field.
 CREATE INDEX IF NOT EXISTS files_partial_hash_idx
 ON files(partial_hash);
@@ -76,3 +78,9 @@ ON files(user_id);
 -- Create index for sorting by download or update time, prioritizing downloads if available.
 CREATE INDEX files_downloaded_created_sort_idx
 ON files(COALESCE(downloaded_at, created_at) DESC);
+
+-- Create index for youtube_title, media_title_lower fields
+CREATE INDEX IF NOT EXISTS files_media_title_idx
+ON files(youtube_title);
+CREATE INDEX IF NOT EXISTS files_media_title_lower_idx
+ON files(media_title_lower);

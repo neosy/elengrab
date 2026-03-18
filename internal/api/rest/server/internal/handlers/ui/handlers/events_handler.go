@@ -120,11 +120,17 @@ func (h *DownloaderHandlers) handleFileUpdate(w *bufio.Writer, event ucdto.Broad
 		return
 	}
 
-	buf, httpStatus, err := h.genRow(fileInfo, true)
-	if err != nil {
+	row := h.genRow(fileInfo, true)
+	if row.err != nil {
 		return
 	}
-	if httpStatus == fasthttp.StatusNoContent {
+	if row.httpStatus == fasthttp.StatusNoContent {
+		return
+	}
+
+	var buf bytes.Buffer
+	err := h.templates.ExecuteTemplate(&buf, row.templateName, row.data)
+	if err != nil {
 		return
 	}
 

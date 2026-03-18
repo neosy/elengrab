@@ -1,10 +1,11 @@
-      <div class="div-grab-result" id="grab-result">
-        <div class="div-grab-result-info" id="grab-result-info"></div>
-        <div id="grab-result-rows" class="div-grab-result-rows" hx-ext="sse" sse-connect="/ui/downloader/files/events">
-            <div sse-swap="row-patch" style="display: none;"></div>
-            <div id="row-top-placeholder" style="display: none;"></div>
-            {{ if .NeedLoadHistory }}
-              {{ template "grab_result_row_load_history.html" . }}
-            {{ end }}
-        </div>          
+      <div class="grab-result" id="grab-result">
+        <div class="result-info" id="result-info"></div>
+        {{ if .ShowHistorySearch }}
+          <div class="result-toolbar">
+            {{ template "history_search.html" . }}
+          </div>
+        {{ end }}
+        <div class="result-rows_wrapper">
+          {{ template "result_rows.html" . }}
+        </div>
       </div>

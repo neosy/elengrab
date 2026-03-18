@@ -2,18 +2,17 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
-	var (
-		before     = time.Now().UTC()
-		bodyBuffer bytes.Buffer
-	)
+	var before = time.Now().UTC()
 
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
@@ -33,12 +32,36 @@ func (h *DownloaderHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	// We upload one more line to see if we need to show "Upload more"
-	resps, err := h.usecases.Downloader.LoadHistory(ctx, userID, before, loadHistoryLimit+1)
+	filters := parseFilters(ctx)
+
+	var bodyBuffer bytes.Buffer
+	err = h.getFilesHistory(ctx, &bodyBuffer, userID, before, filters)
 	if err != nil {
 		ctx.SetStatusCode(fasthttp.StatusOK)
 		ctx.SetBodyString("")
 		return
+	}
+
+	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetBody(bodyBuffer.Bytes())
+}
+
+func (h *DownloaderHandlers) getFilesHistory(
+	ctx context.Context,
+	buf *bytes.Buffer,
+	userID uuid.UUID,
+	before time.Time,
+	filters requestFilters,
+) error {
+	var filterByTitle string
+	if filters != nil {
+		filterByTitle = filters["title"]
+	}
+
+	// We upload one more line to see if we need to show "Upload more"
+	resps, err := h.usecases.Downloader.LoadHistory(ctx, userID, before, loadHistoryLimit+1, filterByTitle)
+	if err != nil {
+		return err
 	}
 
 	loadNextHistory := len(resps) > loadHistoryLimit
@@ -52,58 +75,65 @@ func (h *DownloaderHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 	before = time.Time{}
 
 	for i, fileInfo := range lines {
-		buf, _, err := h.genRow(fileInfo, false)
-		if err != nil || buf == nil {
+		row := h.genRow(fileInfo, false)
+		if row.err != nil {
 			continue
 		}
-		bodyBuffer.Write(buf.Bytes())
+
+		err = h.templates.ExecuteTemplate(buf, row.templateName, row.data)
+		if err != nil {
+			continue
+		}
+
 		before = fileInfo.CreatedAt
 
 		if loadNextHistory && i == preloadHistoryAfter-1 {
-			buf, err := h.genRowShouldLoadHistory(before)
-			if err == nil && buf != nil {
-				bodyBuffer.Write(buf.Bytes())
-			}
+			h.genRowShouldLoadHistory(buf, before, filters)
 		}
 	}
 
 	if loadNextHistory {
-		buf, err := h.genRowLoadHistory()
-		if err == nil && buf != nil {
-			bodyBuffer.Write(buf.Bytes())
-		}
+		h.genRowLoadHistory(buf)
 	}
 
-	ctx.SetStatusCode(fasthttp.StatusOK)
-	ctx.SetBody(bodyBuffer.Bytes())
+	return nil
 }
 
-func (h *DownloaderHandlers) genRowLoadHistory() (*bytes.Buffer, error) {
+func (h *DownloaderHandlers) genRowLoadHistory(buf *bytes.Buffer) error {
 	dataMap := uivalues.MergeMaps()
 	dataMap[uivalues.DisableHTMXEventKey] = true
 
-	var buf bytes.Buffer
-	err := h.templates.ExecuteTemplate(&buf, uivalues.GrabResultLoadHistoryHtmlFileName, dataMap)
+	err := h.templates.ExecuteTemplate(buf, uivalues.GrabResultLoadHistoryHtmlFileName, dataMap)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &buf, nil
+	return nil
 }
 
-func (h *DownloaderHandlers) genRowShouldLoadHistory(before time.Time) (*bytes.Buffer, error) {
+func (h *DownloaderHandlers) genRowShouldLoadHistory(
+	buf *bytes.Buffer,
+	before time.Time,
+	filters requestFilters,
+) error {
 	if before.IsZero() {
-		return nil, nil
+		return nil
+	}
+
+	queryString := fmt.Sprintf("?before=%s", before.Format(dateFormate))
+
+	if filters != nil {
+		filterByTitle := filters[filterByTitleKey]
+		queryString += fmt.Sprintf("&filter[%s]=%s", filterByTitleKey, filterByTitle)
 	}
 
 	dataMap := uivalues.MergeMaps(uivalues.PathValues)
-	dataMap[uivalues.PathItemsHistoryKey] = dataMap[uivalues.PathItemsHistoryKey].(string) + fmt.Sprintf("?before=%s", before.Format(dateFormate))
+	dataMap[uivalues.PathItemsHistoryKey] = dataMap[uivalues.PathItemsHistoryKey].(string) + queryString
 	dataMap[uivalues.DisableHTMXEventKey] = true
-	var buf bytes.Buffer
-	err := h.templates.ExecuteTemplate(&buf, uivalues.GrabResultShouldLoadHistoryHtmlFileName, dataMap)
+	err := h.templates.ExecuteTemplate(buf, uivalues.GrabResultShouldLoadHistoryHtmlFileName, dataMap)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &buf, nil
+	return nil
 }
