@@ -1,6 +1,7 @@
 import * as helper from './helper.js';
 import * as cookie from './cookie.js';
 import * as actionButton from './action-button.js';
+import * as rowEventHandlers from './row-event-handlers.js';
 import * as player from './player.js';
 import * as tooltip from './tooltip.js';
 import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
@@ -87,10 +88,12 @@ function setupQualityFormatLogic() {
 // Main Init
 // -------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
-    const formGrab = document.querySelector('#form-grab');
+    const formGrab = document.querySelector('#grabForm');
     const buttonGrab = document.querySelector('.button-grab-get');
-    const inputURL = document.querySelector('#mediaURL');
-    const resultDivInfo = document.querySelector('#grab-result-info');
+    const resultDivInfo = document.querySelector('#result-info');
+
+    const grabInputURL = document.getElementById('mediaURL');
+    const grabInputActionBtn = document.getElementById('inputActionBtn');
 
     // Sync selects with cookies
     cookie.setupCookieSelectSync(SELECT_NAMES.qualityCodec, COOKIE_NAMES.qualityCodec);
@@ -98,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cookie.setupCookieSelectSync(SELECT_NAMES.format, COOKIE_NAMES.format);
 
     // Submit on Enter
-    inputURL.addEventListener('keydown', (event) => {
+    grabInputURL.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
             buttonGrab.click();
@@ -106,11 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Clear before HTMX request
-    htmx.on('#form-grab', 'htmx:beforeRequest', () => {
-        if (inputURL) {
-            inputURL.value = '';
+    htmx.on('#grabForm', 'htmx:beforeRequest', () => {
+        if (grabInputURL) {
+            grabInputURL.value = '';
             // update action button after clearing
-            actionButton.updateActionButton();
+            actionButton.updateInputPasteClearButton(grabInputURL, grabInputActionBtn);
         }
         if (resultDivInfo) resultDivInfo.innerHTML = '';
     });
@@ -118,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Display error on non-200 + non-503
     document.body.addEventListener('htmx:afterOnLoad', (event) => {
         if (event.detail.elt === formGrab) {
-            if (inputURL) inputURL.value = '';
+            if (grabInputURL) grabInputURL.value = '';
             if (event.detail.xhr.status !== 200 &&
                 event.detail.xhr.status !== 503) {
 
@@ -143,12 +146,14 @@ document.addEventListener('DOMContentLoaded', () => {
     player.initPlayer();
 
     // Init action button for input field
-    actionButton.updateActionButton();
-    inputURL.addEventListener('input', actionButton.updateActionButton);
+    actionButton.initInputPasteClearButton(grabInputURL, grabInputActionBtn)
+
+    // Init action button for input
+    actionButton.initInputClearButton('.history-search__wrapper');
 
     // Subscribe to SSE row-delete event
     const es = new EventSource("/ui/downloader/files/events");
-    es.addEventListener("row-add", actionButton.handleRowAdd);
-    es.addEventListener("row-update", actionButton.handleRowUpdate);
-    es.addEventListener("row-delete", actionButton.handleRowDelete);
+    es.addEventListener("row-add", rowEventHandlers.handleRowAdd);
+    es.addEventListener("row-update", rowEventHandlers.handleRowUpdate);
+    es.addEventListener("row-delete", rowEventHandlers.handleRowDelete);
 });

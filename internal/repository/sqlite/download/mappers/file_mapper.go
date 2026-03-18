@@ -3,6 +3,7 @@ package mappers
 import (
 	"database/sql"
 	"encoding/json"
+	"strings"
 	"time"
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -33,6 +34,7 @@ func (m *Mappers) MapFileDomainToEntity(file *ddownload.File) (*edownload.File, 
 		Status:               file.Status.String(),
 		MediaUrl:             file.MediaUrl,
 		MediaTitle:           file.MediaTitle,
+		MediaTitleLower:      strings.ToLower(file.MediaTitle),
 		YoutubeChannelID:     file.YoutubeChannelID,
 		FileName:             file.FileName,
 		Ext:                  file.Ext,

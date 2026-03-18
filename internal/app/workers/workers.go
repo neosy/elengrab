@@ -55,31 +55,38 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 	).Add(1 * time.Hour)
 
 	ws.Add(nworkers.NewWorker(
+		wjobs.NewStartupDatabaseJob(logger, deps.Maintenance),
+		nworkers.WorkerOptionName("StartupMaintenanceDatabase"),
+		nworkers.WorkerOptionMaxRuns(1),
+		nworkers.WorkerOptionOneShotDelay(1*time.Second),
+	))
+
+	ws.Add(nworkers.NewWorker(
 		wjobs.NewUpdateHashJob(logger, deps.DownloaderMaintenance),
 		nworkers.WorkerOptionName("UpdateHash"),
 		nworkers.WorkerOptionIntervalWithDefault(deps.IntervalUpdateHash, intervalUpdateHashDefault),
-		nworkers.WorkerOptionOneShotDelay(3*time.Second),
+		nworkers.WorkerOptionOneShotDelay(5*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewDeleteDuplicatesJob(logger, deps.DownloaderMaintenance),
 		nworkers.WorkerOptionName("DeleteDuplicates"),
 		nworkers.WorkerOptionIntervalWithDefault(deps.IntervalDeleteDuplicates, intervalDeleteDuplicatesDefault),
-		nworkers.WorkerOptionOneShotDelay(5*time.Second),
+		nworkers.WorkerOptionOneShotDelay(10*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewDeleteMissingFilesJob(logger, deps.DownloaderMaintenance, deps.EnableMoveUnmatchedFiles),
 		nworkers.WorkerOptionName("DeleteMissingFiles"),
 		nworkers.WorkerOptionIntervalWithDefault(deps.IntervalDeleteMissingFiles, intervalDeleteMissingFilesDefault),
-		nworkers.WorkerOptionOneShotDelay(10*time.Second),
+		nworkers.WorkerOptionOneShotDelay(15*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewDeleteFailedDownloadsJob(logger, deps.DownloaderMaintenance),
 		nworkers.WorkerOptionName("DeleteFailedDownloads"),
 		nworkers.WorkerOptionIntervalWithDefault(deps.IntervalDeleteFailedDownloads, intervalDeleteFailedDownloadsDefault),
-		nworkers.WorkerOptionOneShotDelay(15*time.Second),
+		nworkers.WorkerOptionOneShotDelay(20*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(

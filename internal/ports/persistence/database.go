@@ -1,6 +1,7 @@
 package persistence
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 )
@@ -33,4 +34,5 @@ type Database interface {
 	Backup(dbName DBName, path string) error
 	FlushWAL() error
 	GetDBNames() []DBName
+	StartupMaintenance(ctx context.Context) error
 }

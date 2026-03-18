@@ -115,28 +115,33 @@ func (uc *YouTubeDownloader) LoadHistory(
 	userID uuid.UUID,
 	before time.Time,
 	limit uint64,
+	filterByTitle string,
 ) ([]*dto.GetFileInfoResponse, error) {
 	if uc.historyMode == dtypes.HistoryModeDisabled {
 		return []*dto.GetFileInfoResponse{}, nil
 	}
 
-	var filterUserID *uuid.UUID
+	filters := make(map[string]any)
 	if uc.historyMode == dtypes.HistoryModePerUser {
-		filterUserID = &userID
+		filters["userID"] = userID
 	}
 
-	return uc.getFilesInfo(ctx, filterUserID, before, limit)
+	if filterByTitle != "" {
+		filters["title"] = filterByTitle
+	}
+
+	return uc.getFilesInfo(ctx, before, limit, filters)
 }
 
 func (uc *YouTubeDownloader) getFilesInfo(
 	ctx context.Context,
-	userID *uuid.UUID,
 	before time.Time,
 	limit uint64,
+	filters map[string]any,
 ) ([]*dto.GetFileInfoResponse, error) {
 	var resps []*dto.GetFileInfoResponse
 
-	files, err := uc.file.GetBeforeTime(ctx, userID, before, limit)
+	files, err := uc.file.GetBeforeTime(ctx, before, limit, filters)
 	if err != nil {
 		uc.logger.Warn("Failed get files", "before", before, "limit", limit, "error", err)
 		return nil, err

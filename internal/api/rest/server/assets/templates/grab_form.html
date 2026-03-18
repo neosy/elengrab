@@ -1,10 +1,10 @@
-{{define "form-grab"}}
-      <form id="form-grab"
+{{define "grab-form"}}
+      <form id="grabForm"
             hx-post="{{.PathDownloaderGrab}}"
             hx-include="#mediaURL, [name='formatType']"
             hx-swap="none">
         <div class="div-grab-area">
-          <input class="input-grab" type="text" id="mediaURL" name="mediaURL" placeholder="{{ .InputGrabPlaceholder }}" maxlength="255">
+          <input class="grab__input" type="text" id="mediaURL" name="mediaURL" placeholder="{{ .InputGrabPlaceholder }}" maxlength="255">
           <div class="div-button-input-action">
             <button type="button" class="button-input-action" id="inputActionBtn"></button>
           </div>

@@ -17,6 +17,7 @@ const (
 	PathHistory            = "/history"
 	PathDownload           = "/download"
 	PathStream             = "/stream"
+	PathSearch             = "/search"
 	PathFile               = "/file/{fileId}"
 	PathFileRow            = "/file/{fileId}/row"
 	PathFileDownloadRepeat = "/file/{fileId}/repeat"

@@ -12,6 +12,7 @@ const (
 	PathStaticPwaKey      = "PathStaticPwa"
 	PathItemsHistoryKey   = "PathItemsHistory"
 	PathDownloaderGrabKey = "PathDownloaderGrab"
+	PathHistorySearchKey  = "PathHistorySearch"
 )
 
 var PathValues = map[string]any{
@@ -22,4 +23,5 @@ var PathValues = map[string]any{
 	PathStaticPwaKey:      httppaths.GroupStatic + "/pwa",
 	PathItemsHistoryKey:   httppaths.GroupDownloader + httppaths.PathHistory,
 	PathDownloaderGrabKey: httppaths.GroupDownloader + httppaths.PathGrab,
+	PathHistorySearchKey:  httppaths.GroupDownloader + httppaths.PathSearch,
 }

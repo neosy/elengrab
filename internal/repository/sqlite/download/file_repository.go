@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Masterminds/squirrel"
@@ -15,6 +16,7 @@ import (
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
+	"github.com/neosy/elengrab/internal/repository/sqlite/sqlutil"
 	"github.com/neosy/elengrab/pkg/dbutils"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
@@ -25,7 +27,7 @@ type FileRepository struct {
 	lock    dbexec.WriteLocker
 
 	// filters
-	userID *uuid.UUID
+	filters fileRepositoryFilters
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -60,7 +62,7 @@ func (r *FileRepository) Copy() *FileRepository {
 	rep.db = r.db
 	rep.lock = r.lock
 
-	rep.userID = uptr.Copy(r.userID)
+	rep.filters = rep.filters.copy()
 
 	return rep
 }
@@ -75,7 +77,26 @@ func (r *FileRepository) fileStatusesToStrings(statuses []dtypes.FileStatus) []s
 
 func (r *FileRepository) WithUser(userID uuid.UUID) persistence.FileRepository {
 	rep := r.Copy()
-	rep.userID = &userID
+	rep.filters.userID = &userID
+	return rep
+}
+
+func (r *FileRepository) WithFilters(filters map[string]any) persistence.FileRepository {
+	rep := r.Copy()
+	for key, value := range filters {
+		switch key {
+		case "userID":
+			v, ok := value.(uuid.UUID)
+			if ok && v != uuid.Nil {
+				rep.filters.userID = &v
+			}
+		case "title":
+			v, ok := value.(string)
+			if ok && v != "" {
+				rep.filters.title = &v
+			}
+		}
+	}
 	return rep
 }
 
@@ -275,8 +296,8 @@ func (r *FileRepository) FindByFileID(ctx context.Context, fileId uuid.UUID) (*d
 		eFile.FieldNameWithAlias(&eFile.DeletedAt, aliasFiles): nil,
 	}
 
-	if r.userID != nil {
-		sqlWhere[eFile.FieldNameWithAlias(&eFile.UserID, aliasFiles)] = r.userID
+	if r.filters.userID != nil {
+		sqlWhere[eFile.FieldNameWithAlias(&eFile.UserID, aliasFiles)] = r.filters.userID
 	}
 
 	sqlQuery, args, err := squirrel.Select(selectFields...).
@@ -347,8 +368,11 @@ func (r *FileRepository) getAll(
 		statusStrings := r.fileStatusesToStrings(byFields.statuses)
 		conditions = append(conditions, squirrel.Eq{eFile.FieldNameWithAlias(&eFile.Status, aliasFiles): statusStrings})
 	}
-	if r.userID != nil {
-		conditions = append(conditions, squirrel.Eq{eFile.FieldNameWithAlias(&eFile.UserID, aliasFiles): *r.userID})
+	if r.filters.userID != nil {
+		conditions = append(conditions, squirrel.Eq{eFile.FieldNameWithAlias(&eFile.UserID, aliasFiles): *r.filters.userID})
+	}
+	if r.filters.title != nil && *r.filters.title != "" {
+		conditions = append(conditions, sqlutil.Like(eFile.FieldNameWithAlias(&eFile.MediaTitleLower, aliasFiles), *r.filters.title))
 	}
 	if byFields.beforeTime != nil && !byFields.beforeTime.IsZero() {
 		t := byFields.beforeTime.Add(-1 * time.Nanosecond)
@@ -425,8 +449,8 @@ func (r *FileRepository) GetAllFullNames(ctx context.Context, includeDeleted boo
 		sqlWhere = append(sqlWhere, squirrel.Eq{eFile.FieldName(&eFile.DeletedAt): nil})
 	}
 
-	if r.userID != nil {
-		sqlWhere = append(sqlWhere, squirrel.Eq{eFile.FieldName(&eFile.UserID): *r.userID})
+	if r.filters.userID != nil {
+		sqlWhere = append(sqlWhere, squirrel.Eq{eFile.FieldName(&eFile.UserID): *r.filters.userID})
 	}
 
 	sqlQuery, args, err := squirrel.Select(eFile.FieldName(&eFile.FullName)).
@@ -512,8 +536,8 @@ func (r *FileRepository) GetDuplicateHashes(ctx context.Context, scope dtypes.Un
 		},
 	}
 
-	if r.userID != nil {
-		sqlWhere = append(sqlWhere, squirrel.Eq{eFile.FieldName(&eFile.UserID): *r.userID})
+	if r.filters.userID != nil {
+		sqlWhere = append(sqlWhere, squirrel.Eq{eFile.FieldName(&eFile.UserID): *r.filters.userID})
 	}
 
 	fields := make([]string, 0, 2)
@@ -590,8 +614,8 @@ func (r *FileRepository) GetDeleted(ctx context.Context, from, to *time.Time) ([
 		squirrel.NotEq{eFile.FieldName(&eFile.DeletedAt): nil},
 	}
 
-	if r.userID != nil {
-		sqlWhere = append(sqlWhere, squirrel.Eq{eFile.FieldName(&eFile.UserID): *r.userID})
+	if r.filters.userID != nil {
+		sqlWhere = append(sqlWhere, squirrel.Eq{eFile.FieldName(&eFile.UserID): *r.filters.userID})
 	}
 
 	if from != nil {
@@ -658,6 +682,61 @@ func (r *FileRepository) Tx(ctx context.Context, fn func(ctx context.Context) er
 
 	if err := tx.Commit(); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (r *FileRepository) FillEmptyMediaTitleLower(ctx context.Context) error {
+	var eFile edownload.File
+
+	sqlWhere := squirrel.And{
+		squirrel.Eq{eFile.FieldName(&eFile.MediaTitleLower): ""},
+	}
+
+	sqlQuery, args, err := squirrel.Select(eFile.FieldsAll()...).
+		From(eFile.TableName()).
+		Where(sqlWhere).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+
+	if err != nil {
+		return fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	db := dbexec.Resolve(ctx, r.db)
+	rows, err := db.QueryContext(ctx, sqlQuery, args...)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	var files []*ddownload.File
+	if rows != nil {
+		files, err = r.mappers.MapRowsToFiles(rows)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, file := range files {
+		sqlQuery, args, err := squirrel.
+			Update(eFile.TableName()).
+			SetMap(map[string]any{
+				eFile.FieldName(&eFile.MediaTitleLower): strings.ToLower(file.MediaTitle),
+			}).
+			Where(squirrel.Eq{eFile.FieldName(&eFile.FileID): file.FileID}).
+			PlaceholderFormat(squirrel.Dollar).
+			ToSql()
+		if err != nil {
+			return fmt.Errorf("error generating SQL: %v", err)
+		}
+
+		err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+		if err != nil {
+			return fmt.Errorf("failed to save file: %v", err)
+		}
 	}
 
 	return nil

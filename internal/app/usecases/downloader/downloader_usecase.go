@@ -122,3 +122,7 @@ func NewYouTubeDownloader(
 		channelUpdateInterval: channelUpdateInterval,
 	}
 }
+
+func (uc *YouTubeDownloader) HistoryMode() dtypes.HistoryMode {
+	return uc.historyMode
+}

@@ -1,5 +1,18 @@
 # Releases
 
+## v0.16.0 — 2026-03-21
+
+### Feature
+- Add name search to the download history. Closes #184
+
+### Style
+- Improved display on mobile devices
+
+### Refactor
+- CSS class names
+
+---
+
 ## v0.15.1 — 2026-03-17
 
 ### Fix

@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"bytes"
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/pkg/errorx"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -36,14 +38,21 @@ func (h *DownloaderHandlers) RepeatDownloadHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	buf, httpStatus, err := h.genRow(fileInfo, false)
-	if err != nil {
+	row := h.genRow(fileInfo, false)
+	if row.err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
-	if httpStatus == fasthttp.StatusNoContent {
-		ctx.SetStatusCode(httpStatus)
+	if row.httpStatus == fasthttp.StatusNoContent {
+		ctx.SetStatusCode(row.httpStatus)
 		ctx.Response.Header.Set("HX-Trigger", "no-op")
+		return
+	}
+
+	var buf bytes.Buffer
+	err = h.templates.ExecuteTemplate(&buf, row.templateName, row.data)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, errorx.NewByErr(err))
 		return
 	}
 

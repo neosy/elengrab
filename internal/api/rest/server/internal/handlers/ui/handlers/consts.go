@@ -15,10 +15,12 @@ const (
 	formFieldQualityResolutionKey = "quality-resolution"
 	formFieldFormatKey            = "format"
 
-	fileIdKey    = "fileId"
-	beforeKey    = "before"
-	channelIDKey = "channelID"
-	userIDKey    = "userId"
+	fileIdKey        = "fileId"
+	beforeKey        = "before"
+	channelIDKey     = "channelID"
+	userIDKey        = "userId"
+	filterByTitleKey = "title"
+	searchKey        = "search"
 
 	cookiePageHasDivItemsKey cookieKey = "page_has_div_items"
 

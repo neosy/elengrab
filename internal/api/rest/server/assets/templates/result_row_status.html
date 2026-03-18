@@ -34,7 +34,7 @@
         {{ if .IsItemSpiner }}
             <div class="item-result-spinner {{ .WorkingStatus }}"></div>
             {{ if eq .WorkingStatus "downloading" }}
-                {{ template "grab_result_progress.html" . }}
+                {{ template "result_progress.html" . }}
             {{ end }}
         {{ else }}
             {{ if eq .DownloadStatus "failed" }}
