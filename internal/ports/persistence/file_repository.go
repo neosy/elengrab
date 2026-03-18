@@ -13,10 +13,9 @@ type FileRepository interface {
 	Transactional
 	Insert(ctx context.Context, file *ddownload.File) error
 	Update(ctx context.Context, file *ddownload.File) error
-	// UpdateStatusToNew updates all jobs with status Working or Pending to New.
-	UpdateStatusToNew(ctx context.Context, statuses []dtypes.FileStatus) error
 	Delete(ctx context.Context, FileID uuid.UUID, soft bool) error
 	Restore(ctx context.Context, FileID uuid.UUID) error
+
 	FindByFileID(ctx context.Context, FileID uuid.UUID) (*ddownload.File, error)
 	GetAll(ctx context.Context, includeDeleted bool) ([]*ddownload.File, error)
 	GetAllFullNames(ctx context.Context, includeDeleted bool) ([]string, error)
@@ -28,5 +27,10 @@ type FileRepository interface {
 	GetDuplicateHashes(ctx context.Context, scope dtypes.UniquenessScope) ([]ddownload.DuplicateHashRow, error)
 	GetDeleted(ctx context.Context, from, to *time.Time) ([]*ddownload.File, error)
 
+	// UpdateStatusToNew updates all jobs with status Working or Pending to New.
+	UpdateStatusToNew(ctx context.Context, statuses []dtypes.FileStatus) error
+	FillEmptyMediaTitleLower(ctx context.Context) error
+
 	WithUser(userID uuid.UUID) FileRepository
+	WithFilters(filters map[string]any) FileRepository
 }

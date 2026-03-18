@@ -6,7 +6,8 @@ const (
 	DownloadStatusKey                     = "DownloadStatus"
 	DownloadWorkingStatusKey              = "WorkingStatus"
 	DownloadingProgressPercentKey         = "ProgressPercent"
-	NeedLoadHistoryKey                    = "NeedLoadHistory"
+	ResultNoRowsKey                       = "ResultNoRows"
+	ResultRowsHTMLKey                     = "ResultRowsHTML"
 	ItemFadeKey                           = "ItemFade"
 	PageHasDivItemsKey                    = "PageHasDivItems"
 	IsItemHTMXOptionRepeatKey             = "IsItemHTMXOptionRepeat"
@@ -14,6 +15,7 @@ const (
 	IsItemSpinerKey                       = "IsItemSpiner"
 	DownloadResultItemDeleteIconKey       = "GrabResultItemDeleteIcon"
 	DownloadResultItemStatusFailedIconKey = "DownloadResultItemStatusFailedIcon"
+	ShowHistorySearchKey                  = "ShowHistorySearch"
 
 	ResultMediaUrlFadeKey = "ResultMediaUrlFade"
 	ResultSizeFadeKey     = "ResultSizeFade"

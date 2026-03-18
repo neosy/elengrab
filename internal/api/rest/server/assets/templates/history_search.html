@@ -1,0 +1,14 @@
+<div class="history-search">
+    <div class="history-search__wrapper">
+        <input class="history-search__input"
+        type="search" name="search"
+        placeholder="Search media"
+        maxlength="255"
+        autocomplete="off"
+        hx-post="{{.PathHistorySearch}}"
+        hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load[this.value.length > 0]"
+        hx-target="#result-rows"
+        hx-swap="outerHTML">
+        <button class="input-clear__button" type="button">×</button>
+    </div>
+</div>

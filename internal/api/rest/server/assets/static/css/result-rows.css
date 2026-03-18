@@ -1,11 +1,11 @@
-.div-grab-result {
+.grab-result {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 }
 
-.div-grab-result-info {
+.result-info {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -30,27 +30,131 @@
     transition: all 0.2s ease;
 }
 
-.div-grab-result-rows {
+.result-toolbar {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.history-search {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+    padding: 0 12px;
+}
+
+.history-search__wrapper {
+    position: relative;
+    width: auto;
+}
+
+.history-search__input {
+    width: 160px;
+    padding: 5px 32px 5px 28px;
+    border: 2px solid var(--search-border-input);
+    border-radius: 24px;
+    outline: none;
+    font-size: 14px;
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    box-shadow: inset 0 1px 2px var(--shadow);
+
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23999" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><g><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></g></svg>');
+    background-repeat: no-repeat;
+    background-position: 6px center;
+    background-size: 20px 20px;
+    
+    transition:
+        width 0.3s ease,
+        border-color 0.5s ease,
+        background-color 0.5s ease,
+        color 0.5s ease,
+        transform 0.5s ease;
+}
+
+.history-search__input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+}
+
+.history-search__input:focus {
+    width: 320px;
+    background-color: var(--bg-input-focus);
+    border-color: var(--border-input-focus);
+}
+
+.history-search__input.has-value:not(:focus) {
+    border-color: var(--border-input);
+}
+
+.history-search__input:hover:not(:focus) {
+    border-color: var(--border-input);
+}
+
+.input-clear__button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    
+    border: none;
+    color: var(--text-button-input-action);
+    background: transparent;
+    font-size: 16px;
+    cursor: pointer;
+    
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.history-search__wrapper.has-value .input-clear__button {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.result-rows__wrapper {
+    display: flex;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+    justify-content: center;
+}
+
+.result-rows {
     display: flex;
     flex-direction: column;
     max-width: 100%;
     min-width: 200px;
     align-items: center;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 10px;
     padding: 0 12px;
     background: var(--bg-result);
     color: var(--text-primary);
     font-size: 16px;
 }
 
-.div-grab-result-rows:empty {
+.result-rows:empty {
     border: none;
     background: transparent;
     box-shadow: none;
     min-width: 0;
     margin-top: 0;
     padding: 0;
+}
+
+.row-placeholder {
+    display: none;
+}
+
+.row-no-items {
+    display: block;
+    padding: 16px;
+    text-align: center;
+    color: var(--text-secondary);
 }
 
 .div-grab-result-row {
@@ -473,11 +577,43 @@
 }
 
 @media (max-width: 580px) {
-    .div-grab-result-rows {
+    .result-rows {
         padding: 5px 10px;
         border: 1px solid var(--border-result);
         border-radius: 15px;
         box-shadow: 0 1px 3px var(--shadow);
+    }
+
+    .history-search {
+        display: flex;
+        width: 100%;
+        max-width: 100%;
+        margin-left: auto;
+        padding: 0;
+    }
+
+    .history-search__wrapper {
+        width: 100%;
+        max-width: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .history-search__input {
+        width: 150px;
+        max-width: 100%;
+        margin-left: auto;
+    transition:
+        border-color 0.5s ease,
+        background-color 0.5s ease,
+        color 0.5s ease,
+        transform 0.5s ease;
+    }
+
+    .history-search__input:focus,
+    .history-search__input.has-value {
+        width: 100%;
+        margin-left: 0;
     }
 
     .div-grab-result-row {
@@ -505,6 +641,14 @@
     .div-result-format,
     .div-result-status {
         width: auto;
+    }
+
+    .div-result-size {
+        justify-content: right;
+    }
+
+    .result-size {
+        padding: 2px 0px;
     }
 
     .result-left {

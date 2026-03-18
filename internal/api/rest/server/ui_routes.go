@@ -23,5 +23,6 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		group.POST(httppaths.PathFileDownloadRepeat, auth(handlers.Downloader.RepeatDownloadHandler))
 		group.GET(httppaths.PathChannelAvatar, handlers.Downloader.GetChannelAvatarHandler)
 		group.GET(httppaths.PathFilesEvents, auth(handlers.Downloader.EventsHandler))
+		group.POST(httppaths.PathSearch, auth(handlers.Downloader.SearchHandler))
 	}
 }

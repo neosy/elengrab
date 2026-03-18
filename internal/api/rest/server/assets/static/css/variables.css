@@ -4,6 +4,7 @@
     --bg-result: #fdfdfd;
     --bg-result-item: #fdfdfd;
     --bg-input: white;
+    --bg-input-focus: #f5f5f5;
     --bg-format: #f0f0f0;
     --bg-button: #ebebeb;
     --bg-button-hover: #e4e4e4;
@@ -19,8 +20,10 @@
     --text-button-input-action-hover: #333;
     --text-tooltip: white;
     --border-input: #7eb980;
+    --border-input-focus: #4caf50;
     --border-select: #dfe3e8;
     --border-result: #dfe3e8;
+    --search-border-input: #ebebeb;
     --shadow: rgba(0,0,0,0.1);
     --download: #4caf50;
     --download-delete: #6b7280;
@@ -42,6 +45,7 @@
     --bg-result: #1F1F1F;
     --bg-result-item: #1F1F1F;
     --bg-input: #2c2c2c;
+    --bg-input-focus: #2c2c2c;
     --bg-format: #30363d;
     --bg-button: #30363d;
     --bg-button-hover: #3f444b;
@@ -57,8 +61,10 @@
     --text-button-input-action-hover: #cfd8e3;
     --text-tooltip: #cfd8e3;
     --border-input: #7eb980;
+    --border-input-focus: #58d660;
     --border-select: #30363d;
     --border-result: #30363d;
+    --search-border-input: #555;
     --shadow: rgba(0,0,0,0.4);
     --download: #58d660;
     --download-delete: #6b7280;

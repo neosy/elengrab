@@ -37,29 +37,24 @@ function setIcon(btn, url, alt) {
         .catch(err => console.error(err));
 }
 
-// -------------------------------------------------------------
-// Update action button based on input field state
-// -------------------------------------------------------------
-export function updateActionButton() {
-    const input = document.getElementById('mediaURL');
-    const btn = document.getElementById('inputActionBtn');
-
+/**
+ * Update button state for paste/clear behavior.
+ * @param {HTMLInputElement} input
+ * @param {HTMLElement} btn
+ */
+export async function updateInputPasteClearButton(input, btn) {
     if (!input || !btn) return;
 
     const showPaste = !input.value.trim();
 
-    // Skip if the button is already in correct state
-    if (showPaste && btn.dataset.state === 'paste') return;
-    if (!showPaste && btn.dataset.state === 'clear') return;
-
     if (showPaste) {
         // Paste button only if Clipboard API is available
         if (!navigator.clipboard || !navigator.clipboard.readText) {
-            btn.style.display = 'none'; // hide paste button if clipboard not available
+            btn.style.display = 'none';
             btn.dataset.state = 'none';
             return;
         } else {
-            btn.style.display = ''; // show paste button
+            btn.style.display = '';
         }
 
         setIcon(btn, ICON_PASTE, 'Paste from clipboard');
@@ -69,124 +64,76 @@ export function updateActionButton() {
             try {
                 const text = await navigator.clipboard.readText();
                 input.value = text;
-                updateActionButton();
+                input.focus();
+                updateInputPasteClearButton(input, btn);
             } catch (e) {
                 console.error('Clipboard read failed', e);
-                btn.style.display = 'none'; // hide button if reading fails
+                btn.style.display = 'none';
                 btn.dataset.state = 'none';
             }
         };
     } else {
-        // Clear button always visible
+        // Clear button
         btn.style.display = '';
         setIcon(btn, ICON_CLEAR, 'Clear input');
         btn.dataset.state = 'clear';
 
         btn.onclick = () => {
             input.value = '';
-            updateActionButton();
+            input.focus();
+            updateInputPasteClearButton(input, btn);
         };
     }
 }
 
-// -------------------------------------------------------------
-// Handle row-add SSE event with multiple rows in one payload
-// and insert them after the top placeholder div
-// -------------------------------------------------------------
-export function handleRowAdd(event) {
-    try {
-        // Payload is raw HTML with multiple rows
-        const data = JSON.parse(event.data);
-        if (!data.id || !data.html) return
+/**
+ * Initialize action button for the specified input.
+ * @param {HTMLInputElement} input
+ * @param {HTMLElement} btn
+ */
+export function initInputPasteClearButton(input, btn) {
+    if (!input || !btn) return;
 
-        // Find the container that holds all rows
-        const container = document.getElementById("grab-result-rows");
-        if (!container) return;
+    // Initial setup
+    updateInputPasteClearButton(input, btn);
 
-        // Find the top placeholder div
-        const placeholder = document.getElementById("row-top-placeholder");
-        if (!placeholder) return;
-
-        // Insert all rows right after the placeholder
-        placeholder.insertAdjacentHTML("afterend", data.html);
-
-        const newEl = document.getElementById(data.id);
-        if (newEl) {
-            // Let HTMX process this element and activate any hx-* attributes
-            htmx.process(newEl);
-            
-            // Add animation class and initial styles
-            newEl.classList.add('animated');
-            newEl.style.opacity = 0;
-            newEl.style.transform = 'translateY(-20px)';
-            newEl.style.transition = 'opacity 0.75s ease, transform 0.75s ease';
-
-            // Trigger animation on the next browser frame
-            requestAnimationFrame(() => {
-                newEl.style.opacity = 1;
-                newEl.style.transform = 'translateY(0)';
-            });
-        }
-    } catch (err) {
-        console.error("SSE row-add handler error:", err);
-    }
-}
-
-export function handleRowUpdate(event) {
-    try {
-        const data = JSON.parse(event.data);
-        if (!data.id || !data.html) return
-
-        const el = document.getElementById(data.id);
-        if (!el) return;
-
-        const temp = document.createElement("div");
-        temp.innerHTML = data.html.trim();
-
-        const newEl = temp.firstElementChild;
-        if (!newEl) return;
-
-        el.replaceWith(newEl);
-        //HTMX will scan this element and activate all hx-* attributes
-        htmx.process(newEl);
-    } catch (err) {
-        console.error("SSE row-update handler error:", err);
-    }
+    // Attach input listener
+    input.addEventListener('input', () => {
+        updateInputPasteClearButton(input, btn);
+    });
 }
 
 // -------------------------------------------------------------
-// Handle row-delete SSE event and remove element if it exists
+// Function: initInputClearButton
+// Adds a clear (×) button to any input field inside a wrapper
+// wrapperSelector — CSS selector of the container that contains the input + button
 // -------------------------------------------------------------
-export function handleRowDelete(event) {
-    try {
-        const data = JSON.parse(event.data);
-        if (!data.id) return;
+export function initInputClearButton(wrapperSelector) {
+    const wrappers = document.querySelectorAll(wrapperSelector);
+    if (!wrappers.length) return;
 
-        const el = document.getElementById(data.id);
-        if (!el) return;
+    wrappers.forEach(wrapper => {
+        const input = wrapper.querySelector('input');
+        const clearBtn = wrapper.querySelector('button.input-clear__button');
 
-        // initial styles for animation
-        el.style.transition = "opacity 0.4s ease, transform 0.4s ease, height 0.4s ease, margin 0.4s ease";
-        el.style.opacity = "1";
-        el.style.transform = "translateY(0)";
-        el.style.height = el.offsetHeight + "px";
+        if (!input || !clearBtn) return;
 
-        // forcing layout so that the browser applies height
-        el.offsetHeight;
+        const updateState = () => {
+            const hasValue = input.value.trim() !== '';
+            wrapper.classList.toggle('has-value', hasValue);
+            input.classList.toggle('has-value', hasValue);
+        };
 
-        // final state
-        el.style.opacity = "0";
-        el.style.transform = "translateY(-10px)";
-        el.style.height = "0";
-        el.style.marginTop = "0";
-        el.style.marginBottom = "0";
-        el.style.paddingTop = "0";
-        el.style.paddingBottom = "0";
+        input.addEventListener('input', updateState);
 
-        el.addEventListener("transitionend", () => {
-            el.remove();
-        }, { once: true });
-    } catch (err) {
-        console.error("SSE row-delete handler error:", err);
-    }
+        clearBtn.addEventListener('click', () => {
+            input.value = '';
+            input.focus();
+            updateState();
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+
+        // Initialization during loading (for example, auto-completion)
+        updateState();
+    });
 }

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"bytes"
 	"fmt"
 	"html/template"
 	"path/filepath"
@@ -39,10 +38,17 @@ type fileRowInfoData struct {
 	ProgressID       string
 }
 
+type genRowResult struct {
+	templateName string
+	data         map[string]any
+	httpStatus   int
+	err          error
+}
+
 func (h *DownloaderHandlers) genRow(
 	fileInfo *dto.GetFileInfoResponse,
 	isFileEvent bool,
-) (*bytes.Buffer, int, error) {
+) genRowResult {
 	var (
 		cacheChanged = struct {
 			youtubeChannelID bool
@@ -55,7 +61,10 @@ func (h *DownloaderHandlers) genRow(
 	)
 
 	if fileInfo == nil {
-		return nil, fasthttp.StatusInternalServerError, errorx.New("the request returned an empty")
+		return genRowResult{
+			httpStatus: fasthttp.StatusInternalServerError,
+			err:        errorx.New("the request returned an empty"),
+		}
 	}
 
 	youtubeChannelID := channelIDValueNone
@@ -165,11 +174,10 @@ func (h *DownloaderHandlers) genRow(
 		tmplFileName = uivalues.GrabResultRowSuccessHtmlFileName
 	}
 
-	var buf bytes.Buffer
-	err := h.templates.ExecuteTemplate(&buf, tmplFileName, dataMap)
-	if err != nil {
-		return nil, fasthttp.StatusInternalServerError, errorx.NewByErr(err)
+	return genRowResult{
+		templateName: tmplFileName,
+		data:         dataMap,
+		httpStatus:   fasthttp.StatusOK,
+		err:          nil,
 	}
-
-	return &buf, fasthttp.StatusOK, nil
 }

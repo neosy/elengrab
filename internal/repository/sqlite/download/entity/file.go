@@ -15,6 +15,7 @@ type File struct {
 	Status               string     `db:"file_status"`
 	MediaUrl             string     `db:"youtube_url"`
 	MediaTitle           string     `db:"youtube_title"`
+	MediaTitleLower      string     `db:"media_title_lower"`
 	YoutubeChannelID     *string    `db:"youtube_channel_id"`
 	FileName             string     `db:"file_name"`
 	Ext                  string     `db:"ext"`

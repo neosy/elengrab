@@ -9,12 +9,37 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+.div-main-area {
+    position: relative;
+    width: 80%;
+    max-width: 1200px;
+    padding: 30px 50px 10px;
+    margin-top: 50px;
+    margin-bottom: 30px;
+    text-align: center;
+    background: var(--bg-main);
+    border-radius: 20px;
+    box-shadow: 0 2px 6px var(--shadow);
+}
+
 .div-header-main {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     padding-bottom: 20px;
+}
+
+.div-header-main * {
+    user-select: none;
+}
+
+.header-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .img-header-logo {
@@ -27,19 +52,6 @@ body {
     font-size: 64px;
     font-family: 'Cinzel', serif;
     margin: 0;
-}
-
-.div-main-area {
-    position: relative;
-    width: 80%;
-    max-width: 1200px;
-    padding: 30px 50px 10px;
-    margin-top: 50px;
-    margin-bottom: 30px;
-    text-align: center;
-    background: var(--bg-main);
-    border-radius: 20px;
-    box-shadow: 0 2px 6px var(--shadow);
 }
 
 .tooltip {
@@ -74,6 +86,7 @@ body {
 @media (max-width: 768px) {
     .div-main-area {
         width: 95%;
+        min-height: calc(100vh - 30px - 20px);
         padding: 15px;
         margin-top: 0px;
         margin-bottom: 0px;
@@ -91,11 +104,13 @@ body {
 @media (max-width: 480px) {
     body {
         margin: 0;
-        background: var(--bg-body);
+        background: var(--bg-main);
     }
 
     .div-main-area {
         width: 95%;
+        min-height: auto;
+        padding: 10px;
         margin-top: 0px;
         margin-bottom: 0px;
         border-radius: 0;
