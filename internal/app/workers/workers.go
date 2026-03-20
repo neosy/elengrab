@@ -21,6 +21,7 @@ const (
 	intervalCleanSiteLogoCacheDefault       = 12 * time.Hour
 	intervalBackupDatabaseDefault           = 1 * 24 * time.Hour
 	intervalFlushWALDefault                 = 1 * time.Hour
+	intervalUpdateSystemInfoDefault         = 30 * time.Minute
 )
 
 type Dependencies struct {
@@ -32,6 +33,7 @@ type Dependencies struct {
 	// runners
 	DownloaderMaintenance pworkers.DownloadMaintenanceRunner
 	Maintenance           pworkers.MaintenanceRunner
+	DownloaderTask        pworkers.DownloadTaskRunner
 
 	// options
 	IntervalUpdateHash               time.Duration
@@ -44,6 +46,7 @@ type Dependencies struct {
 	IntervalCleanSiteLogoCache       time.Duration
 	IntervalBackupDatabase           time.Duration
 	IntervalFlushWAL                 time.Duration
+	intervalUpdateSystemInfo         time.Duration
 }
 
 func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) {
@@ -118,5 +121,12 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 		wjobs.NewFlushWALJob(logger, deps.Maintenance),
 		nworkers.WorkerOptionName("FlusWAL"),
 		nworkers.WorkerOptionIntervalWithDefault(deps.IntervalFlushWAL, intervalFlushWALDefault),
+	))
+
+	ws.Add(nworkers.NewWorker(
+		wjobs.NewUpdateSystemInfoJob(logger, deps.DownloaderTask),
+		nworkers.WorkerOptionName("UpdateSystemInfo"),
+		nworkers.WorkerOptionIntervalWithDefault(deps.intervalUpdateSystemInfo, intervalUpdateSystemInfoDefault),
+		nworkers.WorkerOptionOneShotDelay(1*time.Second),
 	))
 }

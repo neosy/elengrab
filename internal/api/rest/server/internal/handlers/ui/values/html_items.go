@@ -17,6 +17,10 @@ const (
 	DownloadResultItemStatusFailedIconKey = "DownloadResultItemStatusFailedIcon"
 	ShowHistorySearchKey                  = "ShowHistorySearch"
 
+	AppVersionKey = "AppVersion"
+	DiskFreeKey   = "DiskFree"
+	DiskUsedKey   = "DiskUsed"
+
 	ResultMediaUrlFadeKey = "ResultMediaUrlFade"
 	ResultSizeFadeKey     = "ResultSizeFade"
 	ResultFormatFadeKey   = "ResultFormatFade"

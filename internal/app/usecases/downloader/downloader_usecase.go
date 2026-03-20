@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	iconfig "github.com/neosy/elengrab/infrastructure/config"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/broadcaster"
 	dlstate "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_state_cache"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task"
@@ -14,6 +15,7 @@ import (
 	siteicon "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon"
 	iconfetcher "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon_fetcher"
 	ytchannel "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/youtube_channel"
+	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/mappers"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/ports/persistence"
@@ -25,6 +27,8 @@ type YouTubeDownloader struct {
 	appCtx  context.Context
 	logger  *slog.Logger
 	mappers *mappers.Mappers
+
+	systemInfoStore systemInfoStore
 
 	// dispetchers
 	dlDispetcher nworkerpool.JobDispatcher
@@ -92,6 +96,12 @@ func NewYouTubeDownloader(
 		appCtx:  ctx,
 		logger:  logger,
 		mappers: mappers.NewMappers(),
+
+		systemInfoStore: systemInfoStore{
+			data: dto.SystemInfoResponse{
+				AppVersion: iconfig.AppVersion,
+			},
+		},
 
 		// Cache
 		dlStateCache: dlStateCache,

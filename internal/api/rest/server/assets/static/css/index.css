@@ -1,11 +1,15 @@
 body {
     display: flex;
     justify-content: center;
+    padding-bottom: 40px;
+
     font-family: "Inter", sans-serif;
     font-weight: 400;
-    letter-spacing: -0.25px;
+
     background-color: var(--bg-body);
     color: var(--text-primary);
+
+    letter-spacing: -0.25px;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -13,6 +17,7 @@ body {
     position: relative;
     width: 80%;
     max-width: 1200px;
+    min-height: calc(100vh - 40px - 2*8px - 50px - 30px - 30px - 10px);
     padding: 30px 50px 10px;
     margin-top: 50px;
     margin-bottom: 30px;
@@ -83,13 +88,62 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
+.footer-main {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(80% + 2*22px);
+  max-width: 1260px;
+
+  display: flex;
+  justify-content: flex-start;
+  gap: 20px;
+  align-items: center;
+
+  padding: 8px 20px;
+
+  border-radius: 20px 20px 0 0;
+
+  background: var(--bg-footer);
+  color: var(--text-secondary);
+
+  backdrop-filter: blur(6px);
+
+  font-size: 14px;
+  z-index: 1000;
+}
+
+.server-status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--server-status-offline);
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.server-status-dot.online {
+  background-color: var(--server-status-online);
+}
+
+/* .footer-disk-volume {
+  margin-left: auto;
+} */
+
 @media (max-width: 768px) {
     .div-main-area {
         width: 95%;
-        min-height: calc(100vh - 30px - 20px);
+        min-height: calc(100vh - 40px - 2*8px - 2*15px);
         padding: 15px;
         margin-top: 0px;
         margin-bottom: 0px;
+    }
+
+    .footer-main {
+        width: calc(95% - 2*5px);  
+        padding: 8px 10px;
     }
 
     .header {
@@ -116,6 +170,11 @@ body {
         border-radius: 0;
         box-shadow: none;
         background: var(--bg-main);
+    }
+
+    .footer-main {
+        width: 95%;
+        justify-content: center;
     }
 
     .img-header-logo {

@@ -4,6 +4,8 @@
 
 ### Feature
 - Add name search to the download history. Closes #184
+- Add a status bar at the bottom. Closes #156
+- Add Server status
 
 ### Style
 - Improved display on mobile devices
