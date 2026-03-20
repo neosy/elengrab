@@ -53,5 +53,15 @@
     <div id="video-player-wrapper"></div>
   </div>
   <div id="audio-bar-container"></div>
+  <footer class="footer-main">
+    <div class="footer-app-version">
+      <span id="server-status-dot" class="server-status-dot"></span>
+      v<span id="app-version">{{ .AppVersion }}</span>
+    </div>
+    <div class="footer-disk-volume">
+      Free: <span id="disk-free">{{ .DiskFree }}</span> |
+      Used: <span id="disk-used">{{ .DiskUsed }}</span>
+    </div>
+  </footer>
 </body>
 </html>

@@ -33,7 +33,10 @@ func (uc *YouTubeDownloader) ExecuteDownloadTask(
 	uc.broadcastFileUpdate(ctx, task.FileID)
 
 	var wg sync.WaitGroup
-	defer wg.Wait()
+	defer func() {
+		wg.Wait()
+		uc.UpdateSystemInfo()
+	}()
 
 	wg.Go(func() {
 		uc.fetchIcon(ctx, task.MediaUrl)

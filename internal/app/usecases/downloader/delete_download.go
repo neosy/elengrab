@@ -99,6 +99,7 @@ func (uc *YouTubeDownloader) DeleteDownload(
 			if err != nil {
 				uc.logger.Warn("Failed delete file", "filePath", fPath, "error", err)
 			}
+			uc.UpdateSystemInfo()
 		}(fPath)
 	}
 

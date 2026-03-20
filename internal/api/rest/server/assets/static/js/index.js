@@ -151,9 +151,66 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init action button for input
     actionButton.initInputClearButton('.history-search__wrapper');
 
-    // Subscribe to SSE row-delete event
-    const es = new EventSource("/ui/downloader/files/events");
-    es.addEventListener("row-add", rowEventHandlers.handleRowAdd);
-    es.addEventListener("row-update", rowEventHandlers.handleRowUpdate);
-    es.addEventListener("row-delete", rowEventHandlers.handleRowDelete);
+    // Create SSE connection
+    const sse = createSSEConnection();
+
+    // Close SSE on page unload
+    window.addEventListener("beforeunload", () => {
+        // Disabled: fires on file downloads too, causing unwanted SSE disconnects
+        // console.warn("SSE connection closed");
+        // sse.close();
+    });
 });
+
+function createSSEConnection() {
+    let eventSource;
+
+    const statusDot = document.getElementById("server-status-dot");
+
+    function setServerStatus(el, online) {
+        if (!el) return;
+
+        if (online) {
+            el.classList.add("online");
+        } else {
+            el.classList.remove("online");
+        }
+    }
+
+    // Internal function to (re)connect
+    function connect() {
+        eventSource = new EventSource("/ui/downloader/files/events");
+
+        // Server is considered online when these events arrive
+        eventSource.addEventListener("connected", () => setServerStatus(statusDot, true));
+        eventSource.addEventListener("ping", () => setServerStatus(statusDot, true));
+
+        // Business events
+        eventSource.addEventListener("row-add", rowEventHandlers.handleRowAdd);
+        eventSource.addEventListener("row-update", rowEventHandlers.handleRowUpdate);
+        eventSource.addEventListener("row-delete", rowEventHandlers.handleRowDelete);
+        eventSource.addEventListener("system-info-update", rowEventHandlers.handleSystemInfoUpdate);
+
+        // Fallback: any default message marks server as online
+        eventSource.onmessage = () => setServerStatus(statusDot, true);
+
+        // On error: mark offline and reconnect
+        eventSource.onerror = function(err) {
+            console.error("SSE connection lost:", err);
+            setServerStatus(statusDot, false);
+
+            eventSource.close();
+
+            // Reconnect after delay
+            setTimeout(connect, 5000);
+        };
+    }
+
+    // Initial connection
+    connect();
+
+    // Return only API to close connection from outside
+    return {
+        close: () => eventSource?.close()
+    };
+}

@@ -9,6 +9,7 @@ import (
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
+	uformat "github.com/neosy/elengrab/pkg/utils/format"
 	"github.com/valyala/fasthttp"
 )
 
@@ -30,12 +31,17 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	systemInfo := h.usecases.Downloader.SystemInfo()
+
 	showHistorySearch := h.usecases.Downloader.HistoryMode() != dtypes.HistoryModeDisabled
 
 	dataMap := uivalues.MergeMaps(uivalues.IndexValues, uivalues.FormGrabValues, uivalues.PathValues)
 	dataMap[uivalues.ShowHistorySearchKey] = showHistorySearch
 	dataMap[uivalues.ResultNoRowsKey] = rowsBuf.Len() == 0
 	dataMap[uivalues.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
+	dataMap[uivalues.AppVersionKey] = systemInfo.AppVersion
+	dataMap[uivalues.DiskFreeKey] = uformat.BytesHuman(systemInfo.DiskFree)
+	dataMap[uivalues.DiskUsedKey] = uformat.BytesHuman(systemInfo.DiskUsed)
 
 	// Execute template with PageTitle
 	if err := h.templates.ExecuteTemplate(ctx, uivalues.IndexHtmlFileName, dataMap); err != nil {

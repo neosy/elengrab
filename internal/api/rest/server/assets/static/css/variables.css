@@ -1,6 +1,7 @@
 :root {
     --bg-body: #f0f0f0;
     --bg-main: white;
+    --bg-footer: rgba(240, 240, 240, 0.5);
     --bg-result: #fdfdfd;
     --bg-result-item: #fdfdfd;
     --bg-input: white;
@@ -37,11 +38,14 @@
     --spinner-dl-start: #9e9e9e;
     --spinner-dl-downloading: #4caf50;
     --spinner-dl-finish: #4a90e2;
+    --server-status-offline: #555;
+    --server-status-online: #4caf50;
 }
 
 .dark {
     --bg-body: #171717;
     --bg-main: #1F1F1F;
+    --bg-footer: rgba(23, 23, 23, 0.5);;
     --bg-result: #1F1F1F;
     --bg-result-item: #1F1F1F;
     --bg-input: #2c2c2c;
@@ -76,4 +80,6 @@
     --error: #f85149;
     --spinner-light: #30363d;
     --spinner-accent: #58a6ff;
+    --server-status-offline: #8b949e;
+    --server-status-online: #58d660;
 }

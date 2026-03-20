@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
+	uformat "github.com/neosy/elengrab/pkg/utils/format"
 	"github.com/valyala/fasthttp"
 )
 
@@ -64,12 +65,12 @@ func (h *DownloaderHandlers) streamEvents(
 }
 
 func (h *DownloaderHandlers) sendConnected(w *bufio.Writer) {
-	fmt.Fprintf(w, ": connected\n\n")
+	fmt.Fprintf(w, "event: connected\ndata: {}\n\n")
 	w.Flush()
 }
 
 func (h *DownloaderHandlers) sendPing(w *bufio.Writer) {
-	fmt.Fprintf(w, ": ping\n\n")
+	fmt.Fprintf(w, "event: ping\ndata: {}\n\n")
 	w.Flush()
 }
 
@@ -83,6 +84,8 @@ func (h *DownloaderHandlers) handleEvent(w *bufio.Writer, event ucdto.BroadcastE
 		h.handleFileDelete(w, event)
 	case ucdto.BroadcastEventTypeProgressUpdate:
 		h.handleProgressUpdate(w, event)
+	case ucdto.BroadcastEventTypeSystemInfoUpdate:
+		h.handleSystemInfoUpdate(w, event)
 	}
 }
 
@@ -201,5 +204,29 @@ func (h *DownloaderHandlers) handleProgressUpdate(w *bufio.Writer, event ucdto.B
 
 	fmt.Fprintf(w, "event: row-patch\n")
 	fmt.Fprintf(w, "data: %s\n\n", buf.String())
+	w.Flush()
+}
+
+func (h *DownloaderHandlers) handleSystemInfoUpdate(w *bufio.Writer, event ucdto.BroadcastEvent) {
+	systemInfo, ok := event.Data.(ucdto.SystemInfoResponse)
+	if !ok {
+		return
+	}
+
+	data := struct {
+		DiskFree string `json:"diskFree"`
+		DiskUsed string `json:"diskUsed"`
+	}{
+		DiskFree: uformat.BytesHuman(systemInfo.DiskFree),
+		DiskUsed: uformat.BytesHuman(systemInfo.DiskUsed),
+	}
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return
+	}
+
+	fmt.Fprintf(w, "event: system-info-update\n")
+	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }

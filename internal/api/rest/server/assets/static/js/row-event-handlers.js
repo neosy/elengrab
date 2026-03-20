@@ -105,3 +105,19 @@ export function handleRowDelete(event) {
         console.error("SSE row-delete handler error:", err);
     }
 }
+
+export function handleSystemInfoUpdate(event) {
+    try {
+        const data = JSON.parse(event.data);
+        if (!data.diskFree || !data.diskUsed) return
+
+        const elDiskFree = document.getElementById("disk-free");
+        const elDiskUsed = document.getElementById("disk-used");
+        if (!elDiskFree || !elDiskUsed) return;
+
+        elDiskFree.textContent = data.diskFree
+        elDiskUsed.textContent = data.diskUsed
+    } catch (err) {
+        console.error("SSE row-update handler error:", err);
+    }
+}
