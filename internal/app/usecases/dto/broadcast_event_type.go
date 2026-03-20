@@ -8,16 +8,18 @@ const (
 	BroadcastEventTypeFileUpdate
 	BroadcastEventTypeProgressUpdate
 	BroadcastEventTypeFileDelete
+	BroadcastEventTypeSystemInfoUpdate
 )
 
 var (
 	// broadcastEventTypeMap implementation of a set for BroadcastEventType
 	broadcastEventTypeMap = map[BroadcastEventType]string{
-		BroadcastEventTypeNone:           "none",
-		BroadcastEventTypeFileAdd:        "file_add",
-		BroadcastEventTypeFileUpdate:     "file_update",
-		BroadcastEventTypeFileDelete:     "file_delete",
-		BroadcastEventTypeProgressUpdate: "progress_update",
+		BroadcastEventTypeNone:             "none",
+		BroadcastEventTypeFileAdd:          "file_add",
+		BroadcastEventTypeFileUpdate:       "file_update",
+		BroadcastEventTypeFileDelete:       "file_delete",
+		BroadcastEventTypeProgressUpdate:   "progress_update",
+		BroadcastEventTypeSystemInfoUpdate: "system_info_update",
 	}
 )
 

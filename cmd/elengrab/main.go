@@ -220,6 +220,7 @@ func main() {
 		// runners
 		DownloaderMaintenance: uc.Downloader,
 		Maintenance:           uc.Maintenance,
+		DownloaderTask:        uc.Downloader,
 		// options
 		IntervalUpdateHash:               cfg.Elengrab.Maintenance.IntervalUpdateHash,
 		IntervalDeleteDuplicates:         cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
