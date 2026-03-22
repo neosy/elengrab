@@ -9,6 +9,10 @@
 
 ### Style
 - Improved display on mobile devices
+- Add smooth tooltip animations
+
+### Perfomance
+- Update download progress via SSE
 
 ### Refactor
 - CSS class names
@@ -20,7 +24,7 @@
 ### Fix
 - Preload warning for font
 
-### Perf
+### Perfomance
 - Optimize infinite scroll history loading
 
 ---
