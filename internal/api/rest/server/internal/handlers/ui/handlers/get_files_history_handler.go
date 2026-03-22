@@ -64,6 +64,10 @@ func (h *DownloaderHandlers) getFilesHistory(
 		return err
 	}
 
+	if len(resps) == 0 {
+		return nil
+	}
+
 	loadNextHistory := len(resps) > loadHistoryLimit
 
 	// If there are more items than the limit, we show only the limited number of items and a "Load more"
@@ -72,7 +76,7 @@ func (h *DownloaderHandlers) getFilesHistory(
 		lines = resps[:loadHistoryLimit]
 	}
 
-	before = time.Time{}
+	before = lines[len(lines)-1].CreatedAt
 
 	for i, fileInfo := range lines {
 		row := h.genRow(fileInfo, false)
@@ -84,8 +88,6 @@ func (h *DownloaderHandlers) getFilesHistory(
 		if err != nil {
 			continue
 		}
-
-		before = fileInfo.CreatedAt
 
 		if loadNextHistory && i == preloadHistoryAfter-1 {
 			h.genRowShouldLoadHistory(buf, before, filters)
