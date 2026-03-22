@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	uformat "github.com/neosy/elengrab/pkg/utils/format"
 	"github.com/valyala/fasthttp"
@@ -100,11 +99,11 @@ func (h *DownloaderHandlers) handleFileAdd(w *bufio.Writer, event ucdto.Broadcas
 	html := strings.TrimSpace(buf.String())
 
 	data := struct {
-		ID   string `json:"id"`
-		HTML string `json:"html"`
+		FileID string `json:"fileId"`
+		HTML   string `json:"html"`
 	}{
-		ID:   "row-" + fileInfo.FileID.String(),
-		HTML: html,
+		FileID: fileInfo.FileID.String(),
+		HTML:   html,
 	}
 
 	jsonData, err := json.Marshal(data)
@@ -140,11 +139,11 @@ func (h *DownloaderHandlers) handleFileUpdate(w *bufio.Writer, event ucdto.Broad
 	html := strings.TrimSpace(buf.String())
 
 	data := struct {
-		ID   string `json:"id"`
-		HTML string `json:"html"`
+		FileID string `json:"fileId"`
+		HTML   string `json:"html"`
 	}{
-		ID:   "row-" + fileInfo.FileID.String(),
-		HTML: html,
+		FileID: fileInfo.FileID.String(),
+		HTML:   html,
 	}
 
 	jsonData, err := json.Marshal(data)
@@ -164,9 +163,9 @@ func (h *DownloaderHandlers) handleFileDelete(w *bufio.Writer, event ucdto.Broad
 	}
 
 	data := struct {
-		RowID string `json:"id"`
+		FileID string `json:"fileId"`
 	}{
-		RowID: "row-" + fileID.String(),
+		FileID: fileID.String(),
 	}
 
 	jsonData, err := json.Marshal(data)
@@ -190,20 +189,24 @@ func (h *DownloaderHandlers) handleProgressUpdate(w *bufio.Writer, event ucdto.B
 	if !ok {
 		return
 	}
-	data := dataProgress{
-		ProgressID:          fmt.Sprintf("progress-%s", progress.FileID),
-		IsFileProgressEvent: true,
-		ProgressPercent:     progress.Percent,
+
+	data := struct {
+		Field  string `json:"field"`
+		FileID string `json:"fileId"`
+		Value  any    `json:"value"`
+	}{
+		Field:  "progress",
+		FileID: progress.FileID.String(),
+		Value:  progress.Percent,
 	}
 
-	var buf bytes.Buffer
-	err := h.templates.ExecuteTemplate(&buf, uivalues.GrabResultProgressHtmlFileName, data)
+	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return
 	}
 
-	fmt.Fprintf(w, "event: row-patch\n")
-	fmt.Fprintf(w, "data: %s\n\n", buf.String())
+	fmt.Fprintf(w, "event: row-patch-field\n")
+	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
 
