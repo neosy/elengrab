@@ -8,7 +8,7 @@ const (
 	dateFormate = time.RFC3339
 
 	loadHistoryLimit    = 30
-	preloadHistoryAfter = 10
+	preloadHistoryAfter = 20
 
 	formFieldMediaURLKey          = "mediaURL"
 	formFieldQualityCodecKey      = "quality-codec"
