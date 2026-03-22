@@ -4,6 +4,8 @@ import * as actionButton from './action-button.js';
 import * as rowEventHandlers from './row-event-handlers.js';
 import * as player from './player.js';
 import * as tooltip from './tooltip.js';
+import { DOM_IDS } from "./dom-ids.js";
+import { DOM_ELEMENTS } from "./dom-elements.js";
 import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
 
 // -------------------------------------------------------------
@@ -87,9 +89,8 @@ function setupQualityFormatLogic() {
 function createSSEConnection() {
     let eventSource;
 
-    const statusDot = document.getElementById("server-status-dot");
-
-    function setServerStatus(el, online) {
+    function setServerStatus(online) {
+        const el = DOM_ELEMENTS.sysInfoServerStatusDot
         if (!el) return;
 
         if (online) {
@@ -104,22 +105,23 @@ function createSSEConnection() {
         eventSource = new EventSource("/ui/downloader/files/events");
 
         // Server is considered online when these events arrive
-        eventSource.addEventListener("connected", () => setServerStatus(statusDot, true));
-        eventSource.addEventListener("ping", () => setServerStatus(statusDot, true));
+        eventSource.addEventListener("connected", () => setServerStatus(true));
+        eventSource.addEventListener("ping", () => setServerStatus(true));
 
         // Business events
         eventSource.addEventListener("row-add", rowEventHandlers.handleRowAdd);
         eventSource.addEventListener("row-update", rowEventHandlers.handleRowUpdate);
         eventSource.addEventListener("row-delete", rowEventHandlers.handleRowDelete);
+        eventSource.addEventListener("row-patch-field", rowEventHandlers.handleRowPatchField);
         eventSource.addEventListener("system-info-update", rowEventHandlers.handleSystemInfoUpdate);
 
         // Fallback: any default message marks server as online
-        eventSource.onmessage = () => setServerStatus(statusDot, true);
+        eventSource.onmessage = () => setServerStatus(true);
 
         // On error: mark offline and reconnect
         eventSource.onerror = function(err) {
             console.error("SSE connection lost:", err);
-            setServerStatus(statusDot, false);
+            setServerStatus(false);
 
             eventSource.close();
 
@@ -147,12 +149,12 @@ if ('scrollRestoration' in history) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const formGrab = document.querySelector('#grabForm');
+    const formGrab = document.querySelector(`#${DOM_IDS.grabForm}`);
     const buttonGrab = document.querySelector('.button-grab-get');
-    const resultDivInfo = document.querySelector('#result-info');
 
-    const grabInputURL = document.getElementById('mediaURL');
-    const grabInputActionBtn = document.getElementById('inputActionBtn');
+    const grabInputURL = DOM_ELEMENTS.mediaURL;
+    const grabInputActionBtn = DOM_ELEMENTS.inputActionBtn;
+    const resultDivInfo = DOM_ELEMENTS.resultInfo;
 
     // Sync selects with cookies
     cookie.setupCookieSelectSync(SELECT_NAMES.qualityCodec, COOKIE_NAMES.qualityCodec);
@@ -168,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Clear before HTMX request
-    htmx.on('#grabForm', 'htmx:beforeRequest', () => {
+    htmx.on(`#${DOM_IDS.grabForm}`, 'htmx:beforeRequest', () => {
         if (grabInputURL) {
             grabInputURL.value = '';
             // update action button after clearing

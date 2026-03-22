@@ -1,3 +1,6 @@
+import { DOM_IDS } from "./dom-ids.js";
+import { DOM_ELEMENTS } from "./dom-elements.js";
+
 // -------------------------------------------------------------
 // Handle row-add SSE event with multiple rows in one payload
 // and insert them after the top placeholder div
@@ -6,23 +9,23 @@ export function handleRowAdd(event) {
     try {
         // Payload is raw HTML with multiple rows
         const data = JSON.parse(event.data);
-        if (!data.id || !data.html) return
+        if (!data.fileId || !data.html) return
 
         // Find the container that holds all rows
-        const container = document.getElementById("result-rows");
+        const container = document.getElementById(DOM_IDS.resultRows);
         if (!container) return;
 
         // Find the top placeholder div
-        const placeholder = document.getElementById("row-top-placeholder");
+        const placeholder = document.getElementById(DOM_IDS.rowTopPlaceholder);
         if (!placeholder) return;
 
         // Insert all rows right after the placeholder
         placeholder.insertAdjacentHTML("afterend", data.html);
 
-        const newEl = document.getElementById(data.id);
+        const newEl = document.getElementById(DOM_IDS.row(data.fileId));
         if (newEl) {
             // If the element exists, remove it from the DOM
-            const elNoItems = document.getElementById("row-no-items");
+            const elNoItems = document.getElementById(DOM_IDS.rowNoItems);
             if (elNoItems) {
                 elNoItems.remove();
             }
@@ -43,16 +46,16 @@ export function handleRowAdd(event) {
             });
         }
     } catch (err) {
-        console.error("SSE row-add handler error:", err);
+        console.error(`SSE ${event.type} handler error:`, err);
     }
 }
 
 export function handleRowUpdate(event) {
     try {
         const data = JSON.parse(event.data);
-        if (!data.id || !data.html) return
+        if (!data.fileId || !data.html) return
 
-        const el = document.getElementById(data.id);
+        const el = document.getElementById(DOM_IDS.row(data.fileId));
         if (!el) return;
 
         const temp = document.createElement("div");
@@ -65,7 +68,7 @@ export function handleRowUpdate(event) {
         //HTMX will scan this element and activate all hx-* attributes
         htmx.process(newEl);
     } catch (err) {
-        console.error("SSE row-update handler error:", err);
+        console.error(`SSE ${event.type} handler error:`, err);
     }
 }
 
@@ -75,9 +78,9 @@ export function handleRowUpdate(event) {
 export function handleRowDelete(event) {
     try {
         const data = JSON.parse(event.data);
-        if (!data.id) return;
+        if (!data.fileId) return;
 
-        const el = document.getElementById(data.id);
+        const el = document.getElementById(DOM_IDS.row(data.fileId));
         if (!el) return;
 
         // initial styles for animation
@@ -102,7 +105,7 @@ export function handleRowDelete(event) {
             el.remove();
         }, { once: true });
     } catch (err) {
-        console.error("SSE row-delete handler error:", err);
+        console.error(`SSE ${event.type} handler error:`, err);
     }
 }
 
@@ -111,13 +114,33 @@ export function handleSystemInfoUpdate(event) {
         const data = JSON.parse(event.data);
         if (!data.diskFree || !data.diskUsed) return
 
-        const elDiskFree = document.getElementById("disk-free");
-        const elDiskUsed = document.getElementById("disk-used");
-        if (!elDiskFree || !elDiskUsed) return;
+        if (!DOM_ELEMENTS.sysInfoDiskFree || !DOM_ELEMENTS.sysInfoDiskUsed) return;
 
-        elDiskFree.textContent = data.diskFree
-        elDiskUsed.textContent = data.diskUsed
+        DOM_ELEMENTS.sysInfoDiskFree.textContent = data.diskFree
+        DOM_ELEMENTS.sysInfoDiskUsed.textContent = data.diskUsed
     } catch (err) {
-        console.error("SSE row-update handler error:", err);
+        console.error(`SSE ${event.type} handler error:`, err);
     }
+}
+
+export function handleRowPatchField(event) {
+    try {
+        const data = JSON.parse(event.data);
+        if (!data.field || !data.fileId || !data.value) return
+
+        switch (data.field) {
+            case "progress": handleRowPatchProgress(data.fileId, data.value);
+        }
+    } catch (err) {
+        console.error(`SSE ${event.type} handler error:`, err);
+    }
+}
+
+function handleRowPatchProgress(fileId, value) {
+    if (!fileId || !value) return
+
+    const el = document.getElementById(DOM_IDS.progressRow(fileId));
+    if (!el) return;
+
+    el.textContent = value
 }
