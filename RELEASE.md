@@ -1,6 +1,6 @@
 # Releases
 
-## v0.16.0 — 2026-03-21
+## v0.16.0 — 2026-03-22
 
 ### Feature
 - Add name search to the download history. Closes #184
