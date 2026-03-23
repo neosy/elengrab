@@ -56,7 +56,9 @@
   <footer class="footer-main">
     <div class="footer-app-version">
       <span id="server-status-dot" class="server-status-dot"></span>
-      v<span id="app-version">{{ .AppVersion }}</span>
+      <a class="app-version--a" href="https://github.com/neosy/elengrab" target="_blank" title="View source code on GitHub">
+        v<span id="app-version">{{ .AppVersion }}</span>
+      </a>
     </div>
     <div class="footer-disk-volume">
       Free: <span id="disk-free">{{ .DiskFree }}</span> |
