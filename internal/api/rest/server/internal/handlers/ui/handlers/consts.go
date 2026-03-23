@@ -25,4 +25,8 @@ const (
 	cookiePageHasDivItemsKey cookieKey = "page_has_div_items"
 
 	channelIDValueNone = "none"
+
+	dirStaticName = "static"
+	dirCssName    = "css"
+	dirJsName     = "js"
 )

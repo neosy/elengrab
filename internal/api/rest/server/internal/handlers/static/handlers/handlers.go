@@ -1,6 +1,10 @@
 package handlers
 
 import (
+	"path/filepath"
+	"regexp"
+	"strings"
+
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/valyala/fasthttp"
 )
@@ -32,17 +36,28 @@ func NewStaticHandlers(assetsDir string) *StaticHandlers {
 
 func (h *StaticHandlers) newFSHandler(name string, htmlPathName string) fasthttp.RequestHandler {
 	fs := &fasthttp.FS{
-		Root:               h.assetsDir + "/static/" + name,
+		Root:               filepath.Join(h.assetsDir, "static", name),
 		GenerateIndexPages: false,
 	}
 
 	handler := fs.NewRequestHandler()
 
+	re := regexp.MustCompile(`^(.*?)(\.[0-9a-f]{6,})?(\.css|\.js)$`)
+
 	return func(ctx *fasthttp.RequestCtx) {
 		path := httppaths.GroupStatic + "/" + htmlPathName
-		ctx.Request.SetRequestURIBytes(
-			ctx.Path()[len(path):],
-		)
+
+		pathSuffix := string(ctx.Path()[len(path):])
+		fileName, _ := strings.CutPrefix(pathSuffix, "/")
+
+		matches := re.FindStringSubmatch(fileName)
+		if len(matches) == 4 {
+			fileName = matches[1] + matches[3]
+		}
+
+		pathSuffix = "/" + fileName
+
+		ctx.Request.SetRequestURIBytes([]byte(pathSuffix))
 		handler(ctx)
 	}
 }

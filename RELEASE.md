@@ -5,6 +5,9 @@
 ### Style
 - Add link to version
 
+### Chore
+- Bump CSS/JS file versions
+
 ---
 
 ## v0.16.1 — 2026-03-23
