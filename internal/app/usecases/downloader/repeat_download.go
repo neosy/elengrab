@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/pkg/errorx"
+	"github.com/valyala/fasthttp"
 )
 
 // RepeatDownload repeats the download process for a specific file.
@@ -17,6 +19,19 @@ func (uc *YouTubeDownloader) RepeatDownload(
 	var accessByUserID *uuid.UUID
 	if uc.historyMode != dtypes.HistoryModeGlobal {
 		accessByUserID = &userID
+	}
+
+	if uc.demoMode {
+		uc.broadcastNotification(
+			userID,
+			dto.BroadcastNotificationModuleResultRow,
+			dto.BroadcastNotificationTypeError,
+			"Operation not allowed in demo mode",
+		)
+		return nil, errorx.New(
+			"operation not allowed in demo mode",
+			errorx.ArgHttpStatusCode(fasthttp.StatusForbidden),
+		)
 	}
 
 	err := uc.file.Tx(

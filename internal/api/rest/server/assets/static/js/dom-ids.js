@@ -7,6 +7,8 @@ export const DOM_IDS = {
     mediaURL: "mediaURL",
     inputActionBtn: "inputActionBtn",
     resultInfo: "result-info",
+    resultInfoRow: "result-info-row",
+    resultInfoFailed: "result-info-failed",
 
     row: (id) => `row-${id}`,
     progressRow: (id) => `progress-${id}`,

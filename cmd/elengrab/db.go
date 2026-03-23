@@ -31,7 +31,7 @@ func applyMigrations(
 	mainDB *sql.DB,
 	mediaDB *sql.DB,
 ) error {
-	sqliteDir := absPath(cfg.Elengrab.AppDir, cfg.SQLite.DataDir)
+	sqliteDir := absPath(cfg.Elengrab.RootDir, cfg.SQLite.DataDir)
 
 	migration := database.NewMigrations(logger, authDB, persistence.DBAuthName, nil)
 	if err := migration.ApplyMigrations(); err != nil {

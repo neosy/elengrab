@@ -1,5 +1,9 @@
       <div class="grab-result" id="grab-result">
-        <div class="result-info" id="result-info"></div>
+        <div class="result-info" id="result-info">
+          <div class="result-info-row" id="result-info-row">
+              <span class="result-info-failed" id="result-info-failed"></span>
+          </div>
+        </div>
         {{ if .ShowHistorySearch }}
           <div class="result-toolbar">
             {{ template "history_search.html" . }}

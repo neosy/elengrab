@@ -32,4 +32,7 @@ type ErrorxInterface interface {
 
 	// ExceptionCode returns a code of exception
 	ExceptionCode() exceptionx.ExceptionCode
+
+	// HttpStatusCode returns the HTTP status code associated with the error, if any.
+	HttpStatusCode() *int
 }

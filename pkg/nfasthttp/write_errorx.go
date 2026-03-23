@@ -23,8 +23,8 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 	var errCode uint
 	var errx *errorx.Errorx
 
-	switch e := err.(type) {
-	case *errorx.Errorx:
+	e, ok := err.(*errorx.Errorx)
+	if ok {
 		errx = e
 	}
 
@@ -38,8 +38,9 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 			exType = tmpType
 		}
 
-		if exType != nil {
-			httpStatusCode = exType.HttpStatusCode()
+		httpStatus := errx.HttpStatusCode()
+		if httpStatus != nil {
+			httpStatusCode = *httpStatus
 		}
 
 		if exCode != nil {

@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"fmt"
-
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	"github.com/neosy/elengrab/pkg/errorx"
+	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
 
@@ -12,21 +12,24 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
-		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
-		ctx.SetBodyString(fmt.Sprintf("Authorization error: %v", err))
+		err := errorx.New(
+			"Authorization error",
+			errorx.ArgHttpStatusCode(fasthttp.StatusUnauthorized),
+		).Append(err)
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
 	url := string(ctx.FormValue(formFieldMediaURLKey))
 	if url == "" {
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetBodyString("URL is required")
+		err := errorx.New("URL is required", errorx.ArgHttpStatusCode(fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
 	if err := h.validators.Validate.Var(url, "url"); err != nil {
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetBodyString("Invalid URL")
+		err := errorx.New("Invalid URL", errorx.ArgHttpStatusCode(fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -48,8 +51,7 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		},
 	)
 	if err != nil {
-		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
-		ctx.SetBodyString(fmt.Sprintf("Internal error: %v", err))
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 

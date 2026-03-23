@@ -1,5 +1,16 @@
 # Releases
 
+## v0.16.1 — 2026-03-23
+
+### Feature
+- Add demo mode
+- Add error notification
+
+### Refactor
+- Work pools
+
+---
+
 ## v0.16.0 — 2026-03-22
 
 ### Feature

@@ -85,6 +85,8 @@ func (h *DownloaderHandlers) handleEvent(w *bufio.Writer, event ucdto.BroadcastE
 		h.handleProgressUpdate(w, event)
 	case ucdto.BroadcastEventTypeSystemInfoUpdate:
 		h.handleSystemInfoUpdate(w, event)
+	case ucdto.BroadcastEventTypeNotification:
+		h.handleNotification(w, event)
 	}
 }
 
@@ -230,6 +232,32 @@ func (h *DownloaderHandlers) handleSystemInfoUpdate(w *bufio.Writer, event ucdto
 	}
 
 	fmt.Fprintf(w, "event: system-info-update\n")
+	fmt.Fprintf(w, "data: %s\n\n", jsonData)
+	w.Flush()
+}
+
+func (h *DownloaderHandlers) handleNotification(w *bufio.Writer, event ucdto.BroadcastEvent) {
+	notification, ok := event.Data.(ucdto.BroadcastNotification)
+	if !ok {
+		return
+	}
+
+	data := struct {
+		Module  string `json:"module"`
+		Type    string `json:"type"`
+		Message string `json:"message"`
+	}{
+		Module:  notification.Module.String(),
+		Type:    notification.Type.String(),
+		Message: notification.Message,
+	}
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return
+	}
+
+	fmt.Fprintf(w, "event: notification\n")
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
