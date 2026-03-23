@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"html/template"
+	"path/filepath"
 	"time"
 
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
@@ -35,7 +37,40 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 
 	showHistorySearch := h.usecases.Downloader.HistoryMode() != dtypes.HistoryModeDisabled
 
+	cssPaths, err := uivalues.CssPaths(filepath.Join(h.assetsDir, dirStaticName, dirCssName))
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
+	jsScripts, err := uivalues.JsScripts(filepath.Join(h.assetsDir, dirStaticName, dirJsName))
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
+	jsImportMap, err := uivalues.JsImportMap(filepath.Join(h.assetsDir, dirStaticName, dirJsName))
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
+	jsImportMapJSON, err := json.MarshalIndent(
+		map[string]any{
+			"imports": jsImportMap,
+		},
+		"",
+		"  ",
+	)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
 	dataMap := uivalues.MergeMaps(uivalues.IndexValues, uivalues.FormGrabValues, uivalues.PathValues)
+	dataMap[uivalues.CssPathsKey] = cssPaths
+	dataMap[uivalues.JsScriptsKey] = jsScripts
+	dataMap[uivalues.JsImportMapJSONKey] = template.HTML(jsImportMapJSON)
 	dataMap[uivalues.ShowHistorySearchKey] = showHistorySearch
 	dataMap[uivalues.ResultNoRowsKey] = rowsBuf.Len() == 0
 	dataMap[uivalues.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())

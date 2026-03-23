@@ -11,12 +11,9 @@
       }
     } catch(e){}
   </script>
-  <link rel="stylesheet" href="{{.PathStaticCss}}/variables.css?v={{.AppVersion}}">
-  <link rel="stylesheet" href="{{.PathStaticCss}}/theme-switcher.css?v={{.AppVersion}}">
-  <link rel="stylesheet" href="{{.PathStaticCss}}/index.css?v={{.AppVersion}}">
-  <link rel="stylesheet" href="{{.PathStaticCss}}/grab-form.css?v={{.AppVersion}}">
-  <link rel="stylesheet" href="{{.PathStaticCss}}/result-rows.css?v={{.AppVersion}}">
-  <link rel="stylesheet" href="{{.PathStaticCss}}/player.css?v={{.AppVersion}}">
+  {{- range .CssPaths }}
+  <link rel="stylesheet" href="{{.}}">
+  {{- end }}
   <link rel="manifest" href="{{.PathStaticPwa}}/manifest.json">
   <link rel="icon" type="image/png" sizes="16x16" href="{{.PathStaticImg}}/favicon-16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="{{.PathStaticImg}}/favicon-32.png">
@@ -30,12 +27,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
   <meta name="theme-color" id="theme-color-meta" content="#171717">
-  <!-- <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.4/dist/sse.min.js"></script>   -->
-  <script src="{{.PathStaticJs}}/htmx.min.js?v={{.AppVersion}}"></script>
-  <script src="{{.PathStaticJs}}/sse.min.js?v={{.AppVersion}}"></script>  
-  <script defer src="{{.PathStaticJs}}/theme-switcher.js?v={{.AppVersion}}"></script>
-  <script type="module" src="{{.PathStaticJs}}/index.js?v={{.AppVersion}}"></script>
+  <script type="importmap">
+  {{ .JsImportMapJSON }}
+  </script>
+  {{- range .JsScripts }}
+  {{- /* <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.4/dist/sse.min.js"></script> */}}
+    {{- if .Type}}
+  <script{{if .Defer}} defer{{end}} type="{{.Type}}" src="{{.Path}}"></script>
+    {{- else}}
+  <script{{if .Defer}} defer{{end}} src="{{.Path}}"></script>
+    {{- end}}
+  {{- end }}
 </head>
 <body>
   {{ template "theme-switcher.html" . }}

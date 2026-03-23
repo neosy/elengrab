@@ -1,6 +1,9 @@
 package uivalues
 
 const (
+	CssPathsKey                           = "CssPaths"
+	JsScriptsKey                          = "JsScripts"
+	JsImportMapJSONKey                    = "JsImportMapJSON"
 	GrabResultItemStatusHtmlKey           = "GrabResultItemStatusHtml"
 	GrabResultItemStatusTextKey           = "GrabResultItemStatusText"
 	DownloadStatusKey                     = "DownloadStatus"
