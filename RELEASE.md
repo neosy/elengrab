@@ -1,5 +1,12 @@
 # Releases
 
+## v0.16.2 — 2026-03-23
+
+### Style
+- Add link to version
+
+---
+
 ## v0.16.1 — 2026-03-23
 
 ### Feature

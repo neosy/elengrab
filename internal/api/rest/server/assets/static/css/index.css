@@ -120,6 +120,14 @@ body {
     z-index: 1000;
 }
 
+.app-version--a {
+    color: var(--text-secondary);   
+}
+
+.app-version--a:hover {
+    color: var(--text-primary);   
+}
+
 .footer-app-version {
     flex-shrink: 0;
     white-space: nowrap;
