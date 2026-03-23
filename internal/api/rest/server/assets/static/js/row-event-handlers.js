@@ -1,5 +1,6 @@
 import { DOM_IDS } from "./dom-ids.js";
 import { DOM_ELEMENTS } from "./dom-elements.js";
+import * as helper from './helper.js';
 
 // -------------------------------------------------------------
 // Handle row-add SSE event with multiple rows in one payload
@@ -143,4 +144,18 @@ function handleRowPatchProgress(fileId, value) {
     if (!el) return;
 
     el.textContent = value
+}
+
+
+export function handleNotification(event) {
+    try {
+        const data = JSON.parse(event.data);
+        if (!data.module || !data.type || !data.message) return
+
+        switch (data.module) {
+            case "result-row": helper.showErrorMessage(data.message, DOM_ELEMENTS.resultInfo, DOM_ELEMENTS.resultInfoFailed);
+        }
+    } catch (err) {
+        console.error(`SSE ${event.type} handler error:`, err);
+    }
 }

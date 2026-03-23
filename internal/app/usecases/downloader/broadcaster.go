@@ -124,3 +124,17 @@ func (uc *YouTubeDownloader) broadcastFileProgressUpdate(
 func (uc *YouTubeDownloader) broadcastSystemInfoUpdate() {
 	uc.broadcaster.Broadcast(dto.BroadcastEventTypeSystemInfoUpdate, uc.SystemInfo())
 }
+
+func (uc *YouTubeDownloader) broadcastNotification(
+	userID uuid.UUID,
+	module dto.BroadcastNotificationModule,
+	notificationType dto.BroadcastNotificationType,
+	message string,
+) {
+	notification := dto.BroadcastNotification{
+		Module:  module,
+		Type:    notificationType,
+		Message: message,
+	}
+	uc.broadcaster.BroadcastToUser(userID.String(), dto.BroadcastEventTypeNotification, notification)
+}

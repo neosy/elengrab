@@ -23,6 +23,7 @@ type Dependencies struct {
 
 	// Options
 	AppName      string
+	DemoMode     bool
 	DownloadsDir string
 
 	DatabaseBackupsDir  string
@@ -82,6 +83,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.Services.YouTubeDownloader,
 
 			// options
+			deps.DemoMode,
 			deps.DownloadsDir,
 			deps.HistoryMode,
 			deps.DeleteDuplicatesScope,

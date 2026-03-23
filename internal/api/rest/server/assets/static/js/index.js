@@ -114,6 +114,7 @@ function createSSEConnection() {
         eventSource.addEventListener("row-delete", rowEventHandlers.handleRowDelete);
         eventSource.addEventListener("row-patch-field", rowEventHandlers.handleRowPatchField);
         eventSource.addEventListener("system-info-update", rowEventHandlers.handleSystemInfoUpdate);
+        eventSource.addEventListener("notification", rowEventHandlers.handleNotification);
 
         // Fallback: any default message marks server as online
         eventSource.onmessage = () => setServerStatus(true);
@@ -154,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const grabInputURL = DOM_ELEMENTS.mediaURL;
     const grabInputActionBtn = DOM_ELEMENTS.inputActionBtn;
-    const resultDivInfo = DOM_ELEMENTS.resultInfo;
 
     // Sync selects with cookies
     cookie.setupCookieSelectSync(SELECT_NAMES.qualityCodec, COOKIE_NAMES.qualityCodec);
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // update action button after clearing
             actionButton.updateInputPasteClearButton(grabInputURL, grabInputActionBtn);
         }
-        if (resultDivInfo) resultDivInfo.innerHTML = '';
+        if (DOM_ELEMENTS.resultInfo) DOM_ELEMENTS.resultInfo.classList.remove("show");
     });
 
     // Display error on non-200 + non-503
@@ -186,12 +186,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (event.detail.xhr.status !== 200 &&
                 event.detail.xhr.status !== 503) {
 
-                if (resultDivInfo) {
-                    resultDivInfo.innerHTML = `
-                        <div class="div-grab-result-info-row">
-                            <span class="result-failed">Error: ${event.detail.xhr.responseText}</span>
-                        </div>
-                    `;
+                if (DOM_ELEMENTS.resultInfo && DOM_ELEMENTS.resultInfoFailed) {
+                    let text = event.detail.xhr.responseText;
+                    try {
+                        const data = JSON.parse(text);
+                        if (data && typeof data === "object" && "message" in data) {
+                            text = data.message;
+                        }
+                    } catch (e) {}
+
+                    helper.showErrorMessage(text, DOM_ELEMENTS.resultInfo, DOM_ELEMENTS.resultInfoFailed)
                 }
             }
         }

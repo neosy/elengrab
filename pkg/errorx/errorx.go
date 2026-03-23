@@ -8,9 +8,10 @@ import (
 
 // Type for error handling
 type Errorx struct {
-	err       error
-	message   ErrorxMessage
-	exception exceptionx.Exception
+	err            error
+	message        ErrorxMessage
+	exception      exceptionx.Exception
+	httpStatusCode *int
 }
 
 // newErrx creating an Errorx object from text
@@ -95,7 +96,23 @@ func NewDomainException(text string, eType exceptionx.ExceptionType, num uint) (
 // initFromErrorx initialization of fields from Errorx
 func (errx *Errorx) initFromErrorx(err ErrorxInterface) {
 	errx.err = err.Err()
-	errx.initFromArgs(err.Message(), err.ExceptionCode(), err.ExceptionType())
+
+	args := make([]any, 4)
+	args = append(args, err.Message(), err.ExceptionCode(), err.ExceptionType())
+
+	var httStatusCode *int
+	e, ok := err.(*Errorx)
+	if ok {
+		httStatusCode = e.httpStatusCode
+	} else {
+		httStatusCode = err.HttpStatusCode()
+	}
+
+	if httStatusCode != nil {
+		args = append(args, ArgHttpStatusCode(*httStatusCode))
+	}
+
+	errx.initFromArgs(args...)
 }
 
 // initFromArgs initialize Errorx from arguments
@@ -104,6 +121,7 @@ func (errx *Errorx) initFromArgs(args ...any) {
 	var message ErrorxMessage
 	var eType exceptionx.ExceptionType
 	var eCode exceptionx.ExceptionCode
+	var httpStatusCode *int
 	var err error
 
 	for _, arg := range args {
@@ -112,6 +130,9 @@ func (errx *Errorx) initFromArgs(args ...any) {
 			eType = v
 		case exceptionx.ExceptionCode:
 			eCode = v
+		case HttpStatusProvider:
+			code := v()
+			httpStatusCode = &code
 		case ErrorxMessage:
 			message = v
 		case error:
@@ -146,6 +167,7 @@ func (errx *Errorx) initFromArgs(args ...any) {
 	}
 
 	errx.exception = *exceptionx.NewException(eCode, eType)
+	errx.httpStatusCode = httpStatusCode
 
 	if err != nil {
 		errx.Append(err)
@@ -179,6 +201,29 @@ func (e *Errorx) ExceptionType() exceptionx.ExceptionType {
 // ExceptionCode returns a code of exception
 func (e *Errorx) ExceptionCode() exceptionx.ExceptionCode {
 	return e.exception.Code()
+}
+
+// HttpStatusCode returns the HTTP status code associated with the error, if any.
+func (e *Errorx) HttpStatusCode() *int {
+	if e.httpStatusCode != nil {
+		return e.httpStatusCode
+	}
+
+	if e.exception.Type() != nil {
+		code := e.exception.Type().HttpStatusCode()
+		if code != 0 {
+			return &code
+		}
+	}
+
+	if e.exception.Code() != nil && e.exception.Code().Type() != nil {
+		code := e.exception.Code().Type().HttpStatusCode()
+		if code != 0 {
+			return &code
+		}
+	}
+
+	return nil
 }
 
 // Append merges the given errors into the current error.

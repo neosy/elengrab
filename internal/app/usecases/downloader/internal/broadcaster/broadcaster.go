@@ -6,6 +6,8 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 )
 
+const broadcastChannelBufferSize = 100
+
 type client struct {
 	userID string
 	ch     chan dto.BroadcastEvent
@@ -23,7 +25,7 @@ func NewBroadcaster() *Broadcaster {
 }
 
 func (b *Broadcaster) Subscribe(userID string) chan dto.BroadcastEvent {
-	ch := make(chan dto.BroadcastEvent, 10)
+	ch := make(chan dto.BroadcastEvent, broadcastChannelBufferSize)
 	client := client{
 		userID: userID,
 		ch:     ch,

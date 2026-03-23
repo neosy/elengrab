@@ -8,28 +8,12 @@ import (
 )
 
 type dynamicWorkerPool struct {
-	options WorkerPoolOptions
+	baseWorkerPool
 
-	workers         map[uint64]Worker
 	stoppingWorkers map[uint64]struct{}
 
 	busyWorkers   uint32
 	activeWorkers atomic.Uint32
-	nextWorkerID  atomic.Uint64
-
-	quit chan struct{}
-	wg   sync.WaitGroup
-
-	mu   sync.Mutex
-	cond *sync.Cond
-
-	running    atomic.Bool
-	terminated atomic.Bool
-
-	semaphore    chan struct{}
-	taskStream   chan *task
-	jobQueue     *jobQueue
-	runningTasks map[string]*task
 }
 
 // NewDynamicWorkerPool creates a new dynamic worker pool.
@@ -44,7 +28,7 @@ type dynamicWorkerPool struct {
 //   - IdleTime: duration a worker stays alive when idle (defaults to defaultIdleTime)
 //
 // Returns an initialized *dynamicWorkerPool ready to Start().
-func NewDynamicWorkerPool(opts ...WorkerPoolOption) *dynamicWorkerPool {
+func NewDynamicWorkerPool(opts ...WorkerPoolOption) WorkerPool {
 	options := DefaultDynamicWorkerPoolOptions()
 
 	for _, opt := range opts {
@@ -60,13 +44,15 @@ func NewDynamicWorkerPool(opts ...WorkerPoolOption) *dynamicWorkerPool {
 	}
 
 	wp := &dynamicWorkerPool{
-		options:         options,
-		workers:         make(map[uint64]Worker, options.MaxWorkers),
+		baseWorkerPool: baseWorkerPool{
+			options:      options,
+			workers:      make(map[uint64]Worker, options.MaxWorkers),
+			semaphore:    make(chan struct{}, options.MaxWorkers),
+			taskStream:   make(chan *task, 1),
+			jobQueue:     newJobQueue(defaultJobQueueCap),
+			runningTasks: make(map[string]*task, options.MaxWorkers),
+		},
 		stoppingWorkers: make(map[uint64]struct{}, options.MaxWorkers),
-		semaphore:       make(chan struct{}, options.MaxWorkers),
-		taskStream:      make(chan *task, 1),
-		jobQueue:        newJobQueue(defaultJobQueueCap),
-		runningTasks:    make(map[string]*task, options.MaxWorkers),
 	}
 
 	wp.nextWorkerID.Store(1)
@@ -171,84 +157,15 @@ func (wp *dynamicWorkerPool) Start(ctx context.Context) error {
 	})
 
 	if wp.options.logger != nil {
-		wp.options.logger.Info("Worker pool manager running...", "count", wp.ActiveWorkers(), "max", wp.options.MaxWorkers)
+		wp.options.logger.Info(
+			"Worker pool manager running...",
+			"type", "dynamic",
+			"count", wp.ActiveWorkers(),
+			"max", wp.options.MaxWorkers,
+		)
 	}
 
 	return nil
-}
-
-// Stop gracefully shuts down the manager and all workers.
-// Idempotent; safe to call multiple times.
-// Blocks until all goroutines exit.
-func (wp *dynamicWorkerPool) Stop() {
-	if !wp.running.CompareAndSwap(true, false) {
-		wp.wg.Wait()
-		return
-	}
-
-	// Set the terminated flag to true, indicating that the worker pool is shutting down.
-	wp.terminated.Store(true)
-
-	// Acquire lock to safely cancel job
-	wp.mu.Lock()
-
-	// Signal all components to stop
-	close(wp.quit)
-
-	// Signal all jobs to cancel
-	for _, task := range wp.runningTasks {
-		task.Cancel()
-	}
-
-	// Wake up dispatcher if waiting
-	wp.cond.Broadcast()
-
-	// Release lock
-	wp.mu.Unlock()
-
-	// Wait for dispatcher and workers to finish
-	wp.wg.Wait()
-
-	if wp.options.logger != nil {
-		wp.options.logger.Debug("Worker pool manager stopped")
-	}
-}
-
-// AddJob enqueues a new job for execution.
-// job: the job to be executed by a worker.
-// Thread-safe; can be called from any goroutine.
-func (wp *dynamicWorkerPool) AddJob(job Job) bool {
-	wp.mu.Lock()
-	defer wp.mu.Unlock()
-
-	if !wp.jobQueue.Push(job) {
-		return false
-	}
-
-	wp.cond.Signal() // Notify dispatcher of new job
-
-	return true
-}
-
-// CancelJob removes a job with the given ID from the queue.
-// Returns true if the job was found and removed, false otherwise.
-// If the job is removed, it signals the dispatcher to wake up
-// and re-evaluate available jobs.
-func (wp *dynamicWorkerPool) CancelJob(jobID string) bool {
-	wp.mu.Lock()
-	defer wp.mu.Unlock()
-
-	if wp.jobQueue.Remove(jobID) {
-		wp.cond.Signal()
-		return true
-	}
-
-	if task, exists := wp.runningTasks[jobID]; exists {
-		task.Cancel()
-		return true
-	}
-
-	return false
 }
 
 // addWorker creates and starts a new worker.
@@ -335,6 +252,13 @@ func (wp *dynamicWorkerPool) removeWorker(workerID uint64) {
 // ActiveWorkers returns the current number of worker goroutines in the pool.
 func (wp *dynamicWorkerPool) ActiveWorkers() uint32 {
 	return wp.activeWorkers.Load()
+}
+
+// PoolSize returns the maximum number of workers allowed in the dynamic pool.
+func (wp *dynamicWorkerPool) PoolSize() uint32 {
+	wp.mu.Lock()
+	defer wp.mu.Unlock()
+	return wp.options.MaxWorkers
 }
 
 // notifyJobDone notifies the manager that a worker finished a job.

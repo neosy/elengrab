@@ -20,11 +20,24 @@ func Copy(err error) (newErr error) {
 				unwrap(subErr)
 			}
 		case ErrorxInterface:
+			args := make([]any, 4)
+			args = append(args, e.Message(), e.ExceptionType(), e.ExceptionCode())
+
+			var httpStatusCode *int
+			ex, ok := e.(*Errorx)
+			if ok {
+				httpStatusCode = ex.httpStatusCode
+			} else {
+				httpStatusCode = e.HttpStatusCode()
+			}
+
+			if httpStatusCode != nil {
+				args = append(args, ArgHttpStatusCode(*httpStatusCode))
+			}
+
 			errx := New(
 				e.Error(),
-				e.Message(),
-				e.ExceptionType(),
-				e.ExceptionCode(),
+				args...,
 			)
 			errx.(*Errorx).err = Copy(e.Err())
 

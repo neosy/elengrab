@@ -50,6 +50,7 @@ type YouTubeDownloader struct {
 	downloaderSrv pservices.Downloader
 
 	// Options
+	demoMode              bool
 	downloadsDir          string
 	historyMode           dtypes.HistoryMode
 	deleteDuplicatesScope dtypes.UniquenessScope
@@ -79,6 +80,7 @@ func NewYouTubeDownloader(
 	downloaderSrv pservices.Downloader,
 
 	// options
+	demoMode bool,
 	downloadsDir string,
 	historyMode dtypes.HistoryMode,
 	deleteDuplicatesScope dtypes.UniquenessScope,
@@ -125,6 +127,7 @@ func NewYouTubeDownloader(
 		downloaderSrv: downloaderSrv,
 
 		// Options
+		demoMode:              demoMode,
 		downloadsDir:          downloadsDir,
 		historyMode:           historyMode,
 		deleteDuplicatesScope: deleteDuplicatesScope,

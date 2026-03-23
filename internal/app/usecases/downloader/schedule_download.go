@@ -9,8 +9,10 @@ import (
 	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/pkg/errorx"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
+	"github.com/valyala/fasthttp"
 )
 
 func (uc *YouTubeDownloader) ScheduleDownload(
@@ -19,6 +21,29 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 	url string,
 	options *ddownload.DownloadOptions,
 ) (*dto.ScheduleDownloadResponse, error) {
+	if uc.demoMode {
+		uc.broadcastNotification(
+			userID,
+			dto.BroadcastNotificationModuleGrabForm,
+			dto.BroadcastNotificationTypeError,
+			"Demo mode",
+		)
+		return nil, errorx.New(
+			"operation not allowed in demo mode",
+			errorx.ArgHttpStatusCode(fasthttp.StatusForbidden),
+		)
+	}
+
+	errReturn := func(err error) error {
+		uc.broadcastNotification(
+			userID,
+			dto.BroadcastNotificationModuleGrabForm,
+			dto.BroadcastNotificationTypeError,
+			err.Error(),
+		)
+		return err
+	}
+
 	fileId := uuid.New()
 	filename := fileId.String()
 
@@ -36,7 +61,7 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 	)
 	if err != nil {
 		uc.logger.Error("Insert record failed", "error", err)
-		return nil, err
+		return nil, errReturn(err)
 	}
 
 	var accessByUserID *uuid.UUID
@@ -47,20 +72,20 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 	file, err := uc.file.GetByFileID(ctx, accessByUserID, fileId)
 	if err != nil {
 		uc.logger.Error("Failed find file", "error", err)
-		return nil, err
+		return nil, errReturn(err)
 	}
 	if file.DownloadTask == nil {
 		file.DownloadTask, err = uc.dlTask.FindByFileID(ctx, fileId, true)
 		if err != nil {
 			uc.logger.Error("Failed find task", "error", err)
-			return nil, err
+			return nil, errReturn(err)
 		}
 	}
 
 	err = uc.addFileToQueueDownload(ctx, fileId, file.DownloadTask.TaskID)
 	if err != nil {
 		uc.logger.Error("Failed add to queue", "error", err)
-		return nil, err
+		return nil, errReturn(err)
 	}
 
 	f, _ := uc.file.GetByFileID(ctx, accessByUserID, fileId)

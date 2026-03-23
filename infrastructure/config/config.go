@@ -10,12 +10,12 @@ import (
 	"github.com/neosy/elengrab/pkg/nconfig"
 )
 
-// Основные настройки
+// Basic Settings
 type Config struct {
 	// Global application settings, no ENV prefix.
 	AppConfig nconfig.AppConfig `envPrefix:""`
 
-	// Elengrab subsystem configuration
+	// Elengrab application configuration.
 	Elengrab ElengrabConfig `envPrefix:"ELENGRAB_"`
 
 	// HTTP server configuration
@@ -35,15 +35,16 @@ type HTTPServerConfig struct {
 type ElengrabConfig struct {
 	DownloaderBinDir string `env:"DOWNLOADER_BIN_DIR" envDefault:"/usr/local/bin"`
 
-	AppDir       string `env:"APP_DIR" envDefault:""`
+	RootDir      string `env:"ROOT_DIR" envDefault:""`
 	AssetsDir    string `env:"ASSETS_DIR" envDefault:"assets"`
 	DownloadsDir string `env:"DOWNLOADS_DIR" envDefault:"downloads"`
 	// CookiesDir defines the directory where cookies are stored.
 	// Default is "cookies".
 	CookiesDir string `env:"COOKIES_DIR" envDefault:"cookies"`
 
-	DownloadWorkers       uint32 `env:"DOWNLOAD_WORKERS" envDefault:"3"`
+	DemoMode              bool   `env:"DEMO_MODE" envDefault:"false"`
 	HistoryMode           string `env:"HISTORY_MODE" envDefault:"global"`
+	DownloadWorkers       uint32 `env:"DOWNLOAD_WORKERS" envDefault:"3"`
 	DeleteDuplicatesScope string `env:"DELETE_DUPLICATES_SCOPE" envDefault:"per_user"`
 	// YoutubeAllowCookies allow cookies when downloading YouTube videos.
 	// Default is false (disabled).
@@ -90,9 +91,9 @@ func New() (*Config, error) {
 		return nil, err
 	}
 
-	if c.Elengrab.AppDir == "" {
+	if c.Elengrab.RootDir == "" {
 		var err error
-		c.Elengrab.AppDir, err = defaultAppDir()
+		c.Elengrab.RootDir, err = defaultRootDir()
 		if err != nil {
 			return nil, err
 		}

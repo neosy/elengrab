@@ -66,7 +66,7 @@ VOLUME ["/app_n/sqlite/backups"]
 
 # Enviroments
 ENV TZ=Europe/Moscow
-ENV ELENGRAB_APP_DIR=${APP_DIR}
+ENV ELENGRAB_ROOT_DIR=${APP_DIR}
 
 # Expose web server port
 EXPOSE 8080

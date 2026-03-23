@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func defaultAppDir() (string, error) {
+func defaultRootDir() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err

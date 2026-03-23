@@ -63,14 +63,14 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	if err := ensureAssets(absPath(cfg.Elengrab.AppDir, cfg.Elengrab.AssetsDir)); err != nil {
+	if err := ensureAssets(absPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir)); err != nil {
 		log.Fatalln(err)
 	}
 
 	dirs := []string{
-		absPath(cfg.Elengrab.AppDir, cfg.SQLite.DataDir),
-		absPath(cfg.Elengrab.AppDir, cfg.SQLite.BackupsDir),
-		absPath(cfg.Elengrab.AppDir, cfg.Elengrab.DownloadsDir),
+		absPath(cfg.Elengrab.RootDir, cfg.SQLite.DataDir),
+		absPath(cfg.Elengrab.RootDir, cfg.SQLite.BackupsDir),
+		absPath(cfg.Elengrab.RootDir, cfg.Elengrab.DownloadsDir),
 	}
 	if !ensureDirs(dirs) {
 		log.Fatal("one or more required directories are missing")
@@ -88,7 +88,7 @@ func main() {
 
 	log.Printf("Logging level set to '%s'.\n", cfg.AppConfig.LogLevel)
 
-	cookiesDir, err := nfile.AbsPath(cfg.Elengrab.AppDir, cfg.Elengrab.CookiesDir)
+	cookiesDir, err := nfile.AbsPath(cfg.Elengrab.RootDir, cfg.Elengrab.CookiesDir)
 	if err != nil && cfg.Elengrab.YoutubeAllowCookies {
 		logger.Warn(
 			"Failed to get abs path for cookies directory",
@@ -98,7 +98,7 @@ func main() {
 	}
 
 	// Initialize SQLite database
-	sqliteDir := absPath(cfg.Elengrab.AppDir, cfg.SQLite.DataDir)
+	sqliteDir := absPath(cfg.Elengrab.RootDir, cfg.SQLite.DataDir)
 	sqliteAuthDB, err := newDB(logger, persistence.DBAuthName.Path(sqliteDir))
 	if err != nil {
 		return
@@ -146,10 +146,15 @@ func main() {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
+	downloadWorkers := cfg.Elengrab.DownloadWorkers
+	if cfg.Elengrab.DemoMode {
+		downloadWorkers = 1
+	}
+
 	// Start worker pool
 	dlManager := nworkerpool.NewDynamicWorkerPool(
 		nworkerpool.WorkerPoolOptionLogger(logger),
-		nworkerpool.WorkerPoolOptionMaxWorkers(cfg.Elengrab.DownloadWorkers),
+		nworkerpool.WorkerPoolOptionMaxWorkers(downloadWorkers),
 		nworkerpool.WorkerPoolOptionIdleTime(defaultWorkerIdleTime),
 	)
 	if err := dlManager.Start(ctx); err != nil {
@@ -162,7 +167,7 @@ func main() {
 	// Initialize services
 	srvDeps := &services.Dependencies{
 		DownloaderBinDir: cfg.Elengrab.DownloaderBinDir,
-		DownloadsDir:     absPath(cfg.Elengrab.AppDir, cfg.Elengrab.DownloadsDir),
+		DownloadsDir:     absPath(cfg.Elengrab.RootDir, cfg.Elengrab.DownloadsDir),
 		YtDlpOptions: &ytdlpdto.Options{
 			CookiesDir:          cookiesDir,
 			YoutubeAllowCookies: cfg.Elengrab.YoutubeAllowCookies,
@@ -196,8 +201,9 @@ func main() {
 
 		// Options
 		AppName:               iconfig.AppName,
-		DownloadsDir:          absPath(cfg.Elengrab.AppDir, cfg.Elengrab.DownloadsDir),
-		DatabaseBackupsDir:    absPath(cfg.Elengrab.AppDir, cfg.SQLite.BackupsDir),
+		DemoMode:              cfg.Elengrab.DemoMode,
+		DownloadsDir:          absPath(cfg.Elengrab.RootDir, cfg.Elengrab.DownloadsDir),
+		DatabaseBackupsDir:    absPath(cfg.Elengrab.RootDir, cfg.SQLite.BackupsDir),
 		DatabaseBackupsKeep:   cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
 		HistoryMode:           dtypes.MustParseHistoryMode(cfg.Elengrab.HistoryMode),
 		DeleteDuplicatesScope: dtypes.MustParseUniquenessScope(cfg.Elengrab.DeleteDuplicatesScope),
@@ -239,7 +245,7 @@ func main() {
 
 	// Start FastHTTP server in a separate goroutine
 	go func(ctx context.Context) {
-		tmpl, err := httptemplates.LoadTemplates(absPath(cfg.Elengrab.AppDir, cfg.Elengrab.AssetsDir))
+		tmpl, err := httptemplates.LoadTemplates(absPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir))
 		if err != nil {
 			logger.Error(err.Error())
 			cancel()
@@ -248,8 +254,8 @@ func main() {
 		deps := &httpsrv.Dependencies{
 			Usecases:     uc,
 			Templates:    tmpl,
-			AssetsDir:    absPath(cfg.Elengrab.AppDir, cfg.Elengrab.AssetsDir),
-			DownloadsDir: absPath(cfg.Elengrab.AppDir, cfg.Elengrab.DownloadsDir),
+			AssetsDir:    absPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir),
+			DownloadsDir: absPath(cfg.Elengrab.RootDir, cfg.Elengrab.DownloadsDir),
 		}
 
 		httpServer := httpsrv.NewServer(logger, cfg.AppConfig.AppEnv, deps)

@@ -10,7 +10,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/pkg/errorx"
+	"github.com/valyala/fasthttp"
 )
 
 // DeleteDownload deletes a download from the system.
@@ -23,6 +26,19 @@ func (uc *YouTubeDownloader) DeleteDownload(
 		needDeleteFileOnStorage bool
 		fileFullName            string
 	)
+
+	if uc.demoMode {
+		uc.broadcastNotification(
+			userID,
+			dto.BroadcastNotificationModuleResultRow,
+			dto.BroadcastNotificationTypeError,
+			"Operation not allowed in demo mode",
+		)
+		return errorx.New(
+			"operation not allowed in demo mode",
+			errorx.ArgHttpStatusCode(fasthttp.StatusForbidden),
+		)
+	}
 
 	var accessByUserID *uuid.UUID
 	if uc.historyMode != dtypes.HistoryModeGlobal {
