@@ -1,5 +1,12 @@
 # Releases
 
+## v0.17.0 — 2026-03-25
+
+### Refactor
+- Errorx package
+
+---
+
 ## v0.16.2 — 2026-03-23
 
 ### Style

@@ -12,24 +12,18 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
-		err := errorx.New(
-			"Authorization error",
-			errorx.ArgHttpStatusCode(fasthttp.StatusUnauthorized),
-		).Append(err)
-		nfasthttp.WriteErrorx(ctx, err)
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
 		return
 	}
 
 	url := string(ctx.FormValue(formFieldMediaURLKey))
 	if url == "" {
-		err := errorx.New("URL is required", errorx.ArgHttpStatusCode(fasthttp.StatusBadRequest))
-		nfasthttp.WriteErrorx(ctx, err)
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("URL is required", fasthttp.StatusBadRequest))
 		return
 	}
 
 	if err := h.validators.Validate.Var(url, "url"); err != nil {
-		err := errorx.New("Invalid URL", errorx.ArgHttpStatusCode(fasthttp.StatusBadRequest))
-		nfasthttp.WriteErrorx(ctx, err)
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("invalid URL", fasthttp.StatusBadRequest, err))
 		return
 	}
 

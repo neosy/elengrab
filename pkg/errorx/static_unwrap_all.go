@@ -6,10 +6,14 @@ import (
 
 // UnwrapAll error analysis errors in a slice
 // Duplicates are excluded
-func UnwrapAll(err error) (errs []error) {
+func UnwrapAll(err error) []error {
 	errProcessed := make(map[string]struct{})
 
-	var unwrap func(error)
+	var (
+		errs   []error
+		unwrap func(error)
+	)
+
 	unwrap = func(e error) {
 		if e == nil {
 			return
@@ -22,18 +26,20 @@ func UnwrapAll(err error) (errs []error) {
 
 		errProcessed[errStr] = struct{}{}
 
-		// Проверка на наличие нескольких вложенных ошибок (для errors.Join)
+		// Checking for multiple nested errors (for errors.Join)
 		unwrappedErrors, ok := e.(interface{ Unwrap() []error })
 		if ok {
 			for _, ue := range unwrappedErrors.Unwrap() {
 				unwrap(ue)
+				errs = append(errs, ue)
 			}
 		} else {
 			ue := errors.Unwrap(e)
 			if ue != nil {
 				unwrap(ue)
+				errs = append(errs, e)
 			} else {
-				// Добавляем конечную ошибку в список
+				// Adding the final error to the list
 				errs = append(errs, e)
 			}
 		}

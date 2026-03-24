@@ -3,7 +3,7 @@ package errorx
 import "github.com/neosy/elengrab/pkg/errorx/exceptionx"
 
 // Interface type for error handling
-type ErrorxInterface interface {
+type Errorx interface {
 	error
 
 	// Err returns a value of type error
@@ -11,11 +11,11 @@ type ErrorxInterface interface {
 
 	// Append merges the given errors into the current error.
 	// The pointer remains the same; only the internal field err are updated.
-	Append(errs ...error) ErrorxInterface
+	Append(errs ...error) Errorx
 
 	// Combine returns a new error that combines the current error with the given ones.
 	// A new object is returned; the current object remains unchanged.
-	Combine(errs ...error) ErrorxInterface
+	Combine(errs ...error) Errorx
 
 	// UnwrapAll error analysis errors in a slice
 	// Duplicates are excluded
@@ -24,15 +24,18 @@ type ErrorxInterface interface {
 	// UnwrapTexts analyzes errors and then extracts text one by one
 	UnwrapTexts() *ErrorTexts
 
-	// Message returns a value of type ErrorxMessage
-	Message() ErrorxMessage
+	// Message returns a value of type string
+	Message() *string
 
-	// ExceptionType returns a type of exception
-	ExceptionType() exceptionx.ExceptionType
+	// Exception returns a exception
+	Exception() exceptionx.Exception
 
-	// ExceptionCode returns a code of exception
-	ExceptionCode() exceptionx.ExceptionCode
+	// HttpStatusCodeRaw returns the explicitly set HTTP status code.
+	HttpStatusCodeRaw() *int
 
-	// HttpStatusCode returns the HTTP status code associated with the error, if any.
+	// HttpStatusCode returns the HTTP status code, falling back to the exception if needed.
 	HttpStatusCode() *int
+
+	// Args returns the arguments used to configure the error.
+	Args() []any
 }

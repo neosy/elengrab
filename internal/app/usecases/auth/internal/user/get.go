@@ -18,7 +18,7 @@ func (uc *User) FindByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User
 	user, err := uc.userRep.FindByUserID(ctx, userID)
 	if err != nil {
 		uc.logger.Warn("Failed get user", "error", err)
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	return user, nil
@@ -29,7 +29,7 @@ func (uc *User) FindByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User
 func (uc *User) GetByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User, error) {
 	user, err := uc.FindByUserID(ctx, userID)
 	if err != nil {
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	if user == nil {

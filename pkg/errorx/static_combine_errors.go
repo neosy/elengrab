@@ -38,45 +38,45 @@ func CombineErrors(errs ...error) error {
 		return nil
 	}
 
-	var combined = errs[0]
+	var combined error
 
-	for i, err := range errs {
-		// Пропускаем 1-ую, т.к. мы ее инициализировали в combined
-		if i == 0 || err == nil {
+	for _, err := range errs {
+		if err == nil {
 			continue
 		}
 
-		// Создаем новый указатель если первая ошибка с типом Errorx
-		if i == 1 {
-			if _, ok := combined.(ErrorxInterface); ok {
-				combined = NewByErr(combined)
-			}
+		if combined == nil {
+			combined = err
+			continue
 		}
 
-		// Если встретилась ошибка Errorx, то преобразуем combined в Errorx, если его тип отличается
-		// Далее из структуры извлекаем ошибку с типом error, чтобы ее обернуть, вместо ошибки с типом Errorx
-		if e, ok := err.(ErrorxInterface); ok {
-			if _, ok := combined.(ErrorxInterface); !ok {
-				combined = NewByErr(
-					combined,
-					e.Message(),
-					e.ExceptionType(),
-					e.ExceptionCode(),
-				)
+		// Если встретилась ошибка errorx, то преобразуем combined в errorx, если его тип отличается
+		// Далее из структуры извлекаем ошибку с типом error, чтобы ее обернуть, вместо ошибки с типом errorx
+		if e, ok := err.(Errorx); ok {
+			if _, ok := combined.(Errorx); !ok {
+				combined = NewFromError(combined, e.Args()...)
 			} else {
-				// Если первый элемент был инициализирован из обычной ошибки
-				if combined.(ErrorxInterface).ExceptionType() == nil && combined.(ErrorxInterface).ExceptionCode() == nil {
-					if cmb, ok := combined.(*Errorx); ok {
-						cmb.initFromArgs(e.ExceptionType(), e.ExceptionCode())
+				if cmb, ok := combined.(*errorx); ok {
+					var args = make([]any, 0, 3)
+					if cmb.Exception() == nil && e.Exception() != nil {
+						args = append(args, e.Exception())
 					}
+					if cmb.Message() == nil && e.Message() != nil {
+						text := e.Message()
+						args = append(args, ErrorMessageArg(*text))
+					}
+					if cmb.HttpStatusCodeRaw() == nil && e.HttpStatusCodeRaw() != nil {
+						code := e.HttpStatusCodeRaw()
+						args = append(args, HttpStatusArg(*code))
+					}
+					cmb.initFromArgs(args...)
 				}
 			}
-
 			err = e.Err()
 		}
 
 		switch e := combined.(type) {
-		case *Errorx:
+		case *errorx:
 			e.err = fmt.Errorf("%w%s%w", e.err, combineErrorsSeparator(), err)
 		default:
 			combined = fmt.Errorf("%w%s%w", combined, combineErrorsSeparator(), err)

@@ -1,7 +1,7 @@
 package errorx
 
 // Interface error counter
-type ErrorxCounter interface {
+type ErrorCounter interface {
 	Set(num uint) uint
 	Inc() uint
 }

@@ -1,26 +1,26 @@
 package errorx
 
 // Type error counter
-type errorxCounter struct {
+type errorCounter struct {
 	count uint
 }
 
-// NewErrorxCounter creating an errorxCounter object
-func NewErrorxCounter(startNum uint) ErrorxCounter {
-	return &errorxCounter{
+// NewErrorCounter creating an errorCounter object
+func NewErrorCounter(startNum uint) ErrorCounter {
+	return &errorCounter{
 		count: startNum,
 	}
 }
 
 // Set sets and returns the counter number
-func (c *errorxCounter) Set(num uint) uint {
+func (c *errorCounter) Set(num uint) uint {
 	c.count = num
 
 	return c.count
 }
 
 // Inc increases the counter by one and returns the current value
-func (c *errorxCounter) Inc() uint {
+func (c *errorCounter) Inc() uint {
 	c.count++
 
 	return c.count

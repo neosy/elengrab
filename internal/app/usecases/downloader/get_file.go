@@ -2,7 +2,6 @@ package downloader
 
 import (
 	"context"
-	"errors"
 	"path/filepath"
 	"time"
 
@@ -29,10 +28,10 @@ func (uc *YouTubeDownloader) GetFileInfo(
 	resp, err := uc.findActualFileInfo(ctx, accessByUserID, fileID)
 	if err != nil {
 		uc.logger.Error("Failed get file info", "error", err)
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, err
 	}
 	if resp == nil {
-		return nil, errorx.NewByExceptionType("file not found", exceptionx.NOT_FOUND)
+		return nil, errorx.New("file not found", exceptionx.NOT_FOUND)
 	}
 	return resp, nil
 }
@@ -47,7 +46,7 @@ func (uc *YouTubeDownloader) findActualFileInfo(
 
 	if fileID == uuid.Nil {
 		uc.logger.Warn("Id for the FileID field is not defined")
-		return nil, errors.New("fileId not specified")
+		return nil, errorx.New("fileId not specified", exceptionx.ERROR)
 	}
 
 	state, _ := uc.dlStateCache.FindByFileID(ctx, userID, fileID)

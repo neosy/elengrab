@@ -39,7 +39,7 @@ func (uc *File) GetByFileID(
 ) (*ddownload.File, error) {
 	file, err := uc.FindByFileID(ctx, userID, fileID)
 	if err != nil {
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	if file == nil {

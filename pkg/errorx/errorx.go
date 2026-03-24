@@ -7,150 +7,131 @@ import (
 )
 
 // Type for error handling
-type Errorx struct {
+type errorx struct {
 	err            error
-	message        ErrorxMessage
+	message        *string
 	exception      exceptionx.Exception
 	httpStatusCode *int
 }
 
-// newErrx creating an Errorx object from text
-func newErrx(text string) (errx ErrorxInterface) {
-	errx = &Errorx{
+// newErrx creating an errorx object from text
+func newErrx(text string) (errx Errorx) {
+	errx = &errorx{
 		err: errors.New(text),
 	}
 
 	return
 }
 
-// newFromErr creating Errorx from error
-func newFromErr(err error) ErrorxInterface {
-	errx := new(Errorx)
+// newFromErr creating errorx from error
+func newFromErr(err error) Errorx {
+	errx := &errorx{}
 
 	if err == nil {
 		return errx
 	}
 
-	if e, ok := err.(ErrorxInterface); ok {
+	if e, ok := err.(Errorx); ok {
 		errx.initFromErrorx(e)
 	} else {
 		errx.err = err
 	}
 
+	if errx.Exception() == nil {
+		errs := UnwrapAll(err)
+		if len(errs) > 1 {
+			combErrx := CombineErrors(errs...)
+			if e, ok := combErrx.(Errorx); ok {
+				errx.exception = e.Exception()
+			}
+		}
+	}
+
 	return errx
 }
 
-// New creating an Errorx object from text and arguments
-// args can have types: ExceptionType, ExceptionCode, ErrorxMessage, error, uint
+// New creates a new Errorx instance from the provided text and optional arguments.
 //
-//	message: ErrorxMessage
-//	new num ExceptionCode: uint
-func New(text string, args ...any) (errx ErrorxInterface) {
+// Supported argument types and their effects:
+//   - exceptionx.Exception: sets the underlying exception
+//   - HttpStatusProvider: extracts and sets the HTTP status code
+//   - ErrorMessageProvider: overrides the default message
+//   - error: will be combined with the current error using CombineErrors
+//
+// Arguments are processed in order; later values may override earlier ones where applicable.
+func New(text string, args ...any) (errx Errorx) {
 	errx = newErrx(text)
 
-	errx.(*Errorx).initFromArgs(args...)
+	errx.(*errorx).initFromArgs(args...)
 
 	return
 }
 
-// NewByErr creating Errorx from error and arguments
-// args can have types: ExceptionType, ExceptionCode, ErrorxMessage, error, uint
-//
-//	message: ErrorxMessage
-//	new num ExceptionCode: uint
-func NewByErr(err error, args ...any) ErrorxInterface {
+// NewHTTP creates a new Errorx instance with the provided message and HTTP status code.
+// Additional optional arguments can be passed to further configure the error.
+// The httpStatusCode is automatically added to the arguments as HttpStatusCodeArg.
+// Supported argument types and their effects:
+//   - exceptionx.Exception: sets the underlying exception
+//   - ErrorMessageProvider: overrides the default message
+func NewHTTP(text string, httpStatusCode int, args ...any) (errx Errorx) {
+	errx = newErrx(text)
+
+	args = append(args, HttpStatusArg(httpStatusCode))
+	args = append(args, ErrorMessageArg(text))
+	errx.(*errorx).initFromArgs(args...)
+
+	return
+}
+
+// NewFromError creating errorx from error and arguments
+// args can have types: Exception, ErrorMessageProvider, error
+// Supported argument types and their effects:
+//   - exceptionx.Exception: sets the underlying exception
+//   - HttpStatusProvider: extracts and sets the HTTP status code
+//   - ErrorMessageProvider: overrides the default message
+func NewFromError(err error, args ...any) Errorx {
 	if err == nil {
 		return nil
 	}
 
 	errx := newFromErr(err)
 
-	errx.(*Errorx).initFromArgs(args...)
+	errx.(*errorx).initFromArgs(args...)
 
 	return errx
 }
 
-// NewByExceptionType creating Errorx from text and ExceptionType
-func NewByExceptionType(text string, eType exceptionx.ExceptionType) (errx ErrorxInterface) {
-	errx = New(text, eType)
-
-	return
-}
-
-// NewByExceptionCode creating Errorx from ExceptionCode
-func NewByExceptionCode(code exceptionx.ExceptionCode) (errx ErrorxInterface) {
-	errx = New(code.String(), code)
-
-	return
-}
-
-// NewDomainException creating Errorx from text and ExceptionType
-func NewDomainException(text string, eType exceptionx.ExceptionType, num uint) (errx ErrorxInterface) {
-	code := exceptionx.NewExceptionCode(num, text, eType)
-
-	errx = NewByExceptionCode(code)
-
-	return
-}
-
-// initFromErrorx initialization of fields from Errorx
-func (errx *Errorx) initFromErrorx(err ErrorxInterface) {
+// initFromErrorx initialization of fields from errorx
+func (errx *errorx) initFromErrorx(err Errorx) {
 	errx.err = err.Err()
 
-	args := make([]any, 4)
-	args = append(args, err.Message(), err.ExceptionCode(), err.ExceptionType())
-
-	var httStatusCode *int
-	e, ok := err.(*Errorx)
-	if ok {
-		httStatusCode = e.httpStatusCode
-	} else {
-		httStatusCode = err.HttpStatusCode()
-	}
-
-	if httStatusCode != nil {
-		args = append(args, ArgHttpStatusCode(*httStatusCode))
-	}
-
-	errx.initFromArgs(args...)
+	errx.initFromArgs(err.Args()...)
 }
 
-// initFromArgs initialize Errorx from arguments
-// args can have types: ExceptionType, ExceptionCode, string, ErrorxMessage, error
-func (errx *Errorx) initFromArgs(args ...any) {
-	var message ErrorxMessage
-	var eType exceptionx.ExceptionType
-	var eCode exceptionx.ExceptionCode
+// initFromArgs initialize errorx from arguments
+// args can have types: Exception, ErrorMessageProvider, error
+func (errx *errorx) initFromArgs(args ...any) {
+	var message *string
+	var exception exceptionx.Exception
 	var httpStatusCode *int
 	var err error
 
 	for _, arg := range args {
 		switch v := arg.(type) {
-		case exceptionx.ExceptionType:
-			eType = v
-		case exceptionx.ExceptionCode:
-			eCode = v
+		case exceptionx.DomainException:
+			exception = v.NewException()
+		case exceptionx.Exception:
+			exception = v
+		case ErrorMessageProvider:
+			if v != nil {
+				message = v()
+			}
 		case HttpStatusProvider:
-			code := v()
-			httpStatusCode = &code
-		case ErrorxMessage:
-			message = v
+			if v != nil {
+				httpStatusCode = v()
+			}
 		case error:
 			err = CombineErrors(err, v)
-		}
-	}
-
-	if errx.ExceptionCode() == nil {
-		var eCodeNum *uint
-		for _, arg := range args {
-			switch v := arg.(type) {
-			case uint:
-				eCodeNum = &v
-			}
-		}
-
-		if eCodeNum != nil {
-			eCode = exceptionx.NewExceptionCode(*eCodeNum, errx.Error(), errx.ExceptionType())
 		}
 	}
 
@@ -158,24 +139,35 @@ func (errx *Errorx) initFromArgs(args ...any) {
 		errx.message = message
 	}
 
-	if eType == nil && errx.ExceptionType() != nil {
-		eType = errx.ExceptionType()
+	if exception != nil {
+		errx.exception = exception
 	}
 
-	if eCode == nil && errx.ExceptionCode() != nil {
-		eCode = errx.ExceptionCode()
+	if httpStatusCode != nil && *httpStatusCode != 0 {
+		errx.httpStatusCode = httpStatusCode
 	}
-
-	errx.exception = *exceptionx.NewException(eCode, eType)
-	errx.httpStatusCode = httpStatusCode
 
 	if err != nil {
 		errx.Append(err)
 	}
 }
 
+func (e *errorx) Args() []any {
+	args := make([]any, 0, 3)
+
+	args = append(args, e.Exception())
+	if text := e.Message(); text != nil {
+		args = append(args, ErrorMessageArg(*text))
+	}
+	if code := e.httpStatusCode; code != nil {
+		args = append(args, HttpStatusArg(*code))
+	}
+
+	return args
+}
+
 // Error returns the error text
-func (e *Errorx) Error() (text string) {
+func (e *errorx) Error() (text string) {
 	if e.err != nil {
 		text = e.err.Error()
 	}
@@ -184,40 +176,33 @@ func (e *Errorx) Error() (text string) {
 }
 
 // Err returns a value of type error
-func (e *Errorx) Err() error {
+func (e *errorx) Err() error {
 	return e.err
 }
 
-// Message returns a value of type ErrorxMessage
-func (e *Errorx) Message() ErrorxMessage {
+// Message returns a value of type string
+func (e *errorx) Message() *string {
 	return e.message
 }
 
-// ExceptionType returns a type of exception
-func (e *Errorx) ExceptionType() exceptionx.ExceptionType {
-	return e.exception.Type()
+// Exception returns a exception
+func (e *errorx) Exception() exceptionx.Exception {
+	return e.exception
 }
 
-// ExceptionCode returns a code of exception
-func (e *Errorx) ExceptionCode() exceptionx.ExceptionCode {
-	return e.exception.Code()
+// HttpStatusCodeRaw returns the explicitly set HTTP status code.
+func (e *errorx) HttpStatusCodeRaw() *int {
+	return e.httpStatusCode
 }
 
-// HttpStatusCode returns the HTTP status code associated with the error, if any.
-func (e *Errorx) HttpStatusCode() *int {
+// HttpStatusCode returns the HTTP status code, falling back to the exception if needed.
+func (e *errorx) HttpStatusCode() *int {
 	if e.httpStatusCode != nil {
 		return e.httpStatusCode
 	}
 
-	if e.exception.Type() != nil {
-		code := e.exception.Type().HttpStatusCode()
-		if code != 0 {
-			return &code
-		}
-	}
-
-	if e.exception.Code() != nil && e.exception.Code().Type() != nil {
-		code := e.exception.Code().Type().HttpStatusCode()
+	if e.exception != nil {
+		code := e.exception.HttpStatusCode()
 		if code != 0 {
 			return &code
 		}
@@ -228,29 +213,29 @@ func (e *Errorx) HttpStatusCode() *int {
 
 // Append merges the given errors into the current error.
 // The pointer remains the same; only the internal field err are updated.
-func (e *Errorx) Append(errs ...error) ErrorxInterface {
+func (e *errorx) Append(errs ...error) Errorx {
 	e.err = e.Combine(errs...).Err()
 	return e
 }
 
 // Combine returns a new error that combines the current error with the given ones.
 // A new object is returned; the current object remains unchanged.
-func (e *Errorx) Combine(errs ...error) ErrorxInterface {
-	return CombineErrors(e, CombineErrors(errs...)).(ErrorxInterface)
+func (e *errorx) Combine(errs ...error) Errorx {
+	return CombineErrors(e, CombineErrors(errs...)).(Errorx)
 }
 
 // UnwrapAll error analysis errors in a slice
 // Duplicates are excluded
-func (e *Errorx) UnwrapAll() []error {
+func (e *errorx) UnwrapAll() []error {
 	return UnwrapAll(e)
 }
 
 // UnwrapTexts analyzes errors and then extracts text one by one
-func (e *Errorx) UnwrapTexts() *ErrorTexts {
+func (e *errorx) UnwrapTexts() *ErrorTexts {
 	return NewErrorTexts().AddUnwrapErr(e)
 }
 
 // Copy copying an error including nested
-func (e *Errorx) Copy() ErrorxInterface {
-	return Copy(e).(*Errorx)
+func (e *errorx) Copy() Errorx {
+	return Copy(e).(*errorx)
 }

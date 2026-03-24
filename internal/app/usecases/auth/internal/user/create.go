@@ -52,7 +52,7 @@ func (uc *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption
 func (uc *User) CreateGuest(ctx context.Context) (uuid.UUID, error) {
 	login, err := uc.genLogin()
 	if err != nil {
-		return uuid.Nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return uuid.Nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	user := &dauth.User{

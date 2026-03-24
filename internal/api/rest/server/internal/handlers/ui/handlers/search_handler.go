@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
 	"time"
 
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	"github.com/neosy/elengrab/pkg/errorx"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -14,8 +14,7 @@ import (
 func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
-		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
-		ctx.SetBodyString(fmt.Sprintf("Authorization error: %v", err))
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
 		return
 	}
 
@@ -39,7 +38,7 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 
 	var bodyBuffer bytes.Buffer
 	if err := h.templates.ExecuteTemplate(&bodyBuffer, uivalues.ResultRowsHtmlFileName, dataMap); err != nil {
-		nfasthttp.WriteError(ctx, fmt.Errorf("template execution error: %v", err), fasthttp.StatusInternalServerError)
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("template execution error", fasthttp.StatusInternalServerError, err))
 		return
 	}
 

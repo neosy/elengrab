@@ -17,7 +17,7 @@ func (uc *UserSession) FindBySessionID(ctx context.Context, sessionID uuid.UUID)
 	user, err := uc.userSessionRep.FindBySessionID(ctx, sessionID)
 	if err != nil {
 		uc.logger.Warn("Failed get user session", "error", err)
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	return user, nil
@@ -28,7 +28,7 @@ func (uc *UserSession) FindBySessionID(ctx context.Context, sessionID uuid.UUID)
 func (uc *UserSession) GetBySessionID(ctx context.Context, sessionID uuid.UUID) (*dauth.UserSession, error) {
 	user, err := uc.FindBySessionID(ctx, sessionID)
 	if err != nil {
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	if user == nil {
@@ -48,7 +48,7 @@ func (uc *UserSession) FindByToken(ctx context.Context, token string) (*dauth.Us
 	user, err := uc.userSessionRep.FindByToken(ctx, token)
 	if err != nil {
 		uc.logger.Warn("Failed to find user session", "error", err)
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	return user, nil
@@ -57,7 +57,7 @@ func (uc *UserSession) FindByToken(ctx context.Context, token string) (*dauth.Us
 func (uc *UserSession) GetByToken(ctx context.Context, token string) (*dauth.UserSession, error) {
 	session, err := uc.FindByToken(ctx, token)
 	if err != nil {
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	if session == nil {
