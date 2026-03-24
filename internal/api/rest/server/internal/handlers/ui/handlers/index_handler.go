@@ -10,6 +10,7 @@ import (
 
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/pkg/errorx"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 	uformat "github.com/neosy/elengrab/pkg/utils/format"
 	"github.com/valyala/fasthttp"
@@ -19,7 +20,7 @@ import (
 func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
-		nfasthttp.WriteError(ctx, fmt.Errorf("authorization error: %v", err), fasthttp.StatusUnauthorized)
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
 		return
 	}
 

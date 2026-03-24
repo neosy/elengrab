@@ -15,7 +15,7 @@ import (
 func (u *Auth) CreateSession(ctx context.Context, userID uuid.UUID) (*dauth.UserSession, error) {
 	token, err := u.generateSessionToken()
 	if err != nil {
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	session := &dauth.UserSession{

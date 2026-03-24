@@ -28,10 +28,7 @@ func (uc *YouTubeDownloader) RepeatDownload(
 			dto.BroadcastNotificationTypeError,
 			"Operation not allowed in demo mode",
 		)
-		return nil, errorx.New(
-			"operation not allowed in demo mode",
-			errorx.ArgHttpStatusCode(fasthttp.StatusForbidden),
-		)
+		return nil, errorx.NewHTTP("operation not allowed in demo mode", fasthttp.StatusForbidden)
 	}
 
 	err := uc.file.Tx(

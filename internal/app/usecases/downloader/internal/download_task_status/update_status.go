@@ -15,7 +15,7 @@ func (s *DownloadTaskStatus) updateStatus(
 	toStatus dtypes.DownloadTaskStatus,
 	updateFieldsFunc func(file *ddownload.DownloadTask),
 ) error {
-	task, err := s.downloadTask.FindByTaskID(ctx, taskId, true)
+	task, err := s.downloadTask.GetByTaskID(ctx, taskId)
 	if err != nil {
 		return err
 	}

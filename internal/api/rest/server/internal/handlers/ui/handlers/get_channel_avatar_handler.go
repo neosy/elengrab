@@ -4,14 +4,15 @@ import (
 	"path/filepath"
 
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	"github.com/neosy/elengrab/pkg/errorx"
+	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) GetChannelAvatarHandler(ctx *fasthttp.RequestCtx) {
 	channelID := ctx.UserValue(channelIDKey).(string)
 	if channelID == "" {
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetBodyString("ChannelID is required")
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("channelID is required", fasthttp.StatusBadRequest))
 		return
 	}
 

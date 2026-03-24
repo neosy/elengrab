@@ -17,7 +17,7 @@ func (s *FileStatus) New(
 		file.ErrorMessage = nil
 	}
 
-	task, err := s.dlTask.FindByFileID(ctx, fileID, true)
+	task, err := s.dlTask.GetByFileID(ctx, fileID)
 	if err != nil {
 		return err
 	}

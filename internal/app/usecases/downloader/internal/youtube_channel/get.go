@@ -27,7 +27,7 @@ func (uc *YoutubeChannel) FindByChannelID(ctx context.Context, channelID string)
 	channel, err := uc.channelRep.FindByChannelID(ctx, channelID)
 	if err != nil {
 		uc.logger.Warn("Failed get youtubeChannel", "error", err)
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	if channel == nil {
@@ -51,7 +51,7 @@ func (uc *YoutubeChannel) FindByChannelID(ctx context.Context, channelID string)
 func (uc *YoutubeChannel) GetByChannelID(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, error) {
 	channel, err := uc.FindByChannelID(ctx, channelID)
 	if err != nil {
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	if channel == nil {

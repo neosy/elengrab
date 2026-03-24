@@ -13,63 +13,66 @@ type writeErrorxResponseDto struct {
 	HTTPStatus int    `json:"status"`
 	Code       int    `json:"code,omitempty"`
 	Message    string `json:"message"`
+	Errors     string `json:"errors,omitempty"`
 	Timestamp  string `json:"timestamp"`
 }
 
 // WriteErrorx
 func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
-	var message string
-	var httpStatusCode int
-	var errCode uint
-	var errx *errorx.Errorx
+	var (
+		message             string
+		errors              string
+		httpStatusCode      int
+		errCode             uint
+		shouldCombineErrors bool
+	)
 
-	e, ok := err.(*errorx.Errorx)
-	if ok {
-		errx = e
+	errx := errorx.NewFromError(err)
+
+	userValue := ctx.UserValue(AppConfigCtxKey)
+	if userValue != nil {
+		switch userValue {
+		case appenv.AppEnvDevelop, appenv.AppEnvLocal:
+			shouldCombineErrors = true
+		}
 	}
 
 	httpStatusCode = fasthttp.StatusInternalServerError
 	if errx != nil {
-		exType := errx.ExceptionType()
-		exCode := errx.ExceptionCode()
+		exception := errx.Exception()
 
-		if exType == nil && exCode != nil {
-			tmpType := exCode.Type()
-			exType = tmpType
-		}
-
-		httpStatus := errx.HttpStatusCode()
-		if httpStatus != nil {
+		if httpStatus := errx.HttpStatusCode(); httpStatus != nil {
 			httpStatusCode = *httpStatus
 		}
 
-		if exCode != nil {
-			errCode = exCode.Num()
+		if exception != nil {
+			errCode = exception.Num()
 		}
 
-		userValue := ctx.UserValue(AppConfigCtxKey)
-		if userValue != nil {
-			switch userValue {
-			case appenv.AppEnvDevelop, appenv.AppEnvLocal:
-				message = errorx.NewErrorTexts().AddUnwrapErr(errx).Join()
+		if message == "" && errx.Message() != nil {
+			text := errx.Message()
+			message = *text
+		}
+
+		if message == "" {
+			message = errx.Error()
+		}
+
+		if message == "" && exception != nil {
+			message = exception.String()
+		}
+
+		if shouldCombineErrors {
+			errors = errx.Error()
+		}
+	} else {
+		if err != nil {
+			message = err.Error()
+
+			if shouldCombineErrors {
+				errors = err.Error()
 			}
 		}
-
-		if message == "" && errx.Message() != nil && errx.Message().String() != "" {
-			message = errx.Message().String()
-		}
-
-		if message == "" && exCode != nil {
-			message = exCode.String()
-		}
-
-		if message == "" && exType != nil {
-			message = exType.String()
-		}
-	}
-
-	if message == "" && err != nil {
-		message = err.Error()
 	}
 
 	if message == "" {
@@ -80,17 +83,18 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 		HTTPStatus: httpStatusCode,
 		Code:       int(errCode),
 		Message:    message,
+		Errors:     errors,
 		Timestamp:  time.Now().Format(time.RFC3339),
 	}
 
 	ctx.SetStatusCode(httpStatusCode)
 	ctx.SetContentType("application/json")
 
-	jErrorResponse, err := json.Marshal(errorResponse)
+	errorResponseJSON, err := json.Marshal(errorResponse)
 	if err != nil {
 		ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 		return
 	}
 
-	ctx.SetBody(jErrorResponse)
+	ctx.SetBody(errorResponseJSON)
 }
