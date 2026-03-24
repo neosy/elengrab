@@ -10,6 +10,8 @@ import (
 
 	"github.com/google/uuid"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
+	"github.com/neosy/elengrab/pkg/errorx"
+	"github.com/neosy/elengrab/pkg/nfasthttp"
 	uformat "github.com/neosy/elengrab/pkg/utils/format"
 	"github.com/valyala/fasthttp"
 )
@@ -17,8 +19,7 @@ import (
 func (h *DownloaderHandlers) EventsHandler(ctx *fasthttp.RequestCtx) {
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
-		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
-		ctx.SetBodyString(fmt.Sprintf("Authorization error: %v", err))
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
 		return
 	}
 

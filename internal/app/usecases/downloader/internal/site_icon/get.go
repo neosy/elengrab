@@ -25,7 +25,7 @@ func (uc *SiteIcon) FindByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia
 	logo, err := uc.logoRep.FindByLogoID(ctx, logoID)
 	if err != nil {
 		uc.logger.Warn("Failed get siteLogo", "error", err)
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	err = uc.logoCacheRep.Save(ctx, logo)
@@ -41,7 +41,7 @@ func (uc *SiteIcon) FindByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia
 func (uc *SiteIcon) GetByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia.SiteLogo, error) {
 	logo, err := uc.FindByLogoID(ctx, logoID)
 	if err != nil {
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	if logo == nil {
@@ -85,7 +85,7 @@ func (uc *SiteIcon) FindBySiteURL(ctx context.Context, siteURL string) (*dmedia.
 	logo, err := uc.logoRep.FindBySiteURL(ctx, siteURL)
 	if err != nil {
 		uc.logger.Warn("Failed get siteLogo", "error", err)
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	if logo == nil {
@@ -106,7 +106,7 @@ func (uc *SiteIcon) FindBySiteURL(ctx context.Context, siteURL string) (*dmedia.
 func (uc *SiteIcon) GetBySiteURL(ctx context.Context, siteURL string) (*dmedia.SiteLogo, error) {
 	logo, err := uc.FindBySiteURL(ctx, siteURL)
 	if err != nil {
-		return nil, errorx.NewByErr(err, exceptionx.ERROR)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
 	if logo == nil {

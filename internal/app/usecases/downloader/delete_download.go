@@ -34,10 +34,7 @@ func (uc *YouTubeDownloader) DeleteDownload(
 			dto.BroadcastNotificationTypeError,
 			"Operation not allowed in demo mode",
 		)
-		return errorx.New(
-			"operation not allowed in demo mode",
-			errorx.ArgHttpStatusCode(fasthttp.StatusForbidden),
-		)
+		return errorx.NewHTTP("operation not allowed in demo mode", fasthttp.StatusForbidden)
 	}
 
 	var accessByUserID *uuid.UUID

@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/pkg/errorx"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -14,14 +14,14 @@ import (
 func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
-		nfasthttp.WriteError(ctx, fmt.Errorf("authorization error: %v", err), fasthttp.StatusUnauthorized)
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
 		return
 	}
 
 	// Get the file name from the query parameter
 	fileIdStr := string(ctx.QueryArgs().Peek("file"))
 	if fileIdStr == "" {
-		nfasthttp.WriteError(ctx, errors.New("file is required"), fasthttp.StatusBadRequest)
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("file is required", fasthttp.StatusBadRequest))
 		return
 	}
 

@@ -1,12 +1,11 @@
 package handlers
 
 import (
-	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/pkg/errorx"
 	"github.com/neosy/elengrab/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -15,14 +14,14 @@ func (h *DownloaderHandlers) StreamHandler(ctx *fasthttp.RequestCtx) {
 	// Get user ID from context
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
-		nfasthttp.WriteError(ctx, fmt.Errorf("authorization error: %v", err), fasthttp.StatusUnauthorized)
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
 		return
 	}
 
 	// Get the file ID from query parameter
 	fileIdStr := string(ctx.QueryArgs().Peek("file"))
 	if fileIdStr == "" {
-		nfasthttp.WriteError(ctx, errors.New("file is required"), fasthttp.StatusBadRequest)
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("file is required", fasthttp.StatusBadRequest))
 		return
 	}
 
@@ -31,7 +30,7 @@ func (h *DownloaderHandlers) StreamHandler(ctx *fasthttp.RequestCtx) {
 	// Retrieve file info
 	fileInfo, err := h.usecases.Downloader.GetFileInfo(ctx, userID, fileId)
 	if err != nil {
-		nfasthttp.WriteError(ctx, err, fasthttp.StatusNotFound)
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -43,7 +42,7 @@ func (h *DownloaderHandlers) StreamHandler(ctx *fasthttp.RequestCtx) {
 
 	// Check if the file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		nfasthttp.WriteError(ctx, errors.New("file not found"), fasthttp.StatusBadRequest)
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("file not found", fasthttp.StatusBadRequest))
 		return
 	}
 

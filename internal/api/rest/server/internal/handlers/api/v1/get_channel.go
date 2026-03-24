@@ -10,7 +10,7 @@ import (
 func (h *V1Handlers) GetChannelByID(ctx *fasthttp.RequestCtx) {
 	channelID := ctx.UserValue(channelIDKey).(string)
 	if channelID == "" {
-		nfasthttp.WriteErrorx(ctx, errorx.NewByExceptionType("channelID is required", exceptionx.WRONG_DATA))
+		nfasthttp.WriteErrorx(ctx, errorx.New("channelID is required", exceptionx.WRONG_DATA))
 		return
 	}
 
@@ -22,7 +22,7 @@ func (h *V1Handlers) GetChannelByID(ctx *fasthttp.RequestCtx) {
 
 	resp, err := h.mappers.MapChannelDomainToResponse(channel)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewByErr(err))
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 

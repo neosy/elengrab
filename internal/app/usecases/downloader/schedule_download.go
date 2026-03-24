@@ -10,9 +10,9 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/pkg/errorx"
+	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
 	"github.com/neosy/elengrab/pkg/nworkerpool"
 	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
-	"github.com/valyala/fasthttp"
 )
 
 func (uc *YouTubeDownloader) ScheduleDownload(
@@ -28,13 +28,10 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 			dto.BroadcastNotificationTypeError,
 			"Demo mode",
 		)
-		return nil, errorx.New(
-			"operation not allowed in demo mode",
-			errorx.ArgHttpStatusCode(fasthttp.StatusForbidden),
-		)
+		return nil, errorx.New("operation not allowed in demo mode", exceptionx.ERROR)
 	}
 
-	errReturn := func(err error) error {
+	returnErr := func(err error) error {
 		uc.broadcastNotification(
 			userID,
 			dto.BroadcastNotificationModuleGrabForm,
@@ -61,7 +58,7 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 	)
 	if err != nil {
 		uc.logger.Error("Insert record failed", "error", err)
-		return nil, errReturn(err)
+		return nil, returnErr(err)
 	}
 
 	var accessByUserID *uuid.UUID
@@ -72,20 +69,20 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 	file, err := uc.file.GetByFileID(ctx, accessByUserID, fileId)
 	if err != nil {
 		uc.logger.Error("Failed find file", "error", err)
-		return nil, errReturn(err)
+		return nil, returnErr(err)
 	}
 	if file.DownloadTask == nil {
-		file.DownloadTask, err = uc.dlTask.FindByFileID(ctx, fileId, true)
+		file.DownloadTask, err = uc.dlTask.GetByFileID(ctx, fileId)
 		if err != nil {
 			uc.logger.Error("Failed find task", "error", err)
-			return nil, errReturn(err)
+			return nil, returnErr(err)
 		}
 	}
 
 	err = uc.addFileToQueueDownload(ctx, fileId, file.DownloadTask.TaskID)
 	if err != nil {
 		uc.logger.Error("Failed add to queue", "error", err)
-		return nil, errReturn(err)
+		return nil, returnErr(err)
 	}
 
 	f, _ := uc.file.GetByFileID(ctx, accessByUserID, fileId)

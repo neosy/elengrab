@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/pkg/errorx"
@@ -13,22 +12,19 @@ import (
 func (h *DownloaderHandlers) GetFileRowHandler(ctx *fasthttp.RequestCtx) {
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
-		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
-		ctx.SetBodyString(fmt.Sprintf("Authorization error: %v", err))
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
 		return
 	}
 
 	fileIdStr := ctx.UserValue(fileIdKey).(string)
 	if fileIdStr == "" {
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetBodyString("FileId is required")
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("fileId is required", fasthttp.StatusBadRequest))
 		return
 	}
 
 	fileId, err := uuid.Parse(fileIdStr)
 	if err != nil {
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetBodyString("FileId is incorrect")
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("fileId is incorrect", fasthttp.StatusBadRequest))
 		return
 	}
 
@@ -52,7 +48,7 @@ func (h *DownloaderHandlers) GetFileRowHandler(ctx *fasthttp.RequestCtx) {
 	var buf bytes.Buffer
 	err = h.templates.ExecuteTemplate(&buf, row.templateName, row.data)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewByErr(err))
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
