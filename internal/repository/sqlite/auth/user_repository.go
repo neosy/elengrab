@@ -9,10 +9,10 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth/mappers"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
-	"github.com/neosy/elengrab/pkg/dbutils"
 )
 
 type UserRepository struct {

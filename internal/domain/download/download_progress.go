@@ -1,6 +1,6 @@
 package ddownload
 
-import uptr "github.com/neosy/elengrab/pkg/utils/pointer"
+import uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 
 // Progress of the download
 type DownloadProgress struct {

@@ -10,9 +10,9 @@ import (
 
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/pkg/errorx"
-	"github.com/neosy/elengrab/pkg/nfasthttp"
-	uformat "github.com/neosy/elengrab/pkg/utils/format"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
+	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	"github.com/valyala/fasthttp"
 )
 

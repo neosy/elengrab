@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
-	"github.com/neosy/elengrab/pkg/errorx"
-	"github.com/neosy/elengrab/pkg/nfasthttp"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
 

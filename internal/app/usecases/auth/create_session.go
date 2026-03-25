@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	"github.com/neosy/elengrab/pkg/errorx"
-	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
 func (u *Auth) CreateSession(ctx context.Context, userID uuid.UUID) (*dauth.UserSession, error) {

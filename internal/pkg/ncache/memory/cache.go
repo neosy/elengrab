@@ -3,7 +3,7 @@ package nmemory
 import (
 	"time"
 
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 // Cache is a generic in-memory cache that maps keys of type K to Items of type T.

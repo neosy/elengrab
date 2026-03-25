@@ -7,9 +7,9 @@ import (
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	usql "github.com/neosy/elengrab/internal/pkg/dbutils/sql"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
-	usql "github.com/neosy/elengrab/pkg/dbutils/sql"
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 func (m *Mappers) MapDownloadTaskDomainToEntity(task *ddownload.DownloadTask) (*edownload.DownloadTask, error) {

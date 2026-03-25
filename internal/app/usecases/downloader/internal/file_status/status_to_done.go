@@ -8,7 +8,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 // Failed set status to done

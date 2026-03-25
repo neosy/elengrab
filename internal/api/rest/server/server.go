@@ -10,8 +10,8 @@ import (
 
 	authmiddleware "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	"github.com/neosy/elengrab/internal/app/usecases"
-	appenv "github.com/neosy/elengrab/pkg/nconfig/app_env"
-	"github.com/neosy/elengrab/pkg/nfasthttp"
+	appenv "github.com/neosy/elengrab/internal/pkg/nconfig/app_env"
+	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
 

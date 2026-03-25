@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/neosy/elengrab/pkg/nfasthttp"
+	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 )
 
 // GetHTML performs an HTTP GET request using net/http and returns

@@ -5,8 +5,8 @@ import (
 
 	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	"github.com/neosy/elengrab/pkg/errorx"
-	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
 func (uc *UserSession) FindBySessionID(ctx context.Context, sessionID uuid.UUID) (*dauth.UserSession, error) {

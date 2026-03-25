@@ -7,7 +7,7 @@ import (
 	"sort"
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
-	"github.com/neosy/elengrab/pkg/httpx"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
 var ErrIconNotFound = errors.New("icon not found")

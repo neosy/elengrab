@@ -1,6 +1,6 @@
 package errorx
 
-import "github.com/neosy/elengrab/pkg/errorx/exceptionx"
+import "github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 
 // Interface type for error handling
 type Errorx interface {

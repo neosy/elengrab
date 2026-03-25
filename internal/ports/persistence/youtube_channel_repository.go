@@ -4,7 +4,7 @@ import (
 	"context"
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
-	nmemory "github.com/neosy/elengrab/pkg/ncache/memory"
+	nmemory "github.com/neosy/elengrab/internal/pkg/ncache/memory"
 )
 
 type YoutubeChannelRepository interface {

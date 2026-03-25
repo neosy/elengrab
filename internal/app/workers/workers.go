@@ -6,9 +6,9 @@ import (
 
 	cachejobs "github.com/neosy/elengrab/internal/app/workers/cache"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
+	"github.com/neosy/elengrab/internal/pkg/nworkers"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
-	"github.com/neosy/elengrab/pkg/nworkers"
 )
 
 const (

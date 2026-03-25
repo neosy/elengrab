@@ -1,8 +1,8 @@
 package nconfig
 
 import (
-	appenv "github.com/neosy/elengrab/pkg/nconfig/app_env"
-	"github.com/neosy/elengrab/pkg/nlogger"
+	appenv "github.com/neosy/elengrab/internal/pkg/nconfig/app_env"
+	"github.com/neosy/elengrab/internal/pkg/nlogger"
 )
 
 type AppConfig struct {
