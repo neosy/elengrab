@@ -7,19 +7,19 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 	var before = time.Now().UTC()
 
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
-		return
+	ctxUser := authmw.UserFromContext(ctx)
+	if ctxUser == nil {
+		// anonymous
+		ctxUser = dauth.UserContextAnonymous()
 	}
 
 	beforeStr := string(ctx.QueryArgs().Peek(beforeKey))
@@ -36,7 +36,7 @@ func (h *DownloaderHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 	filters := parseFilters(ctx)
 
 	var bodyBuffer bytes.Buffer
-	err = h.getFilesHistory(ctx, &bodyBuffer, userID, before, filters)
+	err := h.getFilesHistory(ctx, &bodyBuffer, ctxUser.UserID, before, filters)
 	if err != nil {
 		ctx.SetStatusCode(fasthttp.StatusOK)
 		ctx.SetBodyString("")

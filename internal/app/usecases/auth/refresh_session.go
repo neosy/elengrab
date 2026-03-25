@@ -4,30 +4,47 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
+	authdto "github.com/neosy/elengrab/internal/app/usecases/auth/dto"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
-func (u *Auth) SessionNeedsRefresh(expiresAt time.Time) bool {
+func (u *Auth) shouldRefreshSession(expiresAt time.Time) bool {
 	return time.Until(expiresAt) <= sessionRefreshInterval
 }
 
-func (u *Auth) RefreshSession(ctx context.Context, sessionID uuid.UUID) (time.Time, error) {
-	var retExpiresAt time.Time
+func (a *Auth) sessionRefreshPredicate() func(*dauth.UserSession) bool {
+	return func(session *dauth.UserSession) bool {
+		return a.shouldRefreshSession(session.ExpiresAt)
+	}
+}
+
+func (a *Auth) RefreshSession(ctx context.Context, token string) (*authdto.UserContext, error) {
+	var (
+		user       *dauth.User
+		newSession *dauth.UserSession
+	)
 
 	refresh := func(ctx context.Context) error {
-		session, err := u.userSession.GetBySessionID(ctx, sessionID)
+		session, err := a.userSession.FindByToken(ctx, token)
 		if err != nil {
 			return err
 		}
-
-		if !u.SessionNeedsRefresh(session.ExpiresAt) {
-			retExpiresAt = session.ExpiresAt
-			return nil
+		if session == nil {
+			return ErrSessionNotFound
 		}
 
-		newExpiry := time.Now().UTC().Add(sessionTTL)
-		session.ExpiresAt = newExpiry
-		err = u.userSession.Update(ctx, session)
+		if !a.shouldRefreshSession(session.ExpiresAt) {
+			newSession = session
+		}
+
+		if newSession == nil {
+			newSession, err = a.createSession(ctx, session.UserID)
+			if err != nil {
+				return err
+			}
+		}
+
+		user, err = a.user.GetByUserID(ctx, newSession.UserID)
 		if err != nil {
 			return err
 		}
@@ -35,10 +52,16 @@ func (u *Auth) RefreshSession(ctx context.Context, sessionID uuid.UUID) (time.Ti
 		return nil
 	}
 
-	err := u.userSession.Tx(ctx, refresh)
+	err := a.userSession.Tx(ctx, refresh)
 	if err != nil {
-		return time.Time{}, err
+		return nil, err
 	}
 
-	return retExpiresAt, nil
+	userCtx := a.mappers.MapUserSessionDomainToUserContext(
+		user,
+		newSession,
+		a.sessionRefreshPredicate(),
+	)
+
+	return userCtx, nil
 }

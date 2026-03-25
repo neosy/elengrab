@@ -72,7 +72,7 @@
 
 .button-input-action:hover {
     color: var(--text-button-input-action-hover);
-    background-color: var(--bg-button-input-action-hover);
+    background-color: var(--bg-button-hover);
 }
 
 .button-input-action:active {

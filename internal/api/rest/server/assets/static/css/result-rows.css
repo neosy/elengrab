@@ -205,6 +205,9 @@
 .result-avatar {
     position: relative;
     display: inline-block;
+
+    /* border-radius: 50%;
+    overflow: hidden; */
 }
 
 .img-avatar {
@@ -220,11 +223,15 @@
     /* Prevent inline image gaps */
     display: block;
 
-    transition: filter 0.25s;
+    transition: transform 0.5s ease, filter 0.3s ease;
 }
 
 .div-grab-result-row.inprogress .img-avatar {
   filter: brightness(0.6);
+}
+
+.result-avatar:hover .img-avatar {
+    transform: scale(1.2);
 }
 
 .avatar-play-btn {
@@ -263,19 +270,26 @@
 .avatar-play-btn svg {
     width: 1em;
     height: 1em;
+    opacity: 0.6;
     filter:
         drop-shadow(0 0 3px rgba(0,0,0,1))
         drop-shadow(0 0 6px rgba(0,0,0,0.9));
+    transition: transform 0.5s ease, filter 0.3s ease, opacity 0.3s ease;;
+}
+
+.result-avatar:hover svg {
+    opacity: 1;
+    transform: scale(1.3);
 }
 
 /* Hover effect: show play button */
-.result-avatar:hover .avatar-play-btn {
+/* .result-avatar:hover .avatar-play-btn {
     color: var(--avatar-play-btn-hover);
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
     background: rgba(0, 0, 0, 0.7);
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-}
+} */
 
 /* Optional: circular ripple effect on click */
 .avatar-play-btn:active {

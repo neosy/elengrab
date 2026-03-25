@@ -3,6 +3,7 @@ package broadcaster
 import (
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 )
 
@@ -63,11 +64,11 @@ func (b *Broadcaster) Broadcast(eventType dto.BroadcastEventType, data any) {
 	}
 }
 
-func (b *Broadcaster) BroadcastToUser(userID string, eventType dto.BroadcastEventType, data any) {
+func (b *Broadcaster) BroadcastToUser(userID uuid.UUID, eventType dto.BroadcastEventType, data any) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 	for client := range b.clients {
-		if client.userID != userID {
+		if client.userID != userID.String() {
 			continue
 		}
 		select {

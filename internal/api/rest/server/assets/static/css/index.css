@@ -13,6 +13,28 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+.user-menu {
+    display: flex;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 1000;
+    gap: 8px;
+}
+
+.user-menu > div {
+    display: flex;
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+}
+
+.user-avatar svg {
+    width: 30px;
+    height: 30px;
+}
+
 .div-main-area {
     position: relative;
     width: 80%;
@@ -154,6 +176,22 @@ body {
 }
 
 @media (max-width: 768px) {
+    .user-menu {
+        top: 12px;
+        right: 12px;
+        gap: 8px;
+    }
+
+    .user-menu > div {
+        width: 30px;
+        height: 30px;
+    }
+
+    .user-avatar svg {
+        width: 23px;
+        height: 23px;
+    }
+
     .div-main-area {
         width: 95%;
         min-height: calc(100vh - 40px - 2*8px - 2*15px);

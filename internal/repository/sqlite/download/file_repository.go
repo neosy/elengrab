@@ -87,7 +87,7 @@ func (r *FileRepository) WithFilters(filters map[string]any) persistence.FileRep
 		switch key {
 		case "userID":
 			v, ok := value.(uuid.UUID)
-			if ok && v != uuid.Nil {
+			if ok {
 				rep.filters.userID = &v
 			}
 		case "title":
@@ -666,27 +666,6 @@ func (r *FileRepository) GetDeleted(ctx context.Context, from, to *time.Time) ([
 	return files, nil
 }
 
-func (r *FileRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
-	tx, err := r.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-
-	if err := fn(dbexec.CtxWithTx(ctx, tx)); err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	if err := tx.Commit(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (r *FileRepository) FillEmptyMediaTitleLower(ctx context.Context) error {
 	var eFile edownload.File
 
@@ -740,4 +719,8 @@ func (r *FileRepository) FillEmptyMediaTitleLower(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (r *FileRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
+	return dbexec.Tx(ctx, r.db, r.lock, fn)
 }

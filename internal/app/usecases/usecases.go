@@ -45,6 +45,8 @@ type DepRepositories struct {
 	SiteLogo       persistence.SiteLogoRepository
 
 	User        persistence.UserRepository
+	Role        persistence.RoleRepository
+	UserRole    persistence.UserRoleRepository
 	UserSession persistence.UserSessionRepository
 
 	// in memory
@@ -60,6 +62,13 @@ type Usecases struct {
 }
 
 func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *Usecases {
+	auth := auth.NewAuth(
+		logger,
+		deps.Repositories.User,
+		deps.Repositories.Role,
+		deps.Repositories.UserRole,
+		deps.Repositories.UserSession,
+	)
 	return &Usecases{
 		Downloader: ytdownloader.NewYouTubeDownloader(
 			ctx,
@@ -99,10 +108,6 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.DatabaseBackupsDir,
 			deps.DatabaseBackupsKeep,
 		),
-		Auth: auth.NewAuth(
-			logger,
-			deps.Repositories.User,
-			deps.Repositories.UserSession,
-		),
+		Auth: auth,
 	}
 }

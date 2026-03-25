@@ -189,6 +189,8 @@ func main() {
 			YoutubeChannel: slRepositories.YoutubeChannel,
 			SiteLogo:       slRepositories.SiteLogo,
 			User:           slRepositories.User,
+			Role:           slRepositories.Role,
+			UserRole:       slRepositories.UserRole,
 			UserSession:    slRepositories.UserSession,
 
 			// in memory

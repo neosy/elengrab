@@ -1,4 +1,4 @@
-package useruc
+package authuser
 
 import (
 	"context"
@@ -6,10 +6,10 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
-func (uc *User) Update(ctx context.Context, user *dauth.User) error {
-	err := uc.userRep.Update(ctx, user)
+func (u *User) Update(ctx context.Context, user *dauth.User) error {
+	err := u.userRep.Update(ctx, user)
 	if err != nil {
-		uc.logger.Warn("Update record error", "error", err)
+		u.logger.Warn("Update record error", "error", err)
 		return err
 	}
 	return nil

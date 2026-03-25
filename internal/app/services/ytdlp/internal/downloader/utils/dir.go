@@ -1,8 +1,9 @@
 package utils
 
 import (
-	"fmt"
 	"os"
+
+	"github.com/neosy/elengrab/internal/pkg/errorx"
 )
 
 // CreateTempDir creates a temporary working directory inside baseDir.
@@ -10,7 +11,7 @@ import (
 func CreateTempDir(baseDir string, prefix string) (string, func() error, error) {
 	// Ensure base directory exists
 	if err := os.MkdirAll(baseDir, 0o755); err != nil {
-		return "", nil, fmt.Errorf("failed to create base temp dir: %w", err)
+		return "", nil, errorx.Errorf("failed to create base temp dir: %w", err)
 	}
 
 	// Create isolated temp directory for this run

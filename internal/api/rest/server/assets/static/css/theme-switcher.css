@@ -1,31 +1,31 @@
 /* /static/css/theme-switcher.css — compact sun/moon toggle button */
 .theme-switcher {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 1000;
+    display: flex;
 }
 
 .theme-toggle-btn {
+    display: flex;
+    position: relative;
+    padding: 0;
     width: 40px;
     height: 40px;
-    border: 2px solid transparent;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid;
+    border-color: transparent;
     border-radius: 50%;
-    background-color: var(--bg-button);
+    background: transparent;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
     transition: border-color 0.5s ease, background-color 0.5s ease, color 0.5s ease, transform 0.5s ease;
-    position: relative;
     overflow: hidden;
 }
 
 .theme-toggle-btn:hover {
-    border-color: #7eb980;
+    background-color: var(--bg-button-hover);
 }
 
 .theme-toggle-btn:active {
@@ -74,11 +74,17 @@
         right: 12px;
     }
     .theme-toggle-btn {
-        width: 36px;
-        height: 36px;
+        width: 30px;
+        height: 30px;
     }
     .theme-toggle-btn .icon {
         width: 20px;
         height: 20px;
     }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .theme-toggle-btn {
+    border: none;
+  }
 }

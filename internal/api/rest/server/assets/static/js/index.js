@@ -156,6 +156,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const grabInputURL = DOM_ELEMENTS.mediaURL;
     const grabInputActionBtn = DOM_ELEMENTS.inputActionBtn;
 
+    let sessionToken = cookie.getSessionToken();
+
     // Sync selects with cookies
     cookie.setupCookieSelectSync(SELECT_NAMES.qualityCodec, COOKIE_NAMES.qualityCodec);
     cookie.setupCookieSelectSync(SELECT_NAMES.qualityResolution, COOKIE_NAMES.qualityResolution);
@@ -185,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (grabInputURL) grabInputURL.value = '';
             if (event.detail.xhr.status !== 200 &&
                 event.detail.xhr.status !== 503) {
-
+                    
                 if (DOM_ELEMENTS.resultInfo && DOM_ELEMENTS.resultInfoFailed) {
                     let text = event.detail.xhr.responseText;
                     try {
@@ -196,6 +198,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     } catch (e) {}
 
                     helper.showErrorMessage(text, DOM_ELEMENTS.resultInfo, DOM_ELEMENTS.resultInfoFailed)
+                }
+            }
+
+            // Reload the page after the user has been authorized (e.g., guest user created and session token set)
+            if (!sessionToken) {
+                const curToken = cookie.getSessionToken();
+                if (curToken) {
+                    window.location.reload();
                 }
             }
         }

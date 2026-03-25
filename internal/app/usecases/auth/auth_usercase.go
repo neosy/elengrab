@@ -3,17 +3,23 @@ package auth
 import (
 	"log/slog"
 
-	useruc "github.com/neosy/elengrab/internal/app/usecases/auth/internal/user"
-	usersession "github.com/neosy/elengrab/internal/app/usecases/auth/internal/user_session"
+	authrole "github.com/neosy/elengrab/internal/app/usecases/auth/internal/role"
+	authuser "github.com/neosy/elengrab/internal/app/usecases/auth/internal/user"
+	authuserrole "github.com/neosy/elengrab/internal/app/usecases/auth/internal/user_role"
+	authsession "github.com/neosy/elengrab/internal/app/usecases/auth/internal/user_session"
+	"github.com/neosy/elengrab/internal/app/usecases/auth/mappers"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 )
 
 type Auth struct {
-	logger *slog.Logger
+	logger  *slog.Logger
+	mappers *mappers.Mappers
 
 	// internal
-	user        *useruc.User
-	userSession *usersession.UserSession
+	user        *authuser.User
+	role        *authrole.Role
+	userRole    *authuserrole.UserRole
+	userSession *authsession.UserSession
 }
 
 func NewAuth(
@@ -21,11 +27,20 @@ func NewAuth(
 
 	// repositories
 	userRep persistence.UserRepository,
+	roleRep persistence.RoleRepository,
+	userRoleRep persistence.UserRoleRepository,
 	userSessionRep persistence.UserSessionRepository,
 ) *Auth {
+	userRole := authuserrole.NewUserRole(logger, userRoleRep)
+
 	return &Auth{
-		logger:      logger,
-		user:        useruc.NewUser(logger, userRep),
-		userSession: usersession.NewUserSession(logger, userSessionRep),
+		logger:  logger,
+		mappers: mappers.NewMappers(),
+
+		// internal
+		user:        authuser.NewUser(logger, userRep, userRole),
+		role:        authrole.NewRole(logger, roleRep),
+		userRole:    userRole,
+		userSession: authsession.NewUserSession(logger, userSessionRep),
 	}
 }

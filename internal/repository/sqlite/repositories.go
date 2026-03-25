@@ -21,6 +21,8 @@ type Repositories struct {
 	SiteLogo       persistence.SiteLogoRepository
 
 	User        persistence.UserRepository
+	Role        persistence.RoleRepository
+	UserRole    persistence.UserRoleRepository
 	UserSession persistence.UserSessionRepository
 }
 
@@ -45,6 +47,8 @@ func New(dbByName map[persistence.DBName]*sql.DB) *Repositories {
 		dbNames:  dbNames,
 
 		User:        auth.NewUserRepository(authDB, lockByDBName[persistence.DBAuthName]),
+		Role:        auth.NewRoleRepository(authDB, lockByDBName[persistence.DBAuthName]),
+		UserRole:    auth.NewUserRoleRepository(authDB, lockByDBName[persistence.DBAuthName]),
 		UserSession: auth.NewUserSessionRepository(authDB, lockByDBName[persistence.DBAuthName]),
 
 		File:         download.NewFileRepository(mainDB, lockByDBName[persistence.DBMainName]),

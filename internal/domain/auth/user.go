@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 type User struct {
@@ -16,9 +17,6 @@ type User struct {
 	// User email address, optional
 	Email *string
 
-	// Indicates guest status
-	IsGuest bool
-
 	// Active status
 	IsActive bool
 
@@ -27,4 +25,7 @@ type User struct {
 
 	// Timestamp when the record was last updated
 	UpdatedAt time.Time
+
+	// Roles
+	Roles []dtypes.UserRole
 }

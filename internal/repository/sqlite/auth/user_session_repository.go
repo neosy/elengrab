@@ -175,22 +175,5 @@ func (r *UserSessionRepository) FindByToken(ctx context.Context, token string) (
 }
 
 func (r *UserSessionRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
-	tx, err := r.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-
-	if err := fn(dbexec.CtxWithTx(ctx, tx)); err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	if err := tx.Commit(); err != nil {
-		return err
-	}
-
-	return nil
+	return dbexec.Tx(ctx, r.db, r.lock, fn)
 }

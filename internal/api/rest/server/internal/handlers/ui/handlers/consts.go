@@ -18,7 +18,7 @@ const (
 	fileIdKey        = "fileId"
 	beforeKey        = "before"
 	channelIDKey     = "channelID"
-	userIDKey        = "userId"
+	userKey          = "user"
 	filterByTitleKey = "title"
 	searchKey        = "search"
 

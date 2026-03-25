@@ -1,3 +1,4 @@
+-- User sessions
 CREATE TABLE IF NOT EXISTS user_sessions (
     -- Unique session identifier (UUID)
     session_id TEXT PRIMARY KEY,

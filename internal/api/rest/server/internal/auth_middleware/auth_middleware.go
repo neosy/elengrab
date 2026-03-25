@@ -1,4 +1,4 @@
-package authmiddleware
+package authmw
 
 import (
 	"log/slog"

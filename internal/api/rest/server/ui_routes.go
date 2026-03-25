@@ -8,21 +8,22 @@ import (
 
 // setupUIRoutes setup UI routes.
 func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
-	auth := s.authMiddleware.AutoRegister
+	reqAuth := s.authMiddleware.RequireAuth
+	optAuth := s.authMiddleware.OptionalAuth
 
 	// Downloader
 	group := r.Group(httppaths.GroupDownloader)
 	{
-		group.GET(httppaths.PathHistory, auth(handlers.Downloader.GetFilesHistoryHandler))
-		group.POST(httppaths.PathGrab, auth(handlers.Downloader.GrabHandler))
-		group.GET(httppaths.PathDownload, auth(handlers.Downloader.DownloadHandler))
-		group.GET(httppaths.PathStream, auth(handlers.Downloader.StreamHandler))
-		group.GET(httppaths.PathFileRow, auth(handlers.Downloader.GetFileRowHandler))
-		group.GET(httppaths.PathFileLogo, auth(handlers.Downloader.GetFileLogoHandler))
-		group.DELETE(httppaths.PathFile, auth(handlers.Downloader.DeleteFileRowHandler))
-		group.POST(httppaths.PathFileDownloadRepeat, auth(handlers.Downloader.RepeatDownloadHandler))
+		group.GET(httppaths.PathHistory, optAuth(handlers.Downloader.GetFilesHistoryHandler))
+		group.POST(httppaths.PathGrab, reqAuth(handlers.Downloader.GrabHandler))
+		group.GET(httppaths.PathDownload, optAuth(handlers.Downloader.DownloadHandler))
+		group.GET(httppaths.PathStream, optAuth(handlers.Downloader.StreamHandler))
+		group.GET(httppaths.PathFileRow, optAuth(handlers.Downloader.GetFileRowHandler))
+		group.GET(httppaths.PathFileLogo, optAuth(handlers.Downloader.GetFileLogoHandler))
+		group.DELETE(httppaths.PathFile, optAuth(handlers.Downloader.DeleteFileRowHandler))
+		group.POST(httppaths.PathFileDownloadRepeat, reqAuth(handlers.Downloader.RepeatDownloadHandler))
 		group.GET(httppaths.PathChannelAvatar, handlers.Downloader.GetChannelAvatarHandler)
-		group.GET(httppaths.PathFilesEvents, auth(handlers.Downloader.EventsHandler))
-		group.POST(httppaths.PathSearch, auth(handlers.Downloader.SearchHandler))
+		group.GET(httppaths.PathFilesEvents, optAuth(handlers.Downloader.EventsHandler))
+		group.POST(httppaths.PathSearch, optAuth(handlers.Downloader.SearchHandler))
 	}
 }

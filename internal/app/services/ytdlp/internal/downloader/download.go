@@ -2,7 +2,6 @@ package downloader
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"strings"
 	"sync"
@@ -14,6 +13,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/utils"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/nfile"
 	"github.com/neosy/elengrab/internal/pkg/syncx"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
@@ -65,7 +65,7 @@ func (d *Downloader) Download(
 
 	// Ensure download directory exists
 	if err := nfile.CheckDir(dlDir); err != nil {
-		sendError(nil, fmt.Errorf("failed to check directory: %w", err))
+		sendError(nil, errorx.Errorf("failed to check directory: %w", err))
 		return
 	}
 
@@ -98,7 +98,7 @@ func (d *Downloader) Download(
 		requiresYouTubeCookies = d.serviceOptions.YoutubeAllowCookies &&
 			helper.CheckForYouTubeCookiesError(err)
 		if !requiresYouTubeCookies {
-			sendError(nil, fmt.Errorf("failed to ensure format cache: %w", err))
+			sendError(nil, errorx.Errorf("failed to ensure format cache: %w", err))
 			return
 		}
 	}
@@ -111,7 +111,7 @@ func (d *Downloader) Download(
 		)
 		err = d.executor.EnsureFormatCache(ctx, url, true)
 		if err != nil {
-			sendError(nil, fmt.Errorf("failed to ensure format cache: %w", err))
+			sendError(nil, errorx.Errorf("failed to ensure format cache: %w", err))
 			return
 		}
 	}
