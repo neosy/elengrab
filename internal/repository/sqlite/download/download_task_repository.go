@@ -267,3 +267,7 @@ func (r *DownloadTaskRepository) DeleteByFileID(ctx context.Context, fileID uuid
 func (r *DownloadTaskRepository) DeleteByStatus(ctx context.Context, status dtypes.DownloadTaskStatus) error {
 	return r.deleteBy(ctx, taskByFields{status: &status})
 }
+
+func (r *DownloadTaskRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
+	return dbexec.Tx(ctx, r.db, r.lock, fn)
+}

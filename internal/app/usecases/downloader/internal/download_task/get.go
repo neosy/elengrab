@@ -2,7 +2,6 @@ package dltask
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -28,10 +27,7 @@ func (uc *DownloadTask) GetByFileID(ctx context.Context, fileId uuid.UUID) (*ddo
 
 	if task == nil {
 		uc.logger.Warn("Record not found", "fileId", fileId)
-		return nil, errorx.NewFromError(
-			fmt.Errorf("task not found for fileId: %s", fileId),
-			exceptionx.NOT_FOUND,
-		)
+		return nil, errorx.Errorf("task not found for fileId: %s", fileId, exceptionx.NOT_FOUND)
 	}
 
 	return task, err
@@ -55,10 +51,7 @@ func (uc *DownloadTask) GetByTaskID(ctx context.Context, taskId uuid.UUID) (*ddo
 
 	if task == nil {
 		uc.logger.Warn("Record not found", "taskId", taskId)
-		return nil, errorx.NewFromError(
-			fmt.Errorf("task not found for taskId: %s", taskId),
-			exceptionx.NOT_FOUND,
-		)
+		return nil, errorx.Errorf("task not found for taskId: %s", taskId, exceptionx.NOT_FOUND)
 	}
 
 	return task, err

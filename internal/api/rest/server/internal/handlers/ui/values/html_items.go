@@ -4,6 +4,7 @@ const (
 	CssPathsKey                           = "CssPaths"
 	JsScriptsKey                          = "JsScripts"
 	JsImportMapJSONKey                    = "JsImportMapJSON"
+	UserAvatarIconKey                     = "UserAvatarIcon"
 	GrabResultItemStatusHtmlKey           = "GrabResultItemStatusHtml"
 	GrabResultItemStatusTextKey           = "GrabResultItemStatusText"
 	DownloadStatusKey                     = "DownloadStatus"

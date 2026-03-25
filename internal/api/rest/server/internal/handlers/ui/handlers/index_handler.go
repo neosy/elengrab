@@ -8,9 +8,10 @@ import (
 	"path/filepath"
 	"time"
 
+	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	"github.com/valyala/fasthttp"
@@ -18,25 +19,23 @@ import (
 
 // IndexHandlers serves the main page (index.html)
 func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
-		return
+	ctxUser := authmw.UserFromContext(ctx)
+	if ctxUser == nil {
+		// anonymous
+		ctxUser = dauth.UserContextAnonymous()
 	}
 
 	// Set content type so browser renders HTML properly
 	ctx.SetContentType("text/html; charset=utf-8")
 
 	var rowsBuf bytes.Buffer
-	err = h.getFilesHistory(ctx, &rowsBuf, userID, time.Now().UTC(), nil)
+	err := h.getFilesHistory(ctx, &rowsBuf, ctxUser.UserID, time.Now().UTC(), nil)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
 	systemInfo := h.usecases.Downloader.SystemInfo()
-
-	showHistorySearch := h.usecases.Downloader.HistoryMode() != dtypes.HistoryModeDisabled
 
 	cssPaths, err := uivalues.CssPaths(filepath.Join(h.assetsDir, dirStaticName, dirCssName))
 	if err != nil {
@@ -68,11 +67,25 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
+
+	var userAvatarIconNameKey = uivalues.UserAvatarAnonymIconNameKey
+	switch ctxUser.UserType() {
+	case dtypes.UserTypeAdmin:
+		userAvatarIconNameKey = uivalues.UserAvatarAdminIconNameKey
+	case dtypes.UserTypeUser:
+		userAvatarIconNameKey = uivalues.UserAvatarUserIconNameKey
+	case dtypes.UserTypeGuest:
+		userAvatarIconNameKey = uivalues.UserAvatarGuestIconNameKey
+	}
+
 	dataMap := uivalues.MergeMaps(uivalues.IndexValues, uivalues.FormGrabValues, uivalues.PathValues)
 	dataMap[uivalues.CssPathsKey] = cssPaths
 	dataMap[uivalues.JsScriptsKey] = jsScripts
 	dataMap[uivalues.JsImportMapJSONKey] = template.HTML(jsImportMapJSON)
-	dataMap[uivalues.ShowHistorySearchKey] = showHistorySearch
+	dataMap[uivalues.UserAvatarIconKey] = template.HTML(
+		uivalues.IconFileRawByKey(userAvatarIconNameKey, iconsDir))
+	dataMap[uivalues.ShowHistorySearchKey] = true
 	dataMap[uivalues.ResultNoRowsKey] = rowsBuf.Len() == 0
 	dataMap[uivalues.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
 	dataMap[uivalues.AppVersionKey] = systemInfo.AppVersion

@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
+	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
@@ -12,10 +14,12 @@ import (
 
 func (h *DownloaderHandlers) StreamHandler(ctx *fasthttp.RequestCtx) {
 	// Get user ID from context
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
-		return
+	ctxUser := authmw.UserFromContext(ctx)
+	if ctxUser == nil {
+		// anonymous
+		ctxUser = &dauth.UserContext{
+			UserID: uuid.Nil,
+		}
 	}
 
 	// Get the file ID from query parameter
@@ -28,7 +32,7 @@ func (h *DownloaderHandlers) StreamHandler(ctx *fasthttp.RequestCtx) {
 	fileId := uuid.MustParse(fileIdStr)
 
 	// Retrieve file info
-	fileInfo, err := h.usecases.Downloader.GetFileInfo(ctx, userID, fileId)
+	fileInfo, err := h.usecases.Downloader.GetFileInfo(ctx, *ctxUser, fileId)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

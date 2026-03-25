@@ -3,6 +3,8 @@ package helper
 import (
 	"fmt"
 	"strings"
+
+	"github.com/neosy/elengrab/internal/pkg/errorx"
 )
 
 // ExtractJSONArray searches for a JSON array in the HTML starting from the given key.
@@ -13,7 +15,7 @@ import (
 func ExtractJSONArray(html, key string) (string, error) {
 	start := strings.Index(html, key)
 	if start == -1 {
-		return "", fmt.Errorf("json: key %q not found", key)
+		return "", errorx.Errorf("json: key %q not found", key)
 	}
 	start += len(key) - 1 // include the opening bracket '['
 

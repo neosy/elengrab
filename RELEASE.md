@@ -1,6 +1,9 @@
 # Releases
 
-## v0.17.0 — 2026-03-25
+## v0.17.0 — 2026-03-28
+
+### Feature
+- Add authorization for admins and privileged rights. Closes #187
 
 ### Refactor
 - Errorx package

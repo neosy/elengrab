@@ -1,4 +1,4 @@
-package usersession
+package authsession
 
 import (
 	"log/slog"

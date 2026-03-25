@@ -85,11 +85,31 @@ func (r *UserRepository) Save(ctx context.Context, user *dauth.User) error {
 }
 
 func (r *UserRepository) FindByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User, error) {
-	var eUser eauth.User
+	var (
+		eUser     eauth.User
+		eUserRole eauth.UserRole
 
-	sqlQuery, args, err := squirrel.Select(eUser.FieldsAll()...).
-		From(eUser.TableName()).
-		Where(squirrel.Eq{eUser.FieldName(&eUser.UserID): userID}).
+		aliasUsers     = "u"
+		aliasUserRoles = "r"
+	)
+
+	selectFields := append(
+		eUser.FieldsAllWithAlias(aliasUsers),
+		"GROUP_CONCAT("+eUserRole.FieldNameWithAlias(&eUserRole.RoleID, aliasUserRoles)+") AS roles",
+	)
+
+	sqlWhere := squirrel.Eq{
+		eUser.FieldNameWithAlias(&eUser.UserID, aliasUsers): userID,
+	}
+
+	sqlQuery, args, err := squirrel.Select(selectFields...).
+		From(eUser.TableName() + " AS " + aliasUsers).
+		LeftJoin(
+			eUserRole.TableName() + " AS " + aliasUserRoles +
+				" ON " + eUserRole.FieldNameWithAlias(&eUserRole.UserID, aliasUserRoles) +
+				" = " + eUser.FieldNameWithAlias(&eUser.UserID, aliasUsers),
+		).
+		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()
@@ -99,12 +119,15 @@ func (r *UserRepository) FindByUserID(ctx context.Context, userID uuid.UUID) (*d
 	}
 
 	// Execute the query
-	var notFound bool
+	var (
+		notFound bool
+		roles    string
+	)
 	db := dbexec.Resolve(ctx, r.db)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
-		err := row.Scan(eUser.FieldPointers()...)
+		err := row.Scan(append(eUser.FieldPointers(), &roles)...)
 		if err == sql.ErrNoRows {
 			notFound = true
 			return nil
@@ -120,7 +143,7 @@ func (r *UserRepository) FindByUserID(ctx context.Context, userID uuid.UUID) (*d
 	}
 
 	// Map entity to domain model
-	user, err := r.mappers.MapUserEntityToDomain(&eUser)
+	user, err := r.mappers.MapUserEntityToDomain(&eUser, roles)
 	if err != nil {
 		return nil, err
 	}
@@ -160,22 +183,5 @@ func (r *UserRepository) ExistsByUserID(ctx context.Context, userID uuid.UUID) (
 }
 
 func (r *UserRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
-	tx, err := r.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-
-	if err := fn(dbexec.CtxWithTx(ctx, tx)); err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	if err := tx.Commit(); err != nil {
-		return err
-	}
-
-	return nil
+	return dbexec.Tx(ctx, r.db, r.lock, fn)
 }

@@ -9,25 +9,26 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) EventsHandler(ctx *fasthttp.RequestCtx) {
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
-		return
+	ctxUser := authmw.UserFromContext(ctx)
+	if ctxUser == nil {
+		// anonymous
+		ctxUser = dauth.UserContextAnonymous()
+		ctxUser.UserID = uuid.New()
 	}
 
 	// SSE headers
 	h.setupSSEHeaders(ctx)
 
 	ctx.SetBodyStreamWriter(func(w *bufio.Writer) {
-		h.streamEvents(ctx, w, userID.String())
+		h.streamEvents(ctx, w, ctxUser.UserID.String())
 	})
 }
 
