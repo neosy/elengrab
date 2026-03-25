@@ -10,8 +10,8 @@ import (
 	ytdownloader "github.com/neosy/elengrab/internal/app/usecases/downloader"
 	"github.com/neosy/elengrab/internal/app/usecases/maintenance"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/nworkerpool"
 	"github.com/neosy/elengrab/internal/ports/persistence"
-	"github.com/neosy/elengrab/pkg/nworkerpool"
 )
 
 type Dependencies struct {

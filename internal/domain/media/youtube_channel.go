@@ -4,7 +4,7 @@ import (
 	"time"
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 type YoutubeChannel struct {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 type File struct {

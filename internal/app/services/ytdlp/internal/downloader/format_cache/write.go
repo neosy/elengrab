@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/neosy/elengrab/pkg/nfile"
+	"github.com/neosy/elengrab/internal/pkg/nfile"
 )
 
 func (c *FormatCache) WriteByURL(url string, data []byte) error {

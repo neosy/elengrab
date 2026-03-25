@@ -14,10 +14,10 @@ import (
 	"github.com/neosy/elengrab/internal/app/utils"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
-	"github.com/neosy/elengrab/pkg/nfile"
-	"github.com/neosy/elengrab/pkg/syncx"
-	uformat "github.com/neosy/elengrab/pkg/utils/format"
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
+	"github.com/neosy/elengrab/internal/pkg/nfile"
+	"github.com/neosy/elengrab/internal/pkg/syncx"
+	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 func (d *Downloader) Download(

@@ -9,10 +9,10 @@ import (
 	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/pkg/errorx"
-	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
-	"github.com/neosy/elengrab/pkg/nworkerpool"
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
+	"github.com/neosy/elengrab/internal/pkg/nworkerpool"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 func (uc *YouTubeDownloader) ScheduleDownload(

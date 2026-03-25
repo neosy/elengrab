@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	"github.com/valyala/fasthttp"
 )
 

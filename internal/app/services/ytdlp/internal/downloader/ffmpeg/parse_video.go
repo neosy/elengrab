@@ -6,7 +6,7 @@ import (
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 // parseVideo parses an ffmpeg "Video:" line into VideoInfo.

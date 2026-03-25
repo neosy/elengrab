@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	database "github.com/neosy/elengrab/db"
-	iconfig "github.com/neosy/elengrab/infrastructure/config"
+	iconfig "github.com/neosy/elengrab/internal/config"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
 )

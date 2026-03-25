@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/valyala/fasthttp"
 )
 

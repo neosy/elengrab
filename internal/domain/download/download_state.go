@@ -2,7 +2,7 @@ package ddownload
 
 import (
 	"github.com/google/uuid"
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 type DownloadState struct {

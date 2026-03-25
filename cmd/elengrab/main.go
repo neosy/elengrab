@@ -14,21 +14,21 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "modernc.org/sqlite"
 
-	iconfig "github.com/neosy/elengrab/infrastructure/config"
 	httpsrv "github.com/neosy/elengrab/internal/api/rest/server"
 	httptemplates "github.com/neosy/elengrab/internal/api/rest/server/templates"
 	"github.com/neosy/elengrab/internal/app/services"
 	ytdlpdto "github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	"github.com/neosy/elengrab/internal/app/workers"
+	iconfig "github.com/neosy/elengrab/internal/config"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/nfile"
+	"github.com/neosy/elengrab/internal/pkg/nlogger"
+	"github.com/neosy/elengrab/internal/pkg/nworkerpool"
+	"github.com/neosy/elengrab/internal/pkg/nworkers"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	inmemoryrep "github.com/neosy/elengrab/internal/repository/in_memory"
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
-	"github.com/neosy/elengrab/pkg/nfile"
-	"github.com/neosy/elengrab/pkg/nlogger"
-	"github.com/neosy/elengrab/pkg/nworkerpool"
-	"github.com/neosy/elengrab/pkg/nworkers"
 )
 
 const (

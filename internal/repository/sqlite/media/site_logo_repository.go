@@ -9,10 +9,10 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	emedia "github.com/neosy/elengrab/internal/repository/sqlite/media/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/media/mappers"
-	"github.com/neosy/elengrab/pkg/dbutils"
 )
 
 type SiteLogoRepository struct {

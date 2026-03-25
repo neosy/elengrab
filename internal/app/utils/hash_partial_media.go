@@ -3,7 +3,7 @@ package utils
 import (
 	"path/filepath"
 
-	"github.com/neosy/elengrab/pkg/nfile"
+	"github.com/neosy/elengrab/internal/pkg/nfile"
 )
 
 const (

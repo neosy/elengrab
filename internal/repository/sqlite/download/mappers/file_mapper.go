@@ -8,9 +8,9 @@ import (
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/dbutils"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
-	"github.com/neosy/elengrab/pkg/dbutils"
-	uptr "github.com/neosy/elengrab/pkg/utils/pointer"
 )
 
 func (m *Mappers) MapFileDomainToEntity(file *ddownload.File) (*edownload.File, error) {

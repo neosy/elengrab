@@ -10,9 +10,9 @@ import (
 
 	"github.com/google/uuid"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
-	"github.com/neosy/elengrab/pkg/errorx"
-	"github.com/neosy/elengrab/pkg/nfasthttp"
-	uformat "github.com/neosy/elengrab/pkg/utils/format"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
+	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	"github.com/valyala/fasthttp"
 )
 

@@ -10,8 +10,8 @@ import (
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	"github.com/neosy/elengrab/pkg/nfasthttp"
-	uformat "github.com/neosy/elengrab/pkg/utils/format"
+	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
+	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
 func (d *Downloader) fetchChannelAvatarAsync(

@@ -5,7 +5,7 @@ import (
 	"net/url"
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
-	"github.com/neosy/elengrab/pkg/httpx"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
 type embedInfoResponse struct {

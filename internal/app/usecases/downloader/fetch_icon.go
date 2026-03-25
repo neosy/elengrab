@@ -5,8 +5,8 @@ import (
 	"time"
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
-	"github.com/neosy/elengrab/pkg/httpx"
-	uformat "github.com/neosy/elengrab/pkg/utils/format"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
+	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
 func (uc *YouTubeDownloader) fetchIcon(ctx context.Context, url string) error {

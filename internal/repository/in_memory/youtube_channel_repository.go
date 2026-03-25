@@ -5,7 +5,7 @@ import (
 	"time"
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
-	nmemory "github.com/neosy/elengrab/pkg/ncache/memory"
+	nmemory "github.com/neosy/elengrab/internal/pkg/ncache/memory"
 )
 
 // Defines the structure for the in-memory repository of YouTube channels.

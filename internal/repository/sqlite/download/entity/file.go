@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/pkg/dbentity"
 	tablenames "github.com/neosy/elengrab/internal/repository/sqlite/download/table_names"
-	"github.com/neosy/elengrab/pkg/dbentity"
 )
 
 type File struct {
