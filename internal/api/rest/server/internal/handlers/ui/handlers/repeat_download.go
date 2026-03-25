@@ -4,13 +4,14 @@ import (
 	"bytes"
 
 	"github.com/google/uuid"
+	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) RepeatDownloadHandler(ctx *fasthttp.RequestCtx) {
-	userID, err := getUserIDFromContext(ctx)
+	ctxUser, err := authmw.EnsureUserFromContext(ctx)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
 		return
@@ -28,7 +29,7 @@ func (h *DownloaderHandlers) RepeatDownloadHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	fileInfo, err := h.usecases.Downloader.RepeatDownload(ctx, userID, fileId)
+	fileInfo, err := h.usecases.Downloader.RepeatDownload(ctx, *ctxUser, fileId)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

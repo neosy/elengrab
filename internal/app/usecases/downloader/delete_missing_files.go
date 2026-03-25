@@ -8,6 +8,7 @@ import (
 	"time"
 
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/nfile"
 )
 
@@ -134,7 +135,7 @@ func (uc *YouTubeDownloader) moveUnmatchedFiles(ctx context.Context) error {
 	lostDir := filepath.Join(uc.downloadsDir, lostDirName)
 	if err := os.MkdirAll(lostDir, 0755); err != nil {
 		uc.logger.Warn("Failed to create lost dir", "error", err)
-		return fmt.Errorf("failed to create lost dir: %w", err)
+		return errorx.Errorf("failed to create lost dir: %w", err)
 	}
 
 	// Iterate over all files in downloads dir

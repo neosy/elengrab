@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/broadcaster"
 	dlstate "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_state_cache"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task"
@@ -42,6 +43,7 @@ type YouTubeDownloader struct {
 	siteIcon        *siteicon.SiteIcon
 	dlStateCache    *dlstate.DownloadStateCache
 	siteIconFetcher *iconfetcher.SiteIconFetcher
+	authz           *authz.Authorization
 
 	//broadcasters
 	broadcaster *broadcaster.Broadcaster
@@ -119,6 +121,7 @@ func NewYouTubeDownloader(
 		ytChannel:       ytchannel.NewYoutubeChannel(logger, ytChannelRep, ytChannelCacheRep),
 		siteIcon:        siteicon.NewSiteIcon(logger, siteLogoRep, siteLogoCacheRep),
 		siteIconFetcher: iconfetcher.NewSiteIconFetcher(logger),
+		authz:           authz.NewAuthorization(logger, historyMode),
 
 		//broadcasters
 		broadcaster: broadcaster.NewBroadcaster(),

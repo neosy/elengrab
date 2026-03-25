@@ -2,16 +2,18 @@ package handlers
 
 import (
 	"github.com/google/uuid"
+	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) DeleteFileRowHandler(ctx *fasthttp.RequestCtx) {
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
-		return
+	ctxUser := authmw.UserFromContext(ctx)
+	if ctxUser == nil {
+		// anonymous
+		ctxUser = dauth.UserContextAnonymous()
 	}
 
 	fileIdStr := ctx.UserValue(fileIdKey).(string)
@@ -26,7 +28,7 @@ func (h *DownloaderHandlers) DeleteFileRowHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	err = h.usecases.Downloader.DeleteDownload(ctx, userID, fileId)
+	err = h.usecases.Downloader.DeleteDownload(ctx, *ctxUser, fileId)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

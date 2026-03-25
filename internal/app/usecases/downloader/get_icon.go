@@ -4,12 +4,17 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
-func (uc *YouTubeDownloader) GetIcon(ctx context.Context, userID uuid.UUID, fileID uuid.UUID) (*dmedia.ImageData, error) {
-	resp, err := uc.GetFileInfo(ctx, userID, fileID)
+func (uc *YouTubeDownloader) GetIcon(
+	ctx context.Context,
+	userCtx dauth.UserContext,
+	fileID uuid.UUID,
+) (*dmedia.ImageData, error) {
+	resp, err := uc.GetFileInfo(ctx, userCtx, fileID)
 	if err != nil {
 		return nil, err
 	}

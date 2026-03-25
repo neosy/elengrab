@@ -1,20 +1,20 @@
 package handlers
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"github.com/google/uuid"
+	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) GetFileLogoHandler(ctx *fasthttp.RequestCtx) {
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
-		ctx.SetBodyString(fmt.Sprintf("Authorization error: %v", err))
-		return
+	ctxUser := authmw.UserFromContext(ctx)
+	if ctxUser == nil {
+		// anonymous
+		ctxUser = dauth.UserContextAnonymous()
 	}
 
 	fileIdStr := ctx.UserValue(fileIdKey).(string)
@@ -31,7 +31,7 @@ func (h *DownloaderHandlers) GetFileLogoHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	iconImage, err := h.usecases.Downloader.GetIcon(ctx, userID, fileID)
+	iconImage, err := h.usecases.Downloader.GetIcon(ctx, *ctxUser, fileID)
 
 	if err == nil && iconImage != nil && len(iconImage.Raw) > 0 {
 		ctx.SetContentType(h.mappers.MapImageExtToContentType(iconImage.Format))

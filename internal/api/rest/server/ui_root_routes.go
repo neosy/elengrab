@@ -8,10 +8,10 @@ import (
 
 // setupUIRootRoutes setup root routes.
 func (s *httpServer) setupUIRootRoutes(r *router.Router, handlers *uih.UIHandlers) {
-	auth := s.authMiddleware.AutoRegister
+	optAuth := s.authMiddleware.OptionalAuth
 
 	// Index
-	r.GET(httppaths.PathIndex, auth(handlers.Downloader.IndexHandler))
+	r.GET(httppaths.PathIndex, optAuth(handlers.Downloader.IndexHandler))
 
 	// /favicon.ico
 	r.GET(httppaths.PathRootFaviconICO, handlers.Downloader.FaviconICOHandler)

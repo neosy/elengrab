@@ -41,7 +41,10 @@
   {{- end }}
 </head>
 <body>
-  {{ template "theme-switcher.html" . }}
+  <div class="user-menu">
+    {{ template "theme-switcher.html" . }}
+    <div id="user-avatar" class="user-avatar">{{ .UserAvatarIcon }}</div>
+  </div>
   <div class="div-main-area">
       <div class="div-header-main">
         <a class="header-link" href="/">

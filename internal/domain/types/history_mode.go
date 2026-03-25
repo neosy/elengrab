@@ -11,10 +11,8 @@ import (
 type HistoryMode uint8
 
 const (
-	// No history is shown
-	HistoryModeDisabled HistoryMode = iota
 	// History is shared globally
-	HistoryModeGlobal
+	HistoryModeGlobal HistoryMode = iota
 	// History is unique per user
 	HistoryModePerUser
 
@@ -24,21 +22,18 @@ const (
 var (
 	// historyModeMap implementation of a set for HistoryMode
 	historyModeMap = map[HistoryMode]string{
-		HistoryModeDisabled: "disabled",
-		HistoryModeGlobal:   "global",
-		HistoryModePerUser:  "per_user",
+		HistoryModeGlobal:  "global",
+		HistoryModePerUser: "per_user",
 	}
 
 	parseHistoryModeMap = map[string]HistoryMode{
-		"disabled": HistoryModeDisabled,
 		"global":   HistoryModeGlobal,
 		"per_user": HistoryModePerUser,
 	}
 
 	historyModeToUniquenessScopeMap = map[HistoryMode]UniquenessScope{
-		HistoryModeDisabled: UniquenessScopeGlobal,
-		HistoryModeGlobal:   UniquenessScopeGlobal,
-		HistoryModePerUser:  UniquenessScopePerUser,
+		HistoryModeGlobal:  UniquenessScopeGlobal,
+		HistoryModePerUser: UniquenessScopePerUser,
 	}
 )
 

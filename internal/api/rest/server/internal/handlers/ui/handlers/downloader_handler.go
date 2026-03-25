@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
@@ -10,7 +11,7 @@ import (
 func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	// var pageHasDivItems = cookiePageHasDivItemsKey.compareValue(ctx, "true")
 
-	userID, err := getUserIDFromContext(ctx)
+	ctxUser, err := authmw.EnsureUserFromContext(ctx)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
 		return
@@ -34,7 +35,7 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 
 	resp, err := h.usecases.Downloader.ScheduleDownload(
 		ctx,
-		userID,
+		*ctxUser,
 		url,
 		&ddownload.DownloadOptions{
 			FormatType:      h.mappers.MapFormatType(formSelectQualityCodec, formSelectFormat),

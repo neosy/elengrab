@@ -21,7 +21,7 @@ func CtxWithTx(ctx context.Context, tx *sql.Tx) context.Context {
 	return ctxWithValue
 }
 
-func txFromCtx(ctx context.Context) (*sql.Tx, bool) {
+func TxFromCtx(ctx context.Context) (*sql.Tx, bool) {
 	tx, ok := ctx.Value(ctxTxKey{}).(*sql.Tx)
 	return tx, ok
 }
@@ -31,7 +31,7 @@ func Resolve(ctx context.Context, db *sql.DB) DBExecutor {
 		dbtx DBExecutor = db
 	)
 
-	if tx, ok := txFromCtx(ctx); ok && tx != nil {
+	if tx, ok := TxFromCtx(ctx); ok && tx != nil {
 		dbtx = tx
 	}
 

@@ -21,13 +21,13 @@ type writeErrorxResponseDto struct {
 func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 	var (
 		message             string
-		errors              string
+		errJoinTexts        string
 		httpStatusCode      int
 		errCode             uint
 		shouldCombineErrors bool
 	)
 
-	errx := errorx.NewFromError(err)
+	errx := errorx.UnwrapErrorx(err)
 
 	userValue := ctx.UserValue(AppConfigCtxKey)
 	if userValue != nil {
@@ -63,14 +63,14 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 		}
 
 		if shouldCombineErrors {
-			errors = errx.Error()
+			errJoinTexts = errx.Error()
 		}
 	} else {
 		if err != nil {
 			message = err.Error()
 
 			if shouldCombineErrors {
-				errors = err.Error()
+				errJoinTexts = err.Error()
 			}
 		}
 	}
@@ -83,7 +83,7 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 		HTTPStatus: httpStatusCode,
 		Code:       int(errCode),
 		Message:    message,
-		Errors:     errors,
+		Errors:     errJoinTexts,
 		Timestamp:  time.Now().Format(time.RFC3339),
 	}
 

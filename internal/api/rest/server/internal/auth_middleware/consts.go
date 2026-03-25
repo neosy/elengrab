@@ -1,7 +1,7 @@
-package authmiddleware
+package authmw
 
 const (
-	userIDKey = "userId"
+	userKey = "user"
 
 	cookieSessionTokenKey cookieKey = "session_token"
 )

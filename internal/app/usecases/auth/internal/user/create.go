@@ -1,9 +1,9 @@
-package useruc
+package authuser
 
 import (
 	"context"
 	"crypto/rand"
-	"encoding/hex"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"strconv"
@@ -11,21 +11,14 @@ import (
 
 	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-type UserOption func(*dauth.User)
-
-func (uc *User) WithGuest(isGuest bool) UserOption {
-	return func(u *dauth.User) {
-		u.IsGuest = isGuest
-	}
-}
-
-func (uc *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption) (uuid.UUID, error) {
+func (u *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption) (uuid.UUID, error) {
 	if user == nil {
-		uc.logger.Warn("Nil pointer in function")
+		u.logger.Warn("Nil pointer in function")
 		return uuid.Nil, errors.New("function parameter is a null pointer")
 	}
 
@@ -33,13 +26,37 @@ func (uc *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption
 		user.UserID = uuid.New()
 	}
 
+	var roles []dtypes.UserRole
+
 	for _, opt := range opts {
-		opt(user)
+		opt(&roles)
 	}
 
-	err := uc.userRep.Insert(ctx, user)
+	err := u.userRep.Tx(
+		ctx,
+		func(ctx context.Context) error {
+			err := u.userRep.Insert(ctx, user)
+			if err != nil {
+				return err
+			}
+
+			for _, role := range roles {
+				err := u.userRole.Create(
+					ctx,
+					&dauth.UserRole{
+						UserID: user.UserID,
+						RoleID: role.String(),
+					},
+				)
+				return err
+			}
+
+			return nil
+		},
+	)
+
 	if err != nil {
-		uc.logger.Warn(
+		u.logger.Warn(
 			"Failed to insert record into repository",
 			"error", err,
 		)
@@ -49,8 +66,8 @@ func (uc *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption
 	return user.UserID, nil
 }
 
-func (uc *User) CreateGuest(ctx context.Context) (uuid.UUID, error) {
-	login, err := uc.genLogin()
+func (u *User) CreateGuest(ctx context.Context) (uuid.UUID, error) {
+	login, err := u.genLogin()
 	if err != nil {
 		return uuid.Nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
@@ -61,17 +78,19 @@ func (uc *User) CreateGuest(ctx context.Context) (uuid.UUID, error) {
 		IsActive: true,
 	}
 
-	return uc.Create(ctx, user, uc.WithGuest(true))
+	return u.Create(ctx, user, GuestRoleOption())
 }
 
 func (u *User) genLogin() (string, error) {
-	b := make([]byte, 2)
+	b := make([]byte, 4)
 	_, err := rand.Read(b)
 	if err != nil {
 		return "", err
 	}
 
+	rndPart := strconv.FormatUint(uint64(binary.BigEndian.Uint32(b)), 36)
+
 	ts := strconv.FormatInt(time.Now().UTC().Unix(), 36)
 
-	return fmt.Sprintf("user-%s%s", hex.EncodeToString(b), ts), nil
+	return fmt.Sprintf("u-%s%s", ts, rndPart), nil
 }

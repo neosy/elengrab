@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -17,12 +18,12 @@ import (
 // GetFileInfo retrieves file information by file ID for a specific user.
 func (uc *YouTubeDownloader) GetFileInfo(
 	ctx context.Context,
-	userID uuid.UUID,
+	userCtx dauth.UserContext,
 	fileID uuid.UUID,
 ) (*dto.GetFileInfoResponse, error) {
 	var accessByUserID *uuid.UUID
-	if uc.historyMode != dtypes.HistoryModeGlobal {
-		accessByUserID = &userID
+	if uc.authz.RestrictFilesByUser(userCtx.Roles) {
+		accessByUserID = &userCtx.UserID
 	}
 
 	resp, err := uc.findActualFileInfo(ctx, accessByUserID, fileID)
@@ -116,10 +117,6 @@ func (uc *YouTubeDownloader) LoadHistory(
 	limit uint64,
 	filterByTitle string,
 ) ([]*dto.GetFileInfoResponse, error) {
-	if uc.historyMode == dtypes.HistoryModeDisabled {
-		return []*dto.GetFileInfoResponse{}, nil
-	}
-
 	filters := make(map[string]any)
 	if uc.historyMode == dtypes.HistoryModePerUser {
 		filters["userID"] = userID
@@ -178,12 +175,12 @@ func (uc *YouTubeDownloader) GetFilePath(ctx context.Context, fileId uuid.UUID) 
 //	err      - an error if the record is not found or a query fails
 func (uc *YouTubeDownloader) GetDownloadFileName(
 	ctx context.Context,
-	userID uuid.UUID,
+	userCtx dauth.UserContext,
 	fileId uuid.UUID,
 ) (string, string, error) {
 	var accessByUserID *uuid.UUID
-	if uc.historyMode != dtypes.HistoryModeGlobal {
-		accessByUserID = &userID
+	if uc.authz.RestrictFilesByUser(userCtx.Roles) {
+		accessByUserID = &userCtx.UserID
 	}
 
 	file, err := uc.file.GetByFileID(ctx, accessByUserID, fileId)

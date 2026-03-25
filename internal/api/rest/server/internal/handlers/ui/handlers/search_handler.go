@@ -5,17 +5,19 @@ import (
 	"html/template"
 	"time"
 
+	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
-		return
+	ctxUser := authmw.UserFromContext(ctx)
+	if ctxUser == nil {
+		// anonymous
+		ctxUser = dauth.UserContextAnonymous()
 	}
 
 	filters := make(requestFilters)
@@ -26,7 +28,7 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	var rowsBuf bytes.Buffer
-	err = h.getFilesHistory(ctx, &rowsBuf, userID, time.Now().UTC(), filters)
+	err := h.getFilesHistory(ctx, &rowsBuf, ctxUser.UserID, time.Now().UTC(), filters)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

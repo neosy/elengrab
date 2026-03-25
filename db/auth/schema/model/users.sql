@@ -1,3 +1,4 @@
+-- Users
 CREATE TABLE IF NOT EXISTS users (
     -- Unique user identifier (UUID)
     user_id TEXT PRIMARY KEY,
@@ -6,11 +7,8 @@ CREATE TABLE IF NOT EXISTS users (
     login TEXT NOT NULL UNIQUE,
 
     -- User email address, optional
-    email TEXT NULL,
+    email TEXT NULL UNIQUE,
 
-    -- User is guest: 1 = guest, 0 = not guest
-    is_guest INTEGER NOT NULL DEFAULT 0,
-    
     -- Active status: 1 = active, 0 = inactive
     is_active INTEGER NOT NULL DEFAULT 1,
 

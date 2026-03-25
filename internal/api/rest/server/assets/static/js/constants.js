@@ -12,7 +12,8 @@ export const SELECT_NAMES = {
 export const COOKIE_NAMES = {
     qualityCodec: "select_quality_codec",
     qualityResolution: "select_quality_resolution",
-    format: "select_format"
+    format: "select_format",
+    sessionToken: "session_token"
 };
 
 // Action button icon URLs

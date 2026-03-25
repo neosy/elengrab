@@ -2,18 +2,17 @@ package auth
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"time"
 
 	"github.com/google/uuid"
+	authtoken "github.com/neosy/elengrab/internal/app/usecases/auth/internal/token"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-func (u *Auth) CreateSession(ctx context.Context, userID uuid.UUID) (*dauth.UserSession, error) {
-	token, err := u.generateSessionToken()
+func (u *Auth) createSession(ctx context.Context, userID uuid.UUID) (*dauth.UserSession, error) {
+	token, err := authtoken.GenerateToken(authtoken.CookieToken)
 	if err != nil {
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
@@ -29,19 +28,13 @@ func (u *Auth) CreateSession(ctx context.Context, userID uuid.UUID) (*dauth.User
 		return nil, err
 	}
 
-	session, err = u.userSession.GetBySessionID(ctx, sessionID)
+	session, err = u.userSession.FindBySessionID(ctx, sessionID)
 	if err != nil {
 		return nil, err
 	}
+	if session == nil {
+		return nil, ErrSessionNotFound
+	}
 
 	return session, nil
-}
-
-func (u *Auth) generateSessionToken() (string, error) {
-	b := make([]byte, 32)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(b), nil
 }

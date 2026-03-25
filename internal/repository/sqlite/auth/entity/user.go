@@ -20,9 +20,6 @@ type User struct {
 	// User email address, optional
 	Email *string `db:"email"`
 
-	// Indicates guest status
-	IsGuest int `db:"is_guest"`
-
 	// Active status
 	IsActive int `db:"is_active"`
 

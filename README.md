@@ -30,7 +30,7 @@ Elengrab provides a simple and **very fast** web interface to quickly download w
 - Dark theme.
 - Animated status indicators for download and processing tasks.
 - Channel and website icons displayed in the interface.
-- Option to customize how download history is displayed: globally, per user, or disabled.
+- Option to customize how download history is displayed: globally or per user.
 - Cross-platform support: Windows, macOS/Linux.
 
 ---
@@ -105,7 +105,7 @@ docker run -d \
 | `ELENGRAB_DOWNLOADS_DIR` | `downloads` | Directory where downloaded files are stored inside the container. Must be mapped to a host volume. |
 | `ELENGRAB_COOKIES_DIR` | `cookies` | Directory where cookie files are stored. Files must be in Netscape cookies.txt format (compatible with yt-dlp). |
 | `ELENGRAB_DOWNLOAD_WORKERS` | 3 | Number of concurrent workers used for processing YouTube video and audio tasks in parallel. |
-| `ELENGRAB_HISTORY_MODE` | `global` | Defines how download history is displayed. Possible values: `global`, `disabled`, `per_user`. |
+| `ELENGRAB_HISTORY_MODE` | `global` | Defines how download history is displayed. Possible values: `global`, `per_user`. |
 | `ELENGRAB_YOUTUBE_ALLOW_COOKIES` | `false` | Enables use of cookies for YouTube. Requires **Deno**. The `youtube-cookies.txt` file should be located in the directory specified by `ELENGRAB_COOKIES_DIR`. |
 | `ELENGRAB_MAINTENANCE_ENABLE_MOVE_UNMATCHED_FILES` | `false`   | Enables the periodic operation that moves files not present in the database tables from the download folder to the `.lost` folder. Default is `false` (disabled). |
 

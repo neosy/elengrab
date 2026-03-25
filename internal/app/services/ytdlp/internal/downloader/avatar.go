@@ -2,7 +2,6 @@ package downloader
 
 import (
 	"encoding/json"
-	"fmt"
 	"sync"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
@@ -72,7 +72,7 @@ func (d *Downloader) fetchChannelAvatar(url string) ([]idto.AvatarSource, error)
 		nfasthttp.ClientOptionWithTimeout(consts.ChannelAvatarTimeout),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get html: %w", err)
+		return nil, errorx.Errorf("failed to get html: %w", err)
 	}
 
 	html := string(body)

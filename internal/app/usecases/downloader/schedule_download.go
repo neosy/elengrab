@@ -2,13 +2,12 @@ package downloader
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	"github.com/neosy/elengrab/internal/pkg/nworkerpool"
@@ -17,13 +16,13 @@ import (
 
 func (uc *YouTubeDownloader) ScheduleDownload(
 	ctx context.Context,
-	userID uuid.UUID,
+	userCtx dauth.UserContext,
 	url string,
 	options *ddownload.DownloadOptions,
 ) (*dto.ScheduleDownloadResponse, error) {
 	if uc.demoMode {
 		uc.broadcastNotification(
-			userID,
+			userCtx.UserID,
 			dto.BroadcastNotificationModuleGrabForm,
 			dto.BroadcastNotificationTypeError,
 			"Demo mode",
@@ -33,7 +32,7 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 
 	returnErr := func(err error) error {
 		uc.broadcastNotification(
-			userID,
+			userCtx.UserID,
 			dto.BroadcastNotificationModuleGrabForm,
 			dto.BroadcastNotificationTypeError,
 			err.Error(),
@@ -50,7 +49,7 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 		ctx,
 		&ddownload.File{
 			FileID:   fileId,
-			UserID:   &userID,
+			UserID:   &userCtx.UserID,
 			FileName: filename,
 			MediaUrl: url,
 		},
@@ -62,8 +61,8 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 	}
 
 	var accessByUserID *uuid.UUID
-	if uc.historyMode != dtypes.HistoryModeGlobal {
-		accessByUserID = &userID
+	if uc.authz.RestrictFilesByUser(userCtx.Roles) {
+		accessByUserID = &userCtx.UserID
 	}
 
 	file, err := uc.file.GetByFileID(ctx, accessByUserID, fileId)
@@ -130,14 +129,13 @@ func (uc *YouTubeDownloader) addFileToQueueDownload(ctx context.Context, fileId 
 
 	job := uc.enqueueDownloadTask(file.DownloadTask)
 	if job == nil {
-		err := fmt.Errorf("task has not been added to the queue")
 		uc.logger.Warn("Task has not been added to the queue", "fileId", file.FileID)
 
 		e := uc.fileStatus.Failed(ctx, fileId, nil, uptr.String("failed to enqueue download task"))
 		if e != nil {
 			uc.logger.Warn("Failed update status", "fileId", file.FileID, "error", e)
 			uc.dlStateCache.Delete(ctx, fileId)
-			return fmt.Errorf("%v: %w", err, e)
+			return errorx.Errorf("task has not been added to the queue: %w", e)
 		}
 
 		return err
