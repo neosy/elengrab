@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	iconfig "github.com/neosy/elengrab/infrastructure/config"
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
-	"github.com/neosy/elengrab/pkg/nfile"
+	iconfig "github.com/neosy/elengrab/internal/config"
+	"github.com/neosy/elengrab/internal/pkg/nfile"
 )
 
 const versionFileName = "version"

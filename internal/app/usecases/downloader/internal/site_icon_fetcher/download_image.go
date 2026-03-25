@@ -4,7 +4,7 @@ import (
 	"context"
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
-	"github.com/neosy/elengrab/pkg/httpx"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
 // downloadImage downloads an image from the given URL and returns it.

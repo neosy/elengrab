@@ -4,9 +4,9 @@ import (
 	"context"
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
-	"github.com/neosy/elengrab/pkg/errorx"
-	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
-	nmemory "github.com/neosy/elengrab/pkg/ncache/memory"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
+	nmemory "github.com/neosy/elengrab/internal/pkg/ncache/memory"
 )
 
 // FindByChannelID

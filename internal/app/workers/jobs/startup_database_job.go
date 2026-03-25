@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"time"
 
+	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
-	uformat "github.com/neosy/elengrab/pkg/utils/format"
 )
 
 type startupDatabaseJob struct {

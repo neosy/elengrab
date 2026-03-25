@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
-	"github.com/neosy/elengrab/pkg/httpx"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
 func (uc *YouTubeDownloader) GetIcon(ctx context.Context, userID uuid.UUID, fileID uuid.UUID) (*dmedia.ImageData, error) {

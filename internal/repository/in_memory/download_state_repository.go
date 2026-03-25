@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	nmemory "github.com/neosy/elengrab/internal/pkg/ncache/memory"
 	"github.com/neosy/elengrab/internal/ports/persistence"
-	nmemory "github.com/neosy/elengrab/pkg/ncache/memory"
 )
 
 type userIDFileIDKey struct {

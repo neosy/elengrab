@@ -1,6 +1,6 @@
 package uivalues
 
-import iconfig "github.com/neosy/elengrab/infrastructure/config"
+import iconfig "github.com/neosy/elengrab/internal/config"
 
 const (
 	pageTitle            = "Elengrab — Fast Media Downloader | YouTube, VK Video and more"

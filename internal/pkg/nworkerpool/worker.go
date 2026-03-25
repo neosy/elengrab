@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	uformat "github.com/neosy/elengrab/pkg/utils/format"
+	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
 type Worker interface {

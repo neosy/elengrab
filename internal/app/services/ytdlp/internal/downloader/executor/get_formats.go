@@ -11,7 +11,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
-	uformat "github.com/neosy/elengrab/pkg/utils/format"
+	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
 func (e *Executor) GetFormats(

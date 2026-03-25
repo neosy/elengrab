@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/neosy/elengrab/pkg/nfasthttp"
+	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 )
 
 // GetImage downloads an image from the given URL using net/http

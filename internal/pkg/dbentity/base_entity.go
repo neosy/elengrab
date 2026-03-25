@@ -1,8 +1,8 @@
 package dbentity
 
 import (
-	etags "github.com/neosy/elengrab/pkg/dbentity/tags"
-	"github.com/neosy/elengrab/pkg/reflection"
+	etags "github.com/neosy/elengrab/internal/pkg/dbentity/tags"
+	"github.com/neosy/elengrab/internal/pkg/reflection"
 )
 
 // BaseEntity is a base structure that provides common methods

@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	"github.com/neosy/elengrab/pkg/errorx"
-	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
 func (uc *DownloadTask) FindByFileID(ctx context.Context, fileId uuid.UUID) (*ddownload.DownloadTask, error) {

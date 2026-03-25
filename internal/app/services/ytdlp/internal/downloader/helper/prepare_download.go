@@ -11,7 +11,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/ffmpeg"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/pkg/fnx"
+	"github.com/neosy/elengrab/internal/pkg/fnx"
 )
 
 // PrepareDownload builds yt-dlp download arguments based on the provided options

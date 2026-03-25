@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
-	"github.com/neosy/elengrab/pkg/httpx"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
 func FetchTitleFast(ctx context.Context, url string) (string, error) {

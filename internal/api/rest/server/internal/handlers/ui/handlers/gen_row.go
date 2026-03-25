@@ -11,8 +11,8 @@ import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/pkg/errorx"
-	uformat "github.com/neosy/elengrab/pkg/utils/format"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	"github.com/valyala/fasthttp"
 )
 

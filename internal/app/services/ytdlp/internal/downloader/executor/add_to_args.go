@@ -7,7 +7,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
-	"github.com/neosy/elengrab/pkg/nfile"
+	"github.com/neosy/elengrab/internal/pkg/nfile"
 )
 
 func addYouTubeCookiesToArgs(logger *slog.Logger, args []string, serviceOptions *dto.Options) []string {

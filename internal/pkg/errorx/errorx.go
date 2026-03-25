@@ -3,7 +3,7 @@ package errorx
 import (
 	"errors"
 
-	"github.com/neosy/elengrab/pkg/errorx/exceptionx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
 // Type for error handling

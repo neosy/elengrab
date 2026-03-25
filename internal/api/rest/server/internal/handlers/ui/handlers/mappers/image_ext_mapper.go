@@ -1,6 +1,6 @@
 package mappers
 
-import "github.com/neosy/elengrab/pkg/httpx"
+import "github.com/neosy/elengrab/internal/pkg/httpx"
 
 func (m *Mappers) MapImageExtToContentType(ext string) string {
 	contentType, exists := httpx.ImageContentTypeFromExt(ext)
