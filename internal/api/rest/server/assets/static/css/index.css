@@ -35,7 +35,7 @@ body {
     height: 30px;
 }
 
-.div-main-area {
+.main {
     position: relative;
     width: 80%;
     max-width: 1200px;
@@ -49,7 +49,7 @@ body {
     box-shadow: 0 2px 6px var(--shadow);
 }
 
-.div-header-main {
+.main-header {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -57,11 +57,11 @@ body {
     padding-bottom: 20px;
 }
 
-.div-header-main * {
+.main-header * {
     user-select: none;
 }
 
-.header-link {
+.main-header__link {
     display: flex;
     align-items: center;
     text-decoration: none;
@@ -69,12 +69,12 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-.img-header-logo {
+.main-header__logo-image {
     height: 4em;
     width: auto;
 }
 
-.header {
+.main-header__title {
     color: var(--text-header);
     font-size: 64px;
     font-family: 'Cinzel', serif;
@@ -113,7 +113,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
-.footer-main {
+.footer {
     position: fixed;
     bottom: 0;
     left: 50%;
@@ -142,20 +142,20 @@ body {
     z-index: 1000;
 }
 
-.app-version--a {
+.app-version__link {
     color: var(--text-secondary);   
 }
 
-.app-version--a:hover {
+.app-version__link:hover {
     color: var(--text-primary);   
 }
 
-.footer-app-version {
+.footer__app-version {
     flex-shrink: 0;
     white-space: nowrap;
 }
 
-.footer-disk-volume {
+.footer__disk-volume {
     flex-shrink: 1;
     white-space: nowrap;
     overflow: hidden;
@@ -192,7 +192,7 @@ body {
         height: 23px;
     }
 
-    .div-main-area {
+    .main {
         width: 95%;
         min-height: calc(100vh - 40px - 2*8px - 2*15px);
         padding: 15px;
@@ -200,16 +200,16 @@ body {
         margin-bottom: 0px;
     }
 
-    .footer-main {
+    .footer {
         width: calc(95% - 2*5px);  
         padding: 8px 10px;
     }
 
-    .header {
+    .main-header__title {
         font-size: 40px;
     }
     
-    .img-header-logo {
+    .main-header__logo-image {
         height: 2.5em;
     }
 }
@@ -220,7 +220,7 @@ body {
         background: var(--bg-main);
     }
 
-    .div-main-area {
+    .main {
         width: 95%;
         min-height: auto;
         padding: 10px;
@@ -231,16 +231,16 @@ body {
         background: var(--bg-main);
     }
 
-    .footer-main {
+    .footer {
         width: 95%;
         justify-content: center;
     }
 
-    .img-header-logo {
+    .main-header__logo-image {
         height: 1.8em;
     }
 
-    .header {
+    .main-header__title {
         font-size: 28px;
     }
 }

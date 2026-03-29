@@ -3,18 +3,18 @@
             hx-post="{{.PathDownloaderGrab}}"
             hx-include="#mediaURL, [name='formatType']"
             hx-swap="none">
-        <div class="div-grab-area">
-          <input class="grab__input" type="text" id="mediaURL" name="mediaURL" placeholder="{{ .InputGrabPlaceholder }}" maxlength="255">
-          <div class="div-button-input-action">
-            <button type="button" class="button-input-action" id="inputActionBtn"></button>
+        <div class="grab-area">
+          <input class="grab-area__input" type="text" id="mediaURL" name="mediaURL" placeholder="{{ .InputGrabPlaceholder }}" maxlength="255">
+          <div class="grab-area__action">
+            <button type="button" class="grab-area__action-button" id="inputActionBtn"></button>
           </div>
-          <div class="div-button-get">
-            <button type="submit" class="button-grab-get" title="Download media">Get</button>
+          <div class="grab-area__submit">
+            <button type="submit" class="grab-area__submit-button" title="Download media">Get</button>
           </div>
         </div>
-        <div class="div-select-options">
-          <div class="div-select-option">
-            <span class="select-option-label">Quality</span>
+        <div class="grab-options">
+          <div class="grab-option">
+            <span class="grab-option__label">Quality</span>
             <select name="quality-codec" title="Select your preferred video/audio quality or codec">
               <option value="best" selected>Best</option>
               <option value="only_audio">Only audio</option>
@@ -31,8 +31,8 @@
               <option value="360">360p</option>
             </select>
           </div>
-          <div class="div-select-option">
-            <span class="select-option-label">Format</span>
+          <div class="grab-option">
+            <span class="grab-option__label">Format</span>
             <select name="format" title="Select the desired output format for video or audio">
               <option value="auto" selected>Auto</option>
               <optgroup label="Video">
