@@ -151,7 +151,7 @@ if ('scrollRestoration' in history) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const formGrab = document.querySelector(`#${DOM_IDS.grabForm}`);
-    const buttonGrab = document.querySelector('.button-grab-get');
+    const buttonGrab = document.querySelector('.grab-area__submit-button');
 
     const grabInputURL = DOM_ELEMENTS.mediaURL;
     const grabInputActionBtn = DOM_ELEMENTS.inputActionBtn;

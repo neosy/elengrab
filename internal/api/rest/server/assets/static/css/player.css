@@ -54,7 +54,7 @@
 }
 
 /* ── Audio player bar ────────────────────────────────────────────────────────── */
-#audio-bar-container {
+#audio-bar {
     position: fixed;
     inset: 0;
     pointer-events: none;

@@ -7,8 +7,8 @@
         autocomplete="off"
         hx-post="{{.PathHistorySearch}}"
         hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load[this.value.length > 0]"
-        hx-target="#result-rows"
+        hx-target="#grab-result-rows"
         hx-swap="outerHTML">
-        <button class="input-clear__button" type="button">×</button>
+        <button class="history-search__clear-button" type="button">×</button>
     </div>
 </div>

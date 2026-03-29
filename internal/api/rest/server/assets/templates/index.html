@@ -41,35 +41,37 @@
   {{- end }}
 </head>
 <body>
-  <div class="user-menu">
-    {{ template "theme-switcher.html" . }}
-    <div id="user-avatar" class="user-avatar">{{ .UserAvatarIcon }}</div>
-  </div>
-  <div class="div-main-area">
-      <div class="div-header-main">
-        <a class="header-link" href="/">
-          <img class="img-header-logo" src="{{.PathStaticImg}}/logo-512.png">
-          <h1 class="header">{{.Header}}</h1>
+  <header class="header">
+    <div class="user-menu">
+      {{ template "theme-switcher.html" . }}
+      <div id="user-avatar" class="user-avatar">{{ .UserAvatarIcon }}</div>
+    </div>
+  </header>
+  <main class="main">
+      <div class="main-header">
+        <a class="main-header__link" href="/">
+          <img class="main-header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
+          <h1 class="main-header__title">{{.Header}}</h1>
         </a>
       </div>
       {{ template "grab-form" . }}
       {{ template "grab-result.html" . }}
-  </div>
-  <div id="media-player-overlay">
-    <div id="video-player-wrapper"></div>
-  </div>
-  <div id="audio-bar-container"></div>
-  <footer class="footer-main">
-    <div class="footer-app-version">
+  </main>
+  <footer class="footer">
+    <div class="footer__app-version">
       <span id="server-status-dot" class="server-status-dot"></span>
-      <a class="app-version--a" href="https://github.com/neosy/elengrab" target="_blank" title="View source code on GitHub">
+      <a class="app-version__link" href="https://github.com/neosy/elengrab" target="_blank" title="View source code on GitHub">
         v<span id="app-version">{{ .AppVersion }}</span>
       </a>
     </div>
-    <div class="footer-disk-volume">
+    <div class="footer__disk-volume">
       Free: <span id="disk-free">{{ .DiskFree }}</span> |
       Used: <span id="disk-used">{{ .DiskUsed }}</span>
     </div>
   </footer>
+  <div id="media-player-overlay">
+    <div id="media-player__wrapper"></div>
+  </div>
+  <div id="audio-bar"></div>
 </body>
 </html>
