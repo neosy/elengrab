@@ -5,6 +5,9 @@
 ### Feature
 - Add authorization for admins and privileged rights. Closes #187
 
+### Style
+- Improve the design of active elements
+
 ### Refactor
 - Errorx package
 
