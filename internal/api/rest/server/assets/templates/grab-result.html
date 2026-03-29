@@ -1,7 +1,7 @@
       <div class="grab-result" id="grab-result">
-        <div class="result-info" id="result-info">
-          <div class="result-info-row" id="result-info-row">
-              <span class="result-info-failed" id="result-info-failed"></span>
+        <div class="grab-result_info" id="result-info">
+          <div class="grab-result_info-row" id="result-info-row">
+              <span class="grab-result_info-failed" id="result-info-failed"></span>
           </div>
         </div>
         {{ if .ShowHistorySearch }}
@@ -9,7 +9,7 @@
             {{ template "history_search.html" . }}
           </div>
         {{ end }}
-        <div class="result-rows_wrapper">
+        <div class="grab-result__rows-wrapper">
           {{ template "result_rows.html" . }}
         </div>
       </div>

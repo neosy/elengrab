@@ -1,8 +1,8 @@
-          <div class="result-rows" id="result-rows" hx-ext="sse" sse-connect="/ui/downloader/files/events">
+          <div class="grab-result__rows" id="grab-result-rows" hx-ext="sse" sse-connect="/ui/downloader/files/events">
               <div sse-swap="row-patch" style="display: none;"></div>
-              <div class="row-placeholder" id="row-top-placeholder"></div>
+              <div class="grab-result__row-placeholder" id="row-top-placeholder"></div>
               {{ if .ResultNoRows }}
-                <div class="row-no-items" id="row-no-items">No items</div>
+                <div class="grab-result__row-no-items" id="row-no-items">No items</div>
               {{ end }}
               {{ .ResultRowsHTML }}
           </div>

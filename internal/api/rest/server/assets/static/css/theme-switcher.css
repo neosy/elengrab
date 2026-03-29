@@ -3,7 +3,7 @@
     display: flex;
 }
 
-.theme-toggle-btn {
+.theme-switcher__toggle-button {
     display: flex;
     position: relative;
     padding: 0;
@@ -18,21 +18,26 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     cursor: pointer;
+
     user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
     -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;    
+
     transition: border-color 0.5s ease, background-color 0.5s ease, color 0.5s ease, transform 0.5s ease;
     overflow: hidden;
 }
 
-.theme-toggle-btn:hover {
+.theme-switcher__toggle-button:hover {
     background-color: var(--bg-button-hover);
 }
 
-.theme-toggle-btn:active {
+.theme-switcher__toggle-button:active {
     transform: scale(0.95);
 }
 
-.theme-toggle-btn .icon {
+.theme-switcher__toggle-button .icon {
     width: 22px;
     height: 22px;
     position: absolute;
@@ -57,12 +62,12 @@
 }
 
 /* Dark mode: hide sun, show moon with correct crescent orientation */
-.dark .theme-toggle-btn .sun-icon {
+.dark .theme-switcher__toggle-button .sun-icon {
     opacity: 0;
     transform: rotate(-120deg) scale(0.7);
 }
 
-.dark .theme-toggle-btn .moon-icon {
+.dark .theme-switcher__toggle-button .moon-icon {
     opacity: 1;
     transform: rotate(-100deg) scale(1); /* perfect crescent moon orientation */
 }
@@ -73,18 +78,19 @@
         top: 12px;
         right: 12px;
     }
-    .theme-toggle-btn {
+    .theme-switcher__toggle-button {
         width: 30px;
         height: 30px;
     }
-    .theme-toggle-btn .icon {
+    .theme-switcher__toggle-button .icon {
         width: 20px;
         height: 20px;
     }
 }
 
 @media (hover: none) and (pointer: coarse) {
-  .theme-toggle-btn {
+  .theme-switcher__toggle-button {
     border: none;
+    background-color: transparent !important;
   }
 }

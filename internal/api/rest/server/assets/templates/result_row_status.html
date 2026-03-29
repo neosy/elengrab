@@ -1,44 +1,44 @@
-<div id="{{ .RowID }}" class="div-grab-result-row inprogress {{ .ItemFade }}">
+<div class="grab-result__row inprogress {{ .ItemFade }}" id="{{ .RowID }}">
     <div class="result-left">
-        <span class="result-avatar" title="{{ .AvatarTitle }}">
+        <span class="result__avatar" title="{{ .AvatarTitle }}">
             {{ $logoAttr := "" }}
             {{ if ne .DownloadStatus "failed" }}
                 {{ $logoAttr = printf "?v=%s" .LogoVersion }}
             {{ end }}
-            <img class="img-avatar" src="/ui/downloader/file/{{ .FileID }}/logo{{ $logoAttr }}" alt="Channel avatar">
+            <img class="result__avatar-image" src="/ui/downloader/file/{{ .FileID }}/logo{{ $logoAttr }}" alt="Channel avatar">
         </span>
-        <span class="result-media-url {{.ResultMediaUrlFade}}">
+        <span class="result__media-url {{.ResultMediaUrlFade}}">
             <a href="{{ .MediaURL }}" target="_blank">{{ .MediaTitle }}</a>
         </span>
     </div>
     <div class="result-right">
-        <span class="result-separator first">•</span>
-        <div class="div-result-size">
-            <span class="result-size {{.ResultSizeFade}}" data-id="size" title="Estimated file size">{{ .FileSize }}</span>
+        <span class="result__separator first">•</span>
+        <div class="result__size">
+            <span class="result__size-value {{.ResultSizeFade}}" data-id="size" title="Estimated file size">{{ .FileSize }}</span>
         </div>
-        <span class="result-separator">•</span>
-        <div class="div-result-format">
-            <span class="result-format {{.ResultFormatFade}}" title="{{ .FormatTitle }}" data-tooltip="{{ .FormatTooltip }}" data-id="format">{{ .Format }}</span>
+        <span class="result__separator">•</span>
+        <div class="result__format">
+            <span class="result__format-value {{.ResultFormatFade}}" title="{{ .FormatTitle }}" data-tooltip="{{ .FormatTooltip }}" data-id="format">{{ .Format }}</span>
         </div>
-        <span class="result-separator">•</span>
-        <div class="div-result-delete">
-            <button class="btn-delete-row"
+        <span class="result__separator">•</span>
+        <div class="result__delete">
+            <button class="result__delete-row-button"
                 title="Delete this download task"
                 hx-delete="{{ .DeleteURL }}"
                 hx-swap="none">
                 {{ .GrabResultItemDeleteIcon }}
             </button>            
         </div>
-        <span class="result-separator">•</span>
-        <div class="div-result-status" title="{{ .GrabResultItemStatusText }}">
+        <span class="result__separator">•</span>
+        <div class="result__status" title="{{ .GrabResultItemStatusText }}">
         {{ if .IsItemSpiner }}
-            <div class="item-result-spinner {{ .WorkingStatus }}"></div>
+            <div class="result__status-spinner {{ .WorkingStatus }}"></div>
             {{ if eq .WorkingStatus "downloading" }}
                 {{ template "result_progress.html" . }}
             {{ end }}
         {{ else }}
             {{ if eq .DownloadStatus "failed" }}
-                <button class="btn-download-repeat"
+                <button class="result__status-button"
                     hx-post="{{.PathFileRepeat}}"
                     hx-swap="none">
                     {{ .DownloadResultItemStatusFailedIcon }}

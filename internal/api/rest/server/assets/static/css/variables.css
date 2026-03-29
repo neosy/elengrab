@@ -2,8 +2,7 @@
     --bg-body: #f0f0f0;
     --bg-main: white;
     --bg-footer: rgba(240, 240, 240, 0.5);
-    --bg-result: #fdfdfd;
-    --bg-result-item: #fdfdfd;
+    --bg-result: white;
     --bg-input: white;
     --bg-input-focus: #f5f5f5;
     --bg-format: #f0f0f0;
@@ -16,8 +15,8 @@
     --text-secondary: #555;
     --text-muted: #9e9e9e;
     --text-gray-disabled: #f0f0f0;
-    --text-button-input-action: #999;
-    --text-button-input-action-hover: #333;
+    --text-grab-area__action-button: #999;
+    --text-grab-area__action-button-hover: #333;
     --text-tooltip: white;
     --border-input: #7eb980;
     --border-input-focus: #4caf50;
@@ -30,8 +29,8 @@
     --download-delete-hover: #c44b4b;
     --download-repeat: #ef5350;
     --download-repeat-hover: #ef5350;
-    --avatar-play-btn: white;
-    --avatar-play-btn-hover: #4caf50;
+    --avatar-play__button: white;
+    --avatar-play__button-hover: #4caf50;
     --error: #ef5350;
     --spinner-light: #d0d0d0;
     --spinner-dl-start: #9e9e9e;
@@ -46,7 +45,6 @@
     --bg-main: #1F1F1F;
     --bg-footer: rgba(23, 23, 23, 0.5);;
     --bg-result: #1F1F1F;
-    --bg-result-item: #1F1F1F;
     --bg-input: #2c2c2c;
     --bg-input-focus: #2c2c2c;
     --bg-format: #30363d;
@@ -59,8 +57,8 @@
     --text-secondary: #8b949e;
     --text-muted: #6e7681;
     --text-gray-disabled: #f0f0f0;
-    --text-button-input-action: #9e9e9e;
-    --text-button-input-action-hover: #cfd8e3;
+    --text-grab-area__action-button: #9e9e9e;
+    --text-grab-area__action-button-hover: #cfd8e3;
     --text-tooltip: #cfd8e3;
     --border-input: #7eb980;
     --border-input-focus: #58d660;
@@ -73,8 +71,8 @@
     --download-delete-hover: #c44b4b;
     --download-repeat: #ef5350;
     --download-repeat-hover: #ef5350;
-    --avatar-play-btn: white;
-    --avatar-play-btn-hover: #4caf50;
+    --avatar-play__button: white;
+    --avatar-play__button-hover: #4caf50;
     --error: #f85149;
     --spinner-light: #30363d;
     --spinner-accent: #58a6ff;

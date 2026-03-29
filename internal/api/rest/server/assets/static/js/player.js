@@ -5,15 +5,15 @@
 
 export function initPlayer() {
     const overlay           = document.getElementById("media-player-overlay");
-    const videoWrapper      = document.getElementById("video-player-wrapper");
-    let   audioBarContainer = document.getElementById("audio-bar-container");
+    const videoWrapper      = document.getElementById("media-player__wrapper");
+    let   audioBarContainer = document.getElementById("audio-bar");
 
     if (!overlay || !videoWrapper) return;
 
     // Create audio container if missing
     if (!audioBarContainer) {
         audioBarContainer = document.createElement("div");
-        audioBarContainer.id = "audio-bar-container";
+        audioBarContainer.id = "audio-bar";
         document.body.appendChild(audioBarContainer);
     }
 
@@ -21,10 +21,10 @@ export function initPlayer() {
     overlay.style.display = "none";
 
     document.addEventListener("click", (event) => {
-        const playBtn = event.target.closest(".avatar-play-btn");
+        const playBtn = event.target.closest(".avatar-play__button");
         if (!playBtn) return;
 
-        const row = playBtn.closest(".div-grab-result-row");
+        const row = playBtn.closest(".grab-result__row");
         if (!row) return;
 
         const mediaURL = row.dataset.media;

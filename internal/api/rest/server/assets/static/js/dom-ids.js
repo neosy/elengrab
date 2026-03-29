@@ -1,5 +1,5 @@
 export const DOM_IDS = {
-    resultRows: "result-rows",
+    resultRows: "grab-result-rows",
     rowTopPlaceholder: "row-top-placeholder",
     rowNoItems: "row-no-items",
 

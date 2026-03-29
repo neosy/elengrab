@@ -114,7 +114,7 @@ export function initInputClearButton(wrapperSelector) {
 
     wrappers.forEach(wrapper => {
         const input = wrapper.querySelector('input');
-        const clearBtn = wrapper.querySelector('button.input-clear__button');
+        const clearBtn = wrapper.querySelector('button.history-search__clear-button');
 
         if (!input || !clearBtn) return;
 
