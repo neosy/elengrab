@@ -1,0 +1,131 @@
+body {
+    display: flex;
+    height: 100vh;
+    margin: 0;
+
+    justify-content: center;
+    align-items: center;
+
+    font-family: "Inter", sans-serif;
+    font-weight: 400;
+
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+
+    letter-spacing: -0.25px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.user-menu {
+    display: flex;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 1000;
+    gap: 8px;
+}
+
+.user-menu > div {
+    display: flex;
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+}
+
+.main {
+    display: flex;
+    background: transparent;
+}
+
+.main_register, .main_login {
+    position: relative;
+    width: 90%;
+    max-width: 320px;
+    min-width: 280px;
+    padding: 24px;
+    background: var(--bg-main);
+    border-radius: 20px;
+    box-shadow: 0 2px 6px var(--shadow);
+}
+
+.main-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding-bottom: 0px;
+}
+
+.main-header * {
+    user-select: none;
+}
+
+.main-header__logo-image {
+    height: 2.5em;
+    width: auto;
+}
+
+.main-header__title {
+    color: var(--text-header);
+    font-size: 36px;
+    font-family: 'Cinzel', serif;
+    margin: 0;
+}
+
+.main_register h2 {
+    margin-bottom: 16px;
+    font-size: 22px;
+}
+
+.main_login h2 {
+    margin-bottom: 16px;
+    font-size: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+
+    border: 2px solid;
+    border-color: var(--border-auth-input);
+    border-radius: 24px;
+    box-sizing: border-box;
+}
+
+input:focus {
+    border-color: var(--border-auth-input-focus);
+    outline: none;
+}
+
+button {
+    width: 100%;
+    padding: 4px 18px;
+    border: 2px solid transparent;
+    border-radius: 15px;
+    font-size: 18px;
+    color: var(--text-auth-button);
+    background-color: var(--bg-auth-button);
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.5s ease, background-color 0.5s ease, color 0.5s ease, transform 0.3s ease;
+}
+
+button:hover {
+    background: var(--bg-auth-button-hover);
+}
+
+.error {
+    color: var(--error);
+    font-size: 14px;
+    margin-bottom: 10px;
+}

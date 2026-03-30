@@ -1,7 +1,6 @@
 package reflection
 
 import (
-	"errors"
 	"reflect"
 )
 
@@ -11,7 +10,7 @@ func StructFieldPointers(structPtr any) ([]any, error) {
 
 	// Check that input is a pointer to a struct
 	if val.Kind() != reflect.Ptr || val.Elem().Kind() != reflect.Struct {
-		return nil, errors.New("input must be a pointer to a struct")
+		return nil, ErrInputMustBePointerToStruct
 	}
 
 	val = val.Elem()
@@ -19,7 +18,7 @@ func StructFieldPointers(structPtr any) ([]any, error) {
 	ptrs := make([]any, 0, numFields)
 
 	// Iterate over all fields
-	for i := 0; i < numFields; i++ {
+	for i := range numFields {
 		field := val.Field(i)
 		fieldType := val.Type().Field(i)
 

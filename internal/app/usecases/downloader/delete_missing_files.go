@@ -29,7 +29,7 @@ const (
 // DeleteMissingFiles removes files from the database that no longer exist
 // in the downloads directory, and moves any orphaned files found on disk
 // into the "lost" folder for further inspection.
-func (uc *YouTubeDownloader) DeleteMissingFiles(ctx context.Context, enableMoveUnmatchedFiles bool) error {
+func (uc *Downloader) DeleteMissingFiles(ctx context.Context, enableMoveUnmatchedFiles bool) error {
 	err := uc.deleteMissingFiles(ctx)
 	if err != nil {
 		uc.logger.Error("Failed to delete missing files", "error", err)
@@ -50,7 +50,7 @@ func (uc *YouTubeDownloader) DeleteMissingFiles(ctx context.Context, enableMoveU
 // deleteMissingFiles checks for files marked as Done,
 // soft-deletes them if missing, and then either restores or permanently deletes
 // records based on whether the file exists after the retention period.
-func (uc *YouTubeDownloader) deleteMissingFiles(ctx context.Context) error {
+func (uc *Downloader) deleteMissingFiles(ctx context.Context) error {
 	// Select all records with status Done
 	files, err := uc.file.GetByStatus(ctx, dtypes.FileStatusDone)
 	if err != nil {
@@ -111,7 +111,7 @@ func (uc *YouTubeDownloader) deleteMissingFiles(ctx context.Context) error {
 // moveUnmatchedFiles scans the downloads directory and moves all files
 // that do not exist in the database into the "lost" subdirectory.
 // This helps clean up orphaned files that were downloaded but not recorded.
-func (uc *YouTubeDownloader) moveUnmatchedFiles(ctx context.Context) error {
+func (uc *Downloader) moveUnmatchedFiles(ctx context.Context) error {
 	// Read all entries from the downloads directory
 	files, err := os.ReadDir(uc.downloadsDir)
 	if err != nil {

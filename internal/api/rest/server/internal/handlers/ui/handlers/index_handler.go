@@ -19,6 +19,10 @@ import (
 
 // IndexHandlers serves the main page (index.html)
 func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
+	if h.redirectGuestIfAuthRequired(ctx) {
+		return
+	}
+
 	ctxUser := authmw.UserFromContext(ctx)
 	if ctxUser == nil {
 		// anonymous
@@ -29,13 +33,13 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("text/html; charset=utf-8")
 
 	var rowsBuf bytes.Buffer
-	err := h.getFilesHistory(ctx, &rowsBuf, ctxUser.UserID, time.Now().UTC(), nil)
+	err := h.getFilesHistory(ctx, &rowsBuf, *ctxUser, time.Now().UTC(), nil)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	systemInfo := h.usecases.Downloader.SystemInfo()
+	systemInfo := h.downloader.SystemInfo()
 
 	cssPaths, err := uivalues.CssPaths(filepath.Join(h.assetsDir, dirStaticName, dirCssName))
 	if err != nil {

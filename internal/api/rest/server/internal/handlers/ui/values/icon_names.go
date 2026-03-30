@@ -23,7 +23,7 @@ const (
 
 var iconFileNames = map[string]any{
 	UserAvatarAdminIconNameKey:  "user-admin-2.svg",
-	UserAvatarUserIconNameKey:   "user-guest.svg",
+	UserAvatarUserIconNameKey:   "user-default.svg",
 	UserAvatarGuestIconNameKey:  "user-guest.svg",
 	UserAvatarAnonymIconNameKey: "user-anonymous-2.svg",
 	DownloadIconNameKey:         "download-light-icon.svg",

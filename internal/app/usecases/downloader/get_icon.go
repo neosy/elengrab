@@ -9,7 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
-func (uc *YouTubeDownloader) GetIcon(
+func (uc *Downloader) GetIcon(
 	ctx context.Context,
 	userCtx dauth.UserContext,
 	fileID uuid.UUID,

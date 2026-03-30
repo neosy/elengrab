@@ -83,3 +83,22 @@ func (e *BaseEntity[T]) Values(structPtr *T) []any {
 func (e *BaseEntity[T]) FieldPointers(structPtr *T) ([]any, error) {
 	return reflection.StructFieldPointers(structPtr)
 }
+
+// FieldPointer returns a pointer to the field of the given struct specified by tag.
+func (e *BaseEntity[T]) FieldPointer(structPtr *T, fieldName string) (any, error) {
+	return reflection.StructFieldPointer(structPtr, fieldName, etags.ColumnTagName().String())
+}
+
+// FieldsMap returns a map of field names to their corresponding values
+// using the entity's Fields() and Values() methods, ready for UPDATE statements.
+func (e *BaseEntity[T]) FieldsMap(structPtr *T) map[string]any {
+	fields := e.Fields()
+	values := e.Values(structPtr)
+
+	m := make(map[string]any, len(fields))
+	for i, f := range fields {
+		m[f] = values[i]
+	}
+
+	return m
+}

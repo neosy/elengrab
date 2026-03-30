@@ -6,10 +6,12 @@ import (
 )
 
 func Tx(ctx context.Context, db *sql.DB, locker WriteLocker, fn func(ctx context.Context) error) error {
-	tx, _ := TxFromCtx(ctx)
+	var (
+		tx       = txFromCtx(ctx)
+		newCtx   = ctx
+		isOpenTx = false
+	)
 
-	var isOpenTx bool
-	var newCtx = ctx
 	if tx == nil {
 		locker.Lock()
 		defer locker.Unlock()
@@ -20,7 +22,7 @@ func Tx(ctx context.Context, db *sql.DB, locker WriteLocker, fn func(ctx context
 			return err
 		}
 
-		newCtx = CtxWithTx(ctx, tx)
+		newCtx = ctxWithTx(ctx, tx)
 		isOpenTx = true
 	}
 

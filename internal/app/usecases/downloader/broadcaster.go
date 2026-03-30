@@ -9,11 +9,11 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-func (uc *YouTubeDownloader) Broadcaster() *broadcaster.Broadcaster {
+func (uc *Downloader) Broadcaster() *broadcaster.Broadcaster {
 	return uc.broadcaster
 }
 
-func (uc *YouTubeDownloader) broadcastFileAdd(file *ddownload.File) {
+func (uc *Downloader) broadcastFileAdd(file *ddownload.File) {
 	if file == nil {
 		return
 	}
@@ -38,7 +38,7 @@ func (uc *YouTubeDownloader) broadcastFileAdd(file *ddownload.File) {
 	}
 }
 
-func (uc *YouTubeDownloader) broadcastFileUpdate(
+func (uc *Downloader) broadcastFileUpdate(
 	ctx context.Context,
 	fileID uuid.UUID,
 ) {
@@ -64,7 +64,7 @@ func (uc *YouTubeDownloader) broadcastFileUpdate(
 	}
 }
 
-func (uc *YouTubeDownloader) broadcastFileDelete(
+func (uc *Downloader) broadcastFileDelete(
 	userID *uuid.UUID,
 	fileID uuid.UUID,
 ) {
@@ -80,7 +80,7 @@ func (uc *YouTubeDownloader) broadcastFileDelete(
 	}
 }
 
-func (uc *YouTubeDownloader) broadcastFileProgressUpdate(
+func (uc *Downloader) broadcastFileProgressUpdate(
 	ctx context.Context,
 	fileID uuid.UUID,
 ) {
@@ -120,11 +120,11 @@ func (uc *YouTubeDownloader) broadcastFileProgressUpdate(
 	}
 }
 
-func (uc *YouTubeDownloader) broadcastSystemInfoUpdate() {
+func (uc *Downloader) broadcastSystemInfoUpdate() {
 	uc.broadcaster.Broadcast(dto.BroadcastEventTypeSystemInfoUpdate, uc.SystemInfo())
 }
 
-func (uc *YouTubeDownloader) broadcastNotification(
+func (uc *Downloader) broadcastNotification(
 	userID uuid.UUID,
 	module dto.BroadcastNotificationModule,
 	notificationType dto.BroadcastNotificationType,

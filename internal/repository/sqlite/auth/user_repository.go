@@ -5,11 +5,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	"github.com/neosy/elengrab/internal/pkg/dbutils"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth/mappers"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
@@ -40,14 +41,6 @@ func NewUserRepository(db *sql.DB, lock dbexec.WriteLocker) *UserRepository {
 }
 
 func (r *UserRepository) Insert(ctx context.Context, user *dauth.User) error {
-	return r.Save(ctx, user)
-}
-
-func (r *UserRepository) Update(ctx context.Context, user *dauth.User) error {
-	return r.Save(ctx, user)
-}
-
-func (r *UserRepository) Save(ctx context.Context, user *dauth.User) error {
 	if user == nil {
 		return errors.New("function parameter is a null pointer")
 	}
@@ -56,6 +49,11 @@ func (r *UserRepository) Save(ctx context.Context, user *dauth.User) error {
 	eUser, err := r.mappers.MapUserDomainToEntity(user)
 	if err != nil {
 		return err
+	}
+
+	// Update password hash and timestamp if it's not empty
+	if eUser.PasswordHash != nil {
+		eUser.PasswordUpdatedAt = uptr.Any(time.Now().UTC())
 	}
 
 	// Get the list of fields and values for insertion
@@ -67,7 +65,6 @@ func (r *UserRepository) Save(ctx context.Context, user *dauth.User) error {
 		Insert(eUser.TableName()).
 		Columns(fields...).
 		Values(values...).
-		Suffix(dbutils.UpsertSuffix(fields, eUser.FieldName(&eUser.UserID))).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 	// If SQL generation failed — return an error
@@ -84,7 +81,146 @@ func (r *UserRepository) Save(ctx context.Context, user *dauth.User) error {
 	return nil
 }
 
+func (r *UserRepository) Update(ctx context.Context, user *dauth.User) error {
+	if user == nil {
+		return errors.New("function parameter is a null pointer")
+	}
+
+	// Convert the domain model to a database entity
+	eUser, err := r.mappers.MapUserDomainToEntity(user)
+	if err != nil {
+		return err
+	}
+
+	// Generate SQL query with upsert logic
+	sqlQuery, args, err := squirrel.
+		Update(eUser.TableName()).
+		SetMap(eUser.FieldsMap()).
+		Where(squirrel.Eq{eUser.FieldName(&eUser.UserID): eUser.UserID}).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+	// If SQL generation failed — return an error
+	if err != nil {
+		return fmt.Errorf("failed to build SQL: %w", err)
+	}
+
+	// Execute the query
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to save user: %v", err)
+	}
+
+	return nil
+}
+
+func (r *UserRepository) UpdatePassword(ctx context.Context, userID uuid.UUID, newPasswHash string) error {
+	if userID == uuid.Nil {
+		return errors.New("user ID is nil")
+	}
+
+	var eUser eauth.User
+
+	fieldsMap := map[string]any{
+		eUser.FieldName(eUser.PasswordHash):      newPasswHash,
+		eUser.FieldName(eUser.PasswordUpdatedAt): squirrel.Expr("CURRENT_TIMESTAMP"),
+	}
+
+	// Generate SQL query with upsert logic
+	sqlQuery, args, err := squirrel.
+		Update(eUser.TableName()).
+		SetMap(fieldsMap).
+		Where(squirrel.Eq{eUser.FieldName(&eUser.UserID): userID}).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+	// If SQL generation failed — return an error
+	if err != nil {
+		return fmt.Errorf("failed to build SQL: %w", err)
+	}
+
+	// Execute the query
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to save user: %v", err)
+	}
+
+	return nil
+}
+
+func (r *UserRepository) Delete(ctx context.Context, userID uuid.UUID, soft bool) error {
+	if soft {
+		return r.softDelete(ctx, userID)
+	} else {
+		return r.hardDelete(ctx, userID)
+	}
+}
+
+func (r *UserRepository) softDelete(ctx context.Context, userID uuid.UUID) error {
+	var eUser eauth.User
+
+	fieldsToUpdate := map[string]interface{}{
+		eUser.FieldName(&eUser.DeletedAt): squirrel.Expr("CURRENT_TIMESTAMP"),
+	}
+
+	// Generate SQL query with upsert logic
+	sqlQuery, args, err := squirrel.
+		Update(eUser.TableName()).
+		SetMap(fieldsToUpdate).
+		Where(squirrel.Eq{eUser.FieldName(&eUser.UserID): userID}).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+	// If SQL generation failed — return an error
+	if err != nil {
+		return fmt.Errorf("failed to build SQL: %w", err)
+	}
+
+	// Execute the query
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to save file: %v", err)
+	}
+
+	return nil
+}
+
+func (r *UserRepository) hardDelete(ctx context.Context, userID uuid.UUID) error {
+	var eUser eauth.User
+
+	// Build DELETE query
+	sqlBuilder := squirrel.Delete(eUser.TableName()).
+		Where(squirrel.Eq{eUser.FieldName(&eUser.UserID): userID.String()}).
+		PlaceholderFormat(squirrel.Dollar)
+
+	// Generate SQL and args
+	sqlStr, args, err := sqlBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to delete file: %v", err)
+	}
+
+	return nil
+}
+
 func (r *UserRepository) FindByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User, error) {
+	var eUser eauth.User
+	return r.findByFieldName(ctx, eUser.FieldName(&eUser.UserID), userID)
+}
+
+func (r *UserRepository) FindByLogin(ctx context.Context, login string) (*dauth.User, error) {
+	var eUser eauth.User
+	return r.findByFieldName(ctx, eUser.FieldName(&eUser.Login), login)
+}
+
+func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*dauth.User, error) {
+	var eUser eauth.User
+	return r.findByFieldName(ctx, eUser.FieldName(&eUser.Email), email)
+}
+
+func (r *UserRepository) findByFieldName(ctx context.Context, fieldName string, value any) (*dauth.User, error) {
 	var (
 		eUser     eauth.User
 		eUserRole eauth.UserRole
@@ -98,8 +234,18 @@ func (r *UserRepository) FindByUserID(ctx context.Context, userID uuid.UUID) (*d
 		"GROUP_CONCAT("+eUserRole.FieldNameWithAlias(&eUserRole.RoleID, aliasUserRoles)+") AS roles",
 	)
 
-	sqlWhere := squirrel.Eq{
-		eUser.FieldNameWithAlias(&eUser.UserID, aliasUsers): userID,
+	var sqlWhere squirrel.Sqlizer
+
+	if fieldName == eUser.FieldName(&eUser.Login) {
+		sqlWhere = squirrel.Expr(
+			eUser.FieldNameWithAlias(eUser.FieldPointer(fieldName), aliasUsers)+" = ? COLLATE NOCASE",
+			value,
+		)
+
+	} else {
+		sqlWhere = squirrel.Eq{
+			eUser.FieldNameWithAlias(eUser.FieldPointer(fieldName), aliasUsers): value,
+		}
 	}
 
 	sqlQuery, args, err := squirrel.Select(selectFields...).
@@ -110,10 +256,10 @@ func (r *UserRepository) FindByUserID(ctx context.Context, userID uuid.UUID) (*d
 				" = " + eUser.FieldNameWithAlias(&eUser.UserID, aliasUsers),
 		).
 		Where(sqlWhere).
+		GroupBy(eUser.FieldNameWithAlias(&eUser.UserID, aliasUsers)).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()
-
 	if err != nil {
 		return nil, fmt.Errorf("error generating SQL: %v", err)
 	}
@@ -153,11 +299,36 @@ func (r *UserRepository) FindByUserID(ctx context.Context, userID uuid.UUID) (*d
 
 func (r *UserRepository) ExistsByUserID(ctx context.Context, userID uuid.UUID) (bool, error) {
 	var eUser eauth.User
+	return r.existsByFieldName(ctx, eUser.FieldName(&eUser.UserID), userID)
+}
+
+func (r *UserRepository) ExistsByLogin(ctx context.Context, login string) (bool, error) {
+	var eUser eauth.User
+	return r.existsByFieldName(ctx, eUser.FieldName(&eUser.Login), login)
+}
+
+func (r *UserRepository) existsByFieldName(ctx context.Context, fieldName string, value any) (bool, error) {
+	var (
+		eUser    eauth.User
+		sqlWhere squirrel.Sqlizer
+	)
+
+	if fieldName == eUser.FieldName(&eUser.Login) {
+		sqlWhere = squirrel.Expr(
+			eUser.FieldName(eUser.FieldPointer(fieldName))+" = ? COLLATE NOCASE",
+			value,
+		)
+
+	} else {
+		sqlWhere = squirrel.Eq{
+			eUser.FieldName(eUser.FieldPointer(fieldName)): value,
+		}
+	}
 
 	// Build SQL query: SELECT 1 FROM table WHERE <id> = $1 LIMIT 1
 	query, args, err := squirrel.Select("1").
 		From(eUser.TableName()).
-		Where(squirrel.Eq{eUser.FieldName(&eUser.UserID): userID}).
+		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()

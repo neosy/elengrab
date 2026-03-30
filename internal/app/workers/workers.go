@@ -34,6 +34,7 @@ type Dependencies struct {
 	DownloaderMaintenance pworkers.DownloadMaintenanceRunner
 	Maintenance           pworkers.MaintenanceRunner
 	DownloaderTask        pworkers.DownloadTaskRunner
+	AuthWebMaintenance    pworkers.AuthWebMaintenanceRunner
 
 	// options
 	IntervalUpdateHash               time.Duration
@@ -62,6 +63,13 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 		nworkers.WorkerOptionName("StartupMaintenanceDatabase"),
 		nworkers.WorkerOptionMaxRuns(1),
 		nworkers.WorkerOptionOneShotDelay(1*time.Second),
+	))
+
+	ws.Add(nworkers.NewWorker(
+		wjobs.NewStartupAuthWebJob(logger, deps.AuthWebMaintenance),
+		nworkers.WorkerOptionName("StartupMaintenanceAuthWeb"),
+		nworkers.WorkerOptionMaxRuns(1),
+		nworkers.WorkerOptionOneShotDelay(3*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(

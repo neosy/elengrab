@@ -7,7 +7,7 @@ import (
 )
 
 // DeleteDuplicates deletes duplicate files based on their hash values.
-func (uc *YouTubeDownloader) DeleteDuplicates(ctx context.Context) error {
+func (uc *Downloader) DeleteDuplicates(ctx context.Context) error {
 	rows, err := uc.file.GetDuplicateHashes(ctx, uc.deleteDuplicatesScope)
 	if err != nil {
 		return err

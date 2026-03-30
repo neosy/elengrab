@@ -10,6 +10,8 @@
     --bg-button-hover: #e4e4e4;
     --bg-select-label: #ebebeb;
     --bg-tooltip: #171717;
+    --bg-auth-button: #007bff;
+    --bg-auth-button-hover: #0056b3;
     --text-primary: #333;
     --text-header: #333;
     --text-secondary: #555;
@@ -18,8 +20,11 @@
     --text-grab-area__action-button: #999;
     --text-grab-area__action-button-hover: #333;
     --text-tooltip: white;
+    --text-auth-button: white;
     --border-input: #7eb980;
     --border-input-focus: #4caf50;
+    --border-auth-input: #9e9e9e;
+    --border-auth-input-focus: #7eb980;
     --border-select: #dfe3e8;
     --border-result: #dfe3e8;
     --search-border-input: #ebebeb;
@@ -52,6 +57,8 @@
     --bg-button-hover: #3f444b;
     --bg-select-label: #1F1F1F;
     --bg-tooltip: #171717;
+    --bg-auth-button: #007bff;
+    --bg-auth-button-hover: #0056b3;
     --text-primary: #cfd8e3;
     --text-header: #cfd8e3;
     --text-secondary: #8b949e;
@@ -60,8 +67,11 @@
     --text-grab-area__action-button: #9e9e9e;
     --text-grab-area__action-button-hover: #cfd8e3;
     --text-tooltip: #cfd8e3;
+    --text-auth-button: white;
     --border-input: #7eb980;
     --border-input-focus: #58d660;
+    --border-auth-input: #6e7681;
+    --border-auth-input-focus: #7eb980;
     --border-select: #30363d;
     --border-result: #30363d;
     --search-border-input: #555;

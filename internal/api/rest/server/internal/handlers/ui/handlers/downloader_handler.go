@@ -13,7 +13,10 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 
 	ctxUser, err := authmw.EnsureUserFromContext(ctx)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
+		nfasthttp.WriteErrorx(
+			ctx,
+			errorx.Errorf("authorization error: %w", err, errorx.HttpStatusArg(fasthttp.StatusUnauthorized)),
+		)
 		return
 	}
 
@@ -33,7 +36,7 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	formSelectQualityResolution := string(ctx.FormValue(formFieldQualityResolutionKey))
 	formSelectFormat := string(ctx.FormValue(formFieldFormatKey))
 
-	resp, err := h.usecases.Downloader.ScheduleDownload(
+	resp, err := h.downloader.ScheduleDownload(
 		ctx,
 		*ctxUser,
 		url,

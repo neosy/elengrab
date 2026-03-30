@@ -9,6 +9,12 @@ CREATE TABLE IF NOT EXISTS users (
     -- User email address, optional
     email TEXT NULL UNIQUE,
 
+    -- User password hash, optional
+    password_hash TEXT NULL,
+
+    -- Timestamp when the user's password was last updated
+    password_updated_at DATETIME NULL,
+
     -- Active status: 1 = active, 0 = inactive
     is_active INTEGER NOT NULL DEFAULT 1,
 
@@ -16,7 +22,10 @@ CREATE TABLE IF NOT EXISTS users (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
     -- Record update timestamp, set automatically
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    -- Record delete timestamp
+    deleted_at DATETIME NULL
 );
 
 -- Index for fast lookup by login (username)

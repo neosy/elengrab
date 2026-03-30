@@ -10,9 +10,10 @@ import (
 // UI
 const (
 	// Groups
-	GroupDownloader = "/ui/downloader"
+	GroupDownloader = "/downloader"
+	GroupAccount    = "/account"
 
-	// Paths
+	// Paths Downloader
 	PathGrab               = "/grab"
 	PathHistory            = "/history"
 	PathDownload           = "/download"
@@ -24,6 +25,11 @@ const (
 	PathFileLogo           = "/file/{fileId}/logo"
 	PathFilesEvents        = "/files/events"
 	PathChannelAvatar      = "/channel/{channelID}/avatar"
+
+	// Paths Account
+	PathRegister = "/register"
+	PathLogin    = "/login"
+	PathLogout   = "/logout"
 )
 
 func BuildPathFile(fileID uuid.UUID) string {

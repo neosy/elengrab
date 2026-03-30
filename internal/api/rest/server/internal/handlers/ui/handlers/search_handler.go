@@ -28,7 +28,7 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	var rowsBuf bytes.Buffer
-	err := h.getFilesHistory(ctx, &rowsBuf, ctxUser.UserID, time.Now().UTC(), filters)
+	err := h.getFilesHistory(ctx, &rowsBuf, *ctxUser, time.Now().UTC(), filters)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

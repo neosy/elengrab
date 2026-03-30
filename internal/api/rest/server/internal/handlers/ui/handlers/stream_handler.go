@@ -32,7 +32,7 @@ func (h *DownloaderHandlers) StreamHandler(ctx *fasthttp.RequestCtx) {
 	fileId := uuid.MustParse(fileIdStr)
 
 	// Retrieve file info
-	fileInfo, err := h.usecases.Downloader.GetFileInfo(ctx, *ctxUser, fileId)
+	fileInfo, err := h.downloader.GetFileInfo(ctx, *ctxUser, fileId)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

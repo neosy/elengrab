@@ -102,7 +102,7 @@ function createSSEConnection() {
 
     // Internal function to (re)connect
     function connect() {
-        eventSource = new EventSource("/ui/downloader/files/events");
+        eventSource = new EventSource("/downloader/files/events");
 
         // Server is considered online when these events arrive
         eventSource.addEventListener("connected", () => setServerStatus(true));
@@ -150,7 +150,7 @@ if ('scrollRestoration' in history) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const formGrab = document.querySelector(`#${DOM_IDS.grabForm}`);
+    const grabForm = document.querySelector(`#${DOM_IDS.grabForm}`);
     const buttonGrab = document.querySelector('.grab-area__submit-button');
 
     const grabInputURL = DOM_ELEMENTS.mediaURL;
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Display error on non-200 + non-503
     document.body.addEventListener('htmx:afterOnLoad', (event) => {
-        if (event.detail.elt === formGrab) {
+        if (event.detail.elt === grabForm) {
             if (grabInputURL) grabInputURL.value = '';
             if (event.detail.xhr.status !== 200 &&
                 event.detail.xhr.status !== 503) {
