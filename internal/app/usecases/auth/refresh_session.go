@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	authdto "github.com/neosy/elengrab/internal/app/usecases/auth/dto"
+	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
@@ -18,7 +18,7 @@ func (a *Auth) sessionRefreshPredicate() func(*dauth.UserSession) bool {
 	}
 }
 
-func (a *Auth) RefreshSession(ctx context.Context, token string) (*authdto.UserContext, error) {
+func (a *Auth) RefreshSession(ctx context.Context, token string) (*dto.AuthUserResponse, error) {
 	var (
 		user       *dauth.User
 		newSession *dauth.UserSession

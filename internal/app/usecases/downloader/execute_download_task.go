@@ -14,7 +14,7 @@ import (
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
-func (uc *YouTubeDownloader) ExecuteDownloadTask(
+func (uc *Downloader) ExecuteDownloadTask(
 	ctx context.Context,
 	workerId uint64,
 	task *ddownload.DownloadTask,

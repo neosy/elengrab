@@ -1,7 +1,7 @@
 <div class="grab-result__row success" id="{{ .RowID }}" data-media="{{ .StreamURL }}" data-is-audio="{{ .IsAudio }}">
     <div class="result-left">
         <span class="result__avatar" title="{{ .AvatarTitle }}">
-            <img class="result__avatar-image" src="/ui/downloader/file/{{ .FileID }}/logo" alt="Channel avatar">
+            <img class="result__avatar-image" src="{{ .PathDownloader }}/file/{{ .FileID }}/logo" alt="Channel avatar">
             <button class="avatar-play__button">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8 5v14l11-7z"/>

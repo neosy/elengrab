@@ -33,7 +33,7 @@ func (uc *UserRole) Get(ctx context.Context, userID uuid.UUID, roleID string) (*
 	}
 
 	if userRole == nil {
-		uc.logger.Warn("UserRole not found", "userID", userID, "roleID", roleID)
+		uc.logger.Debug("UserRole not found", "userID", userID, "roleID", roleID)
 		return nil, errorx.New("userRole not found", exceptionx.NOT_FOUND)
 	}
 

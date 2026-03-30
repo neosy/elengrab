@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -36,7 +35,7 @@ func (h *DownloaderHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 	filters := parseFilters(ctx)
 
 	var bodyBuffer bytes.Buffer
-	err := h.getFilesHistory(ctx, &bodyBuffer, ctxUser.UserID, before, filters)
+	err := h.getFilesHistory(ctx, &bodyBuffer, *ctxUser, before, filters)
 	if err != nil {
 		ctx.SetStatusCode(fasthttp.StatusOK)
 		ctx.SetBodyString("")
@@ -50,7 +49,7 @@ func (h *DownloaderHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 func (h *DownloaderHandlers) getFilesHistory(
 	ctx context.Context,
 	buf *bytes.Buffer,
-	userID uuid.UUID,
+	userCtx dauth.UserContext,
 	before time.Time,
 	filters requestFilters,
 ) error {
@@ -60,7 +59,7 @@ func (h *DownloaderHandlers) getFilesHistory(
 	}
 
 	// We upload one more line to see if we need to show "Upload more"
-	resps, err := h.usecases.Downloader.LoadHistory(ctx, userID, before, loadHistoryLimit+1, filterByTitle)
+	resps, err := h.downloader.LoadHistory(ctx, userCtx, before, loadHistoryLimit+1, filterByTitle)
 	if err != nil {
 		return err
 	}

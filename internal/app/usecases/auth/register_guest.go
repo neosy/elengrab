@@ -3,11 +3,11 @@ package auth
 import (
 	"context"
 
-	authdto "github.com/neosy/elengrab/internal/app/usecases/auth/dto"
+	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
-func (a *Auth) RegisterGuest(ctx context.Context) (*authdto.UserContext, error) {
+func (a *Auth) RegisterGuest(ctx context.Context) (*dto.AuthUserResponse, error) {
 	var (
 		user    *dauth.User
 		session *dauth.UserSession
@@ -35,7 +35,7 @@ func (a *Auth) RegisterGuest(ctx context.Context) (*authdto.UserContext, error) 
 	userCtx := a.mappers.MapUserSessionDomainToUserContext(
 		user,
 		session,
-		a.sessionRefreshPredicate(),
+		nil,
 	)
 
 	return userCtx, nil

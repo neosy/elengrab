@@ -5,6 +5,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers"
 	"github.com/neosy/elengrab/internal/app/usecases"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 type UIHandlers struct {
@@ -14,10 +15,21 @@ type UIHandlers struct {
 func NewUIHandlers(
 	usecases *usecases.Usecases,
 	templates *template.Template,
+
+	// options
+	appMode dtypes.AppMode,
 	assetsDir string,
 	downloadsDir string,
 ) *UIHandlers {
 	return &UIHandlers{
-		Downloader: handlers.NewDownloaderHandlers(usecases, templates, assetsDir, downloadsDir),
+		Downloader: handlers.NewDownloaderHandlers(
+			templates,
+			usecases,
+
+			// options
+			appMode,
+			assetsDir,
+			downloadsDir,
+		),
 	}
 }

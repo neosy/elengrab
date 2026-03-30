@@ -11,12 +11,15 @@ func (s *httpServer) newRouter() *router.Router {
 
 	r.RedirectTrailingSlash = false
 
-	handlers := handlers.New(&handlers.Dependencies{
+	deps := &handlers.Dependencies{
 		Usecases:     s.usecases,
 		Templates:    s.templates,
+		AppMode:      s.appMode,
 		AssetsDir:    s.assetsDir,
 		DownloadsDir: s.downloadsDir,
-	})
+	}
+
+	handlers := handlers.New(deps)
 
 	s.setupStaticRoutes(r, handlers.Static)
 

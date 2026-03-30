@@ -1,8 +1,8 @@
-package authdto
+package dto
 
 import "time"
 
-type Token struct {
+type AuthToken struct {
 	Token        string
 	ExpiresAt    time.Time
 	NeedsRefresh bool

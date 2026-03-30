@@ -21,6 +21,9 @@ const (
 	DownloadResultItemStatusFailedIconKey = "DownloadResultItemStatusFailedIcon"
 	ShowHistorySearchKey                  = "ShowHistorySearch"
 
+	AuthLoginKey    = "Login"
+	AuthErrorMsgKey = "ErrorMsg"
+
 	AppVersionKey = "AppVersion"
 	DiskFreeKey   = "DiskFree"
 	DiskUsedKey   = "DiskUsed"

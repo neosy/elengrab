@@ -1,17 +1,21 @@
 package mappers
 
 import (
-	authdto "github.com/neosy/elengrab/internal/app/usecases/auth/dto"
+	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
 func (m *Mappers) MapUserSessionDomainToToken(
 	session *dauth.UserSession,
 	needsRefresh func(*dauth.UserSession) bool,
-) *authdto.Token {
-	return &authdto.Token{
+) *dto.AuthToken {
+	var nr bool
+	if needsRefresh != nil {
+		nr = needsRefresh(session)
+	}
+	return &dto.AuthToken{
 		Token:        session.SessionToken,
 		ExpiresAt:    session.ExpiresAt,
-		NeedsRefresh: needsRefresh(session),
+		NeedsRefresh: nr,
 	}
 }

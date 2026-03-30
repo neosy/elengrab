@@ -33,6 +33,14 @@ type HTTPServerConfig struct {
 }
 
 type ElengrabConfig struct {
+	Mode     string `env:"MODE" envDefault:"public"`
+	DemoMode bool   `env:"DEMO_MODE" envDefault:"false"`
+
+	// AdminLogin and AdminPassword are used to create the default administrator
+	// at first startup if no admin exists.
+	AdminLogin    string `env:"ADMIN_LOGIN" envDefault:""`
+	AdminPassword string `env:"ADMIN_PASSWORD" envDefault:""`
+
 	DownloaderBinDir string `env:"DOWNLOADER_BIN_DIR" envDefault:"/usr/local/bin"`
 
 	RootDir      string `env:"ROOT_DIR" envDefault:""`
@@ -42,8 +50,6 @@ type ElengrabConfig struct {
 	// Default is "cookies".
 	CookiesDir string `env:"COOKIES_DIR" envDefault:"cookies"`
 
-	DemoMode              bool   `env:"DEMO_MODE" envDefault:"false"`
-	HistoryMode           string `env:"HISTORY_MODE" envDefault:"global"`
 	DownloadWorkers       uint32 `env:"DOWNLOAD_WORKERS" envDefault:"3"`
 	DeleteDuplicatesScope string `env:"DELETE_DUPLICATES_SCOPE" envDefault:"per_user"`
 	// YoutubeAllowCookies allow cookies when downloading YouTube videos.

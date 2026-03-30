@@ -43,8 +43,8 @@ func (h *DownloaderHandlers) streamEvents(
 	w *bufio.Writer,
 	userID string,
 ) {
-	chEvent := h.usecases.Downloader.Broadcaster().Subscribe(userID)
-	defer h.usecases.Downloader.Broadcaster().Unsubscribe(userID, chEvent)
+	chEvent := h.downloader.Broadcaster().Subscribe(userID)
+	defer h.downloader.Broadcaster().Unsubscribe(userID, chEvent)
 
 	h.sendConnected(w)
 

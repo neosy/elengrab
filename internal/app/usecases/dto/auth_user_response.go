@@ -1,12 +1,12 @@
-package authdto
+package dto
 
 import (
 	"github.com/google/uuid"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-type UserContext struct {
+type AuthUserResponse struct {
 	UserID uuid.UUID
 	Roles  []dtypes.UserRole
-	Token  *Token
+	Token  *AuthToken
 }

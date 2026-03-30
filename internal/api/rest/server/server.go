@@ -10,6 +10,7 @@ import (
 
 	authmiddleware "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	"github.com/neosy/elengrab/internal/app/usecases"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	appenv "github.com/neosy/elengrab/internal/pkg/nconfig/app_env"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
@@ -20,6 +21,7 @@ type Dependencies struct {
 	Templates *template.Template
 
 	// Options
+	AppMode      dtypes.AppMode
 	AssetsDir    string
 	DownloadsDir string
 }
@@ -38,6 +40,7 @@ type httpServer struct {
 	templates *template.Template
 
 	// Options
+	appMode      dtypes.AppMode
 	assetsDir    string
 	downloadsDir string
 }
@@ -46,11 +49,14 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *h
 	return &httpServer{
 		logger:         logger,
 		appEnv:         appEnv,
-		authMiddleware: authmiddleware.NewAuthMiddleware(logger, deps.Usecases.Auth),
+		authMiddleware: authmiddleware.NewAuthMiddleware(logger, deps.Usecases.Auth, deps.AppMode),
 		usecases:       deps.Usecases,
 		templates:      deps.Templates,
-		assetsDir:      deps.AssetsDir,
-		downloadsDir:   deps.DownloadsDir,
+
+		// Optons
+		appMode:      deps.AppMode,
+		assetsDir:    deps.AssetsDir,
+		downloadsDir: deps.DownloadsDir,
 	}
 }
 
@@ -71,6 +77,8 @@ func (s *httpServer) ListenAndServe(ctx context.Context, port string) error {
 		WriteTimeout: 0,
 		// Limits keep-alive connection lifetime
 		IdleTimeout: 60 * time.Second,
+
+		DisableKeepalive: false,
 
 		// --- Concurrency and limits ---
 		// Maximum number of concurrent connections

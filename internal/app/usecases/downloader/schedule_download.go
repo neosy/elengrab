@@ -14,7 +14,7 @@ import (
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
-func (uc *YouTubeDownloader) ScheduleDownload(
+func (uc *Downloader) ScheduleDownload(
 	ctx context.Context,
 	userCtx dauth.UserContext,
 	url string,
@@ -100,7 +100,7 @@ func (uc *YouTubeDownloader) ScheduleDownload(
 	}, nil
 }
 
-func (uc *YouTubeDownloader) addFileToQueueDownload(ctx context.Context, fileId uuid.UUID, taskId uuid.UUID) error {
+func (uc *Downloader) addFileToQueueDownload(ctx context.Context, fileId uuid.UUID, taskId uuid.UUID) error {
 	var (
 		file *ddownload.File
 	)
@@ -144,7 +144,7 @@ func (uc *YouTubeDownloader) addFileToQueueDownload(ctx context.Context, fileId 
 	return nil
 }
 
-func (uc *YouTubeDownloader) enqueueDownloadTask(task *ddownload.DownloadTask) nworkerpool.Job {
+func (uc *Downloader) enqueueDownloadTask(task *ddownload.DownloadTask) nworkerpool.Job {
 	job := wjobs.NewDownloadJob(task, uc)
 
 	if !uc.dlDispetcher.AddJob(job) {

@@ -7,7 +7,8 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/services"
 	"github.com/neosy/elengrab/internal/app/usecases/auth"
-	ytdownloader "github.com/neosy/elengrab/internal/app/usecases/downloader"
+	"github.com/neosy/elengrab/internal/app/usecases/authweb"
+	"github.com/neosy/elengrab/internal/app/usecases/downloader"
 	"github.com/neosy/elengrab/internal/app/usecases/maintenance"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/nworkerpool"
@@ -29,11 +30,14 @@ type Dependencies struct {
 	DatabaseBackupsDir  string
 	DatabaseBackupsKeep int
 
-	HistoryMode           dtypes.HistoryMode
+	AppMode               dtypes.AppMode
 	DeleteDuplicatesScope dtypes.UniquenessScope
 
 	LogoUpdateInterval    time.Duration
 	ChannelUpdateInterval time.Duration
+
+	DefaultAdminLogin    string
+	DefaultAdminPassword string
 }
 
 type DepRepositories struct {
@@ -56,9 +60,10 @@ type DepRepositories struct {
 }
 
 type Usecases struct {
-	Downloader  *ytdownloader.YouTubeDownloader
+	Downloader  *downloader.Downloader
 	Maintenance *maintenance.Maintenance
 	Auth        *auth.Auth
+	AuthWeb     *authweb.AuthWeb
 }
 
 func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *Usecases {
@@ -70,7 +75,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 		deps.Repositories.UserSession,
 	)
 	return &Usecases{
-		Downloader: ytdownloader.NewYouTubeDownloader(
+		Downloader: downloader.NewDownloader(
 			ctx,
 			logger,
 
@@ -94,7 +99,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			// options
 			deps.DemoMode,
 			deps.DownloadsDir,
-			deps.HistoryMode,
+			deps.AppMode,
 			deps.DeleteDuplicatesScope,
 			deps.LogoUpdateInterval,
 			deps.ChannelUpdateInterval,
@@ -109,5 +114,11 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.DatabaseBackupsKeep,
 		),
 		Auth: auth,
+		AuthWeb: authweb.NewAuthWeb(
+			logger,
+			auth,
+			deps.DefaultAdminLogin,
+			deps.DefaultAdminPassword,
+		),
 	}
 }

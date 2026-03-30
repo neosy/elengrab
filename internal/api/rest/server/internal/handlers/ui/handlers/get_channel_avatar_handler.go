@@ -17,7 +17,7 @@ func (h *DownloaderHandlers) GetChannelAvatarHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	if channelID != channelIDValueNone {
-		channelInfo, _ := h.usecases.Downloader.FindYoutubeChannelInfo(ctx, channelID)
+		channelInfo, _ := h.downloader.FindYoutubeChannelInfo(ctx, channelID)
 
 		if channelInfo != nil && len(channelInfo.ImageRaw) > 0 {
 			ctx.SetContentType(h.mappers.MapImageExtToContentType(channelInfo.ImageFormat))

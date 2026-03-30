@@ -32,7 +32,7 @@ func (uc *Role) Get(ctx context.Context, roleID string) (*dauth.Role, error) {
 	}
 
 	if role == nil {
-		uc.logger.Warn("Role not found", "roleID", roleID)
+		uc.logger.Debug("Role not found", "roleID", roleID)
 		return nil, errorx.New("role not found", exceptionx.NOT_FOUND)
 	}
 

@@ -11,7 +11,7 @@ import (
 )
 
 // RepeatDownload repeats the download process for a specific file.
-func (uc *YouTubeDownloader) RepeatDownload(
+func (uc *Downloader) RepeatDownload(
 	ctx context.Context,
 	userCtx dauth.UserContext,
 	fileID uuid.UUID,

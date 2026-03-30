@@ -1,33 +1,24 @@
 package reflection
 
 import (
+	"fmt"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
-
-type tradeEntity struct {
-	TradeId      uuid.UUID `db:"trade_id" json:"tradeId"`
-	InstrumentId uuid.UUID `db:"instrument_id" json:"instrumentId"`
-	Price        uint64    `db:"price" json:"price"`
-	Qty          uint64    `db:"qty" json:"qty"`
-}
-
-var tradeEmpty = tradeEntity{}
 
 func TestStructFieldName(
 	t *testing.T) {
 	tests := []struct {
 		name          string
-		structure     interface{}
-		field         interface{}
+		structure     any
+		field         any
 		tag           string
 		expected      string
 		expectedError error
 	}{
 		{
-			"Получение названия поля trade_id",
+			"Getting field name trade_id",
 			&tradeEmpty,
 			&tradeEmpty.TradeId,
 			"db",
@@ -35,7 +26,7 @@ func TestStructFieldName(
 			nil,
 		},
 		{
-			"Получение названия поля instrumentId",
+			"Getting field name instrumentId",
 			&tradeEmpty,
 			&tradeEmpty.InstrumentId,
 			"json",
@@ -43,7 +34,7 @@ func TestStructFieldName(
 			nil,
 		},
 		{
-			"Получение названия поля qty",
+			"Getting field name qty",
 			&tradeEmpty,
 			&tradeEmpty.Qty,
 			"db",
@@ -51,15 +42,15 @@ func TestStructFieldName(
 			nil,
 		},
 		{
-			"Не верно передан tag",
+			"Incorrect tag provided",
 			&tradeEmpty,
 			&tradeEmpty.TradeId,
-			"db",
+			"dbb",
 			"",
 			ErrStructureFieldNameEmpty,
 		},
 		{
-			"Первый параметр не указатель",
+			"First parameter is not a pointer",
 			tradeEmpty,
 			&tradeEmpty.TradeId,
 			"db",
@@ -67,7 +58,7 @@ func TestStructFieldName(
 			ErrFirstArgumentTypeMustPointerStructure,
 		},
 		{
-			"Второй параметр не указатель",
+			"Second parameter is not a pointer",
 			&tradeEmpty,
 			tradeEmpty.TradeId,
 			"db",
@@ -77,22 +68,24 @@ func TestStructFieldName(
 	}
 
 	for _, tt := range tests {
-		result, err := StructFieldName(tt.structure, tt.field, tt.tag)
+		tt := tt // capture range variable
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := StructFieldName(tt.structure, tt.field, tt.tag)
 
-		if tt.expectedError != nil {
-			if err != nil {
-				assert.EqualError(t, err, tt.expectedError.Error(), "Ожидаемая ошибка %v, получил: %v", tt.expectedError, err)
+			if tt.expectedError != nil {
+				if err != nil {
+					assert.EqualError(t, err, tt.expectedError.Error(), fmt.Sprintf("Test %q: expected error", tt.name))
+				} else {
+					assert.Fail(t, fmt.Sprintf("Test %q: expected error %v, but it did not occur", tt.name, tt.expectedError))
+				}
+				return
 			}
 
-			assert.Error(t, err, "Ожидалась ошибка %v, но её не было", tt.expectedError)
-
-			continue
-		}
-
-		if err != nil {
-			t.Errorf("Ошибка не ожидалась, получено %v", err)
-		} else {
-			assert.Equal(t, tt.expected, result, "Ожидал %d, получил %d", tt.expected, result)
-		}
+			if err != nil {
+				t.Errorf("Test %q: unexpected error, got %v", tt.name, err)
+			} else {
+				assert.Equal(t, tt.expected, result, fmt.Sprintf("Test %q: expected %s, got %s", tt.name, tt.expected, result))
+			}
+		})
 	}
 }

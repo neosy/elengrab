@@ -3,5 +3,5 @@ package authmw
 const (
 	userKey = "user"
 
-	cookieSessionTokenKey cookieKey = "session_token"
+	CookieSessionTokenKey cookieKey = "session_token"
 )

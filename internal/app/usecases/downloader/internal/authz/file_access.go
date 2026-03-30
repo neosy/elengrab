@@ -4,7 +4,7 @@ import dtypes "github.com/neosy/elengrab/internal/domain/types"
 
 // AllowFilesViewAll returns true if the roles allow viewing all files (global access)
 func (a *Authorization) AllowFilesViewAll(roles []dtypes.UserRole) bool {
-	if a.historyMode == dtypes.HistoryModeGlobal {
+	if a.appMode == dtypes.AppModePublic {
 		return true
 	}
 	return dtypes.HasAnyRole(roles, dtypes.UserRoleAdmin, dtypes.UserRoleViewerAll)

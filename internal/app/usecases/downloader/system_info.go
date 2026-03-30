@@ -18,11 +18,11 @@ func (s *systemInfoStore) read() dto.SystemInfoResponse {
 	return s.data
 }
 
-func (uc *YouTubeDownloader) SystemInfo() dto.SystemInfoResponse {
+func (uc *Downloader) SystemInfo() dto.SystemInfoResponse {
 	return uc.systemInfoStore.read()
 }
 
-func (uc *YouTubeDownloader) UpdateSystemInfo() {
+func (uc *Downloader) UpdateSystemInfo() {
 	used := helper.FolderSize(uc.downloadsDir)
 	free, _, _, _ := helper.DiskUsage(uc.downloadsDir)
 
