@@ -9,14 +9,13 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
 // GetFileInfo retrieves file information by file ID for a specific user.
-func (uc *YouTubeDownloader) GetFileInfo(
+func (uc *Downloader) GetFileInfo(
 	ctx context.Context,
 	userCtx dauth.UserContext,
 	fileID uuid.UUID,
@@ -38,7 +37,7 @@ func (uc *YouTubeDownloader) GetFileInfo(
 }
 
 // findActualFileInfo retrieves the actual file information based on user ID and file ID.
-func (uc *YouTubeDownloader) findActualFileInfo(
+func (uc *Downloader) findActualFileInfo(
 	ctx context.Context,
 	userID *uuid.UUID,
 	fileID uuid.UUID,
@@ -71,7 +70,7 @@ func (uc *YouTubeDownloader) findActualFileInfo(
 }
 
 // findActualFileInfoByFile retrieves the actual file information based on the provided file.
-func (uc *YouTubeDownloader) findActualFileInfoByFile(
+func (uc *Downloader) findActualFileInfoByFile(
 	ctx context.Context,
 	file *ddownload.File,
 ) (*dto.GetFileInfoResponse, error) {
@@ -110,16 +109,16 @@ func (uc *YouTubeDownloader) findActualFileInfoByFile(
 }
 
 // LoadHistory retrieves the download history for a user.
-func (uc *YouTubeDownloader) LoadHistory(
+func (uc *Downloader) LoadHistory(
 	ctx context.Context,
-	userID uuid.UUID,
+	userCtx dauth.UserContext,
 	before time.Time,
 	limit uint64,
 	filterByTitle string,
 ) ([]*dto.GetFileInfoResponse, error) {
 	filters := make(map[string]any)
-	if uc.historyMode == dtypes.HistoryModePerUser {
-		filters["userID"] = userID
+	if uc.authz.RestrictFilesByUser(userCtx.Roles) {
+		filters["userID"] = userCtx.UserID
 	}
 
 	if filterByTitle != "" {
@@ -129,7 +128,7 @@ func (uc *YouTubeDownloader) LoadHistory(
 	return uc.getFilesInfo(ctx, before, limit, filters)
 }
 
-func (uc *YouTubeDownloader) getFilesInfo(
+func (uc *Downloader) getFilesInfo(
 	ctx context.Context,
 	before time.Time,
 	limit uint64,
@@ -155,7 +154,7 @@ func (uc *YouTubeDownloader) getFilesInfo(
 	return resps, nil
 }
 
-func (uc *YouTubeDownloader) GetFilePath(ctx context.Context, fileId uuid.UUID) (string, error) {
+func (uc *Downloader) GetFilePath(ctx context.Context, fileId uuid.UUID) (string, error) {
 	file, err := uc.file.GetByFileID(ctx, nil, fileId)
 	if err != nil {
 		uc.logger.Error("Failed find file", "error", err)
@@ -173,7 +172,7 @@ func (uc *YouTubeDownloader) GetFilePath(ctx context.Context, fileId uuid.UUID) 
 //	filename - the human-readable name of the file
 //	ext      - the file extension (without dot)
 //	err      - an error if the record is not found or a query fails
-func (uc *YouTubeDownloader) GetDownloadFileName(
+func (uc *Downloader) GetDownloadFileName(
 	ctx context.Context,
 	userCtx dauth.UserContext,
 	fileId uuid.UUID,

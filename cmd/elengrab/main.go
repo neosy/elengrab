@@ -207,10 +207,12 @@ func main() {
 		DownloadsDir:          absPath(cfg.Elengrab.RootDir, cfg.Elengrab.DownloadsDir),
 		DatabaseBackupsDir:    absPath(cfg.Elengrab.RootDir, cfg.SQLite.BackupsDir),
 		DatabaseBackupsKeep:   cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
-		HistoryMode:           dtypes.MustParseHistoryMode(cfg.Elengrab.HistoryMode),
+		AppMode:               dtypes.MustParseAppMode(cfg.Elengrab.Mode),
 		DeleteDuplicatesScope: dtypes.MustParseUniquenessScope(cfg.Elengrab.DeleteDuplicatesScope),
 		LogoUpdateInterval:    logoUpdateInterval,
 		ChannelUpdateInterval: channelUpdateInterval,
+		DefaultAdminLogin:     cfg.Elengrab.AdminLogin,
+		DefaultAdminPassword: cfg.Elengrab.AdminPassword,
 	}
 	uc := usecases.NewUsecases(ctx, logger, ucDeps)
 
@@ -229,6 +231,7 @@ func main() {
 		DownloaderMaintenance: uc.Downloader,
 		Maintenance:           uc.Maintenance,
 		DownloaderTask:        uc.Downloader,
+		AuthWebMaintenance:    uc.AuthWeb,
 		// options
 		IntervalUpdateHash:               cfg.Elengrab.Maintenance.IntervalUpdateHash,
 		IntervalDeleteDuplicates:         cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
@@ -254,8 +257,10 @@ func main() {
 		}
 
 		deps := &httpsrv.Dependencies{
-			Usecases:     uc,
-			Templates:    tmpl,
+			Usecases:  uc,
+			Templates: tmpl,
+
+			AppMode:      dtypes.MustParseAppMode(cfg.Elengrab.Mode),
 			AssetsDir:    absPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir),
 			DownloadsDir: absPath(cfg.Elengrab.RootDir, cfg.Elengrab.DownloadsDir),
 		}

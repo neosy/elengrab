@@ -9,4 +9,7 @@ var (
 	GrabResultLoadHistoryHtmlFileName       = "result_row_load_history.html"
 	GrabResultShouldLoadHistoryHtmlFileName = "result_row_should_load_history.html"
 	GrabResultProgressHtmlFileName          = "result_progress.html"
+
+	AuthRegisterHtmlFileName = "auth_register.html"
+	AuthLoginHtmlFileName    = "auth_login.html"
 )

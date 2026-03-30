@@ -30,7 +30,7 @@ func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	fileId := uuid.MustParse(fileIdStr)
 
 	// Build the full path to the file
-	fileInfo, err := h.usecases.Downloader.GetFileInfo(ctx, *ctxUser, fileId)
+	fileInfo, err := h.downloader.GetFileInfo(ctx, *ctxUser, fileId)
 	if err != nil {
 		nfasthttp.WriteError(ctx, err, fasthttp.StatusNotFound)
 		return

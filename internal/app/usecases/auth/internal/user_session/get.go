@@ -32,7 +32,7 @@ func (uc *UserSession) GetBySessionID(ctx context.Context, sessionID uuid.UUID) 
 	}
 
 	if user == nil {
-		uc.logger.Warn("User session not found", "sessionID", sessionID)
+		uc.logger.Debug("User session not found", "sessionID", sessionID)
 		return nil, errorx.New("user session not found", exceptionx.NOT_FOUND)
 	}
 
@@ -61,7 +61,7 @@ func (uc *UserSession) GetByToken(ctx context.Context, token string) (*dauth.Use
 	}
 
 	if session == nil {
-		uc.logger.Warn("User session not found", "token", token)
+		uc.logger.Debug("User session not found", "token", token)
 		return nil, errorx.New("user session not found", exceptionx.NOT_FOUND)
 	}
 

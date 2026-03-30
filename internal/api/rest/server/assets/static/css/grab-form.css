@@ -21,12 +21,14 @@
     outline: none;
     box-shadow: inset 0 1px 2px var(--shadow);
     font-size: 16px;
+
     background-color: var(--bg-input);
     color: var(--text-primary);
     background-image: url('data:image/svg+xml;utf8,<svg fill="%237eb980" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><g><path d="M17.5 12c0-3.04 2.46-5.5 5.5-5.5-3.04 0-5.5-2.46-5.5-5.5 0 3.04-2.46 5.5-5.5 5.5 3.04 0 5.5 2.46 5.5 5.5z"></path><path d="M15.65 11.58c.18-.5.27-1.03.31-1.58h-2c-.1 1.03-.51 1.93-1.27 2.69-.88.87-1.94 1.31-3.19 1.31C7.03 14 5 12.07 5 9.5 5 7.03 6.93 5 9.5 5c.46 0 .89.08 1.3.2l1.56-1.56C11.5 3.22 10.55 3 9.5 3 5.85 3 3 5.85 3 9.5S5.85 16 9.5 16c.56 0 2.26-.06 3.8-1.3l6.3 6.3 1.4-1.4-6.3-6.3c.4-.5.72-1.08.95-1.72z"></path></g></svg>');
     background-repeat: no-repeat;
     background-position: 14px center;
     background-size: 20px 20px;
+    
     transition:
         border-color 0.5s ease,
         background-color 0.5s ease;

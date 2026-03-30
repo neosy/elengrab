@@ -18,7 +18,7 @@ import (
 )
 
 // DeleteDownload deletes a download from the system.
-func (uc *YouTubeDownloader) DeleteDownload(
+func (uc *Downloader) DeleteDownload(
 	ctx context.Context,
 	userCtx dauth.UserContext,
 	fileId uuid.UUID,
@@ -121,7 +121,7 @@ func (uc *YouTubeDownloader) DeleteDownload(
 }
 
 // deleteWithRetry attempts to delete a file at the specified path with retries.
-func (uc *YouTubeDownloader) deleteWithRetry(ctx context.Context, path string, retries int, retryDelay time.Duration) error {
+func (uc *Downloader) deleteWithRetry(ctx context.Context, path string, retries int, retryDelay time.Duration) error {
 	var err error
 	for range retries {
 		err = os.Remove(path)

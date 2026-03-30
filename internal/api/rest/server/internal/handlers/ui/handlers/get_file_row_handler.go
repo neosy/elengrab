@@ -30,7 +30,7 @@ func (h *DownloaderHandlers) GetFileRowHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	fileInfo, err := h.usecases.Downloader.GetFileInfo(ctx, *ctxUser, fileId)
+	fileInfo, err := h.downloader.GetFileInfo(ctx, *ctxUser, fileId)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

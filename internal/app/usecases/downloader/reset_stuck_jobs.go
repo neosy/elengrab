@@ -6,7 +6,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-func (uc *YouTubeDownloader) ResetStuckJobs(ctx context.Context) error {
+func (uc *Downloader) ResetStuckJobs(ctx context.Context) error {
 	err := uc.file.Tx(
 		ctx,
 		func(ctx context.Context) error {

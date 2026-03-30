@@ -3,10 +3,10 @@ package auth
 import (
 	"context"
 
-	authdto "github.com/neosy/elengrab/internal/app/usecases/auth/dto"
+	"github.com/neosy/elengrab/internal/app/usecases/dto"
 )
 
-func (a *Auth) ValidateSession(ctx context.Context, token string) (*authdto.UserContext, error) {
+func (a *Auth) ValidateSession(ctx context.Context, token string) (*dto.AuthUserResponse, error) {
 	session, err := a.userSession.FindByToken(ctx, token)
 	if err != nil {
 		return nil, err
@@ -26,7 +26,18 @@ func (a *Auth) ValidateSession(ctx context.Context, token string) (*authdto.User
 	}
 
 	if user == nil {
+		a.logger.Debug("User not found", "token", token)
 		return nil, ErrUserNotFound
+	}
+
+	if !user.IsActive {
+		a.logger.Info("User is not active", "userID", user.UserID)
+		return nil, ErrUserIsNotActive
+	}
+
+	if user.DeletedAt != nil {
+		a.logger.Info("User deleted", "userID", user.UserID)
+		return nil, ErrUserDeleted
 	}
 
 	userCtx := a.mappers.MapUserSessionDomainToUserContext(

@@ -31,7 +31,7 @@ func (h *DownloaderHandlers) GetFileLogoHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	iconImage, err := h.usecases.Downloader.GetIcon(ctx, *ctxUser, fileID)
+	iconImage, err := h.downloader.GetIcon(ctx, *ctxUser, fileID)
 
 	if err == nil && iconImage != nil && len(iconImage.Raw) > 0 {
 		ctx.SetContentType(h.mappers.MapImageExtToContentType(iconImage.Format))

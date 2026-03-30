@@ -67,18 +67,52 @@ func (u *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption)
 }
 
 func (u *User) CreateGuest(ctx context.Context) (uuid.UUID, error) {
-	login, err := u.genLogin()
-	if err != nil {
-		return uuid.Nil, errorx.NewFromError(err, exceptionx.ERROR)
+	return u.CreateUser(ctx, "", "", nil, nil)
+}
+
+func (u *User) CreateAdmin(ctx context.Context, login string, email string, passwordHash *string) (uuid.UUID, error) {
+	if login == "" {
+		login = dtypes.UserRoleAdmin.String()
+	}
+	return u.CreateUser(ctx, login, email, passwordHash, []dtypes.UserRole{dtypes.UserRoleAdmin})
+}
+
+func (u *User) CreateUser(
+	ctx context.Context,
+	login string,
+	email string,
+	passwordHash *string,
+	roles []dtypes.UserRole,
+) (uuid.UUID, error) {
+	if login == "" {
+		var err error
+		l, err := u.genLogin()
+		if err != nil {
+			return uuid.Nil, errorx.NewFromError(err, exceptionx.ERROR)
+		}
+		login = l
+	}
+
+	var emailPtr *string
+	if email != "" {
+		emailPtr = &email
 	}
 
 	user := &dauth.User{
-		Login:    login,
-		Email:    nil,
-		IsActive: true,
+		Login:        login,
+		Email:        emailPtr,
+		PasswordHash: passwordHash,
+		IsActive:     true,
 	}
 
-	return u.Create(ctx, user, GuestRoleOption())
+	var rolesOpt UserOption
+	if len(roles) > 0 {
+		rolesOpt = RolesOption(roles...)
+	} else {
+		rolesOpt = GuestRoleOption()
+	}
+
+	return u.Create(ctx, user, rolesOpt)
 }
 
 func (u *User) genLogin() (string, error) {

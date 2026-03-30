@@ -8,7 +8,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/utils"
 )
 
-func (uc *YouTubeDownloader) UpdateHash(ctx context.Context) error {
+func (uc *Downloader) UpdateHash(ctx context.Context) error {
 	files, err := uc.file.GetWithoutPartialHash(ctx)
 	if err != nil {
 		return err

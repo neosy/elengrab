@@ -15,10 +15,11 @@ func (m *Mappers) MapUserDomainToEntity(user *dauth.User) (*eauth.User, error) {
 	}
 
 	return &eauth.User{
-		UserID:   user.UserID,
-		Login:    user.Login,
-		Email:    user.Email,
-		IsActive: isActive,
+		UserID:       user.UserID,
+		Login:        user.Login,
+		Email:        user.Email,
+		PasswordHash: user.PasswordHash,
+		IsActive:     isActive,
 	}, nil
 }
 
@@ -40,12 +41,15 @@ func (m *Mappers) MapUserEntityToDomain(user *eauth.User, rolesCSV string) (*dau
 	}
 
 	return &dauth.User{
-		UserID:    user.UserID,
-		Login:     user.Login,
-		Email:     user.Email,
-		IsActive:  isActive,
-		Roles:     roles,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+		UserID:            user.UserID,
+		Login:             user.Login,
+		Email:             user.Email,
+		PasswordHash:      user.PasswordHash,
+		PasswordUpdatedAt: user.PasswordUpdatedAt,
+		IsActive:          isActive,
+		Roles:             roles,
+		CreatedAt:         user.CreatedAt,
+		UpdatedAt:         user.UpdatedAt,
+		DeletedAt:         user.DeletedAt,
 	}, nil
 }

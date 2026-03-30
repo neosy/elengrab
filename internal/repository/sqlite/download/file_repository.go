@@ -186,6 +186,32 @@ func (r *FileRepository) UpdateStatusToNew(ctx context.Context, statuses []dtype
 	return nil
 }
 
+func (r *FileRepository) UpdateOwner(ctx context.Context, fromID, toID uuid.UUID) error {
+	var eFile edownload.File
+
+	sqlWhere := squirrel.Eq{eFile.FieldName(&eFile.UserID): fromID}
+
+	// Build query
+	sqlBuilder := squirrel.Update(eFile.TableName()).
+		Set(eFile.FieldName(&eFile.UserID), toID).
+		Where(sqlWhere).
+		PlaceholderFormat(squirrel.Dollar)
+
+	// Generate SQL and args
+	sqlQuery, args, err := sqlBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to update file: %v", err)
+	}
+
+	return nil
+}
+
 func (r *FileRepository) Delete(ctx context.Context, fileId uuid.UUID, soft bool) error {
 	if soft {
 		return r.softDelete(ctx, fileId)

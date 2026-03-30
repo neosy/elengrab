@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	"github.com/valyala/fasthttp"
 )
 
@@ -27,12 +26,13 @@ func (k cookieKey) makeCookie(value any, expiresAt *time.Time, maxAge *int) *fas
 	return &cookie
 }
 
-func (k cookieKey) setCookie(ctx *fasthttp.RequestCtx, value any, expiresAt time.Time) {
+func (k cookieKey) SetValue(ctx *fasthttp.RequestCtx, value any, expiresAt time.Time) {
 	ctx.Response.Header.SetCookie(k.makeCookie(value, &expiresAt, nil))
 }
 
-func (k cookieKey) deleteCookie(ctx *fasthttp.RequestCtx) {
-	ctx.Response.Header.SetCookie(k.makeCookie("", nil, uptr.Any(-1)))
+func (k cookieKey) Delete(ctx *fasthttp.RequestCtx) {
+	past := time.Now().Add(-time.Hour)
+	ctx.Response.Header.SetCookie(k.makeCookie("", &past, nil))
 }
 
 func (k cookieKey) compareValue(ctx *fasthttp.RequestCtx, value any) bool {
@@ -40,6 +40,6 @@ func (k cookieKey) compareValue(ctx *fasthttp.RequestCtx, value any) bool {
 	return v == fmt.Sprint(value)
 }
 
-func (k cookieKey) getValue(ctx *fasthttp.RequestCtx) string {
+func (k cookieKey) GetValue(ctx *fasthttp.RequestCtx) string {
 	return string(ctx.Request.Header.Cookie(string(k)))
 }

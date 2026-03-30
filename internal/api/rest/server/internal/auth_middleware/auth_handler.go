@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/neosy/elengrab/internal/app/usecases/auth"
-	authdto "github.com/neosy/elengrab/internal/app/usecases/auth/dto"
+	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
@@ -18,10 +18,15 @@ import (
 // After processing, it stores user information in the request context and calls the next handler.
 func (a *AuthMiddleware) RequireAuth(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
-		userCtx, err := a.processAuth(ctx, true)
-		if err != nil || userCtx == nil {
+		userCtx, err := a.processAuth(ctx, a.appMode.IsGuestAllowed())
+		if err != nil {
 			err = fmt.Errorf("Internal Server Error: %w", err)
 			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, errorx.HttpStatusArg(fasthttp.StatusInternalServerError)))
+			return
+		}
+
+		if userCtx == nil {
+			next(ctx)
 			return
 		}
 
@@ -53,9 +58,9 @@ func (a *AuthMiddleware) OptionalAuth(next fasthttp.RequestHandler) fasthttp.Req
 }
 
 func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool) (*dauth.UserContext, error) {
-	var session *authdto.UserContext
+	var session *udto.AuthUserResponse
 
-	token := cookieSessionTokenKey.getValue(ctx)
+	token := CookieSessionTokenKey.GetValue(ctx)
 	if token != "" {
 		var err error
 		session, err = a.auth.ValidateSession(ctx, token)
@@ -77,7 +82,7 @@ func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool)
 			}
 			if newSession.Token.Token != session.Token.Token {
 				session = newSession
-				cookieSessionTokenKey.setCookie(ctx, session.Token.Token, session.Token.ExpiresAt)
+				CookieSessionTokenKey.SetValue(ctx, session.Token.Token, session.Token.ExpiresAt)
 			}
 		}
 	}
@@ -88,7 +93,7 @@ func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool)
 		if err != nil {
 			return nil, err
 		}
-		cookieSessionTokenKey.setCookie(ctx, session.Token.Token, session.Token.ExpiresAt)
+		CookieSessionTokenKey.SetValue(ctx, session.Token.Token, session.Token.ExpiresAt)
 	}
 
 	var userCtx *dauth.UserContext

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ .AuthLoginTitle }}</title>
+  <meta name="description" content="{{ .Description }}">
+  <script>
+    try {
+      if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme: dark)').matches)){
+        document.documentElement.classList.add('dark');
+      }
+    } catch(e){}
+  </script>
+  {{- range .CssPaths }}
+  <link rel="stylesheet" href="{{.}}">
+  {{- end }}
+  <link rel="manifest" href="{{.PathStaticPwa}}/manifest.json">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{.PathStaticImg}}/favicon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{.PathStaticImg}}/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="{{.PathStaticImg}}/favicon-48.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="{{.PathStaticImg}}/favicon-64.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="{{.PathStaticImg}}/android-chrome-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="{{.PathStaticImg}}/android-chrome-512x512.png">
+  <link rel="icon" type="image/x-icon" href="{{.PathStaticImg}}/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{.PathStaticImg}}/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" id="theme-color-meta" content="#171717">
+  {{- if .JsImportMapJSON}}
+  <script type="importmap">
+  {{- .JsImportMapJSON }}
+  </script>
+  {{- end }}
+  {{- range .JsScripts }}
+    {{- if .Type}}
+  <script{{if .Defer}} defer{{end}} type="{{.Type}}" src="{{.Path}}"></script>
+    {{- else}}
+  <script{{if .Defer}} defer{{end}} src="{{.Path}}"></script>
+    {{- end}}
+  {{- end }}
+</head>
+<body>
+  <header class="header">
+    <div class="user-menu">
+      {{ template "theme-switcher.html" . }}
+    </div>
+  </header>
+  <main class="main">
+    <div class="main_login">
+        <div class="main-header">
+            <img class="main-header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
+            <h1 class="main-header__title">{{.Header}}</h1>
+        </div>
+        <h2>Enter login and password</h2>
+        <form id="authForm"
+              hx-post="{{.PathAuthLogin}}"
+              hx-target="#error"
+              hx-swap="innerHTML">
+            <input type="text" name="login" placeholder="Login" required value="{{.Login}}">
+            <input type="password" name="password" placeholder="Password" required>
+            <div class="error" id="error">{{.ErrorMsg}}</div>
+            <button type="submit">Login</button>
+        </form>
+    </div>    
+  </main>
+</body>
+</html>

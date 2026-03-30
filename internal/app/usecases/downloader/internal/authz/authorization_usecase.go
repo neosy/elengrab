@@ -10,19 +10,19 @@ type Authorization struct {
 	logger *slog.Logger
 
 	// options
-	historyMode dtypes.HistoryMode
+	appMode dtypes.AppMode
 }
 
 func NewAuthorization(
 	logger *slog.Logger,
 
 	// options
-	historyMode dtypes.HistoryMode,
+	appMode dtypes.AppMode,
 ) *Authorization {
 	return &Authorization{
 		logger: logger,
 
 		// options
-		historyMode: historyMode,
+		appMode: appMode,
 	}
 }

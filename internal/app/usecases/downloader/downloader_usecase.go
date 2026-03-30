@@ -24,7 +24,7 @@ import (
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
-type YouTubeDownloader struct {
+type Downloader struct {
 	appCtx  context.Context
 	logger  *slog.Logger
 	mappers *mappers.Mappers
@@ -54,13 +54,13 @@ type YouTubeDownloader struct {
 	// Options
 	demoMode              bool
 	downloadsDir          string
-	historyMode           dtypes.HistoryMode
+	appMode               dtypes.AppMode
 	deleteDuplicatesScope dtypes.UniquenessScope
 	logoUpdateInterval    time.Duration
 	channelUpdateInterval time.Duration
 }
 
-func NewYouTubeDownloader(
+func NewDownloader(
 	ctx context.Context,
 	logger *slog.Logger,
 
@@ -84,19 +84,19 @@ func NewYouTubeDownloader(
 	// options
 	demoMode bool,
 	downloadsDir string,
-	historyMode dtypes.HistoryMode,
+	appMode dtypes.AppMode,
 	deleteDuplicatesScope dtypes.UniquenessScope,
 	logoUpdateInterval time.Duration,
 	channelUpdateInterval time.Duration,
 
-) *YouTubeDownloader {
+) *Downloader {
 	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRep)
 
 	dlTask := dltask.NewDownloadTask(logger, dlTaskRep, dlStateCache)
 	file := fileuc.NewFile(logger, fileRep, dlTask, dlStateCache)
 	dlTaskStatus := dltasktatus.NewDownloadTaskStatus(logger, dlTask)
 
-	return &YouTubeDownloader{
+	return &Downloader{
 		appCtx:  ctx,
 		logger:  logger,
 		mappers: mappers.NewMappers(),
@@ -121,7 +121,7 @@ func NewYouTubeDownloader(
 		ytChannel:       ytchannel.NewYoutubeChannel(logger, ytChannelRep, ytChannelCacheRep),
 		siteIcon:        siteicon.NewSiteIcon(logger, siteLogoRep, siteLogoCacheRep),
 		siteIconFetcher: iconfetcher.NewSiteIconFetcher(logger),
-		authz:           authz.NewAuthorization(logger, historyMode),
+		authz:           authz.NewAuthorization(logger, appMode),
 
 		//broadcasters
 		broadcaster: broadcaster.NewBroadcaster(),
@@ -132,13 +132,13 @@ func NewYouTubeDownloader(
 		// Options
 		demoMode:              demoMode,
 		downloadsDir:          downloadsDir,
-		historyMode:           historyMode,
+		appMode:               appMode,
 		deleteDuplicatesScope: deleteDuplicatesScope,
 		logoUpdateInterval:    logoUpdateInterval,
 		channelUpdateInterval: channelUpdateInterval,
 	}
 }
 
-func (uc *YouTubeDownloader) HistoryMode() dtypes.HistoryMode {
-	return uc.historyMode
+func (uc *Downloader) HistoryMode() dtypes.AppMode {
+	return uc.appMode
 }

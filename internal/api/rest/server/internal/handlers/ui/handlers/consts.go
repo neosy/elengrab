@@ -10,6 +10,10 @@ const (
 	loadHistoryLimit    = 30
 	preloadHistoryAfter = 20
 
+	formFieldLoginKey           = "login"
+	formFieldPasswordKey        = "password"
+	formFieldConfirmPasswordKey = "confirmPassword"
+
 	formFieldMediaURLKey          = "mediaURL"
 	formFieldQualityCodecKey      = "quality-codec"
 	formFieldQualityResolutionKey = "quality-resolution"

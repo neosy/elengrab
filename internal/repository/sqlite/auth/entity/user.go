@@ -20,6 +20,12 @@ type User struct {
 	// User email address, optional
 	Email *string `db:"email"`
 
+	// User password hash, optional
+	PasswordHash *string `db:"password_hash"`
+
+	// Timestamp when the user's password was last updated
+	PasswordUpdatedAt *time.Time `db:"password_updated_at"`
+
 	// Active status
 	IsActive int `db:"is_active"`
 
@@ -28,6 +34,9 @@ type User struct {
 
 	// Timestamp when the record was last updated
 	UpdatedAt time.Time `db:"updated_at" sqlexpr:"CURRENT_TIMESTAMP"`
+
+	// Timestamp when the record was soft deleted
+	DeletedAt *time.Time `db:"deleted_at" insert:"false"`
 }
 
 // TableName returns the table name
@@ -51,13 +60,25 @@ func (e *User) FieldNameWithAlias(fieldPtr any, alias string) string {
 	return e.BaseEntity.FieldNameWithAlias(e, fieldPtr, alias)
 }
 
+// FieldPointers returns a slice of pointers to all exported fields of the given struct.
+func (e *User) FieldPointers() []any {
+	ptrs, _ := e.BaseEntity.FieldPointers(e)
+	return ptrs
+}
+
+// FieldPointer returns a pointer to the field of the given struct specified by tag.
+func (e *User) FieldPointer(fieldName string) any {
+	ptr, _ := e.BaseEntity.FieldPointer(e, fieldName)
+	return ptr
+}
+
 // Values returns a list of values for fields that will be used for updates
 func (e *User) Values() []any {
 	return e.BaseEntity.Values(e)
 }
 
-// FieldPointers returns a slice of pointers to all exported fields of the given struct.
-func (e *User) FieldPointers() []any {
-	ptrs, _ := e.BaseEntity.FieldPointers(e)
-	return ptrs
+// FieldsMap returns a map of field names to their corresponding values
+// using the entity's Fields() and Values() methods, ready for UPDATE statements.
+func (e *User) FieldsMap() map[string]any {
+	return e.BaseEntity.FieldsMap(e)
 }

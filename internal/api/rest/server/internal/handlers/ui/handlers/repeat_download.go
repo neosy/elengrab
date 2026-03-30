@@ -13,7 +13,10 @@ import (
 func (h *DownloaderHandlers) RepeatDownloadHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser, err := authmw.EnsureUserFromContext(ctx)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("authorization error", fasthttp.StatusUnauthorized, err))
+		nfasthttp.WriteErrorx(
+			ctx,
+			errorx.Errorf("authorization error: %w", err, errorx.HttpStatusArg(fasthttp.StatusUnauthorized)),
+		)
 		return
 	}
 
@@ -29,7 +32,7 @@ func (h *DownloaderHandlers) RepeatDownloadHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	fileInfo, err := h.usecases.Downloader.RepeatDownload(ctx, *ctxUser, fileId)
+	fileInfo, err := h.downloader.RepeatDownload(ctx, *ctxUser, fileId)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

@@ -17,6 +17,12 @@ type User struct {
 	// User email address, optional
 	Email *string
 
+	// User password hash, optional
+	PasswordHash *string
+
+	// Timestamp when the user's password was last updated
+	PasswordUpdatedAt *time.Time
+
 	// Active status
 	IsActive bool
 
@@ -25,6 +31,9 @@ type User struct {
 
 	// Timestamp when the record was last updated
 	UpdatedAt time.Time
+
+	// Timestamp when the record was soft deleted
+	DeletedAt *time.Time
 
 	// Roles
 	Roles []dtypes.UserRole

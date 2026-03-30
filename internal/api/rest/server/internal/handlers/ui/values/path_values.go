@@ -21,6 +21,10 @@ const (
 	PathItemsHistoryKey   = "PathItemsHistory"
 	PathDownloaderGrabKey = "PathDownloaderGrab"
 	PathHistorySearchKey  = "PathHistorySearch"
+
+	PathDownloaderKey   = "PathDownloader"
+	PathAuthRegisterKey = "PathAuthRegister"
+	PathAuthLoginKey    = "PathAuthLogin"
 )
 
 var PathValues = map[string]any{
@@ -32,6 +36,10 @@ var PathValues = map[string]any{
 	PathItemsHistoryKey:   httppaths.GroupDownloader + httppaths.PathHistory,
 	PathDownloaderGrabKey: httppaths.GroupDownloader + httppaths.PathGrab,
 	PathHistorySearchKey:  httppaths.GroupDownloader + httppaths.PathSearch,
+
+	PathDownloaderKey:   httppaths.GroupDownloader,
+	PathAuthRegisterKey: httppaths.GroupAccount + httppaths.PathRegister,
+	PathAuthLoginKey:    httppaths.GroupAccount + httppaths.PathLogin,
 }
 
 var cssFileNames = []string{
@@ -41,6 +49,12 @@ var cssFileNames = []string{
 	"grab-form.css",
 	"result-rows.css",
 	"player.css",
+}
+
+var cssAuthFileNames = []string{
+	"auth-main.css",
+	"variables.css",
+	"theme-switcher.css",
 }
 
 var jsImportFileNames = []string{
@@ -72,17 +86,47 @@ var jsScripts = []JsScript{
 		Defer: true,
 	},
 	{
-		Path:  "index.js",
+		Path:  "main.js",
 		Type:  "module",
 		Defer: false,
 	},
 }
 
-var jsFileNames = make([]string, len(jsScripts))
+var jsAuthScripts = []JsScript{
+	{
+		Path:  "htmx.min.js",
+		Type:  "",
+		Defer: false,
+	},
+	{
+		Path:  "sse.min.js",
+		Type:  "",
+		Defer: false,
+	},
+	{
+		Path:  "theme-switcher.js",
+		Type:  "",
+		Defer: true,
+	},
+	{
+		Path:  "auth-main.js",
+		Type:  "module",
+		Defer: false,
+	},
+}
+
+var (
+	jsFileNames     = make([]string, len(jsScripts))
+	jsAuthFileNames = make([]string, len(jsAuthScripts))
+)
 
 func init() {
 	for i, s := range jsScripts {
 		jsFileNames[i] = s.Path
+	}
+
+	for i, s := range jsAuthScripts {
+		jsAuthFileNames[i] = s.Path
 	}
 }
 
@@ -120,6 +164,21 @@ func CssPaths(dir string) ([]string, error) {
 	return paths, nil
 }
 
+func CssAuthPaths(dir string) ([]string, error) {
+	paths, err := generateHashedFileNames(dir, cssAuthFileNames)
+	if err != nil {
+		return nil, err
+	}
+
+	prefix := httppaths.GroupStatic + "/css/"
+
+	for i, path := range paths {
+		paths[i] = prefix + path
+	}
+
+	return paths, nil
+}
+
 type JsScript struct {
 	Path  string
 	Type  string
@@ -136,6 +195,24 @@ func JsScripts(dir string) ([]JsScript, error) {
 
 	var scripts = make([]JsScript, len(jsScripts))
 	copy(scripts, jsScripts)
+
+	for i, path := range paths {
+		scripts[i].Path = prefix + path
+	}
+
+	return scripts, nil
+}
+
+func JsAuthScripts(dir string) ([]JsScript, error) {
+	paths, err := generateHashedFileNames(dir, jsAuthFileNames)
+	if err != nil {
+		return nil, err
+	}
+
+	prefix := httppaths.GroupStatic + "/js/"
+
+	var scripts = make([]JsScript, len(jsAuthScripts))
+	copy(scripts, jsAuthScripts)
 
 	for i, path := range paths {
 		scripts[i].Path = prefix + path
