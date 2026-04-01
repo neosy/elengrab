@@ -102,6 +102,23 @@ input:focus {
     outline: none;
 }
 
+/* Autofill fix */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px var(--bg-input) inset !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+    caret-color: var(--text-primary);
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Autofill + focus */
+input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--bg-input-focus) inset !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+}
+
+
 button {
     width: 100%;
     padding: 4px 18px;
