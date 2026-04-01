@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     actionButton.initInputPasteClearButton(grabInputURL, grabInputActionBtn)
 
     // Init action button for input
-    actionButton.initInputClearButton('.history-search__wrapper');
+    actionButton.initInputClearButton('.history-search__input_wrapper');
 
     // Create SSE connection
     const sse = createSSEConnection();

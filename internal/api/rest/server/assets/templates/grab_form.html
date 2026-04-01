@@ -4,7 +4,9 @@
             hx-include="#mediaURL, [name='formatType']"
             hx-swap="none">
         <div class="grab-area">
-          <input class="grab-area__input" type="text" id="mediaURL" name="mediaURL" placeholder="{{ .InputGrabPlaceholder }}" maxlength="255">
+          <div class="grab-area__input-wrapper">
+            <input class="grab-area__input" type="text" id="mediaURL" name="mediaURL" placeholder="{{ .InputGrabPlaceholder }}" maxlength="255">
+          </div>
           <div class="grab-area__action">
             <button type="button" class="grab-area__action-button" id="inputActionBtn"></button>
           </div>
