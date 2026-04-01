@@ -35,17 +35,22 @@
   <script src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.4/dist/sse.min.js"></script> */}}
     {{- if .Type}}
   <script{{if .Defer}} defer{{end}} type="{{.Type}}" src="{{.Path}}"></script>
-    {{- else}}
+    {{- else }}
   <script{{if .Defer}} defer{{end}} src="{{.Path}}"></script>
-    {{- end}}
+    {{- end }}
   {{- end }}
 </head>
 <body>
   <header class="header">
     <div class="user-menu">
       {{ template "theme-switcher.html" . }}
-      <div id="user-avatar" class="user-avatar">{{ .UserAvatarIcon }}</div>
+      <div id="user-avatar" class="user-avatar" data-action="{{ .UserAvatarActionMode }}">
+        {{- if eq .UserAvatarActionMode "login" }}<a href="{{ .PathAuthLogin }}">{{- end }}
+        {{ .UserAvatarIcon }}
+        {{- if eq .UserAvatarActionMode "regin" }}</a>{{- end }}
+      </div>
     </div>
+    {{ template "account-menu.html" . }}
   </header>
   <main class="main">
       <div class="main-header">

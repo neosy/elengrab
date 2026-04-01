@@ -5,6 +5,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
@@ -62,7 +63,7 @@ func (u *Auth) createAdmin(
 	email string,
 	passwordHash *string,
 ) (*dauth.User, error) {
-	userID, err := u.user.CreateAdmin(ctx, login, email, passwordHash)
+	userID, err := u.user.CreateAdmin(ctx, dtypes.NewLogin(login), email, passwordHash)
 	if err != nil {
 		return nil, err
 	}

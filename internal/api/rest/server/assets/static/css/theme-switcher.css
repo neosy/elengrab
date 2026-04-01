@@ -9,14 +9,17 @@
     padding: 0;
     width: 40px;
     height: 40px;
+
     align-items: center;
     justify-content: center;
-    border: 2px solid;
+
     border-color: transparent;
     border-radius: 50%;
+
     background: transparent;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    
     cursor: pointer;
 
     user-select: none;

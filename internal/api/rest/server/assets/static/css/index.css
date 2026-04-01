@@ -30,6 +30,35 @@ body {
     align-items: center;
 }
 
+.user-avatar {
+    border-color: transparent;
+    border-radius: 50%;
+
+    background: transparent;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    cursor: pointer;
+
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;    
+
+    transition: border-color 0.5s ease, background-color 0.5s ease, color 0.5s ease, transform 0.5s ease;
+}
+
+.user-avatar:hover {
+    background-color: var(--bg-button-hover);
+}
+
+.user-avatar a {
+    all: unset;
+    text-decoration: none;
+    color: inherit;
+}
+
 .user-avatar svg {
     width: 30px;
     height: 30px;
@@ -53,7 +82,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
     padding-bottom: 20px;
 }
 
@@ -64,6 +92,7 @@ body {
 .main-header__link {
     display: flex;
     align-items: center;
+    gap: 10px;
     text-decoration: none;
     color: inherit;
     -webkit-tap-highlight-color: transparent;
@@ -243,4 +272,11 @@ body {
     .main-header__title {
         font-size: 28px;
     }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .user-avatar {
+    border: none;
+    background-color: transparent !important;
+  }
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth/mappers"
@@ -210,9 +211,9 @@ func (r *UserRepository) FindByUserID(ctx context.Context, userID uuid.UUID) (*d
 	return r.findByFieldName(ctx, eUser.FieldName(&eUser.UserID), userID)
 }
 
-func (r *UserRepository) FindByLogin(ctx context.Context, login string) (*dauth.User, error) {
+func (r *UserRepository) FindByLogin(ctx context.Context, login dtypes.Login) (*dauth.User, error) {
 	var eUser eauth.User
-	return r.findByFieldName(ctx, eUser.FieldName(&eUser.Login), login)
+	return r.findByFieldName(ctx, eUser.FieldName(&eUser.Login), login.String())
 }
 
 func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*dauth.User, error) {
@@ -302,9 +303,9 @@ func (r *UserRepository) ExistsByUserID(ctx context.Context, userID uuid.UUID) (
 	return r.existsByFieldName(ctx, eUser.FieldName(&eUser.UserID), userID)
 }
 
-func (r *UserRepository) ExistsByLogin(ctx context.Context, login string) (bool, error) {
+func (r *UserRepository) ExistsByLogin(ctx context.Context, login dtypes.Login) (bool, error) {
 	var eUser eauth.User
-	return r.existsByFieldName(ctx, eUser.FieldName(&eUser.Login), login)
+	return r.existsByFieldName(ctx, eUser.FieldName(&eUser.Login), login.String())
 }
 
 func (r *UserRepository) existsByFieldName(ctx context.Context, fieldName string, value any) (bool, error) {

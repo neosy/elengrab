@@ -10,6 +10,6 @@ var (
 	GrabResultShouldLoadHistoryHtmlFileName = "result_row_should_load_history.html"
 	GrabResultProgressHtmlFileName          = "result_progress.html"
 
-	AuthRegisterHtmlFileName = "auth_register.html"
-	AuthLoginHtmlFileName    = "auth_login.html"
+	PageAuthRegisterHtmlFileName = "page_auth_register.html"
+	PageAuthLoginHtmlFileName    = "page_auth_login.html"
 )

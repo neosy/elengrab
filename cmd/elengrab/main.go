@@ -212,7 +212,7 @@ func main() {
 		LogoUpdateInterval:    logoUpdateInterval,
 		ChannelUpdateInterval: channelUpdateInterval,
 		DefaultAdminLogin:     cfg.Elengrab.AdminLogin,
-		DefaultAdminPassword: cfg.Elengrab.AdminPassword,
+		DefaultAdminPassword:  cfg.Elengrab.AdminPassword,
 	}
 	uc := usecases.NewUsecases(ctx, logger, ucDeps)
 

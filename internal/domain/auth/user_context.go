@@ -7,6 +7,7 @@ import (
 
 type UserContext struct {
 	UserID uuid.UUID
+	Login  string
 	Roles  []dtypes.UserRole
 }
 

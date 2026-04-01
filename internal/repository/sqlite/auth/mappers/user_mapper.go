@@ -14,9 +14,11 @@ func (m *Mappers) MapUserDomainToEntity(user *dauth.User) (*eauth.User, error) {
 		isActive = 1
 	}
 
+	login := dtypes.NewLogin(user.Login.String()).String()
+
 	return &eauth.User{
 		UserID:       user.UserID,
-		Login:        user.Login,
+		Login:        login,
 		Email:        user.Email,
 		PasswordHash: user.PasswordHash,
 		IsActive:     isActive,
@@ -42,7 +44,7 @@ func (m *Mappers) MapUserEntityToDomain(user *eauth.User, rolesCSV string) (*dau
 
 	return &dauth.User{
 		UserID:            user.UserID,
-		Login:             user.Login,
+		Login:             dtypes.NewLogin(user.Login),
 		Email:             user.Email,
 		PasswordHash:      user.PasswordHash,
 		PasswordUpdatedAt: user.PasswordUpdatedAt,

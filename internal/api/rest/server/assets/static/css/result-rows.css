@@ -643,21 +643,27 @@
     }
 
     .history-search__input_wrapper {
-        width: 100%;
+        position: relative;
+        width: auto;
         max-width: 100%;
         display: flex;
         align-items: center;
     }
 
+    .history-search__input_wrapper:has(.history-search__input:focus),
+    .history-search__input_wrapper:has(.history-search__input.has-value) {
+        width: 100%;
+    }    
+
     .history-search__input {
         width: 150px;
         max-width: 100%;
         margin-left: auto;
-    transition:
-        border-color 0.5s ease,
-        background-color 0.5s ease,
-        color 0.5s ease,
-        transform 0.5s ease;
+        transition:
+            border-color 0.5s ease,
+            background-color 0.5s ease,
+            color 0.5s ease,
+            transform 0.5s ease;
     }
 
     .history-search__input:focus,

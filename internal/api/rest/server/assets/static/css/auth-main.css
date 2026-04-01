@@ -53,12 +53,20 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
     padding-bottom: 0px;
 }
 
 .main-header * {
     user-select: none;
+}
+
+.main-header__link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: inherit;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .main-header__logo-image {

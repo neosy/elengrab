@@ -1,0 +1,23 @@
+<div id="account-menu" class="account-menu">
+  <div class="menu-header">
+    <div class="avatar">{{ .UserAvatarIcon }}</div>
+    <div class="user-info">
+      <div class="username">{{ .UserLogin }}</div>
+      <div class="email">{{ .UserEmail }}</div>
+    </div>
+  </div>
+  <div class="menu-actions">
+    {{- range .AccountMenuActions }}
+    <div class="menu-action menu-action--{{ .Action }}" id="menu-action-{{ .Action }}" data-href="{{ .URL }}">
+        <div class="menu-action__content">
+            <div class="menu-action__content-icon">
+                {{ .IconSvg }}
+            </div>
+            <div class="menu-action__content-text">
+                <span>{{ .Title }}</span>
+            </div>
+        </div>
+    </div>
+    {{- end }}
+  </div>
+</div>

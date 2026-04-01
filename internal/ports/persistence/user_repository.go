@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 type UserRepository interface {
@@ -16,9 +17,9 @@ type UserRepository interface {
 	UpdatePassword(ctx context.Context, userID uuid.UUID, newPasswHash string) error
 
 	FindByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User, error)
-	FindByLogin(ctx context.Context, login string) (*dauth.User, error)
+	FindByLogin(ctx context.Context, login dtypes.Login) (*dauth.User, error)
 	FindByEmail(ctx context.Context, email string) (*dauth.User, error)
 
 	ExistsByUserID(ctx context.Context, userID uuid.UUID) (bool, error)
-	ExistsByLogin(ctx context.Context, login string) (bool, error)
+	ExistsByLogin(ctx context.Context, login dtypes.Login) (bool, error)
 }
