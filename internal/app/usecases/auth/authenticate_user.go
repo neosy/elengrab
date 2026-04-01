@@ -5,6 +5,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
@@ -23,12 +24,14 @@ func (a *Auth) AuthenticateUser(
 		err     error
 	)
 
-	if req.Login == "" && req.Email == "" {
+	login := dtypes.NewLogin(req.Login)
+
+	if login == "" && req.Email == "" {
 		return nil, errorx.New("login or email is required", exceptionx.VALIDATE)
 	}
 
-	if req.Login != "" {
-		user, err = a.user.FindByLogin(ctx, req.Login)
+	if login != "" {
+		user, err = a.user.FindByLogin(ctx, login)
 		if err != nil {
 			return nil, err
 		}
@@ -42,7 +45,7 @@ func (a *Auth) AuthenticateUser(
 	}
 
 	if user == nil {
-		a.logger.Debug("User not found", "login", req.Login, "email", req.Email)
+		a.logger.Debug("User not found", "login", login, "email", req.Email)
 		return nil, ErrUserNotFound
 	}
 

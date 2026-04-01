@@ -7,6 +7,7 @@ import (
 
 type AuthUserResponse struct {
 	UserID uuid.UUID
+	Login  string
 	Roles  []dtypes.UserRole
 	Token  *AuthToken
 }

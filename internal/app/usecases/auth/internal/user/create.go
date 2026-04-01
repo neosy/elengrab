@@ -70,21 +70,21 @@ func (u *User) CreateGuest(ctx context.Context) (uuid.UUID, error) {
 	return u.CreateUser(ctx, "", "", nil, nil)
 }
 
-func (u *User) CreateAdmin(ctx context.Context, login string, email string, passwordHash *string) (uuid.UUID, error) {
+func (u *User) CreateAdmin(ctx context.Context, login dtypes.Login, email string, passwordHash *string) (uuid.UUID, error) {
 	if login == "" {
-		login = dtypes.UserRoleAdmin.String()
+		login = dtypes.UserRoleAdmin.Login()
 	}
 	return u.CreateUser(ctx, login, email, passwordHash, []dtypes.UserRole{dtypes.UserRoleAdmin})
 }
 
 func (u *User) CreateUser(
 	ctx context.Context,
-	login string,
+	login dtypes.Login,
 	email string,
 	passwordHash *string,
 	roles []dtypes.UserRole,
 ) (uuid.UUID, error) {
-	if login == "" {
+	if login.String() == "" {
 		var err error
 		l, err := u.genLogin()
 		if err != nil {
@@ -115,7 +115,7 @@ func (u *User) CreateUser(
 	return u.Create(ctx, user, rolesOpt)
 }
 
-func (u *User) genLogin() (string, error) {
+func (u *User) genLogin() (dtypes.Login, error) {
 	b := make([]byte, 4)
 	_, err := rand.Read(b)
 	if err != nil {
@@ -126,5 +126,5 @@ func (u *User) genLogin() (string, error) {
 
 	ts := strconv.FormatInt(time.Now().UTC().Unix(), 36)
 
-	return fmt.Sprintf("u-%s%s", ts, rndPart), nil
+	return dtypes.NewLogin(fmt.Sprintf("u-%s%s", ts, rndPart)), nil
 }

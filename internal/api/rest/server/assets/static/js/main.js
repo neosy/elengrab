@@ -4,9 +4,13 @@ import * as actionButton from './action-button.js';
 import * as rowEventHandlers from './row-event-handlers.js';
 import * as player from './player.js';
 import * as tooltip from './tooltip.js';
+import * as accountMenu from './account-menu.js';
 import { DOM_IDS } from "./dom-ids.js";
 import { DOM_ELEMENTS } from "./dom-elements.js";
 import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
+
+// Global variables
+let globalEventSource = null;
 
 // -------------------------------------------------------------
 // Function: setupQualityFormatLogic
@@ -87,8 +91,6 @@ function setupQualityFormatLogic() {
 }
 
 function createSSEConnection() {
-    let eventSource;
-
     function setServerStatus(online) {
         const el = DOM_ELEMENTS.sysInfoServerStatusDot
         if (!el) return;
@@ -102,29 +104,33 @@ function createSSEConnection() {
 
     // Internal function to (re)connect
     function connect() {
-        eventSource = new EventSource("/downloader/files/events");
+        if (globalEventSource) {
+            globalEventSource.close();
+        }        
+
+        globalEventSource = new EventSource("/downloader/files/events");
 
         // Server is considered online when these events arrive
-        eventSource.addEventListener("connected", () => setServerStatus(true));
-        eventSource.addEventListener("ping", () => setServerStatus(true));
+        globalEventSource.addEventListener("connected", () => setServerStatus(true));
+        globalEventSource.addEventListener("ping", () => setServerStatus(true));
 
         // Business events
-        eventSource.addEventListener("row-add", rowEventHandlers.handleRowAdd);
-        eventSource.addEventListener("row-update", rowEventHandlers.handleRowUpdate);
-        eventSource.addEventListener("row-delete", rowEventHandlers.handleRowDelete);
-        eventSource.addEventListener("row-patch-field", rowEventHandlers.handleRowPatchField);
-        eventSource.addEventListener("system-info-update", rowEventHandlers.handleSystemInfoUpdate);
-        eventSource.addEventListener("notification", rowEventHandlers.handleNotification);
+        globalEventSource.addEventListener("row-add", rowEventHandlers.handleRowAdd);
+        globalEventSource.addEventListener("row-update", rowEventHandlers.handleRowUpdate);
+        globalEventSource.addEventListener("row-delete", rowEventHandlers.handleRowDelete);
+        globalEventSource.addEventListener("row-patch-field", rowEventHandlers.handleRowPatchField);
+        globalEventSource.addEventListener("system-info-update", rowEventHandlers.handleSystemInfoUpdate);
+        globalEventSource.addEventListener("notification", rowEventHandlers.handleNotification);
 
         // Fallback: any default message marks server as online
-        eventSource.onmessage = () => setServerStatus(true);
+        globalEventSource.onmessage = () => setServerStatus(true);
 
         // On error: mark offline and reconnect
-        eventSource.onerror = function(err) {
+        globalEventSource.onerror = function(err) {
             console.error("SSE connection lost:", err);
             setServerStatus(false);
 
-            eventSource.close();
+            globalEventSource.close();
 
             // Reconnect after delay
             setTimeout(connect, 5000);
@@ -136,7 +142,7 @@ function createSSEConnection() {
 
     // Return only API to close connection from outside
     return {
-        close: () => eventSource?.close()
+        close: () => globalEventSource?.close()
     };
 }
 
@@ -216,6 +222,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Init tooltips
     tooltip.initTooltips();
+
+    // Init account menu
+    accountMenu.initAccountMenu();    
     
     // Init inline media player
     player.initPlayer();
@@ -231,9 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Close SSE on page unload
     window.addEventListener("beforeunload", () => {
-        // Disabled: fires on file downloads too, causing unwanted SSE disconnects
-        // console.warn("SSE connection closed");
-        // sse.close();
+        console.warn("SSE connection closed");
+        sse?.close();
     });
 });
 

@@ -12,6 +12,7 @@ func (m *Mappers) MapUserSessionDomainToUserContext(
 ) *dto.AuthUserResponse {
 	return &dto.AuthUserResponse{
 		UserID: user.UserID,
+		Login:  user.Login.String(),
 		Roles:  user.Roles,
 		Token:  m.MapUserSessionDomainToToken(session, needsRefresh),
 	}

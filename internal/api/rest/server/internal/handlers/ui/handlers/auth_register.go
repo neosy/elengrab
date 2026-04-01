@@ -42,7 +42,7 @@ func (h *DownloaderHandlers) AuthRegisterHandler(ctx *fasthttp.RequestCtx) {
 	dataMap[uivalues.JsScriptsKey] = jsScripts
 
 	// Execute template with PageTitle
-	if err := h.templates.ExecuteTemplate(ctx, uivalues.AuthRegisterHtmlFileName, dataMap); err != nil {
+	if err := h.templates.ExecuteTemplate(ctx, uivalues.PageAuthRegisterHtmlFileName, dataMap); err != nil {
 		nfasthttp.WriteError(ctx, fmt.Errorf("template execution error: %v", err), fasthttp.StatusInternalServerError)
 		return
 	}

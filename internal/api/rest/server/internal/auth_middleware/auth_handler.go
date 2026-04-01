@@ -101,6 +101,7 @@ func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool)
 	if session != nil {
 		userCtx = &dauth.UserContext{
 			UserID: session.UserID,
+			Login:  session.Login,
 			Roles:  session.Roles,
 		}
 	}

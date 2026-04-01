@@ -12,6 +12,7 @@ const (
 	UserAvatarUserIconNameKey   = "UserAvatarUserIconName"
 	UserAvatarGuestIconNameKey  = "UserAvatarGuestIconName"
 	UserAvatarAnonymIconNameKey = "UserAvatarAnonymIconName"
+
 	DownloadIconNameKey         = "DownloadIconName"
 	DownloadFailedIconNameKey   = "DownloadFailedIconName"
 	DownloadPendingIconNameKey  = "DownloadPendingIconName"
@@ -26,12 +27,13 @@ var iconFileNames = map[string]any{
 	UserAvatarUserIconNameKey:   "user-default.svg",
 	UserAvatarGuestIconNameKey:  "user-guest.svg",
 	UserAvatarAnonymIconNameKey: "user-anonymous-2.svg",
-	DownloadIconNameKey:         "download-light-icon.svg",
-	DownloadFailedIconNameKey:   "download-warning-icon.svg",
-	DownloadPendingIconNameKey:  "download-wait-icon.svg",
-	DownloadDeleteIconNameKey:   "download-delete-icon.svg",
-	MediaDefaultIconNameKey:     "media-default-icon.svg",
-	DownloadRepeatIconNameKey:   "download-repeat-icon.svg",
+
+	DownloadIconNameKey:        "download-light-icon.svg",
+	DownloadFailedIconNameKey:  "download-warning-icon.svg",
+	DownloadPendingIconNameKey: "download-wait-icon.svg",
+	DownloadDeleteIconNameKey:  "download-delete-icon.svg",
+	MediaDefaultIconNameKey:    "media-default-icon.svg",
+	DownloadRepeatIconNameKey:  "download-repeat-icon.svg",
 }
 
 func IconFileNames() map[string]any {

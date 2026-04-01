@@ -139,6 +139,10 @@ func NewDownloader(
 	}
 }
 
-func (uc *Downloader) HistoryMode() dtypes.AppMode {
+func (uc *Downloader) AppMode() dtypes.AppMode {
 	return uc.appMode
+}
+
+func (uc *Downloader) DemoMode() bool {
+	return uc.demoMode
 }
