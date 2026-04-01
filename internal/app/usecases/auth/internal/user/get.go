@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
@@ -24,7 +25,7 @@ func (u *User) FindByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User,
 	return user, nil
 }
 
-func (u *User) FindByLogin(ctx context.Context, login string) (*dauth.User, error) {
+func (u *User) FindByLogin(ctx context.Context, login dtypes.Login) (*dauth.User, error) {
 	if login == "" {
 		return nil, nil
 	}
@@ -68,7 +69,7 @@ func (u *User) GetByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User, 
 	return user, nil
 }
 
-func (u *User) GetByLogin(ctx context.Context, login string) (*dauth.User, error) {
+func (u *User) GetByLogin(ctx context.Context, login dtypes.Login) (*dauth.User, error) {
 	user, err := u.FindByLogin(ctx, login)
 	if err != nil {
 		return nil, err
@@ -89,7 +90,7 @@ func (u *User) GetByEmail(ctx context.Context, email string) (*dauth.User, error
 	}
 
 	if user == nil {
-		u.logger.Debug("User not found", "login", email)
+		u.logger.Debug("User not found", "email", email)
 		return nil, errorx.New("user not found", exceptionx.NOT_FOUND)
 	}
 
@@ -105,7 +106,7 @@ func (u *User) ExistsByUserID(ctx context.Context, userID uuid.UUID) (bool, erro
 	return exists, nil
 }
 
-func (u *User) ExistsByLogin(ctx context.Context, login string) (bool, error) {
+func (u *User) ExistsByLogin(ctx context.Context, login dtypes.Login) (bool, error) {
 	exists, err := u.userRep.ExistsByLogin(ctx, login)
 	if err != nil {
 		u.logger.Warn("Failed to check if user exists", "login", login, "error", err)

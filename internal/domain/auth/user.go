@@ -12,7 +12,7 @@ type User struct {
 	UserID uuid.UUID
 
 	// Username/login, must be unique
-	Login string
+	Login dtypes.Login
 
 	// User email address, optional
 	Email *string

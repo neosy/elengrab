@@ -4,7 +4,6 @@ const (
 	CssPathsKey                           = "CssPaths"
 	JsScriptsKey                          = "JsScripts"
 	JsImportMapJSONKey                    = "JsImportMapJSON"
-	UserAvatarIconKey                     = "UserAvatarIcon"
 	GrabResultItemStatusHtmlKey           = "GrabResultItemStatusHtml"
 	GrabResultItemStatusTextKey           = "GrabResultItemStatusText"
 	DownloadStatusKey                     = "DownloadStatus"
@@ -23,6 +22,12 @@ const (
 
 	AuthLoginKey    = "Login"
 	AuthErrorMsgKey = "ErrorMsg"
+
+	UserAvatarIconKey       = "UserAvatarIcon"
+	UserAvatarActionModeKey = "UserAvatarActionMode"
+	UserLoginKey            = "UserLogin"
+
+	AccountMenuActionsKey = "AccountMenuActions"
 
 	AppVersionKey = "AppVersion"
 	DiskFreeKey   = "DiskFree"

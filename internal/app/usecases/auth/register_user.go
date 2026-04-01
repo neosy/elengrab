@@ -72,7 +72,7 @@ func (a *Auth) createUser(
 	passwordHash *string,
 	roles []dtypes.UserRole,
 ) (*dauth.User, error) {
-	userID, err := a.user.CreateUser(ctx, login, email, passwordHash, roles)
+	userID, err := a.user.CreateUser(ctx, dtypes.NewLogin(login), email, passwordHash, roles)
 	if err != nil {
 		return nil, err
 	}

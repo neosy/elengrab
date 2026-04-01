@@ -41,7 +41,7 @@ func (v UniquenessScope) Exists() bool {
 func ParseUniquenessScope(s string) (UniquenessScope, error) {
 	scope, exists := parseUniquenessScopeMap[strings.ToLower(s)]
 	if !exists {
-		return UniquenessScopeDefault, errors.New("invalid value for HistoryMode")
+		return UniquenessScopeDefault, errors.New("invalid value for UniquenessScope")
 	}
 	return scope, nil
 }

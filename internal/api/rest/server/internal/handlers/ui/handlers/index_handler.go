@@ -83,18 +83,34 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 		userAvatarIconNameKey = uivalues.UserAvatarGuestIconNameKey
 	}
 
-	dataMap := uivalues.MergeMaps(uivalues.IndexValues, uivalues.FormGrabValues, uivalues.PathValues)
+	var userAvatarActionMode = "none"
+	if !h.downloader.DemoMode() {
+		if ctxUser.UserType() < dtypes.UserTypeUser {
+			userAvatarActionMode = "login"
+		} else {
+			userAvatarActionMode = "menu"
+		}
+	}
+
+	dataMap := uivalues.MergeMaps(
+		uivalues.IndexValues,
+		uivalues.FormGrabValues,
+		uivalues.PathValues,
+	)
 	dataMap[uivalues.CssPathsKey] = cssPaths
 	dataMap[uivalues.JsScriptsKey] = jsScripts
 	dataMap[uivalues.JsImportMapJSONKey] = template.HTML(jsImportMapJSON)
 	dataMap[uivalues.UserAvatarIconKey] = template.HTML(
 		uivalues.IconFileRawByKey(userAvatarIconNameKey, iconsDir))
+	dataMap[uivalues.UserLoginKey] = ctxUser.Login
+	dataMap[uivalues.UserAvatarActionModeKey] = userAvatarActionMode
 	dataMap[uivalues.ShowHistorySearchKey] = true
 	dataMap[uivalues.ResultNoRowsKey] = rowsBuf.Len() == 0
 	dataMap[uivalues.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
 	dataMap[uivalues.AppVersionKey] = systemInfo.AppVersion
 	dataMap[uivalues.DiskFreeKey] = uformat.BytesHuman(systemInfo.DiskFree)
 	dataMap[uivalues.DiskUsedKey] = uformat.BytesHuman(systemInfo.DiskUsed)
+	dataMap[uivalues.AccountMenuActionsKey] = uivalues.AccountMenuActions(iconsDir)
 
 	// Execute template with PageTitle
 	if err := h.templates.ExecuteTemplate(ctx, uivalues.IndexHtmlFileName, dataMap); err != nil {

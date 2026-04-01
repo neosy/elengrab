@@ -48,6 +48,10 @@ func (v UserRole) Ptr() *UserRole {
 	return &v
 }
 
+func (v UserRole) Login() Login {
+	return NewLogin(v.String())
+}
+
 // Exists returns true if the UserRole is valid.
 func (v UserRole) Exists() bool {
 	_, exists := userRoleMap[v]

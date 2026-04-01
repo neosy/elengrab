@@ -105,7 +105,7 @@ docker run -d \
 | `ELENGRAB_DOWNLOADS_DIR` | `downloads` | Directory where downloaded files are stored inside the container. Must be mapped to a host volume. |
 | `ELENGRAB_COOKIES_DIR` | `cookies` | Directory where cookie files are stored. Files must be in Netscape cookies.txt format (compatible with yt-dlp). |
 | `ELENGRAB_DOWNLOAD_WORKERS` | 3 | Number of concurrent workers used for processing YouTube video and audio tasks in parallel. |
-| `ELENGRAB_HISTORY_MODE` | `global` | Defines how download history is displayed. Possible values: `global`, `per_user`. |
+| `ELENGRAB_MODE` | `global` | Determines the authorization requirements and how download history is displayed. Possible values: `global`, `per_user`, `auth_only`. |
 | `ELENGRAB_YOUTUBE_ALLOW_COOKIES` | `false` | Enables use of cookies for YouTube. Requires **Deno**. The `youtube-cookies.txt` file should be located in the directory specified by `ELENGRAB_COOKIES_DIR`. |
 | `ELENGRAB_MAINTENANCE_ENABLE_MOVE_UNMATCHED_FILES` | `false`   | Enables the periodic operation that moves files not present in the database tables from the download folder to the `.lost` folder. Default is `false` (disabled). |
 
