@@ -1,6 +1,6 @@
 # Releases
 
-## v0.17.1 — 2026-04-03
+## v0.17.1 — 2026-04-02
 
 ### Docs
 - Add ip address to log
