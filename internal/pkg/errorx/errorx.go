@@ -244,7 +244,8 @@ func (e *errorx) initFromArgs(args ...any) {
 	}
 
 	if message != nil {
-		e.message = message
+		msg := capitalize(*message)
+		e.message = &msg
 	}
 
 	if exception != nil {

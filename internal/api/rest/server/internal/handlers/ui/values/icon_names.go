@@ -22,19 +22,28 @@ const (
 	DownloadRepeatIconNameKey   = "DownloadRepeatIconName"
 )
 
-var iconFileNames = map[string]any{
-	UserAvatarAdminIconNameKey:  "user-admin-2.svg",
-	UserAvatarUserIconNameKey:   "user-default.svg",
-	UserAvatarGuestIconNameKey:  "user-guest.svg",
-	UserAvatarAnonymIconNameKey: "user-anonymous-2.svg",
+var (
+	iconFileNames = map[string]any{
+		UserAvatarAdminIconNameKey:  "user-admin-2.svg",
+		UserAvatarUserIconNameKey:   "user-default.svg",
+		UserAvatarGuestIconNameKey:  "user-guest.svg",
+		UserAvatarAnonymIconNameKey: "user-anonymous-2.svg",
 
-	DownloadIconNameKey:        "download-light-icon.svg",
-	DownloadFailedIconNameKey:  "download-warning-icon.svg",
-	DownloadPendingIconNameKey: "download-wait-icon.svg",
-	DownloadDeleteIconNameKey:  "download-delete-icon.svg",
-	MediaDefaultIconNameKey:    "media-default-icon.svg",
-	DownloadRepeatIconNameKey:  "download-repeat-icon.svg",
-}
+		DownloadIconNameKey:        "download-light-icon.svg",
+		DownloadFailedIconNameKey:  "download-warning-icon.svg",
+		DownloadPendingIconNameKey: "download-wait-icon.svg",
+		DownloadDeleteIconNameKey:  "download-delete-icon.svg",
+		MediaDefaultIconNameKey:    "media-default-icon.svg",
+		DownloadRepeatIconNameKey:  "download-repeat-icon.svg",
+	}
+
+	userAvatarKeysByType = map[dtypes.UserType]string{
+		dtypes.UserTypeAnonymous: UserAvatarAnonymIconNameKey,
+		dtypes.UserTypeGuest:     UserAvatarGuestIconNameKey,
+		dtypes.UserTypeUser:      UserAvatarUserIconNameKey,
+		dtypes.UserTypeAdmin:     UserAvatarAdminIconNameKey,
+	}
+)
 
 func IconFileNames() map[string]any {
 	return iconFileNames
@@ -76,4 +85,12 @@ func IconFileRawByKey(key string, svgDir string) string {
 
 func DownloadResultStatusIconSvgRaw(status dtypes.FileStatus, svgDir string) string {
 	return IconFileRaw(DownloadResultStatusIconFileName(status), svgDir)
+}
+
+func UserAvatarKeyByType(userType dtypes.UserType) string {
+	key := userAvatarKeysByType[userType]
+	if key == "" {
+		return UserAvatarAnonymIconNameKey
+	}
+	return key
 }

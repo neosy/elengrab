@@ -10,7 +10,7 @@ type AuthWeb struct {
 	logger *slog.Logger
 
 	// services
-	auth pservices.Auth
+	auth pservices.AuthService
 
 	// options
 	defaultAdminLogin    string
@@ -21,7 +21,7 @@ func NewAuthWeb(
 	logger *slog.Logger,
 
 	// services
-	auth pservices.Auth,
+	auth pservices.AuthService,
 
 	// options
 	defaultAdminLogin string,

@@ -1,15 +1,24 @@
 package uivalues
 
-var (
-	IndexHtmlFileName                       = "index.html"
-	ResultRowsHtmlFileName                  = "result_rows.html"
-	GrabResultNewRowHtmlFileName            = "result_new_row.html"
-	GrabResultRowStatusHtmlFileName         = "result_row_status.html"
-	GrabResultRowSuccessHtmlFileName        = "result_row_success.html"
-	GrabResultLoadHistoryHtmlFileName       = "result_row_load_history.html"
-	GrabResultShouldLoadHistoryHtmlFileName = "result_row_should_load_history.html"
-	GrabResultProgressHtmlFileName          = "result_progress.html"
+// Pages
+const (
+	PageIndexKey        = "index"
+	PageAuthRegisterKey = "auth-register"
+	PageAuthLoginKey    = "auth-login"
 
-	PageAuthRegisterHtmlFileName = "page_auth_register.html"
-	PageAuthLoginHtmlFileName    = "page_auth_login.html"
+	PageIndexHtmlFileName        = "index.html"
+	PageAuthRegisterHtmlFileName = "auth-register.html"
+	PageAuthLoginHtmlFileName    = "auth-login.html"
+)
+
+const (
+	ComponentAccountMenuContentKey = "account-menu-content"
+
+	ComponentResultRowsKey              = "result-rows"
+	ComponentResultNewRowKey            = "result-new-row"
+	ComponentResultRowStatusKey         = "result-row-status"
+	ComponentResultRowSuccessKey        = "result-row-success"
+	ComponentResultLoadHistory          = "result-row-load-history"
+	ComponentResultShouldLoadHistoryKey = "result-row-should-load-history"
+	ComponentResultProgressKey          = "result-progress"
 )

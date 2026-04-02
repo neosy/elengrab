@@ -1,0 +1,43 @@
+{{- define "index" }}
+    {{- template "base" . }}
+{{- end }}
+
+{{- define "header" }}
+    <div class="user-menu">
+      {{- template "theme-switcher" . }}
+      <div id="user-avatar" class="user-avatar" data-action="{{ .UserAvatarActionMode }}">
+        {{- if eq .UserAvatarActionMode "login" }}<a href="{{ .PathAuthLogin }}">{{- end }}
+        {{- .UserAvatarIcon }}
+        {{- if eq .UserAvatarActionMode "login" }}</a>{{- end }}
+      </div>
+    </div>
+    {{- template "account-menu" . }}
+{{- end }}
+
+{{- define "content" }}
+    <div class="main-header">
+    <a class="main-header__link" href="/">
+        <img class="main-header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
+        <h1 class="main-header__title">{{.Header}}</h1>
+    </a>
+    </div>
+    {{- template "grab-form" . }}
+    {{- template "grab-result" . }}
+    <div id="media-player-overlay">
+        <div id="media-player__wrapper"></div>
+    </div>
+    <div id="audio-bar"></div>
+{{- end }}
+
+{{- define "footer" }}
+    <div class="footer__app-version">
+      <span id="server-status-dot" class="server-status-dot"></span>
+      <a class="app-version__link" href="https://github.com/neosy/elengrab" target="_blank" title="View source code on GitHub">
+        v<span id="app-version">{{ .AppVersion }}</span>
+      </a>
+    </div>
+    <div class="footer__disk-volume">
+      Free: <span id="disk-free">{{ .DiskFree }}</span> |
+      Used: <span id="disk-used">{{ .DiskUsed }}</span>
+    </div>
+{{- end }}

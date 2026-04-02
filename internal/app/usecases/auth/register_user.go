@@ -3,11 +3,11 @@ package auth
 import (
 	"context"
 
+	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
+	idto "github.com/neosy/elengrab/internal/app/usecases/auth/internal/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
 func (a *Auth) RegisterUser(
@@ -15,7 +15,7 @@ func (a *Auth) RegisterUser(
 	req *dto.RegisterUserRequest,
 ) (*dto.AuthUserResponse, error) {
 	if req == nil {
-		return nil, errorx.New("function parameter is nil", exceptionx.ERROR)
+		return nil, autherr.ErrFunctionNilParameter
 	}
 
 	var (
@@ -39,7 +39,13 @@ func (a *Auth) RegisterUser(
 
 	createUser := func(ctx context.Context) error {
 		var err error
-		user, err = a.createUser(ctx, req.Login, req.Email, passwordHash, roles)
+		createReq := &idto.CreateUserRequest{
+			Login:        dtypes.NewLogin(req.Login),
+			Email:        req.Email,
+			PasswordHash: passwordHash,
+			Roles:        roles,
+		}
+		user, err = a.createUser(ctx, createReq)
 		if err != nil {
 			return err
 		}
@@ -65,14 +71,8 @@ func (a *Auth) RegisterUser(
 	return userCtx, nil
 }
 
-func (a *Auth) createUser(
-	ctx context.Context,
-	login string,
-	email string,
-	passwordHash *string,
-	roles []dtypes.UserRole,
-) (*dauth.User, error) {
-	userID, err := a.user.CreateUser(ctx, dtypes.NewLogin(login), email, passwordHash, roles)
+func (a *Auth) createUser(ctx context.Context, req *idto.CreateUserRequest) (*dauth.User, error) {
+	userID, err := a.user.CreateUser(ctx, req)
 	if err != nil {
 		return nil, err
 	}

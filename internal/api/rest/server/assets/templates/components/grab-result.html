@@ -1,15 +1,17 @@
+{{- define "grab-result" }}
       <div class="grab-result" id="grab-result">
         <div class="grab-result_info" id="result-info">
           <div class="grab-result_info-row" id="result-info-row">
               <span class="grab-result_info-failed" id="result-info-failed"></span>
           </div>
         </div>
-        {{ if .ShowHistorySearch }}
+        {{- if .ShowHistorySearch }}
           <div class="result-toolbar">
-            {{ template "history_search.html" . }}
+            {{- template "history-search" . }}
           </div>
-        {{ end }}
+        {{- end }}
         <div class="grab-result__rows-wrapper">
-          {{ template "result_rows.html" . }}
+          {{- template "result-rows" . }}
         </div>
       </div>
+{{- end }}

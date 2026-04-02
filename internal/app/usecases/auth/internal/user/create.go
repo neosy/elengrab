@@ -10,10 +10,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
+	idto "github.com/neosy/elengrab/internal/app/usecases/auth/internal/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 func (u *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption) (uuid.UUID, error) {
@@ -67,24 +70,28 @@ func (u *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption)
 }
 
 func (u *User) CreateGuest(ctx context.Context) (uuid.UUID, error) {
-	return u.CreateUser(ctx, "", "", nil, nil)
+	req := &idto.CreateUserRequest{}
+	return u.CreateUser(ctx, req)
 }
 
-func (u *User) CreateAdmin(ctx context.Context, login dtypes.Login, email string, passwordHash *string) (uuid.UUID, error) {
-	if login == "" {
-		login = dtypes.UserRoleAdmin.Login()
+func (u *User) CreateAdmin(ctx context.Context, req *idto.CreateUserRequest) (uuid.UUID, error) {
+	newReq := uptr.Copy(req)
+	if newReq.Login == "" {
+		newReq.Login = dtypes.UserRoleAdmin.Login()
 	}
-	return u.CreateUser(ctx, login, email, passwordHash, []dtypes.UserRole{dtypes.UserRoleAdmin})
+	return u.CreateUser(ctx, req)
 }
 
 func (u *User) CreateUser(
 	ctx context.Context,
-	login dtypes.Login,
-	email string,
-	passwordHash *string,
-	roles []dtypes.UserRole,
+	req *idto.CreateUserRequest,
 ) (uuid.UUID, error) {
-	if login.String() == "" {
+	if req == nil {
+		return uuid.Nil, autherr.ErrFunctionNilParameter
+	}
+
+	login := req.Login
+	if login == "" {
 		var err error
 		l, err := u.genLogin()
 		if err != nil {
@@ -94,20 +101,20 @@ func (u *User) CreateUser(
 	}
 
 	var emailPtr *string
-	if email != "" {
-		emailPtr = &email
+	if req.Email != "" {
+		emailPtr = &req.Email
 	}
 
 	user := &dauth.User{
 		Login:        login,
 		Email:        emailPtr,
-		PasswordHash: passwordHash,
+		PasswordHash: req.PasswordHash,
 		IsActive:     true,
 	}
 
 	var rolesOpt UserOption
-	if len(roles) > 0 {
-		rolesOpt = RolesOption(roles...)
+	if len(req.Roles) > 0 {
+		rolesOpt = RolesOption(req.Roles...)
 	} else {
 		rolesOpt = GuestRoleOption()
 	}

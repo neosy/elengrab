@@ -134,8 +134,14 @@ func (h *DownloaderHandlers) handleFileUpdate(w *bufio.Writer, event ucdto.Broad
 		return
 	}
 
+	// Load template
+	tmpl, err := h.templates.Clone()
+	if err != nil {
+		return
+	}
+
 	var buf bytes.Buffer
-	err := h.templates.ExecuteTemplate(&buf, row.templateName, row.data)
+	err = tmpl.ExecuteTemplate(&buf, row.templateName, row.data)
 	if err != nil {
 		return
 	}
