@@ -14,17 +14,20 @@ const (
 	GroupAccount    = "/account"
 
 	// Paths Downloader
-	PathGrab               = "/grab"
-	PathHistory            = "/history"
-	PathDownload           = "/download"
-	PathStream             = "/stream"
-	PathSearch             = "/search"
+	PathGrab        = "/grab"
+	PathHistory     = "/history"
+	PathDownload    = "/download"
+	PathStream      = "/stream"
+	PathSearch      = "/search"
+	PathAccountMenu = "/account-menu"
+
 	PathFile               = "/file/{fileId}"
 	PathFileRow            = "/file/{fileId}/row"
 	PathFileDownloadRepeat = "/file/{fileId}/repeat"
 	PathFileLogo           = "/file/{fileId}/logo"
 	PathFilesEvents        = "/files/events"
-	PathChannelAvatar      = "/channel/{channelID}/avatar"
+
+	PathChannelAvatar = "/channel/{channelID}/avatar"
 
 	// Paths Account
 	PathRegister = "/register"

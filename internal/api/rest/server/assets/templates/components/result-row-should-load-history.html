@@ -1,3 +1,4 @@
+{{- define "result-row-should-load-history" }}
 <div style="height:20px; opacity:0;"
      hx-get="{{.PathItemsHistory}}"
      hx-trigger="intersect once"
@@ -5,3 +6,4 @@
      hx-swap="outerHTML"
      hx-on::after-request="this.remove()">
 </div>
+{{- end }}

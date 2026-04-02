@@ -1,8 +1,9 @@
+{{- define "base" }}
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>{{ .AuthRegisterTitle }}</title>
+  <title>{{ .Title }}</title>
   <meta name="description" content="{{ .Description }}">
   <script>
     try {
@@ -27,45 +28,29 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
   <meta name="theme-color" id="theme-color-meta" content="#171717">
-  {{- if .JsImportMapJSON}}
   <script type="importmap">
-  {{- .JsImportMapJSON }}
+  {{ .JsImportMapJSON }}
   </script>
-  {{- end }}
   {{- range .JsScripts }}
+  {{- /* <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.4/dist/sse.min.js"></script> */}}
     {{- if .Type}}
   <script{{if .Defer}} defer{{end}} type="{{.Type}}" src="{{.Path}}"></script>
-    {{- else}}
+    {{- else }}
   <script{{if .Defer}} defer{{end}} src="{{.Path}}"></script>
-    {{- end}}
+    {{- end }}
   {{- end }}
 </head>
 <body>
   <header class="header">
-    <div class="user-menu">
-      {{ template "theme-switcher.html" . }}
-    </div>
+    {{- template "header" . }}
   </header>
   <main class="main">
-    <div class="main_register">
-        <div class="main-header">
-          <a class="main-header__link" href="/">
-            <img class="main-header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
-            <h1 class="main-header__title">{{.Header}}</h1>
-          </a>
-        </div>
-        <h2>Registration</h2>
-        <form id="authForm"
-              hx-post="{{.PathAuthRegister}}"
-              hx-target="#error"
-              hx-swap="innerHTML">
-            <input type="text" name="login" placeholder="Login" required value="{{.Login}}">
-            <input type="password" id="password" name="password" placeholder="Password" required>
-            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
-            <div class="error" id="error">{{.ErrorMsg}}</div>
-            <button type="submit">Register</button>
-        </form>
-    </div>    
+    {{- block "content" . }}{{ end }}
   </main>
+  <footer class="footer">
+    {{- template "footer" . }}
+  </footer>
 </body>
 </html>
+{{- end }}

@@ -12,7 +12,7 @@ type AuthMiddleware struct {
 	logger *slog.Logger
 
 	// services
-	auth pservices.Auth
+	auth pservices.AuthMiddleware
 
 	// options
 	appMode dtypes.AppMode

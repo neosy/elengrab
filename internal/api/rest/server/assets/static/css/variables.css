@@ -47,8 +47,8 @@
 
     --bg-account-menu: rgba(0, 0, 0, 0.01);
     --text-account-menu: #333;
-    --border-menu-header: #333;
-    --menu-action-hover: rgba(0, 0, 0, 0.08);
+    --account-menu-separator: #9e9e9e;
+    --account-menu-action-hover: rgba(0, 0, 0, 0.08);
 }
 
 .dark {
@@ -98,6 +98,6 @@
 
     --bg-account-menu: rgba(255, 255, 255, 0.01);
     --text-account-menu: #cfd8e3;
-    --border-menu-header: #cfd8e3;
-    --menu-action-hover: rgba(255, 255, 255, 0.1);
+    --account-menu-separator: #6e7681;
+    --account-menu-action-hover: rgba(255, 255, 255, 0.1);
 }

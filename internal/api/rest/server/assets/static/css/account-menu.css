@@ -1,7 +1,7 @@
 .account-menu {
     position: absolute;
     top: calc(40px + 8px + 6px);
-    right: 16px;
+    right: calc(40px + 8px);
 
     width: 160px;
     max-height: 0;
@@ -30,26 +30,30 @@
 
 .menu-header {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    row-gap: 10px;
 
     padding-bottom: 10px;
-    border-bottom: 1px solid var(--border-menu-header);
+    border-bottom: 1px solid var(--account-menu-separator);
 }
 
 .avatar {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
 }
 
 .avatar svg {
     width: 100%;
     height: 100%;
+    border-radius: 50%;
 }
 
 .user-info {
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 
 .username {
@@ -89,7 +93,7 @@
 }
 
 .menu-action:hover {
-    background: var(--menu-action-hover);
+    background: var(--account-menu-action-hover);
 }
 
 .menu-action--logout:hover {
@@ -99,11 +103,12 @@
 @media (max-width: 768px) {
     .account-menu {
         top: calc(30px + 8px + 4px);
+        right: calc(30px + 8px);
     }
 
     .avatar {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     }
 
 }

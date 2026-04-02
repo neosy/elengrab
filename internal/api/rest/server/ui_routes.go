@@ -8,32 +8,36 @@ import (
 
 // setupUIRoutes setup UI routes.
 func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
-	reqAuth := s.authMiddleware.RequireAuth
-	optAuth := s.authMiddleware.OptionalAuth
+	authOrGuest := s.authMiddleware.AuthOrGuest
+	authOrAnonym := s.authMiddleware.AuthOrAnonym
+	authOptional := s.authMiddleware.AuthOptional
+	requireAuth := s.authMiddleware.RequireAuth
+	requireAuthMode := s.authMiddleware.RequireAuthMode
 
 	// Account
 	group := r.Group(httppaths.GroupAccount)
 	{
-		group.GET(httppaths.PathRegister, optAuth(handlers.Downloader.AuthRegisterHandler))
-		group.POST(httppaths.PathRegister, optAuth(handlers.Downloader.AuthRegisterSubmitHandler))
-		group.GET(httppaths.PathLogin, optAuth(handlers.Downloader.AuthLoginHandler))
-		group.POST(httppaths.PathLogin, optAuth(handlers.Downloader.AuthLoginSubmitHandler))
-		group.GET(httppaths.PathLogout, optAuth(handlers.Downloader.AuthLogoutHandler))
+		group.GET(httppaths.PathRegister, authOrAnonym(handlers.Downloader.AuthRegisterHandler))
+		group.POST(httppaths.PathRegister, authOrAnonym(handlers.Downloader.AuthRegisterSubmitHandler))
+		group.GET(httppaths.PathLogin, authOrAnonym(handlers.Downloader.AuthLoginHandler))
+		group.POST(httppaths.PathLogin, authOrAnonym(handlers.Downloader.AuthLoginSubmitHandler))
+		group.GET(httppaths.PathLogout, authOrAnonym(handlers.Downloader.AuthLogoutHandler))
 	}
 
 	// Downloader
 	group = r.Group(httppaths.GroupDownloader)
 	{
-		group.GET(httppaths.PathHistory, optAuth(handlers.Downloader.GetFilesHistoryHandler))
-		group.POST(httppaths.PathGrab, reqAuth(handlers.Downloader.GrabHandler))
-		group.GET(httppaths.PathDownload, optAuth(handlers.Downloader.DownloadHandler))
-		group.GET(httppaths.PathStream, optAuth(handlers.Downloader.StreamHandler))
-		group.GET(httppaths.PathFileRow, optAuth(handlers.Downloader.GetFileRowHandler))
-		group.GET(httppaths.PathFileLogo, optAuth(handlers.Downloader.GetFileLogoHandler))
-		group.DELETE(httppaths.PathFile, reqAuth(handlers.Downloader.DeleteFileRowHandler))
-		group.POST(httppaths.PathFileDownloadRepeat, reqAuth(handlers.Downloader.RepeatDownloadHandler))
-		group.GET(httppaths.PathChannelAvatar, handlers.Downloader.GetChannelAvatarHandler)
-		group.GET(httppaths.PathFilesEvents, optAuth(handlers.Downloader.EventsHandler))
-		group.POST(httppaths.PathSearch, optAuth(handlers.Downloader.SearchHandler))
+		group.GET(httppaths.PathAccountMenu, requireAuth(handlers.Downloader.AccountMenuHandler))
+		group.GET(httppaths.PathHistory, authOptional(handlers.Downloader.GetFilesHistoryHandler))
+		group.POST(httppaths.PathGrab, authOrGuest(handlers.Downloader.GrabHandler))
+		group.GET(httppaths.PathDownload, requireAuthMode(handlers.Downloader.DownloadHandler))
+		group.GET(httppaths.PathStream, requireAuthMode(handlers.Downloader.StreamHandler))
+		group.GET(httppaths.PathFileRow, requireAuthMode(handlers.Downloader.GetFileRowHandler))
+		group.GET(httppaths.PathFileLogo, requireAuthMode(handlers.Downloader.GetFileLogoHandler))
+		group.DELETE(httppaths.PathFile, authOrGuest(handlers.Downloader.DeleteFileRowHandler))
+		group.POST(httppaths.PathFileDownloadRepeat, authOrGuest(handlers.Downloader.RepeatDownloadHandler))
+		group.GET(httppaths.PathChannelAvatar, authOrAnonym(handlers.Downloader.GetChannelAvatarHandler))
+		group.GET(httppaths.PathFilesEvents, authOptional(handlers.Downloader.EventsHandler))
+		group.POST(httppaths.PathSearch, authOptional(handlers.Downloader.SearchHandler))
 	}
 }

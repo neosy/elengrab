@@ -1,3 +1,4 @@
+{{- define "result-row-status" }}
 <div class="grab-result__row inprogress {{ .ItemFade }}" id="{{ .RowID }}">
     <div class="result-left">
         <span class="result__avatar" title="{{ .AvatarTitle }}">
@@ -34,7 +35,7 @@
         {{ if .IsItemSpiner }}
             <div class="result__status-spinner {{ .WorkingStatus }}"></div>
             {{ if eq .WorkingStatus "downloading" }}
-                {{ template "result_progress.html" . }}
+                {{- template "result-progress" . }}
             {{ end }}
         {{ else }}
             {{ if eq .DownloadStatus "failed" }}
@@ -50,3 +51,4 @@
         </div>
     </div>
 </div>
+{{- end }}

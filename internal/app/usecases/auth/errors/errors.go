@@ -1,4 +1,4 @@
-package auth
+package autherr
 
 import (
 	"errors"
@@ -15,5 +15,6 @@ var (
 	ErrUserIsNotActive = errorx.New("user is not active", exceptionx.UNAUTHORIZED)
 	ErrUserDeleted     = errorx.New("user deleted", exceptionx.UNAUTHORIZED)
 
-	ErrInternal = errorx.New("internal server error", exceptionx.ERROR)
+	ErrInternal             = errorx.New("internal server error", exceptionx.ERROR)
+	ErrFunctionNilParameter = errorx.New("function parameter is nil", exceptionx.ERROR)
 )

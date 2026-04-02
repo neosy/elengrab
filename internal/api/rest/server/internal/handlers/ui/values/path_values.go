@@ -11,35 +11,39 @@ import (
 )
 
 const (
-	PathFileRowKey        = "PathFileRow"
-	PathFilesHistoryKey   = "PathFilesHistory"
-	PathStaticImgKey      = "PathStaticImg"
-	PathStaticIconsKey    = "PathStaticIcons"
-	PathStaticCssKey      = "PathStaticCss"
-	PathStaticJsKey       = "PathStaticJs"
-	PathStaticPwaKey      = "PathStaticPwa"
-	PathItemsHistoryKey   = "PathItemsHistory"
-	PathDownloaderGrabKey = "PathDownloaderGrab"
-	PathHistorySearchKey  = "PathHistorySearch"
+	PathFileRowKey      = "PathFileRow"
+	PathFilesHistoryKey = "PathFilesHistory"
+	PathStaticImgKey    = "PathStaticImg"
+	PathStaticIconsKey  = "PathStaticIcons"
+	PathStaticCssKey    = "PathStaticCss"
+	PathStaticJsKey     = "PathStaticJs"
+	PathStaticPwaKey    = "PathStaticPwa"
+	PathItemsHistoryKey = "PathItemsHistory"
 
-	PathDownloaderKey   = "PathDownloader"
 	PathAuthRegisterKey = "PathAuthRegister"
 	PathAuthLoginKey    = "PathAuthLogin"
+
+	PathDownloaderKey     = "PathDownloader"
+	PathAccountMenuKey    = "PathAccountMenu"
+	PathDownloaderGrabKey = "PathDownloaderGrab"
+	PathHistorySearchKey  = "PathHistorySearch"
 )
 
 var PathValues = map[string]any{
-	PathStaticImgKey:      httppaths.GroupStatic + "/img",
-	PathStaticIconsKey:    httppaths.GroupStatic + "/img/icons",
-	PathStaticCssKey:      httppaths.GroupStatic + "/css",
-	PathStaticJsKey:       httppaths.GroupStatic + "/js",
-	PathStaticPwaKey:      httppaths.GroupStatic + "/pwa",
+	PathStaticImgKey:   httppaths.GroupStatic + "/img",
+	PathStaticIconsKey: httppaths.GroupStatic + "/img/icons",
+	PathStaticCssKey:   httppaths.GroupStatic + "/css",
+	PathStaticJsKey:    httppaths.GroupStatic + "/js",
+	PathStaticPwaKey:   httppaths.GroupStatic + "/pwa",
+
+	PathAuthRegisterKey: httppaths.GroupAccount + httppaths.PathRegister,
+	PathAuthLoginKey:    httppaths.GroupAccount + httppaths.PathLogin,
+
+	PathDownloaderKey:     httppaths.GroupDownloader,
+	PathAccountMenuKey:    httppaths.GroupDownloader + httppaths.PathAccountMenu,
 	PathItemsHistoryKey:   httppaths.GroupDownloader + httppaths.PathHistory,
 	PathDownloaderGrabKey: httppaths.GroupDownloader + httppaths.PathGrab,
 	PathHistorySearchKey:  httppaths.GroupDownloader + httppaths.PathSearch,
-
-	PathDownloaderKey:   httppaths.GroupDownloader,
-	PathAuthRegisterKey: httppaths.GroupAccount + httppaths.PathRegister,
-	PathAuthLoginKey:    httppaths.GroupAccount + httppaths.PathLogin,
 }
 
 var cssFileNames = []string{

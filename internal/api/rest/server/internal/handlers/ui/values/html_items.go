@@ -26,6 +26,7 @@ const (
 	UserAvatarIconKey       = "UserAvatarIcon"
 	UserAvatarActionModeKey = "UserAvatarActionMode"
 	UserLoginKey            = "UserLogin"
+	UserEmailKey            = "UserEmail"
 
 	AccountMenuActionsKey = "AccountMenuActions"
 

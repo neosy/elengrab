@@ -10,11 +10,19 @@ export function initAccountMenu() {
   avatar.addEventListener('click', (e) => {
     e.stopPropagation();
 
+    if (menu.classList.contains('show')) {
+      menu.classList.remove('show');
+      return
+    }
+
     const action = getAvatarAction();
 
     switch(action) {
       case 'menu':
+        menu.innerHTML = ""
         menu.classList.toggle('show');
+        // for (let start = Date.now(); Date.now() - start < 3000;);
+        htmx.trigger(menu, 'manual');
         break;
       case 'login':
       case 'none':

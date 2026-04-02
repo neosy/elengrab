@@ -58,6 +58,16 @@ func (v AppMode) UniquenessScope() UniquenessScope {
 	return appModeToUniquenessScopeMap[v]
 }
 
+// IsGuestAllowed returns true if guests are allowed for this app mode.
+func (v AppMode) IsGuestAllowed() bool {
+	return v != AppModeAuthOnly
+}
+
+// IsUserRequired returns true if user is required for this app mode.
+func (v AppMode) IsUserRequired() bool {
+	return v == AppModeAuthOnly || v == AppModePerUser
+}
+
 // ParseAppMode converting string to AppMode
 func ParseAppMode(s string) (AppMode, error) {
 	mode, exists := parseAppModeMap[strings.ToLower(s)]
@@ -65,11 +75,6 @@ func ParseAppMode(s string) (AppMode, error) {
 		return AppModeDefault, errors.New("invalid value for AppMode")
 	}
 	return mode, nil
-}
-
-// IsGuestAllowed returns true if guests are allowed for this app mode.
-func (v AppMode) IsGuestAllowed() bool {
-	return v != AppModeAuthOnly
 }
 
 // MustParseAppMode converting string to AppMode, ignoring any errors.

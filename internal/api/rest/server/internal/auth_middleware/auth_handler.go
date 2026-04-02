@@ -2,26 +2,92 @@ package authmw
 
 import (
 	"errors"
-	"fmt"
 
-	"github.com/neosy/elengrab/internal/app/usecases/auth"
+	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
 
-// RequireAuth is a middleware that handles user session management.
-// It checks for a session token in the request cookies, validates it,
-// refreshes the session if needed, and registers a guest session if no valid session exists.
-// After processing, it stores user information in the request context and calls the next handler.
-func (a *AuthMiddleware) RequireAuth(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+// AuthOrGuest is a middleware that manages user sessions.
+// It checks for a session token in the request cookies and validates it.
+// If the token is valid, it refreshes the session as needed.
+// If no valid session exists, it may create a guest session depending on the application mode.
+// Finally, it stores the user information (authenticated or guest) in the request context and calls the next handler.
+func (a *AuthMiddleware) AuthOrGuest(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
 		userCtx, err := a.processAuth(ctx, a.appMode.IsGuestAllowed())
 		if err != nil {
-			err = fmt.Errorf("Internal Server Error: %w", err)
-			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, errorx.HttpStatusArg(fasthttp.StatusInternalServerError)))
+			nfasthttp.WriteErrorx(
+				ctx,
+				errorx.Errorf(
+					"internal Server Error: %w", err,
+					errorx.ErrorMessageArg("Internal Server Error"),
+					errorx.HttpStatusArg(fasthttp.StatusInternalServerError),
+				),
+			)
+			return
+		}
+
+		if userCtx == nil {
+			nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("unauthorized", fasthttp.StatusUnauthorized))
+			return
+		}
+
+		ctx.SetUserValue(userKey, *userCtx)
+		next(ctx)
+	}
+}
+
+// RequireAuth is a middleware that enforces strict user authentication.
+// It checks for a session token in the request cookies and validates it.
+// If the token is valid, it refreshes the session as needed.
+// If no valid session exists, it returns an unauthorized (401) response.
+// Finally, it stores the authenticated user information in the request context
+// and calls the next handler.
+func (a *AuthMiddleware) RequireAuth(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return func(ctx *fasthttp.RequestCtx) {
+		userCtx, err := a.processAuth(ctx, false)
+		if err != nil {
+			nfasthttp.WriteErrorx(
+				ctx,
+				errorx.Errorf(
+					"internal Server Error: %w", err,
+					errorx.ErrorMessageArg("Internal Server Error"),
+					errorx.HttpStatusArg(fasthttp.StatusInternalServerError),
+				),
+			)
+			return
+		}
+
+		if userCtx == nil {
+			nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("unauthorized", fasthttp.StatusUnauthorized))
+			return
+		}
+
+		ctx.SetUserValue(userKey, *userCtx)
+		next(ctx)
+	}
+}
+
+// AuthOrAnonym authenticates the user if a valid token is present.
+// It updates the token if needed, but does not create a new user.
+// Requests without a valid token continue as anonymous.
+func (a *AuthMiddleware) AuthOrAnonym(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return func(ctx *fasthttp.RequestCtx) {
+		userCtx, err := a.processAuth(ctx, false)
+		if err != nil {
+			nfasthttp.WriteErrorx(
+				ctx,
+				errorx.Errorf(
+					"internal Server Error: %w", err,
+					errorx.ErrorMessageArg("Internal Server Error"),
+					errorx.HttpStatusArg(fasthttp.StatusInternalServerError),
+				),
+			)
 			return
 		}
 
@@ -35,20 +101,69 @@ func (a *AuthMiddleware) RequireAuth(next fasthttp.RequestHandler) fasthttp.Requ
 	}
 }
 
-// OptionalAuth authenticates the user if a valid token is present.
-// It updates the token if needed, but does not create a new user.
-// Requests without a valid token continue as anonymous.
-func (a *AuthMiddleware) OptionalAuth(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+// AuthOptional is a middleware that optionally enforces user authentication.
+// It checks for a session token in the request cookies and validates it.
+// If the token is valid, it refreshes the session as needed.
+// If no valid session exists, its behavior depends on the application mode:
+//   - In strict authentication mode (AppModeAuthOnly), it returns an unauthorized (401) response.
+//   - Otherwise, it treats the user as anonymous (nil) and proceeds to the next handler.
+//
+// Finally, if a user (authenticated) is present, it stores the user information
+// in the request context before calling the next handler.
+func (a *AuthMiddleware) AuthOptional(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
 		userCtx, err := a.processAuth(ctx, false)
 		if err != nil {
-			err = fmt.Errorf("Internal Server Error: %w", err)
-			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, errorx.HttpStatusArg(fasthttp.StatusInternalServerError)))
+			nfasthttp.WriteErrorx(
+				ctx,
+				errorx.Errorf(
+					"internal Server Error: %w", err,
+					errorx.ErrorMessageArg("Internal Server Error"),
+					errorx.HttpStatusArg(fasthttp.StatusInternalServerError),
+				),
+			)
 			return
 		}
 
 		if userCtx == nil {
-			next(ctx)
+			if a.appMode == dtypes.AppModeAuthOnly {
+				nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("unauthorized", fasthttp.StatusUnauthorized))
+			} else {
+				next(ctx)
+			}
+			return
+		}
+
+		ctx.SetUserValue(userKey, *userCtx)
+		next(ctx)
+	}
+}
+
+// RequireAuthMode is a middleware that checks user authentication based on the application mode.
+// - If the user is authenticated, their information is stored in the request context.
+// - If no valid session exists and the current app mode requires a user, it returns 401 Unauthorized.
+// - If no valid session exists but the app mode does not require a user, it calls the next handler with nil (anonymous) user.
+func (a *AuthMiddleware) RequireAuthMode(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return func(ctx *fasthttp.RequestCtx) {
+		userCtx, err := a.processAuth(ctx, false)
+		if err != nil {
+			nfasthttp.WriteErrorx(
+				ctx,
+				errorx.Errorf(
+					"internal Server Error: %w", err,
+					errorx.ErrorMessageArg("Internal Server Error"),
+					errorx.HttpStatusArg(fasthttp.StatusInternalServerError),
+				),
+			)
+			return
+		}
+
+		if userCtx == nil {
+			if a.appMode.IsUserRequired() {
+				nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("unauthorized", fasthttp.StatusUnauthorized))
+			} else {
+				next(ctx)
+			}
 			return
 		}
 
@@ -66,9 +181,9 @@ func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool)
 		session, err = a.auth.ValidateSession(ctx, token)
 		if err != nil {
 			switch {
-			case errors.Is(err, auth.ErrSessionNotFound):
-			case errors.Is(err, auth.ErrSessionExpired):
-			case errors.Is(err, auth.ErrUserNotFound):
+			case errors.Is(err, autherr.ErrSessionNotFound):
+			case errors.Is(err, autherr.ErrSessionExpired):
+			case errors.Is(err, autherr.ErrUserNotFound):
 			default:
 				return nil, err
 			}
@@ -102,6 +217,7 @@ func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool)
 		userCtx = &dauth.UserContext{
 			UserID: session.UserID,
 			Login:  session.Login,
+			Email:  session.Email,
 			Roles:  session.Roles,
 		}
 	}
