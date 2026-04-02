@@ -1,5 +1,5 @@
 # Makefile
-# fastHTTP server "npulse-watcher"
+# Self-hosted web server "elengrab"
 
 .DEFAULT_GOAL := help
 
