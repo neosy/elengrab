@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
 	authtoken "github.com/neosy/elengrab/internal/app/usecases/auth/internal/token"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -33,7 +34,7 @@ func (u *Auth) createSession(ctx context.Context, userID uuid.UUID) (*dauth.User
 		return nil, err
 	}
 	if session == nil {
-		return nil, ErrSessionNotFound
+		return nil, autherr.ErrSessionNotFound
 	}
 
 	return session, nil

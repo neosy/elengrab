@@ -1,6 +1,6 @@
-  <div class="theme-switcher">
+{{- define "theme-switcher" }}
+   <div class="theme-switcher">
       <button class="theme-switcher__toggle-button" id="theme-toggle-btn" aria-label="Переключить тему">
-          <!-- Sun -->
           <svg class="icon sun-icon" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="12" cy="12" r="5"/>
               <g stroke-width="2" stroke-linecap="round">
@@ -14,9 +14,9 @@
                   <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
               </g>
           </svg>
-          <!-- Moon -->
         <svg class="icon moon-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="#fbbf24" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9 9 0 008.354-5.646z"/>
         </svg>       
       </button>
   </div>
+{{- end }}

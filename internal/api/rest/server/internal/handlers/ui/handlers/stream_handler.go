@@ -17,9 +17,7 @@ func (h *DownloaderHandlers) StreamHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser := authmw.UserFromContext(ctx)
 	if ctxUser == nil {
 		// anonymous
-		ctxUser = &dauth.UserContext{
-			UserID: uuid.Nil,
-		}
+		ctxUser = dauth.UserContextAnonymous()
 	}
 
 	// Get the file ID from query parameter

@@ -13,10 +13,7 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 
 	ctxUser, err := authmw.EnsureUserFromContext(ctx)
 	if err != nil {
-		nfasthttp.WriteErrorx(
-			ctx,
-			errorx.Errorf("authorization error: %w", err, errorx.HttpStatusArg(fasthttp.StatusUnauthorized)),
-		)
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 

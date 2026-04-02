@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 
+	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 )
 
@@ -13,11 +14,11 @@ func (a *Auth) ValidateSession(ctx context.Context, token string) (*dto.AuthUser
 	}
 
 	if session == nil {
-		return nil, ErrSessionNotFound
+		return nil, autherr.ErrSessionNotFound
 	}
 
 	if session.Expired() {
-		return nil, ErrSessionExpired
+		return nil, autherr.ErrSessionExpired
 	}
 
 	user, err := a.user.FindByUserID(ctx, session.UserID)
@@ -27,17 +28,17 @@ func (a *Auth) ValidateSession(ctx context.Context, token string) (*dto.AuthUser
 
 	if user == nil {
 		a.logger.Debug("User not found", "token", token)
-		return nil, ErrUserNotFound
+		return nil, autherr.ErrUserNotFound
 	}
 
 	if !user.IsActive {
 		a.logger.Info("User is not active", "userID", user.UserID)
-		return nil, ErrUserIsNotActive
+		return nil, autherr.ErrUserIsNotActive
 	}
 
 	if user.DeletedAt != nil {
 		a.logger.Info("User deleted", "userID", user.UserID)
-		return nil, ErrUserDeleted
+		return nil, autherr.ErrUserDeleted
 	}
 
 	userCtx := a.mappers.MapUserSessionDomainToUserContext(

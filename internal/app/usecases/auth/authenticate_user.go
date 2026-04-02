@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 
+	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -15,7 +16,7 @@ func (a *Auth) AuthenticateUser(
 	req *dto.AuthUserRequest,
 ) (*dto.AuthUserResponse, error) {
 	if req == nil {
-		return nil, errorx.New("function parameter is nil", exceptionx.ERROR)
+		return nil, autherr.ErrFunctionNilParameter
 	}
 
 	var (
@@ -46,17 +47,17 @@ func (a *Auth) AuthenticateUser(
 
 	if user == nil {
 		a.logger.Debug("User not found", "login", login, "email", req.Email)
-		return nil, ErrUserNotFound
+		return nil, autherr.ErrUserNotFound
 	}
 
 	if !user.IsActive {
 		a.logger.Info("User is not active", "userID", user.UserID)
-		return nil, ErrUserIsNotActive
+		return nil, autherr.ErrUserIsNotActive
 	}
 
 	if user.DeletedAt != nil {
 		a.logger.Info("User deleted", "userID", user.UserID)
-		return nil, ErrUserDeleted
+		return nil, autherr.ErrUserDeleted
 	}
 
 	if user.PasswordHash == nil {

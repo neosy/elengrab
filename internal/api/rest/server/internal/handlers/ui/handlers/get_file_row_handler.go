@@ -47,10 +47,17 @@ func (h *DownloaderHandlers) GetFileRowHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	var buf bytes.Buffer
-	err = h.templates.ExecuteTemplate(&buf, row.templateName, row.data)
+	// Load template
+	tmpl, err := h.templates.Clone()
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		nfasthttp.WriteErrorx(ctx, errInternal(err))
+		return
+	}
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, row.templateName, row.data)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
 

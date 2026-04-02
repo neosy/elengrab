@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"path/filepath"
 
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
@@ -41,9 +40,16 @@ func (h *DownloaderHandlers) AuthLoginHandler(ctx *fasthttp.RequestCtx) {
 	dataMap[uivalues.CssPathsKey] = cssPaths
 	dataMap[uivalues.JsScriptsKey] = jsScripts
 
-	// Execute template with PageTitle
-	if err := h.templates.ExecuteTemplate(ctx, uivalues.PageAuthLoginHtmlFileName, dataMap); err != nil {
-		nfasthttp.WriteError(ctx, fmt.Errorf("template execution error: %v", err), fasthttp.StatusInternalServerError)
+	// Load template
+	tmpl, err := h.loadPage(uivalues.PageAuthLoginHtmlFileName)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, errInternal(err))
+		return
+	}
+
+	// Execute template
+	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageAuthLoginKey, dataMap); err != nil {
+		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
 }

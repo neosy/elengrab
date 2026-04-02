@@ -1,8 +1,10 @@
+{{- define "result-rows" }}
           <div class="grab-result__rows" id="grab-result-rows" hx-ext="sse" sse-connect="{{ .PathDownloader }}/files/events">
               <div sse-swap="row-patch" style="display: none;"></div>
               <div class="grab-result__row-placeholder" id="row-top-placeholder"></div>
-              {{ if .ResultNoRows }}
+              {{- if .ResultNoRows }}
                 <div class="grab-result__row-no-items" id="row-no-items">No items</div>
-              {{ end }}
-              {{ .ResultRowsHTML }}
+              {{- end }}
+              {{- .ResultRowsHTML }}
           </div>
+{{- end }}

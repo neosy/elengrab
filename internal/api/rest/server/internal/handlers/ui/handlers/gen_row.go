@@ -169,9 +169,9 @@ func (h *DownloaderHandlers) genRow(
 		dataMap[uivalues.DownloadingProgressPercentKey] = int(fileInfo.Progress.Percent())
 	}
 
-	var tmplFileName = uivalues.GrabResultRowStatusHtmlFileName
+	var tmplFileName = uivalues.ComponentResultRowStatusKey
 	if fileInfo.Status == dtypes.FileStatusDone {
-		tmplFileName = uivalues.GrabResultRowSuccessHtmlFileName
+		tmplFileName = uivalues.ComponentResultRowSuccessKey
 	}
 
 	return genRowResult{

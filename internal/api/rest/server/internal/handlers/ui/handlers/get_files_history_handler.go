@@ -84,7 +84,13 @@ func (h *DownloaderHandlers) getFilesHistory(
 			continue
 		}
 
-		err = h.templates.ExecuteTemplate(buf, row.templateName, row.data)
+		// Load template
+		tmpl, err := h.templates.Clone()
+		if err != nil {
+			continue
+		}
+
+		err = tmpl.ExecuteTemplate(buf, row.templateName, row.data)
 		if err != nil {
 			continue
 		}
@@ -105,9 +111,15 @@ func (h *DownloaderHandlers) genRowLoadHistory(buf *bytes.Buffer) error {
 	dataMap := uivalues.MergeMaps()
 	dataMap[uivalues.DisableHTMXEventKey] = true
 
-	err := h.templates.ExecuteTemplate(buf, uivalues.GrabResultLoadHistoryHtmlFileName, dataMap)
+	// Load template
+	tmpl, err := h.templates.Clone()
 	if err != nil {
-		return err
+		return errInternal(err)
+	}
+
+	err = tmpl.ExecuteTemplate(buf, uivalues.ComponentResultLoadHistory, dataMap)
+	if err != nil {
+		return errInternal(err)
 	}
 
 	return nil
@@ -132,9 +144,16 @@ func (h *DownloaderHandlers) genRowShouldLoadHistory(
 	dataMap := uivalues.MergeMaps(uivalues.PathValues)
 	dataMap[uivalues.PathItemsHistoryKey] = dataMap[uivalues.PathItemsHistoryKey].(string) + queryString
 	dataMap[uivalues.DisableHTMXEventKey] = true
-	err := h.templates.ExecuteTemplate(buf, uivalues.GrabResultShouldLoadHistoryHtmlFileName, dataMap)
+
+	// Load template
+	tmpl, err := h.templates.Clone()
 	if err != nil {
-		return err
+		return errInternal(err)
+	}
+
+	err = tmpl.ExecuteTemplate(buf, uivalues.ComponentResultShouldLoadHistoryKey, dataMap)
+	if err != nil {
+		return errInternal(err)
 	}
 
 	return nil

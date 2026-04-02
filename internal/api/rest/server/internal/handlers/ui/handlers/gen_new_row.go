@@ -63,8 +63,17 @@ func (h *DownloaderHandlers) genNewRow(
 	dataMap[uivalues.ResultSizeFadeKey] = ""
 	dataMap[uivalues.ResultFormatFadeKey] = ""
 
+	// Load template
+	tmpl, err := h.templates.Clone()
+	if err != nil {
+		return nil
+	}
+
 	var buf bytes.Buffer
-	h.templates.ExecuteTemplate(&buf, uivalues.GrabResultNewRowHtmlFileName, dataMap)
+	err = tmpl.ExecuteTemplate(&buf, uivalues.ComponentResultNewRowKey, dataMap)
+	if err != nil {
+		return nil
+	}
 
 	return &buf
 }

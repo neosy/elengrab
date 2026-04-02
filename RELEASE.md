@@ -10,6 +10,7 @@
 
 ### Refactor
 - Errorx package
+- Restructure templates into layouts, pages, and components
 
 ---
 

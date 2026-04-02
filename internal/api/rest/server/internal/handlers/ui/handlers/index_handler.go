@@ -3,7 +3,6 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"path/filepath"
 	"time"
@@ -73,16 +72,6 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
-	var userAvatarIconNameKey = uivalues.UserAvatarAnonymIconNameKey
-	switch ctxUser.UserType() {
-	case dtypes.UserTypeAdmin:
-		userAvatarIconNameKey = uivalues.UserAvatarAdminIconNameKey
-	case dtypes.UserTypeUser:
-		userAvatarIconNameKey = uivalues.UserAvatarUserIconNameKey
-	case dtypes.UserTypeGuest:
-		userAvatarIconNameKey = uivalues.UserAvatarGuestIconNameKey
-	}
-
 	var userAvatarActionMode = "none"
 	if !h.downloader.DemoMode() {
 		if ctxUser.UserType() < dtypes.UserTypeUser {
@@ -101,8 +90,7 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	dataMap[uivalues.JsScriptsKey] = jsScripts
 	dataMap[uivalues.JsImportMapJSONKey] = template.HTML(jsImportMapJSON)
 	dataMap[uivalues.UserAvatarIconKey] = template.HTML(
-		uivalues.IconFileRawByKey(userAvatarIconNameKey, iconsDir))
-	dataMap[uivalues.UserLoginKey] = ctxUser.Login
+		uivalues.IconFileRawByKey(uivalues.UserAvatarKeyByType(ctxUser.UserType()), iconsDir))
 	dataMap[uivalues.UserAvatarActionModeKey] = userAvatarActionMode
 	dataMap[uivalues.ShowHistorySearchKey] = true
 	dataMap[uivalues.ResultNoRowsKey] = rowsBuf.Len() == 0
@@ -110,11 +98,17 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	dataMap[uivalues.AppVersionKey] = systemInfo.AppVersion
 	dataMap[uivalues.DiskFreeKey] = uformat.BytesHuman(systemInfo.DiskFree)
 	dataMap[uivalues.DiskUsedKey] = uformat.BytesHuman(systemInfo.DiskUsed)
-	dataMap[uivalues.AccountMenuActionsKey] = uivalues.AccountMenuActions(iconsDir)
+
+	// Load template
+	tmpl, err := h.loadPage(uivalues.PageIndexHtmlFileName)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, errInternal(err))
+		return
+	}
 
 	// Execute template with PageTitle
-	if err := h.templates.ExecuteTemplate(ctx, uivalues.IndexHtmlFileName, dataMap); err != nil {
-		nfasthttp.WriteError(ctx, fmt.Errorf("template execution error: %v", err), fasthttp.StatusInternalServerError)
+	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageIndexKey, dataMap); err != nil {
+		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
 }

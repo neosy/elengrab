@@ -4,19 +4,10 @@ import (
 	"context"
 	"time"
 
+	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
-
-func (u *Auth) shouldRefreshSession(expiresAt time.Time) bool {
-	return time.Until(expiresAt) <= sessionRefreshInterval
-}
-
-func (a *Auth) sessionRefreshPredicate() func(*dauth.UserSession) bool {
-	return func(session *dauth.UserSession) bool {
-		return a.shouldRefreshSession(session.ExpiresAt)
-	}
-}
 
 func (a *Auth) RefreshSession(ctx context.Context, token string) (*dto.AuthUserResponse, error) {
 	var (
@@ -30,7 +21,7 @@ func (a *Auth) RefreshSession(ctx context.Context, token string) (*dto.AuthUserR
 			return err
 		}
 		if session == nil {
-			return ErrSessionNotFound
+			return autherr.ErrSessionNotFound
 		}
 
 		if !a.shouldRefreshSession(session.ExpiresAt) {
@@ -64,4 +55,14 @@ func (a *Auth) RefreshSession(ctx context.Context, token string) (*dto.AuthUserR
 	)
 
 	return userCtx, nil
+}
+
+func (u *Auth) shouldRefreshSession(expiresAt time.Time) bool {
+	return time.Until(expiresAt) <= sessionRefreshInterval
+}
+
+func (a *Auth) sessionRefreshPredicate() func(*dauth.UserSession) bool {
+	return func(session *dauth.UserSession) bool {
+		return a.shouldRefreshSession(session.ExpiresAt)
+	}
 }

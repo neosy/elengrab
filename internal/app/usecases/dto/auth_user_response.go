@@ -8,6 +8,7 @@ import (
 type AuthUserResponse struct {
 	UserID uuid.UUID
 	Login  string
+	Email  string
 	Roles  []dtypes.UserRole
 	Token  *AuthToken
 }
