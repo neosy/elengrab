@@ -1,6 +1,6 @@
 # Releases
 
-## v0.17.0 — 2026-03-28
+## v0.17.0 — 2026-04-02
 
 ### Feature
 - Add authorization for admins and privileged rights. Closes #187
@@ -9,8 +9,8 @@
 - Improve the design of active elements
 
 ### Refactor
-- Errorx package
 - Restructure templates into layouts, pages, and components
+- Restructure errorx package
 
 ---
 
