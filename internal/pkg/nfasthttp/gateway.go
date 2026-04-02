@@ -19,7 +19,17 @@ func loggerMiddleware(logger *slog.Logger, next fasthttp.RequestHandler) fasthtt
 
 		status := ctx.Response.StatusCode()
 		if status >= 400 {
-			logger.DebugContext(ctx, fmt.Sprintf("Request %s %s %s -> %d", ctx.Method(), ctx.Host(), ctx.RequestURI(), status))
+			logger.DebugContext(
+				ctx,
+				fmt.Sprintf(
+					"Request %s %s %s -> %d",
+					ctx.Method(),
+					ctx.Host(),
+					ctx.RequestURI(),
+					status,
+				),
+				slog.String("Client IP", getClientIP(ctx)),
+			)
 		}
 	}
 }
