@@ -1,7 +1,7 @@
 <p align="center">
   <img width="192" height="192" alt="android-chrome-192x192_round" src="https://github.com/user-attachments/assets/f2973dcc-90d3-4046-b9e0-fd34b6697fa5" />
 </p>
-<h3 align="center">Self-hosted web interface for working with YouTube media.</h3>
+<h3 align="center">Self-hosted web interface for downloading media from multiple platforms (YouTube, Instagram, TikTok, Twitch, etc.).</h3>
 
 ---
 
@@ -11,8 +11,7 @@
 
 # Elengrab
 
-**Fast self-hosted web interface for video/audio downloading with format and quality options.
-The project integrates with existing open-source media processing utilities (such as [yt-dlp](https://github.com/yt-dlp/yt-dlp)) as an optional backend component. IIt allows downloading and processing media from other popular websites such as Facebook, Instagram, Twitter/X, Twitch, Pinterest, Reddit, VK Video, Rutube and many more.**
+**Fast self-hosted downloader for video and audio with flexible format and quality options. Integrates with media processing utilities (such as [yt-dlp](https://github.com/yt-dlp/yt-dlp)) as an optional backend. Supports downloading from multiple platforms, including YouTube, Facebook, Instagram, Twitter/X, Twitch, Pinterest, Reddit, VK Video, Rutube, and more.**
 
 Elengrab provides a simple and **very fast** web interface to quickly download with videos and audio tracks, allowing selection of formats and quality settings. The project is fully written in **Go**, and the frontend is powered by **HTMX**, ensuring high responsiveness and minimal overhead. It runs in a lightweight Docker container, is easy to deploy, and serves as a self-hosted frontend for managing your personal media server.
 
@@ -20,17 +19,20 @@ Elengrab provides a simple and **very fast** web interface to quickly download w
 
 ## Features
 
-- Support for video and audio content from YouTube in various formats.
-- Support for downloading media from multiple websites, powered by yt-dlp extractors.
+- Support for downloading video and audio from multiple websites, powered by yt-dlp extractors.
+- Support for YouTube content in various formats.
 - Configurable format and quality settings.
-- Concurrent processing of multiple tasks (3 by default).
 - Cookie-based authentication support for YouTube (optional, requires Deno).
 - Task queue for media processing.
+- Concurrent processing of multiple tasks (3 by default).
 - Instant addition/removal from queue.
-- Dark theme.
+- User authentication and access control.
+- Built-in media search.
+- In-browser video and audio playback.
+- Option to customize how download history is displayed: globally or per user.
 - Animated status indicators for download and processing tasks.
 - Channel and website icons displayed in the interface.
-- Option to customize how download history is displayed: globally or per user.
+- Dark theme.
 - Cross-platform support: Windows, macOS/Linux.
 
 ---
@@ -231,3 +233,9 @@ docker service ls
 ```
 
 4. Access Elengrab at `http://<your-host-ip>:8080` and start managing your personal video and audio content.
+
+---
+
+# License
+
+This project is licensed under the MIT License.
