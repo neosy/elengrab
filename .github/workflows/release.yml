@@ -89,7 +89,7 @@ jobs:
       - name: Generate Windows resources
         if: matrix.goos == 'windows'
         run: |
-          cd cmd/elengrab
+          cd cmd/server
           rsrc -ico icon.ico
           
       - name: Build
@@ -104,7 +104,7 @@ jobs:
                     
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} CGO_ENABLED=0 \
             go build -tags embed_assets \
-            -o "${TARGET_DIR}/elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.arch_name }}${{ matrix.ext }}" ./cmd/elengrab
+            -o "${TARGET_DIR}/elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.arch_name }}${{ matrix.ext }}" ./cmd/server
 
       - name: Archive
         run: |
