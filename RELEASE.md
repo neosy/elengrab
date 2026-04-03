@@ -3,8 +3,12 @@
 ## v0.18.0 — 2026-04-05
 
 ### Refactor
+- Redesign main.go
 - Improve exception in errorx package
 - Improve message in errorx package
+
+### Style
+- Update play button icon
 
 ---
 
