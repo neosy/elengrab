@@ -263,10 +263,9 @@
 
     width: 32px;
     height: 32px;
+    padding: 0;
 
-    font-size: 28px;   /* controls SVG size */
-
-    color: var(--avatar-play__button);;
+    color: var(--avatar-play__button);
 
     border-radius: 50%;
     border: none;
@@ -288,8 +287,8 @@
 }
 
 .avatar-play__button svg {
-    width: 1em;
-    height: 1em;
+    width: 15px;
+    height: auto;
     opacity: 0.6;
     filter:
         drop-shadow(0 0 3px rgba(0,0,0,1))
