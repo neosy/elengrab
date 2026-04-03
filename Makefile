@@ -28,17 +28,17 @@ help: ## List of commands
 server-run: ## FastHTTP server startup
 	@echo "***** SERVER RUN *****"
 	@set -o allexport; \
-	. ./cmd/${APP_NAME}/.env; \
-	go run ./cmd/${APP_NAME}/main.go
+	. ./cmd/server/.env; \
+	go run ./cmd/server/main.go
 
 build: update-app-version ## Build executable file
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o $(APP_NAME) ./cmd/$(APP_NAME)/
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o $(APP_NAME) ./cmd/server/
 
 build-embedded: update-app-version ## Build executable file with embedded assets
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags embed_assets -v -o $(APP_NAME) ./cmd/$(APP_NAME)/
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags embed_assets -v -o $(APP_NAME) ./cmd/server/
 
 build-win-embedded: update-app-version ## Build executable file with embedded assets
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -tags embed_assets -v -o $(APP_NAME).exe ./cmd/$(APP_NAME)/
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -tags embed_assets -v -o $(APP_NAME).exe ./cmd/server/
 
 img-build: update-app-version ## Build Docker image. Arguments: INSTALL_DENO=true
 	docker build \

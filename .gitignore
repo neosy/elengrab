@@ -18,7 +18,7 @@
 issues.txt
 
 # Ignoring Windows resources
-cmd/elengrab/rsrc_*.syso
+cmd/server/rsrc_*.syso
 
 # go.work
 go.work

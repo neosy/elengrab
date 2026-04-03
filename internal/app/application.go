@@ -1,0 +1,286 @@
+package app
+
+import (
+	"context"
+	"database/sql"
+	"errors"
+	"log/slog"
+	"time"
+
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	iconfig "github.com/neosy/elengrab/internal/config"
+	_ "modernc.org/sqlite"
+
+	"github.com/neosy/elengrab/internal/app/services"
+	ytdlpdto "github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
+	"github.com/neosy/elengrab/internal/app/usecases"
+	"github.com/neosy/elengrab/internal/app/workers"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/nfile"
+	"github.com/neosy/elengrab/internal/pkg/nworkerpool"
+	"github.com/neosy/elengrab/internal/pkg/nworkers"
+	"github.com/neosy/elengrab/internal/ports/persistence"
+	inmemoryrep "github.com/neosy/elengrab/internal/repository/in_memory"
+	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
+)
+
+const (
+	// Default TTL for download state cache
+	downloadStateCacheTTLDefault = 1 * time.Hour
+	// Default TTL for channel information cache
+	youtubeChannelCacheTTLDefault = 1 * 24 * time.Hour
+	// Default TTL for site logo information cache
+	siteLogoCacheTTLDefault = 1 * 24 * time.Hour
+
+	// Update interval for site logo information
+	logoUpdateInterval = 24 * time.Hour
+	// Update interval for channel information
+	channelUpdateInterval = 30 * 24 * time.Hour
+
+	// Cache cleanup intervals
+	cleanYoutubeChannelCacheInterval = 12 * time.Hour
+	cleanDownloadStateCacheinterval  = 12 * time.Hour
+	cleanSiteLogoCacheInterval       = 12 * time.Hour
+
+	// defaultWorkerIdleTime is the default idle duration before a dynamic pool worker can exit.
+	defaultWorkerIdleTime = 15 * time.Minute
+)
+
+type Application struct {
+	logger *slog.Logger
+	cfg    *iconfig.Config
+
+	ctx    context.Context
+	cancel context.CancelFunc
+
+	Usecases *usecases.Usecases
+	Services *services.Services
+
+	WorkerPool nworkerpool.WorkerPool
+	Workers    *nworkers.Workers
+
+	dbAuth  *sql.DB
+	dbMain  *sql.DB
+	dbMedia *sql.DB
+}
+
+func NewApplication(logger *slog.Logger, cfg *iconfig.Config) (*Application, error) {
+	// Create a cancellable context
+	ctx, cancel := context.WithCancel(context.Background())
+
+	app := &Application{
+		logger: logger,
+		cfg:    cfg,
+		ctx:    ctx,
+		cancel: cancel,
+	}
+
+	if err := app.initialize(); err != nil {
+		return nil, err
+	}
+
+	return app, nil
+}
+
+func (a *Application) initialize() error {
+	dirs := []string{
+		absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.DataDir),
+		absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.BackupsDir),
+		absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
+	}
+	if !ensureDirs(dirs) {
+		return errors.New("one or more required directories are missing")
+	}
+
+	cookiesDir, err := nfile.AbsPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.CookiesDir)
+	if err != nil && a.cfg.Elengrab.YoutubeAllowCookies {
+		a.logger.Warn(
+			"Failed to get abs path for cookies directory",
+			"path", a.cfg.Elengrab.CookiesDir,
+			"error", err,
+		)
+	}
+
+	// Initialize SQLite database
+	sqliteDir := absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.DataDir)
+	a.dbAuth, err = newDB(a.logger, persistence.DBAuthName.Path(sqliteDir))
+	if err != nil {
+		return err
+	}
+
+	a.dbMain, err = newDB(a.logger, persistence.DBMainName.Path(sqliteDir))
+	if err != nil {
+		return err
+	}
+
+	a.dbMedia, err = newDB(a.logger, persistence.DBMediaName.Path(sqliteDir))
+	if err != nil {
+		return err
+	}
+
+	// Apply all up migrations
+	err = applyMigrations(a.logger, a.cfg, a.dbAuth, a.dbMain, a.dbMedia)
+	if err != nil {
+		return err
+	}
+
+	// Create SQLite repositories
+	dbs := map[persistence.DBName]*sql.DB{
+		persistence.DBAuthName:  a.dbAuth,
+		persistence.DBMainName:  a.dbMain,
+		persistence.DBMediaName: a.dbMedia,
+	}
+	slRepositories := sqliterep.New(dbs)
+
+	// Create in memory repositories
+	inMemoryDeps := inmemoryrep.Dependencies{
+		DownloadStateCacheTTL:  downloadStateCacheTTLDefault,
+		YoutubeChannelCacheTTL: youtubeChannelCacheTTLDefault,
+		SiteLogoCacheTTL:       siteLogoCacheTTLDefault,
+	}
+	inMemoryRepositories := inmemoryrep.New(inMemoryDeps)
+
+	downloadWorkers := a.cfg.Elengrab.DownloadWorkers
+	if a.cfg.Elengrab.DemoMode {
+		downloadWorkers = 1
+	}
+
+	// Start worker pool
+	a.WorkerPool = nworkerpool.NewDynamicWorkerPool(
+		nworkerpool.WorkerPoolOptionLogger(a.logger),
+		nworkerpool.WorkerPoolOptionMaxWorkers(downloadWorkers),
+		nworkerpool.WorkerPoolOptionIdleTime(defaultWorkerIdleTime),
+	)
+
+	// Initialize services
+	srvDeps := &services.Dependencies{
+		DownloaderBinDir: a.cfg.Elengrab.DownloaderBinDir,
+		DownloadsDir:     absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
+		YtDlpOptions: &ytdlpdto.Options{
+			CookiesDir:          cookiesDir,
+			YoutubeAllowCookies: a.cfg.Elengrab.YoutubeAllowCookies,
+		},
+	}
+	a.Services, err = services.New(a.logger, srvDeps)
+	if err != nil {
+		a.logger.Error("Failed to initialize services", "err", err)
+		return err
+	}
+
+	// Initialize usecases
+	ucDeps := &usecases.Dependencies{
+		Repositories: usecases.DepRepositories{
+			Database: slRepositories,
+
+			File:           slRepositories.File,
+			DownloadTask:   slRepositories.DownloadTask,
+			YoutubeChannel: slRepositories.YoutubeChannel,
+			SiteLogo:       slRepositories.SiteLogo,
+			User:           slRepositories.User,
+			Role:           slRepositories.Role,
+			UserRole:       slRepositories.UserRole,
+			UserSession:    slRepositories.UserSession,
+
+			// in memory
+			DownloadStateCache:  inMemoryRepositories.DownloadState,
+			YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
+			SiteLogoCache:       inMemoryRepositories.SiteLogo,
+		},
+		DownloadDispetcher: a.WorkerPool,
+		Services:           a.Services,
+
+		// Options
+		AppName:               iconfig.AppName,
+		DemoMode:              a.cfg.Elengrab.DemoMode,
+		DownloadsDir:          absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
+		DatabaseBackupsDir:    absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.BackupsDir),
+		DatabaseBackupsKeep:   a.cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
+		AppMode:               dtypes.MustParseAppMode(a.cfg.Elengrab.Mode),
+		DeleteDuplicatesScope: dtypes.MustParseUniquenessScope(a.cfg.Elengrab.DeleteDuplicatesScope),
+		LogoUpdateInterval:    logoUpdateInterval,
+		ChannelUpdateInterval: channelUpdateInterval,
+		DefaultAdminLogin:     a.cfg.Elengrab.AdminLogin,
+		DefaultAdminPassword:  a.cfg.Elengrab.AdminPassword,
+	}
+	a.Usecases = usecases.NewUsecases(a.ctx, a.logger, ucDeps)
+
+	// Workers
+	wsDeps := &workers.Dependencies{
+		DownloadStateCache:  inMemoryRepositories.DownloadState,
+		YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
+		SiteLogoCache:       inMemoryRepositories.SiteLogo,
+		// runners
+		DownloaderMaintenance: a.Usecases.Downloader,
+		Maintenance:           a.Usecases.Maintenance,
+		DownloaderTask:        a.Usecases.Downloader,
+		AuthWebMaintenance:    a.Usecases.AuthWeb,
+		// options
+		IntervalUpdateHash:               a.cfg.Elengrab.Maintenance.IntervalUpdateHash,
+		IntervalDeleteDuplicates:         a.cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
+		IntervalDeleteMissingFiles:       a.cfg.Elengrab.Maintenance.IntervalDeleteMissingFiles,
+		IntervalDeleteFailedDownloads:    a.cfg.Elengrab.Maintenance.IntervalDeleteFailedDownloads,
+		EnableMoveUnmatchedFiles:         a.cfg.Elengrab.Maintenance.EnableMoveUnmatchedFiles,
+		IntervalCleanYoutubeChannelCache: cleanYoutubeChannelCacheInterval,
+		IntervalCleanDownloadStateCache:  cleanDownloadStateCacheinterval,
+		IntervalCleanSiteLogoCache:       cleanSiteLogoCacheInterval,
+	}
+	a.Workers = nworkers.NewWorkers(a.logger, wsDeps, workers.InitWorkers)
+
+	return nil
+}
+
+func (a *Application) Context() context.Context {
+	return a.ctx
+}
+
+func (a *Application) Cancel() {
+	a.cancel()
+}
+
+func (a *Application) Logger() *slog.Logger {
+	return a.logger
+}
+
+func (a *Application) StartBackground() error {
+	if err := a.WorkerPool.Start(a.ctx); err != nil {
+		a.logger.Error("Failed to start worker pool", "err", err)
+		return err
+	}
+
+	// Initialize stuck download jobs
+	if err := a.Usecases.Downloader.ResetStuckJobs(a.ctx); err != nil {
+		a.logger.Error("Failed to init downloader", "err", err)
+		return err
+	}
+
+	if err := a.Workers.StartWorkers(a.ctx); err != nil {
+		a.logger.Error("Failed to run workers", "err", err)
+		return err
+	}
+
+	return nil
+}
+
+func (a *Application) Shutdown() error {
+	if a.Workers != nil {
+		a.Workers.StopWorkers()
+	}
+
+	// Stop workers poll on exit
+	if a.WorkerPool != nil {
+		a.WorkerPool.Stop()
+	}
+
+	// Close the database on exit
+	if a.dbMedia != nil {
+		sqliterep.CloseDB(a.dbMedia)
+	}
+	if a.dbMain != nil {
+		sqliterep.CloseDB(a.dbMain)
+	}
+	if a.dbAuth != nil {
+		sqliterep.CloseDB(a.dbAuth)
+	}
+
+	return nil
+}

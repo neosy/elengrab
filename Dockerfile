@@ -10,7 +10,7 @@ COPY . .
 # Install git, remove unnecessary files, build binary
 RUN apk add --no-cache git \
     && rm -f go.work go.work.sum \
-    && CGO_ENABLED=0 go build -o elengrab ./cmd/elengrab
+    && CGO_ENABLED=0 go build -o elengrab ./cmd/server
 
 # ======================
 # Final image
