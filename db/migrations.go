@@ -21,6 +21,9 @@ var migrationsAuthFS embed.FS
 //go:embed media/migrations/*
 var migrationsMediaFS embed.FS
 
+//go:embed link/migrations/*
+var migrationsLinkFS embed.FS
+
 func migrationsMainRoot() (fs.FS, error) {
 	return fs.Sub(migrationsMainFS, "download/migrations")
 }
@@ -31,6 +34,10 @@ func migrationsAuthRoot() (fs.FS, error) {
 
 func migrationsMediaRoot() (fs.FS, error) {
 	return fs.Sub(migrationsMediaFS, "media/migrations")
+}
+
+func migrationsLinkRoot() (fs.FS, error) {
+	return fs.Sub(migrationsLinkFS, "link/migrations")
 }
 
 type MigrationConfig struct {
@@ -70,6 +77,8 @@ func NewMigrations(logger *slog.Logger, db *sql.DB, dbName persistence.DBName, c
 		fs, _ = migrationsAuthRoot()
 	case persistence.DBMediaName:
 		fs, _ = migrationsMediaRoot()
+	case persistence.DBLinkName:
+		fs, _ = migrationsLinkRoot()
 	}
 
 	return &Migrations{

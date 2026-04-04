@@ -7,8 +7,10 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/services"
 	"github.com/neosy/elengrab/internal/app/usecases/auth"
-	"github.com/neosy/elengrab/internal/app/usecases/authweb"
+	authweb "github.com/neosy/elengrab/internal/app/usecases/auth_web"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader"
+	"github.com/neosy/elengrab/internal/app/usecases/link"
+	linkweb "github.com/neosy/elengrab/internal/app/usecases/link_web"
 	"github.com/neosy/elengrab/internal/app/usecases/maintenance"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/nworkerpool"
@@ -23,14 +25,18 @@ type Dependencies struct {
 	DownloadDispetcher nworkerpool.JobDispatcher
 
 	// Options
-	AppName      string
-	DemoMode     bool
-	DownloadsDir string
+	AppName  string
+	AppMode  dtypes.AppMode
+	DemoMode bool
+
+	BaseURL      string
+	BaseShortURL string
 
 	DatabaseBackupsDir  string
 	DatabaseBackupsKeep int
 
-	AppMode               dtypes.AppMode
+	DownloadsDir string
+
 	DeleteDuplicatesScope dtypes.UniquenessScope
 
 	LogoUpdateInterval    time.Duration
@@ -43,15 +49,18 @@ type Dependencies struct {
 type DepRepositories struct {
 	Database persistence.Database
 
+	User        persistence.UserRepository
+	Role        persistence.RoleRepository
+	UserRole    persistence.UserRoleRepository
+	UserSession persistence.UserSessionRepository
+
 	File           persistence.FileRepository
 	DownloadTask   persistence.DownloadTaskRepository
 	YoutubeChannel persistence.YoutubeChannelRepository
 	SiteLogo       persistence.SiteLogoRepository
 
-	User        persistence.UserRepository
-	Role        persistence.RoleRepository
-	UserRole    persistence.UserRoleRepository
-	UserSession persistence.UserSessionRepository
+	Link      persistence.LinkRepository
+	LinkClick persistence.LinkClickRepository
 
 	// in memory
 	DownloadStateCache  persistence.DownloadStateCacheRepository
@@ -60,10 +69,12 @@ type DepRepositories struct {
 }
 
 type Usecases struct {
-	Downloader  *downloader.Downloader
-	Maintenance *maintenance.Maintenance
 	Auth        *auth.Auth
 	AuthWeb     *authweb.AuthWeb
+	Downloader  *downloader.Downloader
+	Maintenance *maintenance.Maintenance
+	Link        *link.Link
+	LinkWeb     *linkweb.LinkWeb
 }
 
 func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *Usecases {
@@ -74,7 +85,21 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 		deps.Repositories.UserRole,
 		deps.Repositories.UserSession,
 	)
+	link := link.NewLink(
+		logger,
+		deps.Repositories.Link,
+		deps.Repositories.LinkClick,
+		link.LinkOptionBaseURL(deps.BaseShortURL),
+		link.LinkOptionDeduplicate(true),
+	)
 	return &Usecases{
+		Auth: auth,
+		AuthWeb: authweb.NewAuthWeb(
+			logger,
+			auth,
+			deps.DefaultAdminLogin,
+			deps.DefaultAdminPassword,
+		),
 		Downloader: downloader.NewDownloader(
 			ctx,
 			logger,
@@ -113,12 +138,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.DatabaseBackupsDir,
 			deps.DatabaseBackupsKeep,
 		),
-		Auth: auth,
-		AuthWeb: authweb.NewAuthWeb(
-			logger,
-			auth,
-			deps.DefaultAdminLogin,
-			deps.DefaultAdminPassword,
-		),
+		Link:    link,
+		LinkWeb: linkweb.NewLinkWeb(logger, link),
 	}
 }

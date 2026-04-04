@@ -39,6 +39,13 @@
                             {{ .GrabResultItemStatusHtml }}
                             </a>
                         </div>
+                        <div class="result__menu">
+                            <button type="button" class="result__menu-button" aria-label="Open the action menu" data-file-id="{{ .FileID }}">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 {{- end }}

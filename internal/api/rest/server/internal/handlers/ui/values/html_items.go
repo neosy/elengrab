@@ -29,6 +29,7 @@ const (
 	UserEmailKey            = "UserEmail"
 
 	AccountMenuActionsKey = "AccountMenuActions"
+	RowMenuActionsKey     = "RowMenuActions"
 
 	AppVersionKey = "AppVersion"
 	DiskFreeKey   = "DiskFree"

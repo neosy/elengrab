@@ -1,6 +1,8 @@
 package exceptionx
 
 import (
+	errmsg "github.com/neosy/elengrab/internal/pkg/errorx/internal/error_message"
+	"github.com/neosy/elengrab/internal/pkg/errorx/internal/utils"
 	"github.com/valyala/fasthttp"
 )
 
@@ -34,6 +36,19 @@ var domainExceptionTextMap = map[DomainException]string{
 	NO_CONTENT:         "NO_CONTENT",
 }
 
+var domainExceptionMessageMap = map[DomainException]string{
+	ERROR:              "internal Server Error", // 500
+	WRONG_DATA:         "bad Request",           // 400
+	VALIDATE:           "bad Request",           // 400
+	UNAUTHORIZED:       "unauthorized",          // 401
+	NOT_FOUND:          "not Found",             // 404
+	METHOD_NOT_ALLOWED: "method Not Allowed",    // 405
+	TOO_MANY_REQUESTS:  "too Many Requests",     // 429
+	MAINTENANCE:        "service Unavailable",   // 503
+	FORBIDDEN:          "forbidden",             // 403
+	NO_CONTENT:         "no Content",            // 204
+}
+
 // Map of exception types and HTTP status codes
 var domainExceptionHttpStatusCodeMap = map[DomainException]int{
 	ERROR:              fasthttp.StatusInternalServerError,
@@ -56,6 +71,14 @@ func (v DomainException) Num() uint {
 // String exception text
 func (v DomainException) String() string {
 	return domainExceptionTextMap[v]
+}
+
+func (v DomainException) Message() string {
+	return domainExceptionMessageMap[v]
+}
+
+func (v DomainException) ErrorMessage() errmsg.ErrorMessageProvider {
+	return errmsg.ErrorMessageArg(utils.Capitalize(v.Message()))
 }
 
 // HttpStatusCode returns HTTP status code

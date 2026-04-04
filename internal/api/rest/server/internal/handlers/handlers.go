@@ -15,9 +15,11 @@ type Dependencies struct {
 	Templates *template.Template
 
 	// Options
-	AppMode      dtypes.AppMode
-	AssetsDir    string
-	DownloadsDir string
+	AppMode         dtypes.AppMode
+	BaseURL         string
+	ShortLinkPrefix string
+	AssetsDir       string
+	DownloadsDir    string
 }
 
 type handlers struct {
@@ -29,7 +31,15 @@ type handlers struct {
 func New(deps *Dependencies) *handlers {
 	return &handlers{
 		Static: statich.NewStaticHandlers(deps.AssetsDir),
-		UI:     uih.NewUIHandlers(deps.Usecases, deps.Templates, deps.AppMode, deps.AssetsDir, deps.DownloadsDir),
-		API:    apihandlers.NewAPIHandlers(deps.Usecases),
+		UI: uih.NewUIHandlers(
+			deps.Usecases,
+			deps.Templates,
+			deps.AppMode,
+			deps.BaseURL,
+			deps.ShortLinkPrefix,
+			deps.AssetsDir,
+			deps.DownloadsDir,
+		),
+		API: apihandlers.NewAPIHandlers(deps.Usecases),
 	}
 }

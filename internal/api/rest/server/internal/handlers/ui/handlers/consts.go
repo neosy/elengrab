@@ -25,6 +25,7 @@ const (
 	userKey          = "user"
 	filterByTitleKey = "title"
 	searchKey        = "search"
+	shortCodeKey     = "shortCode"
 
 	cookiePageHasDivItemsKey cookieKey = "page_has_div_items"
 

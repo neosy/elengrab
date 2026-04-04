@@ -47,7 +47,7 @@ func (h *DownloaderHandlers) AuthRegisterHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	// Execute template with PageTitle
+	// Execute template
 	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageAuthRegisterKey, dataMap); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return

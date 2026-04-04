@@ -1,3 +1,12 @@
+{{- define "account-menu" }}
+<div class="account-menu menu" id="account-menu"
+     hx-get="{{ .PathAccountMenu }}"
+     hx-trigger="manual"
+     hx-target="this"
+     hx-swap="innerHTML">
+</div>
+{{- end }}
+
 {{- define "account-menu-content" }}
   <div class="menu-header">
     <div class="avatar">{{ .UserAvatarIcon }}</div>
@@ -8,7 +17,7 @@
   </div>
   <div class="menu-actions">
     {{- range .AccountMenuActions }}
-    <div class="menu-action menu-action--{{ .Action }}" id="menu-action-{{ .Action }}" data-href="{{ .URL }}">
+    <div class="menu-action menu-action--{{ .Action }}" id="menu-action-{{ .Action }}" data-action="{{ .Action }}" data-url="{{ .URL }}">
         <div class="menu-action__content">
             <div class="menu-action__content-icon">
                 {{ .IconSvg }}
