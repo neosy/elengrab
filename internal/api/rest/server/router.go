@@ -12,11 +12,13 @@ func (s *httpServer) newRouter() *router.Router {
 	r.RedirectTrailingSlash = false
 
 	deps := &handlers.Dependencies{
-		Usecases:     s.usecases,
-		Templates:    s.templates,
-		AppMode:      s.appMode,
-		AssetsDir:    s.assetsDir,
-		DownloadsDir: s.downloadsDir,
+		Usecases:        s.usecases,
+		Templates:       s.templates,
+		AppMode:         s.appMode,
+		BaseURL:         s.baseURL,
+		ShortLinkPrefix: s.shortLinkPrefix,
+		AssetsDir:       s.assetsDir,
+		DownloadsDir:    s.downloadsDir,
 	}
 
 	handlers := handlers.New(deps)

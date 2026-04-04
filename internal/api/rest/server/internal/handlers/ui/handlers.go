@@ -18,6 +18,8 @@ func NewUIHandlers(
 
 	// options
 	appMode dtypes.AppMode,
+	baseURL string,
+	shortLinkPrefix string,
 	assetsDir string,
 	downloadsDir string,
 ) *UIHandlers {
@@ -28,6 +30,8 @@ func NewUIHandlers(
 
 			// options
 			appMode,
+			baseURL,
+			shortLinkPrefix,
 			assetsDir,
 			downloadsDir,
 		),

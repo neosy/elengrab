@@ -25,8 +25,10 @@ const (
 
 	PathDownloaderKey     = "PathDownloader"
 	PathAccountMenuKey    = "PathAccountMenu"
+	PathRowMenuKey        = "PathRowMenu"
 	PathDownloaderGrabKey = "PathDownloaderGrab"
 	PathHistorySearchKey  = "PathHistorySearch"
+	PathStreamKey         = "PathStream"
 )
 
 var PathValues = map[string]any{
@@ -41,6 +43,7 @@ var PathValues = map[string]any{
 
 	PathDownloaderKey:     httppaths.GroupDownloader,
 	PathAccountMenuKey:    httppaths.GroupDownloader + httppaths.PathAccountMenu,
+	PathRowMenuKey:        httppaths.GroupDownloader + httppaths.PathFileMenu,
 	PathItemsHistoryKey:   httppaths.GroupDownloader + httppaths.PathHistory,
 	PathDownloaderGrabKey: httppaths.GroupDownloader + httppaths.PathGrab,
 	PathHistorySearchKey:  httppaths.GroupDownloader + httppaths.PathSearch,
@@ -50,7 +53,7 @@ var cssFileNames = []string{
 	"index.css",
 	"variables.css",
 	"theme-switcher.css",
-	"account-menu.css",
+	"menu.css",
 	"grab-form.css",
 	"result-rows.css",
 	"player.css",
@@ -69,7 +72,8 @@ var jsImportFileNames = []string{
 	"row-event-handlers.js",
 	"player.js",
 	"tooltip.js",
-	"account-menu.js",
+	"menu.js",
+	"menu-configs.js",
 	"dom-ids.js",
 	"dom-elements.js",
 	"constants.js",

@@ -13,6 +13,7 @@ const (
 	DBMainName  DBName = "elengrab"
 	DBAuthName  DBName = "auth"
 	DBMediaName DBName = "media"
+	DBLinkName  DBName = "link"
 )
 
 // String returns the string representation of a DBName.

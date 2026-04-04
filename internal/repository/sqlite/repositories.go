@@ -7,6 +7,7 @@ import (
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download"
+	"github.com/neosy/elengrab/internal/repository/sqlite/link"
 	"github.com/neosy/elengrab/internal/repository/sqlite/media"
 )
 
@@ -15,15 +16,18 @@ type Repositories struct {
 	dbByName map[persistence.DBName]*sql.DB
 	dbNames  []persistence.DBName
 
+	User        persistence.UserRepository
+	Role        persistence.RoleRepository
+	UserRole    persistence.UserRoleRepository
+	UserSession persistence.UserSessionRepository
+
 	File           persistence.FileRepository
 	DownloadTask   persistence.DownloadTaskRepository
 	YoutubeChannel persistence.YoutubeChannelRepository
 	SiteLogo       persistence.SiteLogoRepository
 
-	User        persistence.UserRepository
-	Role        persistence.RoleRepository
-	UserRole    persistence.UserRoleRepository
-	UserSession persistence.UserSessionRepository
+	Link      persistence.LinkRepository
+	LickClick persistence.LinkClickRepository
 }
 
 // New returns a new Repositories struct with database connections.
@@ -36,6 +40,7 @@ func New(dbByName map[persistence.DBName]*sql.DB) *Repositories {
 	authDB := dbByName[persistence.DBAuthName]
 	mainDB := dbByName[persistence.DBMainName]
 	mediaDB := dbByName[persistence.DBMediaName]
+	linkDB := dbByName[persistence.DBLinkName]
 
 	var dbNames []persistence.DBName
 	for name := range dbByName {
@@ -56,6 +61,9 @@ func New(dbByName map[persistence.DBName]*sql.DB) *Repositories {
 
 		YoutubeChannel: media.NewYoutubeChannelRepository(mediaDB, lockByDBName[persistence.DBMediaName]),
 		SiteLogo:       media.NewSiteLogoRepository(mediaDB, lockByDBName[persistence.DBMediaName]),
+
+		Link:      link.NewLinkRepository(linkDB, lockByDBName[persistence.DBLinkName]),
+		LickClick: link.NewLinkClickRepository(linkDB, lockByDBName[persistence.DBLinkName]),
 	}
 }
 

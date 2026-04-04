@@ -21,9 +21,11 @@ type Dependencies struct {
 	Templates *template.Template
 
 	// Options
-	AppMode      dtypes.AppMode
-	AssetsDir    string
-	DownloadsDir string
+	AppMode         dtypes.AppMode
+	BaseURL         string
+	ShortLinkPrefix string
+	AssetsDir       string
+	DownloadsDir    string
 }
 
 type httpServer struct {
@@ -40,9 +42,11 @@ type httpServer struct {
 	templates *template.Template
 
 	// Options
-	appMode      dtypes.AppMode
-	assetsDir    string
-	downloadsDir string
+	appMode         dtypes.AppMode
+	baseURL         string
+	shortLinkPrefix string
+	assetsDir       string
+	downloadsDir    string
 }
 
 func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *httpServer {
@@ -54,9 +58,11 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *h
 		templates:      deps.Templates,
 
 		// Optons
-		appMode:      deps.AppMode,
-		assetsDir:    deps.AssetsDir,
-		downloadsDir: deps.DownloadsDir,
+		appMode:         deps.AppMode,
+		baseURL:         deps.BaseURL,
+		shortLinkPrefix: deps.ShortLinkPrefix,
+		assetsDir:       deps.AssetsDir,
+		downloadsDir:    deps.DownloadsDir,
 	}
 }
 

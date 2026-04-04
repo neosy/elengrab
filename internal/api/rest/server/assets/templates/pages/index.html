@@ -5,7 +5,7 @@
 {{- define "header" }}
     <div class="user-menu">
       {{- template "theme-switcher" . }}
-      <div id="user-avatar" class="user-avatar" data-action="{{ .UserAvatarActionMode }}">
+      <div class="user-avatar" id="user-avatar" data-action="{{ .UserAvatarActionMode }}">
         {{- if eq .UserAvatarActionMode "login" }}<a href="{{ .PathAuthLogin }}">{{- end }}
         {{- .UserAvatarIcon }}
         {{- if eq .UserAvatarActionMode "login" }}</a>{{- end }}

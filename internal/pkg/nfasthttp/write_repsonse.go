@@ -6,10 +6,10 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func WriteResponse(ctx *fasthttp.RequestCtx, t interface{}) error {
+func WriteResponse(ctx *fasthttp.RequestCtx, t any) error {
 	response, err := json.Marshal(t)
 	if err != nil {
-		WriteError(ctx, err, fasthttp.StatusInternalServerError)
+		WriteErrorx(ctx, err)
 		return err
 	}
 

@@ -17,15 +17,30 @@ import (
 // GetFileInfo retrieves file information by file ID for a specific user.
 func (uc *Downloader) GetFileInfo(
 	ctx context.Context,
-	userCtx dauth.UserContext,
+	ctxUser dauth.UserContext,
 	fileID uuid.UUID,
 ) (*dto.GetFileInfoResponse, error) {
 	var accessByUserID *uuid.UUID
-	if uc.authz.RestrictFilesByUser(userCtx.Roles) {
-		accessByUserID = &userCtx.UserID
+	if uc.authz.RestrictFilesByUser(ctxUser.Roles) {
+		accessByUserID = &ctxUser.UserID
 	}
 
 	resp, err := uc.findActualFileInfo(ctx, accessByUserID, fileID)
+	if err != nil {
+		uc.logger.Error("Failed get file info", "error", err)
+		return nil, err
+	}
+	if resp == nil {
+		return nil, errorx.New("file not found", exceptionx.NOT_FOUND)
+	}
+	return resp, nil
+}
+
+func (uc *Downloader) GetFileInfoUnrestricted(
+	ctx context.Context,
+	fileID uuid.UUID,
+) (*dto.GetFileInfoResponse, error) {
+	resp, err := uc.findActualFileInfo(ctx, nil, fileID)
 	if err != nil {
 		uc.logger.Error("Failed get file info", "error", err)
 		return nil, err

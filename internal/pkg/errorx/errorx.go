@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/internal/utils"
 )
 
 // Type for error handling
@@ -181,6 +182,10 @@ func Errorf(format string, args ...any) Errorx {
 	return errx
 }
 
+func NewFromDomainException(exception exceptionx.DomainException, args ...any) Errorx {
+	return New(exception.Message(), exception)
+}
+
 func isErrorxSpecialArg(arg any) bool {
 	if arg == nil {
 		return false
@@ -244,7 +249,7 @@ func (e *errorx) initFromArgs(args ...any) {
 	}
 
 	if message != nil {
-		msg := capitalize(*message)
+		msg := utils.Capitalize(*message)
 		e.message = &msg
 	}
 
