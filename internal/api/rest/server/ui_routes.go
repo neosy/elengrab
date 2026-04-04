@@ -32,6 +32,7 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		group.POST(httppaths.PathGrab, authOrGuest(handlers.Downloader.GrabHandler))
 		group.GET(httppaths.PathDownload, requireAuthMode(handlers.Downloader.DownloadHandler))
 		group.GET(httppaths.PathStream, requireAuthMode(handlers.Downloader.StreamHandler))
+		group.GET(httppaths.PathStreamShortCode, requireAuthMode(handlers.Downloader.StreamShortCodeHandler))
 		group.GET(httppaths.PathFileRow, requireAuthMode(handlers.Downloader.GetFileRowHandler))
 		group.GET(httppaths.PathFileLogo, requireAuthMode(handlers.Downloader.GetFileLogoHandler))
 		group.DELETE(httppaths.PathFile, authOrGuest(handlers.Downloader.DeleteFileRowHandler))
@@ -39,5 +40,13 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		group.GET(httppaths.PathChannelAvatar, authOrAnonym(handlers.Downloader.GetChannelAvatarHandler))
 		group.GET(httppaths.PathFilesEvents, authOptional(handlers.Downloader.EventsHandler))
 		group.POST(httppaths.PathSearch, authOptional(handlers.Downloader.SearchHandler))
+		group.GET(httppaths.PathFileMenu, requireAuthMode(handlers.Downloader.RowMenuHandler))
+		group.POST(httppaths.PathFileShortLink, requireAuthMode(handlers.Downloader.GetFileShortLinkHandler))
+	}
+
+	// Short link
+	group = r.Group(s.shortLinkPrefix)
+	{
+		group.GET(httppaths.PathShortLink, handlers.Downloader.ShortLinkHandler)
 	}
 }

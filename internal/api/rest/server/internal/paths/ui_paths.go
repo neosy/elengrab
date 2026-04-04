@@ -14,18 +14,21 @@ const (
 	GroupAccount    = "/account"
 
 	// Paths Downloader
-	PathGrab        = "/grab"
-	PathHistory     = "/history"
-	PathDownload    = "/download"
-	PathStream      = "/stream"
-	PathSearch      = "/search"
-	PathAccountMenu = "/account-menu"
+	PathGrab            = "/grab"
+	PathHistory         = "/history"
+	PathDownload        = "/download"
+	PathStream          = "/stream"
+	PathStreamShortCode = "/stream/{shortCode}"
+	PathSearch          = "/search"
+	PathAccountMenu     = "/account-menu"
 
 	PathFile               = "/file/{fileId}"
 	PathFileRow            = "/file/{fileId}/row"
 	PathFileDownloadRepeat = "/file/{fileId}/repeat"
 	PathFileLogo           = "/file/{fileId}/logo"
 	PathFilesEvents        = "/files/events"
+	PathFileMenu           = "/files/{fileId}/menu"
+	PathFileShortLink      = "/files/{fileId}/short-link"
 
 	PathChannelAvatar = "/channel/{channelID}/avatar"
 
@@ -33,6 +36,9 @@ const (
 	PathRegister = "/register"
 	PathLogin    = "/login"
 	PathLogout   = "/logout"
+
+	// Short link
+	PathShortLink = "/{shortCode}"
 )
 
 func BuildPathFile(fileID uuid.UUID) string {
@@ -53,4 +59,8 @@ func BuildPathFileStream(fileID uuid.UUID) string {
 
 func BuildPathFileRepeat(fileID uuid.UUID) string {
 	return GroupDownloader + strings.Replace(PathFileDownloadRepeat, "{fileId}", fileID.String(), 1)
+}
+
+func BuildPathStreamShortCode(shortCode string) string {
+	return GroupDownloader + strings.Replace(PathStreamShortCode, "{shortCode}", shortCode, 1)
 }

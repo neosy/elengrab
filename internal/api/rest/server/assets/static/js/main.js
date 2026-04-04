@@ -4,7 +4,7 @@ import * as actionButton from './action-button.js';
 import * as rowEventHandlers from './row-event-handlers.js';
 import * as player from './player.js';
 import * as tooltip from './tooltip.js';
-import * as accountMenu from './account-menu.js';
+import * as menu from './menu-configs.js';
 import { DOM_IDS } from "./dom-ids.js";
 import { DOM_ELEMENTS } from "./dom-elements.js";
 import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
@@ -223,8 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init tooltips
     tooltip.initTooltips();
 
-    // Init account menu
-    accountMenu.initAccountMenu();    
+    // Init menu
+    menu.initMenus();
     
     // Init inline media player
     player.initPlayer();

@@ -28,9 +28,6 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 		ctxUser = dauth.UserContextAnonymous()
 	}
 
-	// Set content type so browser renders HTML properly
-	ctx.SetContentType("text/html; charset=utf-8")
-
 	var rowsBuf bytes.Buffer
 	err := h.getFilesHistory(ctx, &rowsBuf, *ctxUser, time.Now().UTC(), nil)
 	if err != nil {
@@ -98,6 +95,9 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	dataMap[uivalues.AppVersionKey] = systemInfo.AppVersion
 	dataMap[uivalues.DiskFreeKey] = uformat.BytesHuman(systemInfo.DiskFree)
 	dataMap[uivalues.DiskUsedKey] = uformat.BytesHuman(systemInfo.DiskUsed)
+
+	// Set content type so browser renders HTML properly
+	ctx.SetContentType("text/html; charset=utf-8")
 
 	// Load template
 	tmpl, err := h.loadPage(uivalues.PageIndexHtmlFileName)

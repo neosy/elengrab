@@ -1,0 +1,164 @@
+package link
+
+import (
+	"context"
+	"database/sql"
+	"errors"
+	"fmt"
+
+	"github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
+	dlink "github.com/neosy/elengrab/internal/domain/link"
+	"github.com/neosy/elengrab/internal/pkg/dbutils"
+	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
+	elink "github.com/neosy/elengrab/internal/repository/sqlite/link/entity"
+	"github.com/neosy/elengrab/internal/repository/sqlite/link/mappers"
+)
+
+type LinkClickRepository struct {
+	mappers *mappers.Mappers
+	db      *sql.DB
+	lock    dbexec.WriteLocker
+
+	// options
+	retryOptions dbexec.RetryOptions
+}
+
+// NewLinkClickRepository returns a new object for the repository
+func NewLinkClickRepository(db *sql.DB, lock dbexec.WriteLocker) *LinkClickRepository {
+	return &LinkClickRepository{
+		mappers: mappers.NewMappers(),
+		db:      db,
+		lock:    lock,
+
+		// options
+		retryOptions: dbexec.RetryOptions{
+			MaxRetries: maxRetriesDefault,
+			Delay:      retryDelayDefault,
+		},
+	}
+}
+
+func (r *LinkClickRepository) Insert(ctx context.Context, linkClick *dlink.LinkClick) error {
+	return r.save(ctx, linkClick)
+}
+
+func (r *LinkClickRepository) Update(ctx context.Context, linkClick *dlink.LinkClick) error {
+	return r.save(ctx, linkClick)
+}
+
+func (r *LinkClickRepository) save(ctx context.Context, linkClick *dlink.LinkClick) error {
+	if linkClick == nil {
+		return errors.New("function parameter is a null pointer")
+	}
+
+	// Convert the domain model to a database entity
+	eLinkClick, err := r.mappers.MapLinkClickDomainToEntity(linkClick)
+	if err != nil {
+		return err
+	}
+
+	// Get the list of fields and values for insertion
+	fields := eLinkClick.Fields()
+	values := eLinkClick.Values()
+
+	// Generate SQL query with upsert logic
+	sqlQuery, args, err := squirrel.
+		Insert(eLinkClick.TableName()).
+		Columns(fields...).
+		Values(values...).
+		Suffix(dbutils.UpsertSuffix(fields, eLinkClick.FieldName(&eLinkClick.LinkClickID))).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+	// If SQL generation failed — return an error
+	if err != nil {
+		return fmt.Errorf("failed to build SQL: %w", err)
+	}
+
+	// Execute the query
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to save link: %v", err)
+	}
+
+	return nil
+}
+
+func (r *LinkClickRepository) Find(ctx context.Context, linkClickID uuid.UUID) (*dlink.LinkClick, error) {
+	var eLinkClick elink.LinkClick
+
+	sqlQuery, args, err := squirrel.Select(eLinkClick.FieldsAll()...).
+		From(eLinkClick.TableName()).
+		Where(squirrel.Eq{eLinkClick.FieldName(&eLinkClick.LinkClickID): linkClickID}).
+		PlaceholderFormat(squirrel.Dollar).
+		Limit(1).
+		ToSql()
+
+	if err != nil {
+		return nil, fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	var notFound bool
+	db := dbexec.Resolve(ctx, r.db)
+	execQuery := func() error {
+		row := db.QueryRowContext(ctx, sqlQuery, args...)
+		// Scan result into entity
+		err := row.Scan(eLinkClick.FieldPointers()...)
+		if err == sql.ErrNoRows {
+			notFound = true
+			return nil
+		}
+		return err
+	}
+	err = dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
+	if err != nil {
+		return nil, err
+	}
+	if notFound {
+		return nil, nil
+	}
+
+	// Map entity to domain model
+	linkClick, err := r.mappers.MapLinkClickEntityToDomain(&eLinkClick)
+	if err != nil {
+		return nil, err
+	}
+
+	return linkClick, nil
+}
+
+func (r *LinkClickRepository) CountByLinkId(ctx context.Context, linkID uuid.UUID) (uint16, error) {
+	var eLinkClick elink.LinkClick
+
+	sqlQuery, args, err := squirrel.Select("COUNT(*)").
+		From(eLinkClick.TableName()).
+		Where(squirrel.Eq{eLinkClick.FieldName(&eLinkClick.LinkID): linkID}).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+
+	if err != nil {
+		return 0, fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	var count int
+	db := dbexec.Resolve(ctx, r.db)
+	execQuery := func() error {
+		err := db.QueryRowContext(ctx, sqlQuery, args...).Scan(&count)
+		if err == sql.ErrNoRows {
+			return nil
+		}
+		return err
+	}
+	err = dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
+	if err != nil {
+		return 0, err
+	}
+
+	return uint16(count), nil
+}
+
+func (r *LinkClickRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
+	return dbexec.Tx(ctx, r.db, r.lock, fn)
+}

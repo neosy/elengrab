@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"log/slog"
+	"strings"
 	"time"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -62,6 +63,7 @@ type Application struct {
 	dbAuth  *sql.DB
 	dbMain  *sql.DB
 	dbMedia *sql.DB
+	dbLink  *sql.DB
 }
 
 func NewApplication(logger *slog.Logger, cfg *iconfig.Config) (*Application, error) {
@@ -118,8 +120,13 @@ func (a *Application) initialize() error {
 		return err
 	}
 
+	a.dbLink, err = newDB(a.logger, persistence.DBLinkName.Path(sqliteDir))
+	if err != nil {
+		return err
+	}
+
 	// Apply all up migrations
-	err = applyMigrations(a.logger, a.cfg, a.dbAuth, a.dbMain, a.dbMedia)
+	err = applyMigrations(a.logger, a.cfg, a.dbAuth, a.dbMain, a.dbMedia, a.dbLink)
 	if err != nil {
 		return err
 	}
@@ -129,6 +136,7 @@ func (a *Application) initialize() error {
 		persistence.DBAuthName:  a.dbAuth,
 		persistence.DBMainName:  a.dbMain,
 		persistence.DBMediaName: a.dbMedia,
+		persistence.DBLinkName:  a.dbLink,
 	}
 	slRepositories := sqliterep.New(dbs)
 
@@ -180,6 +188,8 @@ func (a *Application) initialize() error {
 			Role:           slRepositories.Role,
 			UserRole:       slRepositories.UserRole,
 			UserSession:    slRepositories.UserSession,
+			Link:           slRepositories.Link,
+			LinkClick:      slRepositories.LickClick,
 
 			// in memory
 			DownloadStateCache:  inMemoryRepositories.DownloadState,
@@ -191,11 +201,13 @@ func (a *Application) initialize() error {
 
 		// Options
 		AppName:               iconfig.AppName,
+		AppMode:               dtypes.MustParseAppMode(a.cfg.Elengrab.Mode),
 		DemoMode:              a.cfg.Elengrab.DemoMode,
-		DownloadsDir:          absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
+		BaseURL:               a.cfg.Elengrab.BaseURL,
+		BaseShortURL:          strings.TrimSuffix(a.cfg.Elengrab.BaseURL, "/") + a.cfg.Elengrab.ShortLinkPrefix,
 		DatabaseBackupsDir:    absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.BackupsDir),
 		DatabaseBackupsKeep:   a.cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
-		AppMode:               dtypes.MustParseAppMode(a.cfg.Elengrab.Mode),
+		DownloadsDir:          absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
 		DeleteDuplicatesScope: dtypes.MustParseUniquenessScope(a.cfg.Elengrab.DeleteDuplicatesScope),
 		LogoUpdateInterval:    logoUpdateInterval,
 		ChannelUpdateInterval: channelUpdateInterval,

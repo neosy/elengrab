@@ -36,6 +36,9 @@ type ElengrabConfig struct {
 	Mode     string `env:"MODE" envDefault:"public"`
 	DemoMode bool   `env:"DEMO_MODE" envDefault:"false"`
 
+	BaseURL         string `env:"BASE_URL" envDefault:""`
+	ShortLinkPrefix string `env:"SHORT_LINK_PREFIX" envDefault:"/l"`
+
 	// AdminLogin and AdminPassword are used to create the default administrator
 	// at first startup if no admin exists.
 	AdminLogin    string `env:"ADMIN_LOGIN" envDefault:""`

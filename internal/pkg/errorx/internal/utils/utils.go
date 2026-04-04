@@ -1,8 +1,8 @@
-package errorx
+package utils
 
 import "unicode"
 
-func capitalize(s string) string {
+func Capitalize(s string) string {
 	if s == "" {
 		return s
 	}

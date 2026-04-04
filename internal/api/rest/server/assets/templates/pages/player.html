@@ -1,0 +1,11 @@
+{{- define "player" }}
+    {{- template "page" . }}
+{{- end }}
+
+{{- define "content" }}
+    <h1>Media Player</h1>
+    <video id="mediaPlayer" controls>
+        <source src="{{ .PathStream }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+{{- end }}

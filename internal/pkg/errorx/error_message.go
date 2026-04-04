@@ -1,12 +1,9 @@
 package errorx
 
+import errmsg "github.com/neosy/elengrab/internal/pkg/errorx/internal/error_message"
+
 // ErrorMessageProvider returns an error message string.
-type ErrorMessageProvider func() *string
+type ErrorMessageProvider = errmsg.ErrorMessageProvider
 
 // ErrorMessageArg creates a provider that always returns the given text.
-func ErrorMessageArg(text string) ErrorMessageProvider {
-	return func() *string {
-		msg := capitalize(text)
-		return &msg
-	}
-}
+var ErrorMessageArg = errmsg.ErrorMessageArg

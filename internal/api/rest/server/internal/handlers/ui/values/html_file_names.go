@@ -5,10 +5,12 @@ const (
 	PageIndexKey        = "index"
 	PageAuthRegisterKey = "auth-register"
 	PageAuthLoginKey    = "auth-login"
+	PagePlayerKey       = "player"
 
 	PageIndexHtmlFileName        = "index.html"
 	PageAuthRegisterHtmlFileName = "auth-register.html"
 	PageAuthLoginHtmlFileName    = "auth-login.html"
+	PagePlayerHtmlFileName       = "player.html"
 )
 
 const (
@@ -21,4 +23,5 @@ const (
 	ComponentResultLoadHistory          = "result-row-load-history"
 	ComponentResultShouldLoadHistoryKey = "result-row-should-load-history"
 	ComponentResultProgressKey          = "result-progress"
+	ComponentRowMenuContentKey          = "row-menu-content"
 )
