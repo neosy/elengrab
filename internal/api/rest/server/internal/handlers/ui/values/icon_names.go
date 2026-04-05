@@ -13,13 +13,12 @@ const (
 	UserAvatarGuestIconNameKey  = "UserAvatarGuestIconName"
 	UserAvatarAnonymIconNameKey = "UserAvatarAnonymIconName"
 
-	DownloadIconNameKey         = "DownloadIconName"
-	DownloadFailedIconNameKey   = "DownloadFailedIconName"
-	DownloadPendingIconNameKey  = "DownloadPendingIconName"
-	GrabResultStatusIconNameKey = "GrabResultStatusIconName"
-	DownloadDeleteIconNameKey   = "DownloadDeleteIconName"
-	MediaDefaultIconNameKey     = "MediaDefaultIconName"
-	DownloadRepeatIconNameKey   = "DownloadRepeatIconName"
+	DownloadIconNameKey        = "DownloadIconName"
+	DownloadFailedIconNameKey  = "DownloadFailedIconName"
+	DownloadPendingIconNameKey = "DownloadPendingIconName"
+	DownloadDeleteIconNameKey  = "DownloadDeleteIconName"
+	MediaDefaultIconNameKey    = "MediaDefaultIconName"
+	DownloadRepeatIconNameKey  = "DownloadRepeatIconName"
 )
 
 var (
@@ -53,21 +52,6 @@ func IconFileName(key string) string {
 	return iconFileNames[key].(string)
 }
 
-func DownloadResultStatusIconFileName(status dtypes.FileStatus) string {
-	var iconName string
-
-	switch status {
-	case dtypes.FileStatusNew, dtypes.FileStatusPending:
-		iconName = iconFileNames[DownloadPendingIconNameKey].(string)
-	case dtypes.FileStatusDone:
-		iconName = iconFileNames[DownloadIconNameKey].(string)
-	case dtypes.FileStatusFailed:
-		iconName = iconFileNames[DownloadFailedIconNameKey].(string)
-	}
-
-	return iconName
-}
-
 func IconFileRaw(fileName string, svgDir string) string {
 	filePath := filepath.Join(svgDir, fileName)
 
@@ -84,7 +68,18 @@ func IconFileRawByKey(key string, svgDir string) string {
 }
 
 func DownloadResultStatusIconSvgRaw(status dtypes.FileStatus, svgDir string) string {
-	return IconFileRaw(DownloadResultStatusIconFileName(status), svgDir)
+	var iconName string
+
+	switch status {
+	case dtypes.FileStatusNew, dtypes.FileStatusPending:
+		iconName = iconFileNames[DownloadPendingIconNameKey].(string)
+	case dtypes.FileStatusDone:
+		iconName = iconFileNames[DownloadIconNameKey].(string)
+	case dtypes.FileStatusFailed:
+		iconName = iconFileNames[DownloadFailedIconNameKey].(string)
+	}
+
+	return IconFileRaw(iconName, svgDir)
 }
 
 func UserAvatarKeyByType(userType dtypes.UserType) string {

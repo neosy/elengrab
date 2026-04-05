@@ -65,7 +65,7 @@ const rowMenuConfig = {
 };
 
 // Initialize all menus
-export function initMenus() {
+export function initIndexMenus() {
   initMenu(accountMenuConfig);
   initMenu(rowMenuConfig);
 }

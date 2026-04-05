@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"encoding/json"
 	"html/template"
 	"path/filepath"
 	"time"
@@ -37,31 +36,19 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 
 	systemInfo := h.downloader.SystemInfo()
 
-	cssPaths, err := uivalues.CssPaths(filepath.Join(h.assetsDir, dirStaticName, dirCssName))
+	cssPaths, err := uivalues.CssIndexPaths(filepath.Join(h.assetsDir, dirStaticName, dirCssName))
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	jsScripts, err := uivalues.JsScripts(filepath.Join(h.assetsDir, dirStaticName, dirJsName))
+	jsScripts, err := uivalues.JsIndexPaths(filepath.Join(h.assetsDir, dirStaticName, dirJsName))
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	jsImportMap, err := uivalues.JsImportMap(filepath.Join(h.assetsDir, dirStaticName, dirJsName))
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
-		return
-	}
-
-	jsImportMapJSON, err := json.MarshalIndent(
-		map[string]any{
-			"imports": jsImportMap,
-		},
-		"",
-		"  ",
-	)
+	jsImportMapJSON, err := uivalues.JsIndexImportMapJSON(filepath.Join(h.assetsDir, dirStaticName, dirJsName))
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -79,7 +66,7 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	dataMap := uivalues.MergeMaps(
-		uivalues.IndexValues,
+		uivalues.BaseValues.ToMap(),
 		uivalues.FormGrabValues,
 		uivalues.PathValues,
 	)
@@ -100,14 +87,14 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("text/html; charset=utf-8")
 
 	// Load template
-	tmpl, err := h.loadPage(uivalues.PageIndexHtmlFileName)
+	tmpl, err := h.loadPage(uivalues.PageIndex.FileName())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
 
 	// Execute template with PageTitle
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageIndexKey, dataMap); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageIndex.Key(), dataMap); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

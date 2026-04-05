@@ -1,12 +1,12 @@
 import * as helper from './helper.js';
 import * as cookie from './cookie.js';
-import * as actionButton from './action-button.js';
-import * as rowEventHandlers from './row-event-handlers.js';
-import * as player from './player.js';
-import * as tooltip from './tooltip.js';
-import * as menu from './menu-configs.js';
-import { DOM_IDS } from "./dom-ids.js";
-import { DOM_ELEMENTS } from "./dom-elements.js";
+import * as actionButton from './action-buttons.js';
+import * as rowEventHandlers from './index-row-event-handlers.js';
+import { initPlayer } from './index-player.js';
+import { initTooltips } from './tooltip.js';
+import { initIndexMenus as initMenu } from './menu-configs.js';
+import { DOM_IDS } from "./index-dom-ids.js";
+import { DOM_ELEMENTS } from "./index-dom-elements.js";
 import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
 
 // Global variables
@@ -221,13 +221,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setupQualityFormatLogic();
 
     // Init tooltips
-    tooltip.initTooltips();
+    initTooltips();
 
     // Init menu
-    menu.initMenus();
+    initMenu();
     
     // Init inline media player
-    player.initPlayer();
+    initPlayer();
 
     // Init action button for input field
     actionButton.initInputPasteClearButton(grabInputURL, grabInputActionBtn)
