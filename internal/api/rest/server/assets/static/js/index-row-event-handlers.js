@@ -1,5 +1,5 @@
-import { DOM_IDS } from "./dom-ids.js";
-import { DOM_ELEMENTS } from "./dom-elements.js";
+import { DOM_IDS } from "./index-dom-ids.js";
+import { DOM_ELEMENTS } from "./index-dom-elements.js";
 import * as helper from './helper.js';
 
 // -------------------------------------------------------------

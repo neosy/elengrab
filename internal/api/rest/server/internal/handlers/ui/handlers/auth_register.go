@@ -30,25 +30,28 @@ func (h *DownloaderHandlers) AuthRegisterHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	jsScripts, err := uivalues.JsAuthScripts(filepath.Join(h.assetsDir, dirStaticName, dirJsName))
+	jsScripts, err := uivalues.JsAuthPaths(filepath.Join(h.assetsDir, dirStaticName, dirJsName))
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	dataMap := uivalues.MergeMaps(uivalues.IndexValues, uivalues.PathValues)
+	dataMap := uivalues.MergeMaps(
+		uivalues.BaseValues.ToMap(),
+		uivalues.PathValues,
+	)
 	dataMap[uivalues.CssPathsKey] = cssPaths
 	dataMap[uivalues.JsScriptsKey] = jsScripts
 
 	// Load template
-	tmpl, err := h.loadPage(uivalues.PageAuthRegisterHtmlFileName)
+	tmpl, err := h.loadPage(uivalues.PageAuthRegister.FileName())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
 
 	// Execute template
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageAuthRegisterKey, dataMap); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageAuthRegister.Key(), dataMap); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

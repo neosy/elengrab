@@ -1,4 +1,4 @@
-import { DOM_IDS } from "./dom-ids.js";
+import { DOM_IDS } from "./index-dom-ids.js";
 
 export const DOM_ELEMENTS = {
     mediaURL: null,

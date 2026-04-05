@@ -7,9 +7,9 @@ import (
 )
 
 type accountMenuAction struct {
-	Action       string
-	Title        string
-	IconSvg      any
+	Action       string `json:"action"`
+	Title        string `json:"title"`
+	IconSvg      any    `json:"iconSvg,omitempty"`
 	IconFileName string
 	URL          string
 }
