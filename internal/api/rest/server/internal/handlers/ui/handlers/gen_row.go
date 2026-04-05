@@ -128,13 +128,12 @@ func (h *DownloaderHandlers) genRow(
 		isGrabResultItemHTMXOptionRepeat = true
 	}
 
-	dataMap[uivalues.GrabResultStatusIconNameKey] = uivalues.DownloadResultStatusIconFileName(fileInfo.Status)
 	dataMap[uivalues.IsItemHTMXOptionRepeatKey] = isGrabResultItemHTMXOptionRepeat
 	dataMap[uivalues.IsFileEventKey] = isFileEvent
-	dataMap[uivalues.GrabResultItemStatusHtmlKey] = template.HTML(
+	dataMap[uivalues.ResultRowStatusIconKey] = template.HTML(
 		uivalues.DownloadResultStatusIconSvgRaw(fileInfo.Status, iconsDir),
 	)
-	dataMap[uivalues.GrabResultItemStatusTextKey] = fileInfo.StatusText
+	dataMap[uivalues.ResultRowStatusTitleKey] = fileInfo.StatusText
 	dataMap[uivalues.DownloadResultItemDeleteIconKey] = template.HTML(
 		uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadDeleteIconNameKey), iconsDir),
 	)

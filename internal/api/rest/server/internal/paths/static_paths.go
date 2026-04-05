@@ -4,6 +4,12 @@ const (
 	// Groups
 	GroupStatic = "/static"
 
+	GroupCss  = GroupStatic + "/css"
+	GroupJs   = GroupStatic + "/js"
+	GroupImg  = GroupStatic + "/img"
+	GroupIcon = GroupStatic + "/icon"
+	GroupPwa  = GroupStatic + "/pwa"
+
 	// Path files
 	PathCssFiles      = "/css/{filepath:*}"
 	PathImgFiles      = "/img/{filepath:*}"

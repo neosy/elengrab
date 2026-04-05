@@ -1,5 +1,5 @@
 {{- define "result-row-status" }}
-<div class="grab-result__row inprogress {{ .ItemFade }}" id="{{ .RowID }}">
+<div class="grab-result__row inprogress {{ .ResultRowFade }}" id="{{ .RowID }}">
     <div class="result-left">
         <span class="result__avatar" title="{{ .AvatarTitle }}">
             {{ $logoAttr := "" }}
@@ -31,7 +31,7 @@
             </button>            
         </div>
         <span class="result__separator">•</span>
-        <div class="result__status" title="{{ .GrabResultItemStatusText }}">
+        <div class="result__status" title="{{ .ResultRowStatusTitle }}">
         {{ if .IsItemSpiner }}
             <div class="result__status-spinner {{ .WorkingStatus }}"></div>
             {{ if eq .WorkingStatus "downloading" }}
@@ -45,7 +45,7 @@
                     {{ .DownloadResultItemStatusFailedIcon }}
                 </button>            
             {{ else }}
-                {{ .GrabResultItemStatusHtml }}
+                {{ .ResultRowStatusIcon }}
             {{ end }}
         {{ end }}
         </div>

@@ -38,21 +38,24 @@ func (h *DownloaderHandlers) ShortLinkHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	dataMap := uivalues.MergeMaps(uivalues.IndexValues, uivalues.PathValues)
+	dataMap := uivalues.MergeMaps(
+		uivalues.BaseValues.ToMap(),
+		uivalues.PathValues,
+	)
 	dataMap[uivalues.PathStreamKey] = httppaths.BuildPathStreamShortCode(shortCode)
 
 	// Set content type so browser renders HTML properly
 	ctx.SetContentType("text/html; charset=utf-8")
 
 	// Load template
-	tmpl, err := h.loadPage(uivalues.PagePlayerHtmlFileName)
+	tmpl, err := h.loadPage(uivalues.PageWatch.FileName())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
 
 	// Execute template with PageTitle
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.PagePlayerKey, dataMap); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageWatch.Key(), dataMap); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
