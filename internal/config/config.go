@@ -38,6 +38,7 @@ type ElengrabConfig struct {
 
 	BaseURL         string `env:"BASE_URL" envDefault:""`
 	ShortLinkPrefix string `env:"SHORT_LINK_PREFIX" envDefault:"/l"`
+	ShortLinkLength uint8  `env:"SHORT_LINK_LENGTH" envDefault:"6"`
 
 	// AdminLogin and AdminPassword are used to create the default administrator
 	// at first startup if no admin exists.

@@ -205,6 +205,7 @@ func (a *Application) initialize() error {
 		DemoMode:              a.cfg.Elengrab.DemoMode,
 		BaseURL:               a.cfg.Elengrab.BaseURL,
 		BaseShortURL:          strings.TrimSuffix(a.cfg.Elengrab.BaseURL, "/") + a.cfg.Elengrab.ShortLinkPrefix,
+		ShortCodeLength:       a.cfg.Elengrab.ShortLinkLength,
 		DatabaseBackupsDir:    absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.BackupsDir),
 		DatabaseBackupsKeep:   a.cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
 		DownloadsDir:          absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),

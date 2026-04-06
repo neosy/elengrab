@@ -41,6 +41,8 @@ func StructToMap(data any) map[string]any {
 		switch vv := v.(type) {
 		case bool:
 			result[k] = vv
+		case any:
+			result[k] = vv
 		default:
 			result[k] = fmt.Sprintf("%v", vv)
 		}

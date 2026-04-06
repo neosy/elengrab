@@ -2,6 +2,12 @@
     {{- template "auth" . }}
 {{- end }}
 
+{{- define "header" }}
+    <div class="user-menu">
+      {{- template "theme-switcher" . }}
+    </div>
+{{- end }}
+
 {{- define "content" }}
     <div class="main_login">
         <div class="main-header">
