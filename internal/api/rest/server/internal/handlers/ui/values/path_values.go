@@ -10,11 +10,11 @@ const (
 
 var (
 	PathValues = map[string]any{
-		"PathStaticImg":   httppaths.GroupImg,
-		"PathStaticIcons": httppaths.GroupIcon,
-		"PathStaticCss":   httppaths.GroupCss,
-		"PathStaticJs":    httppaths.GroupJs,
-		"PathStaticPwa":   httppaths.GroupPwa,
+		"PathStaticImg":   httppaths.GroupStaticImg,
+		"PathStaticIcons": httppaths.GroupStaticIcon,
+		"PathStaticCss":   httppaths.GroupStaticCss,
+		"PathStaticJs":    httppaths.GroupStaticJs,
+		"PathStaticPwa":   httppaths.GroupStaticPwa,
 
 		"PathAuthRegister": httppaths.GroupAccount + httppaths.PathRegister,
 		"PathAuthLogin":    httppaths.GroupAccount + httppaths.PathLogin,

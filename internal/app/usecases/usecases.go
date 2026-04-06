@@ -29,8 +29,10 @@ type Dependencies struct {
 	AppMode  dtypes.AppMode
 	DemoMode bool
 
-	BaseURL      string
-	BaseShortURL string
+	BaseURL string
+
+	BaseShortURL    string
+	ShortCodeLength uint8
 
 	DatabaseBackupsDir  string
 	DatabaseBackupsKeep int
@@ -139,6 +141,6 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.DatabaseBackupsKeep,
 		),
 		Link:    link,
-		LinkWeb: linkweb.NewLinkWeb(logger, link),
+		LinkWeb: linkweb.NewLinkWeb(logger, link, deps.ShortCodeLength),
 	}
 }

@@ -34,8 +34,9 @@ func (u *LinkWeb) CreateShortLink(ctx context.Context, url string) (string, erro
 	link, err = u.link.CreateLink(
 		ctx,
 		&dto.LinkCreateRequest{
-			OriginalURL: url,
-			ExpiresAt:   uptr.Any(time.Now().Add(expirationDuration).UTC()),
+			OriginalURL:     url,
+			ExpiresAt:       uptr.Any(time.Now().Add(expirationDuration).UTC()),
+			ShortCodeLength: &u.shortCodeLength,
 		},
 	)
 	if err != nil {

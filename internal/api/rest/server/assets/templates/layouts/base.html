@@ -1,6 +1,6 @@
 {{- define "base" }}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>{{ .Title }}</title>
@@ -28,9 +28,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
   <meta name="theme-color" id="theme-color-meta" content="#171717">
+  {{- if .JsImportMapJSON }}
   <script type="importmap">
   {{- .JsImportMapJSON }}
   </script>
+  {{- end }}
   {{- range .JsScripts }}
   {{- /* <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.4/dist/sse.min.js"></script> */}}
@@ -44,15 +46,15 @@
 <body>
   {{- if .ShowHeader }}
   <header class="header">
-    {{- template "header" . }}
+    {{- block "header" . }}{{ end }}
   </header>
   {{- end }}
   <main class="main">
-    {{- block "content" . }}{{ end }}
+    {{- template "content" . }}
   </main>
   {{- if .ShowFooter }}
   <footer class="footer">
-    {{- template "footer" . }}
+    {{- block "footer" . }}{{ end }}
   </footer>
   {{- end }}
 </body>

@@ -41,3 +41,17 @@ const (
 	ResultFormatFadeKey   = "ResultFormatFade"
 	DisableHTMXEventKey   = "DisableHTMXEvent"
 )
+
+type (
+	ViewerValues struct {
+		ShowBackButton   bool
+		IsVideoPlayer    bool
+		MediaParametes   any
+		MediaTitle       string
+		MediaDescription string
+	}
+)
+
+func (v *ViewerValues) ToMap() map[string]any {
+	return StructToMap(v)
+}

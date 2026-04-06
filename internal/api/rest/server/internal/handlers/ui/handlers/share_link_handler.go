@@ -24,7 +24,10 @@ func (h *DownloaderHandlers) GetFileShortLinkHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	url, err := h.linkWeb.CreateShortLink(ctx, strings.TrimSuffix(h.baseURL, "/")+httppaths.BuildPathFile(fileId))
+	url, err := h.linkWeb.CreateShortLink(
+		ctx,
+		strings.TrimSuffix(h.baseURL, "/")+httppaths.BuildPathStreamShortCode(fileId.String()),
+	)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
