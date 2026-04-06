@@ -6,7 +6,7 @@ import (
 
 var (
 	CssIndexPaths = cssFileNames{
-		"index.css",
+		"index-main.css",
 		"variables.css",
 		"theme-switcher.css",
 		"menu.css",
@@ -17,6 +17,12 @@ var (
 
 	CssAuthPaths = cssFileNames{
 		"auth-main.css",
+		"variables.css",
+		"theme-switcher.css",
+	}.paths
+
+	CssViewPaths = cssFileNames{
+		"view-main.css",
 		"variables.css",
 		"theme-switcher.css",
 	}.paths
@@ -33,7 +39,7 @@ func (names cssFileNames) paths(dir string) ([]string, error) {
 	}
 
 	for i, fineName := range paths {
-		paths[i] = httppaths.GroupCss + "/" + fineName
+		paths[i] = httppaths.GroupStaticCss + "/" + fineName
 	}
 
 	return paths, nil

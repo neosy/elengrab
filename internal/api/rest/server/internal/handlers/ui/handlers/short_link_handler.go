@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	"github.com/google/uuid"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
@@ -38,27 +38,36 @@ func (h *DownloaderHandlers) ShortLinkHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	dataMap := uivalues.MergeMaps(
-		uivalues.BaseValues.ToMap(),
-		uivalues.PathValues,
-	)
-	dataMap[uivalues.PathStreamKey] = httppaths.BuildPathStreamShortCode(shortCode)
+	writeError := func() {
+		nfasthttp.WriteErrorx(
+			ctx,
+			errorx.Errorf(
+				"failed short link %v, originalURL: %v", link.ShortURL, link.OriginalURL,
+				exceptionx.WRONG_DATA,
+				exceptionx.WRONG_DATA.ErrorMessage(),
+			))
+	}
 
-	// Set content type so browser renders HTML properly
-	ctx.SetContentType("text/html; charset=utf-8")
+	if strings.Contains(link.OriginalURL, httppaths.GroupDownloader+httppaths.PathStream+"/") {
+		parts := strings.Split(link.OriginalURL, "/")
+		if len(parts) == 0 {
+			writeError()
+			return
+		}
 
-	// Load template
-	tmpl, err := h.loadPage(uivalues.PageWatch.FileName())
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
+		uuidStr := parts[len(parts)-1]
+		fileID, err := uuid.Parse(uuidStr)
+		if err != nil {
+			writeError()
+			return
+		}
+
+		streamPath := httppaths.BuildPathStreamShortCode(shortCode)
+		h.view(ctx, streamPath, fileID)
 		return
 	}
 
-	// Execute template with PageTitle
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageWatch.Key(), dataMap); err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
-		return
-	}
+	writeError()
 }
 
 // extractRequestMeta extracts metadata from the incoming HTTP request.

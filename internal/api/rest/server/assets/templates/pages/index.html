@@ -16,10 +16,10 @@
 
 {{- define "content" }}
     <div class="main-header">
-    <a class="main-header__link" href="/">
-        <img class="main-header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
-        <h1 class="main-header__title">{{.Header}}</h1>
-    </a>
+      <a class="main-header__link" href="/">
+          <img class="main-header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
+          <h1 class="main-header__title">{{.Header}}</h1>
+      </a>
     </div>
     {{- template "grab-form" . }}
     {{- template "grab-result" . }}
