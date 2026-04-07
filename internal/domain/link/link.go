@@ -55,10 +55,12 @@ const (
 )
 
 // GenerateShortCode generates a short code for a link based on the link ID, URL, and current timestamp.
-// deduplicate - if true, ensures that the same original URL always maps to a single short code;
+//   - deterministic - determines whether the generated code is deterministic;
+//     when true, the same key always produces the same code
+//
 // if a short link for the given URL already exists, it will be returned instead of creating a new one.
 // if false, a new unique short code is generated on each request, even for identical URLs.
-func GenerateShortCode(linkID uuid.UUID, url string, len uint8, deduplicate bool) string {
+func GenerateShortCode(linkID uuid.UUID, url string, len uint8, deterministic bool) string {
 	// Set default value for short code length
 	shortCodeLength := linkShortCodeLengthDefault
 
@@ -74,14 +76,14 @@ func GenerateShortCode(linkID uuid.UUID, url string, len uint8, deduplicate bool
 
 	// Combine UUID, URL, and timestamp into a single string
 	var combined string
-	if deduplicate {
+	if deterministic {
 		combined = url
 	} else {
 		combined = fmt.Sprintf("%s:%s:%d", linkID.String(), url, time.Now().UTC().UnixNano())
 	}
 
 	// Generate short code using the combined string
-	return shcode.GenerateShortCode(combined, shortCodeLength)
+	return shcode.GenerateShortCode(combined, shortCodeLength, deterministic)
 }
 
 // GetShortCodeFromURL extracts and returns the last segment of the ShortCode URL path.

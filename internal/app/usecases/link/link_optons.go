@@ -10,12 +10,13 @@ type LinkOptions struct {
 	// Length of the generated short code
 	ShortCodeLength uint8
 	//
-	Deduplicate bool
+	Deterministic bool
 }
 
 func DefaultLinkOptions() LinkOptions {
 	return LinkOptions{
 		ShortCodeLength: defaultShortCodeLength,
+		Deterministic:   false,
 	}
 }
 
@@ -31,8 +32,8 @@ func LinkOptionShortCodeLength(length uint8) LinkOption {
 	}
 }
 
-func LinkOptionDeduplicate(deduplicate bool) LinkOption {
+func LinkOptionDeterministic(deterministic bool) LinkOption {
 	return func(o *LinkOptions) {
-		o.Deduplicate = deduplicate
+		o.Deterministic = deterministic
 	}
 }

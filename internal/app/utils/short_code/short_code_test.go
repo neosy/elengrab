@@ -62,7 +62,7 @@ func TestGenerateShortCode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.id, func(t *testing.T) {
 			// Generate code using the function
-			got := GenerateShortCode(tt.id, tt.length)
+			got := GenerateShortCode(tt.id, tt.length, false)
 
 			// Check for empty string when id is empty
 			if tt.expectedErr && got != "" {
