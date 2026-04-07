@@ -37,7 +37,7 @@ type ElengrabConfig struct {
 	DemoMode bool   `env:"DEMO_MODE" envDefault:"false"`
 
 	BaseURL         string `env:"BASE_URL" envDefault:""`
-	ShortLinkPrefix string `env:"SHORT_LINK_PREFIX" envDefault:"/l"`
+	ShortLinkPrefix string `env:"SHORT_LINK_PREFIX" envDefault:"/s"`
 	ShortLinkLength uint8  `env:"SHORT_LINK_LENGTH" envDefault:"6"`
 
 	// AdminLogin and AdminPassword are used to create the default administrator

@@ -13,4 +13,5 @@ type LinkCreateRequest struct {
 	AllowedUserIDs  []string
 	AllowedIPs      []string
 	ExpiresAt       *time.Time
+	Deterministic   *bool
 }

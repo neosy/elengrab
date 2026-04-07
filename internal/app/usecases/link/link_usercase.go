@@ -42,7 +42,7 @@ func NewLink(
 		mappers: mappers.NewMappers(),
 
 		// internal
-		link:      linklink.NewLink(logger, linkRep, options.Deduplicate),
+		link:      linklink.NewLink(logger, linkRep),
 		linkClick: linkclick.NewLinkClick(logger, linkClickRep),
 
 		// options

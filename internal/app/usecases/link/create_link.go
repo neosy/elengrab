@@ -44,8 +44,13 @@ func (u *Link) CreateLink(ctx context.Context, req *dto.LinkCreateRequest) (*dli
 		shortCodeLength = *req.ShortCodeLength
 	}
 
+	deterministic := u.options.Deterministic
+	if req.Deterministic != nil {
+		deterministic = *req.Deterministic
+	}
+
 	// Create a record
-	link, err = u.link.Create(ctx, link, baseURL, shortCodeLength)
+	link, err = u.link.Create(ctx, link, baseURL, shortCodeLength, deterministic)
 	if err != nil {
 		return nil, err
 	}
