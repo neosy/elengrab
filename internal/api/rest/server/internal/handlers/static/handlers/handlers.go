@@ -5,12 +5,15 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/neosy/elengrab/internal/api/rest/server/assets"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/valyala/fasthttp"
 )
 
 type StaticHandlers struct {
 	assetsDir string
+
+	assetFolders assets.FolderPaths
 
 	cssHandler  fasthttp.RequestHandler
 	imgHandler  fasthttp.RequestHandler
@@ -22,7 +25,8 @@ type StaticHandlers struct {
 func NewStaticHandlers(assetsDir string) *StaticHandlers {
 
 	h := &StaticHandlers{
-		assetsDir: assetsDir,
+		assetsDir:    assetsDir,
+		assetFolders: assets.NewFolderPaths(assetsDir),
 	}
 
 	h.cssHandler = h.newFSHandler("css", "css")

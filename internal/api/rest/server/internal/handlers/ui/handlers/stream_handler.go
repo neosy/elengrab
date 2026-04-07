@@ -11,6 +11,7 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -132,10 +133,7 @@ func (h *DownloaderHandlers) stream(
 	}
 
 	// Detect content type by extension
-	contentType := mapContentTypeByExt[fileInfo.FileExt]
-	if contentType == "" {
-		contentType = "application/octet-stream"
-	}
+	contentType := httpx.ContentTypeByExt(fileInfo.FileExt)
 
 	// Set headers for streaming in browser
 	ctx.Response.Header.Set("Content-Type", contentType)

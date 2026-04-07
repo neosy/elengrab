@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"fmt"
 	"html/template"
+	"net/url"
 	"path/filepath"
 	"strings"
 	"unicode"
@@ -83,4 +85,69 @@ func errInternal(err error) error {
 		errorx.ErrorMessageArg("Internal Server Error"),
 		errorx.HttpStatusArg(fasthttp.StatusInternalServerError),
 	)
+}
+
+func getSchemeFromURL(rawURL string) string {
+	if rawURL == "" {
+		return ""
+	}
+
+	if u, err := url.Parse(rawURL); err == nil && u.Scheme != "" {
+		return u.Scheme
+	}
+
+	return ""
+}
+
+func (h *DownloaderHandlers) getScheme(ctx *fasthttp.RequestCtx) string {
+	if h.baseURL != "" {
+		if s := getSchemeFromURL(h.baseURL); s != "" {
+			return s
+		}
+	}
+
+	if proto := string(ctx.Request.Header.Peek("X-Forwarded-Proto")); proto != "" {
+		return proto
+	}
+	if proto := string(ctx.Request.Header.Peek("X-Forwarded-Protocol")); proto != "" {
+		return proto
+	}
+	if ctx.IsTLS() {
+		return "https"
+	}
+
+	return "http"
+}
+
+// extractRequestMeta extracts metadata from the incoming HTTP request.
+// It returns the full request URL, client IP address, user agent, and referrer
+func (h *DownloaderHandlers) extractRequestMeta(ctx *fasthttp.RequestCtx) (url string, ip string, userAgent, referrer string) {
+	// Determine the protocol scheme (http or https)
+	scheme := h.getScheme(ctx)
+
+	// Creating the full URL
+	url = fmt.Sprintf("%s://%s%s", scheme, ctx.Host(), ctx.Request.URI().RequestURI())
+
+	// Getting the client's IP address
+	ip = ctx.RemoteIP().String()
+
+	// If the X-Forwarded-For header is present, we take the first IP from the list
+	xff := ctx.Request.Header.Peek("X-Forwarded-For")
+	if len(xff) > 0 {
+		xffList := strings.Split(string(xff), ",")
+		if len(xffList) > 0 {
+			xffFirst := strings.TrimSpace(xffList[0])
+			if xffFirst != "" {
+				ip = xffFirst
+			}
+		}
+	}
+
+	// Getting the User-Agent
+	userAgent = string(ctx.Request.Header.UserAgent())
+
+	// Getting the Referer
+	referrer = string(ctx.Request.Header.Referer())
+
+	return
 }

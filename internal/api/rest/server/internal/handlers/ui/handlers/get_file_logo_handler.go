@@ -7,6 +7,7 @@ import (
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/valyala/fasthttp"
 )
 
@@ -34,7 +35,7 @@ func (h *DownloaderHandlers) GetFileLogoHandler(ctx *fasthttp.RequestCtx) {
 	iconImage, err := h.downloader.GetIcon(ctx, *ctxUser, fileID)
 
 	if err == nil && iconImage != nil && len(iconImage.Raw) > 0 {
-		ctx.SetContentType(h.mappers.MapImageExtToContentType(iconImage.Format))
+		ctx.SetContentType(httpx.ContentTypeByExt(iconImage.Format))
 		ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
 		ctx.SetBody(iconImage.Raw)
 		ctx.SetStatusCode(fasthttp.StatusOK)

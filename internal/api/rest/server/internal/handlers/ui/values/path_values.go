@@ -27,3 +27,19 @@ var (
 		"PathHistorySearch":  httppaths.GroupDownloader + httppaths.PathSearch,
 	}
 )
+
+func ImageHttpPath(fineName string) string {
+	return httppaths.GroupStaticImg + "/" + fineName
+}
+
+func IconHttpPath(fineName string) string {
+	return httppaths.GroupStaticIcon + "/" + fineName
+}
+
+func CssHttpPath(fineName string) string {
+	return httppaths.GroupStaticCss + "/" + fineName
+}
+
+func JsHttpPath(fineName string) string {
+	return httppaths.GroupStaticJs + "/" + fineName
+}

@@ -4,4 +4,5 @@ package httppaths
 const (
 	PathIndex          = "/"
 	PathRootFaviconICO = "/favicon.ico"
+	PathRootRobotsTxt  = "/robots.txt"
 )

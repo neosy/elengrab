@@ -87,8 +87,8 @@ func GetImageExtFromHeader(resp *http.Response) (string, error) {
 		return "", fmt.Errorf("Content-Type header not found")
 	}
 
-	mediaType, exists := ImageExtFromContentType(contentType)
-	if !exists {
+	mediaType := ExtensionByContentType(contentType)
+	if mediaType == "" {
 		return "", fmt.Errorf("unsupported content type: %s", contentType)
 	}
 
