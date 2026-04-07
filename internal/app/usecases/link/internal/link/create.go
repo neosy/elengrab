@@ -19,6 +19,7 @@ func (u *Link) Create(
 	link *dlink.Link,
 	baseURL string,
 	shortCodeLength uint8,
+	deterministic bool,
 ) (*dlink.Link, error) {
 	if link == nil {
 		u.logger.Warn("Nil pointer passed to function")
@@ -32,12 +33,12 @@ func (u *Link) Create(
 
 	var existsShortCode bool
 
-	if !u.deduplicate {
+	if !deterministic {
 		// Attempt to generate a unique short code (shortCode)
 		// No more than maxGenShortCodeAttempts times
 		for range maxGenShortCodeAttempts {
 			// Generate the short code based on link ID and original URL
-			link.ShortCode = dlink.GenerateShortCode(link.LinkID, link.OriginalURL, shortCodeLength, u.deduplicate)
+			link.ShortCode = dlink.GenerateShortCode(link.LinkID, link.OriginalURL, shortCodeLength, deterministic)
 
 			// Check if this short code already exists
 			existsShortCode, _ = u.linkRep.ExistsActiveShortCode(ctx, link.ShortCode)
@@ -55,7 +56,7 @@ func (u *Link) Create(
 			)
 		}
 	} else {
-		link.ShortCode = dlink.GenerateShortCode(link.LinkID, link.OriginalURL, shortCodeLength, u.deduplicate)
+		link.ShortCode = dlink.GenerateShortCode(link.LinkID, link.OriginalURL, shortCodeLength, deterministic)
 	}
 
 	// Build the full short URL

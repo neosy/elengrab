@@ -14,6 +14,7 @@ type LinkWeb struct {
 	link pservices.ShortLinkService
 
 	// options
+	baseShortURL    string
 	shortCodeLength uint8
 }
 
@@ -24,6 +25,7 @@ func NewLinkWeb(
 	link *link.Link,
 
 	// options
+	baseShortURL string,
 	shortCodeLength uint8,
 ) *LinkWeb {
 	return &LinkWeb{
@@ -33,6 +35,7 @@ func NewLinkWeb(
 		link: link,
 
 		// options
+		baseShortURL:    baseShortURL,
 		shortCodeLength: shortCodeLength,
 	}
 }

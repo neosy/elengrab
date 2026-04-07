@@ -92,7 +92,6 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 		deps.Repositories.Link,
 		deps.Repositories.LinkClick,
 		link.LinkOptionBaseURL(deps.BaseShortURL),
-		link.LinkOptionDeduplicate(true),
 	)
 	return &Usecases{
 		Auth: auth,
@@ -141,6 +140,6 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.DatabaseBackupsKeep,
 		),
 		Link:    link,
-		LinkWeb: linkweb.NewLinkWeb(logger, link, deps.ShortCodeLength),
+		LinkWeb: linkweb.NewLinkWeb(logger, link, deps.BaseShortURL, deps.ShortCodeLength),
 	}
 }

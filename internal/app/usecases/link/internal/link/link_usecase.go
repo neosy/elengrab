@@ -11,19 +11,14 @@ type Link struct {
 
 	// repositories
 	linkRep persistence.LinkRepository
-
-	// options
-	deduplicate bool
 }
 
 func NewLink(
 	logger *slog.Logger,
 	linkRep persistence.LinkRepository,
-	deduplicate bool,
 ) *Link {
 	return &Link{
-		logger:      logger,
-		linkRep:     linkRep,
-		deduplicate: deduplicate,
+		logger:  logger,
+		linkRep: linkRep,
 	}
 }
