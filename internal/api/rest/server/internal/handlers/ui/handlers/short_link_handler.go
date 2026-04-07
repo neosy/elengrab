@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -63,44 +62,9 @@ func (h *DownloaderHandlers) ShortLinkHandler(ctx *fasthttp.RequestCtx) {
 		}
 
 		streamPath := httppaths.BuildPathStreamShortCode(shortCode)
-		h.view(ctx, streamPath, fileID)
+		h.view(ctx, shortURL, streamPath, fileID)
 		return
 	}
 
 	writeError()
-}
-
-// extractRequestMeta extracts metadata from the incoming HTTP request.
-// It returns the full request URL, client IP address, user agent, and referrer
-func (h *DownloaderHandlers) extractRequestMeta(ctx *fasthttp.RequestCtx) (url string, ip string, userAgent, referrer string) {
-	// Определяем схему протокола (http или https)
-	scheme := "http"
-	if ctx.IsTLS() {
-		scheme = "https"
-	}
-	// Формируем полный URL
-	url = fmt.Sprintf("%s://%s%s", scheme, ctx.Host(), ctx.Request.URI().RequestURI())
-
-	// Получаем IP клиента
-	ip = ctx.RemoteIP().String()
-
-	// Если заголовок X-Forwarded-For присутствует, берём первый IP из списка
-	xff := ctx.Request.Header.Peek("X-Forwarded-For")
-	if len(xff) > 0 {
-		xffList := strings.Split(string(xff), ",")
-		if len(xffList) > 0 {
-			xffFirst := strings.TrimSpace(xffList[0])
-			if xffFirst != "" {
-				ip = xffFirst
-			}
-		}
-	}
-
-	// Получаем User-Agent
-	userAgent = string(ctx.Request.Header.UserAgent())
-
-	// Получаем Referer
-	referrer = string(ctx.Request.Header.Referer())
-
-	return
 }

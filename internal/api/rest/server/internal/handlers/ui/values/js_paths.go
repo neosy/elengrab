@@ -2,8 +2,6 @@ package uivalues
 
 import (
 	"encoding/json"
-
-	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 )
 
 var (
@@ -107,13 +105,11 @@ func (scripts jsScripts) withPath(dir string) ([]jsScript, error) {
 		return nil, err
 	}
 
-	prefix := httppaths.GroupStatic + "/js/"
-
 	var newScripts = make([]jsScript, len(scripts))
 	copy(newScripts, scripts)
 
-	for i, path := range paths {
-		newScripts[i].Path = prefix + path
+	for i, name := range paths {
+		newScripts[i].Path = JsHttpPath(name)
 	}
 
 	return newScripts, nil
@@ -125,12 +121,10 @@ func (names jsImportFileNames) mapWithPath(dir string) (jsImportMap, error) {
 		return nil, err
 	}
 
-	prefix := httppaths.GroupStatic + "/js/"
-
 	var jsMap = make(jsImportMap, len(paths))
-	for i, path := range paths {
-		key := prefix + names[i]
-		jsMap[key] = prefix + path
+	for i, newName := range paths {
+		key := JsHttpPath(names[i])
+		jsMap[key] = JsHttpPath(newName)
 	}
 
 	return jsMap, nil

@@ -3,33 +3,32 @@ package handlers
 import (
 	"fmt"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	iconfig "github.com/neosy/elengrab/internal/config"
+	"github.com/neosy/elengrab/internal/pkg/fnx"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) view(ctx *fasthttp.RequestCtx, streamPath string, fileID uuid.UUID) {
+func (h *DownloaderHandlers) view(
+	ctx *fasthttp.RequestCtx,
+	pageURL string,
+	streamPath string,
+	fileID uuid.UUID,
+) {
+	if ctx.IsHead() {
+		ctx.SetContentType("text/html; charset=utf-8")
+		ctx.SetStatusCode(fasthttp.StatusOK)
+		return
+	}
+
 	fileInfo, err := h.downloader.GetFileInfoUnrestricted(ctx, fileID)
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
-		return
-	}
-
-	baseValues := uivalues.BaseValues.Copy()
-	baseValues.ShowHeader = true
-	baseValues.ShowFooter = false
-
-	cssPaths, err := uivalues.CssViewPaths(filepath.Join(h.assetsDir, dirStaticName, dirCssName))
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
-		return
-	}
-
-	jsScripts, err := uivalues.JsViewPaths(filepath.Join(h.assetsDir, dirStaticName, dirJsName))
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -42,20 +41,24 @@ func (h *DownloaderHandlers) view(ctx *fasthttp.RequestCtx, streamPath string, f
 		fileSize      = "-"
 		isVideoPlayer = true
 		contentType   = ""
+		videoWidth    = 0
+		videoHeight   = 0
 	)
 	if fileInfo.MediaInfo != nil {
 		ext := fileInfo.MediaInfo.Format.Ext()
 
 		isVideoPlayer = fileInfo.MediaInfo.Format.IsVideo()
 		format = strings.ToUpper(ext)
-		contentType = mapContentTypeByExt[ext]
+		contentType = httpx.ContentTypeByExt(ext)
 
-		if fileInfo.MediaInfo.VideoInfo != nil {
+		if videoInfo := fileInfo.MediaInfo.VideoInfo; videoInfo != nil {
 			videoQuality = fmt.Sprintf(
 				"%v • %v",
-				strings.ToUpper(fileInfo.MediaInfo.VideoInfo.Codec.String()),
-				fileInfo.MediaInfo.VideoInfo.Resolution,
+				strings.ToUpper(videoInfo.Codec.String()),
+				videoInfo.Resolution,
 			)
+			videoWidth = videoInfo.Width
+			videoHeight = videoInfo.Height
 		}
 		if fileInfo.MediaInfo.AudioInfo != nil {
 			parts := make([]string, 0, 2)
@@ -69,6 +72,60 @@ func (h *DownloaderHandlers) view(ctx *fasthttp.RequestCtx, streamPath string, f
 
 	if fileInfo.FileSize != nil {
 		fileSize = uformat.BytesHuman(*fileInfo.FileSize)
+	}
+
+	const disableMediaType = true
+	mediaURL := h.baseURL + streamPath
+	imageURL := h.baseURL + uivalues.ImageHttpPath(uivalues.Elengrab1280ImageFileName)
+	prefixType := fnx.Ternary(isVideoPlayer, "video", "audio")
+	description := fileInfo.MediaTitle + fmt.Sprintf(" (%s)", fileInfo.MediaInfoText)
+
+	metaOgItems := make(uivalues.MetaOgItems, 0, 20)
+	metaOgItems.Add("site_name", iconfig.AppName)
+	metaOgItems.Add("title", fileInfo.MediaTitle)
+	metaOgItems.Add("description", description)
+	metaOgItems.Add("url", pageURL)
+	metaOgItems.Add("image", imageURL)
+	metaOgItems.Add("image:type", "image/png")
+	metaOgItems.Add("image:width", "1280")
+	metaOgItems.Add("image:height", "720")
+	if disableMediaType {
+		metaOgItems.Add("type", "website")
+	} else {
+		metaOgItems.Add("type", fnx.Ternary(isVideoPlayer, "video.other", "music.song"))
+		metaOgItems.Add(prefixType, mediaURL)
+		metaOgItems.Add(fmt.Sprintf("%s:secure_url", prefixType), mediaURL)
+		if contentType != "" {
+			metaOgItems.Add(fmt.Sprintf("%s:type", prefixType), contentType)
+		}
+		if isVideoPlayer && videoWidth != 0 {
+			metaOgItems.Add("video:width", strconv.Itoa(videoWidth))
+			metaOgItems.Add("video:height", strconv.Itoa(videoHeight))
+		}
+	}
+
+	metaNameItems := make(uivalues.MetaNameItems, 0, 4)
+	metaNameItems.Add("twitter:card", "summary_large_image")
+	metaNameItems.Add("twitter:title", fileInfo.MediaTitle)
+	metaNameItems.Add("twitter:description", description)
+	metaNameItems.Add("twitter:image", imageURL)
+
+	baseValues := uivalues.BaseValues.Copy()
+	baseValues.Title = fileInfo.MediaTitle
+	baseValues.ShowFooter = false
+	baseValues.MetaOgItems = metaOgItems
+	baseValues.MetaNameItems = metaNameItems
+
+	cssPaths, err := uivalues.CssViewPaths(filepath.Join(h.assetsDir, dirStaticName, dirCssName))
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
+	jsScripts, err := uivalues.JsViewPaths(filepath.Join(h.assetsDir, dirStaticName, dirJsName))
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
 	}
 
 	type mediaParameter struct {

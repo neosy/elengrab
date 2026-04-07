@@ -9,6 +9,7 @@ import (
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -48,10 +49,7 @@ func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Detect content type by extension
-	contentType := mapContentTypeByExt[fileInfo.FileExt]
-	if contentType == "" {
-		contentType = "application/octet-stream"
-	}
+	contentType := httpx.ContentTypeByExt(fileInfo.FileExt)
 
 	// Send file via streaming
 	nfasthttp.SendFileDirect(ctx, filePath, fileInfo.SafeReadableFullName, contentType)

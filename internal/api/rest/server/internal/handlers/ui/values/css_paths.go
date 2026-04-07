@@ -1,9 +1,5 @@
 package uivalues
 
-import (
-	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
-)
-
 var (
 	CssIndexPaths = cssFileNames{
 		"index-main.css",
@@ -39,7 +35,7 @@ func (names cssFileNames) paths(dir string) ([]string, error) {
 	}
 
 	for i, fineName := range paths {
-		paths[i] = httppaths.GroupStaticCss + "/" + fineName
+		paths[i] = CssHttpPath(fineName)
 	}
 
 	return paths, nil
