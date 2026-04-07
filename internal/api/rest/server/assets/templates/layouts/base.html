@@ -12,6 +12,14 @@
       }
     } catch(e){}
   </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" id="theme-color-meta" content="#171717">
+  {{- range .MetaOgItems  }}
+  <meta property="og:{{ .OgProperty }}" content="{{ .Content }}" />
+  {{- end }}
+  {{- range .MetaNameItems  }}
+  <meta name="{{ .Name }}" content="{{ .Content }}" />
+  {{- end }}
   {{- range .CssPaths }}
   <link rel="stylesheet" href="{{.}}">
   {{- end }}
@@ -26,8 +34,6 @@
   <link rel="apple-touch-icon" sizes="180x180" href="{{.PathStaticImg}}/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" id="theme-color-meta" content="#171717">
   {{- if .JsImportMapJSON }}
   <script type="importmap">
   {{- .JsImportMapJSON }}

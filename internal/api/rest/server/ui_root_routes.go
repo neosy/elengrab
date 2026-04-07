@@ -12,7 +12,13 @@ func (s *httpServer) setupUIRootRoutes(r *router.Router, handlers *uih.UIHandler
 
 	// Index
 	r.GET(httppaths.PathIndex, authOrAnonym(handlers.Downloader.IndexHandler))
+	r.HEAD(httppaths.PathIndex, handlers.Downloader.IndexHandler)
 
 	// /favicon.ico
-	r.GET(httppaths.PathRootFaviconICO, authOrAnonym(handlers.Downloader.FaviconICOHandler))
+	r.GET(httppaths.PathRootFaviconICO, authOrAnonym(handlers.Downloader.RooFilesHandler))
+	r.HEAD(httppaths.PathRootFaviconICO, handlers.Downloader.RooFilesHandler)
+
+	// /robots.txt
+	r.GET(httppaths.PathRootRobotsTxt, authOrAnonym(handlers.Downloader.RooFilesHandler))
+	r.HEAD(httppaths.PathRootRobotsTxt, authOrAnonym(handlers.Downloader.RooFilesHandler))
 }

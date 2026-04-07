@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
@@ -69,7 +70,7 @@ func (m *SafeDownloadMeta) InitialResult() *ddownload.DownloadResult {
 	meta := m.CopyMeta()
 
 	var ext = meta.FileExt
-	if ext == "" && meta.MediaInfo != nil {
+	if ext == "" && meta.MediaInfo != nil && meta.MediaInfo.Format != dtypes.FileFormatNone {
 		ext = meta.MediaInfo.Format.String()
 	}
 

@@ -8,6 +8,7 @@ import (
 
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	iconfig "github.com/neosy/elengrab/internal/config"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
@@ -17,6 +18,12 @@ import (
 
 // IndexHandlers serves the main page (index.html)
 func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
+	if ctx.IsHead() {
+		ctx.SetContentType("text/html; charset=utf-8")
+		ctx.SetStatusCode(fasthttp.StatusOK)
+		return
+	}
+
 	if h.redirectGuestIfAuthRequired(ctx) {
 		return
 	}
@@ -65,8 +72,22 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
+	imageURL := h.baseURL + uivalues.ImageHttpPath(uivalues.Elengrab1280ImageFileName)
+
+	metaOgItems := make(uivalues.MetaOgItems, 0, 15)
+	metaOgItems.Add("site_name", iconfig.AppName)
+	metaOgItems.Add("title", uivalues.PageTitle)
+	metaOgItems.Add("description", uivalues.PageDescription)
+	metaOgItems.Add("url", h.baseURL)
+	metaOgItems.Add("image", imageURL)
+	metaOgItems.Add("image:width", "1280")
+	metaOgItems.Add("image:height", "720")
+
+	baseValues := uivalues.BaseValues.Copy()
+	baseValues.MetaOgItems = metaOgItems
+
 	dataMap := uivalues.MergeMaps(
-		uivalues.BaseValues.ToMap(),
+		baseValues.ToMap(),
 		uivalues.FormGrabValues,
 		uivalues.PathValues,
 	)

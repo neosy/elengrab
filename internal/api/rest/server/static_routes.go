@@ -12,9 +12,18 @@ func (s *httpServer) setupStaticRoutes(r *router.Router, handlers *statich.Stati
 	group := r.Group(httppaths.GroupStatic)
 	{
 		group.GET(httppaths.PathCssFiles, handlers.Static.StaticCssHandler)
+		group.HEAD(httppaths.PathCssFiles, handlers.Static.StaticCssHandler)
+
 		group.GET(httppaths.PathImgFiles, handlers.Static.StaticImgHandler)
+		group.HEAD(httppaths.PathImgFiles, handlers.Static.StaticImgHandler)
+
 		group.GET(httppaths.PathIconFiles, handlers.Static.StaticIconHandler)
+		group.HEAD(httppaths.PathIconFiles, handlers.Static.StaticIconHandler)
+
 		group.GET(httppaths.PathJsFiles, handlers.Static.StaticJsHandler)
+		group.HEAD(httppaths.PathJsFiles, handlers.Static.StaticJsHandler)
+
 		group.GET(httppaths.PathPwaFiles, handlers.Static.StaticPwaHandler)
+		group.HEAD(httppaths.PathPwaFiles, handlers.Static.StaticPwaHandler)
 	}
 }

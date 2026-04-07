@@ -3,6 +3,7 @@ package handlers
 import (
 	"html/template"
 
+	"github.com/neosy/elengrab/internal/api/rest/server/assets"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/mappers"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/validators"
 	"github.com/neosy/elengrab/internal/app/usecases"
@@ -16,7 +17,8 @@ type DownloaderHandlers struct {
 	mappers    *mappers.Mappers
 	validators *validators.Validators
 
-	templates *template.Template
+	templates    *template.Template
+	assetFolders assets.FolderPaths
 
 	// usecases
 	authWeb    *authweb.AuthWeb
@@ -43,7 +45,9 @@ func NewDownloaderHandlers(
 	return &DownloaderHandlers{
 		mappers:    mappers.NewMappers(),
 		validators: validators.NewValidators(),
-		templates:  templates,
+
+		templates:    templates,
+		assetFolders: assets.NewFolderPaths(assetsDir),
 
 		// usecases
 		authWeb:    usecases.AuthWeb,
