@@ -41,10 +41,14 @@ func (h *DownloaderHandlers) view(ctx *fasthttp.RequestCtx, streamPath string, f
 		audioQuality  = ""
 		fileSize      = "-"
 		isVideoPlayer = true
+		contentType   = ""
 	)
 	if fileInfo.MediaInfo != nil {
+		ext := fileInfo.MediaInfo.Format.Ext()
+
 		isVideoPlayer = fileInfo.MediaInfo.Format.IsVideo()
-		format = strings.ToUpper(fileInfo.MediaInfo.Format.Ext())
+		format = strings.ToUpper(ext)
+		contentType = mapContentTypeByExt[ext]
 
 		if fileInfo.MediaInfo.VideoInfo != nil {
 			videoQuality = fmt.Sprintf(
@@ -87,6 +91,7 @@ func (h *DownloaderHandlers) view(ctx *fasthttp.RequestCtx, streamPath string, f
 		IsVideoPlayer:  isVideoPlayer,
 		MediaTitle:     fileInfo.MediaTitle,
 		MediaParametes: mediaParametes,
+		ContentType:    contentType,
 	}
 
 	dataMap := uivalues.MergeMaps(
