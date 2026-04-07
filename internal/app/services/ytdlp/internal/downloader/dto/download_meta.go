@@ -67,12 +67,18 @@ func (m *SafeDownloadMeta) CopyMeta() *DownloadMeta {
 
 func (m *SafeDownloadMeta) InitialResult() *ddownload.DownloadResult {
 	meta := m.CopyMeta()
+
+	var ext = meta.FileExt
+	if ext == "" && meta.MediaInfo != nil {
+		ext = meta.MediaInfo.Format.String()
+	}
+
 	return &ddownload.DownloadResult{
 		ChannelID:    meta.ChannelID,
 		MediaTitle:   meta.Title,
 		FilePath:     meta.FilePath,
 		Filename:     meta.FileName,
-		FileExt:      meta.FileExt,
+		FileExt:      ext,
 		FileFullName: meta.FileFullName,
 		Filesize:     meta.FileSize,
 		MediaInfo:    meta.MediaInfo,

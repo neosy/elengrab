@@ -49,6 +49,7 @@ type (
 		MediaParametes   any
 		MediaTitle       string
 		MediaDescription string
+		ContentType      string `json:"ContentType,omitempty"`
 	}
 )
 

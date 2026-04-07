@@ -29,11 +29,17 @@
                 <div id="videoWrapper">
                     {{- if .IsVideoPlayer }}
                     <video id="videoElement" controls="false" autoplay playsinline disablePictureInPicture>
+                        {{- if .ContentType }}
+                        <source src="{{ .PathStream }}" type="{{ .ContentType }}">
+                        {{- end }}
                         <source src="{{ .PathStream }}">
                         Your browser does not support the video tag.
                     </video>
                     {{- else}}
                     <audio id="audioElement" controls="false" autoplay playsinline>
+                        {{- if .ContentType }}
+                        <source src="{{ .PathStream }}" type="{{ .ContentType }}">
+                        {{- end }}
                         <source src="{{ .PathStream }}">
                         Your browser does not support the video tag.
                     </audio>
