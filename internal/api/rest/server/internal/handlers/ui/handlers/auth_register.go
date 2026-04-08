@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"path/filepath"
+	"strings"
 
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
@@ -36,8 +37,11 @@ func (h *DownloaderHandlers) AuthRegisterHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	baseValues := uivalues.BaseValues.Copy()
+	baseValues.Title = uivalues.PageAuthRegisterTitle
+
 	dataMap := uivalues.MergeMaps(
-		uivalues.BaseValues.ToMap(),
+		baseValues.ToMap(),
 		uivalues.PathValues,
 	)
 	dataMap[uivalues.CssPathsKey] = cssPaths
@@ -67,9 +71,9 @@ func (h *DownloaderHandlers) AuthRegisterSubmitHandler(ctx *fasthttp.RequestCtx)
 	}
 
 	// Get form data
-	formLogin := string(ctx.FormValue(formFieldLoginKey))
-	formPassword := string(ctx.FormValue(formFieldPasswordKey))
-	formConfirmPassword := string(ctx.FormValue(formFieldConfirmPasswordKey))
+	formLogin := strings.TrimSpace(string(ctx.FormValue(formFieldLoginKey)))
+	formPassword := strings.TrimSpace(string(ctx.FormValue(formFieldPasswordKey)))
+	formConfirmPassword := strings.TrimSpace(string(ctx.FormValue(formFieldConfirmPasswordKey)))
 
 	// Check if passwords match
 	if formPassword != formConfirmPassword {

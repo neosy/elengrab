@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"strings"
 
 	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
 	idto "github.com/neosy/elengrab/internal/app/usecases/auth/internal/dto"
@@ -25,8 +26,12 @@ func (a *Auth) RegisterUser(
 		roles        []dtypes.UserRole
 	)
 
-	if req.Password != "" {
-		hash, err := a.hashPassword(req.Password)
+	login := strings.TrimSpace(req.Login)
+	email := strings.TrimSpace(req.Email)
+	password := strings.TrimSpace(req.Password)
+
+	if password != "" {
+		hash, err := a.hashPassword(password)
 		if err != nil {
 			return nil, err
 		}
@@ -40,8 +45,8 @@ func (a *Auth) RegisterUser(
 	createUser := func(ctx context.Context) error {
 		var err error
 		createReq := &idto.CreateUserRequest{
-			Login:        dtypes.NewLogin(req.Login),
-			Email:        req.Email,
+			Login:        dtypes.NewLogin(login),
+			Email:        email,
 			PasswordHash: passwordHash,
 			Roles:        roles,
 		}

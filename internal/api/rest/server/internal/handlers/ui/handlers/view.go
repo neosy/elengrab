@@ -78,7 +78,7 @@ func (h *DownloaderHandlers) view(
 	mediaURL := h.baseURL + streamPath
 	imageURL := h.baseURL + uivalues.ImageHttpPath(uivalues.Elengrab1280ImageFileName)
 	prefixType := fnx.Ternary(isVideoPlayer, "video", "audio")
-	description := fileInfo.MediaTitle + fmt.Sprintf(" (%s)", fileInfo.MediaInfoText)
+	description := fileInfo.MediaTitle + fmt.Sprintf(" [%s]", fileInfo.MediaInfoText)
 
 	metaOgItems := make(uivalues.MetaOgItems, 0, 20)
 	metaOgItems.Add("site_name", iconfig.AppName)
