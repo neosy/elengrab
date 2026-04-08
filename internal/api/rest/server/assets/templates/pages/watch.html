@@ -6,14 +6,12 @@
     <div class="user-menu">
       {{- template "theme-switcher" . }}
     </div>
-    <div class="header">
-        <a class="header__link" href="/">
-            <div class="header__logo">
-                <img class="header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
-                <div class="header__logo-text">
-                    <h1 class="header__logo-title">{{ .Header }}</h1>
-                    <h5 class="header__logo-description">Media player</h5>
-                </div>
+    <div class="header__inner">
+        <a class="header__logo-link" href="/">
+            <img class="header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
+            <div class="header__logo-text">
+                <h1 class="header__logo-title">{{ .Header }}</h1>
+                <h5 class="header__logo-description">Media player</h5>
             </div>
         </a>
         {{- if .ShowBackButton }}
