@@ -2,6 +2,7 @@ package authweb
 
 import (
 	"context"
+	"strings"
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -17,11 +18,11 @@ func (a *AuthWeb) LoginUser(
 		return nil, errorx.New("function parameter is nil", exceptionx.ERROR)
 	}
 
-	if req.Login == "" {
+	if strings.TrimSpace(req.Login) == "" {
 		return nil, errorx.NewHTTP("login is required", fasthttp.StatusBadRequest)
 	}
 
-	if req.Password == "" {
+	if strings.TrimSpace(req.Password) == "" {
 		return nil, errorx.NewHTTP("password is required", fasthttp.StatusBadRequest)
 	}
 
