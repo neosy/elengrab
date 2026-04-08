@@ -22,9 +22,6 @@ func (h *DownloaderHandlers) AuthRegisterHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	// Set content type so browser renders HTML properly
-	ctx.SetContentType("text/html; charset=utf-8")
-
 	cssPaths, err := uivalues.CssAuthPaths(filepath.Join(h.assetsDir, dirStaticName, dirCssName))
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
@@ -53,6 +50,9 @@ func (h *DownloaderHandlers) AuthRegisterHandler(ctx *fasthttp.RequestCtx) {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
+
+	// Set content type so browser renders HTML properly
+	ctx.SetContentType("text/html; charset=utf-8")
 
 	// Execute template
 	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageAuthRegister.Key(), dataMap); err != nil {

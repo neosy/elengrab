@@ -6,16 +6,13 @@
     <div class="user-menu">
       {{- template "theme-switcher" . }}
     </div>
-{{- end }}
-
-{{- define "content" }}
-    <div class="main_header">
-        <a class="main-header__link" href="/">
-            <div class="main_header__logo">
-                <img class="main_header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
-                <div class="main_header__logo-text">
-                    <h1 class="main_header__logo-title">{{ .Header }}</h1>
-                    <h4 class="main_header__logo-description">Media player</h4>
+    <div class="header">
+        <a class="header__link" href="/">
+            <div class="header__logo">
+                <img class="header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
+                <div class="header__logo-text">
+                    <h1 class="header__logo-title">{{ .Header }}</h1>
+                    <h5 class="header__logo-description">Media player</h5>
                 </div>
             </div>
         </a>
@@ -23,10 +20,13 @@
         <button class="back-button" id="backButton">← Back</button>
         {{- end }}
     </div>
+{{- end }}
+
+{{- define "content" }}
     <div class="main_content">
         <div class="main_content__player">
-            <div class="video-container" id="mediaContainer">
-                <div id="videoWrapper">
+            <div class="media-container" id="mediaContainer">
+                <div class="media_wrapper" id="videoWrapper">
                     {{- if .IsVideoPlayer }}
                     <video id="videoElement" controls="false" autoplay playsinline disablePictureInPicture>
                         {{- if .ContentType }}
