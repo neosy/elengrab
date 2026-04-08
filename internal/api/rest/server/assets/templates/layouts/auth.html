@@ -1,9 +1,9 @@
-{{ define "auth" }}
+{{- define "auth" }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{{ .AuthLoginTitle }}</title>
+  <title>{{ .Title }}</title>
   <meta name="description" content="{{ .Description }}">
   <script>
     try {
@@ -46,8 +46,8 @@
     {{- template "header" . }}
   </header>
   <main class="main">
-    {{ block "content" . }}{{ end }}
+    {{- template "content" . }}
   </main>
 </body>
 </html>
-{{ end }}
+{{- end }}
