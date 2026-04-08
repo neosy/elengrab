@@ -1,14 +1,22 @@
 # Releases
 
-## v0.18.0 — 2026-04-05
+## v0.18.0 — 2026-04-10
+
+### Feature
+- Add support for generating short URLs for downloaded media. Closes #257
+- Add a media viewing page
+
+### Style
+- Update play button icon
 
 ### Refactor
 - Redesign main.go
 - Improve exception in errorx package
 - Improve message in errorx package
 
-### Style
-- Update play button icon
+### Fix
+- Remove spaces during authorization
+- Refine the definition of the file extension
 
 ---
 
