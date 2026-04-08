@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"strings"
 
 	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
@@ -26,6 +27,8 @@ func (a *Auth) AuthenticateUser(
 	)
 
 	login := dtypes.NewLogin(req.Login)
+	email := strings.TrimSpace(req.Email)
+	password := strings.TrimSpace(req.Password)
 
 	if login == "" && req.Email == "" {
 		return nil, errorx.New("login or email is required", exceptionx.VALIDATE)
@@ -38,15 +41,15 @@ func (a *Auth) AuthenticateUser(
 		}
 	}
 
-	if user == nil && req.Email != "" {
-		user, err = a.user.FindByEmail(ctx, req.Email)
+	if user == nil && email != "" {
+		user, err = a.user.FindByEmail(ctx, email)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	if user == nil {
-		a.logger.Debug("User not found", "login", login, "email", req.Email)
+		a.logger.Debug("User not found", "login", login, "email", email)
 		return nil, autherr.ErrUserNotFound
 	}
 
@@ -65,7 +68,7 @@ func (a *Auth) AuthenticateUser(
 		return nil, errorx.New("the user is not available because the password is not set.", exceptionx.UNAUTHORIZED)
 	}
 
-	if err := a.checkPassword(*user.PasswordHash, req.Password); err != nil {
+	if err := a.checkPassword(*user.PasswordHash, password); err != nil {
 		a.logger.Info("check password failed", "error", err)
 		return nil, errorx.NewFromError(err, exceptionx.UNAUTHORIZED)
 	}

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"path/filepath"
+	"strings"
 
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
@@ -36,8 +37,11 @@ func (h *DownloaderHandlers) AuthLoginHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	baseValues := uivalues.BaseValues.Copy()
+	baseValues.Title = uivalues.PageAuthLoginTitle
+
 	dataMap := uivalues.MergeMaps(
-		uivalues.BaseValues.ToMap(),
+		baseValues.ToMap(),
 		uivalues.PathValues,
 	)
 	dataMap[uivalues.CssPathsKey] = cssPaths
@@ -67,8 +71,8 @@ func (h *DownloaderHandlers) AuthLoginSubmitHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Get form data
-	formLogin := string(ctx.FormValue(formFieldLoginKey))
-	formPassword := string(ctx.FormValue(formFieldPasswordKey))
+	formLogin := strings.TrimSpace(string(ctx.FormValue(formFieldLoginKey)))
+	formPassword := strings.TrimSpace(string(ctx.FormValue(formFieldPasswordKey)))
 
 	req := &udto.AuthUserRequest{
 		Login:    formLogin,

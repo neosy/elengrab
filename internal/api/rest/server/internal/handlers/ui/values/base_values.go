@@ -4,9 +4,9 @@ import iconfig "github.com/neosy/elengrab/internal/config"
 
 const (
 	PageTitle             = "Elengrab — Fast Media Downloader | YouTube, VK Video and more"
-	authRegisterPageTitle = "Registration - Elengrab"
-	authLoginPageTitle    = "Login - Elengrab"
 	PageDescription       = "Download video and audio from YouTube, Facebook, Instagram, VK, TikTok, and more with Elengrab."
+	PageAuthRegisterTitle = "Registration - Elengrab"
+	PageAuthLoginTitle    = "Login - Elengrab"
 	header                = "Elengrab"
 	inputGrabPlaceholder  = "Enter video or audio URL"
 )
@@ -41,9 +41,6 @@ var (
 
 		ShowHeader: true,
 		ShowFooter: true,
-
-		AuthRegisterTitle: authRegisterPageTitle,
-		AuthLoginTitle:    authLoginPageTitle,
 	}
 
 	FormGrabValues = map[string]any{
