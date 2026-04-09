@@ -1,0 +1,83 @@
+:root {
+  --h1: 3rem;
+}
+
+* {
+    margin:0;
+    padding:0
+}
+
+html
+{
+    font:15px/22px arial,sans-serif
+}
+
+html {
+    background:#fff;
+    color:#222;
+    padding:15px
+}
+
+body {
+    margin:7% auto 0;
+    max-width:390px;
+    min-height:180px;
+    padding:30px 0 15px
+}
+
+* > body {
+    background: url(/static/img/robot.png) 100% 5px no-repeat;
+    padding-right: 205px;
+}
+
+* > p {
+    margin:11px 0 22px 20px;
+    overflow:hidden
+}
+
+ins{
+    color:#777;
+    text-decoration:none
+}
+
+a img{
+    border:0
+}
+
+h1 { font-size: var(--h1); font-weight: 600; font-family: 'Cinzel', serif; }
+
+.header__logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.header__logo-link {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    text-decoration: none;
+    color: inherit;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.header__logo-image {
+    height: 3em;
+    width: auto;
+}
+
+.header__logo-title {
+    color: var(--text-header);
+    letter-spacing: -0.5px;
+    line-height: normal;
+}
+
+@media screen and (max-width:772px)
+{
+    body{
+        background:none;
+        margin-top:0;
+        max-width:none;
+        padding-right:0
+    }
+}

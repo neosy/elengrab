@@ -1,9 +1,12 @@
 package uivalues
 
 const (
-	CssPathsKey                           = "CssPaths"
-	JsScriptsKey                          = "JsScripts"
-	JsImportMapJSONKey                    = "JsImportMapJSON"
+	CssPathsKey        = "CssPaths"
+	JsScriptsKey       = "JsScripts"
+	JsImportMapJSONKey = "JsImportMapJSON"
+
+	CssStyleKey = "CssStyle"
+
 	DownloadStatusKey                     = "DownloadStatus"
 	DownloadWorkingStatusKey              = "WorkingStatus"
 	DownloadingProgressPercentKey         = "ProgressPercent"
@@ -40,6 +43,8 @@ const (
 	ResultSizeFadeKey     = "ResultSizeFade"
 	ResultFormatFadeKey   = "ResultFormatFade"
 	DisableHTMXEventKey   = "DisableHTMXEvent"
+
+	DebugDataKey = "DebugData"
 )
 
 type (

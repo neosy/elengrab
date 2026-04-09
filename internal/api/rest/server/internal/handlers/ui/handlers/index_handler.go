@@ -43,19 +43,19 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 
 	systemInfo := h.downloader.SystemInfo()
 
-	cssPaths, err := uivalues.CssIndexPaths(filepath.Join(h.assetsDir, dirStaticName, dirCssName))
+	cssPaths, err := uivalues.CssIndexPaths(h.assetFolders.Css())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	jsScripts, err := uivalues.JsIndexPaths(filepath.Join(h.assetsDir, dirStaticName, dirJsName))
+	jsScripts, err := uivalues.JsIndexPaths(h.assetFolders.Js())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	jsImportMapJSON, err := uivalues.JsIndexImportMapJSON(filepath.Join(h.assetsDir, dirStaticName, dirJsName))
+	jsImportMapJSON, err := uivalues.JsIndexImportMapJSON(h.assetFolders.Js())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -83,7 +83,7 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	metaOgItems.Add("image:width", "1280")
 	metaOgItems.Add("image:height", "720")
 
-	baseValues := uivalues.BaseValues.Copy()
+	baseValues := uivalues.NewBaseValues()
 	baseValues.MetaOgItems = metaOgItems
 
 	dataMap := uivalues.MergeMaps(

@@ -2,6 +2,7 @@ package uih
 
 import (
 	"html/template"
+	"log/slog"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers"
 	"github.com/neosy/elengrab/internal/app/usecases"
@@ -13,6 +14,8 @@ type UIHandlers struct {
 }
 
 func NewUIHandlers(
+	logger *slog.Logger,
+
 	usecases *usecases.Usecases,
 	templates *template.Template,
 
@@ -25,6 +28,7 @@ func NewUIHandlers(
 ) *UIHandlers {
 	return &UIHandlers{
 		Downloader: handlers.NewDownloaderHandlers(
+			logger,
 			templates,
 			usecases,
 

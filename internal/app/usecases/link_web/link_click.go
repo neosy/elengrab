@@ -6,6 +6,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dlink "github.com/neosy/elengrab/internal/domain/link"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
 func (u *LinkWeb) ShortLinkClick(
@@ -35,9 +36,16 @@ func (u *LinkWeb) ShortLinkClick(
 		},
 	)
 	if err != nil {
+		message := "Failed to process click on short link"
+		if errorx.IsErrorx(err) {
+			exception := errorx.OuterException(err)
+			if exception != nil && exception.Num() == uint(exceptionx.NOT_FOUND) {
+				message = "Short link not found."
+			}
+		}
 		return nil, errorx.Errorf(
 			"failed to process click on short link: %w", err,
-			errorx.ErrorMessageArg("Failed to process click on short link"),
+			errorx.ErrorMessageArg(message),
 		)
 	}
 

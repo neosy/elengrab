@@ -18,6 +18,10 @@ var (
 		key:      "watch",
 		fileName: "watch.html",
 	}
+	PageError = page{
+		key:      "error",
+		fileName: "error.html",
+	}
 )
 
 const (

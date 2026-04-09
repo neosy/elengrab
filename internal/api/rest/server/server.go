@@ -8,7 +8,9 @@ import (
 	"log/slog"
 	"time"
 
-	authmiddleware "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	errormw "github.com/neosy/elengrab/internal/api/rest/server/internal/error_middleware"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	appenv "github.com/neosy/elengrab/internal/pkg/nconfig/app_env"
@@ -32,8 +34,11 @@ type httpServer struct {
 	logger *slog.Logger
 	appEnv appenv.AppEnv
 
-	// auth
-	authMiddleware *authmiddleware.AuthMiddleware
+	// middleware
+	authMiddleware  *authmw.AuthMiddleware
+	errorMiddleware *errormw.ErrorMiddleware
+
+	handlers *handlers.Handlers
 
 	// usecases
 	usecases *usecases.Usecases
@@ -50,12 +55,30 @@ type httpServer struct {
 }
 
 func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *httpServer {
+	handlers := handlers.New(
+		logger,
+		&handlers.Dependencies{
+			Usecases:        deps.Usecases,
+			Templates:       deps.Templates,
+			AppMode:         deps.AppMode,
+			BaseURL:         deps.BaseURL,
+			ShortLinkPrefix: deps.ShortLinkPrefix,
+			AssetsDir:       deps.AssetsDir,
+			DownloadsDir:    deps.DownloadsDir,
+		},
+	)
+
 	return &httpServer{
-		logger:         logger,
-		appEnv:         appEnv,
-		authMiddleware: authmiddleware.NewAuthMiddleware(logger, deps.Usecases.Auth, deps.AppMode),
-		usecases:       deps.Usecases,
-		templates:      deps.Templates,
+		logger: logger,
+		appEnv: appEnv,
+
+		authMiddleware:  authmw.NewAuthMiddleware(logger, deps.Usecases.Auth, deps.AppMode),
+		errorMiddleware: errormw.NewErrorMiddleware(logger, handlers.UI.Downloader.WriteErrorHandler),
+
+		handlers: handlers,
+
+		usecases:  deps.Usecases,
+		templates: deps.Templates,
 
 		// Optons
 		appMode:         deps.AppMode,

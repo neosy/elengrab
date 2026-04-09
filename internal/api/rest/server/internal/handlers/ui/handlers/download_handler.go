@@ -28,7 +28,11 @@ func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	fileId := uuid.MustParse(fileIdStr)
+	fileId, err := uuid.Parse(fileIdStr)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("file is incorrect", fasthttp.StatusBadRequest))
+		return
+	}
 
 	// Build the full path to the file
 	fileInfo, err := h.downloader.GetFileInfo(ctx, *ctxUser, fileId)
