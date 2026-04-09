@@ -1,0 +1,21 @@
+{{- define "error" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, minimum-scale=1, width=device-width">
+    <title>{{ .Title }}</title>
+    {{- .CssStyle }}
+</head>
+<body>
+    <a class="header__logo-link" href="/">
+        <img class="header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
+        <h1 class="header__logo-title">{{.Header}}</h1>
+    </a>
+    <p><b>{{ .ErrorCode }}.</b> <ins>{{ .ErrorTitle }}</ins></p>
+    <p>{{ .ErrorText }}</p>
+    {{- if .DebugErrorText }}<p><b>Errors:</b> <ins>{{ .DebugErrorText }}</ins></p>{{ end }}
+    {{- if .DebugData }}<p><b>Data:</b> <ins>{{ .DebugData }}</ins></p>{{ end }}
+</body>
+</html>
+{{- end }}

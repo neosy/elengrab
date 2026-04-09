@@ -52,12 +52,26 @@ func (m *Mappers) MapDownloadTaskEntityToDomain(eTask *edownload.DownloadTask) (
 
 	var jobID *uuid.UUID
 	if id := usql.String(eTask.JobID); id != "" {
-		jobID = uptr.Any(uuid.MustParse(id))
+		idd, err := uuid.Parse(id)
+		if err != nil {
+			return nil, err
+		}
+		jobID = uptr.Any(idd)
+	}
+
+	taskID, err := uuid.Parse(usql.String(eTask.TaskID))
+	if err != nil {
+		return nil, err
+	}
+
+	fileID, err := uuid.Parse(usql.String(eTask.FileID))
+	if err != nil {
+		return nil, err
 	}
 
 	return &ddownload.DownloadTask{
-		TaskID:    uuid.MustParse(usql.String(eTask.TaskID)),
-		FileID:    uuid.MustParse(usql.String(eTask.FileID)),
+		TaskID:    taskID,
+		FileID:    fileID,
 		Status:    dtypes.MustParseDownloadTaskStatus(usql.String(eTask.Status)),
 		MediaUrl:  usql.String(eTask.MediaUrl),
 		Options:   options,

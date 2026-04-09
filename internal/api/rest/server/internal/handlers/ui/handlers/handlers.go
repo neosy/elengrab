@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"html/template"
+	"log/slog"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/mappers"
@@ -14,6 +15,7 @@ import (
 )
 
 type DownloaderHandlers struct {
+	logger     *slog.Logger
 	mappers    *mappers.Mappers
 	validators *validators.Validators
 
@@ -34,6 +36,7 @@ type DownloaderHandlers struct {
 }
 
 func NewDownloaderHandlers(
+	logger *slog.Logger,
 	templates *template.Template,
 	usecases *usecases.Usecases,
 	appMode dtypes.AppMode,
@@ -43,6 +46,7 @@ func NewDownloaderHandlers(
 	downloadsDir string,
 ) *DownloaderHandlers {
 	return &DownloaderHandlers{
+		logger:     logger,
 		mappers:    mappers.NewMappers(),
 		validators: validators.NewValidators(),
 

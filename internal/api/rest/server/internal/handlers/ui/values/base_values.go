@@ -1,6 +1,8 @@
 package uivalues
 
-import iconfig "github.com/neosy/elengrab/internal/config"
+import (
+	iconfig "github.com/neosy/elengrab/internal/config"
+)
 
 const (
 	PageTitle             = "Elengrab — Fast Media Downloader | YouTube, VK Video and more"
@@ -28,8 +30,18 @@ type baseValues struct {
 	AuthLoginTitle    string
 }
 
+type errorValues struct {
+	Title  string
+	Header string
+
+	ErrorCode      int
+	ErrorTitle     string
+	ErrorText      string
+	DebugErrorText any
+}
+
 var (
-	BaseValues = baseValues{
+	defaultBaseValues = baseValues{
 		Title:       PageTitle,
 		Description: PageDescription,
 
@@ -43,16 +55,28 @@ var (
 		ShowFooter: true,
 	}
 
+	defaultErrorValues = errorValues{
+		Header: header,
+	}
+
 	FormGrabValues = map[string]any{
 		"InputGrabPlaceholder": inputGrabPlaceholder,
 	}
 )
 
-func (v baseValues) Copy() baseValues {
-	return v
+func NewBaseValues() baseValues {
+	return defaultBaseValues
+}
+
+func NewErrorValues() errorValues {
+	return defaultErrorValues
 }
 
 func (v baseValues) ToMap() map[string]any {
+	return StructToMap(v)
+}
+
+func (v errorValues) ToMap() map[string]any {
 	return StructToMap(v)
 }
 

@@ -38,7 +38,6 @@ func corsMiddleware(baseCtx context.Context, env appenv.AppEnv, next fasthttp.Re
 	return func(ctx *fasthttp.RequestCtx) {
 		ctx.SetUserValue(RequestCtxKey, baseCtx)
 		ctx.SetUserValue(AppConfigCtxKey, env)
-
 		next(ctx)
 	}
 }

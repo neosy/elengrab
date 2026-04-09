@@ -4,21 +4,36 @@ import (
 	"github.com/fasthttp/router"
 	uih "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
+	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 )
 
 // setupUIRootRoutes setup root routes.
 func (s *httpServer) setupUIRootRoutes(r *router.Router, handlers *uih.UIHandlers) {
-	authOrAnonym := s.authMiddleware.AuthOrAnonym
+	middlewareError := s.errorMiddleware.ErrorHandler
 
-	// Index
-	r.GET(httppaths.PathIndex, authOrAnonym(handlers.Downloader.IndexHandler))
-	r.HEAD(httppaths.PathIndex, handlers.Downloader.IndexHandler)
+	// With middleware (error, auth or anonym)
+	g := nfasthttp.NewRouterGroup("", r)
+	g.Use(middlewareError, s.authMiddleware.AuthOrAnonym)
+	{
+		// Index
+		g.GET(httppaths.PathIndex, handlers.Downloader.IndexHandler)
 
-	// /favicon.ico
-	r.GET(httppaths.PathRootFaviconICO, authOrAnonym(handlers.Downloader.RooFilesHandler))
-	r.HEAD(httppaths.PathRootFaviconICO, handlers.Downloader.RooFilesHandler)
+		// /favicon.ico
+		g.GET(httppaths.PathRootFaviconICO, handlers.Downloader.RooFilesHandler)
 
-	// /robots.txt
-	r.GET(httppaths.PathRootRobotsTxt, authOrAnonym(handlers.Downloader.RooFilesHandler))
-	r.HEAD(httppaths.PathRootRobotsTxt, authOrAnonym(handlers.Downloader.RooFilesHandler))
+		// /robots.txt
+		g.GET(httppaths.PathRootRobotsTxt, handlers.Downloader.RooFilesHandler)
+	}
+
+	// Without middleware
+	{
+		// Index
+		r.HEAD(httppaths.PathIndex, handlers.Downloader.IndexHandler)
+
+		// /favicon.ico
+		r.HEAD(httppaths.PathRootFaviconICO, handlers.Downloader.RooFilesHandler)
+
+		// /robots.txt
+		g.HEAD(httppaths.PathRootRobotsTxt, handlers.Downloader.RooFilesHandler)
+	}
 }
