@@ -1,4 +1,4 @@
-package exceptionx
+package types
 
 // HttpStatusProvider is a function that provides an HTTP status code.
 type HttpStatusProvider func() *int

@@ -11,8 +11,8 @@
 
 ### Refactor
 - Redesign main.go
+- Simplify errorx wrapping logic, expand functions, add unit tests
 - Improve exception in errorx package
-- Improve message in errorx package
 
 ### Fix
 - Remove spaces during authorization

@@ -7,7 +7,7 @@ import (
 )
 
 // wrapErrorsDefaultSeparator is a constant string used as the default separator
-const wrapErrorsDefaultSeparator = ": "
+const wrapErrorsDefaultSeparator = "; "
 
 // wrapErrorsSeparator, separator for wrapErrors function
 var (
@@ -46,32 +46,17 @@ func WrapErrors(errs ...error) error {
 			continue
 		}
 
+		// If wrapped is nil, set it to the current error and continue to the next iteration.
 		if wrapped == nil {
 			wrapped = err
 			continue
 		}
 
-		// Если встретилась ошибка errorx, то преобразуем wrapped в errorx, если его тип отличается
-		// Далее из структуры извлекаем ошибку с типом error, чтобы ее обернуть, вместо ошибки с типом errorx
+		// If an error of type errorx is encountered, convert wrapped to errorx if its type differs.
+		// Then extract the error of type error from the structure in order to wrap it, instead of the error of type errorx.
 		if e, ok := err.(errorxInternal); ok {
 			if _, ok := wrapped.(errorxInternal); !ok {
-				wrapped = NewFromError(wrapped, e.args()...)
-			} else {
-				if cmb, ok := wrapped.(errorxInternal); ok {
-					var args = make([]any, 0, 3)
-					if cmb.Exception() == nil && e.Exception() != nil {
-						args = append(args, e.Exception())
-					}
-					if cmb.Message() == nil && e.Message() != nil {
-						text := e.Message()
-						args = append(args, ErrorMessageArg(*text))
-					}
-					if cmb.HttpStatusCodeRaw() == nil && e.HttpStatusCodeRaw() != nil {
-						code := e.HttpStatusCodeRaw()
-						args = append(args, HttpStatusArg(*code))
-					}
-					cmb.initFromArgs(args...)
-				}
+				wrapped = NewFromError(wrapped)
 			}
 			err = e.Err()
 		}
