@@ -1,16 +1,36 @@
 package exceptionx
 
 import (
-	errmsg "github.com/neosy/elengrab/internal/pkg/errorx/internal/error_message"
-	"github.com/neosy/elengrab/internal/pkg/errorx/internal/utils"
+	"github.com/neosy/elengrab/internal/pkg/errorx/internal/types"
 	"github.com/valyala/fasthttp"
 )
 
-// DomainException type of basic exception
-type DomainException uint
+// DomainException represents a domain-specific exception with associated HTTP status code and error message.
+// It provides methods to retrieve the exception number, text, message, error message provider, HTTP status code,
+// and to create a new Exception based on the domain exception type.
+type DomainException interface {
+	// Num exception number
+	Num() uint
+	// Code returns the exception code, which is the same as the string representation of the exception.
+	Code() string
+	// Message exception message
+	Message() string
+	// String returns the exception code (short text).
+	String() string
+	
+	// ErrorMessage returns error message provider
+	ErrorMessage() types.ErrorMessageProvider
+	// HttpStatusCode returns HTTP status code
+	HttpStatusCode() int
+	// NewException creates a new exception with the given domain exception type.
+	NewException() Exception
+}
+
+// domainException type of basic exception
+type domainException uint
 
 const (
-	ERROR DomainException = iota + 101
+	ERROR domainException = iota + 101
 	WRONG_DATA
 	VALIDATE
 	UNAUTHORIZED
@@ -23,7 +43,7 @@ const (
 )
 
 // Map of exception types and their text descriptions
-var domainExceptionTextMap = map[DomainException]string{
+var domainExceptionTextMap = map[domainException]string{
 	ERROR:              "ERROR",
 	WRONG_DATA:         "WRONG_DATA",
 	VALIDATE:           "VALIDATE",
@@ -36,7 +56,7 @@ var domainExceptionTextMap = map[DomainException]string{
 	NO_CONTENT:         "NO_CONTENT",
 }
 
-var domainExceptionMessageMap = map[DomainException]string{
+var domainExceptionMessageMap = map[domainException]string{
 	ERROR:              "internal Server Error", // 500
 	WRONG_DATA:         "bad Request",           // 400
 	VALIDATE:           "bad Request",           // 400
@@ -50,7 +70,7 @@ var domainExceptionMessageMap = map[DomainException]string{
 }
 
 // Map of exception types and HTTP status codes
-var domainExceptionHttpStatusCodeMap = map[DomainException]int{
+var domainExceptionHttpStatusCodeMap = map[domainException]int{
 	ERROR:              fasthttp.StatusInternalServerError,
 	WRONG_DATA:         fasthttp.StatusBadRequest,
 	VALIDATE:           fasthttp.StatusBadRequest,
@@ -64,25 +84,32 @@ var domainExceptionHttpStatusCodeMap = map[DomainException]int{
 }
 
 // Num exception number
-func (v DomainException) Num() uint {
+func (v domainException) Num() uint {
 	return uint(v)
 }
 
-// String exception text
-func (v DomainException) String() string {
+// Code returns the exception code, which is the same as the string representation of the exception.
+func (v domainException) Code() string {
 	return domainExceptionTextMap[v]
 }
 
-func (v DomainException) Message() string {
+// String returns the exception code (short text).
+func (v domainException) String() string {
+	return v.Code()
+}
+
+// Message exception message
+func (v domainException) Message() string {
 	return domainExceptionMessageMap[v]
 }
 
-func (v DomainException) ErrorMessage() errmsg.ErrorMessageProvider {
-	return errmsg.ErrorMessageArg(utils.Capitalize(v.Message()))
+// ErrorMessage returns error message provider
+func (v domainException) ErrorMessage() types.ErrorMessageProvider {
+	return types.ErrorMessageArg(v.Message())
 }
 
 // HttpStatusCode returns HTTP status code
-func (e DomainException) HttpStatusCode() int {
+func (e domainException) HttpStatusCode() int {
 	code, ok := domainExceptionHttpStatusCodeMap[e]
 	if !ok {
 		return fasthttp.StatusInternalServerError
@@ -91,6 +118,11 @@ func (e DomainException) HttpStatusCode() int {
 }
 
 // NewException creates a new exception with the given domain exception type.
-func (v DomainException) NewException() Exception {
-	return NewException(uint(v), v.String(), HttpStatusArg(v.HttpStatusCode()))
+func (v domainException) NewException() Exception {
+	return NewException(
+		v.Num(),
+		ExceptionArgCode(v.Code()),
+		ExceptionArgMessage(v.Message()),
+		ExceptionArgHTTPStatusCode(v.HttpStatusCode()),
+	)
 }

@@ -138,7 +138,7 @@ body {
     gap: 32px;
 }
 
-.media-container {
+.media__container {
     display: flex;
     width: 100%;
     max-width: 100%;
@@ -159,7 +159,7 @@ body {
 }
 
 .main_content__player:has(audio),
-.media-container:has(audio),
+.media__container:has(audio),
 .media_wrapper:has(audio) {
     width: 100%;
     max-width: 650px;
@@ -195,7 +195,7 @@ audio {
     transition: opacity 0.3s ease;
 }
 
-.media-container:hover .controls {
+.media__container:hover .controls {
     opacity: 1;
 }
 

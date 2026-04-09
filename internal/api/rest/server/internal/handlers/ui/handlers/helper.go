@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"html/template"
-	"net/url"
 	"path/filepath"
 	"strings"
 	"unicode"
@@ -12,6 +11,8 @@ import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
+	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
 
@@ -87,21 +88,9 @@ func errInternal(err error) error {
 	)
 }
 
-func getSchemeFromURL(rawURL string) string {
-	if rawURL == "" {
-		return ""
-	}
-
-	if u, err := url.Parse(rawURL); err == nil && u.Scheme != "" {
-		return u.Scheme
-	}
-
-	return ""
-}
-
 func (h *DownloaderHandlers) getScheme(ctx *fasthttp.RequestCtx) string {
 	if h.baseURL != "" {
-		if s := getSchemeFromURL(h.baseURL); s != "" {
+		if s := httpx.GetSchemeFromURL(h.baseURL); s != "" {
 			return s
 		}
 	}
@@ -129,19 +118,7 @@ func (h *DownloaderHandlers) extractRequestMeta(ctx *fasthttp.RequestCtx) (url s
 	url = fmt.Sprintf("%s://%s%s", scheme, ctx.Host(), ctx.Request.URI().RequestURI())
 
 	// Getting the client's IP address
-	ip = ctx.RemoteIP().String()
-
-	// If the X-Forwarded-For header is present, we take the first IP from the list
-	xff := ctx.Request.Header.Peek("X-Forwarded-For")
-	if len(xff) > 0 {
-		xffList := strings.Split(string(xff), ",")
-		if len(xffList) > 0 {
-			xffFirst := strings.TrimSpace(xffList[0])
-			if xffFirst != "" {
-				ip = xffFirst
-			}
-		}
-	}
+	ip = nfasthttp.GetClientIP(ctx)
 
 	// Getting the User-Agent
 	userAgent = string(ctx.Request.Header.UserAgent())

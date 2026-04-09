@@ -28,7 +28,7 @@ func loggerMiddleware(logger *slog.Logger, next fasthttp.RequestHandler) fasthtt
 					ctx.RequestURI(),
 					status,
 				),
-				slog.String("Client IP", getClientIP(ctx)),
+				slog.String("Client IP", GetClientIP(ctx)),
 			)
 		}
 	}

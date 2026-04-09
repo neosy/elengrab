@@ -80,7 +80,7 @@ func (errTxts *ErrorTexts) AddErrs(errs ...error) *ErrorTexts {
 // AddUnwrapErr analyze the errors and then add one by one
 func (errTxts *ErrorTexts) AddUnwrapErr(err error) *ErrorTexts {
 	if err != nil {
-		errs := UnwrapAll(err)
+		errs := UnwrapUnique(err)
 		for _, e := range errs {
 			errTxts.AddErr(e)
 		}

@@ -9,49 +9,67 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-type writeErrorxResponseDto struct {
-	HTTPStatus int    `json:"status"`
-	Code       int    `json:"code,omitempty"`
-	Message    string `json:"message"`
-	Errors     string `json:"errors,omitempty"`
-	Timestamp  string `json:"timestamp"`
+// WriteErrorxResponse represents the structure of the error response returned by WriteErrorx.
+type WriteErrorxResponse struct {
+	// HTTPStatus is the HTTP status code of the response.
+	HTTPStatus int `json:"status"`
+
+	// Code is the numeric exception code.
+	Code int `json:"code,omitempty"`
+
+	// CodeText is the short textual code identifying the exception, e.g., "TOO_MANY_REQUESTS".
+	// This field is included in the response only when the application runs in
+	// local, develop, or test environments (AppEnvLocal, AppEnvDevelop, AppEnvTest).
+	CodeText string `json:"code_text,omitempty"`
+
+	// Message is a human-readable error message.
+	Message string `json:"message"`
+
+	// Errors contains additional error details, typically used for debugging purposes.
+	// It is included in the response only when the application is running in debug mode.
+	Errors string `json:"errors,omitempty"`
+
+	// Timestamp is the time when the error occurred.
+	Timestamp string `json:"timestamp"`
 }
 
-// WriteErrorx
+// WriteErrorx writes an error response to the given fasthttp.RequestCtx based on the provided error.
+// It extracts relevant information from the error, such as the HTTP status code, exception code, and message,
+// and constructs a JSON response with this information. The response includes additional details in debug mode.
 func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 	var (
-		message             string
-		errJoinTexts        string
-		httpStatusCode      int
-		errCode             uint
-		shouldCombineErrors bool
+		isDebugMode       bool
+		message           string
+		debugText         string
+		httpStatusCode    int
+		exceptionCode     int
+		exceptionCodeText string
 	)
 
-	errx := errorx.UnwrapErrorx(err)
+	errx := errorx.OuterErrorx(err)
 
 	userValue := ctx.UserValue(AppConfigCtxKey)
 	if userValue != nil {
 		switch userValue {
-		case appenv.AppEnvDevelop, appenv.AppEnvLocal:
-			shouldCombineErrors = true
+		case appenv.AppEnvDevelop, appenv.AppEnvLocal, appenv.AppEnvTest:
+			isDebugMode = true
 		}
 	}
 
 	httpStatusCode = fasthttp.StatusInternalServerError
 	if errx != nil {
-		exception := errx.Exception()
-
-		if httpStatus := errx.HttpStatusCode(); httpStatus != nil {
-			httpStatusCode = *httpStatus
-		}
+		exception := errorx.OuterException(err)
+		httpStatusCode = errx.HttpStatusCode()
 
 		if exception != nil {
-			errCode = exception.Num()
+			exceptionCode = int(exception.Num())
+			if isDebugMode {
+				exceptionCodeText = exception.Code()
+			}
 		}
 
-		if message == "" && errx.Message() != nil {
-			text := errx.Message()
-			message = *text
+		if message == "" && errx.Message() != "" {
+			message = errx.Message()
 		}
 
 		if message == "" {
@@ -62,16 +80,14 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 			message = exception.String()
 		}
 
-		if shouldCombineErrors {
-			errJoinTexts = errx.Error()
+		if isDebugMode {
+			debugText = errx.Error()
 		}
-	} else {
-		if err != nil {
-			message = err.Error()
+	} else if err != nil {
+		message = err.Error()
 
-			if shouldCombineErrors {
-				errJoinTexts = err.Error()
-			}
+		if isDebugMode {
+			debugText = err.Error()
 		}
 	}
 
@@ -79,11 +95,12 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 		message = "Internal Server Error"
 	}
 
-	errorResponse := writeErrorxResponseDto{
+	errorResponse := WriteErrorxResponse{
 		HTTPStatus: httpStatusCode,
-		Code:       int(errCode),
+		Code:       exceptionCode,
+		CodeText:   exceptionCodeText,
 		Message:    message,
-		Errors:     errJoinTexts,
+		Errors:     debugText,
 		Timestamp:  time.Now().Format(time.RFC3339),
 	}
 
