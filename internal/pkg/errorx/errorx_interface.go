@@ -9,20 +9,13 @@ type Errorx interface {
 	// Err returns a value of type error
 	Err() error
 
-	// Wrap adds the given errors to the current error using the library's
-	// wrapping mechanism.
-	//
-	// The receiver is mutated in place: only the internal error field is updated.
-	// The returned Errorx value is the same object as the original (the pointer
-	// remains unchanged). Nil errors are ignored.
+	// Wrap adds the given errors to the current error in place using the library's wrapping mechanism.
+	// The current Errorx object is mutated; the receiver remains the same. Nil errors are ignored.
 	Wrap(errs ...error) Errorx
 
-	// WrapAndMerge returns a new error that combines the current error with the given
-	// ones using the library's wrapping mechanism.
-	//
-	// A new Errorx object is always returned; the original object remains
-	// unchanged. Nil errors are ignored.
-	WrapAndMerge(errs ...error) Errorx
+	// WrapNew returns a new Errorx that wraps the current error along with the provided errors.
+	// The original error remains unchanged; nil errors are ignored.
+	WrapNew(errs ...error) Errorx
 
 	// Join merges the current underlying error with the provided errors using errors.Join.
 	// The existing e.err is included as the first element in the resulting error chain.
@@ -37,16 +30,16 @@ type Errorx interface {
 	UnwrapTexts() *ErrorTexts
 
 	// Message returns a value of type string
-	Message() *string
+	Message() string
 
 	// Exception returns a exception
 	Exception() exceptionx.Exception
 
 	// HttpStatusCodeRaw returns the explicitly set HTTP status code.
-	HttpStatusCodeRaw() *int
+	HttpStatusCodeRaw() int
 
 	// HttpStatusCode returns the HTTP status code, falling back to the exception if needed.
-	HttpStatusCode() *int
+	HttpStatusCode() int
 
 	// Copy copying an error including nested
 	Copy() error

@@ -28,7 +28,7 @@ func (a *AuthWeb) LoginUser(
 
 	resp, err := a.auth.AuthenticateUser(ctx, req)
 	if err != nil {
-		exception := errorx.UnwrapException(err)
+		exception := errorx.OuterException(err)
 		if exception == nil {
 			return nil, err
 		}

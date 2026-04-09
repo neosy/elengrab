@@ -5,16 +5,37 @@ import (
 	"fmt"
 
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
-	"github.com/neosy/elengrab/internal/pkg/errorx/internal/utils"
+	"github.com/neosy/elengrab/internal/pkg/stringx"
 )
 
-// Type for error handling
+// errorx is the core struct that implements the Errorx interface.
 type errorx struct {
-	err            error
-	message        *string
-	exception      exceptionx.Exception
+	// err is the underlying error that this errorx wraps. The value is not zero.
+	// it may contain a wrapped error.
+	err error
+	// message is an optional custom message that can be set for the error.
+	// If not set, it may be derived from the underlying error or exception.
+	// The error text takes precedence over err.
+	message *string
+	// exception is an optional exception associated with this error.
+	// It can provide additional context or metadata about the error.
+	exception exceptionx.Exception
+	// httpStatusCode is an optional HTTP status code associated with this error.
+	// Takes precedence over the code in Exception.
 	httpStatusCode *int
-	parent         errorxInternal
+	// parent is used by embedding structs and holds a reference to the outer struct.
+	// It is required to determine the actual concrete type when methods are invoked
+	// from the embedded errorx.
+	//
+	// For example:
+	//
+	//	type wrapErrorx struct {
+	//	    errorx
+	//	}
+	//
+	// For this structure, parent will have the type wrapErrorx.
+	// If errorx is used directly (without embedding), parent will be of type errorx.
+	parent errorxInternal
 }
 
 // newByType creates an errorx object based on the given type.
@@ -52,16 +73,6 @@ func newFromErr(err error) errorxInternal {
 		errx.initFromErrorx(e)
 	} else {
 		errx.setErr(err)
-	}
-
-	if errx.Exception() == nil {
-		errs := UnwrapAll(err)
-		if len(errs) > 1 {
-			combErrx := WrapErrors(errs...)
-			if e, ok := combErrx.(Errorx); ok {
-				errx.setException(e.Exception())
-			}
-		}
 	}
 
 	return errx.normalizeToInnerType()
@@ -119,6 +130,7 @@ func NewHTTP(text string, httpStatusCode int, args ...any) Errorx {
 
 	args = append(args, HttpStatusArg(httpStatusCode))
 	args = append(args, ErrorMessageArg(text))
+
 	errx.initFromArgs(args...)
 
 	return errx.normalizeToInnerType()
@@ -182,10 +194,13 @@ func Errorf(format string, args ...any) Errorx {
 	return errx
 }
 
+// NewFromDomainException creates a new Errorx instance based on the provided DomainException.
 func NewFromDomainException(exception exceptionx.DomainException, args ...any) Errorx {
 	return New(exception.Message(), exception)
 }
 
+// isErrorxSpecialArg determines if an argument is a special type
+// that should be processed by errorx's argument handling logic.
 func isErrorxSpecialArg(arg any) bool {
 	if arg == nil {
 		return false
@@ -249,7 +264,7 @@ func (e *errorx) initFromArgs(args ...any) {
 	}
 
 	if message != nil {
-		msg := utils.Capitalize(*message)
+		msg := stringx.Capitalize(*message)
 		e.message = &msg
 	}
 
@@ -266,14 +281,15 @@ func (e *errorx) initFromArgs(args ...any) {
 	}
 }
 
+// args returns the arguments used to configure the error.
 func (e *errorx) args() []any {
 	args := make([]any, 0, 3)
 
 	if e.Exception() != nil {
 		args = append(args, e.Exception())
 	}
-	if text := e.Message(); text != nil {
-		args = append(args, ErrorMessageArg(*text))
+	if text := e.Message(); text != "" {
+		args = append(args, ErrorMessageArg(text))
 	}
 	if code := e.httpStatusCode; code != nil {
 		args = append(args, HttpStatusArg(*code))
@@ -314,8 +330,11 @@ func (e *errorx) setErr(err error) {
 }
 
 // Message returns a value of type string
-func (e *errorx) Message() *string {
-	return e.message
+func (e *errorx) Message() string {
+	if e.message == nil {
+		return ""
+	}
+	return *e.message
 }
 
 // Exception returns a exception
@@ -329,53 +348,41 @@ func (e *errorx) setException(exception exceptionx.Exception) {
 }
 
 // HttpStatusCodeRaw returns the explicitly set HTTP status code.
-func (e *errorx) HttpStatusCodeRaw() *int {
-	return e.httpStatusCode
+func (e *errorx) HttpStatusCodeRaw() int {
+	if e.httpStatusCode == nil {
+		return 0
+	}
+	return *e.httpStatusCode
 }
 
 // HttpStatusCode returns the HTTP status code, falling back to the exception if needed.
-func (e *errorx) HttpStatusCode() *int {
+func (e *errorx) HttpStatusCode() int {
 	if e.httpStatusCode != nil {
-		return e.httpStatusCode
+		return *e.httpStatusCode
 	}
 
-	if e.exception != nil {
-		code := e.exception.HttpStatusCode()
-		if code != 0 {
-			return &code
-		}
-	}
+	exception := OuterException(e.parentOrSelf())
 
-	exception := UnwrapException(e.parentOrSelf())
-
-	// if exception := UnwrapException(e); exception != nil {
 	if exception != nil {
 		code := exception.HttpStatusCode()
 		if code != 0 {
-			return &code
+			return code
 		}
 	}
 
-	return nil
+	return 0
 }
 
-// Append adds the given errors to the current error using the library's
-// wrapping mechanism.
-//
-// The receiver is mutated in place: only the internal error field is updated.
-// The returned Errorx value is the same object as the original (the pointer
-// remains unchanged). Nil errors are ignored.
+// Wrap adds the given errors to the current error in place using the library's wrapping mechanism.
+// The current Errorx object is mutated; the receiver remains the same. Nil errors are ignored.
 func (e *errorx) Wrap(errs ...error) Errorx {
-	e.err = e.WrapAndMerge(errs...).Err()
+	e.err = e.WrapNew(errs...).Err()
 	return e.normalizeToInnerType()
 }
 
-// WrapAndMerge returns a new error that combines the current error with the given
-// ones using the library's wrapping mechanism.
-//
-// A new Errorx object is always returned; the original object remains
-// unchanged. Nil errors are ignored.
-func (e *errorx) WrapAndMerge(errs ...error) Errorx {
+// WrapNew returns a new Errorx that wraps the current error along with the provided errors.
+// The original error remains unchanged; nil errors are ignored.
+func (e *errorx) WrapNew(errs ...error) Errorx {
 	return WrapErrors(append([]error{e.parentOrSelf()}, errs...)...).(Errorx)
 }
 
@@ -393,9 +400,15 @@ func (e *errorx) Join(errs ...error) Errorx {
 }
 
 // UnwrapAll error analysis errors in a slice
-// Duplicates are excluded
+// Duplicates are not excluded
 func (e *errorx) UnwrapAll() []error {
 	return UnwrapAll(e.parentOrSelf())
+}
+
+// UnwrapUnique error analysis errors in a slice
+// Duplicates are excluded
+func (e *errorx) UnwrapUnique() []error {
+	return UnwrapUnique(e.parentOrSelf())
 }
 
 // UnwrapTexts analyzes errors and then extracts text one by one

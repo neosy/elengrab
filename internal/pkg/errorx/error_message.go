@@ -1,9 +1,9 @@
 package errorx
 
-import errmsg "github.com/neosy/elengrab/internal/pkg/errorx/internal/error_message"
+import "github.com/neosy/elengrab/internal/pkg/errorx/internal/types"
 
 // ErrorMessageProvider returns an error message string.
-type ErrorMessageProvider = errmsg.ErrorMessageProvider
+type ErrorMessageProvider = types.ErrorMessageProvider
 
 // ErrorMessageArg creates a provider that always returns the given text.
-var ErrorMessageArg = errmsg.ErrorMessageArg
+var ErrorMessageArg = types.ErrorMessageArg
