@@ -1,5 +1,16 @@
 package uivalues
 
+import (
+	"os"
+	"path/filepath"
+
+	"github.com/neosy/elengrab/internal/pkg/httpx"
+)
+
+var (
+	CssErrorFileName = "error.css"
+)
+
 var (
 	CssIndexPaths = cssFileNames{
 		"index-main.css",
@@ -39,4 +50,15 @@ func (names cssFileNames) paths(dir string) ([]string, error) {
 	}
 
 	return paths, nil
+}
+
+func CssFileRaw(fileName string, cssDir string) string {
+	filePath := filepath.Join(cssDir, fileName)
+
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return ""
+	}
+
+	return httpx.MinifyCSS(string(data))
 }

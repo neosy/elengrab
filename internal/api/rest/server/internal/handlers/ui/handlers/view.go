@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -110,19 +109,19 @@ func (h *DownloaderHandlers) view(
 	metaNameItems.Add("twitter:description", description)
 	metaNameItems.Add("twitter:image", imageURL)
 
-	baseValues := uivalues.BaseValues.Copy()
+	baseValues := uivalues.NewBaseValues()
 	baseValues.Title = fileInfo.MediaTitle
 	baseValues.ShowFooter = false
 	baseValues.MetaOgItems = metaOgItems
 	baseValues.MetaNameItems = metaNameItems
 
-	cssPaths, err := uivalues.CssViewPaths(filepath.Join(h.assetsDir, dirStaticName, dirCssName))
+	cssPaths, err := uivalues.CssViewPaths(h.assetFolders.Css())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	jsScripts, err := uivalues.JsViewPaths(filepath.Join(h.assetsDir, dirStaticName, dirJsName))
+	jsScripts, err := uivalues.JsViewPaths(h.assetFolders.Js())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

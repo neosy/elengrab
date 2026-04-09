@@ -2,6 +2,7 @@ package nfasthttp
 
 import (
 	"encoding/json"
+	"mime"
 	"time"
 
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -30,7 +31,7 @@ type WriteErrorxResponse struct {
 	Errors string `json:"errors,omitempty"`
 
 	// Timestamp is the time when the error occurred.
-	Timestamp string `json:"timestamp"`
+	Timestamp string `json:"timestamp,omitempty"`
 }
 
 // WriteErrorx writes an error response to the given fasthttp.RequestCtx based on the provided error.
@@ -48,8 +49,8 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 
 	errx := errorx.OuterErrorx(err)
 
-	userValue := ctx.UserValue(AppConfigCtxKey)
-	if userValue != nil {
+	userValue, ok := ctx.UserValue(AppConfigCtxKey).(appenv.AppEnv)
+	if ok {
 		switch userValue {
 		case appenv.AppEnvDevelop, appenv.AppEnvLocal, appenv.AppEnvTest:
 			isDebugMode = true
@@ -105,7 +106,7 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 	}
 
 	ctx.SetStatusCode(httpStatusCode)
-	ctx.SetContentType("application/json")
+	ctx.SetContentType(mime.TypeByExtension(".json"))
 
 	errorResponseJSON, err := json.Marshal(errorResponse)
 	if err != nil {

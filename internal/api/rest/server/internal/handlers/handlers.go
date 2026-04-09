@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"html/template"
+	"log/slog"
 
 	apihandlers "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/api"
 	statich "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/static"
@@ -22,16 +23,17 @@ type Dependencies struct {
 	DownloadsDir    string
 }
 
-type handlers struct {
+type Handlers struct {
 	Static *statich.StaticHandlers
 	UI     *uih.UIHandlers
 	API    *apihandlers.APIHandlers
 }
 
-func New(deps *Dependencies) *handlers {
-	return &handlers{
+func New(logger *slog.Logger, deps *Dependencies) *Handlers {
+	return &Handlers{
 		Static: statich.NewStaticHandlers(deps.AssetsDir),
 		UI: uih.NewUIHandlers(
+			logger,
 			deps.Usecases,
 			deps.Templates,
 			deps.AppMode,

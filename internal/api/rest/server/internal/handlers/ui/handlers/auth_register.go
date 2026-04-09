@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"path/filepath"
 	"strings"
 
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
@@ -22,19 +21,19 @@ func (h *DownloaderHandlers) AuthRegisterHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	cssPaths, err := uivalues.CssAuthPaths(filepath.Join(h.assetsDir, dirStaticName, dirCssName))
+	cssPaths, err := uivalues.CssAuthPaths(h.assetFolders.Css())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	jsScripts, err := uivalues.JsAuthPaths(filepath.Join(h.assetsDir, dirStaticName, dirJsName))
+	jsScripts, err := uivalues.JsAuthPaths(h.assetFolders.Js())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	baseValues := uivalues.BaseValues.Copy()
+	baseValues := uivalues.NewBaseValues()
 	baseValues.Title = uivalues.PageAuthRegisterTitle
 
 	dataMap := uivalues.MergeMaps(

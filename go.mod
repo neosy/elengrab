@@ -14,6 +14,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.10.0
+	github.com/tdewolff/minify/v2 v2.24.12
 	github.com/valyala/fasthttp v1.68.0
 	golang.org/x/crypto v0.43.0
 	golang.org/x/net v0.46.0
@@ -41,6 +42,7 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/savsgio/gotils v0.0.0-20240704082632-aef3928b8a38 // indirect
+	github.com/tdewolff/parse/v2 v2.8.11 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	golang.org/x/mod v0.28.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect

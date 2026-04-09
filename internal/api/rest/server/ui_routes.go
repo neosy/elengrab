@@ -4,54 +4,94 @@ import (
 	"github.com/fasthttp/router"
 	uih "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
+	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 )
 
 // setupUIRoutes setup UI routes.
 func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
-	authOrGuest := s.authMiddleware.AuthOrGuest
-	authOrAnonym := s.authMiddleware.AuthOrAnonym
-	authOptional := s.authMiddleware.AuthOptional
-	requireAuth := s.authMiddleware.RequireAuth
-	requireAuthMode := s.authMiddleware.RequireAuthMode
+	middlewareError := s.errorMiddleware.ErrorHandler
 
-	// Account
-	group := r.Group(httppaths.GroupAccount)
+	// Account with middleware (error, auth or anonym)
+	g := nfasthttp.NewRouterGroup(httppaths.GroupAccount, r)
+	g.Use(middlewareError, s.authMiddleware.AuthOrAnonym)
 	{
-		group.GET(httppaths.PathRegister, authOrAnonym(handlers.Downloader.AuthRegisterHandler))
-		group.POST(httppaths.PathRegister, authOrAnonym(handlers.Downloader.AuthRegisterSubmitHandler))
-		group.GET(httppaths.PathLogin, authOrAnonym(handlers.Downloader.AuthLoginHandler))
-		group.POST(httppaths.PathLogin, authOrAnonym(handlers.Downloader.AuthLoginSubmitHandler))
-		group.GET(httppaths.PathLogout, authOrAnonym(handlers.Downloader.AuthLogoutHandler))
+		g.GET(httppaths.PathRegister, handlers.Downloader.AuthRegisterHandler)
+		g.POST(httppaths.PathRegister, handlers.Downloader.AuthRegisterSubmitHandler)
+
+		g.GET(httppaths.PathLogin, handlers.Downloader.AuthLoginHandler)
+		g.POST(httppaths.PathLogin, handlers.Downloader.AuthLoginSubmitHandler)
+
+		g.GET(httppaths.PathLogout, handlers.Downloader.AuthLogoutHandler)
 	}
 
 	// Downloader
-	group = r.Group(httppaths.GroupDownloader)
+	//group = r.Group(httppaths.GroupDownloader)
 	{
-		group.GET(httppaths.PathAccountMenu, requireAuth(handlers.Downloader.AccountMenuHandler))
-		group.GET(httppaths.PathHistory, authOptional(handlers.Downloader.GetFilesHistoryHandler))
-		group.POST(httppaths.PathGrab, authOrGuest(handlers.Downloader.GrabHandler))
-		group.GET(httppaths.PathFileRow, requireAuthMode(handlers.Downloader.GetFileRowHandler))
-		group.GET(httppaths.PathFileLogo, requireAuthMode(handlers.Downloader.GetFileLogoHandler))
-		group.DELETE(httppaths.PathFile, authOrGuest(handlers.Downloader.DeleteFileRowHandler))
-		group.POST(httppaths.PathFileDownloadRepeat, authOrGuest(handlers.Downloader.RepeatDownloadHandler))
-		group.GET(httppaths.PathChannelAvatar, authOrAnonym(handlers.Downloader.GetChannelAvatarHandler))
-		group.GET(httppaths.PathFilesEvents, authOptional(handlers.Downloader.EventsHandler))
-		group.POST(httppaths.PathSearch, authOptional(handlers.Downloader.SearchHandler))
-		group.GET(httppaths.PathFileMenu, requireAuthMode(handlers.Downloader.RowMenuHandler))
-		group.POST(httppaths.PathFileShortLink, requireAuthMode(handlers.Downloader.GetFileShortLinkHandler))
-		group.GET(httppaths.PathStream, requireAuthMode(handlers.Downloader.StreamHandler))
+		// With middleware (error, require auth)
+		g := nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r)
+		g.Use(middlewareError, s.authMiddleware.RequireAuth)
+		{
+			g.GET(httppaths.PathAccountMenu, handlers.Downloader.AccountMenuHandler)
+		}
 
-		group.GET(httppaths.PathDownload, requireAuthMode(handlers.Downloader.DownloadHandler))
-		group.HEAD(httppaths.PathDownload, requireAuthMode(handlers.Downloader.DownloadHandler))
+		// With middleware (error, auth optional)
+		g = nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r)
+		g.Use(middlewareError, s.authMiddleware.AuthOptional)
+		{
+			g.GET(httppaths.PathHistory, handlers.Downloader.GetFilesHistoryHandler)
+			g.GET(httppaths.PathFilesEvents, handlers.Downloader.EventsHandler)
+			g.POST(httppaths.PathSearch, handlers.Downloader.SearchHandler)
+		}
 
-		group.GET(httppaths.PathStreamShortCode, requireAuthMode(handlers.Downloader.StreamShortCodeHandler))
-		group.HEAD(httppaths.PathStreamShortCode, requireAuthMode(handlers.Downloader.StreamShortCodeHandler))
+		// With middleware (error, auth or guest)
+		g = nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r)
+		g.Use(middlewareError, s.authMiddleware.AuthOrGuest)
+		{
+			g.POST(httppaths.PathGrab, handlers.Downloader.GrabHandler)
+			g.DELETE(httppaths.PathFile, handlers.Downloader.DeleteFileRowHandler)
+			g.POST(httppaths.PathFileDownloadRepeat, handlers.Downloader.RepeatDownloadHandler)
+		}
+
+		// With middleware (error, require auth mode)
+		g = nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r)
+		g.Use(middlewareError, s.authMiddleware.RequireAuthMode)
+		{
+			g.GET(httppaths.PathFileRow, handlers.Downloader.GetFileRowHandler)
+			g.GET(httppaths.PathFileLogo, handlers.Downloader.GetFileLogoHandler)
+			g.GET(httppaths.PathFileMenu, handlers.Downloader.RowMenuHandler)
+			g.POST(httppaths.PathFileShortLink, handlers.Downloader.GetFileShortLinkHandler)
+			g.GET(httppaths.PathStream, handlers.Downloader.StreamHandler)
+
+			g.GET(httppaths.PathDownload, handlers.Downloader.DownloadHandler)
+			g.HEAD(httppaths.PathDownload, handlers.Downloader.DownloadHandler)
+
+			g.GET(httppaths.PathStreamShortCode, handlers.Downloader.StreamShortCodeHandler)
+			g.HEAD(httppaths.PathStreamShortCode, handlers.Downloader.StreamShortCodeHandler)
+		}
+
+		// With middleware (error, auth or anonym)
+		g = nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r)
+		g.Use(middlewareError, s.authMiddleware.AuthOrAnonym)
+		{
+			g.GET(httppaths.PathChannelAvatar, handlers.Downloader.GetChannelAvatarHandler)
+		}
+
 	}
 
 	// Short link
-	group = r.Group(s.shortLinkPrefix)
 	{
-		group.GET(httppaths.PathShortLink, authOrAnonym(handlers.Downloader.ShortLinkHandler))
-		group.HEAD(httppaths.PathShortLink, handlers.Downloader.ShortLinkHandler)
+		// With middleware (error, auth or anonym)
+		g := nfasthttp.NewRouterGroup(s.shortLinkPrefix, r)
+		g.Use(middlewareError, s.authMiddleware.AuthOrAnonym)
+		{
+			g.GET(httppaths.PathShortLink, handlers.Downloader.ShortLinkHandler)
+		}
+
+		// With middleware (error)
+		g = nfasthttp.NewRouterGroup(s.shortLinkPrefix, r)
+		g.Use(middlewareError)
+		{
+			g.HEAD(httppaths.PathShortLink, handlers.Downloader.ShortLinkHandler)
+		}
 	}
 }
