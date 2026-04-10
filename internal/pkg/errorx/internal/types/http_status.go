@@ -1,11 +1,13 @@
 package types
 
-// HttpStatusProvider is a function that provides an HTTP status code.
-type HttpStatusProvider func() *int
+type (
+	// HttpStatusProvider is a function that provides an HTTP status.
+	HttpStatusProvider func() *int
+)
 
-// HttpStatusArg returns a function that provides the HTTP status code.
-func HttpStatusArg(code int) HttpStatusProvider {
+// WithHttpStatus returns a function that provides the HTTP status.
+func WithHttpStatus(status int) HttpStatusProvider {
 	return func() *int {
-		return &code
+		return &status
 	}
 }

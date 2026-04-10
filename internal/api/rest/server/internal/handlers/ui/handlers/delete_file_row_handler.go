@@ -17,13 +17,13 @@ func (h *DownloaderHandlers) DeleteFileRowHandler(ctx *fasthttp.RequestCtx) {
 
 	fileIdStr := ctx.UserValue(fileIdKey).(string)
 	if fileIdStr == "" {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("fileId is required", fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("fileId is required", fasthttp.StatusBadRequest))
 		return
 	}
 
 	fileId, err := uuid.Parse(fileIdStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("fileId is incorrect", fasthttp.StatusBadRequest, err))
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("fileId is incorrect", fasthttp.StatusBadRequest, err))
 		return
 	}
 
@@ -33,5 +33,5 @@ func (h *DownloaderHandlers) DeleteFileRowHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetStatusCode(fasthttp.StatusNoContent)
 }

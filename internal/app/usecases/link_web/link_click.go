@@ -36,7 +36,7 @@ func (u *LinkWeb) ShortLinkClick(
 		},
 	)
 	if err != nil {
-		message := "Failed to process click on short link"
+		var message string
 		if errorx.IsErrorx(err) {
 			exception := errorx.OuterException(err)
 			if exception != nil && exception.Num() == uint(exceptionx.NOT_FOUND) {
@@ -45,7 +45,7 @@ func (u *LinkWeb) ShortLinkClick(
 		}
 		return nil, errorx.Errorf(
 			"failed to process click on short link: %w", err,
-			errorx.ErrorMessageArg(message),
+			errorx.WithErrorMessage(message),
 		)
 	}
 

@@ -10,6 +10,7 @@ import (
 
 	errormw "github.com/neosy/elengrab/internal/api/rest/server/internal/error_middleware"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	"github.com/neosy/elengrab/internal/pkg/fnx"
 	appenv "github.com/neosy/elengrab/internal/pkg/nconfig/app_env"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
@@ -59,6 +60,7 @@ func (h *DownloaderHandlers) WriteErrorHandler(ctx *fasthttp.RequestCtx) {
 
 	errorValues := uivalues.NewErrorValues()
 	errorValues.Title = fmt.Sprintf("Error %v (%s)!!!", statusCode, statusText)
+	errorValues.BaseURL = fnx.Ternary(h.baseURL != "", h.baseURL, "/")
 	errorValues.ErrorCode = statusCode
 	errorValues.ErrorTitle = statusText
 	errorValues.ErrorText = errorText

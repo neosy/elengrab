@@ -29,11 +29,7 @@ func (h *DownloaderHandlers) ShortLinkHandler(ctx *fasthttp.RequestCtx) {
 	if link == nil {
 		nfasthttp.WriteErrorx(
 			ctx,
-			errorx.New(
-				"link not found",
-				exceptionx.NOT_FOUND,
-				exceptionx.NOT_FOUND.ErrorMessage(),
-			))
+			errorx.NewWithMessage("short link not found.", exceptionx.NOT_FOUND))
 		return
 	}
 
@@ -43,7 +39,7 @@ func (h *DownloaderHandlers) ShortLinkHandler(ctx *fasthttp.RequestCtx) {
 			errorx.Errorf(
 				"failed short link %v, originalURL: %v", link.ShortURL, link.OriginalURL,
 				exceptionx.WRONG_DATA,
-				exceptionx.WRONG_DATA.ErrorMessage(),
+				errorx.WithErrorMessage("Short link is invalid."),
 			))
 	}
 

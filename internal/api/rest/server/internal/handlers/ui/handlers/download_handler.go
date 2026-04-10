@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 
@@ -24,20 +23,20 @@ func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	// Get the file name from the query parameter
 	fileIdStr := string(ctx.QueryArgs().Peek("file"))
 	if fileIdStr == "" {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("file is required", fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("file is required", fasthttp.StatusBadRequest))
 		return
 	}
 
 	fileId, err := uuid.Parse(fileIdStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("file is incorrect", fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("file is incorrect", fasthttp.StatusBadRequest))
 		return
 	}
 
 	// Build the full path to the file
 	fileInfo, err := h.downloader.GetFileInfo(ctx, *ctxUser, fileId)
 	if err != nil {
-		nfasthttp.WriteError(ctx, err, fasthttp.StatusNotFound)
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -48,7 +47,7 @@ func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 
 	// Check if the file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		nfasthttp.WriteError(ctx, errors.New("file not found"), fasthttp.StatusBadRequest)
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("file not found", fasthttp.StatusInternalServerError, err))
 		return
 	}
 

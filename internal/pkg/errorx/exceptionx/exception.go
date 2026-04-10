@@ -17,16 +17,16 @@ type Exception interface {
 	Message() string
 	// Error implements the error interface by returning the exception message.
 	Error() string
-	// HttpStatusCode returns the HTTP status code associated with the exception.
-	HttpStatusCode() int
+	// HttpStatus returns the HTTP status associated with the exception.
+	HttpStatus() int
 }
 
 // Type Exception
 type exception struct {
-	num            uint
-	code           string
-	message        string
-	httpStatusCode int
+	num        uint
+	code       string
+	message    string
+	httpStatus int
 }
 
 // NewException creating an Exception object
@@ -43,26 +43,26 @@ func NewException(num uint, args ...any) Exception {
 			}
 		case types.HttpStatusProvider:
 			if v != nil {
-				if code := v(); code != nil {
-					newArgs.HTTPStatusCode = *code
+				if status := v(); status != nil {
+					newArgs.HTTPStatus = *status
 				}
 			}
 		case Exception:
 			newArgs.Code = v.Code()
 			newArgs.Message = v.Message()
-			newArgs.HTTPStatusCode = v.HttpStatusCode()
+			newArgs.HTTPStatus = v.HttpStatus()
 		}
 	}
 
-	if newArgs.HTTPStatusCode == 0 {
-		newArgs.HTTPStatusCode = fasthttp.StatusInternalServerError
+	if newArgs.HTTPStatus == 0 {
+		newArgs.HTTPStatus = fasthttp.StatusInternalServerError
 	}
 
 	ex := &exception{
-		num:            num,
-		code:           newArgs.Code,
-		message:        newArgs.Message,
-		httpStatusCode: newArgs.HTTPStatusCode,
+		num:        num,
+		code:       newArgs.Code,
+		message:    newArgs.Message,
+		httpStatus: newArgs.HTTPStatus,
 	}
 
 	return ex
@@ -109,7 +109,12 @@ func (e *exception) Error() string {
 	return stringx.LowerFirst(e.message)
 }
 
-// HttpStatusCode returns the HTTP status code associated with the exception.
-func (e *exception) HttpStatusCode() int {
-	return e.httpStatusCode
+// HttpStatus returns the HTTP status associated with the exception.
+func (e *exception) HttpStatus() int {
+	return e.httpStatus
+}
+
+// NewErrorx creates a new Errorx instance based on this exception and the provided arguments.
+func (e *exception) NewErrorx(args ...any) error {
+	return errorxFactory.NewFromException(e, args...)
 }
