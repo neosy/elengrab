@@ -66,7 +66,17 @@ func (h *DownloaderHandlers) streamEvents(
 }
 
 func (h *DownloaderHandlers) sendConnected(w *bufio.Writer) {
-	fmt.Fprintf(w, "event: connected\ndata: {}\n\n")
+	// fmt.Fprintf(w, "event: connected\ndata: {}\n\n")
+
+	jsonData, err := json.Marshal(struct {
+		UserID string `json:"id"`
+	}{uuid.NewString()})
+	if err != nil {
+		return
+	}
+
+	fmt.Fprintf(w, "event: connected\n")
+	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
 

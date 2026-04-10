@@ -13,9 +13,14 @@ const accountMenuConfig = {
     }
   },
 
+  shouldOpen(trigger) {
+  if (trigger.dataset.action !== 'menu') return false;
+    return true;
+  },
+
   beforeOpen(menu, trigger) {
-    if (trigger.dataset.action !== 'menu') return;
     menu.innerHTML = "";
+    return true;
   }
 };
 
