@@ -4,10 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmPassword = document.getElementById('confirmPassword');
     const errorMessage = document.getElementById('error');
 
-    // Display error on non-200 + non-503
+    // Display error on >= 400 + non-503
     document.body.addEventListener('htmx:afterOnLoad', (event) => {
         if (event.detail.elt === authForm) {
-            if (event.detail.xhr.status !== 200 &&
+            if (event.detail.xhr.status >= 400 &&
                 event.detail.xhr.status !== 503) {
                 if (errorMessage) {
                     let text = event.detail.xhr.responseText;
