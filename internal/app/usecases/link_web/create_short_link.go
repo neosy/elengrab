@@ -22,7 +22,7 @@ func (u *LinkWeb) CreateShortLink(ctx context.Context, url string) (string, erro
 	if err != nil {
 		return "", errorx.Errorf(
 			"failed to get short link: %w", err,
-			errorx.ErrorMessageArg("Failed to find short link"),
+			errorx.WithErrorMessage("Failed to find short link"),
 		)
 	}
 
@@ -48,7 +48,7 @@ func (u *LinkWeb) CreateShortLink(ctx context.Context, url string) (string, erro
 	if err != nil {
 		return "", errorx.Errorf(
 			"failed to create short link: %w", err,
-			errorx.ErrorMessageArg("Failed to create short link"),
+			errorx.WithErrorMessage("Failed to create short link"),
 		)
 	}
 

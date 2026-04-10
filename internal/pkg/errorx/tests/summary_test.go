@@ -236,11 +236,11 @@ func TestErrorScenarios(t *testing.T) {
 			want: "error 4: error 3: error 1: error 2 ERROR Internal Server Error",
 		},
 		{
-			name: "errorx.Errorf(), OuterException, HttpStatusCode",
+			name: "errorx.Errorf(), OuterException, HttpStatus",
 			fn: func() string {
 				err := errorx.Errorf("error 2: %w", err1, exceptionx.NOT_FOUND)
 				err = errorx.Errorf("error %d: %w", 3, err)
-				return fmt.Sprintf("%v %v %v %v", err.Error(), errorx.OuterException(err).Code(), errorx.OuterException(err), err.HttpStatusCode())
+				return fmt.Sprintf("%v %v %v %v", err.Error(), errorx.OuterException(err).Code(), errorx.OuterException(err), err.PublicHttpStatus())
 			},
 			want: "error 3: error 2: error 1 NOT_FOUND not Found 404",
 		},

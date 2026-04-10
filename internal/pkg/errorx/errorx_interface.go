@@ -32,17 +32,44 @@ type Errorx interface {
 	// Message returns a value of type string
 	Message() string
 
+	// PublicMessage returns the public-facing error message, prioritizing the explicitly set message,
+	// then the message from the associated exception,
+	// and finally falling back to the standard HTTP status text if available.
+	PublicMessage() string
+
+	// HttpStatus returns the explicitly set HTTP status.
+	HttpStatus() int
+
+	// PublicHttpStatus returns the HTTP status, prioritizing the explicitly set status,
+	// then the status from the associated exception, and finally falling back to 500 if none is set.
+	PublicHttpStatus() int
+
+	// PublicHttpStatusText returns the standard HTTP status text corresponding to the public HTTP status.
+	PublicHttpStatusText() string
+
 	// Exception returns a exception
 	Exception() exceptionx.Exception
 
-	// HttpStatusCodeRaw returns the explicitly set HTTP status code.
-	HttpStatusCodeRaw() int
-
-	// HttpStatusCode returns the HTTP status code, falling back to the exception if needed.
-	HttpStatusCode() int
-
 	// Copy copying an error including nested
 	Copy() error
+
+	// OuterMessage returns the first (outermost) message found in the error chain.
+	OuterMessage() string
+
+	// RootMessage returns the first (outermost) message found in the error chain.
+	RootMessage() string
+
+	// OuterException returns the first (outermost) exception found in the error chain.
+	OuterException() exceptionx.Exception
+
+	// RootException returns the first (outermost) exception found in the error chain.
+	RootException() exceptionx.Exception
+
+	// OuterHttpStatus returns the first (outermost) HTTP status found in the error chain.
+	OuterHttpStatus() int
+
+	// RootHttpStatus returns the first (outermost) HTTP status found in the error chain.
+	RootHttpStatus() int
 }
 
 type errorxInternal interface {

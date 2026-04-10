@@ -8,7 +8,7 @@
     {{- .CssStyle }}
 </head>
 <body>
-    <a class="header__logo-link" href="/">
+    <a class="header__logo-link" href="{{ .BaseURL }}">
         <img class="header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
         <h1 class="header__logo-title">{{.Header}}</h1>
     </a>

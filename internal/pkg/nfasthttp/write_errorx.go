@@ -42,7 +42,7 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 		isDebugMode       bool
 		message           string
 		debugText         string
-		httpStatusCode    int
+		httpStatus        int
 		exceptionCode     int
 		exceptionCodeText string
 	)
@@ -57,28 +57,17 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 		}
 	}
 
-	httpStatusCode = fasthttp.StatusInternalServerError
+	httpStatus = fasthttp.StatusInternalServerError
 	if errx != nil {
-		exception := errorx.OuterException(err)
-		httpStatusCode = errx.HttpStatusCode()
+		httpStatus = errx.PublicHttpStatus()
+		message = errx.PublicMessage()
 
+		exception := errx.OuterException()
 		if exception != nil {
 			exceptionCode = int(exception.Num())
 			if isDebugMode {
 				exceptionCodeText = exception.Code()
 			}
-		}
-
-		if message == "" && errx.Message() != "" {
-			message = errx.Message()
-		}
-
-		if message == "" {
-			message = errx.Error()
-		}
-
-		if message == "" && exception != nil {
-			message = exception.String()
 		}
 
 		if isDebugMode {
@@ -97,7 +86,7 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 	}
 
 	errorResponse := WriteErrorxResponse{
-		HTTPStatus: httpStatusCode,
+		HTTPStatus: httpStatus,
 		Code:       exceptionCode,
 		CodeText:   exceptionCodeText,
 		Message:    message,
@@ -105,7 +94,7 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 		Timestamp:  time.Now().Format(time.RFC3339),
 	}
 
-	ctx.SetStatusCode(httpStatusCode)
+	ctx.SetStatusCode(httpStatus)
 	ctx.SetContentType(mime.TypeByExtension(".json"))
 
 	errorResponseJSON, err := json.Marshal(errorResponse)

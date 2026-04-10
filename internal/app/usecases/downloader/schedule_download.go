@@ -27,7 +27,10 @@ func (uc *Downloader) ScheduleDownload(
 			dto.BroadcastNotificationTypeError,
 			"Demo mode",
 		)
-		return nil, errorx.New("operation not allowed in demo mode", exceptionx.ERROR)
+		return nil, errorx.New(
+			"operation not allowed in demo mode",
+			exceptionx.FORBIDDEN,
+		)
 	}
 
 	returnErr := func(err error) error {

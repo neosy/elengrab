@@ -11,6 +11,7 @@ import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
@@ -83,8 +84,7 @@ func (h *DownloaderHandlers) loadPage(fileName string) (*template.Template, erro
 func errInternal(err error) error {
 	return errorx.Errorf(
 		"template execution error: %v", err,
-		errorx.ErrorMessageArg("Internal Server Error"),
-		errorx.HttpStatusArg(fasthttp.StatusInternalServerError),
+		errorx.NewFromDomainException(exceptionx.ERROR),
 	)
 }
 

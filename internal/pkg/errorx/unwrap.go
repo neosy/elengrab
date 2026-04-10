@@ -102,6 +102,7 @@ func findEdgeInChain[T any](err error, reverse bool, fn func(Errorx) (T, bool)) 
 		return zero, false
 	}
 
+	// If reverse is true, check the outermost error first before traversing the chain.
 	if reverse {
 		if errx, ok := err.(Errorx); ok {
 			if v, ok := fn(errx); ok {
@@ -114,6 +115,7 @@ func findEdgeInChain[T any](err error, reverse bool, fn func(Errorx) (T, bool)) 
 		return zero, false
 	}
 
+	// Traverse the error chain and apply the provided function to each Errorx encountered.
 	errs := UnwrapAll(err)
 	if reverse {
 		slices.Reverse(errs)
@@ -167,20 +169,38 @@ func RootException(err error) exceptionx.Exception {
 	return ex
 }
 
-// OuterHttpStatusCode returns the first (outermost) HttpStatusCode found in the error chain.
-func OuterHttpStatusCode(err error) int {
-	code, _ := findEdgeInChain(err, true, func(e Errorx) (int, bool) {
-		code := e.HttpStatusCode()
-		return code, code != 0
+// OuterHttpStatus returns the first (outermost) HttpStatus found in the error chain.
+func OuterHttpStatus(err error) int {
+	status, _ := findEdgeInChain(err, true, func(e Errorx) (int, bool) {
+		status := e.HttpStatus()
+		return status, status != 0
 	})
-	return code
+	return status
 }
 
-// RootHttpStatusCode returns the deepest (root cause) HttpStatusCode found in the error chain.
-func RootHttpStatusCode(err error) int {
-	code, _ := findEdgeInChain(err, false, func(e Errorx) (int, bool) {
-		code := e.HttpStatusCode()
-		return code, code != 0
+// RootHttpStatus returns the deepest (root cause) HttpStatus found in the error chain.
+func RootHttpStatus(err error) int {
+	status, _ := findEdgeInChain(err, false, func(e Errorx) (int, bool) {
+		status := e.HttpStatus()
+		return status, status != 0
 	})
-	return code
+	return status
+}
+
+// OuterMessage returns the first (outermost) Message found in the error chain.
+func OuterMessage(err error) string {
+	msg, _ := findEdgeInChain(err, true, func(e Errorx) (string, bool) {
+		msg := e.Message()
+		return msg, msg != ""
+	})
+	return msg
+}
+
+// RootMessage returns the deepest (root cause) Message found in the error chain.
+func RootMessage(err error) string {
+	msg, _ := findEdgeInChain(err, false, func(e Errorx) (string, bool) {
+		msg := e.Message()
+		return msg, msg != ""
+	})
+	return msg
 }

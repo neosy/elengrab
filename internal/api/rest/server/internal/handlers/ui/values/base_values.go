@@ -31,8 +31,9 @@ type baseValues struct {
 }
 
 type errorValues struct {
-	Title  string
-	Header string
+	Title   string
+	Header  string
+	BaseURL string
 
 	ErrorCode      int
 	ErrorTitle     string

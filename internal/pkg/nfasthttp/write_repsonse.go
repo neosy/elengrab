@@ -13,8 +13,13 @@ func WriteResponse(ctx *fasthttp.RequestCtx, t any) error {
 		return err
 	}
 
+	statusCode := ctx.Response.StatusCode()
+	if statusCode == 0 {
+		statusCode = fasthttp.StatusOK
+	}
+
 	ctx.SetContentType("application/json")
-	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetStatusCode(statusCode)
 	ctx.SetBody(response)
 
 	return nil
