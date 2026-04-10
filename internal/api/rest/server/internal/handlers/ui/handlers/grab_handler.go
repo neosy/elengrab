@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strings"
+
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -22,6 +24,8 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("URL is required", fasthttp.StatusBadRequest))
 		return
 	}
+
+	url = strings.TrimSpace(url)
 
 	if err := h.validators.Validate.Var(url, "url"); err != nil {
 		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("invalid URL", fasthttp.StatusBadRequest, err))
