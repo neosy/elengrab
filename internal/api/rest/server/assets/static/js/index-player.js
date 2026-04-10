@@ -7,6 +7,8 @@ export function initPlayer() {
     const overlay           = document.getElementById("media-player-overlay");
     const videoWrapper      = document.getElementById("media-player__wrapper");
     let   audioBarContainer = document.getElementById("audio-bar");
+    const playerHash        = "#player"
+    let isOpenVideoPlayer   = false;
 
     if (!overlay || !videoWrapper) return;
 
@@ -71,6 +73,9 @@ export function initPlayer() {
             document.body.style.overflow = "";
             document.body.classList.add("audio-playing");
         } else {
+            isOpenVideoPlayer = true
+            location.hash = playerHash
+
             // Video → centered overlay
             const wrapper = document.createElement("div");
             wrapper.className = "player-wrapper-modern";
@@ -97,10 +102,29 @@ export function initPlayer() {
 
     // Global ESC handler
     document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") closePlayer();
+        if (event.key === "Escape" && location.hash === playerHash) closePlayer();
     });
 
+    if (location.hash === playerHash) {
+        history.replaceState(null, "", location.pathname + location.search);
+    }
+
+    window.addEventListener('hashchange', syncPlayerWithHash);
+
+    function syncPlayerWithHash() {
+        if (location.hash === playerHash) {
+            return;
+        }
+
+        if (isOpenVideoPlayer) {
+            closePlayer();
+        }
+    }    
+
     function closePlayer() {
+        isOpenVideoPlayer = false
+        history.replaceState(null, "", location.pathname + location.search);
+
         videoWrapper.innerHTML = "";
         if (audioBarContainer) audioBarContainer.innerHTML = "";
         overlay.style.display = "none";

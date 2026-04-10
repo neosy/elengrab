@@ -11,11 +11,11 @@ var (
 			Type:  "",
 			Defer: false,
 		},
-		{
-			Path:  "sse.min.js",
-			Type:  "",
-			Defer: false,
-		},
+		// {
+		// 	Path:  "sse.min.js",
+		// 	Type:  "",
+		// 	Defer: false,
+		// },
 		{
 			Path:  "theme-switcher.js",
 			Type:  "",
@@ -34,11 +34,11 @@ var (
 			Type:  "",
 			Defer: false,
 		},
-		{
-			Path:  "sse.min.js",
-			Type:  "",
-			Defer: false,
-		},
+		// {
+		// 	Path:  "sse.min.js",
+		// 	Type:  "",
+		// 	Defer: false,
+		// },
 		{
 			Path:  "theme-switcher.js",
 			Type:  "",

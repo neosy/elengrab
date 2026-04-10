@@ -19,6 +19,7 @@ export function initMenu(config) {
     actions = {},
     position,
     buildUrl,
+    shouldOpen,
     beforeOpen
   } = config;
 
@@ -66,6 +67,8 @@ export function initMenu(config) {
         window.htmx?.process(menu);
       }
     }
+
+    if (shouldOpen?.(trigger) === false) return;
 
     beforeOpen?.(menu, trigger);
 
