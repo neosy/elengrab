@@ -2,7 +2,7 @@ package link
 
 import (
 	"context"
-	"errors"
+	"slices"
 	"time"
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
@@ -10,6 +10,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+	"github.com/valyala/fasthttp"
 )
 
 // ShortLinkClick handles a click on a short link: validates the request, checks link availability,
@@ -29,7 +30,11 @@ func (u *Link) click(
 	// Extract shortCode from the provided URL
 	shortCode := dlink.GetShortCodeFromURL(linkClick.ShortURL)
 	if shortCode == "" {
-		return nil, errorx.New("shortCode is not correct", exceptionx.VALIDATE)
+		return nil, errorx.New(
+			"shortCode is not correct",
+			exceptionx.VALIDATE,
+			errorx.WithErrorMessage("Invalid short code"),
+		)
 	}
 
 	// Find the latest active link by shortCode
@@ -62,17 +67,21 @@ func (u *Link) validateClick(
 ) error {
 	// Check if the link has been soft-deleted (DeletedAt set)
 	if link.DeletedAt != nil {
-		return errors.New("the link is no longer valid")
+		return errorx.NewHTTPMessage("this link has expired", fasthttp.StatusGone)
 	}
 
 	// Check if the link has expired
 	if link.ExpiresAt != nil && link.ExpiresAt.Before(time.Now()) {
-		return errors.New("the link has expired and is no longer valid")
+		return errorx.NewHTTPMessage("the link has expired and is no longer valid", fasthttp.StatusGone)
 	}
 
 	// Check full match of ShortURL if required
 	if link.IsMatchShortURL && link.ShortURL != linkClick.ShortURL {
-		return errors.New("short URL does not match the expected value")
+		return errorx.NewHTTP(
+			"short URL does not match the expected value",
+			fasthttp.StatusBadRequest,
+			errorx.WithErrorMessage("Invalid short URL"),
+		)
 	}
 
 	// Check click limit
@@ -84,7 +93,11 @@ func (u *Link) validateClick(
 
 		// Return error if maximum clicks reached
 		if count >= *link.MaxClicks {
-			return errors.New("maximum number of clicks reached")
+			return errorx.NewHTTP(
+				"maximum number of clicks reached",
+				fasthttp.StatusGone,
+				errorx.WithErrorMessage("This link has reached its usage limit"),
+			)
 		}
 	}
 
@@ -98,21 +111,22 @@ func (u *Link) validateClick(
 			}
 		}
 		if !exists {
-			return errors.New("access from this IP address is not allowed")
+			return errorx.NewHTTP(
+				"access from this IP address is not allowed",
+				fasthttp.StatusForbidden,
+				errorx.WithErrorMessage("Access denied from this IP address"),
+			)
 		}
 	}
 
 	// Check if the user is allowed to access the link
 	if linkClick.ClickedBy != nil && len(link.AllowedUserIDs) > 0 {
-		var exists bool
-		for _, userId := range link.AllowedUserIDs {
-			if userId == *linkClick.ClickedBy {
-				exists = true
-				break
-			}
-		}
-		if !exists {
-			return errors.New("this user is not allowed to access the link")
+		if !slices.Contains(link.AllowedUserIDs, *linkClick.ClickedBy) {
+			return errorx.NewHTTP(
+				"this user is not allowed to access the link",
+				fasthttp.StatusForbidden,
+				errorx.WithErrorMessage("You are not allowed to access this link"),
+			)
 		}
 	}
 

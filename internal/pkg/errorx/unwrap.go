@@ -143,6 +143,26 @@ func OuterErrorx(err error) Errorx {
 	return errx
 }
 
+// outerErrorxWithException returns the first (outermost) Errorx that has an associated exception found in the error chain.
+func outerErrorxWithException(err error) Errorx {
+	errx, _ := findEdgeInChain(err, true, func(e Errorx) (Errorx, bool) {
+		ex := e.Exception()
+		return e, ex != nil
+	})
+	return errx
+}
+
+// outerErrorxWithExceptionOrHttpStatus returns the first (outermost) Errorx
+// that has an associated exception or HTTP status found in the error chain.
+func outerErrorxWithExceptionOrHttpStatus(err error) Errorx {
+	errx, _ := findEdgeInChain(err, true, func(e Errorx) (Errorx, bool) {
+		ex := e.Exception()
+		status := e.HttpStatus()
+		return e, ex != nil || status != 0
+	})
+	return errx
+}
+
 // RootErrorx returns the deepest (root cause) Errorx found in the error chain.
 func RootErrorx(err error) Errorx {
 	errx, _ := findEdgeInChain(err, false, func(e Errorx) (Errorx, bool) {
