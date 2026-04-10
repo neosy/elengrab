@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (DOM_ELEMENTS.resultInfo) DOM_ELEMENTS.resultInfo.classList.remove("show");
     });
 
-    // Display error on non-200 + non-503
+    // Display error on >= 400 + non-503
     document.body.addEventListener('htmx:afterOnLoad', (event) => {
         if (event.detail.elt === grabForm) {
             if (grabInputURL) grabInputURL.value = '';
