@@ -59,7 +59,11 @@ func (u *Link) GetLastByShortCode(ctx context.Context, shortCode string) (*dlink
 
 	if link == nil {
 		u.logger.Debug("Link not found", "shortCode", shortCode)
-		return nil, errorx.New("link not found", exceptionx.NOT_FOUND)
+		return nil, errorx.New(
+			"link not found",
+			exceptionx.NOT_FOUND,
+			errorx.WithErrorMessage("Short link not found"),
+		)
 	}
 
 	return link, nil
