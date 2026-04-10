@@ -411,12 +411,16 @@ func (e *errorx) PublicHttpStatus() int {
 		return *e.httpStatus
 	}
 
-	exception := e.OuterException()
-
-	if exception != nil {
-		status := exception.HttpStatus()
-		if status != 0 {
+	// Check for HTTP status in the error chain, giving priority to the outermost error.
+	err := outerErrorxWithExceptionOrHttpStatus(e.parentOrSelf())
+	if err != nil {
+		if status := err.HttpStatus(); status != 0 {
 			return status
+		}
+		if err.Exception() != nil {
+			if status := err.Exception().HttpStatus(); status != 0 {
+				return status
+			}
 		}
 	}
 
