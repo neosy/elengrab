@@ -6,4 +6,4 @@ import "github.com/neosy/elengrab/internal/pkg/errorx/internal/types"
 type ErrorMessageProvider = types.ErrorMessageProvider
 
 // ErrorMessageArg creates a provider that always returns the given text.
-var ErrorMessageArg = types.ErrorMessageArg
+var WithErrorMessage = types.WithErrorMessage

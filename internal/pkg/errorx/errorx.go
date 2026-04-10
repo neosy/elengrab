@@ -3,9 +3,11 @@ package errorx
 import (
 	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	"github.com/neosy/elengrab/internal/pkg/stringx"
+	"github.com/valyala/fasthttp"
 )
 
 // errorx is the core struct that implements the Errorx interface.
@@ -20,9 +22,9 @@ type errorx struct {
 	// exception is an optional exception associated with this error.
 	// It can provide additional context or metadata about the error.
 	exception exceptionx.Exception
-	// httpStatusCode is an optional HTTP status code associated with this error.
-	// Takes precedence over the code in Exception.
-	httpStatusCode *int
+	// httpStatus is an optional HTTP status associated with this error.
+	// Takes precedence over the status in Exception.
+	httpStatus *int
 	// parent is used by embedding structs and holds a reference to the outer struct.
 	// It is required to determine the actual concrete type when methods are invoked
 	// from the embedded errorx.
@@ -82,7 +84,7 @@ func newFromErr(err error) errorxInternal {
 //
 // Supported argument types and their effects:
 //   - exceptionx.Exception: sets the underlying exception
-//   - HttpStatusProvider: extracts and sets the HTTP status code
+//   - HttpStatusProvider: extracts and sets the HTTP status
 //   - ErrorMessageProvider: overrides the default message
 //   - error: will be combined with the current error using CombineErrors
 //
@@ -106,13 +108,26 @@ func New(text string, args ...any) Errorx {
 	return errx.normalizeToInnerType()
 }
 
-// NewHTTP creates a new Errorx instance with the provided message and HTTP status code.
+// NewWithMessage creates a new Errorx instance with the provided text and an explicit message.
+// The message is set using the WithErrorMessage argument, which takes precedence over the default message.
 // Additional optional arguments can be passed to further configure the error.
-// The httpStatusCode is automatically added to the arguments as HttpStatusCodeArg.
+// Supported argument types and their effects:
+//   - exceptionx.Exception: sets the underlying exception
+//   - HttpStatusProvider: extracts and sets the HTTP status
+//   - error: will be combined with the current error using CombineErrors
+//
+// The provided text is used to create the base error, while the message argument allows for a custom message to be set explicitly.
+func NewWithMessage(text string, args ...any) Errorx {
+	return New(text, append([]any{WithErrorMessage(text)}, args...)...)
+}
+
+// NewHTTP creates a new Errorx instance with the provided text error and HTTP status.
+// Additional optional arguments can be passed to further configure the error.
+// The httpStatus is automatically added to the arguments as httpStatusArg.
 // Supported argument types and their effects:
 //   - exceptionx.Exception: sets the underlying exception
 //   - ErrorMessageProvider: overrides the default message
-func NewHTTP(text string, httpStatusCode int, args ...any) Errorx {
+func NewHTTP(text string, httpStatus int, args ...any) Errorx {
 	var (
 		errx    errorxInternal
 		errType = errorTypeMain
@@ -126,21 +141,41 @@ func NewHTTP(text string, httpStatusCode int, args ...any) Errorx {
 		}
 	}
 
+	if text == "" {
+		text = stringx.LowerFirst(http.StatusText(httpStatus))
+	}
+
 	errx = newErrx(text, errType)
-
-	args = append(args, HttpStatusArg(httpStatusCode))
-	args = append(args, ErrorMessageArg(text))
-
-	errx.initFromArgs(args...)
+	errx.initFromArgs(append(args, WithHttpStatus(httpStatus))...)
 
 	return errx.normalizeToInnerType()
+}
+
+// NewHTTPStatus creates a new Errorx instance with the provided HTTP status and an optional text error.
+// If the text is empty, it defaults to the standard HTTP status text corresponding to the provided status code.
+// Additional optional arguments can be passed to further configure the error.
+// Supported argument types and their effects:
+//   - exceptionx.Exception: sets the underlying exception
+//   - ErrorMessageProvider: overrides the default message
+func NewHTTPStatus(status int, args ...any) Errorx {
+	return NewHTTP("", status, args...)
+}
+
+// NewHTTPMessage creates a new Errorx instance with the provided text error and an HTTP status derived from the text.
+// If the text is empty, it defaults to a 500 Internal Server Error status.
+// Additional optional arguments can be passed to further configure the error.
+// Supported argument types and their effects:
+//   - exceptionx.Exception: sets the underlying exception
+//   - HttpStatusProvider: extracts and sets the HTTP status (overrides default status derived from text)
+func NewHTTPMessage(text string, httpStatus int, args ...any) Errorx {
+	return NewHTTP(text, httpStatus, append([]any{WithErrorMessage(text)}, args...)...)
 }
 
 // NewFromError creating errorx from error and arguments
 // args can have types: Exception, ErrorMessageProvider, error
 // Supported argument types and their effects:
 //   - exceptionx.Exception: sets the underlying exception
-//   - HttpStatusProvider: extracts and sets the HTTP status code
+//   - HttpStatusProvider: extracts and sets the HTTP status
 //   - ErrorMessageProvider: overrides the default message
 func NewFromError(err error, args ...any) Errorx {
 	if err == nil {
@@ -186,7 +221,7 @@ func Errorf(format string, args ...any) Errorx {
 	errx := newByType(typeOf(baseErr))
 	errx.setErr(baseErr)
 
-	// Apply any special errorx arguments (e.g. exceptions, status codes, custom messages)
+	// Apply any special errorx arguments (e.g. exceptions, status statuss, custom messages)
 	if len(specialArgs) > 0 {
 		errx.initFromArgs(specialArgs...)
 	}
@@ -194,9 +229,14 @@ func Errorf(format string, args ...any) Errorx {
 	return errx
 }
 
+// NewFromException creates a new Errorx instance based on the provided exception.
+func NewFromException(ex exceptionx.Exception, args ...any) Errorx {
+	return New(ex.Error(), append([]any{ex}, args...)...)
+}
+
 // NewFromDomainException creates a new Errorx instance based on the provided DomainException.
-func NewFromDomainException(exception exceptionx.DomainException, args ...any) Errorx {
-	return New(exception.Message(), exception)
+func NewFromDomainException(ex exceptionx.DomainException, args ...any) Errorx {
+	return New(stringx.LowerFirst(ex.Message()), append([]any{ex}, args...)...)
 }
 
 // isErrorxSpecialArg determines if an argument is a special type
@@ -237,7 +277,7 @@ func (e *errorx) initFromErrorx(err errorxInternal) {
 func (e *errorx) initFromArgs(args ...any) {
 	var message *string
 	var exception exceptionx.Exception
-	var httpStatusCode *int
+	var httpStatus *int
 	var err error
 
 	for _, arg := range args {
@@ -252,7 +292,7 @@ func (e *errorx) initFromArgs(args ...any) {
 			}
 		case HttpStatusProvider:
 			if v != nil {
-				httpStatusCode = v()
+				httpStatus = v()
 			}
 		case error:
 			if err == nil {
@@ -272,8 +312,8 @@ func (e *errorx) initFromArgs(args ...any) {
 		e.exception = exception
 	}
 
-	if httpStatusCode != nil && *httpStatusCode != 0 {
-		e.httpStatusCode = httpStatusCode
+	if httpStatus != nil && *httpStatus != 0 {
+		e.httpStatus = httpStatus
 	}
 
 	if err != nil {
@@ -289,10 +329,10 @@ func (e *errorx) args() []any {
 		args = append(args, e.Exception())
 	}
 	if text := e.Message(); text != "" {
-		args = append(args, ErrorMessageArg(text))
+		args = append(args, WithErrorMessage(text))
 	}
-	if code := e.httpStatusCode; code != nil {
-		args = append(args, HttpStatusArg(*code))
+	if status := e.httpStatus; status != nil {
+		args = append(args, WithHttpStatus(*status))
 	}
 
 	return args
@@ -337,40 +377,71 @@ func (e *errorx) Message() string {
 	return *e.message
 }
 
+// PublicMessage returns the public-facing error message, prioritizing the explicitly set message,
+// then the message from the associated exception,
+// and finally falling back to the standard HTTP status text if available.
+func (e *errorx) PublicMessage() string {
+	msg := e.OuterMessage()
+	if msg != "" {
+		return stringx.Capitalize(msg)
+	}
+
+	exception := e.OuterException()
+	if exception != nil {
+		if msg := exception.Message(); msg != "" {
+			return stringx.Capitalize(msg)
+		}
+	}
+
+	return stringx.Capitalize(e.PublicHttpStatusText())
+}
+
+// HttpStatus returns the explicitly set HTTP status.
+func (e *errorx) HttpStatus() int {
+	if e.httpStatus == nil {
+		return 0
+	}
+	return *e.httpStatus
+}
+
+// PublicHttpStatus returns the HTTP status, prioritizing the explicitly set status,
+// then the status from the associated exception, and finally falling back to 500 if none is set.
+func (e *errorx) PublicHttpStatus() int {
+	if e.httpStatus != nil {
+		return *e.httpStatus
+	}
+
+	exception := e.OuterException()
+
+	if exception != nil {
+		status := exception.HttpStatus()
+		if status != 0 {
+			return status
+		}
+	}
+
+	return fasthttp.StatusInternalServerError
+}
+
+// PublicHttpStatusText returns the standard HTTP status text corresponding to the public HTTP status.
+func (e *errorx) PublicHttpStatusText() string {
+	return http.StatusText(e.PublicHttpStatus())
+}
+
 // Exception returns a exception
 func (e *errorx) Exception() exceptionx.Exception {
 	return e.exception
 }
 
+// PublicException returns the first (outermost) exception found in the error chain.
+// It is a public-facing method that provides access to the exception associated with the error, if any.
+func (e *errorx) PublicException() exceptionx.Exception {
+	return e.OuterException()
+}
+
 // setException sets a exception
 func (e *errorx) setException(exception exceptionx.Exception) {
 	e.exception = exception
-}
-
-// HttpStatusCodeRaw returns the explicitly set HTTP status code.
-func (e *errorx) HttpStatusCodeRaw() int {
-	if e.httpStatusCode == nil {
-		return 0
-	}
-	return *e.httpStatusCode
-}
-
-// HttpStatusCode returns the HTTP status code, falling back to the exception if needed.
-func (e *errorx) HttpStatusCode() int {
-	if e.httpStatusCode != nil {
-		return *e.httpStatusCode
-	}
-
-	exception := OuterException(e.parentOrSelf())
-
-	if exception != nil {
-		code := exception.HttpStatusCode()
-		if code != 0 {
-			return code
-		}
-	}
-
-	return 0
 }
 
 // Wrap adds the given errors to the current error in place using the library's wrapping mechanism.
@@ -419,4 +490,34 @@ func (e *errorx) UnwrapTexts() *ErrorTexts {
 // Copy copying an error including nested
 func (e *errorx) Copy() error {
 	return Copy(e.parentOrSelf())
+}
+
+// OuterMessage returns the first (outermost) message found in the error chain.
+func (e *errorx) OuterMessage() string {
+	return OuterMessage(e.parentOrSelf())
+}
+
+// RootMessage returns the first (outermost) message found in the error chain.
+func (e *errorx) RootMessage() string {
+	return RootMessage(e.parentOrSelf())
+}
+
+// OuterException returns the first (outermost) exception found in the error chain.
+func (e *errorx) OuterException() exceptionx.Exception {
+	return OuterException(e.parentOrSelf())
+}
+
+// RootException returns the first (outermost) exception found in the error chain.
+func (e *errorx) RootException() exceptionx.Exception {
+	return RootException(e.parentOrSelf())
+}
+
+// OuterHttpStatus returns the first (outermost) HTTP status found in the error chain.
+func (e *errorx) OuterHttpStatus() int {
+	return OuterHttpStatus(e.parentOrSelf())
+}
+
+// RootHttpStatus returns the first (outermost) HTTP status found in the error chain.
+func (e *errorx) RootHttpStatus() int {
+	return RootHttpStatus(e.parentOrSelf())
 }

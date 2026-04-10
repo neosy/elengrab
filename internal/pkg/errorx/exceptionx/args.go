@@ -6,15 +6,16 @@ type (
 	HttpStatusProvider = types.HttpStatusProvider
 
 	ExceptionArgs struct {
-		Code           string
-		Message        string
-		HTTPStatusCode int
+		Code       string
+		Message    string
+		HTTPStatus int
 	}
 	ExceptionArg func(args *ExceptionArgs)
 )
 
 var (
-	HttpStatusArg = types.HttpStatusArg
+	WithHttpStatus   = types.WithHttpStatus
+	WithErrorMessage = types.WithErrorMessage
 )
 
 // ExceptionArgCode creates an argument that sets the exception code.
@@ -31,9 +32,9 @@ func ExceptionArgMessage(message string) ExceptionArg {
 	}
 }
 
-// ExceptionArgHTTPStatusCode creates an argument that sets the HTTP status code for the exception.
-func ExceptionArgHTTPStatusCode(httpStatusCode int) ExceptionArg {
+// ExceptionArgHTTPStatus creates an argument that sets the HTTP status for the exception.
+func ExceptionArgHTTPStatus(httpStatus int) ExceptionArg {
 	return func(args *ExceptionArgs) {
-		args.HTTPStatusCode = httpStatusCode
+		args.HTTPStatus = httpStatus
 	}
 }

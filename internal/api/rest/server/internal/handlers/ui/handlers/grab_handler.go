@@ -51,12 +51,17 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	if resp == nil {
-		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
-		ctx.SetBodyString("the request returned an empty")
+		nfasthttp.WriteErrorx(
+			ctx,
+			errorx.NewHTTP(
+				"the request returned an empty response",
+				fasthttp.StatusInternalServerError,
+			),
+		)
 		return
 	}
 
 	ctx.Response.Header.SetCookie(cookiePageHasDivItemsKey.makeCookie("true", "/", 7*24*60*60))
 
-	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetStatusCode(fasthttp.StatusCreated)
 }

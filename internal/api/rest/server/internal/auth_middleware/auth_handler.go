@@ -25,8 +25,7 @@ func (a *AuthMiddleware) AuthOrGuest(next fasthttp.RequestHandler) fasthttp.Requ
 				ctx,
 				errorx.Errorf(
 					"internal Server Error: %w", err,
-					errorx.ErrorMessageArg("Internal Server Error"),
-					errorx.HttpStatusArg(fasthttp.StatusInternalServerError),
+					errorx.WithHttpStatus(fasthttp.StatusInternalServerError),
 				),
 			)
 			return
@@ -56,8 +55,7 @@ func (a *AuthMiddleware) RequireAuth(next fasthttp.RequestHandler) fasthttp.Requ
 				ctx,
 				errorx.Errorf(
 					"internal Server Error: %w", err,
-					errorx.ErrorMessageArg("Internal Server Error"),
-					errorx.HttpStatusArg(fasthttp.StatusInternalServerError),
+					errorx.WithHttpStatus(fasthttp.StatusInternalServerError),
 				),
 			)
 			return
@@ -84,8 +82,7 @@ func (a *AuthMiddleware) AuthOrAnonym(next fasthttp.RequestHandler) fasthttp.Req
 				ctx,
 				errorx.Errorf(
 					"internal Server Error: %w", err,
-					errorx.ErrorMessageArg("Internal Server Error"),
-					errorx.HttpStatusArg(fasthttp.StatusInternalServerError),
+					errorx.WithHttpStatus(fasthttp.StatusInternalServerError),
 				),
 			)
 			return
@@ -118,8 +115,7 @@ func (a *AuthMiddleware) AuthOptional(next fasthttp.RequestHandler) fasthttp.Req
 				ctx,
 				errorx.Errorf(
 					"internal Server Error: %w", err,
-					errorx.ErrorMessageArg("Internal Server Error"),
-					errorx.HttpStatusArg(fasthttp.StatusInternalServerError),
+					errorx.WithHttpStatus(fasthttp.StatusInternalServerError),
 				),
 			)
 			return
@@ -151,8 +147,7 @@ func (a *AuthMiddleware) RequireAuthMode(next fasthttp.RequestHandler) fasthttp.
 				ctx,
 				errorx.Errorf(
 					"internal Server Error: %w", err,
-					errorx.ErrorMessageArg("Internal Server Error"),
-					errorx.HttpStatusArg(fasthttp.StatusInternalServerError),
+					errorx.WithHttpStatus(fasthttp.StatusInternalServerError),
 				),
 			)
 			return
