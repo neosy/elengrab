@@ -13,11 +13,12 @@
 ### Refactor
 - Redesign main.go
 - Simplify errorx wrapping logic, expand functions, add unit tests
-- Improve exception in errorx package
+- Optimize and extend the methods in the errorx package
 
 ### Fix
-- Remove spaces during authorization
+- Remove the spaces in from the authorization data
 - Refine the definition of the file extension
+- Exclude technical errors from public
 
 ---
 
