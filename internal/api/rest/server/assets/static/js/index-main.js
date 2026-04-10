@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('htmx:afterOnLoad', (event) => {
         if (event.detail.elt === grabForm) {
             if (grabInputURL) grabInputURL.value = '';
-            if (event.detail.xhr.status !== 200 &&
+            if (event.detail.xhr.status >= 400 &&
                 event.detail.xhr.status !== 503) {
                     
                 if (DOM_ELEMENTS.resultInfo && DOM_ELEMENTS.resultInfoFailed) {
