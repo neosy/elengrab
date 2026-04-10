@@ -6,6 +6,7 @@
 - Add support for generating short URLs for downloaded media. Closes #257
 - Add a media viewing page
 - Add an Error Page
+- Add hash when opening the playback window
 
 ### Style
 - Update play button icon
