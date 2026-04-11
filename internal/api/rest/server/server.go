@@ -13,8 +13,8 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	appenv "github.com/neosy/elengrab/internal/pkg/nconfig/app_env"
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
+	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
 

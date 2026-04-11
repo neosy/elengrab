@@ -10,7 +10,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 

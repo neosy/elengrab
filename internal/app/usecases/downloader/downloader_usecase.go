@@ -19,7 +19,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/mappers"
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/internal/pkg/nworkerpool"
+	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 )

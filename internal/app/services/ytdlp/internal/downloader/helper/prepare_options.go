@@ -5,7 +5,7 @@ import (
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/internal/pkg/nfile"
+	nfile "github.com/neosy/elengrab/internal/pkg/file"
 )
 
 // PrepareDownloadOptions prepare download options with defaults and user overrides

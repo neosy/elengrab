@@ -7,7 +7,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/dto"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
 

@@ -3,7 +3,7 @@ package infra
 import (
 	"log"
 
-	"github.com/neosy/elengrab/internal/pkg/nfile"
+	nfile "github.com/neosy/elengrab/internal/pkg/file"
 )
 
 // absPath resolves a relative path to an absolute path using current working directory.

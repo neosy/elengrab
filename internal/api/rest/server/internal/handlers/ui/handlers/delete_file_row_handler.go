@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
 

@@ -5,8 +5,8 @@ import (
 
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
 

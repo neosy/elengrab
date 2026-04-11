@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 )
 
 // GetImage downloads an image from the given URL using net/http
@@ -42,7 +40,7 @@ func GetImage(ctx context.Context, url string, opts ...any) ([]byte, string, err
 	}
 
 	// Set a realistic User-Agent
-	req.Header.Set("User-Agent", nfasthttp.LinuxUserAgent)
+	req.Header.Set("User-Agent", LinuxUserAgent)
 
 	client := NewClient(clientOpts...)
 
