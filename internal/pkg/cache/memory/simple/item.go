@@ -1,4 +1,4 @@
-package nmemory
+package memsimple
 
 import "time"
 
@@ -11,7 +11,15 @@ type Item[T any] struct {
 
 // Valid reports whether the item is still valid (not expired).
 func (e *Item[T]) Valid() bool {
-	return e.expiresAt.IsZero() || !time.Now().UTC().After(e.expiresAt)
+	return e.ValidWithNow(time.Now().UTC())
+}
+
+// ValidWithNow reports whether the item is still valid at the given time.
+// Returns true if:
+//   - the expiration time is zero (never expires), or
+//   - now ≤ e.expiresAt (the item is valid at the exact moment of expiration).
+func (e *Item[T]) ValidWithNow(now time.Time) bool {
+	return e.expiresAt.IsZero() || !now.UTC().After(e.expiresAt)
 }
 
 // Expired reports whether the item has expired.
@@ -20,12 +28,18 @@ func (e *Item[T]) Expired() bool {
 	return !e.Valid()
 }
 
+// ExpiredWithNow reports whether the item has expired at the given time.
+// Returns true only if an expiration time is set and now > e.expiresAt.
+func (e *Item[T]) ExpiredWithNow(now time.Time) bool {
+	return !e.ValidWithNow(now)
+}
+
 // ValidAt reports whether the item is still valid at the given time.
 // Returns true if:
 //   - the expiration time is zero (never expires), or
 //   - now ≤ e.expiresAt (the item is valid at the exact moment of expiration).
 func (e *Item[T]) ValidAt(now time.Time) bool {
-	return e.expiresAt.IsZero() || !now.After(e.expiresAt)
+	return e.expiresAt.IsZero() || !now.UTC().After(e.expiresAt)
 }
 
 // ExpiredAt reports whether the item has expired at the given time.

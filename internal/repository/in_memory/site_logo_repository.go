@@ -6,21 +6,21 @@ import (
 
 	"github.com/google/uuid"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
-	nmemory "github.com/neosy/elengrab/internal/pkg/ncache/memory"
+	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
 
 type SiteLogoRepository struct {
-	nmemory.Repository[dmedia.SiteLogo]
+	memsimple.Repository[dmedia.SiteLogo]
 
-	cacheByLogoID  nmemory.Cache[uuid.UUID, dmedia.SiteLogo]
-	cacheBySiteURL nmemory.Cache[string, dmedia.SiteLogo]
+	cacheByLogoID  memsimple.Cache[uuid.UUID, dmedia.SiteLogo]
+	cacheBySiteURL memsimple.Cache[string, dmedia.SiteLogo]
 }
 
 // newSiteLogoRepository returns a new object for the repository
 func newSiteLogoRepository(ttl time.Duration) *SiteLogoRepository {
 	r := &SiteLogoRepository{
-		cacheByLogoID:  nmemory.NewCacheWithDeaultCopier[uuid.UUID, dmedia.SiteLogo, *dmedia.SiteLogo](),
-		cacheBySiteURL: nmemory.NewCacheWithDeaultCopier[string, dmedia.SiteLogo, *dmedia.SiteLogo](),
+		cacheByLogoID:  memsimple.NewCacheWithDeaultCopier[uuid.UUID, dmedia.SiteLogo, *dmedia.SiteLogo](),
+		cacheBySiteURL: memsimple.NewCacheWithDeaultCopier[string, dmedia.SiteLogo, *dmedia.SiteLogo](),
 	}
 	r.Repository.Init(ttl)
 	return r
@@ -97,9 +97,9 @@ func (r *SiteLogoRepository) ExistsByLogoID(_ context.Context, logoID uuid.UUID)
 }
 
 // FindBySiteURL retrieves a site logo by its URL from the repository.
-func (r *SiteLogoRepository) FindBySiteURL(_ context.Context, siteURL string) (*dmedia.SiteLogo, nmemory.CacheStatus, error) {
+func (r *SiteLogoRepository) FindBySiteURL(_ context.Context, siteURL string) (*dmedia.SiteLogo, memsimple.CacheStatus, error) {
 	// Define a function to find the site logo in the cache.
-	fnFind := func() (*dmedia.SiteLogo, nmemory.CacheStatus, error) {
+	fnFind := func() (*dmedia.SiteLogo, memsimple.CacheStatus, error) {
 		data, status := r.cacheBySiteURL.FindWithStatus(siteURL)
 		return data, status, nil
 	}

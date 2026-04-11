@@ -1,4 +1,4 @@
-package nmemory
+package memsimple
 
 import (
 	"errors"
