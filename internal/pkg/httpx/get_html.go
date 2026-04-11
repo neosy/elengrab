@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 )
 
 // GetHTML performs an HTTP GET request using net/http and returns
@@ -42,7 +40,7 @@ func GetHTML(ctx context.Context, url string, opts ...any) ([]byte, error) {
 	}
 
 	// Set a realistic User-Agent
-	req.Header.Set("User-Agent", nfasthttp.LinuxUserAgent)
+	req.Header.Set("User-Agent", LinuxUserAgent)
 
 	// Basic headers similar to curl defaults
 	req.Header.Set("Accept", "*/*")

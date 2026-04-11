@@ -5,8 +5,8 @@ import (
 	"mime"
 	"time"
 
+	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	appenv "github.com/neosy/elengrab/internal/pkg/nconfig/app_env"
 	"github.com/valyala/fasthttp"
 )
 

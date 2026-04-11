@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	appenv "github.com/neosy/elengrab/internal/pkg/nconfig/app_env"
+	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
 	"github.com/valyala/fasthttp"
 )
 

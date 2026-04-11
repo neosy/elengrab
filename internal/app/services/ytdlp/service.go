@@ -12,7 +12,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/ffmpeg"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
-	"github.com/neosy/elengrab/internal/pkg/nfile"
+	nfile "github.com/neosy/elengrab/internal/pkg/file"
 )
 
 // YtDlpService represents a service for interacting with yt-dlp.

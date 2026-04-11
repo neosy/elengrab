@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/neosy/elengrab/internal/pkg/nworkerpool"
+	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
 )
 
 // noopLogger returns a logger that discards all output except errors.

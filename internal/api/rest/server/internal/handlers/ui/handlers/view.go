@@ -8,9 +8,9 @@ import (
 	"github.com/google/uuid"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	iconfig "github.com/neosy/elengrab/internal/config"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/neosy/elengrab/internal/pkg/fnx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	"github.com/valyala/fasthttp"
 )

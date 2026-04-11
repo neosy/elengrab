@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/neosy/elengrab/internal/pkg/nfile"
+	nfile "github.com/neosy/elengrab/internal/pkg/file"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 )
 

@@ -4,7 +4,7 @@ import (
 	"github.com/fasthttp/router"
 	uih "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 )
 
 // setupUIRoutes setup UI routes.
