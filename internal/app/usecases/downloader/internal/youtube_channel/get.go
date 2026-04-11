@@ -4,9 +4,9 @@ import (
 	"context"
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
-	nmemory "github.com/neosy/elengrab/internal/pkg/ncache/memory"
 )
 
 // FindByChannelID
@@ -20,7 +20,7 @@ func (uc *YoutubeChannel) FindByChannelID(ctx context.Context, channelID string)
 	if channel != nil {
 		return channel, nil
 	}
-	if cacheStatus == nmemory.CacheStatusNegativeHit {
+	if cacheStatus == memsimple.CacheStatusNegativeHit {
 		return nil, nil
 	}
 

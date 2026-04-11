@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/uuid"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
-	nmemory "github.com/neosy/elengrab/internal/pkg/ncache/memory"
 )
 
 // FindByLogoID
@@ -78,7 +78,7 @@ func (uc *SiteIcon) FindBySiteURL(ctx context.Context, siteURL string) (*dmedia.
 	if logo != nil {
 		return logo, nil
 	}
-	if cacheStatus == nmemory.CacheStatusNegativeHit {
+	if cacheStatus == memsimple.CacheStatusNegativeHit {
 		return nil, nil
 	}
 
