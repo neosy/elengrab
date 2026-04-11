@@ -5,22 +5,22 @@ import (
 	"time"
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
-	nmemory "github.com/neosy/elengrab/internal/pkg/ncache/memory"
+	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
 
 // Defines the structure for the in-memory repository of YouTube channels.
 type YoutubeChannelRepository struct {
 	// Embeds the base Repository
-	nmemory.Repository[dmedia.YoutubeChannel]
+	memsimple.Repository[dmedia.YoutubeChannel]
 
 	// Cache for storing YouTube channels by their channel ID.
-	cacheByChannel nmemory.Cache[string, dmedia.YoutubeChannel]
+	cacheByChannel memsimple.Cache[string, dmedia.YoutubeChannel]
 }
 
 // newYoutubeChannelRepository returns a new object for the repository
 func newYoutubeChannelRepository(ttl time.Duration) *YoutubeChannelRepository {
 	r := &YoutubeChannelRepository{
-		cacheByChannel: nmemory.NewCacheWithDeaultCopier[string, dmedia.YoutubeChannel, *dmedia.YoutubeChannel](),
+		cacheByChannel: memsimple.NewCacheWithDeaultCopier[string, dmedia.YoutubeChannel, *dmedia.YoutubeChannel](),
 	}
 	r.Repository.Init(ttl)
 	return r
@@ -75,8 +75,8 @@ func (r *YoutubeChannelRepository) Delete(_ context.Context, channelID string) e
 func (r *YoutubeChannelRepository) FindByChannelID(
 	_ context.Context,
 	channelID string,
-) (*dmedia.YoutubeChannel, nmemory.CacheStatus, error) {
-	find := func() (*dmedia.YoutubeChannel, nmemory.CacheStatus, error) {
+) (*dmedia.YoutubeChannel, memsimple.CacheStatus, error) {
+	find := func() (*dmedia.YoutubeChannel, memsimple.CacheStatus, error) {
 		data, status := r.cacheByChannel.FindWithStatus(channelID)
 		return data, status, nil
 	}

@@ -1,4 +1,4 @@
-package nmemory
+package memsimple
 
 // CacheCopier is a function type that takes a pointer to a value of type T
 // and returns a pointer to a deep copy of that value.

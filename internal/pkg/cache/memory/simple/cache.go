@@ -1,9 +1,9 @@
-package nmemory
+package memsimple
 
 import (
 	"time"
 
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+	iptr "github.com/neosy/elengrab/internal/pkg/cache/internal/pointer"
 )
 
 // Cache is a generic in-memory cache that maps keys of type K to Items of type T.
@@ -14,6 +14,11 @@ type Cache[K comparable, T any] struct {
 
 	// copier is a function used to copy values before storing them in the cache.
 	copier CacheCopier[T]
+
+	// NegativeTTL is a special duration value that indicates a negative cache entry.
+	// When a lookup results in a cache miss, the cache can store a negative entry
+	// with this TTL to prevent repeated lookups for the same missing key.
+	NegativeTTL NegativeTTL
 }
 
 // NewCache creates a new Cache instance with the provided copier function.
@@ -70,20 +75,41 @@ func NewCacheWithDeaultCopier[K comparable, T any, PT copyable[T]]() Cache[K, T]
 	return NewCache[K, T](DefaultCopier[T, PT]())
 }
 
-// Save stores a value in the cache with an optional copy function and TTL.
-// If ttl > 0, the item expires after the specified duration.
+// negativeTTL returns the NegativeTTL function to use for this cache.
+func (c *Cache[K, T]) negativeTTL() NegativeTTL {
+	if c.NegativeTTL != nil {
+		return c.NegativeTTL
+	}
+	return DefaultNegativeTTL
+}
+
+// Save stores a value in the cache with an optional TTL.
+// If the caller wants maximum performance, they should use SaveWithNow
+// and pass the current time themselves to avoid repeated calls to time.Now().
 func (c *Cache[K, T]) Save(key K, value *T, ttl time.Duration) {
+	c.SaveWithNow(key, value, ttl, time.Now().UTC())
+}
+
+// SaveWithNow is the high-performance version of Save.
+// The caller provides the current time to eliminate the cost of time.Now().UTC()
+// in the hot path. Use this when doing batch inserts or under high load.
+func (c *Cache[K, T]) SaveWithNow(key K, value *T, ttl time.Duration, now time.Time) {
 	var valueCopy *T
 	if value != nil {
-		valueCopy = uptr.Copy(value)
-		if c.copier != nil {
+		if c.copier == nil {
+			valueCopy = iptr.Copy(value)
+		} else {
 			valueCopy = c.copier(value)
 		}
 	}
 
 	expiresAt := time.Time{}
 	if ttl > 0 {
-		expiresAt = time.Now().UTC().Add(ttl)
+		if valueCopy == nil {
+			expiresAt = now.Add(c.negativeTTL()(ttl))
+		} else {
+			expiresAt = now.Add(ttl)
+		}
 	}
 
 	var cacheStatus = CacheStatusHit
@@ -109,12 +135,19 @@ func (c Cache[K, T]) Delete(key K) {
 // FindWithStatus returns the cached value for the given key, or nil if not found or expired.
 // An optional copy function can be used to return a copy of the value.
 func (c Cache[K, T]) FindWithStatus(key K) (*T, CacheStatus) {
+	return c.FindWithStatusNow(key, time.Now().UTC())
+}
+
+// FindWithStatusWithNow is the high-performance version of FindWithStatus.
+// The caller provides the current time to eliminate the cost of time.Now().UTC()
+// in the hot path. Use this when doing batch lookups or under high load.
+func (c Cache[K, T]) FindWithStatusNow(key K, now time.Time) (*T, CacheStatus) {
 	cacheData, exists := c.cache[key]
 	if !exists {
 		return nil, CacheStatusMiss
 	}
 
-	if cacheData.Expired() {
+	if cacheData.ExpiredWithNow(now) {
 		delete(c.cache, key)
 		return nil, CacheStatusMiss
 	}
@@ -128,14 +161,20 @@ func (c Cache[K, T]) FindWithStatus(key K) (*T, CacheStatus) {
 }
 
 // Find returns the cached value for the given key, or nil if not found or expired.
-// An optional copy function can be used to return a copy of the value.
+// This is a convenience method that calls FindWithStatus and ignores the status.
 func (c Cache[K, T]) Find(key K) *T {
+	return c.FindWithNow(key, time.Now().UTC())
+}
+
+// Find returns the cached value for the given key, or nil if not found or expired.
+// An optional copy function can be used to return a copy of the value.
+func (c Cache[K, T]) FindWithNow(key K, now time.Time) *T {
 	cacheData, exists := c.cache[key]
 	if !exists {
 		return nil
 	}
 
-	if cacheData.Expired() {
+	if cacheData.ExpiredWithNow(now) {
 		delete(c.cache, key)
 		return nil
 	}
@@ -159,7 +198,13 @@ func (c Cache[K, T]) Exists(key K) bool {
 
 // CleanExpired removes all expired items from the cache.
 func (c Cache[K, T]) CleanExpired() {
-	now := time.Now().UTC()
+	c.CleanExpiredWithNow(time.Now().UTC())
+}
+
+// CleanExpiredWithNow is the high-performance version of CleanExpired.
+// The caller provides the current time to eliminate the cost of time.Now().UTC()
+// in the hot path. Use this when doing batch cleanups or under high load.
+func (c Cache[K, T]) CleanExpiredWithNow(now time.Time) {
 	for key, cacheValue := range c.cache {
 		if cacheValue.ExpiredAt(now) {
 			delete(c.cache, key)

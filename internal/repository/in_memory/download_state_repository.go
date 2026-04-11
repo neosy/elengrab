@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	nmemory "github.com/neosy/elengrab/internal/pkg/ncache/memory"
+	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 )
 
@@ -16,21 +16,21 @@ type userIDFileIDKey struct {
 }
 
 type DownloadStateRepository struct {
-	nmemory.Repository[ddownload.DownloadState]
+	memsimple.Repository[ddownload.DownloadState]
 
 	userID *uuid.UUID
 
-	cacheByFileID       nmemory.Cache[uuid.UUID, ddownload.DownloadState]
-	cacheByUserIDFileID nmemory.Cache[userIDFileIDKey, ddownload.DownloadState]
-	cacheByTaskID       nmemory.Cache[uuid.UUID, ddownload.DownloadState]
+	cacheByFileID       memsimple.Cache[uuid.UUID, ddownload.DownloadState]
+	cacheByUserIDFileID memsimple.Cache[userIDFileIDKey, ddownload.DownloadState]
+	cacheByTaskID       memsimple.Cache[uuid.UUID, ddownload.DownloadState]
 }
 
 // newDownloadStateRepository returns a new object for the repository
 func newDownloadStateRepository(ttl time.Duration) *DownloadStateRepository {
 	r := &DownloadStateRepository{
-		cacheByFileID:       nmemory.NewCacheWithDeaultCopier[uuid.UUID, ddownload.DownloadState, *ddownload.DownloadState](),
-		cacheByUserIDFileID: nmemory.NewCacheWithDeaultCopier[userIDFileIDKey, ddownload.DownloadState, *ddownload.DownloadState](),
-		cacheByTaskID:       nmemory.NewCacheWithDeaultCopier[uuid.UUID, ddownload.DownloadState, *ddownload.DownloadState](),
+		cacheByFileID:       memsimple.NewCacheWithDeaultCopier[uuid.UUID, ddownload.DownloadState, *ddownload.DownloadState](),
+		cacheByUserIDFileID: memsimple.NewCacheWithDeaultCopier[userIDFileIDKey, ddownload.DownloadState, *ddownload.DownloadState](),
+		cacheByTaskID:       memsimple.NewCacheWithDeaultCopier[uuid.UUID, ddownload.DownloadState, *ddownload.DownloadState](),
 	}
 	r.Repository.Init(ttl)
 	return r

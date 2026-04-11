@@ -1,4 +1,4 @@
-package nmemory
+package memsharded
 
 import (
 	"sync"

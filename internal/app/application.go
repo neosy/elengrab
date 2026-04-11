@@ -27,9 +27,9 @@ import (
 
 const (
 	// Default TTL for download state cache
-	downloadStateCacheTTLDefault = 1 * time.Hour
+	downloadStateCacheTTLDefault = 20 * time.Minute
 	// Default TTL for channel information cache
-	youtubeChannelCacheTTLDefault = 1 * 24 * time.Hour
+	youtubeChannelCacheTTLDefault = 1 * 6 * time.Hour
 	// Default TTL for site logo information cache
 	siteLogoCacheTTLDefault = 1 * 24 * time.Hour
 
@@ -39,9 +39,9 @@ const (
 	channelUpdateInterval = 30 * 24 * time.Hour
 
 	// Cache cleanup intervals
-	cleanYoutubeChannelCacheInterval = 12 * time.Hour
-	cleanDownloadStateCacheinterval  = 12 * time.Hour
-	cleanSiteLogoCacheInterval       = 12 * time.Hour
+	cleanYoutubeChannelCacheInterval = 5 * time.Minute
+	cleanDownloadStateCacheinterval  = 30 * time.Minute
+	cleanSiteLogoCacheInterval       = 2 * time.Hour
 
 	// defaultWorkerIdleTime is the default idle duration before a dynamic pool worker can exit.
 	defaultWorkerIdleTime = 15 * time.Minute
