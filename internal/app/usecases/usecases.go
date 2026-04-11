@@ -13,7 +13,7 @@ import (
 	linkweb "github.com/neosy/elengrab/internal/app/usecases/link_web"
 	"github.com/neosy/elengrab/internal/app/usecases/maintenance"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/internal/pkg/nworkerpool"
+	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 )
 

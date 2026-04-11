@@ -14,7 +14,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/neosy/elengrab/internal/pkg/nfile"
+	nfile "github.com/neosy/elengrab/internal/pkg/file"
 	"github.com/neosy/elengrab/internal/pkg/syncx"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"

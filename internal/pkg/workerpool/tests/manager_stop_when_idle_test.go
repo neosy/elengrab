@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/neosy/elengrab/internal/pkg/nworkerpool"
+	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
 )
 
 func TestManagerStopWhenIdle(t *testing.T) {

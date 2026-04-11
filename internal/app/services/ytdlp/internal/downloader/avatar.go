@@ -10,7 +10,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 

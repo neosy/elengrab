@@ -6,7 +6,7 @@ import (
 
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
 

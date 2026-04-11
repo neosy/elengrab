@@ -10,9 +10,9 @@ import (
 
 	errormw "github.com/neosy/elengrab/internal/api/rest/server/internal/error_middleware"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/neosy/elengrab/internal/pkg/fnx"
-	appenv "github.com/neosy/elengrab/internal/pkg/nconfig/app_env"
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
 	"github.com/valyala/fasthttp"
 )
 

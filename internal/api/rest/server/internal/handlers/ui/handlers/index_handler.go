@@ -11,7 +11,7 @@ import (
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/internal/pkg/nfasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	"github.com/valyala/fasthttp"
 )

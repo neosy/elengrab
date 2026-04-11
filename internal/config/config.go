@@ -7,7 +7,7 @@ import (
 
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
-	"github.com/neosy/elengrab/internal/pkg/nconfig"
+	nconfig "github.com/neosy/elengrab/internal/pkg/config"
 )
 
 // Basic Settings

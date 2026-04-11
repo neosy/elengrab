@@ -6,7 +6,7 @@ import (
 	"os"
 
 	iconfig "github.com/neosy/elengrab/internal/config"
-	"github.com/neosy/elengrab/internal/pkg/nlogger"
+	"github.com/neosy/elengrab/internal/pkg/logger"
 )
 
 func Initialize() (*iconfig.Config, *slog.Logger) {

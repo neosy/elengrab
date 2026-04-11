@@ -9,7 +9,7 @@ import (
 
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/neosy/elengrab/internal/pkg/nfile"
+	nfile "github.com/neosy/elengrab/internal/pkg/file"
 )
 
 const (

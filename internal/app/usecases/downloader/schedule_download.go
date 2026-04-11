@@ -10,8 +10,8 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
-	"github.com/neosy/elengrab/internal/pkg/nworkerpool"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
 )
 
 func (uc *Downloader) ScheduleDownload(
