@@ -1,6 +1,7 @@
 const DOM_ELEMENTS = {
     player: null,
     video: null,
+    videoWrapper: null,
 
     customControls: null,
     backButton: null,
@@ -20,6 +21,7 @@ function initDomElements() {
     DOM_ELEMENTS.main = document.querySelector("main");
     DOM_ELEMENTS.backButton = document.getElementById("backButton");
 
+    DOM_ELEMENTS.videoWrapper = document.getElementById("videoWrapper");
     DOM_ELEMENTS.video = document.getElementById("videoElement");
     DOM_ELEMENTS.player = document.getElementById("videoElement");
     if (!DOM_ELEMENTS.player) {
@@ -58,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initPlayer() {
     DOM_ELEMENTS.backButton && (DOM_ELEMENTS.backButton.addEventListener('click', goBack));
 
+    // Update progress bar as the media plays
     if (DOM_ELEMENTS.customControls) {
         DOM_ELEMENTS.playButton.addEventListener('click', togglePlay);
         DOM_ELEMENTS.skipBackwardButton.addEventListener('click', skipBackward);
@@ -75,11 +78,6 @@ function initPlayer() {
         });
     }
 
-    const params = new URLSearchParams(window.location.search);
-    if (params.has('title')) currentMedia.title = params.get('title');
-    if (params.has('url')) currentMedia.url = params.get('url');
-    if (params.has('type')) currentMedia.type = params.get('type');
-
     // Set video resize on metadata load and window resize
     if (DOM_ELEMENTS.video) {
         DOM_ELEMENTS.video.addEventListener("loadedmetadata", fitVideo);
@@ -95,17 +93,27 @@ function initPlayer() {
     });    
 }
 
+// Adjust video size to fit within max dimensions while maintaining aspect ratio
+// Also adds "is-full" class to wrapper if video is already full width (e.g. on mobile)
 function fitVideo() {
     const video = DOM_ELEMENTS.video;
-    if (!video.videoWidth || !video.videoHeight) return;
 
+    // Check if video wrapper is already full width (e.g. on mobile)
+    const rect = DOM_ELEMENTS.videoWrapper.getBoundingClientRect();
+    const isFullWidth = Math.abs(rect.width - document.documentElement.clientWidth) < 2;
+    DOM_ELEMENTS.videoWrapper.classList.toggle("is-full", isFullWidth); 
+
+    // If video has no intrinsic size or max dimensions are not set,
+    // remove explicit sizing to let it fill the wrapper
     const styles = getComputedStyle(video);
-    if (!styles.maxWidth || !styles.maxHeight) return;
+    if (!video.videoWidth || !video.videoHeight || styles.maxWidth === "none"  || styles.maxHeight === "none" ) {
+        video.style.removeProperty("width");
+        video.style.removeProperty("height");
+        return;
+    }
 
     const maxW = parseFloat(styles.maxWidth);
     const maxH = parseFloat(styles.maxHeight);
-
-    console.log("Max dimensions", maxW, maxH);
 
     const vw = video.videoWidth;
     const vh = video.videoHeight;
