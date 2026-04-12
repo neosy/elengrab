@@ -148,7 +148,7 @@ body {
 
 .media_wrapper{
     display: flex;
-    width: 100%;
+    width: auto;
     max-width: 100%;
 
     background: #000;
@@ -167,12 +167,8 @@ body {
 
 video {
     display: block;
-    width: 100%;
-    height: auto;
-    max-width: 100%;
+    max-width: 65vw;
     max-height: 78vh;
-
-    object-fit: contain;
 }
 
 audio {
@@ -236,8 +232,12 @@ audio {
 }
 
 .main_content__media-info {
+    display: inline-flex;
+    width: 100%;
     margin-top: 24px;
     padding: 0 8px;
+
+    justify-content: center;
 
     line-height: 1.5;
 }
@@ -339,6 +339,18 @@ button {
     text-align: center;
 }
 
+@media (max-width: 1280px) {
+    video {
+        max-width: 62vw;
+    }
+}
+
+@media (max-width: 1160px) {
+    video {
+        max-width: 56vw;
+    }
+}
+
 @media (max-width: 1000px) {
     .user-menu {
         width: 98%;
@@ -358,8 +370,12 @@ button {
         display: flex;
         flex-direction: column;
 
-        /* grid-template-columns: 1fr; */
         gap: 16px;
+    }
+
+    video {
+        max-width: 93vw;
+        max-height: 85vh;
     }
 
     .main_content__sidebar {
@@ -393,6 +409,11 @@ button {
 
     .back-button {
         padding: 10px 16px;
+    }
+
+    video {
+        max-width: 95vw;
+        max-height: 80vh;
     }
 }
 
