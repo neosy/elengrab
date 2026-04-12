@@ -65,14 +65,14 @@ var (
 		"index-dom-elements.js",
 	}.jsonForTemplate
 
-	JsViewPaths = jsScripts{
+	JsWatchPaths = jsScripts{
 		{
 			Path:  "theme-switcher.js",
 			Type:  "",
 			Defer: true,
 		},
 		{
-			Path:  "view-main.js",
+			Path:  "watch-main.js",
 			Type:  "module",
 			Defer: false,
 		},

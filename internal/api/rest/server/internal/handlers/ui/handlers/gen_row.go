@@ -32,6 +32,7 @@ type fileRowInfoData struct {
 	IsAudio          string
 	DownloadURL      string
 	StreamURL        string
+	WatchURL         string
 	DeleteURL        string
 	LogoVersion      string
 	RowID            string
@@ -96,8 +97,9 @@ func (h *DownloaderHandlers) genRow(
 		FormatTitle:      fileInfo.MediaInfoText,
 		FormatTooltip:    fileInfo.MediaInfoTooltip,
 		DownloadURL:      httppaths.BuildPathFileDownload(fileInfo.FileID),
+		WatchURL:         httppaths.BuildPathFileWatch(fileInfo.FileID),
 		StreamURL:        httppaths.BuildPathFileStream(fileInfo.FileID),
-		DeleteURL:        httppaths.BuildPathFile(fileInfo.FileID),
+		DeleteURL:        httppaths.BuildPathFile(httppaths.PathFile, fileInfo.FileID),
 		LogoVersion:      logoVersion,
 		RowID:            "row-" + fileInfo.FileID.String(),
 		ProgressID:       "progress-" + fileInfo.FileID.String(),

@@ -14,21 +14,21 @@ const (
 	GroupAccount    = "/account"
 
 	// Paths Downloader
-	PathGrab            = "/grab"
-	PathHistory         = "/history"
-	PathDownload        = "/download"
-	PathStream          = "/stream"
-	PathStreamShortCode = "/stream/{shortCode}"
-	PathSearch          = "/search"
-	PathAccountMenu     = "/account-menu"
+	PathGrab        = "/grab"
+	PathHistory     = "/history"
+	PathDownload    = "/download"
+	PathSearch      = "/search"
+	PathAccountMenu = "/account-menu"
 
+	PathFilesEvents        = "/files/events"
 	PathFile               = "/file/{fileId}"
 	PathFileRow            = "/file/{fileId}/row"
 	PathFileDownloadRepeat = "/file/{fileId}/repeat"
 	PathFileLogo           = "/file/{fileId}/logo"
-	PathFilesEvents        = "/files/events"
 	PathFileMenu           = "/files/{fileId}/menu"
 	PathFileShortLink      = "/files/{fileId}/short-link"
+	PathFileStream         = "/files/{fileId}/stream"
+	PathFileWatch          = "/file/{fileId}/watch"
 
 	PathChannelAvatar = "/channel/{channelID}/avatar"
 
@@ -38,29 +38,34 @@ const (
 	PathLogout   = "/logout"
 
 	// Short link
-	PathShortLink = "/{shortCode}"
+	PathShortLink       = "/{shortCode}"
+	PathStreamShortCode = "/stream/{shortCode}"
 )
 
-func BuildPathFile(fileID uuid.UUID) string {
-	return GroupDownloader + strings.Replace(PathFile, "{fileId}", fileID.String(), 1)
+func BuildPathFile(path string, fileID uuid.UUID) string {
+	return GroupDownloader + strings.Replace(path, "{fileId}", fileID.String(), 1)
 }
 
 func BuildPathFileRow(fileID uuid.UUID) string {
-	return GroupDownloader + strings.Replace(PathFileRow, "{fileId}", fileID.String(), 1)
-}
-
-func BuildPathFileDownload(fileID uuid.UUID) string {
-	return fmt.Sprintf("%s?file=%s", GroupDownloader+PathDownload, fileID)
-}
-
-func BuildPathFileStream(fileID uuid.UUID) string {
-	return fmt.Sprintf("%s?file=%s", GroupDownloader+PathStream, fileID)
+	return BuildPathFile(PathFileRow, fileID)
 }
 
 func BuildPathFileRepeat(fileID uuid.UUID) string {
-	return GroupDownloader + strings.Replace(PathFileDownloadRepeat, "{fileId}", fileID.String(), 1)
+	return BuildPathFile(PathFileDownloadRepeat, fileID)
+}
+
+func BuildPathFileStream(fileID uuid.UUID) string {
+	return BuildPathFile(PathFileStream, fileID)
+}
+
+func BuildPathFileWatch(fileID uuid.UUID) string {
+	return BuildPathFile(PathFileWatch, fileID)
 }
 
 func BuildPathStreamShortCode(shortCode string) string {
 	return GroupDownloader + strings.Replace(PathStreamShortCode, "{shortCode}", shortCode, 1)
+}
+
+func BuildPathFileDownload(fileID uuid.UUID) string {
+	return fmt.Sprintf("%s?file=%s", GroupDownloader+PathDownload, fileID)
 }

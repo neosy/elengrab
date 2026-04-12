@@ -95,6 +95,28 @@ export function initPlayer() {
         }
     });
 
+    // Handle middle-click on play button to open in new tab (for videos only)
+    document.addEventListener('pointerdown', (e) => {
+        if (e.button !== 1) return;
+
+        const el = e.target;
+        if (!(el instanceof Element)) return;
+
+        const playBtn = el.closest(".avatar-play__button");
+        if (!playBtn) return;
+
+        const row = playBtn.closest(".grab-result__row");
+        const isAudio = row.dataset.isAudio === "true";
+
+        if (isAudio) return; // To open in new tab only applies to videos
+        
+        if (e.button === 1) {
+            e.preventDefault();
+            window.open(playBtn.dataset.watchUrl, '_blank', 'noopener,noreferrer');
+            return;
+        }
+    });
+
     // Close overlay on background click (video only)
     overlay.addEventListener("click", (event) => {
         if (event.target === overlay) closePlayer();

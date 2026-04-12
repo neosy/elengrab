@@ -60,13 +60,11 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 			g.GET(httppaths.PathFileLogo, handlers.Downloader.GetFileLogoHandler)
 			g.GET(httppaths.PathFileMenu, handlers.Downloader.RowMenuHandler)
 			g.POST(httppaths.PathFileShortLink, handlers.Downloader.GetFileShortLinkHandler)
-			g.GET(httppaths.PathStream, handlers.Downloader.StreamHandler)
+			g.GET(httppaths.PathFileStream, handlers.Downloader.FileStreamHandler)
+			g.GET(httppaths.PathFileWatch, handlers.Downloader.FileWatchHandler)
 
 			g.GET(httppaths.PathDownload, handlers.Downloader.DownloadHandler)
 			g.HEAD(httppaths.PathDownload, handlers.Downloader.DownloadHandler)
-
-			g.GET(httppaths.PathStreamShortCode, handlers.Downloader.StreamShortCodeHandler)
-			g.HEAD(httppaths.PathStreamShortCode, handlers.Downloader.StreamShortCodeHandler)
 		}
 
 		// With middleware (error, auth or anonym)
@@ -74,6 +72,9 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		g.Use(middlewareError, s.authMiddleware.AuthOrAnonym)
 		{
 			g.GET(httppaths.PathChannelAvatar, handlers.Downloader.GetChannelAvatarHandler)
+
+			g.GET(httppaths.PathStreamShortCode, handlers.Downloader.StreamShortCodeHandler)
+			g.HEAD(httppaths.PathStreamShortCode, handlers.Downloader.StreamShortCodeHandler)
 		}
 
 	}

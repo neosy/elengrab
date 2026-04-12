@@ -114,7 +114,7 @@
 /* Row menu*/
 .row-menu {
     position: fixed;
-    width: 160px;
+    width: 180px;
     max-height: 0;
 }
 
@@ -142,4 +142,8 @@
 
 .menu-action--delete .menu-action__content-icon {
     color: var(--menu-action-icon-red);
+}
+
+.menu-action--watch .menu-action__content-icon {
+    color: var(--menu-action-icon-green);
 }

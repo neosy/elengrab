@@ -15,11 +15,12 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) view(
+func (h *DownloaderHandlers) watch(
 	ctx *fasthttp.RequestCtx,
 	pageURL string,
 	streamPath string,
 	fileID uuid.UUID,
+	showBackButton bool,
 ) {
 	if ctx.IsHead() {
 		ctx.SetContentType("text/html; charset=utf-8")
@@ -115,13 +116,13 @@ func (h *DownloaderHandlers) view(
 	baseValues.MetaOgItems = metaOgItems
 	baseValues.MetaNameItems = metaNameItems
 
-	cssPaths, err := uivalues.CssViewPaths(h.assetFolders.Css())
+	cssPaths, err := uivalues.CssWatchPaths(h.assetFolders.Css())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	jsScripts, err := uivalues.JsViewPaths(h.assetFolders.Js())
+	jsScripts, err := uivalues.JsWatchPaths(h.assetFolders.Js())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -142,8 +143,8 @@ func (h *DownloaderHandlers) view(
 	}
 	mediaParametes = append(mediaParametes, mediaParameter{"File Size", fileSize})
 
-	viewerValues := uivalues.ViewerValues{
-		ShowBackButton: false,
+	watcherValues := uivalues.WatcherValues{
+		ShowBackButton: showBackButton,
 		IsVideoPlayer:  isVideoPlayer,
 		MediaTitle:     fileInfo.MediaTitle,
 		MediaParametes: mediaParametes,
@@ -153,7 +154,7 @@ func (h *DownloaderHandlers) view(
 	dataMap := uivalues.MergeMaps(
 		uivalues.PathValues,
 		baseValues.ToMap(),
-		viewerValues.ToMap(),
+		watcherValues.ToMap(),
 	)
 	dataMap[uivalues.CssPathsKey] = cssPaths
 	dataMap[uivalues.JsScriptsKey] = jsScripts

@@ -1,4 +1,8 @@
 let activeMenus = new Set();
+const isPWA =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.matchMedia('(display-mode: fullscreen)').matches ||
+      window.navigator.standalone === true;
 
 // Close all opened menus except the provided one
 export function closeAllMenus(except = null) {
@@ -35,7 +39,14 @@ export function initMenu(config) {
 
   function defaultNavigate(item) {
     if (item.dataset.url) {
-      window.location.href = item.dataset.url;
+      const isNewTab = item.dataset.newTab === 'true';
+      // For links, open in new tab if specified and not in PWA mode; otherwise navigate in same tab
+      // In PWA mode, we generally want to stay in the app, so we ignore newTab for internal links
+      if (isNewTab && !isPWA) {
+        window.open(item.dataset.url, '_blank', 'noopener,noreferrer');
+      } else {
+        window.location.href = item.dataset.url;
+      }
     }
   }
 

@@ -7,6 +7,8 @@ import (
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/valyala/fasthttp"
 )
@@ -20,15 +22,13 @@ func (h *DownloaderHandlers) GetFileLogoHandler(ctx *fasthttp.RequestCtx) {
 
 	fileIdStr := ctx.UserValue(fileIdKey).(string)
 	if fileIdStr == "" {
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetBodyString("FileId is required")
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("fileId is required", fasthttp.StatusBadRequest))
 		return
 	}
 
 	fileID, err := uuid.Parse(fileIdStr)
 	if err != nil {
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetBodyString("FileId is incorrect")
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("fileId is incorrect", fasthttp.StatusBadRequest, err))
 		return
 	}
 

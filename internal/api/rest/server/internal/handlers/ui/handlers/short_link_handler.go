@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"strings"
-
 	"github.com/google/uuid"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -27,9 +25,7 @@ func (h *DownloaderHandlers) ShortLinkHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	if link == nil {
-		nfasthttp.WriteErrorx(
-			ctx,
-			errorx.NewWithMessage("short link not found.", exceptionx.NOT_FOUND))
+		nfasthttp.WriteErrorx(ctx, errorx.NewWithMessage("short link not found.", exceptionx.NOT_FOUND))
 		return
 	}
 
@@ -43,22 +39,9 @@ func (h *DownloaderHandlers) ShortLinkHandler(ctx *fasthttp.RequestCtx) {
 			))
 	}
 
-	if strings.Contains(link.OriginalURL, httppaths.GroupDownloader+httppaths.PathStream+"/") {
-		parts := strings.Split(link.OriginalURL, "/")
-		if len(parts) == 0 {
-			writeError()
-			return
-		}
-
-		uuidStr := parts[len(parts)-1]
-		fileID, err := uuid.Parse(uuidStr)
-		if err != nil {
-			writeError()
-			return
-		}
-
+	if fileID := stripUUIDFromPath(link.OriginalURL); fileID != uuid.Nil {
 		streamPath := httppaths.BuildPathStreamShortCode(shortCode)
-		h.view(ctx, shortURL, streamPath, fileID)
+		h.watch(ctx, shortURL, streamPath, fileID, false)
 		return
 	}
 

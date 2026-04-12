@@ -28,8 +28,8 @@ var (
 		"theme-switcher.css",
 	}.paths
 
-	CssViewPaths = cssFileNames{
-		"view-main.css",
+	CssWatchPaths = cssFileNames{
+		"watch-main.css",
 		"variables.css",
 		"theme-switcher.css",
 	}.paths

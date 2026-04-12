@@ -75,7 +75,7 @@ body {
 .header__inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: left;
     margin: 10px 20px;
     margin-bottom: 10px;
     padding-right: 50px;
@@ -264,13 +264,26 @@ button {
 }
 
 .back-button {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 24px;
-    border-radius: 20px;
-    font-size: var(--h4);
-    font-weight: 500;    
+  display: flex;
+  width: 44px;
+  height: 44px;
+  margin-right: 5px;
+  padding: 0;
+
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0,0,0,0.05);
+  border-radius: 50%;
+  border: none;
+}
+
+.back-button svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
 }
 
 .back-button:hover {
@@ -407,10 +420,6 @@ button {
         height: 2.3em;
     }
 
-    .back-button {
-        padding: 10px 16px;
-    }
-
     video {
         max-width: 95vw;
         max-height: 80vh;
@@ -463,4 +472,22 @@ button {
     .main_content__sidebar {
         padding: 0 5px;
     }
+}
+
+/* Disable text selection and tap highlight on touch devices for better UX */
+@media (hover: none) and (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  button, a {
+    -webkit-touch-callout: none;
+  }
+
+  button:focus,
+  a:focus {
+    outline: none;
+  }
 }
