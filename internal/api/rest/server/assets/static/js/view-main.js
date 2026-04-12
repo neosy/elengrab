@@ -1,5 +1,6 @@
 const DOM_ELEMENTS = {
     player: null,
+    video: null,
 
     customControls: null,
     backButton: null,
@@ -10,12 +11,16 @@ const DOM_ELEMENTS = {
     skipForwardButton: null,
     toggleFullscreenButton: null,
 
+    main: null,
     mediaTitle: null,
     mediaDescription: null,
 };
 
 function initDomElements() {
+    DOM_ELEMENTS.main = document.querySelector("main");
     DOM_ELEMENTS.backButton = document.getElementById("backButton");
+
+    DOM_ELEMENTS.video = document.getElementById("videoElement");
     DOM_ELEMENTS.player = document.getElementById("videoElement");
     if (!DOM_ELEMENTS.player) {
         DOM_ELEMENTS.player = document.getElementById("audioElement");
@@ -75,6 +80,12 @@ function initPlayer() {
     if (params.has('url')) currentMedia.url = params.get('url');
     if (params.has('type')) currentMedia.type = params.get('type');
 
+    // Set video resize on metadata load and window resize
+    if (DOM_ELEMENTS.video) {
+        DOM_ELEMENTS.video.addEventListener("loadedmetadata", fitVideo);
+        window.addEventListener("resize", fitVideo);
+    }
+
     // Auto play
     DOM_ELEMENTS.player.addEventListener('loadedmetadata', () => {
         DOM_ELEMENTS.player.autoplay = true;
@@ -82,6 +93,27 @@ function initPlayer() {
             console.warn('Autorun failed', err);
         });
     });    
+}
+
+function fitVideo() {
+    const video = DOM_ELEMENTS.video;
+    if (!video.videoWidth || !video.videoHeight) return;
+
+    const styles = getComputedStyle(video);
+    if (!styles.maxWidth || !styles.maxHeight) return;
+
+    const maxW = parseFloat(styles.maxWidth);
+    const maxH = parseFloat(styles.maxHeight);
+
+    console.log("Max dimensions", maxW, maxH);
+
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+
+    const scale = Math.min(maxW / vw, maxH / vh);
+
+    video.style.width = `${vw * scale}px`;
+    video.style.height = `${vh * scale}px`;
 }
 
 function formatTime(seconds) {
