@@ -3,7 +3,6 @@ package handlers
 import (
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/google/uuid"
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
@@ -16,7 +15,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) StreamHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) FileStreamHandler(ctx *fasthttp.RequestCtx) {
 	// Get user ID from context
 	ctxUser := authmw.UserFromContext(ctx)
 	if ctxUser == nil {
@@ -24,22 +23,16 @@ func (h *DownloaderHandlers) StreamHandler(ctx *fasthttp.RequestCtx) {
 		ctxUser = dauth.UserContextAnonymous()
 	}
 
-	// Get the file ID from query parameter
-	fileIdStr := string(ctx.QueryArgs().Peek("file"))
+	fileIdStr := ctx.UserValue(fileIdKey).(string)
 	if fileIdStr == "" {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("file is required", fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("fileId is required", fasthttp.StatusBadRequest))
 		return
 	}
 
 	fileID, err := uuid.Parse(fileIdStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(
-			ctx,
-			errorx.New(
-				"fileId is incorrect",
-				exceptionx.WRONG_DATA,
-				exceptionx.WRONG_DATA.ErrorMessage(),
-			))
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("fileId is incorrect", fasthttp.StatusBadRequest, err))
+		return
 	}
 
 	h.stream(ctx, *ctxUser, fileID, false)
@@ -69,20 +62,8 @@ func (h *DownloaderHandlers) StreamShortCodeHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	parts := strings.Split(link.OriginalURL, "/")
-	if len(parts) == 0 {
-		nfasthttp.WriteErrorx(
-			ctx,
-			errorx.New(
-				"fileId is incorrect",
-				exceptionx.WRONG_DATA,
-				exceptionx.WRONG_DATA.ErrorMessage(),
-			))
-		return
-	}
-
-	fileID, err := uuid.Parse(parts[len(parts)-1])
-	if err != nil {
+	fileID := stripUUIDFromPath(link.OriginalURL)
+	if fileID == uuid.Nil {
 		nfasthttp.WriteErrorx(
 			ctx,
 			errorx.New(

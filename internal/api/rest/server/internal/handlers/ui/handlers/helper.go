@@ -7,6 +7,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/google/uuid"
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -127,4 +128,21 @@ func (h *DownloaderHandlers) extractRequestMeta(ctx *fasthttp.RequestCtx) (url s
 	referrer = string(ctx.Request.Header.Referer())
 
 	return
+}
+
+func stripUUIDFromPath(path string) uuid.UUID {
+	parts := strings.Split(path, "/")
+
+	for _, p := range parts {
+		if p == "" {
+			continue
+		}
+
+		u, err := uuid.Parse(p)
+		if err == nil {
+			return u
+		}
+	}
+
+	return uuid.Nil
 }

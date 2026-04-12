@@ -33,7 +33,7 @@ func (h *DownloaderHandlers) genNewRow(
 		MediaURL:         fileInfo.URL,
 		YoutubeChannelID: channelIDValueNone,
 		LogoVersion:      fmt.Sprintf("%d", time.Now().UTC().Unix()),
-		DeleteURL:        httppaths.BuildPathFile(fileInfo.FileID),
+		DeleteURL:        httppaths.BuildPathFile(httppaths.PathFile, fileInfo.FileID),
 		FileID:           fileInfo.FileID.String(),
 		RowID:            "row-" + fileInfo.FileID.String(),
 		MediaTitle:       fileInfo.URL,

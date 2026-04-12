@@ -7,6 +7,7 @@
 - Add a media viewing page
 - Add an Error Page
 - Add hash when opening the playback window
+- Add a menu to the row
 
 ### Style
 - Update play button icon

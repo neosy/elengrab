@@ -7,6 +7,13 @@
       {{- template "theme-switcher" . }}
     </div>
     <div class="header__inner">
+        {{- if .ShowBackButton }}
+        <button class="back-button" id="backButton">
+            <svg viewBox="0 0 24 24">
+                <path d="M15 18l-6-6 6-6" />
+            </svg>
+        </button>
+        {{- end }}
         <a class="header__logo-link" href="/">
             <img class="header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
             <div class="header__logo-text">
@@ -14,9 +21,6 @@
                 <h5 class="header__logo-description">Media player</h5>
             </div>
         </a>
-        {{- if .ShowBackButton }}
-        <button class="back-button" id="backButton">← Back</button>
-        {{- end }}
     </div>
 {{- end }}
 

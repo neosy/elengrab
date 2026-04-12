@@ -9,20 +9,31 @@ import (
 )
 
 type rowMenuAction struct {
-	Action         string `json:"action"`
-	Title          string `json:"title"`
-	IconSvg        any    `json:"iconSvg,omitempty"`
+	Action  string `json:"action"`
+	Title   string `json:"title"`
+	IconSvg any    `json:"iconSvg,omitempty"`
+
 	IconFileName   string
 	URL            string
+	NewTab         bool
 	isFileIDinURL  bool
 	onlyStatusDone bool
 }
 
 var rowMenuActions = []rowMenuAction{
 	{
+		Action:         "watch",
+		Title:          "Watch in new tab",
+		IconFileName:   "menu-play-icon.svg",
+		URL:            httppaths.GroupDownloader + httppaths.PathFileWatch,
+		NewTab:         true,
+		isFileIDinURL:  true,
+		onlyStatusDone: true,
+	},
+	{
 		Action:         "copy-link",
 		Title:          "Copy link",
-		IconFileName:   "menu-copy-link.svg",
+		IconFileName:   "menu-copy-link-icon.svg",
 		URL:            httppaths.GroupDownloader + httppaths.PathFileShortLink,
 		isFileIDinURL:  true,
 		onlyStatusDone: true,

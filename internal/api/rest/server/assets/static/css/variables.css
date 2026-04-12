@@ -54,6 +54,7 @@
     --menu-action-icon-red: #c44b4b;
     --menu-action-icon-blue: #0056b3;
     --menu-action-text-red: rgba(231, 76, 60, 0.2);
+    --menu-action-icon-green: #4caf50;
 }
 
 .dark {
@@ -110,4 +111,5 @@
     --menu-action-icon-red: #c44b4b;
     --menu-action-icon-blue: #007bff;
     --menu-action-text-red: rgba(231, 76, 60, 0.2);
+    --menu-action-icon-green: #4caf50;
 }
