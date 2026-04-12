@@ -11,7 +11,7 @@
 {{- define "row-menu-content" }}
   <div class="menu-actions">
     {{- range .RowMenuActions }}
-    <div class="menu-action menu-action--{{ .Action }}" id="menu-action-{{ .Action }}" data-action="{{ .Action }}" data-url="{{ .URL }}">
+    <div class="menu-action menu-action--{{ .Action }}" id="menu-action-{{ .Action }}" data-action="{{ .Action }}" data-url="{{ .URL }}" data-new-tab="{{ .NewTab }}">
         <div class="menu-action__content">
             {{- if .IconSvg }}
             <div class="menu-action__content-icon">

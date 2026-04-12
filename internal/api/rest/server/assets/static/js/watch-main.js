@@ -17,6 +17,11 @@ const DOM_ELEMENTS = {
     mediaDescription: null,
 };
 
+const isPWA =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.matchMedia('(display-mode: fullscreen)').matches ||
+      window.navigator.standalone === true;
+
 function initDomElements() {
     DOM_ELEMENTS.main = document.querySelector("main");
     DOM_ELEMENTS.backButton = document.getElementById("backButton");
@@ -58,7 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initPlayer() {
-    DOM_ELEMENTS.backButton && (DOM_ELEMENTS.backButton.addEventListener('click', goBack));
+    if (DOM_ELEMENTS.backButton) {
+        const display = DOM_ELEMENTS.backButton.style.display;
+        DOM_ELEMENTS.backButton.style.display = isPWA ? display : 'none';
+        isPWA && (DOM_ELEMENTS.backButton.addEventListener('click', goBack));
+    }
 
     // Update progress bar as the media plays
     if (DOM_ELEMENTS.customControls) {
@@ -80,8 +89,14 @@ function initPlayer() {
 
     // Set video resize on metadata load and window resize
     if (DOM_ELEMENTS.video) {
-        DOM_ELEMENTS.video.addEventListener("loadedmetadata", fitVideo);
+        const video = DOM_ELEMENTS.video;
+
+        video.addEventListener("loadedmetadata", fitVideo);
         window.addEventListener("resize", fitVideo);
+
+        if (video.readyState >= 1) {
+            fitVideo();
+        }
     }
 
     // Auto play
@@ -172,7 +187,5 @@ function toggleFullscreen() {
 }
 
 function goBack() {
-    // window.history.back();
-    console.log("1111");
-    window.location.href = "/";
+    window.history.back();
 }

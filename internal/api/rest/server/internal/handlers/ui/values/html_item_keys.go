@@ -48,7 +48,7 @@ const (
 )
 
 type (
-	ViewerValues struct {
+	WatcherValues struct {
 		ShowBackButton   bool
 		IsVideoPlayer    bool
 		MediaParametes   any
@@ -58,6 +58,6 @@ type (
 	}
 )
 
-func (v *ViewerValues) ToMap() map[string]any {
+func (v *WatcherValues) ToMap() map[string]any {
 	return StructToMap(v)
 }
