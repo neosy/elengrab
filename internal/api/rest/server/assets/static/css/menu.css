@@ -136,7 +136,7 @@
     background: var(--menu-action-text-red);
 }
 
-.menu-action--copy-link .menu-action__content-icon {
+.menu-action--share-link .menu-action__content-icon {
     color: var(--menu-action-icon-blue);
 }
 
