@@ -1,7 +1,19 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
     display: flex;
-    justify-content: center;
     padding-bottom: 40px;
+
+    justify-content: center;
 
     font-family: "Inter", sans-serif;
     font-weight: 400;
@@ -66,7 +78,7 @@ body {
 
 .main {
     position: relative;
-    width: 80%;
+    width: 95%;
     max-width: 1200px;
     min-height: calc(100vh - 40px - 2*8px - 30px - 10px - 30px - 10px);
     padding: 30px 50px 10px;
@@ -222,7 +234,7 @@ body {
     }
 
     .main {
-        width: 95%;
+        width: 100%;
         min-height: calc(100vh - 40px - 2*8px - 2*15px);
         padding: 15px;
         margin-top: 0px;
@@ -250,7 +262,7 @@ body {
     }
 
     .main {
-        width: 95%;
+        width: 100%;
         min-height: auto;
         padding: 10px;
         margin-top: 0px;

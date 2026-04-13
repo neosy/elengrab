@@ -1,5 +1,5 @@
 {{- define "account-menu" }}
-<div class="account-menu menu" id="account-menu"
+<div class="menu menu-account" id="account-menu"
      hx-get="{{ .PathAccountMenu }}"
      hx-trigger="manual"
      hx-target="this"
@@ -8,6 +8,12 @@
 {{- end }}
 
 {{- define "account-menu-content" }}
+  <button class="menu-close"
+          type="button"
+          aria-label="Close menu"
+          data-action="close">
+    ✕
+  </button>
   <div class="menu-header">
     <div class="avatar">{{ .UserAvatarIcon }}</div>
     <div class="user-info">
