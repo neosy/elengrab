@@ -43,7 +43,14 @@ func (h *DownloaderHandlers) RowMenuHandler(ctx *fasthttp.RequestCtx) {
 	dataMap := uivalues.MergeMaps(
 		uivalues.PathValues,
 	)
-	dataMap[uivalues.RowMenuActionsKey] = uivalues.RowMenuActions(iconsDir, fileId, fileResp.Status == dtypes.FileStatusDone)
+	dataMap[uivalues.RowMenuActionsKey] = uivalues.RowMenuActions(
+		iconsDir,
+		map[string]string{
+			uivalues.RowMenuActionFileIdKey: fileId.String(),
+			uivalues.RowMenuActionURLKey:    fileResp.MediaUrl,
+		},
+		fileResp.Status == dtypes.FileStatusDone,
+	)
 
 	// Load template
 	tmpl, err := h.templates.Clone()

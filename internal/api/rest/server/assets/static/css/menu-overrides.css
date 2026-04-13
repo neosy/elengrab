@@ -35,7 +35,6 @@
 /* Row menu*/
 .menu-row {
     position: fixed;
-    width: 200px;
 }
 
 .menu-row.menu--show {
@@ -57,6 +56,10 @@
 }
 
 .menu-action--share-link .menu-action__content-icon {
+    color: var(--menu-action-icon-blue);
+}
+
+.menu-action--open-original .menu-action__content-icon {
     color: var(--menu-action-icon-blue);
 }
 
