@@ -17,6 +17,7 @@ var (
 		"variables.css",
 		"theme-switcher.css",
 		"menu.css",
+		"menu-overrides.css",
 		"grab-form.css",
 		"result-rows.css",
 		"player.css",
