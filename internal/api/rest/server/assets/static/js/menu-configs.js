@@ -1,3 +1,4 @@
+import { shareLink } from './helper.js';
 import { initMenu } from './menu.js';
 
 // Account menu config
@@ -30,18 +31,32 @@ const rowMenuConfig = {
   menuId: 'row-menu',
 
   actions: {
-    async copyLink(item) {
-      const res = await fetch(item.dataset.url, { method: 'POST' });
-      if (!res.ok) throw new Error('Request failed');
+    async shareLink(item) {
+      const result = await shareLink({
+        endpoint: item.dataset.url,
+        method: 'POST',
+        title: "Elengrab",
+        text: 'Watch this'
+      });      
 
-      const data = await res.json();
+      switch (result.status) {
+        case 'shared':
+          console.log('Shared:', result.url);
+          break;
 
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(data.url);
-        console.log('Link copied:', data.url);
-      } else {
-        console.log('Link not copied (Clipboard API not supported):', data.url);
-        alert('Clipboard API not supported');
+        case 'copied':
+          console.log('Link copied:', result.url);
+          break;
+
+        case 'manual':
+          console.log('Manual copy needed:', result.url);
+          alert('Copy this link: ' + result.url);
+          break;
+
+        case 'error':
+          console.error('Share error:', result.error);
+          alert('Failed to share link');
+          break;
       }
     },
 

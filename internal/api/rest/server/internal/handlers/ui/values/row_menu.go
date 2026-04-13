@@ -31,9 +31,9 @@ var rowMenuActions = []rowMenuAction{
 		onlyStatusDone: true,
 	},
 	{
-		Action:         "copy-link",
-		Title:          "Copy link",
-		IconFileName:   "menu-copy-link-icon.svg",
+		Action:         "share-link",
+		Title:          "Share link",
+		IconFileName:   "menu-share-link-icon.svg",
 		URL:            httppaths.GroupDownloader + httppaths.PathFileShortLink,
 		isFileIDinURL:  true,
 		onlyStatusDone: true,
