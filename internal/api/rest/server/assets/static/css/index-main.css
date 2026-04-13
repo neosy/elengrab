@@ -79,9 +79,9 @@ body {
 .main {
     position: relative;
     width: 95%;
-    max-width: 1200px;
+    max-width: 1260px;
     min-height: calc(100vh - 40px - 2*8px - 30px - 10px - 30px - 10px);
-    padding: 30px 50px 10px;
+    padding: 30px 30px 10px;
     margin-top: 30px;
     margin-bottom: 10px;
     text-align: center;
@@ -159,7 +159,7 @@ body {
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: calc(80% + 2*22px);
+    width: 95%;
     max-width: 1260px;
 
     display: flex;
@@ -242,7 +242,7 @@ body {
     }
 
     .footer {
-        width: calc(95% - 2*5px);  
+        width: 100%;
         padding: 8px 10px;
     }
 
@@ -273,7 +273,6 @@ body {
     }
 
     .footer {
-        width: 95%;
         justify-content: center;
     }
 
@@ -286,7 +285,23 @@ body {
     }
 }
 
+/* Disable text selection and tap highlight on touch devices for better UX */
 @media (hover: none) and (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  button, a {
+    -webkit-touch-callout: none;
+  }
+
+  button:focus,
+  a:focus {
+    outline: none;
+  }
+
   .user-avatar {
     border: none;
     background-color: transparent !important;

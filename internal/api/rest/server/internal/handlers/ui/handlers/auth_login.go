@@ -17,7 +17,11 @@ func (h *DownloaderHandlers) AuthLoginHandler(ctx *fasthttp.RequestCtx) {
 	// Check if user is already logged in and not a guest
 	ctxUser := authmw.UserFromContext(ctx)
 	if ctxUser != nil && ctxUser.UserType() != dtypes.UserTypeGuest {
-		ctx.Redirect(httppaths.PathIndex, fasthttp.StatusFound)
+		ctx.Response.Header.Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+		ctx.Response.Header.Set("Pragma", "no-cache")
+		ctx.Response.Header.Set("Expires", "0")
+
+		ctx.Redirect(httppaths.PathIndex, fasthttp.StatusSeeOther)
 		return
 	}
 
@@ -102,5 +106,6 @@ func (h *DownloaderHandlers) AuthLoginSubmitHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	ctx.SetStatusCode(fasthttp.StatusSeeOther)
+	ctx.Response.Header.Set("Cache-Control", "no-store")
 	ctx.Response.Header.Set("HX-Redirect", httppaths.PathIndex)
 }
