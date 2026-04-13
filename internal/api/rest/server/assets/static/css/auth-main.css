@@ -154,3 +154,21 @@ button:hover {
     font-size: 14px;
     margin-bottom: 10px;
 }
+
+/* Disable text selection and tap highlight on touch devices for better UX */
+@media (hover: none) and (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  button, a {
+    -webkit-touch-callout: none;
+  }
+
+  button:focus,
+  a:focus {
+    outline: none;
+  }
+}
