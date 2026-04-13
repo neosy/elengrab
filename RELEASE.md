@@ -1,6 +1,6 @@
 # Releases
 
-## v0.18.0 — 2026-04-10
+## v0.18.0 — 2026-04-13
 
 ### Feature
 - Add support for generating short URLs for downloaded media. Closes #257
