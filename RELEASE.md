@@ -8,6 +8,7 @@
 - Add an Error Page
 - Add hash when opening the playback window
 - Add a menu to the row
+- Implement a share link using standard OS functions
 
 ### Style
 - Update play button icon
