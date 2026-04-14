@@ -6,10 +6,9 @@ import (
 	"path/filepath"
 	"time"
 
-	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	iconfig "github.com/neosy/elengrab/internal/config"
-	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
@@ -28,11 +27,7 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	ctxUser := authmw.UserFromContext(ctx)
-	if ctxUser == nil {
-		// anonymous
-		ctxUser = dauth.UserContextAnonymous()
-	}
+	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
 	var rowsBuf bytes.Buffer
 	err := h.getFilesHistory(ctx, &rowsBuf, *ctxUser, time.Now().UTC(), nil)

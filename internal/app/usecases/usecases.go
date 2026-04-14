@@ -29,6 +29,9 @@ type Dependencies struct {
 	AppMode  dtypes.AppMode
 	DemoMode bool
 
+	AuthSessionTTL             time.Duration
+	AuthSessionRefreshInterval time.Duration
+
 	BaseURL string
 
 	BaseShortURL    string
@@ -86,6 +89,8 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 		deps.Repositories.Role,
 		deps.Repositories.UserRole,
 		deps.Repositories.UserSession,
+		auth.WithSessionTTL(deps.AuthSessionTTL),
+		auth.WithSessionRefreshInterval(deps.AuthSessionRefreshInterval),
 	)
 	link := link.NewLink(
 		logger,

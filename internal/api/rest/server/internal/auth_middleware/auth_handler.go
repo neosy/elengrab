@@ -19,6 +19,11 @@ import (
 // Finally, it stores the user information (authenticated or guest) in the request context and calls the next handler.
 func (a *AuthMiddleware) AuthOrGuest(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
+		if err := a.checkHTTPSRequired(ctx); err != nil {
+			nfasthttp.WriteErrorx(ctx, err)
+			return
+		}
+
 		userCtx, err := a.processAuth(ctx, a.appMode.IsGuestAllowed())
 		if err != nil {
 			nfasthttp.WriteErrorx(
@@ -31,12 +36,19 @@ func (a *AuthMiddleware) AuthOrGuest(next fasthttp.RequestHandler) fasthttp.Requ
 			return
 		}
 
+		// If no valid session exists and guest sessions are not allowed,
+		// return an unauthorized response.
+		if userCtx == nil && !a.appMode.IsUserRequired() {
+			next(ctx)
+			return
+		}
+
 		if userCtx == nil {
 			nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("unauthorized", fasthttp.StatusUnauthorized))
 			return
 		}
 
-		ctx.SetUserValue(userKey, *userCtx)
+		ctx.SetUserValue(UserKey, *userCtx)
 		next(ctx)
 	}
 }
@@ -49,6 +61,11 @@ func (a *AuthMiddleware) AuthOrGuest(next fasthttp.RequestHandler) fasthttp.Requ
 // and calls the next handler.
 func (a *AuthMiddleware) RequireAuth(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
+		if err := a.checkHTTPSRequired(ctx); err != nil {
+			nfasthttp.WriteErrorx(ctx, err)
+			return
+		}
+
 		userCtx, err := a.processAuth(ctx, false)
 		if err != nil {
 			nfasthttp.WriteErrorx(
@@ -66,7 +83,7 @@ func (a *AuthMiddleware) RequireAuth(next fasthttp.RequestHandler) fasthttp.Requ
 			return
 		}
 
-		ctx.SetUserValue(userKey, *userCtx)
+		ctx.SetUserValue(UserKey, *userCtx)
 		next(ctx)
 	}
 }
@@ -76,6 +93,11 @@ func (a *AuthMiddleware) RequireAuth(next fasthttp.RequestHandler) fasthttp.Requ
 // Requests without a valid token continue as anonymous.
 func (a *AuthMiddleware) AuthOrAnonym(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
+		if err := a.checkHTTPSRequired(ctx); err != nil {
+			nfasthttp.WriteErrorx(ctx, err)
+			return
+		}
+
 		userCtx, err := a.processAuth(ctx, false)
 		if err != nil {
 			nfasthttp.WriteErrorx(
@@ -93,7 +115,7 @@ func (a *AuthMiddleware) AuthOrAnonym(next fasthttp.RequestHandler) fasthttp.Req
 			return
 		}
 
-		ctx.SetUserValue(userKey, *userCtx)
+		ctx.SetUserValue(UserKey, *userCtx)
 		next(ctx)
 	}
 }
@@ -109,6 +131,11 @@ func (a *AuthMiddleware) AuthOrAnonym(next fasthttp.RequestHandler) fasthttp.Req
 // in the request context before calling the next handler.
 func (a *AuthMiddleware) AuthOptional(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
+		if err := a.checkHTTPSRequired(ctx); err != nil {
+			nfasthttp.WriteErrorx(ctx, err)
+			return
+		}
+
 		userCtx, err := a.processAuth(ctx, false)
 		if err != nil {
 			nfasthttp.WriteErrorx(
@@ -124,13 +151,14 @@ func (a *AuthMiddleware) AuthOptional(next fasthttp.RequestHandler) fasthttp.Req
 		if userCtx == nil {
 			if a.appMode == dtypes.AppModeAuthOnly {
 				nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("unauthorized", fasthttp.StatusUnauthorized))
-			} else {
-				next(ctx)
+				return
 			}
+
+			next(ctx)
 			return
 		}
 
-		ctx.SetUserValue(userKey, *userCtx)
+		ctx.SetUserValue(UserKey, *userCtx)
 		next(ctx)
 	}
 }
@@ -141,6 +169,11 @@ func (a *AuthMiddleware) AuthOptional(next fasthttp.RequestHandler) fasthttp.Req
 // - If no valid session exists but the app mode does not require a user, it calls the next handler with nil (anonymous) user.
 func (a *AuthMiddleware) RequireAuthMode(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
+		if err := a.checkHTTPSRequired(ctx); err != nil {
+			nfasthttp.WriteErrorx(ctx, err)
+			return
+		}
+
 		userCtx, err := a.processAuth(ctx, false)
 		if err != nil {
 			nfasthttp.WriteErrorx(
@@ -156,13 +189,14 @@ func (a *AuthMiddleware) RequireAuthMode(next fasthttp.RequestHandler) fasthttp.
 		if userCtx == nil {
 			if a.appMode.IsUserRequired() {
 				nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("unauthorized", fasthttp.StatusUnauthorized))
-			} else {
-				next(ctx)
+				return
 			}
+
+			next(ctx)
 			return
 		}
 
-		ctx.SetUserValue(userKey, *userCtx)
+		ctx.SetUserValue(UserKey, *userCtx)
 		next(ctx)
 	}
 }
@@ -170,7 +204,12 @@ func (a *AuthMiddleware) RequireAuthMode(next fasthttp.RequestHandler) fasthttp.
 func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool) (*dauth.UserContext, error) {
 	var session *udto.AuthUserResponse
 
+	if !nfasthttp.IsForwardedHTTPS(ctx) {
+		return nil, nil
+	}
+
 	token := CookieSessionTokenKey.GetValue(ctx)
+
 	if token != "" {
 		var err error
 		session, err = a.auth.ValidateSession(ctx, token)
@@ -192,28 +231,31 @@ func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool)
 			}
 			if newSession.Token.Token != session.Token.Token {
 				session = newSession
-				CookieSessionTokenKey.SetValue(ctx, session.Token.Token, session.Token.ExpiresAt)
+				CookieSessionTokenKey.SetValueWithSecure(ctx, session.Token.Token, WithExpiresAt(session.Token.ExpiresAt))
 			}
 		}
 	}
 
+	var guestCreated bool
 	if session == nil && createGuest {
 		var err error
 		session, err = a.auth.RegisterGuest(ctx)
 		if err != nil {
 			return nil, err
 		}
-		CookieSessionTokenKey.SetValue(ctx, session.Token.Token, session.Token.ExpiresAt)
+		guestCreated = true
+		CookieSessionTokenKey.SetValueWithSecure(ctx, session.Token.Token, WithExpiresAt(session.Token.ExpiresAt))
 	}
 
 	var userCtx *dauth.UserContext
 
 	if session != nil {
 		userCtx = &dauth.UserContext{
-			UserID: session.UserID,
-			Login:  session.Login,
-			Email:  session.Email,
-			Roles:  session.Roles,
+			UserID:       session.UserID,
+			Login:        session.Login,
+			Email:        session.Email,
+			Roles:        session.Roles,
+			GuestCreated: guestCreated,
 		}
 	}
 

@@ -17,23 +17,14 @@ func (s *httpServer) setupUIRootRoutes(r *router.Router, handlers *uih.UIHandler
 	{
 		// Index
 		g.GET(httppaths.PathIndex, handlers.Downloader.IndexHandler)
-
-		// /favicon.ico
-		g.GET(httppaths.PathRootFaviconICO, handlers.Downloader.RooFilesHandler)
-
-		// /robots.txt
-		g.GET(httppaths.PathRootRobotsTxt, handlers.Downloader.RooFilesHandler)
-	}
-
-	// Without middleware
-	{
-		// Index
 		r.HEAD(httppaths.PathIndex, handlers.Downloader.IndexHandler)
 
 		// /favicon.ico
+		g.GET(httppaths.PathRootFaviconICO, handlers.Downloader.RooFilesHandler)
 		r.HEAD(httppaths.PathRootFaviconICO, handlers.Downloader.RooFilesHandler)
 
 		// /robots.txt
+		g.GET(httppaths.PathRootRobotsTxt, handlers.Downloader.RooFilesHandler)
 		g.HEAD(httppaths.PathRootRobotsTxt, handlers.Downloader.RooFilesHandler)
 	}
 }

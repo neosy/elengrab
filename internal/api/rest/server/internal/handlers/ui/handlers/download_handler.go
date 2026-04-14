@@ -5,8 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
-	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
-	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
@@ -14,11 +13,7 @@ import (
 )
 
 func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser := authmw.UserFromContext(ctx)
-	if ctxUser == nil {
-		// anonymous
-		ctxUser = dauth.UserContextAnonymous()
-	}
+	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
 	// Get the file name from the query parameter
 	fileIdStr := string(ctx.QueryArgs().Peek("file"))

@@ -4,9 +4,8 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
-	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
-	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
@@ -14,11 +13,7 @@ import (
 )
 
 func (h *DownloaderHandlers) GetFileLogoHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser := authmw.UserFromContext(ctx)
-	if ctxUser == nil {
-		// anonymous
-		ctxUser = dauth.UserContextAnonymous()
-	}
+	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
 	fileIdStr := ctx.UserValue(fileIdKey).(string)
 	if fileIdStr == "" {

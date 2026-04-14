@@ -5,22 +5,25 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
+var AnonymousUserID = func() uuid.UUID { return uuid.Nil }
+
 type UserContext struct {
-	UserID uuid.UUID
-	Login  string
-	Email  string
-	Roles  []dtypes.UserRole
+	UserID       uuid.UUID
+	Login        string
+	Email        string
+	Roles        []dtypes.UserRole
+	GuestCreated bool
 }
 
 func UserContextAnonymous() *UserContext {
 	return &UserContext{
-		UserID: uuid.Nil,
+		UserID: AnonymousUserID(),
 		Roles:  []dtypes.UserRole{dtypes.UserRoleGuest},
 	}
 }
 
 func (u *UserContext) UserType() dtypes.UserType {
-	if u.UserID == uuid.Nil {
+	if u.UserID == AnonymousUserID() {
 		return dtypes.UserTypeAnonymous
 	}
 
@@ -46,7 +49,7 @@ func (u *UserContext) IsGuest() bool {
 	return u.UserType() == dtypes.UserTypeGuest
 }
 
-func (u *UserContext) IsUserTypeAnonymous() bool {
+func (u *UserContext) IsAnonymous() bool {
 	return u.UserType() == dtypes.UserTypeAnonymous
 }
 

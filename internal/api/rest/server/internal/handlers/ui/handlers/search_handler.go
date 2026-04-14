@@ -5,19 +5,14 @@ import (
 	"html/template"
 	"time"
 
-	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
-	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser := authmw.UserFromContext(ctx)
-	if ctxUser == nil {
-		// anonymous
-		ctxUser = dauth.UserContextAnonymous()
-	}
+	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
 	filters := make(requestFilters)
 

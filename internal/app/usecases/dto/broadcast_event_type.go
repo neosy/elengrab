@@ -10,6 +10,7 @@ const (
 	BroadcastEventTypeFileDelete
 	BroadcastEventTypeSystemInfoUpdate
 	BroadcastEventTypeNotification
+	BroadcastEventTypeUserAuthorized
 )
 
 var (
@@ -22,6 +23,7 @@ var (
 		BroadcastEventTypeProgressUpdate:   "progress_update",
 		BroadcastEventTypeSystemInfoUpdate: "system_info_update",
 		BroadcastEventTypeNotification:     "notification",
+		BroadcastEventTypeUserAuthorized:   "user_authorized",
 	}
 )
 

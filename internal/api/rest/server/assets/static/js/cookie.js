@@ -55,7 +55,3 @@ export function setupCookieSelectSync(selectName, cookieName) {
         });
     }
 }
-
-export function getSessionToken() {
-    return cookie.get(COOKIE_NAMES.sessionToken);
-}

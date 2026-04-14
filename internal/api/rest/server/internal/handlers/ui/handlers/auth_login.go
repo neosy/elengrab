@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
@@ -14,8 +15,13 @@ import (
 )
 
 func (h *DownloaderHandlers) AuthLoginHandler(ctx *fasthttp.RequestCtx) {
+	if err := nfasthttp.EnforceHTTPS(ctx); err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
 	// Check if user is already logged in and not a guest
-	ctxUser := authmw.UserFromContext(ctx)
+	ctxUser := policy.ResolveUser(ctx)
 	if ctxUser != nil && ctxUser.UserType() != dtypes.UserTypeGuest {
 		ctx.Response.Header.Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
 		ctx.Response.Header.Set("Pragma", "no-cache")
@@ -65,8 +71,13 @@ func (h *DownloaderHandlers) AuthLoginHandler(ctx *fasthttp.RequestCtx) {
 }
 
 func (h *DownloaderHandlers) AuthLoginSubmitHandler(ctx *fasthttp.RequestCtx) {
+	if err := nfasthttp.EnforceHTTPS(ctx); err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
 	// Check if user is already logged in and not a guest
-	ctxUser := authmw.UserFromContext(ctx)
+	ctxUser := policy.ResolveUser(ctx)
 	if ctxUser != nil && ctxUser.UserType() != dtypes.UserTypeGuest {
 		ctx.SetStatusCode(fasthttp.StatusSeeOther)
 		ctx.Response.Header.Set("HX-Redirect", httppaths.PathIndex)
@@ -95,7 +106,7 @@ func (h *DownloaderHandlers) AuthLoginSubmitHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Set session token and expiration time
-	authmw.CookieSessionTokenKey.SetValue(ctx, resp.Token.Token, resp.Token.ExpiresAt)
+	authmw.CookieSessionTokenKey.SetValueWithSecure(ctx, resp.Token.Token, authmw.WithExpiresAt(resp.Token.ExpiresAt))
 
 	// Migrate guest data if user was previously a guest
 	if ctxUser != nil && ctxUser.UserType() == dtypes.UserTypeGuest {

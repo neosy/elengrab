@@ -3,7 +3,8 @@ package handlers
 import (
 	"strings"
 
-	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/dto"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
@@ -11,9 +12,7 @@ import (
 )
 
 func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
-	// var pageHasDivItems = cookiePageHasDivItemsKey.compareValue(ctx, "true")
-
-	ctxUser, err := authmw.EnsureUserFromContext(ctx)
+	ctxUser, err := policy.ResolveUserOrFallback(ctx, h.appMode)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -65,7 +64,10 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	ctx.Response.Header.SetCookie(cookiePageHasDivItemsKey.makeCookie("true", "/", 7*24*60*60))
+	dataResp := dto.GrabResponse{
+		GuestCreated: ctxUser.GuestCreated,
+	}
 
 	ctx.SetStatusCode(fasthttp.StatusCreated)
+	nfasthttp.WriteResponse(ctx, dataResp)
 }
