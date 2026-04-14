@@ -1,6 +1,6 @@
 # Releases
 
-## v0.18.0 — 2026-04-15
+## v0.18.1 — 2026-04-15
 
 ### Fix
 - Improve session cookie invalidation
