@@ -44,7 +44,11 @@ const (
 	cleanSiteLogoCacheInterval       = 2 * time.Hour
 
 	// defaultWorkerIdleTime is the default idle duration before a dynamic pool worker can exit.
-	defaultWorkerIdleTime = 15 * time.Minute
+	workerIdleTimeDefault = 15 * time.Minute
+
+	// Auth session TTL and refresh interval defaults
+	authSessionTTL             = 90 * 24 * time.Hour
+	authSessionRefreshInterval = 10 * 24 * time.Hour
 )
 
 type Application struct {
@@ -157,7 +161,7 @@ func (a *Application) initialize() error {
 	a.WorkerPool = nworkerpool.NewDynamicWorkerPool(
 		nworkerpool.WorkerPoolOptionLogger(a.logger),
 		nworkerpool.WorkerPoolOptionMaxWorkers(downloadWorkers),
-		nworkerpool.WorkerPoolOptionIdleTime(defaultWorkerIdleTime),
+		nworkerpool.WorkerPoolOptionIdleTime(workerIdleTimeDefault),
 	)
 
 	// Initialize services
@@ -200,20 +204,30 @@ func (a *Application) initialize() error {
 		Services:           a.Services,
 
 		// Options
-		AppName:               iconfig.AppName,
-		AppMode:               dtypes.MustParseAppMode(a.cfg.Elengrab.Mode),
-		DemoMode:              a.cfg.Elengrab.DemoMode,
-		BaseURL:               a.cfg.Elengrab.BaseURL,
-		BaseShortURL:          strings.TrimSuffix(a.cfg.Elengrab.BaseURL, "/") + a.cfg.Elengrab.ShortLinkPrefix,
-		ShortCodeLength:       a.cfg.Elengrab.ShortLinkLength,
-		DatabaseBackupsDir:    absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.BackupsDir),
-		DatabaseBackupsKeep:   a.cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
-		DownloadsDir:          absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
+		AppName:  iconfig.AppName,
+		AppMode:  dtypes.MustParseAppMode(a.cfg.Elengrab.Mode),
+		DemoMode: a.cfg.Elengrab.DemoMode,
+
+		AuthSessionTTL:             authSessionTTL,
+		AuthSessionRefreshInterval: authSessionRefreshInterval,
+
+		BaseURL: a.cfg.Elengrab.BaseURL,
+
+		BaseShortURL:    strings.TrimSuffix(a.cfg.Elengrab.BaseURL, "/") + a.cfg.Elengrab.ShortLinkPrefix,
+		ShortCodeLength: a.cfg.Elengrab.ShortLinkLength,
+
+		DatabaseBackupsDir:  absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.BackupsDir),
+		DatabaseBackupsKeep: a.cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
+
+		DownloadsDir: absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
+
 		DeleteDuplicatesScope: dtypes.MustParseUniquenessScope(a.cfg.Elengrab.DeleteDuplicatesScope),
+
 		LogoUpdateInterval:    logoUpdateInterval,
 		ChannelUpdateInterval: channelUpdateInterval,
-		DefaultAdminLogin:     a.cfg.Elengrab.AdminLogin,
-		DefaultAdminPassword:  a.cfg.Elengrab.AdminPassword,
+
+		DefaultAdminLogin:    a.cfg.Elengrab.AdminLogin,
+		DefaultAdminPassword: a.cfg.Elengrab.AdminPassword,
 	}
 	a.Usecases = usecases.NewUsecases(a.ctx, a.logger, ucDeps)
 

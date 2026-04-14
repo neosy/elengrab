@@ -58,7 +58,7 @@ func (a *Auth) RefreshSession(ctx context.Context, token string) (*dto.AuthUserR
 }
 
 func (u *Auth) shouldRefreshSession(expiresAt time.Time) bool {
-	return time.Until(expiresAt) <= sessionRefreshInterval
+	return time.Until(expiresAt) <= u.sessionRefreshInterval
 }
 
 func (a *Auth) sessionRefreshPredicate() func(*dauth.UserSession) bool {

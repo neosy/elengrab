@@ -48,7 +48,7 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		g.Use(middlewareError, s.authMiddleware.AuthOrGuest)
 		{
 			g.POST(httppaths.PathGrab, handlers.Downloader.GrabHandler)
-			g.DELETE(httppaths.PathFile, handlers.Downloader.DeleteFileRowHandler)
+			g.DELETE(httppaths.PathFile, handlers.Downloader.DeleteRowHandler)
 			g.POST(httppaths.PathFileDownloadRepeat, handlers.Downloader.RepeatDownloadHandler)
 		}
 
@@ -86,12 +86,6 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		g.Use(middlewareError, s.authMiddleware.AuthOrAnonym)
 		{
 			g.GET(httppaths.PathShortLink, handlers.Downloader.ShortLinkHandler)
-		}
-
-		// With middleware (error)
-		g = nfasthttp.NewRouterGroup(s.shortLinkPrefix, r)
-		g.Use(middlewareError)
-		{
 			g.HEAD(httppaths.PathShortLink, handlers.Downloader.ShortLinkHandler)
 		}
 	}

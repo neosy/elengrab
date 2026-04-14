@@ -4,14 +4,14 @@ import (
 	"html/template"
 	"path/filepath"
 
-	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) AccountMenuHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser, err := authmw.EnsureUserFromContext(ctx)
+	ctxUser, err := policy.EnsureUser(ctx)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

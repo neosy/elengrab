@@ -8,7 +8,7 @@ import (
 	"unicode"
 
 	"github.com/google/uuid"
-	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -59,7 +59,7 @@ func capitalize(s string) string {
 
 func (h *DownloaderHandlers) redirectGuestIfAuthRequired(ctx *fasthttp.RequestCtx) bool {
 	if h.appMode == dtypes.AppModeAuthOnly {
-		ctxUser := authmw.UserFromContext(ctx)
+		ctxUser := policy.ResolveUser(ctx)
 		if ctxUser == nil || ctxUser.UserType() < dtypes.UserTypeUser {
 			ctx.Redirect(httppaths.GroupAccount+httppaths.PathLogin, fasthttp.StatusFound)
 			return true

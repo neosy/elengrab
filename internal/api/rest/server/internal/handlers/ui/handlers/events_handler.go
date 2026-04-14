@@ -9,18 +9,15 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
-	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) EventsHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser := authmw.UserFromContext(ctx)
-	if ctxUser == nil {
-		// anonymous
-		ctxUser = dauth.UserContextAnonymous()
+	ctxUser := policy.ResolveUserOrAnonym(ctx)
+	if ctxUser.IsAnonymous() {
 		ctxUser.UserID = uuid.New()
 	}
 
@@ -75,13 +72,13 @@ func (h *DownloaderHandlers) sendConnected(w *bufio.Writer) {
 		return
 	}
 
-	fmt.Fprintf(w, "event: connected\n")
+	fmt.Fprint(w, "event: connected\n")
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
 
 func (h *DownloaderHandlers) sendPing(w *bufio.Writer) {
-	fmt.Fprintf(w, "event: ping\ndata: {}\n\n")
+	fmt.Fprint(w, "event: ping\ndata: {}\n\n")
 	w.Flush()
 }
 
@@ -125,7 +122,7 @@ func (h *DownloaderHandlers) handleFileAdd(w *bufio.Writer, event ucdto.Broadcas
 		return
 	}
 
-	fmt.Fprintf(w, "event: row-add\n")
+	fmt.Fprint(w, "event: row-add\n")
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
@@ -171,7 +168,7 @@ func (h *DownloaderHandlers) handleFileUpdate(w *bufio.Writer, event ucdto.Broad
 		return
 	}
 
-	fmt.Fprintf(w, "event: row-update\n")
+	fmt.Fprint(w, "event: row-update\n")
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
@@ -193,7 +190,7 @@ func (h *DownloaderHandlers) handleFileDelete(w *bufio.Writer, event ucdto.Broad
 		return
 	}
 
-	fmt.Fprintf(w, "event: row-delete\n")
+	fmt.Fprint(w, "event: row-delete\n")
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
@@ -225,7 +222,7 @@ func (h *DownloaderHandlers) handleProgressUpdate(w *bufio.Writer, event ucdto.B
 		return
 	}
 
-	fmt.Fprintf(w, "event: row-patch-field\n")
+	fmt.Fprint(w, "event: row-patch-field\n")
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
@@ -249,7 +246,7 @@ func (h *DownloaderHandlers) handleSystemInfoUpdate(w *bufio.Writer, event ucdto
 		return
 	}
 
-	fmt.Fprintf(w, "event: system-info-update\n")
+	fmt.Fprint(w, "event: system-info-update\n")
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
@@ -275,7 +272,7 @@ func (h *DownloaderHandlers) handleNotification(w *bufio.Writer, event ucdto.Bro
 		return
 	}
 
-	fmt.Fprintf(w, "event: notification\n")
+	fmt.Fprint(w, "event: notification\n")
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }

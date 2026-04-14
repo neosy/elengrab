@@ -2,7 +2,7 @@ package authtoken
 
 import (
 	"crypto/rand"
-	"encoding/hex"
+	"encoding/base64"
 	"errors"
 	"time"
 
@@ -27,7 +27,7 @@ func GenerateToken(tokenType TokenType, opts ...TokenOption) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return hex.EncodeToString(b), nil
+		return base64.RawURLEncoding.EncodeToString(b), nil
 
 	case JWTToken:
 		if options.TTL <= 0 {

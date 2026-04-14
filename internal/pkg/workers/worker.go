@@ -28,18 +28,18 @@ type worker struct {
 	job WorkerJob
 
 	// options
-	optons WorkerOptions
+	options WorkerOptions
 }
 
 // NewWorker creates a new Worker with the given job and options.
 func NewWorker(job WorkerJob, opts ...WorkerOption) Worker {
 	w := &worker{
-		job:    job,
-		optons: DefaultWorkerOptions(),
+		job:     job,
+		options: DefaultWorkerOptions(),
 	}
 
 	for _, opt := range opts {
-		opt(&w.optons)
+		opt(&w.options)
 	}
 
 	return w
@@ -84,33 +84,33 @@ func (w *worker) Run(ctx context.Context, stop <-chan struct{}) error {
 	}()
 
 	// Immediate one-shot execution if no other options are set.
-	if w.optons.OneShotDelay == nil && w.optons.Interval == 0 {
+	if w.options.OneShotDelay == nil && w.options.Interval == 0 {
 		timer = time.NewTimer(0)
 		timerC = timer.C
 	}
 
 	// One-shot execution after an optional initial delay.
-	if w.optons.OneShotDelay != nil {
-		timer = time.NewTimer(*w.optons.OneShotDelay)
+	if w.options.OneShotDelay != nil {
+		timer = time.NewTimer(*w.options.OneShotDelay)
 		timerC = timer.C
 	}
 
 	// Periodic execution
-	if w.optons.StartAt.IsZero() && w.optons.Interval != 0 {
-		ticker = time.NewTicker(w.optons.Interval)
+	if w.options.StartAt.IsZero() && w.options.Interval != 0 {
+		ticker = time.NewTicker(w.options.Interval)
 		tickerC = ticker.C
 	}
 
-	if !w.optons.StartAt.IsZero() && w.optons.Interval != 0 {
+	if !w.options.StartAt.IsZero() && w.options.Interval != 0 {
 		now := time.Now().UTC()
 
-		startAt := w.optons.StartAt
+		startAt := w.options.StartAt
 
 		if startAt.Before(now) {
 			// move startAt forward to the next valid interval
 			elapsed := now.Sub(startAt)
-			steps := elapsed / w.optons.Interval
-			startAt = w.optons.StartAt.Add((steps + 1) * (w.optons.Interval))
+			steps := elapsed / w.options.Interval
+			startAt = w.options.StartAt.Add((steps + 1) * (w.options.Interval))
 		}
 
 		delay := time.Until(startAt)
@@ -142,7 +142,7 @@ func (w *worker) Run(ctx context.Context, stop <-chan struct{}) error {
 				return nil
 			}
 
-			if w.optons.MaxRuns > 0 && runs >= w.optons.MaxRuns {
+			if w.options.MaxRuns > 0 && runs >= w.options.MaxRuns {
 				return nil
 			}
 		case <-startAtTimerC:
@@ -150,19 +150,19 @@ func (w *worker) Run(ctx context.Context, stop <-chan struct{}) error {
 			w.job.Execute(ctx)
 			runs++
 
-			if w.optons.MaxRuns > 0 && runs >= w.optons.MaxRuns {
+			if w.options.MaxRuns > 0 && runs >= w.options.MaxRuns {
 				return nil
 			}
 
 			if ticker == nil {
-				ticker = time.NewTicker(w.optons.Interval)
+				ticker = time.NewTicker(w.options.Interval)
 				tickerC = ticker.C
 			}
 		case <-tickerC:
 			// Periodic execution.
 			w.job.Execute(ctx)
 			runs++
-			if w.optons.MaxRuns > 0 && runs >= w.optons.MaxRuns {
+			if w.options.MaxRuns > 0 && runs >= w.options.MaxRuns {
 				return nil
 			}
 		}
@@ -171,5 +171,5 @@ func (w *worker) Run(ctx context.Context, stop <-chan struct{}) error {
 
 // Name returns the worker's name.
 func (w *worker) Name() string {
-	return w.optons.Name
+	return w.options.Name
 }

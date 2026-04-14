@@ -2,16 +2,18 @@ package handlers
 
 import (
 	"bytes"
+	"encoding/json"
 
 	"github.com/google/uuid"
-	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/dto"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) RepeatDownloadHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser, err := authmw.EnsureUserFromContext(ctx)
+	ctxUser, err := policy.ResolveUserOrFallback(ctx, h.appMode)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -57,6 +59,15 @@ func (h *DownloaderHandlers) RepeatDownloadHandler(ctx *fasthttp.RequestCtx) {
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
+	}
+
+	dataResp := dto.RepeatDownloadResponse{
+		GuestCreated: ctxUser.GuestCreated,
+	}
+
+	dataJSON, _ := json.Marshal(dataResp)
+	if dataJSON != nil {
+		ctx.Response.Header.Set("HX-Trigger", string(dataJSON))
 	}
 
 	ctx.SetBody(buf.Bytes())

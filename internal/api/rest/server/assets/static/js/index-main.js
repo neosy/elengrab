@@ -162,12 +162,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const grabInputURL = DOM_ELEMENTS.mediaURL;
     const grabInputActionBtn = DOM_ELEMENTS.inputActionBtn;
 
-    let sessionToken = cookie.getSessionToken();
-
     // Sync selects with cookies
     cookie.setupCookieSelectSync(SELECT_NAMES.qualityCodec, COOKIE_NAMES.qualityCodec);
     cookie.setupCookieSelectSync(SELECT_NAMES.qualityResolution, COOKIE_NAMES.qualityResolution);
     cookie.setupCookieSelectSync(SELECT_NAMES.format, COOKIE_NAMES.format);
+
+    // Reload page if restored from bfcache (back/forward navigation)
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
 
     // Submit on Enter
     grabInputURL.addEventListener('keydown', (event) => {
@@ -187,33 +192,57 @@ document.addEventListener('DOMContentLoaded', () => {
         if (DOM_ELEMENTS.resultInfo) DOM_ELEMENTS.resultInfo.classList.remove("show");
     });
 
-    // Display error on >= 400 + non-503
-    document.body.addEventListener('htmx:afterOnLoad', (event) => {
-        if (event.detail.elt === grabForm) {
+    // Handle HTMX response for grab form
+    htmx.on(`#${DOM_IDS.grabForm}`, 'htmx:afterOnLoad', (event) => {
+        const xhr = event.detail.xhr;
+
+        // --- Error handling (HTTP >= 400, except 503) ---
+        if (xhr.status >= 400 && xhr.status !== 503) {
             if (grabInputURL) grabInputURL.value = '';
-            if (event.detail.xhr.status >= 400 &&
-                event.detail.xhr.status !== 503) {
-                    
-                if (DOM_ELEMENTS.resultInfo && DOM_ELEMENTS.resultInfoFailed) {
-                    let text = event.detail.xhr.responseText;
-                    try {
-                        const data = JSON.parse(text);
-                        if (data && typeof data === "object" && "message" in data) {
-                            text = data.message;
-                        }
-                    } catch (e) {}
 
-                    helper.showErrorMessage(text, DOM_ELEMENTS.resultInfo, DOM_ELEMENTS.resultInfoFailed)
+            if (DOM_ELEMENTS.resultInfo && DOM_ELEMENTS.resultInfoFailed) {
+                let text = xhr.responseText;
+
+                try {
+                    const data = JSON.parse(text);
+                    if (data && typeof data === "object" && "message" in data) {
+                        text = data.message;
+                    }
+                } catch (e) {
+                    // ignore non-JSON
                 }
+
+                helper.showErrorMessage(
+                    text,
+                    DOM_ELEMENTS.resultInfo,
+                    DOM_ELEMENTS.resultInfoFailed
+                );
             }
 
-            // Reload the page after the user has been authorized (e.g., guest user created and session token set)
-            if (!sessionToken) {
-                const curToken = cookie.getSessionToken();
-                if (curToken) {
-                    window.location.reload();
-                }
-            }
+            return;
+        }
+
+        // --- Success: guest session created ---
+        let data;
+        try {
+            data = JSON.parse(xhr.responseText);
+        } catch (e) {
+            console.error('Invalid JSON response');
+            return;
+        }
+
+        if (data.guestCreated === true) {
+            // Reload to apply new session (cookie)
+            window.location.reload();
+        }
+    });
+    
+
+    // Guest session created
+    htmx.on("guestCreated", (event) => {
+        if (event.detail.value === true) {
+        // Reload to apply new session (cookie)
+            window.location.reload();
         }
     });
 

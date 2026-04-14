@@ -21,7 +21,7 @@ func (u *Auth) createSession(ctx context.Context, userID uuid.UUID) (*dauth.User
 	session := &dauth.UserSession{
 		UserID:       userID,
 		SessionToken: token,
-		ExpiresAt:    time.Now().UTC().Add(sessionTTL),
+		ExpiresAt:    time.Now().UTC().Add(u.sessionTTL),
 	}
 
 	sessionID, err := u.userSession.Create(ctx, session)

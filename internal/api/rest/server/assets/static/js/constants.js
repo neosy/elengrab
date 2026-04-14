@@ -10,8 +10,6 @@ export const SELECT_NAMES = {
 };
 
 export const COOKIE_NAMES = {
-    sessionToken: "session_token",
-
     qualityCodec: "select_quality_codec",
     qualityResolution: "select_quality_resolution",
     format: "select_format"

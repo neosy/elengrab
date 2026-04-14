@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/valyala/fasthttp"
@@ -15,11 +15,7 @@ import (
 func (h *DownloaderHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 	var before = time.Now().UTC()
 
-	ctxUser := authmw.UserFromContext(ctx)
-	if ctxUser == nil {
-		// anonymous
-		ctxUser = dauth.UserContextAnonymous()
-	}
+	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
 	beforeStr := string(ctx.QueryArgs().Peek(beforeKey))
 	if beforeStr != "" {
