@@ -3,12 +3,12 @@ package link
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	dlink "github.com/neosy/elengrab/internal/domain/link"
+	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	elink "github.com/neosy/elengrab/internal/repository/sqlite/link/entity"
@@ -49,7 +49,7 @@ func (r *LinkClickRepository) Update(ctx context.Context, linkClick *dlink.LinkC
 
 func (r *LinkClickRepository) save(ctx context.Context, linkClick *dlink.LinkClick) error {
 	if linkClick == nil {
-		return errors.New("function parameter is a null pointer")
+		return ierrors.ErrFuncParamNullPointer
 	}
 
 	// Convert the domain model to a database entity

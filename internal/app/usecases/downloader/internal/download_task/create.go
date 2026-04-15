@@ -2,9 +2,9 @@ package dltask
 
 import (
 	"context"
-	"errors"
 
 	"github.com/google/uuid"
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
@@ -12,7 +12,7 @@ import (
 func (uc *DownloadTask) Create(ctx context.Context, task *ddownload.DownloadTask) error {
 	if task == nil {
 		uc.logger.Warn("Nil pointer in function")
-		return errors.New("function parameter is a null pointer")
+		return apperrors.ErrFuncParamNullPointer
 	}
 
 	if task.TaskID == uuid.Nil {

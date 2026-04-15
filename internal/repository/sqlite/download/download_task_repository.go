@@ -3,13 +3,13 @@ package download
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
@@ -55,7 +55,7 @@ func (r *DownloadTaskRepository) Update(ctx context.Context, task *ddownload.Dow
 
 func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.DownloadTask) error {
 	if task == nil {
-		return errors.New("function parameter is a null pointer")
+		return ierrors.ErrFuncParamNullPointer
 	}
 
 	// Convert the domain model to a database entity

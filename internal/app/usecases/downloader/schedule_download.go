@@ -135,7 +135,11 @@ func (uc *Downloader) addFileToQueueDownload(ctx context.Context, fileId uuid.UU
 		if e != nil {
 			uc.logger.Warn("Failed update status", "fileId", file.FileID, "error", e)
 			uc.dlStateCache.Delete(ctx, fileId)
-			return errorx.Errorf("task has not been added to the queue: %w", e)
+			return errorx.Errorf(
+				"task has not been added to the queue: %w", e,
+				exceptions.QUEUE_PUBLISH_FAILED,
+				errorx.WithErrorMessage("We couldn’t process your request"),
+			)
 		}
 
 		return err

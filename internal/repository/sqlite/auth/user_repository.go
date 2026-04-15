@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	ierrors "github.com/neosy/elengrab/internal/errors"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth/mappers"
@@ -43,7 +44,7 @@ func NewUserRepository(db *sql.DB, lock dbexec.WriteLocker) *UserRepository {
 
 func (r *UserRepository) Insert(ctx context.Context, user *dauth.User) error {
 	if user == nil {
-		return errors.New("function parameter is a null pointer")
+		return ierrors.ErrFuncParamNullPointer
 	}
 
 	// Convert the domain model to a database entity
@@ -84,7 +85,7 @@ func (r *UserRepository) Insert(ctx context.Context, user *dauth.User) error {
 
 func (r *UserRepository) Update(ctx context.Context, user *dauth.User) error {
 	if user == nil {
-		return errors.New("function parameter is a null pointer")
+		return ierrors.ErrFuncParamNullPointer
 	}
 
 	// Convert the domain model to a database entity

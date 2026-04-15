@@ -4,12 +4,12 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/google/uuid"
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
 	idto "github.com/neosy/elengrab/internal/app/usecases/auth/internal/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -22,7 +22,7 @@ import (
 func (u *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption) (uuid.UUID, error) {
 	if user == nil {
 		u.logger.Warn("Nil pointer in function")
-		return uuid.Nil, errors.New("function parameter is a null pointer")
+		return uuid.Nil, apperrors.ErrFuncParamNullPointer
 	}
 
 	if user.UserID == uuid.Nil {

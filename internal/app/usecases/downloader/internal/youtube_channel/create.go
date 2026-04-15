@@ -2,8 +2,8 @@ package ytchannel
 
 import (
 	"context"
-	"errors"
 
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 
@@ -11,7 +11,7 @@ import (
 func (uc *YoutubeChannel) Create(ctx context.Context, channel *dmedia.YoutubeChannel) error {
 	if channel == nil {
 		uc.logger.Warn("Nil pointer in function")
-		return errors.New("function parameter is a null pointer")
+		return apperrors.ErrFuncParamNullPointer
 	}
 
 	err := uc.channelRep.Insert(ctx, channel)
