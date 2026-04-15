@@ -8,17 +8,20 @@ import (
 var AnonymousUserID = func() uuid.UUID { return uuid.Nil }
 
 type UserContext struct {
-	UserID       uuid.UUID
+	UserID        uuid.UUID
+	AnonSessionID uuid.UUID
+
 	Login        string
 	Email        string
 	Roles        []dtypes.UserRole
 	GuestCreated bool
 }
 
-func UserContextAnonymous() *UserContext {
+func UserContextAnonymous(anonSessionID uuid.UUID) *UserContext {
 	return &UserContext{
-		UserID: AnonymousUserID(),
-		Roles:  []dtypes.UserRole{dtypes.UserRoleGuest},
+		UserID:        AnonymousUserID(),
+		AnonSessionID: anonSessionID,
+		Roles:         []dtypes.UserRole{dtypes.UserRoleGuest},
 	}
 }
 
@@ -43,6 +46,13 @@ func (u *UserContext) UserType() dtypes.UserType {
 	}
 
 	return uType
+}
+
+func (u *UserContext) EventKey() dtypes.EventKey {
+	if u.UserID != uuid.Nil {
+		return dtypes.NewEventKeyUserID(u.UserID)
+	}
+	return dtypes.NewEventKeyAnonSessionID(u.AnonSessionID)
 }
 
 func (u *UserContext) IsGuest() bool {

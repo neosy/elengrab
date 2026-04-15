@@ -6,8 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/valyala/fasthttp"
+	"github.com/neosy/elengrab/internal/exceptions"
 )
 
 // RepeatDownload repeats the download process for a specific file.
@@ -23,12 +22,12 @@ func (uc *Downloader) RepeatDownload(
 
 	if uc.demoMode {
 		uc.broadcastNotification(
-			userCtx.UserID,
+			userCtx.EventKey(),
 			dto.BroadcastNotificationModuleResultRow,
 			dto.BroadcastNotificationTypeError,
 			"Operation not allowed in demo mode",
 		)
-		return nil, errorx.NewHTTP("operation not allowed in demo mode", fasthttp.StatusForbidden)
+		return nil, exceptions.DEMO_MODE_RESTRICTION.NewErrorx()
 	}
 
 	err := uc.file.Tx(

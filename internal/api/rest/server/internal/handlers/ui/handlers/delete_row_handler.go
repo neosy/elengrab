@@ -30,7 +30,7 @@ func (h *DownloaderHandlers) DeleteRowHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	err = h.downloader.DeleteDownload(ctx, *ctxUser, fileId)
+	err = h.downloader.DeleteFile(ctx, *ctxUser, fileId)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

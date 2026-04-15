@@ -3,6 +3,7 @@ package authmw
 import (
 	"errors"
 
+	"github.com/google/uuid"
 	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -205,6 +206,7 @@ func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool)
 	var session *udto.AuthUserResponse
 
 	if !nfasthttp.IsForwardedHTTPS(ctx) {
+		a.SetCookieAnonym(ctx)
 		return nil, nil
 	}
 
@@ -231,7 +233,7 @@ func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool)
 			}
 			if newSession.Token.Token != session.Token.Token {
 				session = newSession
-				CookieSessionTokenKey.SetValueWithSecure(ctx, session.Token.Token, WithExpiresAt(session.Token.ExpiresAt))
+				a.SetCookieToken(ctx, session.Token.Token, WithExpiresAt(session.Token.ExpiresAt))
 			}
 		}
 	}
@@ -244,20 +246,30 @@ func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool)
 			return nil, err
 		}
 		guestCreated = true
-		CookieSessionTokenKey.SetValueWithSecure(ctx, session.Token.Token, WithExpiresAt(session.Token.ExpiresAt))
+		a.SetCookieToken(ctx, session.Token.Token, WithExpiresAt(session.Token.ExpiresAt))
 	}
 
-	var userCtx *dauth.UserContext
-
 	if session != nil {
-		userCtx = &dauth.UserContext{
+		userCtx := &dauth.UserContext{
 			UserID:       session.UserID,
 			Login:        session.Login,
 			Email:        session.Email,
 			Roles:        session.Roles,
 			GuestCreated: guestCreated,
 		}
+		return userCtx, nil
 	}
 
-	return userCtx, nil
+	return nil, nil
+}
+
+func (m *AuthMiddleware) SetCookieAnonym(ctx *fasthttp.RequestCtx, opts ...cookieOption) {
+	if CookieAnonSessionIDKey.GetValue(ctx) != "" {
+		return
+	}
+	CookieAnonSessionIDKey.SetValue(ctx, uuid.New().String(), append([]cookieOption{WithHTTPOnly()}, opts...)...)
+}
+
+func (m *AuthMiddleware) SetCookieToken(ctx *fasthttp.RequestCtx, token string, opts ...cookieOption) {
+	CookieSessionTokenKey.SetValueWithSecure(ctx, token, opts...)
 }

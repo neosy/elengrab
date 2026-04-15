@@ -15,7 +15,7 @@ const accountMenuConfig = {
   },
 
   shouldOpen(trigger) {
-  if (trigger.dataset.action !== 'menu') return false;
+    if (trigger.dataset.action !== 'menu') return false;
     return true;
   },
 

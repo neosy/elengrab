@@ -1,5 +1,12 @@
 # Releases
 
+## v0.18.2 — 2026-04-15
+
+### Feature
+- Introduce EventKey-based client routing
+
+---
+
 ## v0.18.1 — 2026-04-15
 
 ### Fix

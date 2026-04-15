@@ -418,7 +418,7 @@ func (e *errorx) PublicHttpStatus() int {
 			return status
 		}
 		if err.Exception() != nil {
-			if status := err.Exception().HttpStatus(); status != 0 {
+			if status := err.Exception().HTTPStatus(); status != 0 {
 				return status
 			}
 		}
