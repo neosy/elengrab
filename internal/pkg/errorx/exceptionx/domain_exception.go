@@ -19,13 +19,14 @@ type DomainException interface {
 	Message() string
 	// String returns the exception code (short text).
 	String() string
-
 	// ErrorMessage returns error message provider
 	ErrorMessage() types.ErrorMessageProvider
-	// HttpStatus returns HTTP status
-	HttpStatus() int
+	// HTTPStatus returns HTTP status
+	HTTPStatus() int
 	// NewException creates a new exception with the given domain exception type.
 	NewException() Exception
+	// NewErrorx creates a new Errorx instance based on this domain exception and the provided arguments.
+	NewErrorx(args ...any) error
 }
 
 // domainException type of basic exception
@@ -96,18 +97,18 @@ func (e domainException) String() string {
 func (e domainException) Message() string {
 	msg := domainExceptionMessageMap[e]
 	if msg == "" {
-		msg = http.StatusText(e.HttpStatus())
+		msg = http.StatusText(e.HTTPStatus())
 	}
 	return msg
 }
 
 // ErrorMessage returns error message provider
 func (e domainException) ErrorMessage() types.ErrorMessageProvider {
-	return WithErrorMessage(e.Message())
+	return types.WithErrorMessage(e.Message())
 }
 
-// HttpStatus returns HTTP status
-func (e domainException) HttpStatus() int {
+// HTTPStatus returns HTTP status
+func (e domainException) HTTPStatus() int {
 	status, ok := domainExceptionHttpStatusMap[e]
 	if !ok {
 		return fasthttp.StatusInternalServerError
@@ -119,9 +120,9 @@ func (e domainException) HttpStatus() int {
 func (e domainException) NewException() Exception {
 	return NewException(
 		e.Num(),
-		ExceptionArgCode(e.Code()),
-		ExceptionArgMessage(e.Message()),
-		ExceptionArgHTTPStatus(e.HttpStatus()),
+		e.Code(),
+		WithMessage(e.Message()),
+		WithHTTPStatus(e.HTTPStatus()),
 	)
 }
 

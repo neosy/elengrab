@@ -1,6 +1,7 @@
 package policy
 
 import (
+	"github.com/google/uuid"
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -39,7 +40,12 @@ func ResolveUserOrAnonym(ctx *fasthttp.RequestCtx) *dauth.UserContext {
 		return userCtx
 	}
 
-	return dauth.UserContextAnonymous()
+	var anonSessionID uuid.UUID
+	if id := authmw.CookieAnonSessionIDKey.GetValue(ctx); id != "" {
+		anonSessionID, _ = uuid.Parse(id)
+	}
+
+	return dauth.UserContextAnonymous(anonSessionID)
 }
 
 // EnsureUser returns authenticated user from fasthttp request context.

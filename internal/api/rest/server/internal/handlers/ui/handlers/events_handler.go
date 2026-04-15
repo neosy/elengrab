@@ -11,21 +11,20 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) EventsHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
-	if ctxUser.IsAnonymous() {
-		ctxUser.UserID = uuid.New()
-	}
+	connectionID := uuid.New()
 
 	// SSE headers
 	h.setupSSEHeaders(ctx)
 
 	ctx.SetBodyStreamWriter(func(w *bufio.Writer) {
-		h.streamEvents(ctx, w, ctxUser.UserID.String())
+		h.streamEvents(ctx, w, connectionID, ctxUser.EventKey())
 	})
 }
 
@@ -38,12 +37,13 @@ func (h *DownloaderHandlers) setupSSEHeaders(ctx *fasthttp.RequestCtx) {
 func (h *DownloaderHandlers) streamEvents(
 	ctx *fasthttp.RequestCtx,
 	w *bufio.Writer,
-	userID string,
+	connectionID uuid.UUID,
+	eventKey dtypes.EventKey,
 ) {
-	chEvent := h.downloader.Broadcaster().Subscribe(userID)
-	defer h.downloader.Broadcaster().Unsubscribe(userID, chEvent)
+	chEvent := h.downloader.Broadcaster().Subscribe(eventKey)
+	defer h.downloader.Broadcaster().Unsubscribe(eventKey, chEvent)
 
-	h.sendConnected(w)
+	h.sendConnected(w, connectionID)
 
 	ticker := time.NewTicker(15 * time.Second)
 	defer ticker.Stop()
@@ -62,12 +62,12 @@ func (h *DownloaderHandlers) streamEvents(
 	}
 }
 
-func (h *DownloaderHandlers) sendConnected(w *bufio.Writer) {
+func (h *DownloaderHandlers) sendConnected(w *bufio.Writer, connectionID uuid.UUID) {
 	// fmt.Fprintf(w, "event: connected\ndata: {}\n\n")
 
 	jsonData, err := json.Marshal(struct {
-		UserID string `json:"id"`
-	}{uuid.NewString()})
+		ConnectionID string `json:"id"`
+	}{connectionID.String()})
 	if err != nil {
 		return
 	}

@@ -66,6 +66,10 @@ func (k cookieKey) makeCookie(value string, opts ...cookieOption) *fasthttp.Cook
 	return &cookie
 }
 
+func (k cookieKey) String() string {
+	return string(k)
+}
+
 func (k cookieKey) SetValue(ctx *fasthttp.RequestCtx, value string, opts ...cookieOption) {
 	ctx.Response.Header.SetCookie(k.makeCookie(value, opts...))
 }

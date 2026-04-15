@@ -8,8 +8,8 @@ import (
 	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
 )
@@ -22,20 +22,17 @@ func (uc *Downloader) ScheduleDownload(
 ) (*dto.ScheduleDownloadResponse, error) {
 	if uc.demoMode {
 		uc.broadcastNotification(
-			userCtx.UserID,
+			userCtx.EventKey(),
 			dto.BroadcastNotificationModuleGrabForm,
 			dto.BroadcastNotificationTypeError,
 			"Demo mode",
 		)
-		return nil, errorx.New(
-			"operation not allowed in demo mode",
-			exceptionx.FORBIDDEN,
-		)
+		return nil, exceptions.DEMO_MODE_RESTRICTION.NewErrorx()
 	}
 
 	returnErr := func(err error) error {
 		uc.broadcastNotification(
-			userCtx.UserID,
+			userCtx.EventKey(),
 			dto.BroadcastNotificationModuleGrabForm,
 			dto.BroadcastNotificationTypeError,
 			err.Error(),

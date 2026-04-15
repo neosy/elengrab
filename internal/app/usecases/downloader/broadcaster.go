@@ -7,6 +7,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/broadcaster"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 func (uc *Downloader) Broadcaster() *broadcaster.Broadcaster {
@@ -125,7 +126,7 @@ func (uc *Downloader) broadcastSystemInfoUpdate() {
 }
 
 func (uc *Downloader) broadcastNotification(
-	userID uuid.UUID,
+	eventKey dtypes.EventKey,
 	module dto.BroadcastNotificationModule,
 	notificationType dto.BroadcastNotificationType,
 	message string,
@@ -135,5 +136,5 @@ func (uc *Downloader) broadcastNotification(
 		Type:    notificationType,
 		Message: message,
 	}
-	uc.broadcaster.BroadcastToUser(userID, dto.BroadcastEventTypeNotification, notification)
+	uc.broadcaster.BroadcastTo(eventKey, dto.BroadcastEventTypeNotification, notification)
 }

@@ -13,12 +13,11 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/valyala/fasthttp"
+	"github.com/neosy/elengrab/internal/exceptions"
 )
 
-// DeleteDownload deletes a download from the system.
-func (uc *Downloader) DeleteDownload(
+// DeleteFile deletes a download from the system.
+func (uc *Downloader) DeleteFile(
 	ctx context.Context,
 	userCtx dauth.UserContext,
 	fileId uuid.UUID,
@@ -30,12 +29,12 @@ func (uc *Downloader) DeleteDownload(
 
 	if uc.demoMode {
 		uc.broadcastNotification(
-			userCtx.UserID,
+			userCtx.EventKey(),
 			dto.BroadcastNotificationModuleResultRow,
 			dto.BroadcastNotificationTypeError,
 			"Operation not allowed in demo mode",
 		)
-		return errorx.NewHTTP("operation not allowed in demo mode", fasthttp.StatusForbidden)
+		return exceptions.DEMO_MODE_RESTRICTION.NewErrorx()
 	}
 
 	var accessByUserID *uuid.UUID

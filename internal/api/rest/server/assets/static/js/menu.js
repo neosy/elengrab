@@ -110,7 +110,10 @@ export function initMenu(config) {
       }
     }
 
-    if (shouldOpen?.(trigger) === false) return;
+    if (shouldOpen?.(trigger) === false) {
+      closeMenu(menu, menuOverlay);
+      return;
+    }
 
     beforeOpen?.(menu, trigger);
 
@@ -175,5 +178,6 @@ function closeMenu(menu, menuOverlay) {
 }
 
 function kebabToCamel(str) {
+  if (!str) {return}
   return str.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 }

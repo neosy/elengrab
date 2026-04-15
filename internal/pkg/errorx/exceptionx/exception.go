@@ -17,8 +17,10 @@ type Exception interface {
 	Message() string
 	// Error implements the error interface by returning the exception message.
 	Error() string
-	// HttpStatus returns the HTTP status associated with the exception.
-	HttpStatus() int
+	// HTTPStatus returns the HTTP status associated with the exception.
+	HTTPStatus() int
+	// NewErrorx creates a new Errorx instance based on this exception and the provided arguments.
+	NewErrorx(args ...any) error
 }
 
 // Type Exception
@@ -30,39 +32,38 @@ type exception struct {
 }
 
 // NewException creating an Exception object
-func NewException(num uint, args ...any) Exception {
-	newArgs := ExceptionArgs{}
+func NewException(num uint, code string, opts ...any) Exception {
+	newOpts := ExceptionOptions{}
 
-	for _, arg := range args {
-		switch v := arg.(type) {
+	for _, opt := range opts {
+		switch v := opt.(type) {
 		case string:
-			newArgs.Message = v
-		case ExceptionArg:
+			newOpts.Message = v
+		case ExceptionOption:
 			if v != nil {
-				v(&newArgs)
+				v(&newOpts)
 			}
 		case types.HttpStatusProvider:
 			if v != nil {
 				if status := v(); status != nil {
-					newArgs.HTTPStatus = *status
+					newOpts.HTTPStatus = *status
 				}
 			}
 		case Exception:
-			newArgs.Code = v.Code()
-			newArgs.Message = v.Message()
-			newArgs.HTTPStatus = v.HttpStatus()
+			newOpts.Message = v.Message()
+			newOpts.HTTPStatus = v.HTTPStatus()
 		}
 	}
 
-	if newArgs.HTTPStatus == 0 {
-		newArgs.HTTPStatus = fasthttp.StatusInternalServerError
+	if newOpts.HTTPStatus == 0 {
+		newOpts.HTTPStatus = fasthttp.StatusInternalServerError
 	}
 
 	ex := &exception{
 		num:        num,
-		code:       newArgs.Code,
-		message:    newArgs.Message,
-		httpStatus: newArgs.HTTPStatus,
+		code:       code,
+		message:    newOpts.Message,
+		httpStatus: newOpts.HTTPStatus,
 	}
 
 	return ex
@@ -86,11 +87,11 @@ func (e *exception) String() string {
 	if e == nil {
 		return ""
 	}
-	text := stringx.Capitalize(e.message)
-	if text == "" {
-		text = e.code
+	text := e.Message()
+	if text != "" {
+		return text
 	}
-	return text
+	return e.code
 }
 
 // String returns the exception text.
@@ -109,8 +110,8 @@ func (e *exception) Error() string {
 	return stringx.LowerFirst(e.message)
 }
 
-// HttpStatus returns the HTTP status associated with the exception.
-func (e *exception) HttpStatus() int {
+// HTTPStatus returns the HTTP status associated with the exception.
+func (e *exception) HTTPStatus() int {
 	return e.httpStatus
 }
 
