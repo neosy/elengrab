@@ -18,7 +18,7 @@ func (a *AuthWeb) RegisterUser(
 	}
 
 	if req.Login == "" {
-		return nil, errorx.NewHTTP("login is required", fasthttp.StatusBadRequest)
+		return nil, errorx.NewHTTPMessage("login is required", fasthttp.StatusBadRequest)
 	}
 
 	existsLogin, err := a.auth.ExistsUserByLogin(ctx, req.Login)
@@ -30,7 +30,7 @@ func (a *AuthWeb) RegisterUser(
 	}
 
 	if req.Password == "" {
-		return nil, errorx.NewHTTP("password is required", fasthttp.StatusBadRequest)
+		return nil, errorx.NewHTTPMessage("password is required", fasthttp.StatusBadRequest)
 	}
 
 	if err := checkValidLogin(req.Login); err != nil {

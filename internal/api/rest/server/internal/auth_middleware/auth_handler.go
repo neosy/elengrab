@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -45,7 +46,7 @@ func (a *AuthMiddleware) AuthOrGuest(next fasthttp.RequestHandler) fasthttp.Requ
 		}
 
 		if userCtx == nil {
-			nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("unauthorized", fasthttp.StatusUnauthorized))
+			nfasthttp.WriteErrorx(ctx, apierrors.ErrUnauthorized)
 			return
 		}
 
@@ -80,7 +81,7 @@ func (a *AuthMiddleware) RequireAuth(next fasthttp.RequestHandler) fasthttp.Requ
 		}
 
 		if userCtx == nil {
-			nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("unauthorized", fasthttp.StatusUnauthorized))
+			nfasthttp.WriteErrorx(ctx, apierrors.ErrUnauthorized)
 			return
 		}
 
@@ -151,7 +152,7 @@ func (a *AuthMiddleware) AuthOptional(next fasthttp.RequestHandler) fasthttp.Req
 
 		if userCtx == nil {
 			if a.appMode == dtypes.AppModeAuthOnly {
-				nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("unauthorized", fasthttp.StatusUnauthorized))
+				nfasthttp.WriteErrorx(ctx, apierrors.ErrUnauthorized)
 				return
 			}
 
@@ -189,7 +190,7 @@ func (a *AuthMiddleware) RequireAuthMode(next fasthttp.RequestHandler) fasthttp.
 
 		if userCtx == nil {
 			if a.appMode.IsUserRequired() {
-				nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("unauthorized", fasthttp.StatusUnauthorized))
+				nfasthttp.WriteErrorx(ctx, apierrors.ErrUnauthorized)
 				return
 			}
 

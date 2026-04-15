@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
+	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -21,13 +22,13 @@ func (h *DownloaderHandlers) FileStreamHandler(ctx *fasthttp.RequestCtx) {
 
 	fileIdStr := ctx.UserValue(fileIdKey).(string)
 	if fileIdStr == "" {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("fileId is required", fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
 		return
 	}
 
 	fileID, err := uuid.Parse(fileIdStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("fileId is incorrect", fasthttp.StatusBadRequest, err))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsIncorrect.Wrap(err))
 		return
 	}
 
@@ -37,7 +38,7 @@ func (h *DownloaderHandlers) FileStreamHandler(ctx *fasthttp.RequestCtx) {
 func (h *DownloaderHandlers) StreamShortCodeHandler(ctx *fasthttp.RequestCtx) {
 	shortCode := ctx.UserValue(shortCodeKey).(string)
 	if shortCode == "" {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("shortCode is required", fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("shortCode is required", fasthttp.StatusBadRequest))
 		return
 	}
 
@@ -104,7 +105,7 @@ func (h *DownloaderHandlers) stream(
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		nfasthttp.WriteErrorx(
 			ctx,
-			errorx.NewHTTP("file not found", fasthttp.StatusBadRequest),
+			apierrors.ErrFileNotFound,
 		)
 		return
 	}

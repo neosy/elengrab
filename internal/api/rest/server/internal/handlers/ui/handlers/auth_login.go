@@ -3,13 +3,13 @@ package handlers
 import (
 	"strings"
 
+	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -101,7 +101,7 @@ func (h *DownloaderHandlers) AuthLoginSubmitHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	if resp == nil || resp.Token == nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("a system error. The query returned an empty pointer", fasthttp.StatusInternalServerError))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrQueryReturnedEmptyResult)
 		return
 	}
 

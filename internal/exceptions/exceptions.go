@@ -6,13 +6,30 @@ import (
 )
 
 var (
-	exceptions = exceptionx.NewExceptions(10)
+	exceptions = exceptionx.NewExceptions(20)
 
 	FUNCTION_PARAMETER_NULL_POINTER = exceptions.AddNum(
 		1000,
 		"FUNCTION_PARAMETER_NULL_POINTER",
 		exceptionx.WithMessage("function parameter is a null pointer"),
 		exceptionx.WithHTTPStatus(fasthttp.StatusInternalServerError),
+	)
+	QUERY_RETURNED_EMPTY_RESULT = exceptions.AddSeq(
+		"QUERY_RETURNED_EMPTY_RESULT",
+		exceptionx.WithMessage("a system error. The query returned an empty pointer"),
+		exceptionx.WithHTTPStatus(fasthttp.StatusInternalServerError),
+	)
+	EMPTY_RESPONSE = exceptions.AddSeq(
+		"EMPTY_RESPONSE",
+		exceptionx.WithMessage("the request returned an empty response"),
+		exceptionx.WithHTTPStatus(fasthttp.StatusInternalServerError),
+	)
+
+	INVALID_REQUEST = exceptions.AddNum(
+		1050,
+		"INVALID_REQUEST",
+		exceptionx.WithMessage("request contains invalid or missing data"),
+		exceptionx.WithHTTPStatus(fasthttp.StatusBadRequest),
 	)
 
 	DEMO_MODE_RESTRICTION = exceptions.AddNum(

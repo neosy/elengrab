@@ -3,10 +3,10 @@ package handlers
 import (
 	"strings"
 
+	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/dto"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -20,14 +20,14 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 
 	url := string(ctx.FormValue(formFieldMediaURLKey))
 	if url == "" {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("URL is required", fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrURLIsRequired)
 		return
 	}
 
 	url = strings.TrimSpace(url)
 
 	if err := h.validators.Validate.Var(url, "url"); err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("invalid URL", fasthttp.StatusBadRequest, err))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrInvalidURL.Wrap(err))
 		return
 	}
 
@@ -54,13 +54,7 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	if resp == nil {
-		nfasthttp.WriteErrorx(
-			ctx,
-			errorx.NewHTTP(
-				"the request returned an empty response",
-				fasthttp.StatusInternalServerError,
-			),
-		)
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrEmptyResponse)
 		return
 	}
 

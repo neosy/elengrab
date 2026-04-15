@@ -19,11 +19,11 @@ func (a *AuthWeb) LoginUser(
 	}
 
 	if strings.TrimSpace(req.Login) == "" {
-		return nil, errorx.NewHTTP("login is required", fasthttp.StatusBadRequest)
+		return nil, errorx.NewHTTPMessage("login is required", fasthttp.StatusBadRequest)
 	}
 
 	if strings.TrimSpace(req.Password) == "" {
-		return nil, errorx.NewHTTP("password is required", fasthttp.StatusBadRequest)
+		return nil, errorx.NewHTTPMessage("password is required", fasthttp.StatusBadRequest)
 	}
 
 	resp, err := a.auth.AuthenticateUser(ctx, req)
@@ -33,7 +33,7 @@ func (a *AuthWeb) LoginUser(
 			return nil, err
 		}
 		if exception.Num() == exceptionx.NOT_FOUND.Num() || exception.Num() == exceptionx.UNAUTHORIZED.Num() {
-			return nil, errorx.NewHTTP("invalid login or password", fasthttp.StatusUnauthorized)
+			return nil, errorx.NewHTTPMessage("invalid login or password", fasthttp.StatusUnauthorized)
 		}
 		return nil, err
 	}

@@ -4,9 +4,9 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/dto"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -14,13 +14,13 @@ import (
 func (h *DownloaderHandlers) GetFileShortLinkHandler(ctx *fasthttp.RequestCtx) {
 	fileIdStr := ctx.UserValue(fileIdKey).(string)
 	if fileIdStr == "" {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("fileId is required", fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
 		return
 	}
 
 	fileId, err := uuid.Parse(fileIdStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("fileId is incorrect", fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsIncorrect.Wrap(err))
 		return
 	}
 

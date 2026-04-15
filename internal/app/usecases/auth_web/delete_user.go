@@ -11,7 +11,7 @@ import (
 func (a *AuthWeb) SoftDeleteUser(ctx context.Context, userID uuid.UUID) error {
 	if userID == uuid.Nil {
 		a.logger.Warn("UserID is Nil")
-		return errorx.NewHTTP("invalid userID", fasthttp.StatusBadRequest)
+		return errorx.NewHTTPMessage("invalid userID", fasthttp.StatusBadRequest)
 	}
 	if err := a.auth.SoftDeleteUser(ctx, userID); err != nil {
 		a.logger.Warn("Error deleting user", "userID", userID, "error", err)

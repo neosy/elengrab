@@ -1,5 +1,12 @@
 # Releases
 
+## v0.18.3 — 2026-04-16
+
+### Refactor
+- Add exceptions
+
+---
+
 ## v0.18.2 — 2026-04-15
 
 ### Feature
