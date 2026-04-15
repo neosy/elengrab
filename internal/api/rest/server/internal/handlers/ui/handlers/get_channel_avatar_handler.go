@@ -13,7 +13,7 @@ import (
 func (h *DownloaderHandlers) GetChannelAvatarHandler(ctx *fasthttp.RequestCtx) {
 	channelID := ctx.UserValue(channelIDKey).(string)
 	if channelID == "" {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("channelID is required", fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("channelID is required", fasthttp.StatusBadRequest))
 		return
 	}
 

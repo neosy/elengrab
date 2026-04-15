@@ -2,6 +2,7 @@ package policy
 
 import (
 	"github.com/google/uuid"
+	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -58,7 +59,7 @@ func EnsureUser(ctx *fasthttp.RequestCtx) (*dauth.UserContext, error) {
 	}
 
 	if userCtx == nil {
-		return nil, errorx.NewHTTP("unauthorized", fasthttp.StatusUnauthorized)
+		return nil, apierrors.ErrUnauthorized
 	}
 
 	return userCtx, nil

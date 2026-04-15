@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
+	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/valyala/fasthttp"
@@ -18,13 +18,13 @@ func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	// Get the file name from the query parameter
 	fileIdStr := string(ctx.QueryArgs().Peek("file"))
 	if fileIdStr == "" {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("file is required", fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
 		return
 	}
 
 	fileId, err := uuid.Parse(fileIdStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("file is incorrect", fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsIncorrect.Wrap(err))
 		return
 	}
 
@@ -42,7 +42,7 @@ func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 
 	// Check if the file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("file not found", fasthttp.StatusInternalServerError, err))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileNotFound.Wrap(err))
 		return
 	}
 

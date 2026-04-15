@@ -37,14 +37,14 @@ func isValidPassword(password string) bool {
 
 func checkValidLogin(login string) error {
 	if !isValidLogin(login) {
-		return errorx.NewHTTP("login must start with a letter, 5-20 letters/digits/_", fasthttp.StatusBadRequest)
+		return errorx.NewHTTPMessage("login must start with a letter, 5-20 letters/digits/_", fasthttp.StatusBadRequest)
 	}
 	return nil
 }
 
 func checkValidPassword(login string) error {
 	if !isValidPassword(login) {
-		return errorx.NewHTTP("Password must be at least 8 chars, include a letter, a number and a special symbol (!@#$%^&*)", fasthttp.StatusBadRequest)
+		return errorx.NewHTTPMessage("password must be at least 8 chars, include a letter, a number and a special symbol (!@#$%^&*)", fasthttp.StatusBadRequest)
 	}
 	return nil
 }

@@ -12,7 +12,7 @@ import (
 func (h *DownloaderHandlers) ShortLinkHandler(ctx *fasthttp.RequestCtx) {
 	shortCode := ctx.UserValue(shortCodeKey).(string)
 	if shortCode == "" {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTP("shortCode is required", fasthttp.StatusBadRequest))
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("shortCode is required", fasthttp.StatusBadRequest))
 		return
 	}
 
