@@ -3,12 +3,12 @@ package media
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	emedia "github.com/neosy/elengrab/internal/repository/sqlite/media/entity"
@@ -49,7 +49,7 @@ func (r *SiteLogoRepository) Update(ctx context.Context, logo *dmedia.SiteLogo) 
 
 func (r *SiteLogoRepository) Save(ctx context.Context, logo *dmedia.SiteLogo) error {
 	if logo == nil {
-		return errors.New("function parameter is a null pointer")
+		return ierrors.ErrFuncParamNullPointer
 	}
 
 	// Convert the domain model to a database entity

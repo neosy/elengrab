@@ -3,7 +3,6 @@ package download
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -12,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	"github.com/neosy/elengrab/internal/ports/persistence"
@@ -110,7 +110,7 @@ func (r *FileRepository) Update(ctx context.Context, file *ddownload.File) error
 
 func (r *FileRepository) save(ctx context.Context, file *ddownload.File) error {
 	if file == nil {
-		return errors.New("function parameter is a null pointer")
+		return ierrors.ErrFuncParamNullPointer
 	}
 
 	// Convert the domain model to a database entity

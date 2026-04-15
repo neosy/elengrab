@@ -3,11 +3,11 @@ package auth
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth/mappers"
@@ -48,7 +48,7 @@ func (r *RoleRepository) Update(ctx context.Context, role *dauth.Role) error {
 
 func (r *RoleRepository) Save(ctx context.Context, role *dauth.Role) error {
 	if role == nil {
-		return errors.New("function parameter is a null pointer")
+		return ierrors.ErrFuncParamNullPointer
 	}
 
 	// Convert the domain model to a database entity

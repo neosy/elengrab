@@ -5,6 +5,9 @@
 ### Feature
 - Introduce EventKey-based client routing
 
+### Refactor
+- Create a basic exception
+
 ---
 
 ## v0.18.1 — 2026-04-15

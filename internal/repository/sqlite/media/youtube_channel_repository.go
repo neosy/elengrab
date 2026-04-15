@@ -3,11 +3,11 @@ package media
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	emedia "github.com/neosy/elengrab/internal/repository/sqlite/media/entity"
@@ -48,7 +48,7 @@ func (r *YoutubeChannelRepository) Update(ctx context.Context, channel *dmedia.Y
 
 func (r *YoutubeChannelRepository) Save(ctx context.Context, channel *dmedia.YoutubeChannel) error {
 	if channel == nil {
-		return errors.New("function parameter is a null pointer")
+		return ierrors.ErrFuncParamNullPointer
 	}
 
 	// Convert the domain model to a database entity

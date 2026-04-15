@@ -6,11 +6,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
@@ -31,7 +30,7 @@ func (uc *Downloader) GetFileInfo(
 		return nil, err
 	}
 	if resp == nil {
-		return nil, errorx.New("file not found", exceptionx.NOT_FOUND)
+		return nil, apperrors.ErrFileNotFound
 	}
 	return resp, nil
 }
@@ -46,7 +45,7 @@ func (uc *Downloader) GetFileInfoUnrestricted(
 		return nil, err
 	}
 	if resp == nil {
-		return nil, errorx.New("file not found", exceptionx.NOT_FOUND)
+		return nil, apperrors.ErrFileNotFound
 	}
 	return resp, nil
 }
@@ -61,7 +60,7 @@ func (uc *Downloader) findActualFileInfo(
 
 	if fileID == uuid.Nil {
 		uc.logger.Warn("Id for the FileID field is not defined")
-		return nil, errorx.New("fileId not specified", exceptionx.ERROR)
+		return nil, apperrors.ErrFileIDIsNil
 	}
 
 	state, _ := uc.dlStateCache.FindByFileID(ctx, userID, fileID)

@@ -1,8 +1,7 @@
 package statussetter
 
 import (
-	"errors"
-
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
@@ -10,7 +9,7 @@ import (
 // SetStatus checks if the status transition is valid and setting the status.
 func (u *DownloadTaskStatusSetter) SetStatus(task *ddownload.DownloadTask, toStatus dtypes.DownloadTaskStatus) error {
 	if task == nil {
-		return errors.New("function parameter is a null pointer")
+		return apperrors.ErrFuncParamNullPointer
 	}
 
 	err := u.checkSetStatus(task.Status, toStatus)

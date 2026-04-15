@@ -2,11 +2,11 @@ package downloader
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 	"time"
 
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
@@ -21,7 +21,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 ) error {
 	if task == nil {
 		uc.logger.Error("Nil pointer in function", "func", "ExecuteDownloadTask")
-		return errors.New("function parameter is a null pointer")
+		return apperrors.ErrFuncParamNullPointer
 	}
 
 	err := uc.fileStatus.Working(ctx, task.FileID, task.TaskID, workerId)
@@ -163,7 +163,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 	}
 
 	if lastResult == nil {
-		return fmt.Errorf("service downloader returned an empty value")
+		return apperrors.ErrDownloaderEmptyResponse
 	}
 
 	safeReadableFullName := uptr.String(

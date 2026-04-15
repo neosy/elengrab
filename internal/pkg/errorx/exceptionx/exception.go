@@ -1,6 +1,8 @@
 package exceptionx
 
 import (
+	"net/http"
+
 	"github.com/neosy/elengrab/internal/pkg/errorx/internal/types"
 	"github.com/neosy/elengrab/internal/pkg/stringx"
 	"github.com/valyala/fasthttp"
@@ -87,10 +89,12 @@ func (e *exception) String() string {
 	if e == nil {
 		return ""
 	}
+
 	text := e.Message()
 	if text != "" {
 		return text
 	}
+
 	return e.code
 }
 
@@ -107,11 +111,19 @@ func (e *exception) Error() string {
 	if e == nil {
 		return ""
 	}
-	return stringx.LowerFirst(e.message)
+
+	if e.message != "" {
+		return stringx.LowerFirst(e.message)
+	}
+
+	return stringx.LowerFirst(http.StatusText(e.httpStatus))
 }
 
 // HTTPStatus returns the HTTP status associated with the exception.
 func (e *exception) HTTPStatus() int {
+	if e == nil {
+		return 0
+	}
 	return e.httpStatus
 }
 
