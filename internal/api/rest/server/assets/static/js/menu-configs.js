@@ -36,7 +36,7 @@ const rowMenuConfig = {
         endpoint: item.dataset.url,
         method: 'POST',
         title: "Elengrab",
-        text: 'Watch this'
+        text: ''
       });      
 
       switch (result.status) {
