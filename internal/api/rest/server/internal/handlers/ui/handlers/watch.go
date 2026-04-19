@@ -76,23 +76,28 @@ func (h *DownloaderHandlers) watch(
 
 	const disableMediaType = true
 	mediaURL := h.baseURL + streamPath
-	imageURL := h.baseURL + uivalues.ImageHttpPath(uivalues.Elengrab1280ImageFileName)
+	imageURL := h.baseURL + uivalues.ImageHttpPath(uivalues.Elengrab1280ImageJpgFileName)
 	prefixType := fnx.Ternary(isVideoPlayer, "video", "audio")
 	description := fileInfo.MediaTitle + fmt.Sprintf(" [%s]", fileInfo.MediaInfoText)
 
 	metaOgItems := make(uivalues.MetaOgItems, 0, 20)
 	metaOgItems.Add("site_name", iconfig.AppName)
-	metaOgItems.Add("title", fileInfo.MediaTitle)
-	metaOgItems.Add("description", description)
-	metaOgItems.Add("url", pageURL)
-	metaOgItems.Add("image", imageURL)
-	metaOgItems.Add("image:type", "image/png")
-	metaOgItems.Add("image:width", "1280")
-	metaOgItems.Add("image:height", "720")
 	if disableMediaType {
 		metaOgItems.Add("type", "website")
 	} else {
 		metaOgItems.Add("type", fnx.Ternary(isVideoPlayer, "video.other", "music.song"))
+	}
+	metaOgItems.Add("title", fileInfo.MediaTitle)
+	metaOgItems.Add("description", description)
+	metaOgItems.Add("url", pageURL)
+	metaOgItems.Add("image", imageURL)
+	metaOgItems.Add("image:secure_url", imageURL)
+	metaOgItems.Add("image:type", httpx.ContentTypeFromPath(imageURL))
+	metaOgItems.Add("image:width", "1280")
+	metaOgItems.Add("image:height", "720")
+	metaOgItems.Add("image:alt", "Elengrab logo")
+
+	if !disableMediaType {
 		metaOgItems.Add(prefixType, mediaURL)
 		metaOgItems.Add(fmt.Sprintf("%s:secure_url", prefixType), mediaURL)
 		if contentType != "" {

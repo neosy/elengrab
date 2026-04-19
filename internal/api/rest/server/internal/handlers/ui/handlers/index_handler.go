@@ -11,6 +11,7 @@ import (
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	"github.com/valyala/fasthttp"
 )
@@ -67,16 +68,20 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	imageURL := h.baseURL + uivalues.ImageHttpPath(uivalues.Elengrab1280ImageFileName)
+	imageURL := h.baseURL + uivalues.ImageHttpPath(uivalues.Elengrab1280ImageJpgFileName)
 
 	metaOgItems := make(uivalues.MetaOgItems, 0, 15)
 	metaOgItems.Add("site_name", iconfig.AppName)
+	metaOgItems.Add("type", "website")
 	metaOgItems.Add("title", uivalues.PageTitle)
 	metaOgItems.Add("description", uivalues.PageDescription)
 	metaOgItems.Add("url", h.baseURL)
 	metaOgItems.Add("image", imageURL)
+	metaOgItems.Add("image:secure_url", imageURL)
+	metaOgItems.Add("image:type", httpx.ContentTypeFromPath(imageURL))
 	metaOgItems.Add("image:width", "1280")
 	metaOgItems.Add("image:height", "720")
+	metaOgItems.Add("image:alt", "Elengrab logo")
 
 	baseValues := uivalues.NewBaseValues()
 	baseValues.MetaOgItems = metaOgItems
