@@ -1,5 +1,11 @@
 # Releases
 
+## v0.18.4 — 2026-04-19
+
+- Corrected Open Graph meta tags for proper link preview generation in Telegram
+
+---
+
 ## v0.18.3 — 2026-04-16
 
 ### Refactor
