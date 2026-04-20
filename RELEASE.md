@@ -1,7 +1,19 @@
 # Releases
 
+## v0.18.5 — 2026-04-20
+
+### Style
+- Remove the default text from the Share link
+
+### Build
+- Upgrade go to 1.26.2
+
+---
+
+
 ## v0.18.4 — 2026-04-19
 
+### Fix
 - Corrected Open Graph meta tags for proper link preview generation in Telegram
 
 ---
