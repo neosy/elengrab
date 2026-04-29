@@ -96,6 +96,16 @@ const rowMenuConfig = {
     if (!url || !fileId) return null;
 
     return url.replace('%7bfileId%7d', fileId);
+  },
+
+  beforeOpen(menu, trigger) {
+    document.body.classList.add('ui-blocking-active');
+    return true;
+  },
+
+  afterClose(menu) {
+    document.body.classList.remove('ui-blocking-active');
+    return true;
   }
 };
 

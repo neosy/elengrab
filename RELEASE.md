@@ -1,5 +1,14 @@
 # Releases
 
+## v0.18.7 — 2026-04-29
+
+### Style
+- Added global UI blocking overlay for menu interactions
+- Implemented backdrop (screen dimming) when blocking menus are open
+- Added scroll lock behavior while blocking menu is active
+
+---
+
 ## v0.18.6 — 2026-04-29
 
 ### Feature

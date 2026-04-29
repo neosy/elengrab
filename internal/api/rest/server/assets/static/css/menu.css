@@ -9,6 +9,10 @@
   box-sizing: border-box;
 }
 
+body.ui-blocking-active .menu-overlay--show {
+  display: block;
+}
+
 .menu {
     width: auto;
     max-height: 0;
@@ -31,6 +35,17 @@
     transition: max-height 0.3s ease, padding 0.5s ease;
 
     z-index: 1200;
+}
+
+.menu-overlay {
+    display: none;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+
+    position: fixed;
+
+    background: rgba(0,0,0,0.5);
+    z-index: 1100;
 }
 
 .menu--show {
@@ -129,17 +144,6 @@
     .menu--show {
         max-height: 50vh;
         transform: translateY(100%);
-    }
-
-    .menu-overlay {
-        display: none;
-        top: 0; left: 0;
-        width: 100vw; height: 100vh;
-
-        position: fixed;
-
-        background: rgba(0,0,0,0.5);
-        z-index: 1100;
     }
 
     .menu-overlay--show {
