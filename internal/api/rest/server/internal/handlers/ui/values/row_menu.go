@@ -35,10 +35,10 @@ var rowMenuActions = []rowMenuAction{
 	{
 		RenderType:     menuActionRenderTypeLink,
 		Action:         "watch",
-		Title:          "Watch in new tab",
+		Title:          "Watch",
 		IconFileName:   "menu-play-icon.svg",
 		URL:            httppaths.GroupDownloader + httppaths.PathFileWatch,
-		NewTab:         true,
+		NewTab:         false,
 		replaceInURL:   RowMenuActionFileIdKey,
 		onlyStatusDone: true,
 	},
