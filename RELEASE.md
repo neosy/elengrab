@@ -1,11 +1,17 @@
 # Releases
 
-## v0.18.7 — 2026-04-29
+## v0.19.0 — 2026-04-30
 
 ### Style
 - Added global UI blocking overlay for menu interactions
 - Implemented backdrop (screen dimming) when blocking menus are open
 - Added scroll lock behavior while blocking menu is active
+
+### UI / Frontend
+- Added persistent notification area at the bottom of the screen
+- Implemented smooth animated notifications with auto-dismiss
+- Added support for multiple notification types: success, error, warning, and info
+- Introduced unified notification styling with proper contrast for both light and dark themes
 
 ---
 
