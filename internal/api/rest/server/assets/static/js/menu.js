@@ -13,10 +13,10 @@ let activeMenus = new Set();
 const menuState = new Map();
 
 // Close all opened menus except the provided one
-export function closeAllMenus(except = null) {
+export function closeAllMenus(except = null, fnAfterClose) {
   document.querySelectorAll('.'+MENU_SHOW_CLASS).forEach(menu => {
     if (menu !== except) {
-      closeMenu(menu, menuOverlay);
+      closeMenu(menu, fnAfterClose);
     }
   });
 }
@@ -30,7 +30,8 @@ export function initMenu(config) {
     position,
     buildUrl,
     shouldOpen,
-    beforeOpen
+    beforeOpen,
+    afterClose
   } = config;
 
   const menu = document.getElementById(menuId);
@@ -72,7 +73,7 @@ export function initMenu(config) {
       }
 
       if (menuState.get(menu.id) === true) {
-          closeMenu(menu, menuOverlay);
+          closeMenu(menu, afterClose);
       }
   }
 
@@ -84,10 +85,10 @@ export function initMenu(config) {
 
     const isSameTrigger = trigger === menu._activeTrigger;
 
-    closeAllMenus(menu);
+    closeAllMenus(menu, afterClose);
 
     if (isSameTrigger && menu.classList.contains(MENU_SHOW_CLASS)) {
-      closeMenu(menu, menuOverlay);
+      closeMenu(menu, afterClose);
       return;
     }
 
@@ -111,7 +112,7 @@ export function initMenu(config) {
     }
 
     if (shouldOpen?.(trigger) === false) {
-      closeMenu(menu, menuOverlay);
+      closeMenu(menu, afterClose);
       return;
     }
 
@@ -129,7 +130,7 @@ export function initMenu(config) {
   menu.addEventListener('click', async (e) => {
     if (!menuState.get(menu.id)) return;
 
-    closeMenu(menu, menuOverlay);
+    closeMenu(menu, afterClose);
 
     const item = e.target.closest('[data-action]');
     if (!item) return;
@@ -149,7 +150,7 @@ export function initMenu(config) {
 
     const target = e.target;
     if (menu.contains(target) || menu._activeTrigger?.contains(target)) return;
-    closeMenu(menu, menuOverlay);
+    closeMenu(menu, afterClose);
   });
 
   // Global ESC handler
@@ -157,7 +158,7 @@ export function initMenu(config) {
     if (!menuState.get(menu.id)) return;
 
     if (event.key === "Escape" && location.hash === MENU_HASH) {
-      closeMenu(menu, menuOverlay);
+      closeMenu(menu, afterClose);
     }
   });
 
@@ -168,13 +169,14 @@ export function initMenu(config) {
   window.addEventListener('hashchange', syncMenuWithHash);
 }
 
-function closeMenu(menu, menuOverlay) {
+function closeMenu(menu, fnAfterClose) {
   menuState.set(menu.id, false);
   history.replaceState(null, "", location.pathname + location.search);
   menu.classList.remove(MENU_SHOW_CLASS);
   menuOverlay && (menuOverlay.classList.remove(MENU_OVERLAY_SHOW_CLASS));
   menu._activeTrigger = null;
   activeMenus.delete(menu);
+  fnAfterClose?.(menu);
 }
 
 function kebabToCamel(str) {
