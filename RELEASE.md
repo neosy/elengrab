@@ -3,7 +3,11 @@
 ## v0.18.6 — 2026-04-29
 
 ### Feature
-- Support <a> actions in menu and add copy short link item
+- Added support for `<a>` elements in menu actions
+- Added "Copy short link" menu action
+
+### Refactor
+- Introduced explicit item types for menu rendering (link / action / divider)
 
 ---
 
