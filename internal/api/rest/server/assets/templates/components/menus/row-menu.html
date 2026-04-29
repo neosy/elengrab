@@ -17,18 +17,37 @@
     </button>
     <div class="menu-actions">
         {{- range .RowMenuActions }}
-        <div class="menu-action menu-action--{{ .Action }}" id="menu-action-{{ .Action }}" data-action="{{ .Action }}" data-url="{{ .URL }}" data-new-tab="{{ .NewTab }}">
-            <div class="menu-action__content">
-                {{- if .IconSvg }}
-                <div class="menu-action__content-icon">
-                    {{ .IconSvg }}
+          {{- if eq .RenderType "divider" }}
+            <div class="menu-action__divider"></div>
+          {{- else if eq .RenderType "link" }}
+            <a class="menu-action menu-action--link menu-action--{{ .Action }}" id="menu-action-{{ .Action }}"
+                href="{{ .URL }}"
+                {{- if .NewTab }} target="_blank" rel="noopener noreferrer" {{- end }}>
+                <div class="menu-action__content">
+                    {{- if .IconSvg }}
+                    <div class="menu-action__content-icon">
+                        {{ .IconSvg }}
+                    </div>
+                    {{- end }}
+                    <div class="menu-action__content-text">
+                        <span>{{ .Title }}</span>
+                    </div>
                 </div>
-                {{- end }}
-                <div class="menu-action__content-text">
-                    <span>{{ .Title }}</span>
+            </a>
+          {{- else }}
+            <div class="menu-action menu-action--{{ .Action }}" id="menu-action-{{ .Action }}" data-action="{{ .Action }}" data-url="{{ .URL }}" data-new-tab="{{ .NewTab }}">
+                <div class="menu-action__content">
+                    {{- if .IconSvg }}
+                    <div class="menu-action__content-icon">
+                        {{ .IconSvg }}
+                    </div>
+                    {{- end }}
+                    <div class="menu-action__content-text">
+                        <span>{{ .Title }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
+          {{- end }}
         {{- end }}
     </div>
 {{- end }}

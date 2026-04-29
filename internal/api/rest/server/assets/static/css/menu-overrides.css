@@ -59,6 +59,10 @@
     color: var(--menu-action-icon-blue);
 }
 
+.menu-action--copy-link .menu-action__content-icon {
+    color: var(--menu-action-icon-violet);
+}
+
 .menu-action--open-original .menu-action__content-icon {
     color: var(--menu-action-icon-blue);
 }
