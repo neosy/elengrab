@@ -47,6 +47,10 @@
     --border-auth-input: #9e9e9e;
     --border-auth-input-focus: #7eb980;
 
+    --notification-bg: rgba(255, 255, 255, 0.92);
+    --notification-text: #1f1f1f;
+    --notification-border: #e5e5e5;
+
     --bg-menu: rgba(255, 255, 255, 0.92);
     --text-menu: #333;
     --menu-separator: #9e9e9e;
@@ -104,6 +108,10 @@
     --text-auth-button: white;
     --border-auth-input: #6e7681;
     --border-auth-input-focus: #7eb980;
+
+    --notification-bg: rgba(12, 12, 16, 0.90);
+    --notification-text: #cfd8e3;
+    --notification-border: rgba(255, 255, 255, 0.35);
 
     --bg-menu: rgba(12, 12, 16, 0.80);
     --text-menu: #cfd8e3;

@@ -21,6 +21,7 @@ var (
 		"grab-form.css",
 		"result-rows.css",
 		"player.css",
+		"notifications.css",
 	}.paths
 
 	CssAuthPaths = cssFileNames{

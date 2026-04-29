@@ -1,5 +1,6 @@
 import { shareLink } from './helper.js';
 import { initMenu } from './menu.js';
+import * as notify from './notifications.js';
 
 // Account menu config
 const accountMenuConfig = {
@@ -41,21 +42,25 @@ const rowMenuConfig = {
 
       switch (result.status) {
         case 'shared':
+          notify.show("Link shared", notify.notifyType.SUCCESS);
           console.log('Shared:', result.url);
           break;
 
         case 'copied':
+          notify.show("Link copied", notify.notifyType.SUCCESS);
           console.log('Link copied:', result.url);
           break;
 
         case 'manual':
-          console.log('Manual copy needed:', result.url);
-          alert('Copy this link: ' + result.url);
+          notify.show('Copy this link: ' + result.url, notify.notifyType.INFO, 8000);
+          console.log('Copy this link:', result.url);
+          //alert('Copy this link: ' + result.url);
           break;
 
         case 'error':
+          notify.show("Failed to share link", notify.notifyType.ERROR);
           console.error('Share error:', result.error);
-          alert('Failed to share link');
+          //alert('Failed to share link');
           break;
       }
     },
@@ -68,10 +73,13 @@ const rowMenuConfig = {
 
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(data.url);
+        notify.show("Link copied.", notify.notifyType.SUCCESS);
         console.log('Link copied:', data.url);
       } else {
+        notify.show("Clipboard API not supported", notify.notifyType.ERROR);
+        notify.show('Copy this link: ' + data.url, notify.notifyType.INFO, 8000);
         console.log('Link not copied (Clipboard API not supported):', data.url);
-        alert('Clipboard API not supported');
+        //alert('Clipboard API not supported');
       }
     },
         
