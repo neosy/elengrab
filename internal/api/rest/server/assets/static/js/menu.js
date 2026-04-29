@@ -129,12 +129,12 @@ export function initMenu(config) {
   menu.addEventListener('click', async (e) => {
     if (!menuState.get(menu.id)) return;
 
+    closeMenu(menu, menuOverlay);
+
     const item = e.target.closest('[data-action]');
     if (!item) return;
 
     e.stopPropagation();
-
-    closeMenu(menu, menuOverlay);
 
     try {
       await handleMenuAction(item);

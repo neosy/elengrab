@@ -1,5 +1,12 @@
 # Releases
 
+## v0.18.6 — 2026-04-29
+
+### Feature
+- Support <a> actions in menu and add copy short link item
+
+---
+
 ## v0.18.5 — 2026-04-20
 
 ### Style
@@ -9,7 +16,6 @@
 - Upgrade go to 1.26.2
 
 ---
-
 
 ## v0.18.4 — 2026-04-19
 

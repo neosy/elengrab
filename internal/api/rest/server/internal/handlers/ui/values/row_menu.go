@@ -8,9 +8,10 @@ import (
 )
 
 type rowMenuAction struct {
-	Action  string `json:"action"`
-	Title   string `json:"title"`
-	IconSvg any    `json:"iconSvg,omitempty"`
+	RenderType string `json:"renderType"` // "link" | "action" | "divider"
+	Action     string `json:"action"`
+	Title      string `json:"title"`
+	IconSvg    any    `json:"iconSvg,omitempty"`
 
 	IconFileName   string
 	URL            string
@@ -20,12 +21,19 @@ type rowMenuAction struct {
 }
 
 const (
+	menuActionRenderTypeLink    = "link"
+	menuActionRenderTypeAction  = "action"
+	menuActionRenderTypeDivider = "divider"
+)
+
+const (
 	RowMenuActionFileIdKey = "{fileId}"
 	RowMenuActionURLKey    = "{url}"
 )
 
 var rowMenuActions = []rowMenuAction{
 	{
+		RenderType:     menuActionRenderTypeLink,
 		Action:         "watch",
 		Title:          "Watch in new tab",
 		IconFileName:   "menu-play-icon.svg",
@@ -35,14 +43,7 @@ var rowMenuActions = []rowMenuAction{
 		onlyStatusDone: true,
 	},
 	{
-		Action:         "share-link",
-		Title:          "Share link",
-		IconFileName:   "menu-share-link-icon.svg",
-		URL:            httppaths.GroupDownloader + httppaths.PathFileShortLink,
-		replaceInURL:   RowMenuActionFileIdKey,
-		onlyStatusDone: true,
-	},
-	{
+		RenderType:   menuActionRenderTypeLink,
 		Action:       "open-original",
 		Title:        "Open original in new tab",
 		IconFileName: "menu-external-link-icon.svg",
@@ -50,7 +51,33 @@ var rowMenuActions = []rowMenuAction{
 		NewTab:       true,
 		replaceInURL: RowMenuActionURLKey,
 	},
+
+	{RenderType: menuActionRenderTypeDivider},
+
 	{
+		RenderType:     menuActionRenderTypeAction,
+		Action:         "share-link",
+		Title:          "Share link",
+		IconFileName:   "menu-share-link-icon.svg",
+		URL:            httppaths.GroupDownloader + httppaths.PathFileShortLink,
+		replaceInURL:   RowMenuActionFileIdKey,
+		onlyStatusDone: true,
+	},
+
+	{
+		RenderType:     menuActionRenderTypeAction,
+		Action:         "copy-link",
+		Title:          "Copy short link",
+		IconFileName:   "menu-copy-link-icon.svg",
+		URL:            httppaths.GroupDownloader + httppaths.PathFileShortLink,
+		replaceInURL:   RowMenuActionFileIdKey,
+		onlyStatusDone: true,
+	},
+
+	{RenderType: menuActionRenderTypeDivider},
+
+	{
+		RenderType:   menuActionRenderTypeAction,
 		Action:       "delete",
 		Title:        "Delete",
 		IconFileName: "download-delete-icon.svg",

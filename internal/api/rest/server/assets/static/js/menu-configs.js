@@ -60,6 +60,21 @@ const rowMenuConfig = {
       }
     },
 
+    async copyLink(item) {
+      const res = await fetch(item.dataset.url, { method: 'POST' });
+      if (!res.ok) throw new Error('Request failed');
+
+      const data = await res.json();
+
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(data.url);
+        console.log('Link copied:', data.url);
+      } else {
+        console.log('Link not copied (Clipboard API not supported):', data.url);
+        alert('Clipboard API not supported');
+      }
+    },
+        
     async delete(item) {
       const res = await fetch(item.dataset.url, { method: 'DELETE' });
       if (!res.ok) throw new Error('Request failed');

@@ -63,6 +63,18 @@
     transition: background 0.2s;
 }
 
+.menu-action--link {
+    text-decoration: none;
+    color: inherit;
+    display: block;    
+}
+
+.menu-action__divider {
+    height: 1px;
+    background-color: var(--menu-separator);
+    margin: 6px;
+}
+
 .menu-action__content {
     display: flex;
     gap: 20px;
