@@ -9,10 +9,6 @@
   box-sizing: border-box;
 }
 
-body.ui-blocking-active .menu-overlay--show {
-  display: block;
-}
-
 .menu {
     width: auto;
     max-height: 0;
@@ -46,6 +42,11 @@ body.ui-blocking-active .menu-overlay--show {
 
     background: rgba(0,0,0,0.5);
     z-index: 1100;
+}
+
+body.ui-blocking-active .menu-overlay--show {
+    display: block;
+    background: rgba(0,0,0,0.2);
 }
 
 .menu--show {
@@ -148,6 +149,10 @@ body.ui-blocking-active .menu-overlay--show {
 
     .menu-overlay--show {
         display: block;
+    }
+
+    body.ui-blocking-active .menu-overlay--show {
+        background: rgba(0,0,0,0.5);
     }
 
     .menu-action:not(:last-child) {
