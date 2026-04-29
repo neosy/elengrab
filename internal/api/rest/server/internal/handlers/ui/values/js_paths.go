@@ -56,6 +56,7 @@ var (
 		"constants.js",
 		"cookie.js",
 		"tooltip.js",
+		"notifications.js",
 		"menu.js",
 		"menu-configs.js",
 		"action-buttons.js",

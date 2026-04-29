@@ -1,6 +1,6 @@
 import { DOM_IDS } from "./index-dom-ids.js";
 import { DOM_ELEMENTS } from "./index-dom-elements.js";
-import * as helper from './helper.js';
+import * as notify from './notifications.js';
 
 // -------------------------------------------------------------
 // Handle row-add SSE event with multiple rows in one payload
@@ -152,9 +152,7 @@ export function handleNotification(event) {
         const data = JSON.parse(event.data);
         if (!data.module || !data.type || !data.message) return
 
-        switch (data.module) {
-            case "result-row": helper.showErrorMessage(data.message, DOM_ELEMENTS.resultInfo, DOM_ELEMENTS.resultInfoFailed);
-        }
+        notify.show(data.message, data.type)
     } catch (err) {
         console.error(`SSE ${event.type} handler error:`, err);
     }

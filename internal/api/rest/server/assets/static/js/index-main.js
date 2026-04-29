@@ -8,6 +8,7 @@ import { initIndexMenus as initMenu } from './menu-configs.js';
 import { DOM_IDS } from "./index-dom-ids.js";
 import { DOM_ELEMENTS } from "./index-dom-elements.js";
 import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
+import * as notify from './notifications.js';
 
 // Global variables
 let globalEventSource = null;
@@ -207,6 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const data = JSON.parse(text);
                     if (data && typeof data === "object" && "message" in data) {
                         text = data.message;
+                        notify.show(data.message, notify.notifyType.ERROR);
                     }
                 } catch (e) {
                     // ignore non-JSON
