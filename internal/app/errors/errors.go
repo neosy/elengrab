@@ -8,6 +8,7 @@ import (
 
 var (
 	ErrFuncParamNullPointer    = ierrors.ErrFuncParamNullPointer
+	ErrFuncContainsEmptyFields = ierrors.ErrFuncContainsEmptyFields
 	ErrDownloaderEmptyResponse = exceptions.DOWNLOADER_EMPTY_RESPONSE.NewErrorx(
 		errorx.WithErrorMessage("We couldn't retrieve the data. Please try again later"),
 	).(errorx.Errorx)

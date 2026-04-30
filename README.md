@@ -117,10 +117,11 @@ docker run -d \
 
 | Volume                | Description                                                               |
 | --------------------- | ------------------------------------------------------------------------- |
-| `db:/app_n/sqlite/data`         | Stores SQLite database files.                                             |
-| `db_backups:/app_n/sqlite/backups` | Stores backups of SQLite databases.                                       |
-| `downloads:/app_n/downloads`  | Stores downloaded files.                                                  |
+| `db:/app_n/sqlite/data`         | Stores SQLite database files.                                   |
+| `db_backups:/app_n/sqlite/backups` | Stores backups of SQLite databases.                          |
+| `downloads:/app_n/downloads`  | Stores downloaded files.                                          |
 | `cookies:/app_n/cookies`    | Stores cookie files used by the application (see `ELENGRAB_COOKIES_DIR`). |
+| `media:/app_n/media`    | Stores auxiliary media files such as thumbnails and other resources.    |
 
 ---
 

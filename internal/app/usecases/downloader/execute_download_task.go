@@ -10,6 +10,8 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	dservices "github.com/neosy/elengrab/internal/domain/services"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
@@ -75,7 +77,27 @@ func (uc *Downloader) ExecuteDownloadTask(
 		return err
 	}
 
-	var lastResult, resultBeforeBroadcast, resultProgressBeforeBroadcast *ddownload.DownloadResult
+	var (
+		lastResult, resultBeforeBroadcast, resultProgressBeforeBroadcast *dservices.DownloadResult
+
+		channelProcess, thumbnailProcess sync.Once
+
+		mediaInfoStorage dtypes.MediaInfo
+	)
+
+	mediaInfo := func(srvMediaInfo *dservices.MediaInfo) *dtypes.MediaInfo {
+		if srvMediaInfo == nil {
+			return nil
+		}
+
+		mediaInfo := srvMediaInfo.MediaInfoDomainPtr()
+
+		mediaInfo.ThumbnailID = mediaInfoStorage.ThumbnailID
+		mediaInfo.FrameThumbnailID = mediaInfoStorage.FrameThumbnailID
+
+		return mediaInfo
+	}
+
 	for r := range resultCh {
 		if r.Error != nil {
 			// The context was canceled
@@ -128,42 +150,69 @@ func (uc *Downloader) ExecuteDownloadTask(
 
 		// Adding a record to the YouTube Channel table
 		if lastResult != nil && lastResult.ChannelID != nil && lastResult.Channel != nil {
-			channel, _ := uc.ytChannel.FindByChannelID(ctx, *lastResult.ChannelID)
-			if channel != nil {
-				if time.Since(channel.UpdatedAt) > uc.channelUpdateInterval {
+			channelProcess.Do(func() {
+				channel, _ := uc.ytChannel.FindByChannelID(ctx, *lastResult.ChannelID)
+				if channel != nil {
+					if time.Since(channel.UpdatedAt) > uc.channelUpdateInterval {
+						channel.InitFromChannel(lastResult.Channel)
+						uc.ytChannel.Update(ctx, channel)
+					}
+				} else {
+					channel := &dmedia.YoutubeChannel{
+						ChannelID: *lastResult.ChannelID,
+					}
 					channel.InitFromChannel(lastResult.Channel)
-					uc.ytChannel.Update(ctx, channel)
+					uc.ytChannel.Create(ctx, channel)
 				}
-			} else {
-				channel := &dmedia.YoutubeChannel{
-					ChannelID: *lastResult.ChannelID,
-				}
-				channel.InitFromChannel(lastResult.Channel)
-				uc.ytChannel.Create(ctx, channel)
-			}
+			})
 		}
 
-		state.InitFromDownloadResult(r)
+		if lastResult != nil && lastResult.Thumbnail != nil {
+			thumbnailProcess.Do(func() {
+				req := &dto.CreateThumbnailRequest{
+					SourceType: dtypes.ThumbnailSourceTypeExternal,
+					SourceURL:  &lastResult.Thumbnail.URL,
+					ImageData:  lastResult.Thumbnail,
+				}
+				id, err := uc.thumbnail.Create(ctx, req)
+				if err == nil {
+					mediaInfoStorage.ThumbnailID = &id
+				}
+			})
+		}
+
+		state.InitFromDownloadResult(lastResult, mediaInfo(lastResult.MediaInfo))
 		uc.dlStateCache.Save(
 			ctx,
 			state,
 		)
 
 		if resultProgressBeforeBroadcast == nil {
-			resultProgressBeforeBroadcast = r
+			resultProgressBeforeBroadcast = lastResult
 		}
 
-		if r.MetadataChanged(resultBeforeBroadcast) {
+		if lastResult.MetadataChanged(resultBeforeBroadcast) {
 			uc.broadcastFileUpdate(ctx, task.FileID)
-			resultBeforeBroadcast = r
-		} else if r.ProgressChanged(resultProgressBeforeBroadcast) {
+			resultBeforeBroadcast = lastResult
+		} else if lastResult.ProgressChanged(resultProgressBeforeBroadcast) {
 			uc.broadcastFileProgressUpdate(ctx, task.FileID)
-			resultProgressBeforeBroadcast = r
+			resultProgressBeforeBroadcast = lastResult
 		}
 	}
 
 	if lastResult == nil {
 		return apperrors.ErrDownloaderEmptyResponse
+	}
+
+	if mediaInfo != nil && lastResult.ThumbnailVideoFrame != nil {
+		req := &dto.CreateThumbnailRequest{
+			SourceType: dtypes.ThumbnailSourceTypeVideoFrame,
+			ImageData:  lastResult.ThumbnailVideoFrame,
+		}
+		id, err := uc.thumbnail.Create(ctx, req)
+		if err == nil {
+			mediaInfoStorage.FrameThumbnailID = &id
+		}
 	}
 
 	safeReadableFullName := uptr.String(
@@ -179,7 +228,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 		FileSize:             &lastResult.Filesize,
 		PartialHash:          &lastResult.PartialHash,
 		SafeReadableFullName: safeReadableFullName,
-		MediaInfo:            &lastResult.MediaInfo,
+		MediaInfo:            new(mediaInfo(lastResult.MediaInfo)),
 	}
 
 	err = uc.fileStatus.Done(ctx, task.FileID, patch)

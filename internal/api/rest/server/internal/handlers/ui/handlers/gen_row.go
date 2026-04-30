@@ -21,6 +21,7 @@ type fileRowInfoData struct {
 	PathFileRow      string
 	PathFileRepeat   string
 	YoutubeChannelID string
+	ThumbnailID      string
 	AvatarTitle      string
 	MediaTitle       string
 	MediaURL         string
@@ -68,7 +69,7 @@ func (h *DownloaderHandlers) genRow(
 		}
 	}
 
-	youtubeChannelID := channelIDValueNone
+	var youtubeChannelID string
 	if fileInfo.YoutubeChannelID != nil {
 		youtubeChannelID = *fileInfo.YoutubeChannelID
 	}
@@ -83,10 +84,16 @@ func (h *DownloaderHandlers) genRow(
 		logoVersion = fmt.Sprintf("%d", time.Now().UTC().Unix())
 	}
 
+	var thumbnailID string
+	if fileInfo.MediaInfo != nil && fileInfo.MediaInfo.GetThumbnailID() != nil {
+		thumbnailID = fileInfo.MediaInfo.GetThumbnailID().String()
+	}
+
 	data := fileRowInfoData{
 		FileID:           fileInfo.FileID.String(),
 		MediaURL:         fileInfo.MediaUrl,
 		YoutubeChannelID: youtubeChannelID,
+		ThumbnailID:      thumbnailID,
 		AvatarTitle:      fileInfo.AvatarTitle,
 		MediaTitle:       fileInfo.MediaTitle,
 		PathFileRow:      httppaths.BuildPathFileRow(fileInfo.FileID),

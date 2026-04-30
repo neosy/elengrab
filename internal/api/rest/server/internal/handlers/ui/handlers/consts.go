@@ -25,6 +25,4 @@ const (
 	filterByTitleKey = "title"
 	searchKey        = "search"
 	shortCodeKey     = "shortCode"
-
-	channelIDValueNone = "none"
 )

@@ -3,6 +3,7 @@ package services
 import (
 	"log/slog"
 
+	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
 	ytdlpsrv "github.com/neosy/elengrab/internal/app/services/ytdlp"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
@@ -11,8 +12,7 @@ import (
 type Dependencies struct {
 	DownloaderBinDir string
 	DownloadsDir     string
-
-	YtDlpOptions *dto.Options
+	YtDlpOptions     []dto.Option
 }
 
 type Services struct {
@@ -20,11 +20,17 @@ type Services struct {
 }
 
 func New(logger *slog.Logger, deps *Dependencies) (*Services, error) {
+	ffmpeg, err := ffmpegsrv.NewFFmpegService(logger, "")
+	if err != nil {
+		return nil, err
+	}
+
 	downloader, err := ytdlpsrv.NewYtDlpService(
 		logger,
 		deps.DownloaderBinDir,
 		deps.DownloadsDir,
-		deps.YtDlpOptions,
+		ffmpeg,
+		deps.YtDlpOptions...,
 	)
 	if err != nil {
 		return nil, err

@@ -1,6 +1,9 @@
 package dto
 
-import ddownload "github.com/neosy/elengrab/internal/domain/download"
+import (
+	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
+)
 
 type FileInfoPatch struct {
 	YoutubeChannelID     **string
@@ -11,7 +14,7 @@ type FileInfoPatch struct {
 	FileSize             **int64
 	PartialHash          **string
 	SafeReadableFullName *string
-	MediaInfo            **ddownload.MediaInfo
+	MediaInfo            **dtypes.MediaInfo
 }
 
 func PatchToFileDomain(patch *FileInfoPatch, file *ddownload.File) {

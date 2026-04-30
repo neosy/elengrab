@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"sort"
 
-	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
@@ -16,14 +16,14 @@ var ErrIconNotFound = errors.New("icon not found")
 // It retrieves icon candidates from the site, downloads them in priority order,
 // and returns the first successfully downloaded image.
 // Returns ErrIconNotFound if no valid icon could be retrieved.
-func (lf *SiteIconFetcher) FetchBestIcon(ctx context.Context, siteURL string) (*dmedia.ImageData, error) {
+func (lf *SiteIconFetcher) FetchBestIcon(ctx context.Context, siteURL string) (*dtypes.ImageData, error) {
 	candidates, err := lf.fetchCandidatesFromURL(ctx, siteURL)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, c := range candidates {
-		image, err := lf.downloadImage(ctx, c.url)
+		image, err := lf.fetchImage(ctx, c.url)
 		if err == nil {
 			return image, nil
 		}
@@ -35,16 +35,16 @@ func (lf *SiteIconFetcher) FetchBestIcon(ctx context.Context, siteURL string) (*
 // FetchIcons fetches all available icons for the given site URL.
 // It retrieves icon candidates from the site, downloads each candidate,
 // and returns all successfully downloaded images.
-func (lf *SiteIconFetcher) FetchIcons(ctx context.Context, siteURL string) ([]*dmedia.ImageData, error) {
+func (lf *SiteIconFetcher) FetchIcons(ctx context.Context, siteURL string) ([]*dtypes.ImageData, error) {
 	candidates, err := lf.fetchCandidatesFromURL(ctx, siteURL)
 	if err != nil {
 		return nil, err
 	}
 
 	capHint := min(len(candidates), 4)
-	icons := make([]*dmedia.ImageData, 0, capHint)
+	icons := make([]*dtypes.ImageData, 0, capHint)
 	for _, c := range candidates {
-		icon, err := lf.downloadImage(ctx, c.url)
+		icon, err := lf.fetchImage(ctx, c.url)
 		if err == nil {
 			icons = append(icons, icon)
 		}

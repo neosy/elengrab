@@ -30,16 +30,15 @@ func (h *DownloaderHandlers) genNewRow(
 	pageHasDivItems bool,
 ) *bytes.Buffer {
 	data := newRowData{
-		MediaURL:         fileInfo.URL,
-		YoutubeChannelID: channelIDValueNone,
-		LogoVersion:      fmt.Sprintf("%d", time.Now().UTC().Unix()),
-		DeleteURL:        httppaths.BuildPathFile(httppaths.PathFile, fileInfo.FileID),
-		FileID:           fileInfo.FileID.String(),
-		RowID:            "row-" + fileInfo.FileID.String(),
-		MediaTitle:       fileInfo.URL,
-		PathFileRow:      httppaths.BuildPathFileRow(fileInfo.FileID),
-		FileSize:         "-",
-		Format:           "-",
+		MediaURL:    fileInfo.URL,
+		LogoVersion: fmt.Sprintf("%d", time.Now().UTC().Unix()),
+		DeleteURL:   httppaths.BuildPathFile(httppaths.PathFile, fileInfo.FileID),
+		FileID:      fileInfo.FileID.String(),
+		RowID:       "row-" + fileInfo.FileID.String(),
+		MediaTitle:  fileInfo.URL,
+		PathFileRow: httppaths.BuildPathFileRow(fileInfo.FileID),
+		FileSize:    "-",
+		Format:      "-",
 	}
 
 	dataMap := uivalues.MergeMaps(

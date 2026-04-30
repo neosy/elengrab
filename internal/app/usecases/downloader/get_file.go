@@ -10,6 +10,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dservices "github.com/neosy/elengrab/internal/domain/services"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
@@ -89,7 +90,7 @@ func (uc *Downloader) findActualFileInfoByFile(
 	file *ddownload.File,
 ) (*dto.GetFileInfoResponse, error) {
 	var (
-		dlProgress *ddownload.DownloadProgress
+		dlProgress *dservices.DownloadProgress
 	)
 
 	if file == nil {

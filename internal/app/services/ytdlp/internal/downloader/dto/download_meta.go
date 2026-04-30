@@ -3,26 +3,28 @@ package idto
 import (
 	"sync"
 
-	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 type DownloadMeta struct {
-	URL          string
-	Title        string
-	FileName     string
-	FileExt      string
-	FileFullName string
-	FilePath     string
-	FileSize     *int64
-	ChannelID    *string
-	ChannelURL   string
-	ChannelTitle string
-	MediaInfo    *ddownload.MediaInfo
-	Channel      *ddownload.DownloadChannel
-	Progress     *ddownload.DownloadProgress
-	Options      DownloadOptions
+	URL                 string
+	Title               string
+	FileName            string
+	FileExt             string
+	FileFullName        string
+	FilePath            string
+	FileSize            *int64
+	ChannelID           *string
+	ChannelURL          string
+	ChannelTitle        string
+	MediaInfo           *dservices.MediaInfo
+	Thumbnail           *dtypes.ImageData
+	ThumbnailVideoFrame *dtypes.ImageData
+	Channel             *dtypes.Channel
+	Progress            *dservices.DownloadProgress
+	Options             DownloadOptions
 }
 
 type DownloadOptions struct {
@@ -62,11 +64,13 @@ func (m *SafeDownloadMeta) CopyMeta() *DownloadMeta {
 	metaCopy.Progress = uptr.Copy(m.Meta.Progress)
 	metaCopy.Options.ExtractorArgs = uptr.Copy(m.Meta.Options.ExtractorArgs)
 	metaCopy.Options.Args = m.Meta.Options.Args[0:len(m.Meta.Options.Args):len(m.Meta.Options.Args)]
+	metaCopy.Thumbnail = m.Meta.Thumbnail.Copy()
+	metaCopy.ThumbnailVideoFrame = m.Meta.ThumbnailVideoFrame.Copy()
 
 	return &metaCopy
 }
 
-func (m *SafeDownloadMeta) InitialResult() *ddownload.DownloadResult {
+func (m *SafeDownloadMeta) InitialResult() *dservices.DownloadResult {
 	meta := m.CopyMeta()
 
 	var ext = meta.FileExt
@@ -74,16 +78,18 @@ func (m *SafeDownloadMeta) InitialResult() *ddownload.DownloadResult {
 		ext = meta.MediaInfo.Format.String()
 	}
 
-	return &ddownload.DownloadResult{
-		ChannelID:    meta.ChannelID,
-		MediaTitle:   meta.Title,
-		FilePath:     meta.FilePath,
-		Filename:     meta.FileName,
-		FileExt:      ext,
-		FileFullName: meta.FileFullName,
-		Filesize:     meta.FileSize,
-		MediaInfo:    meta.MediaInfo,
-		Channel:      meta.Channel,
-		Progress:     meta.Progress,
+	return &dservices.DownloadResult{
+		ChannelID:           meta.ChannelID,
+		MediaTitle:          meta.Title,
+		FilePath:            meta.FilePath,
+		Filename:            meta.FileName,
+		FileExt:             ext,
+		FileFullName:        meta.FileFullName,
+		Filesize:            meta.FileSize,
+		MediaInfo:           meta.MediaInfo,
+		Channel:             meta.Channel,
+		Thumbnail:           meta.Thumbnail,
+		ThumbnailVideoFrame: meta.ThumbnailVideoFrame,
+		Progress:            meta.Progress,
 	}
 }

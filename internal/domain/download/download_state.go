@@ -2,6 +2,8 @@ package ddownload
 
 import (
 	"github.com/google/uuid"
+	dservices "github.com/neosy/elengrab/internal/domain/services"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
@@ -11,7 +13,7 @@ type DownloadState struct {
 	TaskID *uuid.UUID
 
 	File     *File
-	Progress *DownloadProgress
+	Progress *dservices.DownloadProgress
 }
 
 // InitFromFile initializes the state from a file.
@@ -34,7 +36,7 @@ func (s *DownloadState) InitFromFile(file *File) {
 }
 
 // InitFromDownloadResult initializes the state from a downloadResult.
-func (s *DownloadState) InitFromDownloadResult(result *DownloadResult) {
+func (s *DownloadState) InitFromDownloadResult(result *dservices.DownloadResult, mediaInfo *dtypes.MediaInfo) {
 	if s == nil {
 		return
 	}
@@ -58,8 +60,8 @@ func (s *DownloadState) InitFromDownloadResult(result *DownloadResult) {
 		s.File.PartialHash = result.PartialHash
 	}
 
-	if result.MediaInfo != nil {
-		s.File.MediaInfo = result.MediaInfo
+	if mediaInfo != nil {
+		s.File.MediaInfo = mediaInfo
 	}
 
 	if result.Progress != nil {

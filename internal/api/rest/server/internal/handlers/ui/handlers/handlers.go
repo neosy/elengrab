@@ -11,6 +11,7 @@ import (
 	authweb "github.com/neosy/elengrab/internal/app/usecases/auth_web"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader"
 	linkweb "github.com/neosy/elengrab/internal/app/usecases/link_web"
+	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
@@ -26,6 +27,7 @@ type DownloaderHandlers struct {
 	authWeb    *authweb.AuthWeb
 	downloader *downloader.Downloader
 	linkWeb    *linkweb.LinkWeb
+	thumbnail  *thumbnail.Thumbnail
 
 	// Options
 	appMode         dtypes.AppMode
@@ -57,6 +59,7 @@ func NewDownloaderHandlers(
 		authWeb:    usecases.AuthWeb,
 		downloader: usecases.Downloader,
 		linkWeb:    usecases.LinkWeb,
+		thumbnail:  usecases.Thumbnail,
 
 		// Options
 		appMode:         appMode,

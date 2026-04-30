@@ -5,24 +5,33 @@ import (
 
 	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
-func (uc *Downloader) GetIcon(
+func (uc *Downloader) GetFileLogo(
 	ctx context.Context,
 	userCtx dauth.UserContext,
 	fileID uuid.UUID,
-) (*dmedia.ImageData, error) {
+) (*dtypes.ImageData, error) {
 	resp, err := uc.GetFileInfo(ctx, userCtx, fileID)
 	if err != nil {
 		return nil, err
 	}
 
+	if resp.MediaInfo != nil && resp.MediaInfo.GetThumbnailID() != nil {
+		thumbnail, _ := uc.thumbnail.GetByThumbID(ctx, *resp.MediaInfo.GetThumbnailID())
+		if thumbnail != nil {
+			if imageData := thumbnail.ImageData(); imageData != nil {
+				return imageData, nil
+			}
+		}
+	}
+
 	if resp.YoutubeChannelID != nil {
 		channel, _ := uc.FindYoutubeChannelInfo(ctx, *resp.YoutubeChannelID)
 		if channel != nil && len(channel.ImageRaw) > 0 {
-			return &dmedia.ImageData{
+			return &dtypes.ImageData{
 				Raw:    channel.ImageRaw,
 				Format: channel.ImageFormat,
 			}, nil

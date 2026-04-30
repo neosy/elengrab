@@ -49,11 +49,11 @@ func (m *Mappers) MapFileDomainToEntity(file *ddownload.File) (*edownload.File, 
 }
 
 func (m *Mappers) MapFileEntityToDomain(eFile *edownload.File, eTask *edownload.DownloadTask) (*ddownload.File, error) {
-	var mediaInfo *ddownload.MediaInfo
+	var mediaInfo *dtypes.MediaInfo
 	if eFile.MediaInfo != nil {
 		mediaInfoJson := *eFile.MediaInfo
 		if mediaInfoJson != "" {
-			mediaInfo = &ddownload.MediaInfo{}
+			mediaInfo = &dtypes.MediaInfo{}
 			err := json.Unmarshal([]byte(mediaInfoJson), mediaInfo)
 			if err != nil {
 				return nil, err

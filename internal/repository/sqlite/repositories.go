@@ -25,6 +25,7 @@ type Repositories struct {
 	DownloadTask   persistence.DownloadTaskRepository
 	YoutubeChannel persistence.YoutubeChannelRepository
 	SiteLogo       persistence.SiteLogoRepository
+	Thumbnail      persistence.ThumbnailRepository
 
 	Link      persistence.LinkRepository
 	LickClick persistence.LinkClickRepository
@@ -61,6 +62,7 @@ func New(dbByName map[persistence.DBName]*sql.DB) *Repositories {
 
 		YoutubeChannel: media.NewYoutubeChannelRepository(mediaDB, lockByDBName[persistence.DBMediaName]),
 		SiteLogo:       media.NewSiteLogoRepository(mediaDB, lockByDBName[persistence.DBMediaName]),
+		Thumbnail:      media.NewThumbnailRepository(mediaDB, lockByDBName[persistence.DBMediaName]),
 
 		Link:      link.NewLinkRepository(linkDB, lockByDBName[persistence.DBLinkName]),
 		LickClick: link.NewLinkClickRepository(linkDB, lockByDBName[persistence.DBLinkName]),
