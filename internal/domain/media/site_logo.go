@@ -4,19 +4,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
-
-type ImageData struct {
-	// URL of the image
-	URL string
-
-	// Raw image data (binary)
-	Raw []byte
-
-	// Format of the image (jpg, png, webp)
-	Format string
-}
 
 type SiteLogo struct {
 	// Unique ID for the logo
@@ -35,7 +25,7 @@ type SiteLogo struct {
 	ImageRaw []byte
 
 	// Format of the image (jpg, png, webp)
-	ImageFormat string
+	ImageFormat dtypes.ImageFormat
 
 	// Timestamp when the record was created
 	CreatedAt time.Time
@@ -45,21 +35,21 @@ type SiteLogo struct {
 }
 
 // NewSiteLogo creates a new SiteLogo record with the required fields.
-func NewSiteLogo(siteURL string, siteTitle string, imgData *ImageData) *SiteLogo {
+func NewSiteLogo(siteURL string, siteTitle string, imgData *dtypes.ImageData) *SiteLogo {
 	siteLogo := &SiteLogo{}
 	siteLogo.SetRequired(siteURL, siteTitle, imgData)
 	return siteLogo
 }
 
 // SetRequired sets the required fields for a SiteLogo record.
-func (l *SiteLogo) SetRequired(siteURL string, siteTitle string, imgData *ImageData) {
+func (l *SiteLogo) SetRequired(siteURL string, siteTitle string, imgData *dtypes.ImageData) {
 	l.SiteURL = siteURL
 	l.SiteTitle = siteTitle
 	l.SetImage(imgData)
 }
 
 // SetImage sets the image data for a SiteLogo record.
-func (l *SiteLogo) SetImage(imgData *ImageData) {
+func (l *SiteLogo) SetImage(imgData *dtypes.ImageData) {
 	if imgData != nil {
 		l.ImageURL = imgData.URL
 		l.ImageRaw = imgData.Raw
@@ -67,12 +57,12 @@ func (l *SiteLogo) SetImage(imgData *ImageData) {
 	} else {
 		l.ImageURL = ""
 		l.ImageRaw = nil
-		l.ImageFormat = ""
+		l.ImageFormat = dtypes.ImageFormatUnknown
 	}
 }
 
-func (l *SiteLogo) ImageData() *ImageData {
-	return &ImageData{
+func (l *SiteLogo) ImageData() *dtypes.ImageData {
+	return &dtypes.ImageData{
 		URL:    l.ImageURL,
 		Raw:    l.ImageRaw,
 		Format: l.ImageFormat,

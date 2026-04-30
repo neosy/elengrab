@@ -2,6 +2,8 @@ package statich
 
 import (
 	handlers "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/static/handlers"
+	"github.com/neosy/elengrab/internal/app/usecases/downloader"
+	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
 )
 
 type StaticHandlers struct {
@@ -10,8 +12,12 @@ type StaticHandlers struct {
 
 func NewStaticHandlers(
 	assetsDir string,
+
+	// usecases
+	thumbnail *thumbnail.Thumbnail,
+	downloader *downloader.Downloader,
 ) *StaticHandlers {
 	return &StaticHandlers{
-		Static: handlers.NewStaticHandlers(assetsDir),
+		Static: handlers.NewStaticHandlers(assetsDir, thumbnail, downloader),
 	}
 }

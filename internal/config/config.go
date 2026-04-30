@@ -49,6 +49,7 @@ type ElengrabConfig struct {
 
 	RootDir      string `env:"ROOT_DIR" envDefault:""`
 	AssetsDir    string `env:"ASSETS_DIR" envDefault:"assets"`
+	MediaDir     string `env:"MEDIA_DIR" envDefault:"media"`
 	DownloadsDir string `env:"DOWNLOADS_DIR" envDefault:"downloads"`
 	// CookiesDir defines the directory where cookies are stored.
 	// Default is "cookies".

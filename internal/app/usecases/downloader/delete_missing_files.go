@@ -100,6 +100,7 @@ func (uc *Downloader) deleteMissingFiles(ctx context.Context) error {
 				uc.logger.Warn("Failed to hard delete", "fileID", file.FileID, "error", err)
 				continue
 			}
+			uc.deleteThumbnails(ctx, file)
 			uc.logger.Debug("Hard deleting file from database", "fileId", file.FileID, "fileName", file.FullName)
 			continue
 		}

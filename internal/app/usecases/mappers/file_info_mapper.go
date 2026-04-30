@@ -6,6 +6,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
@@ -13,7 +14,7 @@ import (
 func (m *Mappers) MapFileDomainToFileInfoResponse(
 	file *ddownload.File,
 	avatarTitle string,
-	progress *ddownload.DownloadProgress,
+	progress *dservices.DownloadProgress,
 	downloadsDir string,
 	hasSiteIcon bool,
 ) *dto.GetFileInfoResponse {
@@ -61,7 +62,7 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 	}
 }
 
-func mediaInfoText(mediaInfo *ddownload.MediaInfo) string {
+func mediaInfoText(mediaInfo *dtypes.MediaInfo) string {
 	if mediaInfo == nil {
 		return ""
 	}
@@ -78,7 +79,7 @@ func mediaInfoText(mediaInfo *ddownload.MediaInfo) string {
 			text += fmt.Sprintf(", %v", videoInfo.Resolution)
 		}
 		if videoInfo.Width != 0 && videoInfo.Height != 0 {
-			text += fmt.Sprintf(", %dx%d", videoInfo.Width, videoInfo.Height)
+			text += fmt.Sprintf(", %v", videoInfo.ResolutionString())
 		}
 		if text != "" {
 			parts = append(parts, text)

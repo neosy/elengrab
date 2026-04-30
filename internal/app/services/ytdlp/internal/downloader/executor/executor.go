@@ -14,14 +14,14 @@ type Executor struct {
 
 	// parameters
 	ytDlpPath      string
-	serviceOptions *dto.Options
+	serviceOptions dto.Options
 }
 
 func NewExecutor(
 	logger *slog.Logger,
 	formatCache *formatcache.FormatCache,
 	ytDlpPath string,
-	serviceOptions *dto.Options,
+	serviceOptions dto.Options,
 ) *Executor {
 	return &Executor{
 		logger:         logger,

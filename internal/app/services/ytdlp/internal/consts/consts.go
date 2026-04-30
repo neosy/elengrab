@@ -3,9 +3,8 @@ package consts
 import "time"
 
 const (
-	YtDlpName  = "yt-dlp"
-	FFmpegName = "ffmpeg"
-	DenoName   = "deno"
+	YtDlpName = "yt-dlp"
+	DenoName  = "deno"
 
 	YtDlpTempDir               = ".yt-dlp"
 	YtDlpCacheDir              = ".yt-dlp/cache"

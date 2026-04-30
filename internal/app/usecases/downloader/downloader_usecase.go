@@ -17,11 +17,13 @@ import (
 	ytchannel "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/youtube_channel"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/mappers"
+	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
+	"github.com/neosy/elengrab/internal/ports/storage"
 )
 
 type Downloader struct {
@@ -45,8 +47,11 @@ type Downloader struct {
 	siteIconFetcher *iconfetcher.SiteIconFetcher
 	authz           *authz.Authorization
 
-	//broadcasters
+	// broadcasters
 	broadcaster *broadcaster.Broadcaster
+
+	// usecases
+	thumbnail *thumbnail.Thumbnail
 
 	// services
 	downloaderSrv pservices.Downloader
@@ -69,14 +74,21 @@ func NewDownloader(
 	dlTaskRep persistence.DownloadTaskRepository,
 	ytChannelRep persistence.YoutubeChannelRepository,
 	siteLogoRep persistence.SiteLogoRepository,
+	thumbnailRep persistence.ThumbnailRepository,
 
 	// in memory
 	downloadStateCacheRep persistence.DownloadStateCacheRepository,
 	ytChannelCacheRep persistence.YoutubeChannelCacheRepository,
 	siteLogoCacheRep persistence.SiteLogoCacheRepository,
 
+	// storages
+	thumbnailStorage storage.ThumbnailsStorage,
+
 	// dispetchers
 	dlDispetcher nworkerpool.JobDispatcher,
+
+	// usecases
+	thumbnail *thumbnail.Thumbnail,
 
 	// services
 	downloaderSrv pservices.Downloader,
@@ -123,8 +135,11 @@ func NewDownloader(
 		siteIconFetcher: iconfetcher.NewSiteIconFetcher(logger),
 		authz:           authz.NewAuthorization(logger, appMode),
 
-		//broadcasters
+		// broadcasters
 		broadcaster: broadcaster.NewBroadcaster(),
+
+		// usecases
+		thumbnail: thumbnail,
 
 		// services
 		downloaderSrv: downloaderSrv,

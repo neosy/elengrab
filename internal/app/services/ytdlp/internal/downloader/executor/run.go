@@ -16,7 +16,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
-	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dservices "github.com/neosy/elengrab/internal/domain/services"
 	"github.com/neosy/elengrab/internal/pkg/syncx"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
@@ -25,7 +25,7 @@ func (e *Executor) RunYtDlp(
 	ctx context.Context,
 	url string,
 	meta *idto.DownloadMeta,
-	onProgressUpdate func(ddownload.DownloadProgress),
+	onProgressUpdate func(dservices.DownloadProgress),
 ) ([]byte, error) {
 	var (
 		done      = syncx.NewDoneSignal()

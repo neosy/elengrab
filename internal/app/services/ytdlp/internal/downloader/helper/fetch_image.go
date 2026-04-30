@@ -1,0 +1,39 @@
+package helper
+
+import (
+	"context"
+
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
+	"github.com/neosy/elengrab/internal/pkg/imgx"
+)
+
+// FetchImage downloads an image from the given URL and returns it.
+func FetchImage(ctx context.Context, imgURL string) (*dtypes.ImageData, error) {
+	raw, format, err := httpx.FetchImage(
+		ctx,
+		imgURL,
+		httpx.GetOptions{Limit: limitImage},
+		httpx.ClientOptionWithTimeout(fetchImageTimeout),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	imageFormat, err := dtypes.ParseImageFormat(format)
+	if err != nil {
+		return nil, err
+	}
+
+	size, _ := imgx.ImageSize(raw)
+
+	return &dtypes.ImageData{
+		URL:    imgURL,
+		Format: imageFormat,
+
+		Width:  size.Width,
+		Height: size.Height,
+
+		Raw: raw,
+	}, nil
+}

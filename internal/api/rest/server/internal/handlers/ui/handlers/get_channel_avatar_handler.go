@@ -4,24 +4,18 @@ import (
 	"path/filepath"
 
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) GetChannelAvatarHandler(ctx *fasthttp.RequestCtx) {
 	channelID := ctx.UserValue(channelIDKey).(string)
-	if channelID == "" {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("channelID is required", fasthttp.StatusBadRequest))
-		return
-	}
 
-	if channelID != channelIDValueNone {
+	if channelID != "" {
 		channelInfo, _ := h.downloader.FindYoutubeChannelInfo(ctx, channelID)
 
 		if channelInfo != nil && len(channelInfo.ImageRaw) > 0 {
-			ctx.SetContentType(httpx.ContentTypeByExt(channelInfo.ImageFormat))
+			ctx.SetContentType(httpx.ContentTypeByExt(channelInfo.ImageFormat.String()))
 			ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
 			ctx.SetBody(channelInfo.ImageRaw)
 			ctx.SetStatusCode(fasthttp.StatusOK)

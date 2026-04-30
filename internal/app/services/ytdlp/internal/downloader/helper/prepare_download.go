@@ -8,8 +8,7 @@ import (
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/ffmpeg"
-	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/fnx"
 )
@@ -20,7 +19,7 @@ func PrepareDownload(
 	url string,
 	dlOptions idto.DLOptions,
 	bestFormat func(ctx context.Context, url string, format string, opts ...executor.Option) (*idto.MediaInfo, error),
-) (args []string, fileExt string, dtoMediaInfo *idto.MediaInfo, mediaInfo *ddownload.MediaInfo, err error) {
+) (args []string, fileExt string, dtoMediaInfo *idto.MediaInfo, mediaInfo *dservices.MediaInfo, err error) {
 	var (
 		outVideoCodec = dtypes.VideoCodecNone
 		outAudioCodec = dtypes.AudioCodecNone
@@ -187,11 +186,11 @@ func PrepareDownload(
 			if needConvert {
 				videoCodecArgs := "copy"
 				if videoScaleArgs != "" {
-					videoCodecArgs = ffmpeg.VideoEncoderArgs(outVideoCodec)
+					videoCodecArgs = VideoEncoderArgs(outVideoCodec)
 				}
 				audioCodecArgs := "copy"
 				if outVideoFormat == dtypes.VideoFormatWebM {
-					audioCodecArgs = ffmpeg.AudioEncoderArgs(dtypes.AudioCodecOPUS)
+					audioCodecArgs = AudioEncoderArgs(dtypes.AudioCodecOPUS)
 				}
 				ffmpegArgs = fmt.Sprintf(
 					"%s -c:v %s -c:a %s",
@@ -208,11 +207,11 @@ func PrepareDownload(
 			if needConvert {
 				videoCodecArgs := "copy"
 				if isVideoScale || srcVideoCodec != dtypes.VideoCodecAV1 {
-					videoCodecArgs = ffmpeg.VideoEncoderArgs(outVideoCodec)
+					videoCodecArgs = VideoEncoderArgs(outVideoCodec)
 				}
 				audioCodecArgs := "copy"
 				if outVideoFormat == dtypes.VideoFormatWebM {
-					audioCodecArgs = ffmpeg.AudioEncoderArgs(dtypes.AudioCodecOPUS)
+					audioCodecArgs = AudioEncoderArgs(dtypes.AudioCodecOPUS)
 				}
 				ffmpegArgs = fmt.Sprintf(
 					"%s -c:v %s -c:a %s",
@@ -229,8 +228,8 @@ func PrepareDownload(
 			outVideoCodec = dtypes.VideoCodecH264
 			needConvert := isVideoScale || outVideoCodec != srcVideoCodec
 			if needConvert {
-				videoCodecArgs := ffmpeg.VideoEncoderArgs(outVideoCodec)
-				audioCodecArgs := ffmpeg.AudioEncoderArgs(dtypes.AudioCodecAAC)
+				videoCodecArgs := VideoEncoderArgs(outVideoCodec)
+				audioCodecArgs := AudioEncoderArgs(dtypes.AudioCodecAAC)
 				ffmpegArgs = fmt.Sprintf(
 					"%s -c:v %s -c:a %s",
 					videoScaleArgs,
@@ -242,8 +241,8 @@ func PrepareDownload(
 			outVideoCodec = dtypes.VideoCodecH265
 			needConvert := isVideoScale || outVideoCodec != srcVideoCodec
 			if needConvert {
-				videoCodecArgs := ffmpeg.VideoEncoderArgs(outVideoCodec)
-				audioCodecArgs := ffmpeg.AudioEncoderArgs(dtypes.AudioCodecAAC)
+				videoCodecArgs := VideoEncoderArgs(outVideoCodec)
+				audioCodecArgs := AudioEncoderArgs(dtypes.AudioCodecAAC)
 				ffmpegArgs = fmt.Sprintf(
 					"%s -c:v %s -c:a %s",
 					videoScaleArgs,
@@ -360,7 +359,7 @@ func PrepareDownload(
 		fileExt = outAudioFormat.FileFormat().Ext()
 	}
 
-	mediaInfo = &ddownload.MediaInfo{
+	mediaInfo = &dservices.MediaInfo{
 		FormatType: dlOptions.FormatType,
 		Format:     dtypes.MapFileExtToFileFormat(fileExt),
 		VideoInfo:  nil,
@@ -369,7 +368,7 @@ func PrepareDownload(
 
 	if dtoMediaInfo != nil && len(dtoMediaInfo.Formats) > 0 {
 		if outVideoCodec != dtypes.VideoCodecNone {
-			mediaInfo.VideoInfo = &ddownload.VideoInfo{
+			mediaInfo.VideoInfo = &dtypes.VideoInfo{
 				Codec: outVideoCodec,
 				Resolution: dtypes.ParseVideoResolutionWH(
 					uint16(mediaFormat.Width),
@@ -381,7 +380,7 @@ func PrepareDownload(
 			}
 		}
 		if outAudioCodec != dtypes.AudioCodecNone {
-			mediaInfo.AudioInfo = &ddownload.AudioInfo{
+			mediaInfo.AudioInfo = &dtypes.AudioInfo{
 				Codec:      outAudioCodec,
 				Bitrate:    int(mediaFormat.Abr),
 				SampleRate: mediaFormat.Asr,

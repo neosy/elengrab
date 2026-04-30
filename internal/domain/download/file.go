@@ -46,7 +46,7 @@ type File struct {
 	SafeReadableFullName string
 
 	// MediaInfo holds media metadata.
-	MediaInfo *MediaInfo
+	MediaInfo *dtypes.MediaInfo
 
 	// Error message
 	ErrorMessage *string

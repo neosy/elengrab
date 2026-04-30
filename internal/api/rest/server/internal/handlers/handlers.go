@@ -31,7 +31,11 @@ type Handlers struct {
 
 func New(logger *slog.Logger, deps *Dependencies) *Handlers {
 	return &Handlers{
-		Static: statich.NewStaticHandlers(deps.AssetsDir),
+		Static: statich.NewStaticHandlers(
+			deps.AssetsDir,
+			deps.Usecases.Thumbnail,
+			deps.Usecases.Downloader,
+		),
 		UI: uih.NewUIHandlers(
 			logger,
 			deps.Usecases,

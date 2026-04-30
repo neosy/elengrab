@@ -10,7 +10,7 @@ import (
 	nfile "github.com/neosy/elengrab/internal/pkg/file"
 )
 
-func addYouTubeCookiesToArgs(logger *slog.Logger, args []string, serviceOptions *dto.Options) []string {
+func addYouTubeCookiesToArgs(logger *slog.Logger, args []string, serviceOptions dto.Options) []string {
 	// Check if cookies are allowed in the service options
 	if serviceOptions.YoutubeAllowCookies {
 		path, err := ensureYouTubeCookiePath(serviceOptions.CookiesDir)

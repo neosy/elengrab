@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/exceptions"
 )
@@ -105,10 +106,14 @@ func (uc *Downloader) DeleteFile(
 		return err
 	}
 
+	go func() {
+		uc.deleteThumbnails(ctx, file)
+	}()
+
 	if needDeleteFileOnStorage && fileFullName != "" {
 		fPath := filepath.Join(uc.downloadsDir, fileFullName)
 		go func(path string) {
-			err := uc.deleteWithRetry(ctx, path, 10, 5*time.Second)
+			err := uc.deleteFileWithRetry(ctx, path, 10, 5*time.Second)
 			if err != nil {
 				uc.logger.Warn("Failed delete file", "filePath", fPath, "error", err)
 			}
@@ -119,8 +124,8 @@ func (uc *Downloader) DeleteFile(
 	return nil
 }
 
-// deleteWithRetry attempts to delete a file at the specified path with retries.
-func (uc *Downloader) deleteWithRetry(ctx context.Context, path string, retries int, retryDelay time.Duration) error {
+// deleteFileWithRetry attempts to delete a file at the specified path with retries.
+func (uc *Downloader) deleteFileWithRetry(ctx context.Context, path string, retries int, retryDelay time.Duration) error {
 	var err error
 	for range retries {
 		err = os.Remove(path)
@@ -138,4 +143,18 @@ func (uc *Downloader) deleteWithRetry(ctx context.Context, path string, retries 
 
 	}
 	return err
+}
+
+func (uc *Downloader) deleteThumbnails(ctx context.Context, file *ddownload.File) {
+	if file == nil || file.MediaInfo == nil {
+		return
+	}
+
+	if file.MediaInfo.ThumbnailID != nil {
+		uc.thumbnail.Delete(ctx, *file.MediaInfo.ThumbnailID)
+	}
+
+	if file.MediaInfo.FrameThumbnailID != nil {
+		uc.thumbnail.Delete(ctx, *file.MediaInfo.FrameThumbnailID)
+	}
 }

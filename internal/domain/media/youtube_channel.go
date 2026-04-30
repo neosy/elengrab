@@ -3,7 +3,8 @@ package dmedia
 import (
 	"time"
 
-	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/imgx"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
@@ -24,7 +25,7 @@ type YoutubeChannel struct {
 	ImageRaw []byte
 
 	// Format of the image (jpg, png, webp)
-	ImageFormat string
+	ImageFormat dtypes.ImageFormat
 
 	// Timestamp when the record was created
 	CreatedAt time.Time
@@ -33,7 +34,7 @@ type YoutubeChannel struct {
 	UpdatedAt time.Time
 }
 
-func (c *YoutubeChannel) InitFromChannel(channel *ddownload.DownloadChannel) {
+func (c *YoutubeChannel) InitFromChannel(channel *dtypes.Channel) {
 	if channel != nil {
 		c.ChannelURL = channel.URL
 		c.ChannelTitle = channel.Title
@@ -45,16 +46,37 @@ func (c *YoutubeChannel) InitFromChannel(channel *ddownload.DownloadChannel) {
 	}
 }
 
-func (src *YoutubeChannel) Copy() *YoutubeChannel {
-	if src == nil {
+func (c *YoutubeChannel) Copy() *YoutubeChannel {
+	if c == nil {
 		return nil
 	}
 
-	copy := uptr.Copy(src)
+	copy := uptr.Copy(c)
 
-	if len(src.ImageRaw) > 1 {
-		copy.ImageRaw = append([]byte{}, src.ImageRaw...)
+	if len(c.ImageRaw) > 1 {
+		copy.ImageRaw = append([]byte{}, c.ImageRaw...)
 	}
 
 	return copy
+}
+
+func (c *YoutubeChannel) ImageData() *dtypes.ImageData {
+	if c == nil {
+		return nil
+	}
+
+	if len(c.ImageRaw) == 0 {
+		return nil
+	}
+
+	// decode
+	size, _ := imgx.ImageSize(c.ImageRaw)
+
+	return &dtypes.ImageData{
+		URL:    c.ImageURL,
+		Format: c.ImageFormat,
+		Raw:    c.ImageRaw,
+		Width:  size.Width,
+		Height: size.Height,
+	}
 }

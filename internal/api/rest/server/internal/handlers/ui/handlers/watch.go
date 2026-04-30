@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	iconfig "github.com/neosy/elengrab/internal/config"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/neosy/elengrab/internal/pkg/fnx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
@@ -52,11 +53,12 @@ func (h *DownloaderHandlers) watch(
 		contentType = httpx.ContentTypeByExt(ext)
 
 		if videoInfo := fileInfo.MediaInfo.VideoInfo; videoInfo != nil {
-			videoQuality = fmt.Sprintf(
-				"%v • %v",
-				strings.ToUpper(videoInfo.Codec.String()),
-				videoInfo.Resolution,
-			)
+			qValues := []string{strings.ToUpper(videoInfo.Codec.String())}
+			if videoInfo.Resolution != dtypes.VideoResolutionNone {
+				qValues = append(qValues, videoInfo.Resolution.String())
+			}
+			qValues = append(qValues, videoInfo.ResolutionString())
+			videoQuality = strings.Join(qValues, " • ")
 			videoWidth = videoInfo.Width
 			videoHeight = videoInfo.Height
 		}
@@ -76,9 +78,37 @@ func (h *DownloaderHandlers) watch(
 
 	const disableMediaType = true
 	mediaURL := h.baseURL + streamPath
-	imageURL := h.baseURL + uivalues.ImageHttpPath(uivalues.Elengrab1280ImageJpgFileName)
 	prefixType := fnx.Ternary(isVideoPlayer, "video", "audio")
 	description := fileInfo.MediaTitle + fmt.Sprintf(" [%s]", fileInfo.MediaInfoText)
+
+	var imageData *dtypes.ImageData
+	if fileInfo.MediaInfo != nil && fileInfo.MediaInfo.GetThumbnailID() != nil {
+		thumbnail, _ := h.thumbnail.GetInfoByThumbID(ctx, *fileInfo.MediaInfo.GetThumbnailID())
+		if thumbnail != nil {
+			imageData = thumbnail.ImageData()
+		}
+		if imageData != nil {
+			imageData.URL = h.baseURL + uivalues.ThumbnailHttpPath(thumbnail.ThumbID.String())
+		}
+	}
+
+	if imageData == nil && fileInfo.YoutubeChannelID != nil {
+		channel, _ := h.downloader.FindYoutubeChannelInfo(ctx, *fileInfo.YoutubeChannelID)
+		if channel != nil && len(channel.ImageRaw) > 0 {
+			imageData = channel.ImageData()
+		}
+		if imageData != nil {
+			imageData.URL = h.baseURL + uivalues.YoutubeChannelHttpPath(channel.ChannelID)
+		}
+	}
+
+	if imageData == nil || imageData.Width < 120 {
+		imageData = &dtypes.ImageData{
+			URL:    h.baseURL + uivalues.ImageHttpPath(uivalues.Elengrab1280ImageJpgFileName),
+			Width:  1280,
+			Height: 720,
+		}
+	}
 
 	metaOgItems := make(uivalues.MetaOgItems, 0, 20)
 	metaOgItems.Add("site_name", iconfig.AppName)
@@ -90,11 +120,13 @@ func (h *DownloaderHandlers) watch(
 	metaOgItems.Add("title", fileInfo.MediaTitle)
 	metaOgItems.Add("description", description)
 	metaOgItems.Add("url", pageURL)
-	metaOgItems.Add("image", imageURL)
-	metaOgItems.Add("image:secure_url", imageURL)
-	metaOgItems.Add("image:type", httpx.ContentTypeFromPath(imageURL))
-	metaOgItems.Add("image:width", "1280")
-	metaOgItems.Add("image:height", "720")
+	metaOgItems.Add("image", imageData.URL)
+	metaOgItems.Add("image:secure_url", imageData.URL)
+	metaOgItems.Add("image:type", httpx.ContentTypeFromPath(imageData.URL))
+	if imageData.Width != 0 && imageData.Height != 0 {
+		metaOgItems.Add("image:width", strconv.Itoa(imageData.Width))
+		metaOgItems.Add("image:height", strconv.Itoa(imageData.Height))
+	}
 	metaOgItems.Add("image:alt", "Elengrab logo")
 
 	if !disableMediaType {
@@ -113,7 +145,7 @@ func (h *DownloaderHandlers) watch(
 	metaNameItems.Add("twitter:card", "summary_large_image")
 	metaNameItems.Add("twitter:title", fileInfo.MediaTitle)
 	metaNameItems.Add("twitter:description", description)
-	metaNameItems.Add("twitter:image", imageURL)
+	metaNameItems.Add("twitter:image", imageData.URL)
 
 	baseValues := uivalues.NewBaseValues()
 	baseValues.Title = fileInfo.MediaTitle

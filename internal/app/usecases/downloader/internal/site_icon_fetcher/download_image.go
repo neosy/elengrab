@@ -3,13 +3,13 @@ package iconfetcher
 import (
 	"context"
 
-	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
-// downloadImage downloads an image from the given URL and returns it.
-func (lf *SiteIconFetcher) downloadImage(ctx context.Context, imgURL string) (*dmedia.ImageData, error) {
-	data, format, err := httpx.GetImage(
+// fetchImage downloads an image from the given URL and returns it.
+func (lf *SiteIconFetcher) fetchImage(ctx context.Context, imgURL string) (*dtypes.ImageData, error) {
+	data, format, err := httpx.FetchImage(
 		ctx,
 		imgURL,
 		httpx.GetOptions{Limit: limitImage},
@@ -18,9 +18,20 @@ func (lf *SiteIconFetcher) downloadImage(ctx context.Context, imgURL string) (*d
 	if err != nil {
 		return nil, err
 	}
-	return &dmedia.ImageData{
+
+	imageFormat, err := dtypes.ParseImageFormat(format)
+	if err != nil {
+		lf.logger.Warn(
+			"Failed to parse image format",
+			"format", format,
+			"error", err,
+		)
+		return nil, err
+	}
+
+	return &dtypes.ImageData{
 		URL:    imgURL,
 		Raw:    data,
-		Format: format,
+		Format: imageFormat,
 	}, nil
 }
