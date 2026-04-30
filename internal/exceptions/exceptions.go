@@ -14,6 +14,11 @@ var (
 		exceptionx.WithMessage("function parameter is a null pointer"),
 		exceptionx.WithHTTPStatus(fasthttp.StatusInternalServerError),
 	)
+	FUNCTION_CONTAINS_EMPTY_FIELDS = exceptions.AddSeq(
+		"FUNCTION_CONTAINS_EMPTY_FIELDS",
+		exceptionx.WithMessage("function parameter contains empty fields"),
+		exceptionx.WithHTTPStatus(fasthttp.StatusInternalServerError),
+	)
 	QUERY_RETURNED_EMPTY_RESULT = exceptions.AddSeq(
 		"QUERY_RETURNED_EMPTY_RESULT",
 		exceptionx.WithMessage("a system error. The query returned an empty pointer"),
@@ -59,5 +64,10 @@ var (
 		"QUEUE_PUBLISH_FAILED",
 		exceptionx.WithMessage("failed to enqueue download task"),
 		exceptionx.WithHTTPStatus(fasthttp.StatusServiceUnavailable),
+	)
+	THUMBNAIL_NOT_FOUND = exceptions.AddSeq(
+		"THUMBNAIL_NOT_FOUND",
+		exceptionx.WithMessage("Thumbnail not found"),
+		exceptionx.WithHTTPStatus(fasthttp.StatusNotFound),
 	)
 )

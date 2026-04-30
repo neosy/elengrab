@@ -3,7 +3,6 @@ package ytdlpsrv
 import (
 	"context"
 
-	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 )
 
@@ -12,9 +11,9 @@ func (srv *YtDlpService) Download(
 	ctx context.Context,
 	url string,
 	options *dservices.DownloadOptions,
-) (<-chan *ddownload.DownloadResult, error) {
+) (<-chan *dservices.DownloadResult, error) {
 	// Create a full channel (read/write)
-	resultCh := make(chan *ddownload.DownloadResult)
+	resultCh := make(chan *dservices.DownloadResult)
 
 	// Launch the goroutine that writes into the channel
 	go func() {

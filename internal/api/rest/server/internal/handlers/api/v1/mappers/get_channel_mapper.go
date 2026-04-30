@@ -9,6 +9,6 @@ func (m *Mappers) MapChannelDomainToResponse(channel *dmedia.YoutubeChannel) (*d
 	return &dto.GetChannelByIDResponse{
 		ChannelID:   channel.ChannelID,
 		ImageURL:    channel.ImageURL,
-		ImageFormat: channel.ImageFormat,
+		ImageFormat: channel.ImageFormat.String(),
 	}, nil
 }

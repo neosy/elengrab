@@ -1,6 +1,10 @@
 package helper
 
-import dtypes "github.com/neosy/elengrab/internal/domain/types"
+import (
+	"time"
+
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
+)
 
 const (
 	formatTypeDefault = dtypes.FormatTypeVideoAudio
@@ -17,4 +21,7 @@ const (
 	audioQualityAACBitrateDefault  = "160k"
 	audioQualityOPUSDefault        = "160k"
 	audioQualityFLACBitrateDefault = 965
+
+	limitImage        = 4096 << 10 // 4096 KB
+	fetchImageTimeout = 3 * time.Second
 )

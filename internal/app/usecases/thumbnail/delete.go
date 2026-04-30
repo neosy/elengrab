@@ -1,0 +1,56 @@
+package thumbnail
+
+import (
+	"context"
+
+	"github.com/google/uuid"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+)
+
+func (t *Thumbnail) Delete(ctx context.Context, thumbID uuid.UUID) error {
+	thumbnail, err := t.store.GetByThumbID(ctx, thumbID)
+	if err != nil {
+		return err
+	}
+
+	delete := func(ctx context.Context) error {
+		err := t.store.Delete(ctx, thumbnail.ThumbID)
+		if err != nil {
+			return err
+		}
+
+		err = t.storage.Delete(thumbnail.StorageKey, thumbnail.Variant, thumbnail.Format.String())
+		if err != nil {
+			t.logger.Warn(
+				"Failed to delete thumbnail from storage",
+				"thumbnailID", thumbID,
+				"storageKey", thumbnail.StorageKey,
+				"sourceType", thumbnail.SourceType,
+				"sourceURL", uptr.Deref(thumbnail.SourceURL),
+				"variant", thumbnail.Variant,
+				"format", thumbnail.Format.String(),
+				"error", err,
+			)
+			return err
+		}
+
+		return nil
+	}
+
+	err = t.store.Tx(ctx, delete)
+	if err != nil {
+		return err
+	}
+
+	t.logger.Debug(
+		"Thumbnail deleted",
+		"thumbnailID", thumbID,
+		"storageKey", thumbnail.StorageKey,
+		"sourceType", thumbnail.SourceType,
+		"sourceURL", uptr.Deref(thumbnail.SourceURL),
+		"variant", thumbnail.Variant,
+		"format", thumbnail.Format.String(),
+	)
+
+	return nil
+}

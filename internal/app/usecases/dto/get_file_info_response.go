@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
@@ -23,10 +23,10 @@ type GetFileInfoResponse struct {
 	FileSize             *int64
 	SafeReadableFullName string
 	StatusText           string
-	MediaInfo            *ddownload.MediaInfo
+	MediaInfo            *dtypes.MediaInfo
 	MediaInfoText        string
 	MediaInfoTooltip     string
-	Progress             *ddownload.DownloadProgress
+	Progress             *dservices.DownloadProgress
 	UserID               *uuid.UUID
 	CreatedAt            time.Time
 	UpdatedAt            time.Time

@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/ffmpeg"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
 	nfile "github.com/neosy/elengrab/internal/pkg/file"
 )
@@ -31,23 +31,23 @@ func NewYtDlpService(
 	logger *slog.Logger,
 	binDir string,
 	downloadsDir string,
-	options *dto.Options,
+	ffmpeg *ffmpegsrv.FFmpegService,
+	opts ...dto.Option,
 ) (*YtDlpService, error) {
 	cmdPath, err := utils.ResolveCmdPath(consts.YtDlpName, binDir)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ffmpeg.CheckFFmpeg(consts.FFmpegName)
-	if err != nil {
-		return nil, err
-	} else {
-		logger.Debug("FFmpeg executable found in PATH", "executable", consts.FFmpegName)
+	options := dto.NewOptions()
+
+	for _, opt := range opts {
+		opt(&options)
 	}
 
 	_, err = utils.LookupExecutable(consts.DenoName)
 	if err != nil {
-		if options != nil && options.YoutubeAllowCookies {
+		if options.YoutubeAllowCookies {
 			options.YoutubeAllowCookies = false
 			logger.Warn(
 				"Deno executable not found in PATH",
@@ -72,42 +72,36 @@ func NewYtDlpService(
 		return nil, err
 	}
 
-	var opts dto.Options
-	if options != nil {
-		opts = *options
-	}
-	opts.SetDefaults(false)
-
-	if opts.YoutubeAllowCookies && opts.CookiesDir == "" {
-		opts.YoutubeAllowCookies = false
+	if options.YoutubeAllowCookies && options.CookiesDir == "" {
+		options.YoutubeAllowCookies = false
 		logger.Warn("YoutubeAllowCookies enabled but CookiesDir is empty")
 		logger.Info("YoutubeAllowCookies has been disabled")
 	}
 
-	if opts.YoutubeAllowCookies {
-		exists, err := nfile.DirExists(opts.CookiesDir)
+	if options.YoutubeAllowCookies {
+		exists, err := nfile.DirExists(options.CookiesDir)
 		if err != nil {
-			opts.YoutubeAllowCookies = false
-			logger.Warn("Error checking if directory exists", "dir", opts.CookiesDir, "error", err)
+			options.YoutubeAllowCookies = false
+			logger.Warn("Error checking if directory exists", "dir", options.CookiesDir, "error", err)
 			logger.Info("YoutubeAllowCookies has been disabled")
 		} else if !exists {
-			opts.YoutubeAllowCookies = false
-			logger.Warn("Directory cookies does not exist", "dir", opts.CookiesDir)
+			options.YoutubeAllowCookies = false
+			logger.Warn("Directory cookies does not exist", "dir", options.CookiesDir)
 			logger.Info("YoutubeAllowCookies has been disabled")
 		} else {
-			logger.Debug("Cookies directory exists", "dir", opts.CookiesDir)
+			logger.Debug("Cookies directory exists", "dir", options.CookiesDir)
 		}
 	}
 
-	if opts.YoutubeAllowCookies {
-		path := filepath.Join(opts.CookiesDir, consts.YtDlpYouTubeCookieFileName)
+	if options.YoutubeAllowCookies {
+		path := filepath.Join(options.CookiesDir, consts.YtDlpYouTubeCookieFileName)
 		exists, err := nfile.FileExists(path)
 		if err != nil {
-			opts.YoutubeAllowCookies = false
+			options.YoutubeAllowCookies = false
 			logger.Warn("Failed to check cookies file existence", "path", path, "error", err)
 			logger.Info("YoutubeAllowCookies has been disabled")
 		} else if !exists {
-			opts.YoutubeAllowCookies = false
+			options.YoutubeAllowCookies = false
 			logger.Warn("Cookies file does not exist", "path", path)
 			logger.Info("YoutubeAllowCookies has been disabled")
 		} else {
@@ -115,7 +109,7 @@ func NewYtDlpService(
 		}
 	}
 
-	if opts.YoutubeAllowCookies {
+	if options.YoutubeAllowCookies {
 		logger.Info("YoutubeAllowCookies option is enabled")
 	}
 
@@ -123,9 +117,9 @@ func NewYtDlpService(
 		logger: logger,
 
 		// options
-		options: opts,
+		options: options,
 
 		// internal
-		downloader: downloader.NewDownloader(logger, cmdPath, downloadsDir, options),
+		downloader: downloader.NewDownloader(logger, cmdPath, downloadsDir, ffmpeg, options),
 	}, nil
 }

@@ -4,7 +4,7 @@ import (
 	"github.com/fasthttp/router"
 	statich "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/static"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
-	"github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 )
 
 // setupStaticRoutes setup Static routes.
@@ -20,6 +20,8 @@ func (s *httpServer) setupStaticRoutes(r *router.Router, handlers *statich.Stati
 		g.GET(httppaths.PathIconFiles, handlers.Static.StaticIconHandler)
 		g.GET(httppaths.PathJsFiles, handlers.Static.StaticJsHandler)
 		g.GET(httppaths.PathPwaFiles, handlers.Static.StaticPwaHandler)
+		g.GET(httppaths.PathThumbnail, handlers.Static.ThumbnailHandler)
+		g.GET(httppaths.PathYoutubeChannel, handlers.Static.YoutubeChannelHandler)
 	}
 
 	// Static without middleware
@@ -30,6 +32,8 @@ func (s *httpServer) setupStaticRoutes(r *router.Router, handlers *statich.Stati
 		gg.HEAD(httppaths.PathIconFiles, handlers.Static.StaticIconHandler)
 		gg.HEAD(httppaths.PathJsFiles, handlers.Static.StaticJsHandler)
 		gg.HEAD(httppaths.PathPwaFiles, handlers.Static.StaticPwaHandler)
+		gg.HEAD(httppaths.PathThumbnail, handlers.Static.ThumbnailHandler)
+		gg.HEAD(httppaths.PathYoutubeChannel, handlers.Static.YoutubeChannelHandler)
 	}
 
 }

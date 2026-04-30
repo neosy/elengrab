@@ -5,11 +5,13 @@ import (
 	"database/sql"
 	"errors"
 	"log/slog"
+	"path/filepath"
 	"strings"
 	"time"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	iconfig "github.com/neosy/elengrab/internal/config"
+	fsstorage "github.com/neosy/elengrab/internal/infrastructure/storage/filesystem"
 	_ "modernc.org/sqlite"
 
 	"github.com/neosy/elengrab/internal/app/services"
@@ -49,6 +51,9 @@ const (
 	// Auth session TTL and refresh interval defaults
 	authSessionTTL             = 90 * 24 * time.Hour
 	authSessionRefreshInterval = 10 * 24 * time.Hour
+
+	// Directory for storing
+	thumbnailsDir = "thumbnails"
 )
 
 type Application struct {
@@ -93,6 +98,7 @@ func (a *Application) initialize() error {
 		absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.DataDir),
 		absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.BackupsDir),
 		absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
+		absPath(a.cfg.Elengrab.RootDir, filepath.Join(a.cfg.Elengrab.MediaDir, thumbnailsDir)),
 	}
 	if !ensureDirs(dirs) {
 		return errors.New("one or more required directories are missing")
@@ -168,9 +174,9 @@ func (a *Application) initialize() error {
 	srvDeps := &services.Dependencies{
 		DownloaderBinDir: a.cfg.Elengrab.DownloaderBinDir,
 		DownloadsDir:     absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
-		YtDlpOptions: &ytdlpdto.Options{
-			CookiesDir:          cookiesDir,
-			YoutubeAllowCookies: a.cfg.Elengrab.YoutubeAllowCookies,
+		YtDlpOptions: []ytdlpdto.Option{
+			ytdlpdto.WithCookiesDir(cookiesDir),
+			ytdlpdto.WithYoutubeAllowCookies(a.cfg.Elengrab.YoutubeAllowCookies),
 		},
 	}
 	a.Services, err = services.New(a.logger, srvDeps)
@@ -179,27 +185,45 @@ func (a *Application) initialize() error {
 		return err
 	}
 
+	// Initialize storages
+	thumbnailStorage, err := fsstorage.NewThumbnailsStorage(
+		absPath(a.cfg.Elengrab.RootDir, filepath.Join(a.cfg.Elengrab.MediaDir, thumbnailsDir)),
+	)
+	if err != nil {
+		a.logger.Error("Failed to initialize storages", "err", err)
+		return err
+	}
+
 	// Initialize usecases
 	ucDeps := &usecases.Dependencies{
 		Repositories: usecases.DepRepositories{
 			Database: slRepositories,
 
-			File:           slRepositories.File,
-			DownloadTask:   slRepositories.DownloadTask,
+			File:         slRepositories.File,
+			DownloadTask: slRepositories.DownloadTask,
+
 			YoutubeChannel: slRepositories.YoutubeChannel,
 			SiteLogo:       slRepositories.SiteLogo,
-			User:           slRepositories.User,
-			Role:           slRepositories.Role,
-			UserRole:       slRepositories.UserRole,
-			UserSession:    slRepositories.UserSession,
-			Link:           slRepositories.Link,
-			LinkClick:      slRepositories.LickClick,
+			Thumbnail:      slRepositories.Thumbnail,
+
+			User:        slRepositories.User,
+			Role:        slRepositories.Role,
+			UserRole:    slRepositories.UserRole,
+			UserSession: slRepositories.UserSession,
+
+			Link:      slRepositories.Link,
+			LinkClick: slRepositories.LickClick,
 
 			// in memory
 			DownloadStateCache:  inMemoryRepositories.DownloadState,
 			YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
 			SiteLogoCache:       inMemoryRepositories.SiteLogo,
 		},
+
+		Storages: usecases.DepStorages{
+			Thumbnail: thumbnailStorage,
+		},
+
 		DownloadDispetcher: a.WorkerPool,
 		Services:           a.Services,
 

@@ -7,6 +7,8 @@ import (
 
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
+	"github.com/neosy/elengrab/internal/app/usecases/downloader"
+	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
 	"github.com/valyala/fasthttp"
 )
 
@@ -20,13 +22,27 @@ type StaticHandlers struct {
 	iconHandler fasthttp.RequestHandler
 	jsHandler   fasthttp.RequestHandler
 	pwaHandler  fasthttp.RequestHandler
+
+	// usecases
+	thumbnail  *thumbnail.Thumbnail
+	downloader *downloader.Downloader
 }
 
-func NewStaticHandlers(assetsDir string) *StaticHandlers {
+func NewStaticHandlers(
+	assetsDir string,
+
+	// usecases
+	thumbnail *thumbnail.Thumbnail,
+	downloader *downloader.Downloader,
+) *StaticHandlers {
 
 	h := &StaticHandlers{
 		assetsDir:    assetsDir,
 		assetFolders: assets.NewFolderPaths(assetsDir),
+
+		// usecases
+		thumbnail:  thumbnail,
+		downloader: downloader,
 	}
 
 	h.cssHandler = h.newFSHandler("css", "css")

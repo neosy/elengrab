@@ -10,11 +10,13 @@ const (
 
 var (
 	PathValues = map[string]any{
-		"PathStaticImg":   httppaths.GroupStaticImg,
-		"PathStaticIcons": httppaths.GroupStaticIcon,
-		"PathStaticCss":   httppaths.GroupStaticCss,
-		"PathStaticJs":    httppaths.GroupStaticJs,
-		"PathStaticPwa":   httppaths.GroupStaticPwa,
+		"PathStaticImg":            httppaths.GroupStaticImg,
+		"PathStaticIcons":          httppaths.GroupStaticIcon,
+		"PathStaticCss":            httppaths.GroupStaticCss,
+		"PathStaticJs":             httppaths.GroupStaticJs,
+		"PathStaticPwa":            httppaths.GroupStaticPwa,
+		"PathStaticThumbnail":      httppaths.GroupStaticThumbnail,
+		"PathStaticYoutubeChannel": httppaths.GroupStaticYoutubeChannel,
 
 		"PathAuthRegister": httppaths.GroupAccount + httppaths.PathRegister,
 		"PathAuthLogin":    httppaths.GroupAccount + httppaths.PathLogin,
@@ -28,18 +30,26 @@ var (
 	}
 )
 
-func ImageHttpPath(fineName string) string {
-	return httppaths.GroupStaticImg + "/" + fineName
+func ImageHttpPath(fileName string) string {
+	return httppaths.GroupStaticImg + "/" + fileName
 }
 
-func IconHttpPath(fineName string) string {
-	return httppaths.GroupStaticIcon + "/" + fineName
+func IconHttpPath(fileName string) string {
+	return httppaths.GroupStaticIcon + "/" + fileName
 }
 
-func CssHttpPath(fineName string) string {
-	return httppaths.GroupStaticCss + "/" + fineName
+func CssHttpPath(fileName string) string {
+	return httppaths.GroupStaticCss + "/" + fileName
 }
 
-func JsHttpPath(fineName string) string {
-	return httppaths.GroupStaticJs + "/" + fineName
+func JsHttpPath(fileName string) string {
+	return httppaths.GroupStaticJs + "/" + fileName
+}
+
+func ThumbnailHttpPath(id string) string {
+	return httppaths.GroupStaticThumbnail + "/" + id
+}
+
+func YoutubeChannelHttpPath(channelId string) string {
+	return httppaths.GroupStaticYoutubeChannel + "/" + channelId
 }

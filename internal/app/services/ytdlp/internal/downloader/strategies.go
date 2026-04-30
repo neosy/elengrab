@@ -7,14 +7,14 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
-	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dservices "github.com/neosy/elengrab/internal/domain/services"
 )
 
 func (d *Downloader) downloadWithStrategies(
 	ctx context.Context,
 	url string,
 	meta *idto.SafeDownloadMeta,
-	sendData func(*ddownload.DownloadResult),
+	sendData func(*dservices.DownloadResult),
 ) ([]byte, error) {
 	// Define download attempts
 	type downloadAttempt struct {
@@ -95,7 +95,7 @@ func (d *Downloader) downloadWithStrategies(
 			ctx,
 			url,
 			metaCopy,
-			func(progress ddownload.DownloadProgress) {
+			func(progress dservices.DownloadProgress) {
 				meta.Lock()
 				meta.Meta.Progress = &progress
 				meta.Unlock()

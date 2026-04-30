@@ -24,6 +24,5 @@ func (uc *Downloader) GetYoutubeChannelInfo(ctx context.Context, channelID strin
 	if err != nil {
 		return nil, err
 	}
-
 	return channel, nil
 }
