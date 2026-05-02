@@ -208,10 +208,15 @@ func (e *Executor) RunYtDlp(
 		_, _ = io.Copy(&errBuf, stderrPipe)
 	})
 
-	// Wait for the process to exit
+	// Wait for the process (yt-dlp) to exit
 	err = cmd.Wait()
+
+	// Complete the goroutines
 	done.Close()
+
+	// Waiting for goroutines to complete
 	wg.Wait()
+
 	if err != nil {
 		// Context cancellation has priority
 		if ctx.Err() != nil {

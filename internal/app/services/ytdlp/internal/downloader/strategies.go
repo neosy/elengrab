@@ -2,11 +2,11 @@ package downloader
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 )
 
@@ -14,7 +14,7 @@ func (d *Downloader) downloadWithStrategies(
 	ctx context.Context,
 	url string,
 	meta *idto.SafeDownloadMeta,
-	sendData func(*dservices.DownloadResult),
+	onProgressUpdate func(dservices.DownloadProgress),
 ) ([]byte, error) {
 	// Define download attempts
 	type downloadAttempt struct {
@@ -32,17 +32,14 @@ func (d *Downloader) downloadWithStrategies(
 
 	// Additional attempts for YouTube extractor
 	if meta.Meta.Options.Extractor == "youtube" {
-		one := uint8(1)
-		android := "youtube:player_client=android"
-
 		attempts = append(attempts,
 			downloadAttempt{
-				concurrentFragments: &one,
+				concurrentFragments: new(uint8(1)),
 				description:         "single concurrentFragments",
 			},
 			downloadAttempt{
-				concurrentFragments: &one,
-				extractorArgs:       &android,
+				concurrentFragments: new(uint8(1)),
+				extractorArgs:       new("youtube:player_client=android"),
 				description:         "android client",
 			},
 		)
@@ -95,12 +92,7 @@ func (d *Downloader) downloadWithStrategies(
 			ctx,
 			url,
 			metaCopy,
-			func(progress dservices.DownloadProgress) {
-				meta.Lock()
-				meta.Meta.Progress = &progress
-				meta.Unlock()
-				sendData(meta.InitialResult())
-			},
+			onProgressUpdate,
 		)
 		if err == nil {
 			return out, nil
@@ -114,15 +106,11 @@ func (d *Downloader) downloadWithStrategies(
 		)
 
 		// If not a 403 error, do not retry
-		isForbidden = isForbidden || d.isForbidden(err)
+		isForbidden = isForbidden || helper.HasErrTextForbidden(err)
 		if !isForbidden {
 			break
 		}
 
 	}
 	return nil, err
-}
-
-func (d *Downloader) isForbidden(err error) bool {
-	return err != nil && strings.Contains(err.Error(), "HTTP Error 403")
 }

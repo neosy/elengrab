@@ -166,7 +166,14 @@ func (d *Downloader) Download(
 		)
 	})
 
-	out, err := d.downloadWithStrategies(ctx, url, &meta, sendData)
+	out, err := d.downloadWithStrategies(
+		ctx, url, &meta,
+		func(progress dservices.DownloadProgress) {
+			meta.Lock()
+			meta.Meta.Progress = &progress
+			meta.Unlock()
+			sendData(meta.InitialResult())
+		})
 	if err != nil {
 		// Deleting the cache, because Youtube could have changed the format
 		d.formatCache.DeleteByURL(url)
