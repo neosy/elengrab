@@ -8,17 +8,17 @@ CREATE TABLE IF NOT EXISTS files (
     -- Status
     file_status TEXT NOT NULL DEFAULT 'new', -- new, pending, working, done, failed
 
-    -- Youtube URL
-    youtube_url TEXT NOT NULL,
+    -- Media URL
+    media_url TEXT NOT NULL,
 
-    -- Title from youtube
-    youtube_title TEXT NOT NULL,
+    -- Title media
+    media_title TEXT NOT NULL,
 
     -- MediaTitleLower in lowercase for efficient case-insensitive searches
     media_title_lower TEXT NOT NULL,
 
-    -- Youtube channel ID
-    youtube_channel_id TEXT NULL,
+    -- Channel ID
+    channel_id TEXT NULL,
 
     -- Original file name
     file_name TEXT NOT NULL,

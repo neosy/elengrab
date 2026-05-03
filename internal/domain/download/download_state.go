@@ -46,7 +46,7 @@ func (s *DownloadState) InitFromDownloadResult(result *dservices.DownloadResult,
 	}
 
 	if result.ChannelID != nil && result.Channel != nil {
-		s.File.YoutubeChannelID = result.ChannelID
+		s.File.ChannelID = result.ChannelID
 	}
 
 	s.File.MediaTitle = result.MediaTitle

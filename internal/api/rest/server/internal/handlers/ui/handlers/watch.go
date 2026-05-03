@@ -92,8 +92,8 @@ func (h *DownloaderHandlers) watch(
 		}
 	}
 
-	if imageData == nil && fileInfo.YoutubeChannelID != nil {
-		channel, _ := h.downloader.FindYoutubeChannelInfo(ctx, *fileInfo.YoutubeChannelID)
+	if imageData == nil && fileInfo.ChannelID != nil && fileInfo.IsYouTube() {
+		channel, _ := h.downloader.FindYoutubeChannelInfo(ctx, *fileInfo.ChannelID)
 		if channel != nil && len(channel.ImageRaw) > 0 {
 			imageData = channel.ImageData()
 		}

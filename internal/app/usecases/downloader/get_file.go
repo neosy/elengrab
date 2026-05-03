@@ -103,8 +103,8 @@ func (uc *Downloader) findActualFileInfoByFile(
 	}
 
 	var avatarTitle string
-	if file.YoutubeChannelID != nil {
-		channel, _ := uc.ytChannel.FindByChannelID(ctx, *file.YoutubeChannelID)
+	if file.ChannelID != nil && file.IsYouTube() {
+		channel, _ := uc.ytChannel.FindByChannelID(ctx, *file.ChannelID)
 		if channel != nil {
 			avatarTitle = channel.ChannelTitle
 		}

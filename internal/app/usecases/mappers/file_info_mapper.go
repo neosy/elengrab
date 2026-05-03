@@ -40,7 +40,7 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 		FileID:               file.FileID,
 		Status:               file.Status,
 		WorkingStatus:        workingStatus,
-		YoutubeChannelID:     file.YoutubeChannelID,
+		ChannelID:            file.ChannelID,
 		AvatarTitle:          avatarTitle,
 		MediaUrl:             file.MediaUrl,
 		MediaTitle:           mediaTitle,

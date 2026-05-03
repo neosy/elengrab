@@ -2,7 +2,7 @@ package core
 
 import (
 	"fmt"
-	"os"
+	"io/fs"
 	"path/filepath"
 	"strings"
 
@@ -23,13 +23,22 @@ func validateDirPath(path string) error {
 
 func folderSize(path string) (uint64, error) {
 	var size uint64
-	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
+
+	err := filepath.WalkDir(path, func(_ string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() {
-			size += uint64(info.Size())
+
+		if d.IsDir() {
+			return nil
 		}
+
+		info, err := d.Info()
+		if err != nil {
+			return err
+		}
+
+		size += uint64(info.Size())
 		return nil
 	})
 

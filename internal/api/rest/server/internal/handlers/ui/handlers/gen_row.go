@@ -70,12 +70,12 @@ func (h *DownloaderHandlers) genRow(
 	}
 
 	var youtubeChannelID string
-	if fileInfo.YoutubeChannelID != nil {
-		youtubeChannelID = *fileInfo.YoutubeChannelID
+	if fileInfo.ChannelID != nil && fileInfo.IsYouTube() {
+		youtubeChannelID = *fileInfo.ChannelID
 	}
 
 	logoVersion := ""
-	if fileInfo.YoutubeChannelID != nil {
+	if youtubeChannelID != "" {
 		logoVersion = "yt-channel"
 	} else if fileInfo.HasSiteIcon {
 		logoVersion = "site-logo"

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
@@ -12,7 +13,7 @@ type GetFileInfoResponse struct {
 	FileID               uuid.UUID
 	Status               dtypes.FileStatus
 	WorkingStatus        WorkingStatus
-	YoutubeChannelID     *string
+	ChannelID            *string
 	AvatarTitle          string
 	MediaUrl             string
 	MediaTitle           string
@@ -30,4 +31,8 @@ type GetFileInfoResponse struct {
 	UserID               *uuid.UUID
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
+}
+
+func (r *GetFileInfoResponse) IsYouTube() bool {
+	return hostdetect.YouTube(r.MediaUrl)
 }
