@@ -14,7 +14,6 @@ import (
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	nfile "github.com/neosy/elengrab/internal/pkg/file"
 	"github.com/neosy/elengrab/internal/pkg/syncx"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
@@ -60,14 +59,8 @@ func (d *Downloader) Download(
 	url = strings.TrimSpace(url)
 
 	// Prepare download options with defaults and user overrides
-	dlOptions, dlDir, fileName, includeTitleInFilename :=
-		helper.PrepareDownloadOptions(d.downloadsDir, d.serviceOptions.ConcurrentFragments, options)
-
-	// Ensure download directory exists
-	if err := nfile.CheckDir(dlDir); err != nil {
-		sendError(nil, errorx.Errorf("failed to check directory: %w", err))
-		return
-	}
+	dlOptions, fileName, includeTitleInFilename :=
+		helper.PrepareDownloadOptions(d.serviceOptions.ConcurrentFragments, options)
 
 	// Try to fetch the title fast
 	startTime := time.Now()
@@ -123,7 +116,6 @@ func (d *Downloader) Download(
 	meta.Meta, err = d.prepareMetadata(
 		ctx,
 		url,
-		dlDir,
 		fileName,
 		includeTitleInFilename,
 		dlOptions,
@@ -218,7 +210,7 @@ func (d *Downloader) Download(
 
 	// Build response struct
 	result := meta.InitialResult()
-	result.PartialHash = d.partialHash(meta.Meta.FilePath)
+	result.PartialHash = d.partialHash(d.storage.Path(meta.Meta.FileFullName))
 
 	// Build response struct
 	sendData(result)
@@ -259,7 +251,7 @@ func (d *Downloader) extractAndSaveThumbnail(ctx context.Context, meta *idto.Saf
 	}
 
 	var err error
-	imgData, err := extractBestFrame(ctx, meta.Meta.FilePath)
+	imgData, err := extractBestFrame(ctx, d.storage.Path(meta.Meta.FileFullName))
 	if err != nil {
 		return
 	}
@@ -271,11 +263,11 @@ func (d *Downloader) extractAndSaveThumbnail(ctx context.Context, meta *idto.Saf
 }
 
 func (d *Downloader) refreshMediaInfo(ctx context.Context, meta *idto.SafeDownloadMeta) {
-	vInfo, aInfo, err := d.ffmpeg.GetVideoAudioInfoFromFile(ctx, meta.Meta.FilePath, meta.Meta.MediaInfo)
+	vInfo, aInfo, err := d.ffmpeg.GetVideoAudioInfoFromFile(ctx, d.storage.Path(meta.Meta.FileFullName), meta.Meta.MediaInfo)
 	if err != nil {
 		d.logger.Warn(
 			"Failed to get media info from file",
-			"filePath", meta.Meta.FilePath,
+			"filePath", d.storage.Path(meta.Meta.FileFullName),
 			"error", err,
 		)
 		return
@@ -301,7 +293,7 @@ func (d *Downloader) partialHash(filePath string) *string {
 }
 
 func (d *Downloader) refreshFileSize(meta *idto.SafeDownloadMeta) {
-	fileInfo, err := os.Stat(meta.Meta.FilePath)
+	fileInfo, err := os.Stat(d.storage.Path(meta.Meta.FileFullName))
 	if err == nil {
 		meta.Lock()
 		meta.Meta.FileSize = uptr.Int64(fileInfo.Size())

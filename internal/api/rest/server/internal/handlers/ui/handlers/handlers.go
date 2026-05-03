@@ -13,6 +13,7 @@ import (
 	linkweb "github.com/neosy/elengrab/internal/app/usecases/link_web"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
 type DownloaderHandlers struct {
@@ -23,7 +24,10 @@ type DownloaderHandlers struct {
 	templates    *template.Template
 	assetFolders assets.FolderPaths
 
-	// usecases
+	// Storages
+	downloadsStorage pstorage.DownloadsStorage
+
+	// Usecases
 	authWeb    *authweb.AuthWeb
 	downloader *downloader.Downloader
 	linkWeb    *linkweb.LinkWeb
@@ -34,18 +38,20 @@ type DownloaderHandlers struct {
 	baseURL         string
 	shortLinkPrefix string
 	assetsDir       string
-	downloadsDir    string
 }
 
 func NewDownloaderHandlers(
 	logger *slog.Logger,
 	templates *template.Template,
+
+	// Storages
+	downloadsStorage pstorage.DownloadsStorage,
+
 	usecases *usecases.Usecases,
 	appMode dtypes.AppMode,
 	baseURL string,
 	shortLinkPrefix string,
 	assetsDir string,
-	downloadsDir string,
 ) *DownloaderHandlers {
 	return &DownloaderHandlers{
 		logger:     logger,
@@ -55,7 +61,10 @@ func NewDownloaderHandlers(
 		templates:    templates,
 		assetFolders: assets.NewFolderPaths(assetsDir),
 
-		// usecases
+		// Storages
+		downloadsStorage: downloadsStorage,
+
+		// Usecases
 		authWeb:    usecases.AuthWeb,
 		downloader: usecases.Downloader,
 		linkWeb:    usecases.LinkWeb,
@@ -66,6 +75,5 @@ func NewDownloaderHandlers(
 		baseURL:         baseURL,
 		shortLinkPrefix: shortLinkPrefix,
 		assetsDir:       assetsDir,
-		downloadsDir:    downloadsDir,
 	}
 }

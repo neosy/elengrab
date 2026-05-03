@@ -1,4 +1,4 @@
-package storage
+package pstorage
 
 import (
 	"github.com/google/uuid"

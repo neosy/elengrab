@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -33,13 +32,11 @@ func (e *Executor) RunYtDlp(
 	)
 	defer done.Close()
 
-	dlDir := filepath.Dir(meta.FilePath)
-
 	// Cache directory
-	cacheDir := filepath.Join(dlDir, consts.YtDlpCacheDir)
+	cacheDir := filepath.Join(e.storage.BasePath(), consts.YtDlpCacheDir)
 
 	// Running yt-dlp in a separate temporary directory
-	baseTmpDir := filepath.Join(dlDir, consts.YtDlpTempDir)
+	baseTmpDir := filepath.Join(e.storage.BasePath(), consts.YtDlpTempDir)
 
 	workDir, cleanup, err := utils.CreateTempDir(baseTmpDir, "job-*")
 	if err != nil {
@@ -239,7 +236,7 @@ func (e *Executor) RunYtDlp(
 
 	// Move final file from temp directory to target path
 	// to avoid ffmpeg creating temporary files in the download directory
-	err = os.Rename(tmpFilePath, meta.FilePath)
+	err = e.storage.Move(tmpFilePath, meta.FileFullName)
 	if err != nil {
 		return nil, fmt.Errorf("%s failed to move file from temp dir to target path: %w", consts.YtDlpName, err)
 	}

@@ -2,8 +2,6 @@ package downloader
 
 import (
 	"context"
-	"os"
-	"path/filepath"
 )
 
 // DeleteDuplicates deletes duplicate files based on their hash values.
@@ -38,9 +36,8 @@ func (uc *Downloader) DeleteDuplicates(ctx context.Context) error {
 
 			uc.deleteThumbnails(ctx, file)
 
-			fPath := filepath.Join(uc.downloadsDir, file.FullName)
-			if err := os.Remove(fPath); err != nil {
-				uc.logger.Warn("Failed delete file", "filePath", fPath, "error", err)
+			if err := uc.downloadsStorage.Delete(file.FullName); err != nil {
+				uc.logger.Warn("Failed delete file", "filePath", uc.downloadsStorage.Path(file.FullName), "error", err)
 				continue
 			}
 		}

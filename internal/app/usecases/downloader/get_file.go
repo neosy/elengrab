@@ -2,7 +2,6 @@ package downloader
 
 import (
 	"context"
-	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"
@@ -120,7 +119,7 @@ func (uc *Downloader) findActualFileInfoByFile(
 		}
 	}
 
-	return uc.mappers.MapFileDomainToFileInfoResponse(file, avatarTitle, dlProgress, uc.downloadsDir, hasSiteIcon), nil
+	return uc.mappers.MapFileDomainToFileInfoResponse(file, avatarTitle, dlProgress, hasSiteIcon), nil
 }
 
 // LoadHistory retrieves the download history for a user.
@@ -176,7 +175,7 @@ func (uc *Downloader) GetFilePath(ctx context.Context, fileId uuid.UUID) (string
 		return "", err
 	}
 
-	return filepath.Join(uc.downloadsDir, file.FullName), nil
+	return uc.downloadsStorage.Path(file.FullName), nil
 }
 
 // GetDownloadFileName retrieves the display file name and extension

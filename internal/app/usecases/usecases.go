@@ -16,7 +16,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
 	"github.com/neosy/elengrab/internal/ports/persistence"
-	"github.com/neosy/elengrab/internal/ports/storage"
+	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
 type Dependencies struct {
@@ -43,8 +43,6 @@ type Dependencies struct {
 	DatabaseBackupsDir  string
 	DatabaseBackupsKeep int
 
-	DownloadsDir string
-
 	DeleteDuplicatesScope dtypes.UniquenessScope
 
 	LogoUpdateInterval    time.Duration
@@ -62,8 +60,10 @@ type DepRepositories struct {
 	UserRole    persistence.UserRoleRepository
 	UserSession persistence.UserSessionRepository
 
-	File           persistence.FileRepository
-	DownloadTask   persistence.DownloadTaskRepository
+	File                  persistence.FileRepository
+	DownloadTask          persistence.DownloadTaskRepository
+	DownloadDataMigration persistence.DownloadDataMigrationRepository
+
 	YoutubeChannel persistence.YoutubeChannelRepository
 	SiteLogo       persistence.SiteLogoRepository
 	Thumbnail      persistence.ThumbnailRepository
@@ -78,7 +78,8 @@ type DepRepositories struct {
 }
 
 type DepStorages struct {
-	Thumbnail storage.ThumbnailsStorage
+	Thumbnails pstorage.ThumbnailsStorage
+	Downloads  pstorage.DownloadsStorage
 }
 
 type Usecases struct {
@@ -112,7 +113,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 	thumbnail := thumbnail.NewThumbnail(
 		logger,
 		deps.Repositories.Thumbnail,
-		deps.Storages.Thumbnail,
+		deps.Storages.Thumbnails,
 	)
 
 	return &Usecases{
@@ -130,6 +131,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			// repositories
 			deps.Repositories.File,
 			deps.Repositories.DownloadTask,
+			deps.Repositories.DownloadDataMigration,
 			deps.Repositories.YoutubeChannel,
 			deps.Repositories.SiteLogo,
 			deps.Repositories.Thumbnail,
@@ -140,7 +142,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.Repositories.SiteLogoCache,
 
 			// storages
-			deps.Storages.Thumbnail,
+			deps.Storages.Downloads,
 
 			// dispetchers
 			deps.DownloadDispetcher,
@@ -153,7 +155,6 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 
 			// options
 			deps.DemoMode,
-			deps.DownloadsDir,
 			deps.AppMode,
 			deps.DeleteDuplicatesScope,
 			deps.LogoUpdateInterval,
