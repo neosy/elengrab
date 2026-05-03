@@ -9,9 +9,13 @@ import (
 	uih "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
 type Dependencies struct {
+	// Storages
+	DownloadsStorage pstorage.DownloadsStorage
+
 	Usecases  *usecases.Usecases
 	Templates *template.Template
 
@@ -20,7 +24,6 @@ type Dependencies struct {
 	BaseURL         string
 	ShortLinkPrefix string
 	AssetsDir       string
-	DownloadsDir    string
 }
 
 type Handlers struct {
@@ -38,13 +41,13 @@ func New(logger *slog.Logger, deps *Dependencies) *Handlers {
 		),
 		UI: uih.NewUIHandlers(
 			logger,
+			deps.DownloadsStorage,
 			deps.Usecases,
 			deps.Templates,
 			deps.AppMode,
 			deps.BaseURL,
 			deps.ShortLinkPrefix,
 			deps.AssetsDir,
-			deps.DownloadsDir,
 		),
 		API: apihandlers.NewAPIHandlers(deps.Usecases),
 	}

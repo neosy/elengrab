@@ -21,8 +21,10 @@ type Repositories struct {
 	UserRole    persistence.UserRoleRepository
 	UserSession persistence.UserSessionRepository
 
-	File           persistence.FileRepository
-	DownloadTask   persistence.DownloadTaskRepository
+	File                  persistence.FileRepository
+	DownloadTask          persistence.DownloadTaskRepository
+	DownloadDataMigration persistence.DownloadDataMigrationRepository
+
 	YoutubeChannel persistence.YoutubeChannelRepository
 	SiteLogo       persistence.SiteLogoRepository
 	Thumbnail      persistence.ThumbnailRepository
@@ -57,8 +59,9 @@ func New(dbByName map[persistence.DBName]*sql.DB) *Repositories {
 		UserRole:    auth.NewUserRoleRepository(authDB, lockByDBName[persistence.DBAuthName]),
 		UserSession: auth.NewUserSessionRepository(authDB, lockByDBName[persistence.DBAuthName]),
 
-		File:         download.NewFileRepository(mainDB, lockByDBName[persistence.DBMainName]),
-		DownloadTask: download.NewDownloadTaskRepository(mainDB, lockByDBName[persistence.DBMainName]),
+		File:                  download.NewFileRepository(mainDB, lockByDBName[persistence.DBMainName]),
+		DownloadTask:          download.NewDownloadTaskRepository(mainDB, lockByDBName[persistence.DBMainName]),
+		DownloadDataMigration: download.NewDataMigrationRepository(mainDB, lockByDBName[persistence.DBMainName]),
 
 		YoutubeChannel: media.NewYoutubeChannelRepository(mediaDB, lockByDBName[persistence.DBMediaName]),
 		SiteLogo:       media.NewSiteLogoRepository(mediaDB, lockByDBName[persistence.DBMediaName]),

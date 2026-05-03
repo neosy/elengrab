@@ -23,6 +23,7 @@ import (
 	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
 	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
 	"github.com/neosy/elengrab/internal/ports/persistence"
+	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 	inmemoryrep "github.com/neosy/elengrab/internal/repository/in_memory"
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
 )
@@ -62,6 +63,9 @@ type Application struct {
 
 	ctx    context.Context
 	cancel context.CancelFunc
+
+	// Storages
+	DownloadsStorage pstorage.DownloadsStorage
 
 	Usecases *usecases.Usecases
 	Services *services.Services
@@ -170,10 +174,25 @@ func (a *Application) initialize() error {
 		nworkerpool.WorkerPoolOptionIdleTime(workerIdleTimeDefault),
 	)
 
+	// Initialize storages
+	thumbnailsStorage, err := fsstorage.NewThumbnailsStorage(
+		absPath(a.cfg.Elengrab.RootDir, filepath.Join(a.cfg.Elengrab.MediaDir, thumbnailsDir)),
+	)
+	if err != nil {
+		a.logger.Error("Failed to initialize thumbnail Storage", "err", err)
+		return err
+	}
+	downloadsStorage, err := fsstorage.NewDownloadsStorage(absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir))
+	if err != nil {
+		a.logger.Error("Failed to initialize downloads storage", "err", err)
+		return err
+	}
+	a.DownloadsStorage = downloadsStorage
+
 	// Initialize services
 	srvDeps := &services.Dependencies{
 		DownloaderBinDir: a.cfg.Elengrab.DownloaderBinDir,
-		DownloadsDir:     absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
+		Storage:          downloadsStorage,
 		YtDlpOptions: []ytdlpdto.Option{
 			ytdlpdto.WithCookiesDir(cookiesDir),
 			ytdlpdto.WithYoutubeAllowCookies(a.cfg.Elengrab.YoutubeAllowCookies),
@@ -185,22 +204,14 @@ func (a *Application) initialize() error {
 		return err
 	}
 
-	// Initialize storages
-	thumbnailStorage, err := fsstorage.NewThumbnailsStorage(
-		absPath(a.cfg.Elengrab.RootDir, filepath.Join(a.cfg.Elengrab.MediaDir, thumbnailsDir)),
-	)
-	if err != nil {
-		a.logger.Error("Failed to initialize storages", "err", err)
-		return err
-	}
-
 	// Initialize usecases
 	ucDeps := &usecases.Dependencies{
 		Repositories: usecases.DepRepositories{
 			Database: slRepositories,
 
-			File:         slRepositories.File,
-			DownloadTask: slRepositories.DownloadTask,
+			File:                  slRepositories.File,
+			DownloadTask:          slRepositories.DownloadTask,
+			DownloadDataMigration: slRepositories.DownloadDataMigration,
 
 			YoutubeChannel: slRepositories.YoutubeChannel,
 			SiteLogo:       slRepositories.SiteLogo,
@@ -221,7 +232,8 @@ func (a *Application) initialize() error {
 		},
 
 		Storages: usecases.DepStorages{
-			Thumbnail: thumbnailStorage,
+			Thumbnails: thumbnailsStorage,
+			Downloads:  downloadsStorage,
 		},
 
 		DownloadDispetcher: a.WorkerPool,
@@ -243,8 +255,6 @@ func (a *Application) initialize() error {
 		DatabaseBackupsDir:  absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.BackupsDir),
 		DatabaseBackupsKeep: a.cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
 
-		DownloadsDir: absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
-
 		DeleteDuplicatesScope: dtypes.MustParseUniquenessScope(a.cfg.Elengrab.DeleteDuplicatesScope),
 
 		LogoUpdateInterval:    logoUpdateInterval,
@@ -265,6 +275,7 @@ func (a *Application) initialize() error {
 		Maintenance:           a.Usecases.Maintenance,
 		DownloaderTask:        a.Usecases.Downloader,
 		AuthWebMaintenance:    a.Usecases.AuthWeb,
+		DownloaderMigrations:  a.Usecases.Downloader,
 		// options
 		IntervalUpdateHash:               a.cfg.Elengrab.Maintenance.IntervalUpdateHash,
 		IntervalDeleteDuplicates:         a.cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"os"
-	"path/filepath"
 
 	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
@@ -37,7 +36,7 @@ func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 
 	var filePath string
 	if fileInfo.FileFullName != "" {
-		filePath = filepath.Join(h.downloadsDir, fileInfo.FileFullName)
+		filePath = h.downloadsStorage.Path(fileInfo.FileFullName)
 	}
 
 	// Check if the file exists

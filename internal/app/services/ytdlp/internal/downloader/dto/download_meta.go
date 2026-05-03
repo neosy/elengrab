@@ -14,7 +14,6 @@ type DownloadMeta struct {
 	FileName            string
 	FileExt             string
 	FileFullName        string
-	FilePath            string
 	FileSize            *int64
 	ChannelID           *string
 	ChannelURL          string
@@ -81,7 +80,6 @@ func (m *SafeDownloadMeta) InitialResult() *dservices.DownloadResult {
 	return &dservices.DownloadResult{
 		ChannelID:           meta.ChannelID,
 		MediaTitle:          meta.Title,
-		FilePath:            meta.FilePath,
 		Filename:            meta.FileName,
 		FileExt:             ext,
 		FileFullName:        meta.FileFullName,

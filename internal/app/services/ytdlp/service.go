@@ -1,11 +1,8 @@
 package ytdlpsrv
 
 import (
-	"errors"
-	"fmt"
 	"log/slog"
 	"path/filepath"
-	"strings"
 
 	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
@@ -13,6 +10,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
 	nfile "github.com/neosy/elengrab/internal/pkg/file"
+	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
 // YtDlpService represents a service for interacting with yt-dlp.
@@ -30,7 +28,7 @@ type YtDlpService struct {
 func NewYtDlpService(
 	logger *slog.Logger,
 	binDir string,
-	downloadsDir string,
+	storage pstorage.DownloadsStorage,
 	ffmpeg *ffmpegsrv.FFmpegService,
 	opts ...dto.Option,
 ) (*YtDlpService, error) {
@@ -58,18 +56,6 @@ func NewYtDlpService(
 		}
 	} else {
 		logger.Debug("Deno executable found in PATH", "executable", consts.DenoName)
-	}
-
-	if downloadsDir == "" {
-		return nil, errors.New("download directory is not set")
-	}
-
-	if strings.HasSuffix(downloadsDir, "/") || strings.HasSuffix(downloadsDir, "\\") {
-		return nil, fmt.Errorf("downloads directory must not end with a slash or backslash: %s", downloadsDir)
-	}
-
-	if err := nfile.CheckDir(downloadsDir); err != nil {
-		return nil, err
 	}
 
 	if options.YoutubeAllowCookies && options.CookiesDir == "" {
@@ -120,6 +106,6 @@ func NewYtDlpService(
 		options: options,
 
 		// internal
-		downloader: downloader.NewDownloader(logger, cmdPath, downloadsDir, ffmpeg, options),
+		downloader: downloader.NewDownloader(logger, cmdPath, storage, ffmpeg, options),
 	}, nil
 }

@@ -4,6 +4,7 @@
 
 ### ✨ Features
 - Added thumbnail support for media files, improving visual representation in media lists (#291)
+- Shard downloads directory to improve file storage scalability
 
 ### 🎨 Style
 - Added global UI blocking overlay for menu interactions

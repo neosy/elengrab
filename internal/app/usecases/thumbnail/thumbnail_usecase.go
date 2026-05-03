@@ -6,7 +6,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/mappers"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail/internal/store"
 	"github.com/neosy/elengrab/internal/ports/persistence"
-	"github.com/neosy/elengrab/internal/ports/storage"
+	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
 type Thumbnail struct {
@@ -14,14 +14,14 @@ type Thumbnail struct {
 	mappers *mappers.Mappers
 
 	store   *store.ThumbnailStore
-	storage storage.ThumbnailsStorage
+	storage pstorage.ThumbnailsStorage
 }
 
 // NewThumbnail is the constructor for Thumbnail use case.
 func NewThumbnail(
 	logger *slog.Logger,
 	thumbnailRep persistence.ThumbnailRepository,
-	storage storage.ThumbnailsStorage,
+	storage pstorage.ThumbnailsStorage,
 ) *Thumbnail {
 	return &Thumbnail{
 		logger:  logger,

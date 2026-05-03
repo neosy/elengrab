@@ -3,7 +3,6 @@ package downloader
 import (
 	"sync"
 
-	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/helper"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 )
 
@@ -23,14 +22,16 @@ func (uc *Downloader) SystemInfo() dto.SystemInfoResponse {
 }
 
 func (uc *Downloader) UpdateSystemInfo() {
-	used := helper.FolderSize(uc.downloadsDir)
-	free, _, _, _ := helper.DiskUsage(uc.downloadsDir)
+	stats, err := uc.downloadsStorage.Stats()
+	if err != nil {
+		uc.logger.Warn("Failed to get storage stats", "error", err)
+	}
 
 	systemInfoOld := uc.systemInfoStore.data
 
 	uc.systemInfoStore.mu.Lock()
-	uc.systemInfoStore.data.DiskUsed = used
-	uc.systemInfoStore.data.DiskFree = int64(free)
+	uc.systemInfoStore.data.DiskUsed = stats.Used
+	uc.systemInfoStore.data.DiskFree = stats.Free
 	uc.systemInfoStore.mu.Unlock()
 
 	if systemInfoOld.DiskFree != uc.systemInfoStore.data.DiskFree ||

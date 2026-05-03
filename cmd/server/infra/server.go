@@ -19,13 +19,13 @@ func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Applicat
 	}
 
 	deps := &httpsrv.Dependencies{
-		Usecases:        app.Usecases,
-		Templates:       tmpl,
-		AppMode:         dtypes.MustParseAppMode(cfg.Elengrab.Mode),
-		BaseURL:         cfg.Elengrab.BaseURL,
-		ShortLinkPrefix: cfg.Elengrab.ShortLinkPrefix,
-		AssetsDir:       absPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir),
-		DownloadsDir:    absPath(cfg.Elengrab.RootDir, cfg.Elengrab.DownloadsDir),
+		DownloadsStorage: app.DownloadsStorage,
+		Usecases:         app.Usecases,
+		Templates:        tmpl,
+		AppMode:          dtypes.MustParseAppMode(cfg.Elengrab.Mode),
+		BaseURL:          cfg.Elengrab.BaseURL,
+		ShortLinkPrefix:  cfg.Elengrab.ShortLinkPrefix,
+		AssetsDir:        absPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir),
 	}
 
 	httpServer := httpsrv.NewServer(logger, cfg.AppConfig.AppEnv, deps)

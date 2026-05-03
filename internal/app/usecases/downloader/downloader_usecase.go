@@ -7,6 +7,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/broadcaster"
+	dlmigration "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/dowload_data_migration"
 	dlstate "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_state_cache"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task"
 	dltasktatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task_status"
@@ -23,13 +24,16 @@ import (
 	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
-	"github.com/neosy/elengrab/internal/ports/storage"
+	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
 type Downloader struct {
 	appCtx  context.Context
 	logger  *slog.Logger
 	mappers *mappers.Mappers
+
+	// Storages
+	downloadsStorage pstorage.DownloadsStorage
 
 	systemInfoStore systemInfoStore
 
@@ -46,6 +50,7 @@ type Downloader struct {
 	dlStateCache    *dlstate.DownloadStateCache
 	siteIconFetcher *iconfetcher.SiteIconFetcher
 	authz           *authz.Authorization
+	dlDataMigration *dlmigration.DataMigration
 
 	// broadcasters
 	broadcaster *broadcaster.Broadcaster
@@ -58,7 +63,6 @@ type Downloader struct {
 
 	// Options
 	demoMode              bool
-	downloadsDir          string
 	appMode               dtypes.AppMode
 	deleteDuplicatesScope dtypes.UniquenessScope
 	logoUpdateInterval    time.Duration
@@ -72,6 +76,7 @@ func NewDownloader(
 	// repositories
 	fileRep persistence.FileRepository,
 	dlTaskRep persistence.DownloadTaskRepository,
+	dlDataMigration persistence.DownloadDataMigrationRepository,
 	ytChannelRep persistence.YoutubeChannelRepository,
 	siteLogoRep persistence.SiteLogoRepository,
 	thumbnailRep persistence.ThumbnailRepository,
@@ -82,7 +87,7 @@ func NewDownloader(
 	siteLogoCacheRep persistence.SiteLogoCacheRepository,
 
 	// storages
-	thumbnailStorage storage.ThumbnailsStorage,
+	downloadsStorage pstorage.DownloadsStorage,
 
 	// dispetchers
 	dlDispetcher nworkerpool.JobDispatcher,
@@ -95,7 +100,6 @@ func NewDownloader(
 
 	// options
 	demoMode bool,
-	downloadsDir string,
 	appMode dtypes.AppMode,
 	deleteDuplicatesScope dtypes.UniquenessScope,
 	logoUpdateInterval time.Duration,
@@ -112,6 +116,9 @@ func NewDownloader(
 		appCtx:  ctx,
 		logger:  logger,
 		mappers: mappers.NewMappers(),
+
+		// Storages
+		downloadsStorage: downloadsStorage,
 
 		systemInfoStore: systemInfoStore{
 			data: dto.SystemInfoResponse{
@@ -134,6 +141,7 @@ func NewDownloader(
 		siteIcon:        siteicon.NewSiteIcon(logger, siteLogoRep, siteLogoCacheRep),
 		siteIconFetcher: iconfetcher.NewSiteIconFetcher(logger),
 		authz:           authz.NewAuthorization(logger, appMode),
+		dlDataMigration: dlmigration.NewdataMigration(logger, dlDataMigration),
 
 		// broadcasters
 		broadcaster: broadcaster.NewBroadcaster(),
@@ -146,7 +154,6 @@ func NewDownloader(
 
 		// Options
 		demoMode:              demoMode,
-		downloadsDir:          downloadsDir,
 		appMode:               appMode,
 		deleteDuplicatesScope: deleteDuplicatesScope,
 		logoUpdateInterval:    logoUpdateInterval,

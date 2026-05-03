@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"
@@ -111,24 +109,23 @@ func (uc *Downloader) DeleteFile(
 	}()
 
 	if needDeleteFileOnStorage && fileFullName != "" {
-		fPath := filepath.Join(uc.downloadsDir, fileFullName)
-		go func(path string) {
-			err := uc.deleteFileWithRetry(ctx, path, 10, 5*time.Second)
+		go func() {
+			err := uc.deleteFileWithRetry(ctx, fileFullName, 10, 5*time.Second)
 			if err != nil {
-				uc.logger.Warn("Failed delete file", "filePath", fPath, "error", err)
+				uc.logger.Warn("Failed delete file", "filePath", uc.downloadsStorage.Path(fileFullName), "error", err)
 			}
 			uc.UpdateSystemInfo()
-		}(fPath)
+		}()
 	}
 
 	return nil
 }
 
 // deleteFileWithRetry attempts to delete a file at the specified path with retries.
-func (uc *Downloader) deleteFileWithRetry(ctx context.Context, path string, retries int, retryDelay time.Duration) error {
+func (uc *Downloader) deleteFileWithRetry(ctx context.Context, fileName string, retries int, retryDelay time.Duration) error {
 	var err error
 	for range retries {
-		err = os.Remove(path)
+		err = uc.downloadsStorage.Delete(fileName)
 		if err == nil {
 			return nil
 		}
