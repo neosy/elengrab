@@ -15,7 +15,7 @@ type downloadJob struct {
 	runner pworkers.DownloadTaskRunner
 }
 
-func NewDownloadJob(task *ddownload.DownloadTask, runner pworkers.DownloadTaskRunner) *downloadJob {
+func NewDownloadJob(runner pworkers.DownloadTaskRunner, task *ddownload.DownloadTask) *downloadJob {
 	var jobID uuid.UUID
 	if task.JobID != nil {
 		jobID = *task.JobID
