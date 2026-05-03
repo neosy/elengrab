@@ -75,7 +75,7 @@ func InitWorkers(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) 
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewDownloaderMigrationsJob(logger, deps.DownloaderMigrations),
-		nworkers.WorkerOptionName("Migrations"),
+		nworkers.WorkerOptionName("DownloaderMigrations"),
 		nworkers.WorkerOptionMaxRuns(1),
 		nworkers.WorkerOptionOneShotDelay(5*time.Second),
 	))

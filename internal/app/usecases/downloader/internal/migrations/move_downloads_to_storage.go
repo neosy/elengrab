@@ -19,7 +19,7 @@ func (m *migrations) migrateMoveDownloadsToStorage(ctx context.Context) error {
 		return nil
 	}
 
-	files, err := m.dlFile.GetAll(ctx, true)
+	fileNames, err := m.dlFile.GetAllFullNames(ctx, true)
 	if err != nil {
 		return err
 	}
@@ -37,13 +37,13 @@ func (m *migrations) migrateMoveDownloadsToStorage(ctx context.Context) error {
 		return nil
 	}
 
-	if len(files) == 0 {
+	if len(fileNames) == 0 {
 		return markMigration()
 	}
 
 	var hasErr = false
-	for _, f := range files {
-		filePath := filepath.Join(m.dlStorage.BasePath(), f.FullName)
+	for _, fName := range fileNames {
+		filePath := filepath.Join(m.dlStorage.BasePath(), fName)
 		exists, err := nfile.FileExists(filePath)
 		if err != nil {
 			m.logger.Warn("Failed to exists file", "filePath", filePath, "error", err)
@@ -53,7 +53,7 @@ func (m *migrations) migrateMoveDownloadsToStorage(ctx context.Context) error {
 			continue
 		}
 
-		err = m.dlStorage.Move(filePath, f.FullName)
+		err = m.dlStorage.Move(filePath, fName)
 		if err != nil {
 			m.logger.Warn("Failed to move storage", "filePath", filePath, "error", err)
 			hasErr = true

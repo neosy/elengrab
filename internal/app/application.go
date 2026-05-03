@@ -55,6 +55,7 @@ const (
 
 	// Directory for storing
 	thumbnailsDir = "thumbnails"
+	mediaDir      = "media"
 )
 
 type Application struct {
@@ -182,7 +183,10 @@ func (a *Application) initialize() error {
 		a.logger.Error("Failed to initialize thumbnail Storage", "err", err)
 		return err
 	}
-	downloadsStorage, err := fsstorage.NewDownloadsStorage(absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir))
+	downloadsStorage, err := fsstorage.NewDownloadsStorage(
+		absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
+		mediaDir,
+	)
 	if err != nil {
 		a.logger.Error("Failed to initialize downloads storage", "err", err)
 		return err
