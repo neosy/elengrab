@@ -21,4 +21,8 @@ type DownloadsStorage interface {
 
 	// Stats returns filesystem usage for the given path.
 	Stats() (fsstorage.StorageStats, error)
+
+	// Used returns the total disk space consumed by all files under the base path.
+	// It recursively walks the directory and sums file sizes.
+	Used() (uint64, error)
 }

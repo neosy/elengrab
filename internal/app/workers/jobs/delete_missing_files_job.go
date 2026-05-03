@@ -17,7 +17,11 @@ type deleteMissingFilesJob struct {
 	enableMoveUnmatchedFiles bool
 }
 
-func NewDeleteMissingFilesJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner, enableMoveUnmatchedFiles bool) *deleteMissingFilesJob {
+func NewDeleteMissingFilesJob(
+	logger *slog.Logger,
+	runner pworkers.DownloadMaintenanceRunner,
+	enableMoveUnmatchedFiles bool,
+) *deleteMissingFilesJob {
 	return &deleteMissingFilesJob{
 		logger: logger,
 		runner: runner,
