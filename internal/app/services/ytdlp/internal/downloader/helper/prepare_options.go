@@ -11,10 +11,9 @@ import (
 // PrepareDownloadOptions prepare download options with defaults and user overrides
 // return dlOptions, downloadDir, fileName, includeTitleInFilename
 func PrepareDownloadOptions(
-	dlDir string,
 	concurrentFragments uint8,
 	options *dservices.DownloadOptions,
-) (idto.DLOptions, string, string, bool) {
+) (idto.DLOptions, string, bool) {
 	// Set default values
 	dlOptions := idto.DLOptions{
 		FormatType:          formatTypeDefault,
@@ -24,13 +23,12 @@ func PrepareDownloadOptions(
 		AudioFormat:         audioFormatDefault,
 		ConcurrentFragments: concurrentFragments,
 	}
-	downloadDir := dlDir
 	fileName := ""
 	includeTitleInFilename := false
 
 	// If no options provided, return defaults
 	if options == nil {
-		return dlOptions, downloadDir, fileName, includeTitleInFilename
+		return dlOptions, fileName, includeTitleInFilename
 	}
 
 	if dlOptions.ConcurrentFragments == 0 || dlOptions.ConcurrentFragments > 20 {
@@ -70,10 +68,5 @@ func PrepareDownloadOptions(
 	// Include title in filename
 	includeTitleInFilename = options.IncludeTitleInFilename
 
-	// Override download directory if provided
-	if options.DownloadsDir != nil {
-		downloadDir = *options.DownloadsDir
-	}
-
-	return dlOptions, downloadDir, fileName, includeTitleInFilename
+	return dlOptions, fileName, includeTitleInFilename
 }

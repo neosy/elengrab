@@ -2,8 +2,6 @@ package downloader
 
 import (
 	"context"
-	"os"
-	"path/filepath"
 
 	"github.com/neosy/elengrab/internal/app/utils"
 )
@@ -15,15 +13,17 @@ func (uc *Downloader) UpdateHash(ctx context.Context) error {
 	}
 
 	for _, file := range files {
-		fPath := filepath.Join(uc.downloadsDir, file.FullName)
-		if _, err := os.Stat(fPath); err != nil {
-			uc.logger.Warn("File not found", "filePath", fPath, "error", err)
+		filePath := uc.downloadsStorage.Path(file.FullName)
+
+		exists, err := uc.downloadsStorage.Exists(file.FullName)
+		if err != nil || !exists {
+			uc.logger.Warn("File not found", "filePath", filePath, "error", err)
 			continue
 		}
 
-		h, err := utils.HashPartialMedia(fPath)
+		h, err := utils.HashPartialMedia(filePath)
 		if err != nil {
-			uc.logger.Warn("Failed get hash partial", "filePath", fPath, "error", err)
+			uc.logger.Warn("Failed get hash partial", "filePath", filePath, "error", err)
 			continue
 		}
 

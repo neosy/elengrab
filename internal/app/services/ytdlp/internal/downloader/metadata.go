@@ -3,7 +3,6 @@ package downloader
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
@@ -16,7 +15,7 @@ import (
 
 func (d *Downloader) prepareMetadata(
 	ctx context.Context,
-	url, dlDir, fileName string,
+	url, fileName string,
 	includeTitleInFilename bool,
 	dlOptions idto.DLOptions,
 ) (*idto.DownloadMeta, error) {
@@ -59,7 +58,6 @@ func (d *Downloader) prepareMetadata(
 	}
 
 	fileFullName := fmt.Sprintf("%s.%s", fileName, fileExt)
-	filePath := filepath.Join(dlDir, fileFullName)
 
 	var (
 		fileSize *int64
@@ -95,7 +93,6 @@ func (d *Downloader) prepareMetadata(
 		FileName:     fileName,
 		FileExt:      fileExt,
 		FileFullName: fileFullName,
-		FilePath:     filePath,
 		FileSize:     fileSize,
 		ChannelID:    channelID,
 		ChannelURL:   dtoMediaInfo.ChannelUrl,

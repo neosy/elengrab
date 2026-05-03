@@ -15,10 +15,14 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 	"github.com/valyala/fasthttp"
 )
 
 type Dependencies struct {
+	// Storages
+	DownloadsStorage pstorage.DownloadsStorage
+
 	Usecases  *usecases.Usecases
 	Templates *template.Template
 
@@ -27,7 +31,6 @@ type Dependencies struct {
 	BaseURL         string
 	ShortLinkPrefix string
 	AssetsDir       string
-	DownloadsDir    string
 }
 
 type httpServer struct {
@@ -51,20 +54,19 @@ type httpServer struct {
 	baseURL         string
 	shortLinkPrefix string
 	assetsDir       string
-	downloadsDir    string
 }
 
 func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *httpServer {
 	handlers := handlers.New(
 		logger,
 		&handlers.Dependencies{
-			Usecases:        deps.Usecases,
-			Templates:       deps.Templates,
-			AppMode:         deps.AppMode,
-			BaseURL:         deps.BaseURL,
-			ShortLinkPrefix: deps.ShortLinkPrefix,
-			AssetsDir:       deps.AssetsDir,
-			DownloadsDir:    deps.DownloadsDir,
+			DownloadsStorage: deps.DownloadsStorage,
+			Usecases:         deps.Usecases,
+			Templates:        deps.Templates,
+			AppMode:          deps.AppMode,
+			BaseURL:          deps.BaseURL,
+			ShortLinkPrefix:  deps.ShortLinkPrefix,
+			AssetsDir:        deps.AssetsDir,
 		},
 	)
 
@@ -85,7 +87,6 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *h
 		baseURL:         deps.BaseURL,
 		shortLinkPrefix: deps.ShortLinkPrefix,
 		assetsDir:       deps.AssetsDir,
-		downloadsDir:    deps.DownloadsDir,
 	}
 }
 

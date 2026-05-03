@@ -9,7 +9,6 @@ import (
 
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	nfile "github.com/neosy/elengrab/internal/pkg/file"
 )
 
 const (
@@ -59,8 +58,7 @@ func (uc *Downloader) deleteMissingFiles(ctx context.Context) error {
 
 	// Mark records for deletion if the file is missing
 	for _, file := range files {
-		filePath := filepath.Join(uc.downloadsDir, file.FullName)
-		exists, _ := nfile.FileExists(filePath)
+		exists, _ := uc.downloadsStorage.Exists(file.FullName)
 		if !exists {
 			err := uc.file.SoftDelete(ctx, file.FileID)
 			if err == nil {
@@ -83,8 +81,7 @@ func (uc *Downloader) deleteMissingFiles(ctx context.Context) error {
 		if file.FullName == "" {
 			continue
 		}
-		filePath := filepath.Join(uc.downloadsDir, file.FullName)
-		if exists, _ := nfile.FileExists(filePath); exists {
+		if exists, _ := uc.downloadsStorage.Exists(file.FullName); exists {
 			err := uc.file.Restore(ctx, file.FileID)
 			if err != nil {
 				uc.logger.Warn("Failed to restore", "error", err)
@@ -114,7 +111,7 @@ func (uc *Downloader) deleteMissingFiles(ctx context.Context) error {
 // This helps clean up orphaned files that were downloaded but not recorded.
 func (uc *Downloader) moveUnmatchedFiles(ctx context.Context) error {
 	// Read all entries from the downloads directory
-	files, err := os.ReadDir(uc.downloadsDir)
+	files, err := os.ReadDir(uc.downloadsStorage.BasePath())
 	if err != nil {
 		uc.logger.Warn("Failed to read downloads dir", "error", err)
 		return err
@@ -133,7 +130,7 @@ func (uc *Downloader) moveUnmatchedFiles(ctx context.Context) error {
 	}
 
 	// Ensure "lost" directory exists
-	lostDir := filepath.Join(uc.downloadsDir, lostDirName)
+	lostDir := filepath.Join(uc.downloadsStorage.BasePath(), lostDirName)
 	if err := os.MkdirAll(lostDir, 0755); err != nil {
 		uc.logger.Warn("Failed to create lost dir", "error", err)
 		return errorx.Errorf("failed to create lost dir: %w", err)
@@ -159,8 +156,8 @@ func (uc *Downloader) moveUnmatchedFiles(ctx context.Context) error {
 
 		// Move file if it's not present in DB
 		if _, exists := namesMap[file.Name()]; !exists {
-			src := filepath.Join(uc.downloadsDir, file.Name())
-			dst := filepath.Join(uc.downloadsDir, lostDirName, file.Name())
+			src := uc.downloadsStorage.Path(file.Name())
+			dst := filepath.Join(uc.downloadsStorage.BasePath(), lostDirName, file.Name())
 
 			if err := os.Rename(src, dst); err != nil {
 				uc.logger.Warn("Failed to move file", "file", file.Name(), "error", err)

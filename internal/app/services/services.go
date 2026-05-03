@@ -7,11 +7,12 @@ import (
 	ytdlpsrv "github.com/neosy/elengrab/internal/app/services/ytdlp"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
+	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
 type Dependencies struct {
 	DownloaderBinDir string
-	DownloadsDir     string
+	Storage          pstorage.DownloadsStorage
 	YtDlpOptions     []dto.Option
 }
 
@@ -28,7 +29,7 @@ func New(logger *slog.Logger, deps *Dependencies) (*Services, error) {
 	downloader, err := ytdlpsrv.NewYtDlpService(
 		logger,
 		deps.DownloaderBinDir,
-		deps.DownloadsDir,
+		deps.Storage,
 		ffmpeg,
 		deps.YtDlpOptions...,
 	)

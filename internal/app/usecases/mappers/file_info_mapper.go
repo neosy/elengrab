@@ -15,7 +15,6 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 	file *ddownload.File,
 	avatarTitle string,
 	progress *dservices.DownloadProgress,
-	downloadsDir string,
 	hasSiteIcon bool,
 ) *dto.GetFileInfoResponse {
 	var mediaTitle = file.MediaTitle

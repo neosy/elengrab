@@ -19,9 +19,6 @@ type DownloadOptions struct {
 	// Audio format (orig, mp3)
 	AudioFormat *dtypes.AudioFormat
 
-	// Custom output directory
-	DownloadsDir *string
-
 	// Custom file name for the downloaded content
 	Filename *string
 
