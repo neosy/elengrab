@@ -237,8 +237,8 @@ func (h *DownloaderHandlers) handleSystemInfoUpdate(w *bufio.Writer, event ucdto
 		DiskFree string `json:"diskFree"`
 		DiskUsed string `json:"diskUsed"`
 	}{
-		DiskFree: uformat.BytesHuman(systemInfo.DiskFree),
-		DiskUsed: uformat.BytesHuman(systemInfo.DiskUsed),
+		DiskFree: uformat.BytesHuman(int64(systemInfo.DiskFree)),
+		DiskUsed: uformat.BytesHuman(int64(systemInfo.DiskUsed)),
 	}
 
 	jsonData, err := json.Marshal(data)

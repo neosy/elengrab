@@ -101,8 +101,8 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	dataMap[uivalues.ResultNoRowsKey] = rowsBuf.Len() == 0
 	dataMap[uivalues.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
 	dataMap[uivalues.AppVersionKey] = systemInfo.AppVersion
-	dataMap[uivalues.DiskFreeKey] = uformat.BytesHuman(systemInfo.DiskFree)
-	dataMap[uivalues.DiskUsedKey] = uformat.BytesHuman(systemInfo.DiskUsed)
+	dataMap[uivalues.DiskFreeKey] = uformat.BytesHuman(int64(systemInfo.DiskFree))
+	dataMap[uivalues.DiskUsedKey] = uformat.BytesHuman(int64(systemInfo.DiskUsed))
 
 	// Set content type so browser renders HTML properly
 	ctx.SetContentType("text/html; charset=utf-8")

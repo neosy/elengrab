@@ -1,12 +1,14 @@
 package core
 
-import "syscall"
+import (
+	"syscall"
+)
 
 // StorageStats represents disk usage information.
 type StorageStats struct {
-	Total int64
-	Used  int64
-	Free  int64
+	Total uint64
+	Used  uint64
+	Free  uint64
 }
 
 // Stats returns filesystem usage for the given path.
@@ -19,11 +21,11 @@ func (s *storage) Stats() (StorageStats, error) {
 	}
 
 	// block size
-	bsize := int64(stat.Bsize)
+	bsize := uint64(stat.Bsize)
 
-	total := int64(stat.Blocks) * bsize
-	free := int64(stat.Bfree) * bsize
-	avail := int64(stat.Bavail) * bsize
+	total := stat.Blocks * bsize
+	free := stat.Bfree * bsize
+	avail := stat.Bavail * bsize
 
 	// Used is more accurately total - available to non-root
 	used := total - avail
@@ -33,4 +35,10 @@ func (s *storage) Stats() (StorageStats, error) {
 		Used:  used,
 		Free:  free,
 	}, nil
+}
+
+// Used returns the total disk space consumed by all files under the base path.
+// It recursively walks the directory and sums file sizes.
+func (s *storage) Used() (uint64, error) {
+	return folderSize(s.BasePath())
 }

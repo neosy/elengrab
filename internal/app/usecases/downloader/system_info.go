@@ -27,10 +27,15 @@ func (uc *Downloader) UpdateSystemInfo() {
 		uc.logger.Warn("Failed to get storage stats", "error", err)
 	}
 
+	used, err := uc.downloadsStorage.Used()
+	if err != nil {
+		uc.logger.Warn("Failed to get used storage", "error", err)
+	}
+
 	systemInfoOld := uc.systemInfoStore.data
 
 	uc.systemInfoStore.mu.Lock()
-	uc.systemInfoStore.data.DiskUsed = stats.Used
+	uc.systemInfoStore.data.DiskUsed = used
 	uc.systemInfoStore.data.DiskFree = stats.Free
 	uc.systemInfoStore.mu.Unlock()
 

@@ -77,3 +77,9 @@ func (s *downloadsStorage) buildStorageKeyPath(fileName string) string {
 func (s *downloadsStorage) Stats() (StorageStats, error) {
 	return s.storage.Stats()
 }
+
+// Used returns the total disk space consumed by all files under the base path.
+// It recursively walks the directory and sums file sizes.
+func (s *downloadsStorage) Used() (uint64, error) {
+	return s.storage.Used()
+}

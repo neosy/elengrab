@@ -149,7 +149,7 @@ func (uc *Downloader) addFileToQueueDownload(ctx context.Context, fileId uuid.UU
 }
 
 func (uc *Downloader) enqueueDownloadTask(task *ddownload.DownloadTask) nworkerpool.Job {
-	job := wjobs.NewDownloadJob(task, uc)
+	job := wjobs.NewDownloadJob(uc, task)
 
 	if !uc.dlDispetcher.AddJob(job) {
 		return nil
