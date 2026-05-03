@@ -6,7 +6,7 @@ import (
 )
 
 type FileInfoPatch struct {
-	YoutubeChannelID     **string
+	ChannelID            **string
 	MediaTitle           *string
 	FileName             *string
 	Ext                  *string
@@ -22,8 +22,8 @@ func PatchToFileDomain(patch *FileInfoPatch, file *ddownload.File) {
 		return
 	}
 
-	if patch.YoutubeChannelID != nil {
-		file.YoutubeChannelID = *patch.YoutubeChannelID
+	if patch.ChannelID != nil {
+		file.ChannelID = *patch.ChannelID
 	}
 
 	if patch.MediaTitle != nil {

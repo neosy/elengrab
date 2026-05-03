@@ -119,7 +119,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 			var patch *dto.FileInfoPatch
 			if lastResult != nil {
 				patch = &dto.FileInfoPatch{
-					YoutubeChannelID: &lastResult.ChannelID,
+					ChannelID: &lastResult.ChannelID,
 				}
 				if lastResult.MediaTitle != "" {
 					patch.MediaTitle = &lastResult.MediaTitle
@@ -220,7 +220,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 	)
 
 	patch := &dto.FileInfoPatch{
-		YoutubeChannelID:     &lastResult.ChannelID,
+		ChannelID:            &lastResult.ChannelID,
 		MediaTitle:           &lastResult.MediaTitle,
 		FileName:             &lastResult.Filename,
 		Ext:                  &lastResult.FileExt,
