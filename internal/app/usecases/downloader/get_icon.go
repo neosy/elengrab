@@ -28,8 +28,8 @@ func (uc *Downloader) GetFileLogo(
 		}
 	}
 
-	if resp.YoutubeChannelID != nil {
-		channel, _ := uc.FindYoutubeChannelInfo(ctx, *resp.YoutubeChannelID)
+	if resp.ChannelID != nil && resp.IsYouTube() {
+		channel, _ := uc.FindYoutubeChannelInfo(ctx, *resp.ChannelID)
 		if channel != nil && len(channel.ImageRaw) > 0 {
 			return &dtypes.ImageData{
 				Raw:    channel.ImageRaw,

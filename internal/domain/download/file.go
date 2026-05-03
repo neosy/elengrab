@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
@@ -24,8 +25,8 @@ type File struct {
 	// Youtube title
 	MediaTitle string
 
-	// Youtube Channel ID
-	YoutubeChannelID *string
+	// Channel ID
+	ChannelID *string
 
 	// Original file name
 	FileName string
@@ -67,6 +68,10 @@ type File struct {
 	DownloadTask *DownloadTask
 }
 
+func (f *File) IsYouTube() bool {
+	return hostdetect.YouTube(f.MediaUrl)
+}
+
 func (src *File) Copy() *File {
 	if src == nil {
 		return nil
@@ -74,7 +79,7 @@ func (src *File) Copy() *File {
 
 	copy := uptr.Copy(src)
 	copy.UserID = uptr.Copy(src.UserID)
-	copy.YoutubeChannelID = uptr.Copy(src.YoutubeChannelID)
+	copy.ChannelID = uptr.Copy(src.ChannelID)
 	copy.FileSize = uptr.Copy(src.FileSize)
 	copy.PartialHash = uptr.Copy(src.PartialHash)
 	copy.MediaInfo = src.MediaInfo.Copy()

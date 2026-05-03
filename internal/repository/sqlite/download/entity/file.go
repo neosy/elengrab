@@ -13,10 +13,10 @@ type File struct {
 	FileID               uuid.UUID  `db:"file_id"`
 	UserID               *uuid.UUID `db:"user_id"`
 	Status               string     `db:"file_status"`
-	MediaUrl             string     `db:"youtube_url"`
-	MediaTitle           string     `db:"youtube_title"`
+	MediaUrl             string     `db:"media_url"`
+	MediaTitle           string     `db:"media_title"`
 	MediaTitleLower      string     `db:"media_title_lower"`
-	YoutubeChannelID     *string    `db:"youtube_channel_id"`
+	ChannelID            *string    `db:"channel_id"`
 	FileName             string     `db:"file_name"`
 	Ext                  string     `db:"ext"`
 	FullName             string     `db:"full_name"`
