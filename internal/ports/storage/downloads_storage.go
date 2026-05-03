@@ -13,11 +13,14 @@ type DownloadsStorage interface {
 	// Delete removes the dowload data.
 	Delete(uniqueFileName string) error
 
-	// Path returns the full file path.
-	Path(uniqueFileName string) string
-
 	// BasePath
 	BasePath() string
+
+	// MediaPath
+	MediaPath() string
+
+	// Path returns the full file path.
+	Path(uniqueFileName string) string
 
 	// Stats returns filesystem usage for the given path.
 	Stats() (fsstorage.StorageStats, error)
