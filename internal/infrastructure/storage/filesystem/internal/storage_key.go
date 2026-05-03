@@ -1,15 +1,15 @@
 package core
 
-import "fmt"
+import (
+	"path/filepath"
+)
 
 func BuildStorageKeyPath(storageKey string, format string) string {
 	key := storageKey
 
-	return fmt.Sprintf(
-		"%s/%s/%s.%s",
+	return filepath.Join(
 		key[:2],
 		key[2:4],
-		key,
-		format,
+		key+"."+format,
 	)
 }

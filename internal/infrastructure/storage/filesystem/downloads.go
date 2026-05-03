@@ -3,7 +3,6 @@ package fsstorage
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -12,24 +11,28 @@ import (
 
 type downloadsStorage struct {
 	storage core.Storage
+
+	// Options
+	mediaDirName string
 }
 
 // NewDownloadsStorage creates a new instance of downloadsStorage with the provided base path for storage.
-func NewDownloadsStorage(basePath string) (*downloadsStorage, error) {
+func NewDownloadsStorage(basePath, mediaDirName string) (*downloadsStorage, error) {
 	storage, err := core.NewStorage(basePath)
 	if err != nil {
 		return nil, err
 	}
 
 	return &downloadsStorage{
-		storage: storage,
+		storage:      storage,
+		mediaDirName: mediaDirName,
 	}, nil
 }
 
 // Exists checks if file exists in storage.
 func (s *downloadsStorage) Exists(uniqueFileName string) (bool, error) {
 	keyPath := s.buildStorageKeyPath(uniqueFileName)
-	return s.Exists(keyPath)
+	return s.storage.Exists(keyPath)
 }
 
 // Move file from directory to storage
@@ -61,12 +64,16 @@ func (s *downloadsStorage) BasePath() string {
 	return s.storage.BasePath()
 }
 
+func (s *downloadsStorage) MediaPath() string {
+	return filepath.Join(s.storage.BasePath(), s.mediaDirName)
+}
+
 func (s *downloadsStorage) buildStorageKeyPath(fileName string) string {
 	sum := sha256.Sum256([]byte(fileName))
 	key := hex.EncodeToString(sum[:2])
 
-	return fmt.Sprintf(
-		"%s/%s/%s",
+	return filepath.Join(
+		s.mediaDirName,
 		key[:2],
 		key[2:4],
 		fileName,

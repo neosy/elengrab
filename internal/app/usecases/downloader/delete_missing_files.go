@@ -3,6 +3,7 @@ package downloader
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"time"
@@ -110,13 +111,6 @@ func (uc *Downloader) deleteMissingFiles(ctx context.Context) error {
 // that do not exist in the database into the "lost" subdirectory.
 // This helps clean up orphaned files that were downloaded but not recorded.
 func (uc *Downloader) moveUnmatchedFiles(ctx context.Context) error {
-	// Read all entries from the downloads directory
-	files, err := os.ReadDir(uc.downloadsStorage.BasePath())
-	if err != nil {
-		uc.logger.Warn("Failed to read downloads dir", "error", err)
-		return err
-	}
-
 	// Load all known filenames from DB (including deleted)
 	names, err := uc.file.GetAllFullNames(ctx, true)
 	if err != nil {
@@ -136,36 +130,48 @@ func (uc *Downloader) moveUnmatchedFiles(ctx context.Context) error {
 		return errorx.Errorf("failed to create lost dir: %w", err)
 	}
 
-	// Iterate over all files in downloads dir
-	for _, file := range files {
-		if file.IsDir() {
-			continue
-		}
-		if filepath.Ext(file.Name()) == ".part" {
-			continue
-		}
-
-		info, err := file.Info() // fs.FileInfo
-		if err != nil {
-			continue
-		}
-
-		if time.Now().UTC().Before(info.ModTime().UTC().Add(moveUnmatchedFileRetentionPeriod)) {
-			continue
-		}
-
-		// Move file if it's not present in DB
-		if _, exists := namesMap[file.Name()]; !exists {
-			src := uc.downloadsStorage.Path(file.Name())
-			dst := filepath.Join(uc.downloadsStorage.BasePath(), lostDirName, file.Name())
-
-			if err := os.Rename(src, dst); err != nil {
-				uc.logger.Warn("Failed to move file", "file", file.Name(), "error", err)
-				return fmt.Errorf("failed to move file %s: %w", file.Name(), err)
+	// Read all entries from the downloads directory
+	err = filepath.WalkDir(uc.downloadsStorage.MediaPath(),
+		func(path string, file fs.DirEntry, err error) error {
+			if err != nil {
+				return err
 			}
 
-			uc.logger.Debug("Moved file to lost directory", "file", file.Name())
-		}
+			if file.IsDir() {
+				return nil
+			}
+			if filepath.Ext(file.Name()) == ".part" {
+				return nil
+			}
+
+			info, err := file.Info() // fs.FileInfo
+			if err != nil {
+				return nil
+			}
+
+			if time.Now().UTC().Before(info.ModTime().UTC().Add(moveUnmatchedFileRetentionPeriod)) {
+				return nil
+			}
+
+			// Move file if it's not present in DB
+			if _, exists := namesMap[file.Name()]; !exists {
+				src := path
+				dst := filepath.Join(uc.downloadsStorage.BasePath(), lostDirName, file.Name())
+
+				if err := os.Rename(src, dst); err != nil {
+					uc.logger.Warn("Failed to move file", "file", file.Name(), "error", err)
+					return fmt.Errorf("failed to move file %s: %w", file.Name(), err)
+				}
+
+				uc.logger.Debug("Moved file to lost directory", "file", file.Name())
+			}
+
+			return nil
+		},
+	)
+	if err != nil {
+		uc.logger.Warn("Failed to read downloads dir", "error", err)
+		return err
 	}
 
 	return nil
