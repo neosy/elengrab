@@ -21,13 +21,14 @@ type Thumbnail struct {
 func NewThumbnail(
 	logger *slog.Logger,
 	thumbnailRep persistence.ThumbnailRepository,
+	thumbnailCacheRep persistence.ThumbnailCacheRepository,
 	storage pstorage.ThumbnailsStorage,
 ) *Thumbnail {
 	return &Thumbnail{
 		logger:  logger,
 		mappers: mappers.NewMappers(),
 
-		store:   store.NewThumbnailStore(logger, thumbnailRep),
+		store:   store.NewThumbnailStore(logger, thumbnailRep, thumbnailCacheRep),
 		storage: storage,
 	}
 }

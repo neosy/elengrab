@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 // Stores thumbnail metadata for media files
@@ -133,4 +134,22 @@ func (t *Thumbnail) ImageData() *dtypes.ImageData {
 		Height: height,
 		Raw:    t.ImageRaw,
 	}
+}
+
+func (t *Thumbnail) Copy() *Thumbnail {
+	if t == nil {
+		return nil
+	}
+
+	thumbnailCopy := *t
+
+	thumbnailCopy.Width = uptr.Copy(t.Width)
+	thumbnailCopy.Height = uptr.Copy(t.Height)
+	thumbnailCopy.SourceID = uptr.Copy(t.SourceID)
+	thumbnailCopy.SourceURL = uptr.Copy(t.SourceURL)
+
+	imageRaw := make([]byte, 0, len(thumbnailCopy.ImageRaw))
+	copy(imageRaw, thumbnailCopy.ImageRaw)
+
+	return &thumbnailCopy
 }

@@ -29,12 +29,14 @@ import (
 )
 
 const (
-	// Default TTL for download state cache
-	downloadStateCacheTTLDefault = 20 * time.Minute
-	// Default TTL for channel information cache
-	youtubeChannelCacheTTLDefault = 1 * 6 * time.Hour
-	// Default TTL for site logo information cache
-	siteLogoCacheTTLDefault = 1 * 24 * time.Hour
+	// TTL for download state cache
+	downloadStateCacheTTL = 20 * time.Minute
+	// TTL for channel information cache
+	youtubeChannelCacheTTL = 1 * 6 * time.Hour
+	// TTL for site logo information cache
+	siteLogoCacheTTL = 1 * 24 * time.Hour
+	// TTL for thumbnail information cache
+	thumbnailCacheTTL = 1 * 24 * time.Hour
 
 	// Update interval for site logo information
 	logoUpdateInterval = 24 * time.Hour
@@ -45,6 +47,7 @@ const (
 	cleanYoutubeChannelCacheInterval = 5 * time.Minute
 	cleanDownloadStateCacheinterval  = 30 * time.Minute
 	cleanSiteLogoCacheInterval       = 2 * time.Hour
+	cleanThumbnailCacheInterval      = 2 * time.Hour
 
 	// defaultWorkerIdleTime is the default idle duration before a dynamic pool worker can exit.
 	workerIdleTimeDefault = 15 * time.Minute
@@ -157,9 +160,10 @@ func (a *Application) initialize() error {
 
 	// Create in memory repositories
 	inMemoryDeps := inmemoryrep.Dependencies{
-		DownloadStateCacheTTL:  downloadStateCacheTTLDefault,
-		YoutubeChannelCacheTTL: youtubeChannelCacheTTLDefault,
-		SiteLogoCacheTTL:       siteLogoCacheTTLDefault,
+		DownloadStateCacheTTL:  downloadStateCacheTTL,
+		YoutubeChannelCacheTTL: youtubeChannelCacheTTL,
+		SiteLogoCacheTTL:       siteLogoCacheTTL,
+		ThumbnailCacheTTL:      thumbnailCacheTTL,
 	}
 	inMemoryRepositories := inmemoryrep.New(inMemoryDeps)
 
@@ -233,6 +237,7 @@ func (a *Application) initialize() error {
 			DownloadStateCache:  inMemoryRepositories.DownloadState,
 			YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
 			SiteLogoCache:       inMemoryRepositories.SiteLogo,
+			ThumbnailCache:      inMemoryRepositories.Thumbnail,
 		},
 
 		Storages: usecases.DepStorages{
@@ -274,6 +279,7 @@ func (a *Application) initialize() error {
 		DownloadStateCache:  inMemoryRepositories.DownloadState,
 		YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
 		SiteLogoCache:       inMemoryRepositories.SiteLogo,
+		ThumbnailCache:      inMemoryRepositories.Thumbnail,
 		// runners
 		DownloaderMaintenance: a.Usecases.Downloader,
 		Maintenance:           a.Usecases.Maintenance,
@@ -289,6 +295,7 @@ func (a *Application) initialize() error {
 		IntervalCleanYoutubeChannelCache: cleanYoutubeChannelCacheInterval,
 		IntervalCleanDownloadStateCache:  cleanDownloadStateCacheinterval,
 		IntervalCleanSiteLogoCache:       cleanSiteLogoCacheInterval,
+		IntervalCleanThumbnailCache:      cleanThumbnailCacheInterval,
 	}
 	a.Workers = nworkers.NewWorkers(a.logger, wsDeps, workers.InitWorkers)
 
