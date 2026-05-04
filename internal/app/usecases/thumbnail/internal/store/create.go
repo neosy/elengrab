@@ -29,5 +29,10 @@ func (c *ThumbnailStore) Insert(ctx context.Context, thumbnail *dmedia.Thumbnail
 		return err
 	}
 
+	thumbnail, _ = c.thumbnailRep.FindByThumbID(ctx, thumbnail.ThumbID)
+	if thumbnail != nil {
+		c.thumbnailCacheRep.Save(ctx, thumbnail)
+	}
+
 	return nil
 }
