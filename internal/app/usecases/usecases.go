@@ -75,6 +75,7 @@ type DepRepositories struct {
 	DownloadStateCache  persistence.DownloadStateCacheRepository
 	YoutubeChannelCache persistence.YoutubeChannelCacheRepository
 	SiteLogoCache       persistence.SiteLogoCacheRepository
+	ThumbnailCache      persistence.ThumbnailCacheRepository
 }
 
 type DepStorages struct {
@@ -113,6 +114,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 	thumbnail := thumbnail.NewThumbnail(
 		logger,
 		deps.Repositories.Thumbnail,
+		deps.Repositories.ThumbnailCache,
 		deps.Storages.Thumbnails,
 	)
 

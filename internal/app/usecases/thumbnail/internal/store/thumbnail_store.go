@@ -11,14 +11,19 @@ type ThumbnailStore struct {
 
 	// repositories
 	thumbnailRep persistence.ThumbnailRepository
+
+	// cache in memory
+	thumbnailCacheRep persistence.ThumbnailCacheRepository
 }
 
 func NewThumbnailStore(
 	logger *slog.Logger,
 	thumbnailRep persistence.ThumbnailRepository,
+	thumbnailCacheRep persistence.ThumbnailCacheRepository,
 ) *ThumbnailStore {
 	return &ThumbnailStore{
-		logger:       logger,
-		thumbnailRep: thumbnailRep,
+		logger:            logger,
+		thumbnailRep:      thumbnailRep,
+		thumbnailCacheRep: thumbnailCacheRep,
 	}
 }

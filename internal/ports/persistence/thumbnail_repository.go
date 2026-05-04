@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
 
 type ThumbnailRepository interface {
@@ -22,4 +23,12 @@ type ThumbnailRepository interface {
 		version uint8,
 	) (*dmedia.Thumbnail, error)
 	GetByMediaID(ctx context.Context, mediaID uuid.UUID) ([]*dmedia.Thumbnail, error)
+}
+
+type ThumbnailCacheRepository interface {
+	Save(ctx context.Context, thumbnail *dmedia.Thumbnail) error
+	SaveNegative(ctx context.Context, thumbID uuid.UUID) error
+	FindByThumbnailID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, memsimple.CacheStatus, error)
+	ExistsByThumbnailID(ctx context.Context, thumbID uuid.UUID) (bool, error)
+	CleanExpired(ctx context.Context) error
 }

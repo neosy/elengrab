@@ -72,7 +72,7 @@ func NewCache[K comparable, T any](copier CacheCopier[T]) Cache[K, T] {
 //
 //	The implementation should handle nil pointers appropriately.
 func NewCacheWithDeaultCopier[K comparable, T any, PT copyable[T]]() Cache[K, T] {
-	return NewCache[K, T](DefaultCopier[T, PT]())
+	return NewCache[K](DefaultCopier[T, PT]())
 }
 
 // negativeTTL returns the NegativeTTL function to use for this cache.
