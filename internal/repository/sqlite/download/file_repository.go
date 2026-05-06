@@ -372,16 +372,16 @@ func (r *FileRepository) FindByFileID(ctx context.Context, fileId uuid.UUID) (*d
 	return file, nil
 }
 
-func (r *FileRepository) getAll(
+func (r *FileRepository) iterateGetAll(
 	ctx context.Context,
 	byFields fileByFields,
 	sortOrderBy string,
 	includeDeleted bool,
-) ([]*ddownload.File, error) {
+	fn func(*ddownload.File) error,
+) error {
 	var (
 		eFile edownload.File
 		eTask edownload.DownloadTask
-		files []*ddownload.File
 
 		aliasFiles = "f"
 		aliasTasks = "t"
@@ -441,32 +441,46 @@ func (r *FileRepository) getAll(
 	sqlQuery, args, err := qb.ToSql()
 
 	if err != nil {
-		return nil, fmt.Errorf("error generating SQL: %v", err)
+		return fmt.Errorf("error generating SQL: %v", err)
 	}
 
 	// Execute the query
 	db := dbexec.Resolve(ctx, r.db)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer rows.Close()
 
 	if rows != nil {
-		files, err = r.mappers.MapRowsToFilesTask(rows)
+		err = r.mappers.MapRowsToFilesTask(rows, func(f *ddownload.File) error {
+			if err := fn(f); err != nil {
+				return err
+			}
+			return nil
+		})
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	return files, nil
+	return nil
 }
 
-func (r *FileRepository) GetAll(ctx context.Context, includeDeleted bool) ([]*ddownload.File, error) {
-	return r.getAll(ctx, fileByFields{}, dbutils.OrderDesc, includeDeleted)
+func (r *FileRepository) IterateGetAll(ctx context.Context, includeDeleted bool, fn func(*ddownload.File) error) error {
+	return r.iterateGetAll(ctx, fileByFields{}, dbutils.OrderDesc, includeDeleted, fn)
 }
 
-func (r *FileRepository) GetAllFullNames(ctx context.Context, includeDeleted bool) ([]string, error) {
+func (r *FileRepository) GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error) {
+	names := make(map[string]struct{}, 100)
+	r.IterateFullNames(ctx, includeDeleted, func(name string) error {
+		names[name] = struct{}{}
+		return nil
+	})
+	return names, nil
+}
+
+func (r *FileRepository) IterateFullNames(ctx context.Context, includeDeleted bool, fn func(string) error) error {
 	var eFile edownload.File
 
 	sqlWhere := squirrel.And{}
@@ -486,35 +500,40 @@ func (r *FileRepository) GetAllFullNames(ctx context.Context, includeDeleted boo
 		ToSql()
 
 	if err != nil {
-		return nil, fmt.Errorf("error generating SQL: %v", err)
+		return fmt.Errorf("error generating SQL: %v", err)
 	}
 
 	// Execute the query
 	db := dbexec.Resolve(ctx, r.db)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer rows.Close()
 
-	var fullNames []string
 	for rows.Next() {
 		var fullName string
 		err = rows.Scan(&fullName)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		if fullName != "" {
-			fullNames = append(fullNames, fullName)
+		if fullName == "" {
+			continue
+		}
+
+		if err := fn(fullName); err != nil {
+			return err
 		}
 	}
 
-	return fullNames, nil
+	return nil
 }
 
 func (r *FileRepository) GetBeforeTime(ctx context.Context, before time.Time, limit uint64) ([]*ddownload.File, error) {
-	return r.getAll(
+	files := make([]*ddownload.File, 0, 100)
+
+	err := r.iterateGetAll(
 		ctx,
 		fileByFields{
 			beforeTime: &before,
@@ -522,7 +541,15 @@ func (r *FileRepository) GetBeforeTime(ctx context.Context, before time.Time, li
 		},
 		dbutils.OrderDesc,
 		false,
-	)
+		func(f *ddownload.File) error {
+			files = append(files, f)
+			return nil
+		})
+	if err != nil {
+		return nil, err
+	}
+
+	return files, nil
 }
 
 func (r *FileRepository) GetByStatus(ctx context.Context, status dtypes.FileStatus) ([]*ddownload.File, error) {
@@ -530,24 +557,66 @@ func (r *FileRepository) GetByStatus(ctx context.Context, status dtypes.FileStat
 }
 
 func (r *FileRepository) GetByStatuses(ctx context.Context, statuses []dtypes.FileStatus) ([]*ddownload.File, error) {
-	return r.getAll(ctx, fileByFields{statuses: statuses}, dbutils.OrderAsc, false)
+	var files = make([]*ddownload.File, 0, 100)
+
+	err := r.iterateGetAll(
+		ctx,
+		fileByFields{statuses: statuses},
+		dbutils.OrderAsc, false,
+		func(f *ddownload.File) error {
+			files = append(files, f)
+			return nil
+		})
+	if err != nil {
+		return nil, err
+	}
+
+	return files, nil
 }
 
 func (r *FileRepository) GetByPartialHash(ctx context.Context, hash string) ([]*ddownload.File, error) {
-	var h = &hash
-	return r.getAll(
+	var (
+		h     = &hash
+		files = make([]*ddownload.File, 0, 100)
+	)
+
+	err := r.iterateGetAll(
 		ctx, fileByFields{
 			statuses:    []dtypes.FileStatus{dtypes.FileStatusDone},
 			partialHash: &h,
 		},
 		dbutils.OrderDesc,
 		false,
-	)
+		func(f *ddownload.File) error {
+			files = append(files, f)
+			return nil
+		})
+	if err != nil {
+		return nil, err
+	}
+
+	return files, nil
 }
 
 func (r *FileRepository) GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, error) {
-	var h *string
-	return r.getAll(ctx, fileByFields{partialHash: &h}, dbutils.OrderAsc, false)
+	var (
+		h     *string
+		files = make([]*ddownload.File, 0, 100)
+	)
+
+	err := r.iterateGetAll(
+		ctx,
+		fileByFields{partialHash: &h},
+		dbutils.OrderAsc, false,
+		func(f *ddownload.File) error {
+			files = append(files, f)
+			return nil
+		})
+	if err != nil {
+		return nil, err
+	}
+
+	return files, nil
 }
 
 func (r *FileRepository) GetDuplicateHashes(ctx context.Context, scope dtypes.UniquenessScope) ([]ddownload.DuplicateHashRow, error) {
