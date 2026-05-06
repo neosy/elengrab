@@ -37,11 +37,11 @@ func normalizePath(p string) string {
 	switch {
 	// /downloader/file/{id}/logo
 	case strings.HasPrefix(p, "/downloader/file/"):
-		return normalizeBySegments(p, 4, "/downloader/file/:id")
+		return normalizeBySegments(p, 3, "/downloader/file/:id")
 
 	// /downloader/files/{id}/stream
 	case strings.HasPrefix(p, "/downloader/files/"):
-		return normalizeBySegments(p, 4, "/downloader/files/:id")
+		return normalizeBySegments(p, 3, "/downloader/files/:id")
 
 	// /downloader/stream/{id}
 	case strings.HasPrefix(p, "/downloader/stream/"):
@@ -49,7 +49,7 @@ func normalizePath(p string) string {
 
 	// /downloader/channel/{id}/avatar
 	case strings.HasPrefix(p, "/downloader/channel/"):
-		return normalizeBySegments(p, 4, "/downloader/channel/:id")
+		return normalizeBySegments(p, 3, "/downloader/channel/:id")
 
 	// short links
 	case strings.HasPrefix(p, "/s/"):
@@ -64,11 +64,14 @@ func normalizePath(p string) string {
 	}
 }
 
-func normalizeBySegments(p string, minParts int, fallback string) string {
+func normalizeBySegments(p string, idIndex int, fallback string) string {
 	parts := strings.Split(p, "/")
-	if len(parts) >= minParts+1 {
-		parts[minParts] = ":id"
-		return strings.Join(parts, "/")
+
+	// /a/b/c => ["", "a", "b", "c"]
+	if len(parts) <= idIndex {
+		return fallback
 	}
-	return fallback
+
+	parts[idIndex] = ":id"
+	return strings.Join(parts, "/")
 }
