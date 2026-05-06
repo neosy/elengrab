@@ -131,26 +131,28 @@ func (m *Mappers) MapRowsToFiles(rows *sql.Rows) ([]*ddownload.File, error) {
 	return files, nil
 }
 
-func (m *Mappers) MapRowsToFilesTask(rows *sql.Rows) ([]*ddownload.File, error) {
+func (m *Mappers) MapRowsToFilesTask(rows *sql.Rows, fn func(*ddownload.File) error) error {
 	var (
 		eFile edownload.File
 		eTask edownload.DownloadTask
-		files []*ddownload.File
 	)
 
 	for rows.Next() {
 		err := rows.Scan(append(eFile.FieldPointers(), eTask.FieldPointers()...)...)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		file, err := m.MapFileEntityToDomain(&eFile, &eTask)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		files = append(files, file)
+		err = fn(file)
+		if err != nil {
+			return err
+		}
 	}
 
-	return files, nil
+	return nil
 }

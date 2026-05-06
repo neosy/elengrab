@@ -22,8 +22,9 @@ type FileRepository interface {
 	UpdateOwner(ctx context.Context, fromID, toID uuid.UUID) error
 
 	FindByFileID(ctx context.Context, FileID uuid.UUID) (*ddownload.File, error)
-	GetAll(ctx context.Context, includeDeleted bool) ([]*ddownload.File, error)
-	GetAllFullNames(ctx context.Context, includeDeleted bool) ([]string, error)
+	IterateGetAll(ctx context.Context, includeDeleted bool, fn func(*ddownload.File) error) error
+	GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error)
+	IterateFullNames(ctx context.Context, includeDeleted bool, fn func(string) error) error
 	GetBeforeTime(ctx context.Context, before time.Time, limit uint64) ([]*ddownload.File, error)
 	GetByStatus(ctx context.Context, status dtypes.FileStatus) ([]*ddownload.File, error)
 	GetByStatuses(ctx context.Context, statuses []dtypes.FileStatus) ([]*ddownload.File, error)

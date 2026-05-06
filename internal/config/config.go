@@ -67,7 +67,7 @@ type ElengrabConfig struct {
 type ElengrabMaintenanceConfig struct {
 	IntervalUpdateHash            time.Duration `env:"INTERVAL_UPDATE_HASH" envDefault:"8h"`
 	IntervalDeleteDuplicates      time.Duration `env:"INTERVAL_DELETE_DUPLICATES" envDefault:"1h"`
-	IntervalDeleteMissingFiles    time.Duration `env:"INTERVAL_DELETE_MISSING_FILES" envDefault:"30m"`
+	IntervalDeleteMissingFiles    time.Duration `env:"INTERVAL_DELETE_MISSING_FILES" envDefault:"12h"`
 	IntervalDeleteFailedDownloads time.Duration `env:"INTERVAL_DELETE_FAILED_DOWNLOADS" envDefault:"1h"`
 
 	// EnableMoveUnmatchedFiles controls whether the periodic

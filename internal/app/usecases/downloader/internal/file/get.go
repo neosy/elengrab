@@ -50,17 +50,17 @@ func (uc *File) GetByFileID(
 	return file, nil
 }
 
-func (uc *File) GetAll(ctx context.Context, includeDeleted bool) ([]*ddownload.File, error) {
-	file, err := uc.fileRep.GetAll(ctx, includeDeleted)
+func (uc *File) GetAll(ctx context.Context, includeDeleted bool, fn func(*ddownload.File) error) error {
+	err := uc.fileRep.IterateGetAll(ctx, includeDeleted, fn)
 	if err != nil {
 		uc.logger.Warn("Failed to get files", "error", err)
-		return nil, err
+		return err
 	}
 
-	return file, err
+	return nil
 }
 
-func (uc *File) GetAllFullNames(ctx context.Context, includeDeleted bool) ([]string, error) {
+func (uc *File) GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error) {
 	names, err := uc.fileRep.GetAllFullNames(ctx, includeDeleted)
 	if err != nil {
 		uc.logger.Warn("Failed to get fullNames", "error", err)
