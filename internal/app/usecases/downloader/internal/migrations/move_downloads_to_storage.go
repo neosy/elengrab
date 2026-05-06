@@ -42,7 +42,7 @@ func (m *migrations) migrateMoveDownloadsToStorage(ctx context.Context) error {
 	}
 
 	var hasErr = false
-	for _, fName := range fileNames {
+	for fName := range fileNames {
 		filePath := filepath.Join(m.dlStorage.BasePath(), fName)
 		exists, err := nfile.FileExists(filePath)
 		if err != nil {

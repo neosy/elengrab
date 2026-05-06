@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -117,18 +118,14 @@ func (uc *Downloader) moveUnmatchedFiles(ctx context.Context) error {
 		return err
 	}
 
-	// Convert list to a set for fast lookup
-	var namesMap = make(map[string]struct{}, len(names))
-	for _, name := range names {
-		namesMap[name] = struct{}{}
-	}
-
 	// Ensure "lost" directory exists
 	lostDir := filepath.Join(uc.downloadsStorage.BasePath(), lostDirName)
 	if err := os.MkdirAll(lostDir, 0755); err != nil {
 		uc.logger.Warn("Failed to create lost dir", "error", err)
 		return errorx.Errorf("failed to create lost dir: %w", err)
 	}
+
+	now := time.Now().UTC()
 
 	// Read all entries from the downloads directory
 	err = filepath.WalkDir(uc.downloadsStorage.MediaPath(),
@@ -140,7 +137,10 @@ func (uc *Downloader) moveUnmatchedFiles(ctx context.Context) error {
 			if file.IsDir() {
 				return nil
 			}
-			if filepath.Ext(file.Name()) == ".part" {
+
+			fileName := file.Name()
+
+			if strings.HasSuffix(fileName, ".part") {
 				return nil
 			}
 
@@ -149,21 +149,21 @@ func (uc *Downloader) moveUnmatchedFiles(ctx context.Context) error {
 				return nil
 			}
 
-			if time.Now().UTC().Before(info.ModTime().UTC().Add(moveUnmatchedFileRetentionPeriod)) {
+			if now.Before(info.ModTime().UTC().Add(moveUnmatchedFileRetentionPeriod)) {
 				return nil
 			}
 
 			// Move file if it's not present in DB
-			if _, exists := namesMap[file.Name()]; !exists {
+			if _, exists := names[fileName]; !exists {
 				src := path
-				dst := filepath.Join(uc.downloadsStorage.BasePath(), lostDirName, file.Name())
+				dst := filepath.Join(uc.downloadsStorage.BasePath(), lostDirName, fileName)
 
 				if err := os.Rename(src, dst); err != nil {
-					uc.logger.Warn("Failed to move file", "file", file.Name(), "error", err)
-					return fmt.Errorf("failed to move file %s: %w", file.Name(), err)
+					uc.logger.Warn("Failed to move file", "file", fileName, "error", err)
+					return fmt.Errorf("failed to move file %s: %w", fileName, err)
 				}
 
-				uc.logger.Debug("Moved file to lost directory", "file", file.Name())
+				uc.logger.Debug("Moved file to lost directory", "file", fileName)
 			}
 
 			return nil

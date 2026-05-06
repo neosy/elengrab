@@ -6,6 +6,9 @@ import (
 	"os/signal"
 	"syscall"
 
+	"net/http"
+	_ "net/http/pprof"
+
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "modernc.org/sqlite"
 
@@ -18,6 +21,9 @@ import (
 func main() {
 	// Version output at startup
 	fmt.Fprintf(os.Stderr, "%s v%s\n", iconfig.AppName, iconfig.AppVersion)
+
+	// TODO pprof
+	go http.ListenAndServe("0.0.0.0:6060", nil)
 
 	// Initialize configuration and logger
 	cfg, logger := bootstrap.Initialize()
