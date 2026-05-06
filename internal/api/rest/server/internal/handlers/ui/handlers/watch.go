@@ -41,7 +41,7 @@ func (h *DownloaderHandlers) watch(
 		audioQuality  = ""
 		fileSize      = "-"
 		isVideoPlayer = true
-		contentType   = ""
+		contentType   = "text/html"
 		videoWidth    = 0
 		videoHeight   = 0
 	)
@@ -50,7 +50,6 @@ func (h *DownloaderHandlers) watch(
 
 		isVideoPlayer = fileInfo.MediaInfo.Format.IsVideo()
 		format = strings.ToUpper(ext)
-		contentType = httpx.ContentTypeByExt(ext)
 
 		if videoInfo := fileInfo.MediaInfo.VideoInfo; videoInfo != nil {
 			qValues := []string{strings.ToUpper(videoInfo.Codec.String())}
@@ -76,7 +75,6 @@ func (h *DownloaderHandlers) watch(
 		fileSize = uformat.BytesHuman(*fileInfo.FileSize)
 	}
 
-	const disableMediaType = true
 	mediaURL := h.baseURL + streamPath
 	prefixType := fnx.Ternary(isVideoPlayer, "video", "audio")
 	description := fileInfo.MediaTitle + fmt.Sprintf(" [%s]", fileInfo.MediaInfoText)
@@ -112,11 +110,7 @@ func (h *DownloaderHandlers) watch(
 
 	metaOgItems := make(uivalues.MetaOgItems, 0, 20)
 	metaOgItems.Add("site_name", iconfig.AppName)
-	if disableMediaType {
-		metaOgItems.Add("type", "website")
-	} else {
-		metaOgItems.Add("type", fnx.Ternary(isVideoPlayer, "video.other", "music.song"))
-	}
+	metaOgItems.Add("type", fnx.Ternary(isVideoPlayer, "video.other", "music.song"))
 	metaOgItems.Add("title", fileInfo.MediaTitle)
 	metaOgItems.Add("description", description)
 	metaOgItems.Add("url", pageURL)
@@ -129,16 +123,14 @@ func (h *DownloaderHandlers) watch(
 	}
 	metaOgItems.Add("image:alt", "Elengrab logo")
 
-	if !disableMediaType {
-		metaOgItems.Add(prefixType, mediaURL)
-		metaOgItems.Add(fmt.Sprintf("%s:secure_url", prefixType), mediaURL)
-		if contentType != "" {
-			metaOgItems.Add(fmt.Sprintf("%s:type", prefixType), contentType)
-		}
-		if isVideoPlayer && videoWidth != 0 {
-			metaOgItems.Add("video:width", strconv.Itoa(videoWidth))
-			metaOgItems.Add("video:height", strconv.Itoa(videoHeight))
-		}
+	metaOgItems.Add(fmt.Sprintf("%s:url", prefixType), mediaURL)
+	metaOgItems.Add(fmt.Sprintf("%s:secure_url", prefixType), mediaURL)
+	if contentType != "" {
+		metaOgItems.Add(fmt.Sprintf("%s:type", prefixType), contentType)
+	}
+	if isVideoPlayer && videoWidth != 0 {
+		metaOgItems.Add("video:width", strconv.Itoa(videoWidth))
+		metaOgItems.Add("video:height", strconv.Itoa(videoHeight))
 	}
 
 	metaNameItems := make(uivalues.MetaNameItems, 0, 4)
