@@ -1,6 +1,6 @@
 # Releases
 
-## v0.19.0 — 2026-05-01
+## v0.19.0 — 2026-05-10
 
 ### ✨ Features
 - Added thumbnail support for media files, improving visual representation in media lists (#291)
@@ -16,6 +16,9 @@
 - Implemented smooth animated notifications with auto-dismiss
 - Added support for multiple notification types: success, error, warning, and info
 - Introduced unified notification styling with proper contrast for both light and dark themes
+
+### Test
+- Added pprof server (http://127.0.0.1:6060/debug/pprof/)
 
 ---
 

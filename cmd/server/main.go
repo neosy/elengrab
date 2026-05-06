@@ -6,8 +6,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	_ "net/http/pprof"
-
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "modernc.org/sqlite"
 
@@ -38,8 +36,8 @@ func main() {
 	}
 	defer app.Shutdown()
 
-	// Start pprof server
-	infra.StartPprofHTTPServer(app.Context(), cfg.PprofServer)
+	// Admin server
+	infra.StartAdminHTTPServer(app.Context(), cfg.AdminServer)
 
 	// Start background workers
 	if err := app.StartBackground(); err != nil {
