@@ -26,6 +26,7 @@ func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Applicat
 		BaseURL:          cfg.Elengrab.BaseURL,
 		ShortLinkPrefix:  cfg.Elengrab.ShortLinkPrefix,
 		AssetsDir:        absPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir),
+		MetricsEnabled:   cfg.AdminServer.DebugConfig.EnableMetrics,
 	}
 
 	httpServer := httpsrv.NewServer(logger, cfg.AppConfig.AppEnv, deps)

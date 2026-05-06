@@ -13,6 +13,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/infrastructure/observability/metrics"
 	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
@@ -31,6 +32,7 @@ type Dependencies struct {
 	BaseURL         string
 	ShortLinkPrefix string
 	AssetsDir       string
+	MetricsEnabled  bool
 }
 
 type httpServer struct {
@@ -54,6 +56,7 @@ type httpServer struct {
 	baseURL         string
 	shortLinkPrefix string
 	assetsDir       string
+	metricsEnabled  bool
 }
 
 func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *httpServer {
@@ -87,6 +90,7 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *h
 		baseURL:         deps.BaseURL,
 		shortLinkPrefix: deps.ShortLinkPrefix,
 		assetsDir:       deps.AssetsDir,
+		metricsEnabled:  deps.MetricsEnabled,
 	}
 }
 
@@ -95,6 +99,10 @@ func (s *httpServer) ListenAndServe(ctx context.Context, port string) error {
 
 	router := s.newRouter()
 	handler := nfasthttp.NewHandler(ctx, s.logger, s.appEnv, router.Handler)
+
+	if s.metricsEnabled {
+		handler = metrics.MiddlewareHandler(handler)
+	}
 
 	server := &fasthttp.Server{
 		Handler: handler,
