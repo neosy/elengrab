@@ -34,47 +34,41 @@ func MiddlewareHandler(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 }
 
 func normalizePath(p string) string {
-	// /downloader/file/{uuid}/logo
-	if strings.HasPrefix(p, "/downloader/file/") {
-		parts := strings.Split(p, "/")
-		if len(parts) >= 5 {
-			parts[3] = ":id"
-			return strings.Join(parts, "/")
-		}
-	}
+	switch {
+	// /downloader/file/{id}/logo
+	case strings.HasPrefix(p, "/downloader/file/"):
+		return normalizeBySegments(p, 4, "/downloader/file/:id")
 
-	// /downloader/files/{uuid}/stream
-	if strings.HasPrefix(p, "/downloader/files/") {
-		parts := strings.Split(p, "/")
-		if len(parts) >= 5 {
-			parts[3] = ":id"
-			return strings.Join(parts, "/")
-		}
-	}
+	// /downloader/files/{id}/stream
+	case strings.HasPrefix(p, "/downloader/files/"):
+		return normalizeBySegments(p, 4, "/downloader/files/:id")
 
-	if strings.HasPrefix(p, "/downloader/stream/") {
-		parts := strings.Split(p, "/")
-		if len(parts) >= 4 {
-			parts[3] = ":id"
-			return strings.Join(parts, "/")
-		}
-	}
+	// /downloader/stream/{id}
+	case strings.HasPrefix(p, "/downloader/stream/"):
+		return normalizeBySegments(p, 3, "/downloader/stream/:id")
 
-	if strings.HasPrefix(p, "/downloader/channel/") {
-		parts := strings.Split(p, "/")
-		if len(parts) >= 5 {
-			parts[3] = ":id"
-			return strings.Join(parts, "/")
-		}
-	}
+	// /downloader/channel/{id}/avatar
+	case strings.HasPrefix(p, "/downloader/channel/"):
+		return normalizeBySegments(p, 4, "/downloader/channel/:id")
 
-	if strings.HasPrefix(p, "/s/") {
+	// short links
+	case strings.HasPrefix(p, "/s/"):
 		return "/s/:id"
-	}
 
-	if strings.HasPrefix(p, "/static/") {
+	// static assets
+	case strings.HasPrefix(p, "/static/"):
 		return "/static/*"
-	}
 
-	return p
+	default:
+		return p
+	}
+}
+
+func normalizeBySegments(p string, minParts int, fallback string) string {
+	parts := strings.Split(p, "/")
+	if len(parts) >= minParts+1 {
+		parts[minParts] = ":id"
+		return strings.Join(parts, "/")
+	}
+	return fallback
 }
