@@ -472,7 +472,7 @@ func (r *FileRepository) IterateGetAll(ctx context.Context, includeDeleted bool,
 }
 
 func (r *FileRepository) GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error) {
-	names := make(map[string]struct{}, 100)
+	names := make(map[string]struct{})
 	r.IterateFullNames(ctx, includeDeleted, func(name string) error {
 		names[name] = struct{}{}
 		return nil
@@ -531,7 +531,7 @@ func (r *FileRepository) IterateFullNames(ctx context.Context, includeDeleted bo
 }
 
 func (r *FileRepository) GetBeforeTime(ctx context.Context, before time.Time, limit uint64) ([]*ddownload.File, error) {
-	files := make([]*ddownload.File, 0, 100)
+	files := make([]*ddownload.File, 0)
 
 	err := r.iterateGetAll(
 		ctx,
@@ -557,7 +557,7 @@ func (r *FileRepository) GetByStatus(ctx context.Context, status dtypes.FileStat
 }
 
 func (r *FileRepository) GetByStatuses(ctx context.Context, statuses []dtypes.FileStatus) ([]*ddownload.File, error) {
-	var files = make([]*ddownload.File, 0, 100)
+	var files = make([]*ddownload.File, 0)
 
 	err := r.iterateGetAll(
 		ctx,
@@ -577,7 +577,7 @@ func (r *FileRepository) GetByStatuses(ctx context.Context, statuses []dtypes.Fi
 func (r *FileRepository) GetByPartialHash(ctx context.Context, hash string) ([]*ddownload.File, error) {
 	var (
 		h     = &hash
-		files = make([]*ddownload.File, 0, 100)
+		files = make([]*ddownload.File, 0)
 	)
 
 	err := r.iterateGetAll(
@@ -601,7 +601,7 @@ func (r *FileRepository) GetByPartialHash(ctx context.Context, hash string) ([]*
 func (r *FileRepository) GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, error) {
 	var (
 		h     *string
-		files = make([]*ddownload.File, 0, 100)
+		files = make([]*ddownload.File, 0)
 	)
 
 	err := r.iterateGetAll(
