@@ -15,8 +15,8 @@ type Config struct {
 	// Global application settings, no ENV prefix.
 	AppConfig nconfig.AppConfig `envPrefix:""`
 
-	// Pprof server
-	PprofServer PprofServerConfig `envPrefix:"PPROF_"`
+	// Adming server
+	AdminServer AdminServerConfig `envPrefix:"ADMIN_SERVER_"`
 
 	// Elengrab application configuration.
 	Elengrab ElengrabConfig `envPrefix:"ELENGRAB_"`
@@ -29,10 +29,17 @@ type Config struct {
 	Redis RedisConfig `envPrefix:"REDIS_"`
 }
 
-type PprofServerConfig struct {
-	Enable  bool   `env:"ENABLE" envDefault:"false"`
-	Address string `env:"ADDRESS" envDefault:"127.0.0.1"`
-	Port    string `env:"PORT" envDefault:"6060"`
+type AdminServerConfig struct {
+	Enable      bool                   `env:"ENABLE" envDefault:"false"`
+	Address     string                 `env:"ADDRESS" envDefault:"127.0.0.1"`
+	Port        string                 `env:"PORT" envDefault:"6060"`
+	DebugConfig AdminServerDebugConfig `envPrefix:"DEBUG_"`
+}
+
+type AdminServerDebugConfig struct {
+	EnablePprof   bool `env:"PPROF" envDefault:"true"`
+	EnableMetrics bool `env:"METRICS" envDefault:"true"`
+	EnableHealth  bool `env:"HEALTH" envDefault:"true"`
 }
 
 type HTTPServerConfig struct {
