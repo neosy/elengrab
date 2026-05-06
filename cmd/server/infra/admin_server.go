@@ -11,6 +11,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	iconfig "github.com/neosy/elengrab/internal/config"
+	"github.com/neosy/elengrab/internal/infrastructure/observability/metrics"
 )
 
 func newAdminServerMux(cfg iconfig.AdminServerDebugConfig) *http.ServeMux {
@@ -34,6 +35,8 @@ func newAdminServerMux(cfg iconfig.AdminServerDebugConfig) *http.ServeMux {
 
 	// metrics
 	if cfg.EnableMetrics {
+		metrics.Register()
+
 		mux.Handle("/metrics", promhttp.Handler())
 	}
 
