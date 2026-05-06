@@ -17,8 +17,18 @@
 - Added support for multiple notification types: success, error, warning, and info
 - Introduced unified notification styling with proper contrast for both light and dark themes
 
-### Test
-- Added pprof server (http://127.0.0.1:6060/debug/pprof/)
+### ⚡ Performance
+- Added thumbnail cache
+
+### 🧩 Refactor
+- Introduce streaming full names iterator in repository
+
+### 🧪 Test
+- Added admin server (http://127.0.0.1:6060/.../...)
+  - http://127.0.0.1:6060/debug/pprof/
+  - http://127.0.0.1:6060/metrics
+  - http://127.0.0.1:6060/healthz
+- Added fasthttp prometheus middleware
 
 ---
 
