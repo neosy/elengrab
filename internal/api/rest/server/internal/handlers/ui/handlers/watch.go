@@ -116,7 +116,7 @@ func (h *DownloaderHandlers) watch(
 	metaOgItems.Add("url", pageURL)
 	metaOgItems.Add("image", imageData.URL)
 	metaOgItems.Add("image:secure_url", imageData.URL)
-	metaOgItems.Add("image:type", httpx.ContentTypeFromPath(imageData.URL))
+	metaOgItems.Add("image:type", httpx.ContentTypeByExt(imageData.Format.String()))
 	if imageData.Width != 0 && imageData.Height != 0 {
 		metaOgItems.Add("image:width", strconv.Itoa(imageData.Width))
 		metaOgItems.Add("image:height", strconv.Itoa(imageData.Height))
