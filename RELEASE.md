@@ -18,6 +18,7 @@
 - Implemented smooth animated notifications with auto-dismiss
 - Added support for multiple notification types: success, error, warning, and info
 - Introduced unified notification styling with proper contrast for both light and dark themes
+- Added a description to the watch
 
 ### ⚡ Performance
 - Added thumbnail cache
