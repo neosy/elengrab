@@ -23,5 +23,5 @@ const (
 	audioQualityFLACBitrateDefault = 965
 
 	limitImage        = 4096 << 10 // 4096 KB
-	fetchImageTimeout = 3 * time.Second
+	fetchImageTimeout = 5 * time.Second
 )
