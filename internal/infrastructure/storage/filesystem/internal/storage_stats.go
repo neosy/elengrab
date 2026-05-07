@@ -2,22 +2,17 @@ package core
 
 import (
 	"syscall"
+
+	storagetypes "github.com/neosy/elengrab/internal/infrastructure/storage/filesystem/types"
 )
 
-// StorageStats represents disk usage information.
-type StorageStats struct {
-	Total uint64
-	Used  uint64
-	Free  uint64
-}
-
 // Stats returns filesystem usage for the given path.
-func (s *storage) Stats() (StorageStats, error) {
+func (s *storage) Stats() (storagetypes.StorageStats, error) {
 	var stat syscall.Statfs_t
 
 	err := syscall.Statfs(s.basePath, &stat)
 	if err != nil {
-		return StorageStats{}, err
+		return storagetypes.StorageStats{}, err
 	}
 
 	// block size
@@ -30,7 +25,7 @@ func (s *storage) Stats() (StorageStats, error) {
 	// Used is more accurately total - available to non-root
 	used := total - avail
 
-	return StorageStats{
+	return storagetypes.StorageStats{
 		Total: total,
 		Used:  used,
 		Free:  free,

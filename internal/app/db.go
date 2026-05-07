@@ -27,29 +27,28 @@ func newDB(logger *slog.Logger, dbPath string) (*sql.DB, error) {
 func applyMigrations(
 	logger *slog.Logger,
 	cfg *iconfig.Config,
-	authDB *sql.DB,
-	mainDB *sql.DB,
-	mediaDB *sql.DB,
-	linkDB *sql.DB,
+	authEntry persistence.DBEntry,
+	mainEntry persistence.DBEntry,
+	mediaEntry persistence.DBEntry,
+	linkEntry persistence.DBEntry,
 ) error {
 	sqliteDir := absPath(cfg.Elengrab.RootDir, cfg.SQLite.DataDir)
 
-	migration := database.NewMigrations(logger, authDB, persistence.DBAuthName, nil)
+	migration := database.NewMigrations(logger, authEntry, nil)
 	if err := migration.ApplyMigrations(); err != nil {
-		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", persistence.DBAuthName), "error", err)
+		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", authEntry.DBName()), "error", err)
 		return err
 	}
 
-	migration = database.NewMigrations(logger, mainDB, persistence.DBMainName, nil)
+	migration = database.NewMigrations(logger, mainEntry, nil)
 	if err := migration.ApplyMigrations(); err != nil {
-		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", persistence.DBMainName), "error", err)
+		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", mainEntry.DBName()), "error", err)
 		return err
 	}
 
 	migration = database.NewMigrations(
 		logger,
-		mediaDB,
-		persistence.DBMediaName,
+		mediaEntry,
 		&database.MigrationConfig{
 			SQLiteDir:       sqliteDir,
 			NoTxWrap:        true,
@@ -57,13 +56,13 @@ func applyMigrations(
 		},
 	)
 	if err := migration.ApplyMigrations(); err != nil {
-		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", persistence.DBMediaName), "error", err)
+		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", mediaEntry.DBName()), "error", err)
 		return err
 	}
 
-	migration = database.NewMigrations(logger, linkDB, persistence.DBLinkName, nil)
+	migration = database.NewMigrations(logger, linkEntry, nil)
 	if err := migration.ApplyMigrations(); err != nil {
-		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", persistence.DBLinkName), "error", err)
+		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", linkEntry.DBName()), "error", err)
 		return err
 	}
 

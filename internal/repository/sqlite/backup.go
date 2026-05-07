@@ -3,11 +3,9 @@ package sqliterep
 import (
 	"database/sql"
 	"fmt"
-
-	"github.com/neosy/elengrab/internal/ports/persistence"
 )
 
-func (r *Repositories) Backup(dbName persistence.DBName, path string) error {
+func (r *Repositories) Backup(dbName string, path string) error {
 	backup := func(db *sql.DB, path string) error {
 		_, err := db.Exec(`
         VACUUM INTO ?
@@ -15,7 +13,7 @@ func (r *Repositories) Backup(dbName persistence.DBName, path string) error {
 		return err
 	}
 
-	var db *sql.DB = r.dbByName[dbName]
+	var db *sql.DB = r.dbRegistry.Enttry(dbName).DB()
 	if db == nil {
 		return fmt.Errorf("unknown db: %s", dbName)
 	}

@@ -26,6 +26,7 @@ import (
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 	inmemoryrep "github.com/neosy/elengrab/internal/repository/in_memory"
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
+	sqlitetypes "github.com/neosy/elengrab/internal/repository/sqlite/types"
 )
 
 const (
@@ -102,120 +103,52 @@ func NewApplication(logger *slog.Logger, cfg *iconfig.Config) (*Application, err
 }
 
 func (a *Application) initialize() error {
-	dirs := []string{
-		absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.DataDir),
-		absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.BackupsDir),
-		absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
-		absPath(a.cfg.Elengrab.RootDir, filepath.Join(a.cfg.Elengrab.MediaDir, thumbnailsDir)),
-	}
-	if !ensureDirs(dirs) {
-		return errors.New("one or more required directories are missing")
+	if err := a.initEnsureDirs(); err != nil {
+		return err
 	}
 
-	cookiesDir, err := nfile.AbsPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.CookiesDir)
-	if err != nil && a.cfg.Elengrab.YoutubeAllowCookies {
-		a.logger.Warn(
-			"Failed to get abs path for cookies directory",
-			"path", a.cfg.Elengrab.CookiesDir,
-			"error", err,
-		)
-	}
+	cookiesDir := a.cookiesDir()
 
-	// Initialize SQLite database
-	sqliteDir := absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.DataDir)
-	a.dbAuth, err = newDB(a.logger, persistence.DBAuthName.Path(sqliteDir))
+	// Initialize SQLite repositories
+	slRepositories, err := a.initSQLiteRepositories()
 	if err != nil {
 		return err
 	}
 
-	a.dbMain, err = newDB(a.logger, persistence.DBMainName.Path(sqliteDir))
-	if err != nil {
-		return err
-	}
-
-	a.dbMedia, err = newDB(a.logger, persistence.DBMediaName.Path(sqliteDir))
-	if err != nil {
-		return err
-	}
-
-	a.dbLink, err = newDB(a.logger, persistence.DBLinkName.Path(sqliteDir))
-	if err != nil {
-		return err
-	}
-
-	// Apply all up migrations
-	err = applyMigrations(a.logger, a.cfg, a.dbAuth, a.dbMain, a.dbMedia, a.dbLink)
-	if err != nil {
-		return err
-	}
-
-	// Create SQLite repositories
-	dbs := map[persistence.DBName]*sql.DB{
-		persistence.DBAuthName:  a.dbAuth,
-		persistence.DBMainName:  a.dbMain,
-		persistence.DBMediaName: a.dbMedia,
-		persistence.DBLinkName:  a.dbLink,
-	}
-	slRepositories := sqliterep.New(dbs)
-
-	// Create in memory repositories
-	inMemoryDeps := inmemoryrep.Dependencies{
-		DownloadStateCacheTTL:  downloadStateCacheTTL,
-		YoutubeChannelCacheTTL: youtubeChannelCacheTTL,
-		SiteLogoCacheTTL:       siteLogoCacheTTL,
-		ThumbnailCacheTTL:      thumbnailCacheTTL,
-	}
-	inMemoryRepositories := inmemoryrep.New(inMemoryDeps)
-
-	downloadWorkers := a.cfg.Elengrab.DownloadWorkers
-	if a.cfg.Elengrab.DemoMode {
-		downloadWorkers = 1
-	}
-
-	// Start worker pool
-	a.WorkerPool = nworkerpool.NewDynamicWorkerPool(
-		nworkerpool.WorkerPoolOptionLogger(a.logger),
-		nworkerpool.WorkerPoolOptionMaxWorkers(downloadWorkers),
-		nworkerpool.WorkerPoolOptionIdleTime(workerIdleTimeDefault),
-	)
+	// Initialize in memory repositories
+	inMemoryRepositories := a.initInMemoryRepositories()
 
 	// Initialize storages
-	thumbnailsStorage, err := fsstorage.NewThumbnailsStorage(
-		absPath(a.cfg.Elengrab.RootDir, filepath.Join(a.cfg.Elengrab.MediaDir, thumbnailsDir)),
-	)
+	storages, err := a.initStorages()
 	if err != nil {
-		a.logger.Error("Failed to initialize thumbnail Storage", "err", err)
 		return err
 	}
-	downloadsStorage, err := fsstorage.NewDownloadsStorage(
-		absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
-		mediaDir,
-	)
-	if err != nil {
-		a.logger.Error("Failed to initialize downloads storage", "err", err)
-		return err
-	}
-	a.DownloadsStorage = downloadsStorage
+	a.DownloadsStorage = storages.Download
 
 	// Initialize services
 	srvDeps := &services.Dependencies{
 		DownloaderBinDir: a.cfg.Elengrab.DownloaderBinDir,
-		Storage:          downloadsStorage,
+		Storage:          storages.Download,
 		YtDlpOptions: []ytdlpdto.Option{
 			ytdlpdto.WithCookiesDir(cookiesDir),
 			ytdlpdto.WithYoutubeAllowCookies(a.cfg.Elengrab.YoutubeAllowCookies),
 		},
 	}
-	a.Services, err = services.New(a.logger, srvDeps)
+	services, err := services.New(a.logger, srvDeps)
 	if err != nil {
 		a.logger.Error("Failed to initialize services", "err", err)
 		return err
 	}
+	a.Services = services
+
+	// Initialize worker pool
+	workerPool := a.initWorkerPool()
+	a.WorkerPool = workerPool
 
 	// Initialize usecases
 	ucDeps := &usecases.Dependencies{
 		Repositories: usecases.DepRepositories{
-			Database: slRepositories,
+			Repositories: slRepositories,
 
 			File:                  slRepositories.File,
 			DownloadTask:          slRepositories.DownloadTask,
@@ -241,12 +174,12 @@ func (a *Application) initialize() error {
 		},
 
 		Storages: usecases.DepStorages{
-			Thumbnails: thumbnailsStorage,
-			Downloads:  downloadsStorage,
+			Thumbnails: storages.Thumbnail,
+			Downloads:  storages.Download,
 		},
 
-		DownloadDispetcher: a.WorkerPool,
-		Services:           a.Services,
+		DownloadDispetcher: workerPool,
+		Services:           services,
 
 		// Options
 		AppName:  iconfig.AppName,
@@ -282,7 +215,8 @@ func (a *Application) initialize() error {
 		ThumbnailCache:      inMemoryRepositories.Thumbnail,
 		// runners
 		DownloaderMaintenance: a.Usecases.Downloader,
-		Maintenance:           a.Usecases.Maintenance,
+		DBMaintenance:         a.Usecases.Maintenance,
+		DBMMetrics:            slRepositories,
 		DownloaderTask:        a.Usecases.Downloader,
 		AuthWebMaintenance:    a.Usecases.AuthWeb,
 		DownloaderMigrations:  a.Usecases.Downloader,
@@ -297,7 +231,7 @@ func (a *Application) initialize() error {
 		IntervalCleanSiteLogoCache:       cleanSiteLogoCacheInterval,
 		IntervalCleanThumbnailCache:      cleanThumbnailCacheInterval,
 	}
-	a.Workers = nworkers.NewWorkers(a.logger, wsDeps, workers.InitWorkers)
+	a.Workers = nworkers.NewWorkers(a.logger, wsDeps, workers.Initialize)
 
 	return nil
 }
@@ -356,4 +290,115 @@ func (a *Application) Shutdown() error {
 	}
 
 	return nil
+}
+
+func (a *Application) initEnsureDirs() error {
+	dirs := []string{
+		absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.DataDir),
+		absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.BackupsDir),
+		absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
+		absPath(a.cfg.Elengrab.RootDir, filepath.Join(a.cfg.Elengrab.MediaDir, thumbnailsDir)),
+	}
+	if !ensureDirs(dirs) {
+		return errors.New("one or more required directories are missing")
+	}
+	return nil
+}
+
+func (a *Application) cookiesDir() string {
+	cookiesDir, err := nfile.AbsPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.CookiesDir)
+	if err != nil && a.cfg.Elengrab.YoutubeAllowCookies {
+		a.logger.Warn(
+			"Failed to get abs path for cookies directory",
+			"path", a.cfg.Elengrab.CookiesDir,
+			"error", err,
+		)
+	}
+	return cookiesDir
+}
+
+func (a *Application) initSQLiteRepositories() (*sqliterep.Repositories, error) {
+	var err error
+
+	// Initialize SQLite database
+	sqliteDir := absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.DataDir)
+	a.dbAuth, err = newDB(a.logger, sqliterep.AuthSchema.Path(sqliteDir))
+	if err != nil {
+		return nil, err
+	}
+
+	a.dbMain, err = newDB(a.logger, sqliterep.MainSchema.Path(sqliteDir))
+	if err != nil {
+		return nil, err
+	}
+
+	a.dbMedia, err = newDB(a.logger, sqliterep.MediaSchema.Path(sqliteDir))
+	if err != nil {
+		return nil, err
+	}
+
+	a.dbLink, err = newDB(a.logger, sqliterep.LinkSchema.Path(sqliteDir))
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		authEntry  = sqlitetypes.NewDBEntry(sqliterep.AuthSchema, a.dbAuth)
+		mainEntry  = sqlitetypes.NewDBEntry(sqliterep.MainSchema, a.dbMain)
+		mediaEntry = sqlitetypes.NewDBEntry(sqliterep.MediaSchema, a.dbMedia)
+		linkEntry  = sqlitetypes.NewDBEntry(sqliterep.LinkSchema, a.dbLink)
+		entries    = []persistence.DBEntry{
+			authEntry,
+			mainEntry,
+			mediaEntry,
+			linkEntry,
+		}
+	)
+
+	// Apply all up migrations
+	err = applyMigrations(a.logger, a.cfg, authEntry, mainEntry, mediaEntry, linkEntry)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create SQLite repositories
+	return sqliterep.New(entries), nil
+}
+
+func (a *Application) initInMemoryRepositories() *inmemoryrep.Repositories {
+	inMemoryDeps := inmemoryrep.Dependencies{
+		DownloadStateCacheTTL:  downloadStateCacheTTL,
+		YoutubeChannelCacheTTL: youtubeChannelCacheTTL,
+		SiteLogoCacheTTL:       siteLogoCacheTTL,
+		ThumbnailCacheTTL:      thumbnailCacheTTL,
+	}
+	return inmemoryrep.New(inMemoryDeps)
+}
+
+func (a *Application) initWorkerPool() nworkerpool.WorkerPool {
+	downloadWorkers := func() uint32 {
+		if a.cfg.Elengrab.DemoMode {
+			return 1
+		}
+		return a.cfg.Elengrab.DownloadWorkers
+	}
+	return nworkerpool.NewDynamicWorkerPool(
+		nworkerpool.WithLogger(a.logger),
+		nworkerpool.WithMaxWorkers(downloadWorkers()),
+		nworkerpool.WithIdleTime(workerIdleTimeDefault),
+	)
+
+}
+
+func (a *Application) initStorages() (*fsstorage.Storages, error) {
+	storages, err := fsstorage.NewStorages(
+		absPath(a.cfg.Elengrab.RootDir, filepath.Join(a.cfg.Elengrab.MediaDir, thumbnailsDir)),
+		absPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.DownloadsDir),
+		mediaDir,
+	)
+	if err != nil {
+		a.logger.Error("Failed to initialize Storage", "error", err)
+		return nil, err
+	}
+	return storages, nil
 }

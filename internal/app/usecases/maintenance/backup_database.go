@@ -10,7 +10,6 @@ import (
 	"time"
 
 	nfile "github.com/neosy/elengrab/internal/pkg/file"
-	"github.com/neosy/elengrab/internal/ports/persistence"
 )
 
 func (m *Maintenance) BackupDatabase(ctx context.Context) error {
@@ -33,15 +32,15 @@ func (m *Maintenance) BackupDatabase(ctx context.Context) error {
 		}
 	}
 
-	for _, dbName := range m.database.GetDBNames() {
-		err = m.backupDB(dbName, backupDir)
+	for _, schema := range m.repositories.Schemas() {
+		err = m.backupDB(schema.DBName(), backupDir)
 		if err != nil {
 			return err
 		}
 	}
 
-	for _, dbName := range m.database.GetDBNames() {
-		err = m.cleanupOldBackups(dbName, backupDir)
+	for _, schema := range m.repositories.Schemas() {
+		err = m.cleanupOldBackups(schema.DBName(), backupDir)
 		if err != nil {
 			m.logger.Error("Failed cleanup old backups", "error", err)
 			return err
@@ -51,7 +50,7 @@ func (m *Maintenance) BackupDatabase(ctx context.Context) error {
 	return nil
 }
 
-func (m *Maintenance) backupDB(dbName persistence.DBName, backupDir string) error {
+func (m *Maintenance) backupDB(dbName string, backupDir string) error {
 	filename := fmt.Sprintf(
 		"%s_%s.%s",
 		m.prefixBackup(dbName),
@@ -61,7 +60,7 @@ func (m *Maintenance) backupDB(dbName persistence.DBName, backupDir string) erro
 
 	path := filepath.Join(backupDir, filename)
 
-	if err := m.database.Backup(dbName, path); err != nil {
+	if err := m.repositories.Backup(dbName, path); err != nil {
 		m.logger.Error("Failed backup database", "error", err)
 		return err
 	}
@@ -71,13 +70,13 @@ func (m *Maintenance) backupDB(dbName persistence.DBName, backupDir string) erro
 	return nil
 }
 
-func (m *Maintenance) prefixBackup(dbName persistence.DBName) string {
-	prefix := nfile.SanitizeFileName(dbName.String())
+func (m *Maintenance) prefixBackup(dbName string) string {
+	prefix := nfile.SanitizeFileName(dbName)
 	prefix = strings.ToLower(prefix)
 	return prefix
 }
 
-func (m *Maintenance) cleanupOldBackups(dbName persistence.DBName, backupDir string) error {
+func (m *Maintenance) cleanupOldBackups(dbName string, backupDir string) error {
 	entries, err := os.ReadDir(backupDir)
 	if err != nil {
 		return err

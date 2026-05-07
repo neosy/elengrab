@@ -9,8 +9,8 @@ func flushWAL(db *sql.DB) error {
 }
 
 func (r *Repositories) FlushWAL() error {
-	for _, dbName := range r.GetDBNames() {
-		err := flushWAL(r.dbByName[dbName])
+	for _, entry := range r.EntriesByName() {
+		err := flushWAL(entry.DB())
 		if err != nil {
 			return err
 		}

@@ -10,6 +10,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite"
 	"github.com/neosy/elengrab/internal/ports/persistence"
+	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
 )
 
 //go:embed download/migrations/*
@@ -55,7 +56,7 @@ type MigrationConfig struct {
 type Migrations struct {
 	logger *slog.Logger
 	db     *sql.DB
-	name   persistence.DBName
+	name   string
 	fs     fs.FS
 	config *MigrationConfig
 }
@@ -67,24 +68,24 @@ type Migrations struct {
 //
 // Returns:
 //   - *Migrations: a new Migrations manager instance.
-func NewMigrations(logger *slog.Logger, db *sql.DB, dbName persistence.DBName, config *MigrationConfig) *Migrations {
+func NewMigrations(logger *slog.Logger, dbEntry persistence.DBEntry, config *MigrationConfig) *Migrations {
 	var fs fs.FS
 
-	switch dbName {
-	case persistence.DBMainName:
+	switch dbEntry.DBName() {
+	case sqliterep.MainSchema.DBName():
 		fs, _ = migrationsMainRoot()
-	case persistence.DBAuthName:
+	case sqliterep.AuthSchema.DBName():
 		fs, _ = migrationsAuthRoot()
-	case persistence.DBMediaName:
+	case sqliterep.MediaSchema.DBName():
 		fs, _ = migrationsMediaRoot()
-	case persistence.DBLinkName:
+	case sqliterep.LinkSchema.DBName():
 		fs, _ = migrationsLinkRoot()
 	}
 
 	return &Migrations{
 		logger: logger,
-		db:     db,
-		name:   dbName,
+		db:     dbEntry.DB(),
+		name:   dbEntry.DBName(),
 		fs:     fs,
 		config: config,
 	}

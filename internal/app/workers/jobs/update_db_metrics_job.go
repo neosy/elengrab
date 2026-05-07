@@ -9,26 +9,26 @@ import (
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-type flushWALJob struct {
+type updateDBMetricsJob struct {
 	logger *slog.Logger
-	runner pworkers.DBMaintenanceRunner
+	runner pworkers.DBMMetricsRunner
 }
 
-func NewFlushWALJob(logger *slog.Logger, runner pworkers.DBMaintenanceRunner) *flushWALJob {
-	return &flushWALJob{
+func NewUpdateDBMetricsJob(logger *slog.Logger, runner pworkers.DBMMetricsRunner) *updateDBMetricsJob {
+	return &updateDBMetricsJob{
 		logger: logger,
 		runner: runner,
 	}
 }
 
-func (j *flushWALJob) Execute(ctx context.Context) error {
+func (j *updateDBMetricsJob) Execute(ctx context.Context) error {
 	startTime := time.Now()
-	err := j.runner.FlushWAL()
+	err := j.runner.UpdateMetrics()
 	elapsed := time.Since(startTime)
 
 	j.logger.Debug(
 		"Job done",
-		"name", "FlushWAL",
+		"name", "updateDBMetrics",
 		"elapsed", uformat.DurationFormat(elapsed),
 	)
 
