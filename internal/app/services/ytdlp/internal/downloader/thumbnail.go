@@ -32,7 +32,7 @@ func (d *Downloader) extractThumbnailFromURL(
 	}
 
 	d.logger.Info(
-		"YouTube thumbnail url finded",
+		"Thumbnail url finded",
 		"mediaURL", mediaURL,
 		"thumbnailUrl", thumbnailURL,
 		"elapsed", uformat.DurationFormat(elapsed),
@@ -40,7 +40,7 @@ func (d *Downloader) extractThumbnailFromURL(
 
 	imageData, err := helper.FetchImage(ctx, thumbnailURL)
 	if err != nil {
-		d.logger.Debug("Failed to fetch thumbnail from URL", "mediaUrl", mediaURL, "error", err)
+		d.logger.Debug("Failed to fetch thumbnail from URL", "mediaUrl", mediaURL, "thumbnailURL", thumbnailURL, "error", err)
 		return
 	}
 
