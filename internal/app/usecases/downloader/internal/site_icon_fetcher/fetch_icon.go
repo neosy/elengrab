@@ -59,7 +59,7 @@ func (lf *SiteIconFetcher) fetchCandidatesFromURL(ctx context.Context, siteURL s
 	links, err := httpx.GetLinksInHead(
 		ctx,
 		siteURL,
-		httpx.GetOptions{
+		httpx.MethodGetOptions{
 			Limit:            limitHTML,
 			IgnoreStatusCode: true,
 		},

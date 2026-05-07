@@ -13,7 +13,7 @@ func FetchImage(ctx context.Context, imgURL string) (*dtypes.ImageData, error) {
 	raw, format, err := httpx.FetchImage(
 		ctx,
 		imgURL,
-		httpx.GetOptions{Limit: limitImage},
+		httpx.MethodGetOptions{Limit: limitImage},
 		httpx.ClientOptionWithTimeout(fetchImageTimeout),
 	)
 	if err != nil {
