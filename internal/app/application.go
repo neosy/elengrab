@@ -221,11 +221,12 @@ func (a *Application) initialize() error {
 		AuthWebMaintenance:    a.Usecases.AuthWeb,
 		DownloaderMigrations:  a.Usecases.Downloader,
 		// options
+		MetricsEnabled:                   a.cfg.AdminServer.Enable && a.cfg.AdminServer.DebugConfig.EnableMetrics,
 		IntervalUpdateHash:               a.cfg.Elengrab.Maintenance.IntervalUpdateHash,
 		IntervalDeleteDuplicates:         a.cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
 		IntervalDeleteMissingFiles:       a.cfg.Elengrab.Maintenance.IntervalDeleteMissingFiles,
 		IntervalDeleteFailedDownloads:    a.cfg.Elengrab.Maintenance.IntervalDeleteFailedDownloads,
-		EnableMoveUnmatchedFiles:         a.cfg.Elengrab.Maintenance.EnableMoveUnmatchedFiles,
+		MoveUnmatchedFilesEnabled:        a.cfg.Elengrab.Maintenance.MoveUnmatchedFilesEnabled,
 		IntervalCleanYoutubeChannelCache: cleanYoutubeChannelCacheInterval,
 		IntervalCleanDownloadStateCache:  cleanDownloadStateCacheinterval,
 		IntervalCleanSiteLogoCache:       cleanSiteLogoCacheInterval,

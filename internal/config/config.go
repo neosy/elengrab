@@ -88,7 +88,7 @@ type ElengrabMaintenanceConfig struct {
 
 	// EnableMoveUnmatchedFiles controls whether the periodic
 	// moveUnmatchedFiles operation is allowed. Default is false (disabled).
-	EnableMoveUnmatchedFiles bool `env:"ENABLE_MOVE_UNMATCHED_FILES" envDefault:"false"`
+	MoveUnmatchedFilesEnabled bool `env:"ENABLE_MOVE_UNMATCHED_FILES" envDefault:"false"`
 
 	// DatabaseBackupsKeep defines how many of the latest backup files to keep.
 	// If the value is 0, old backup files will not be cleaned up.

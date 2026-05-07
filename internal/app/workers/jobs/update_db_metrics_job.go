@@ -28,7 +28,7 @@ func (j *updateDBMetricsJob) Execute(ctx context.Context) error {
 
 	j.logger.Debug(
 		"Job done",
-		"name", "updateDBMetrics",
+		"name", "UpdateDBMetrics",
 		"elapsed", uformat.DurationFormat(elapsed),
 	)
 
