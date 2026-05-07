@@ -39,33 +39,33 @@ func DefaultWorkerOptions() WorkerOptions {
 	}
 }
 
-// WorkerOptionName returns a WorkerOption that sets the Name field
+// WithName returns a WorkerOption that sets the Name field
 // of WorkerOptions to the provided string.
-func WorkerOptionName(name string) WorkerOption {
+func WithName(name string) WorkerOption {
 	return func(o *WorkerOptions) {
 		o.Name = name
 	}
 }
 
-// WorkerOptionStartAt returns a WorkerOption that sets the StartAt field
+// WithStartAt returns a WorkerOption that sets the StartAt field
 // of WorkerOptions to the specified time.Time value.
-func WorkerOptionStartAt(startAt time.Time) WorkerOption {
+func WithStartAt(startAt time.Time) WorkerOption {
 	return func(o *WorkerOptions) {
 		o.StartAt = startAt
 	}
 }
 
-// WorkerOptionInterval returns a WorkerOption that sets the Interval field
+// WithInterval returns a WorkerOption that sets the Interval field
 // of WorkerOptions to the given time.Duration.
-func WorkerOptionInterval(interval time.Duration) WorkerOption {
+func WithInterval(interval time.Duration) WorkerOption {
 	return func(o *WorkerOptions) {
 		o.Interval = interval
 	}
 }
 
-// WorkerOptionIntervalWithDefault sets Interval to interval,
+// WithIntervalDefault sets Interval to interval,
 // or intervalDefault if interval is 0.
-func WorkerOptionIntervalWithDefault(interval, intervalDefault time.Duration) WorkerOption {
+func WithIntervalDefault(interval, intervalDefault time.Duration) WorkerOption {
 	return func(o *WorkerOptions) {
 		if interval == 0 {
 			o.Interval = intervalDefault
@@ -75,17 +75,17 @@ func WorkerOptionIntervalWithDefault(interval, intervalDefault time.Duration) Wo
 	}
 }
 
-// WorkerOptionOneShotDelay returns a WorkerOption that sets the OneShotDelay
-// field of WorkerOptions to the given time.Duration pointer.
-func WorkerOptionOneShotDelay(delay time.Duration) WorkerOption {
+// WithInitialDelay sets a delay before the first execution of the worker.
+// If not set, the worker uses Interval as the initial delay.
+func WithInitialDelay(delay time.Duration) WorkerOption {
 	return func(o *WorkerOptions) {
 		o.OneShotDelay = &delay
 	}
 }
 
-// WorkerOptionMaxRuns returns a WorkerOption that sets the MaxRuns field
+// WithMaxRuns returns a WorkerOption that sets the MaxRuns field
 // of WorkerOptions to the specified integer value.
-func WorkerOptionMaxRuns(maxRuns int) WorkerOption {
+func WithMaxRuns(maxRuns int) WorkerOption {
 	return func(o *WorkerOptions) {
 		o.MaxRuns = maxRuns
 	}

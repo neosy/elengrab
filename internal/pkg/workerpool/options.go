@@ -35,23 +35,23 @@ func DefaultDynamicWorkerPoolOptions() WorkerPoolOptions {
 	}
 }
 
-// WorkerPoolOptionLogger sets the logger for a worker pool.
-func WorkerPoolOptionLogger(logger *slog.Logger) WorkerPoolOption {
+// WithLogger sets the logger for a worker pool.
+func WithLogger(logger *slog.Logger) WorkerPoolOption {
 	return func(o *WorkerPoolOptions) {
 		o.logger = logger
 	}
 }
 
-// WorkerPoolOptionMaxWorkers sets the maximum number of workers for a worker pool.
-func WorkerPoolOptionMaxWorkers(maxWorkers uint32) WorkerPoolOption {
+// WithMaxWorkers sets the maximum number of workers for a worker pool.
+func WithMaxWorkers(maxWorkers uint32) WorkerPoolOption {
 	return func(o *WorkerPoolOptions) {
 		o.MaxWorkers = maxWorkers
 	}
 }
 
-// WorkerPoolOptionIdleTime sets the idle duration for a worker before it exits.
+// WithIdleTime sets the idle duration for a worker before it exits.
 // Only applicable to dynamic worker pools.
-func WorkerPoolOptionIdleTime(idleTime time.Duration) WorkerPoolOption {
+func WithIdleTime(idleTime time.Duration) WorkerPoolOption {
 	return func(o *WorkerPoolOptions) {
 		o.IdleTime = idleTime
 	}

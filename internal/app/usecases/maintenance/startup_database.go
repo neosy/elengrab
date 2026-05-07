@@ -5,5 +5,5 @@ import (
 )
 
 func (m *Maintenance) StartupDatabase(ctx context.Context) error {
-	return m.database.StartupMaintenance(ctx)
+	return m.repositories.StartupMaintenance(ctx)
 }

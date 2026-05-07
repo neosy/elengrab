@@ -53,7 +53,7 @@ type Dependencies struct {
 }
 
 type DepRepositories struct {
-	Database persistence.Database
+	Repositories persistence.Repositories
 
 	User        persistence.UserRepository
 	Role        persistence.RoleRepository
@@ -164,7 +164,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 		),
 		Maintenance: maintenance.NewMaintenance(
 			logger,
-			deps.Repositories.Database,
+			deps.Repositories.Repositories,
 
 			// options
 			deps.AppName,

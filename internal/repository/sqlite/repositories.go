@@ -9,12 +9,12 @@ import (
 	"github.com/neosy/elengrab/internal/repository/sqlite/download"
 	"github.com/neosy/elengrab/internal/repository/sqlite/link"
 	"github.com/neosy/elengrab/internal/repository/sqlite/media"
+	sqlitetypes "github.com/neosy/elengrab/internal/repository/sqlite/types"
 )
 
 // Repositories groups all database repositories.
 type Repositories struct {
-	dbByName map[persistence.DBName]*sql.DB
-	dbNames  []persistence.DBName
+	dbRegistry *sqlitetypes.DBRegistry
 
 	User        persistence.UserRepository
 	Role        persistence.RoleRepository
@@ -34,44 +34,67 @@ type Repositories struct {
 }
 
 // New returns a new Repositories struct with database connections.
-func New(dbByName map[persistence.DBName]*sql.DB) *Repositories {
-	lockByDBName := make(map[persistence.DBName]dbexec.WriteLocker, len(dbByName))
-	for name := range dbByName {
-		lockByDBName[name] = dbexec.NewSQLiteLock()
+func New(dbEntries []persistence.DBEntry) *Repositories {
+	var entriesByName = make(map[string]persistence.DBEntry, len(dbEntries))
+
+	for _, e := range dbEntries {
+		entriesByName[e.DBName()] = e
 	}
 
-	authDB := dbByName[persistence.DBAuthName]
-	mainDB := dbByName[persistence.DBMainName]
-	mediaDB := dbByName[persistence.DBMediaName]
-	linkDB := dbByName[persistence.DBLinkName]
+	type dbEntry struct {
+		db     *sql.DB
+		locker dbexec.WriteLocker
+	}
 
-	var dbNames []persistence.DBName
-	for name := range dbByName {
-		dbNames = append(dbNames, name)
+	eAuth := dbEntry{
+		db:     entriesByName[AuthSchema.DBName()].DB(),
+		locker: dbexec.NewSQLiteLock(),
+	}
+
+	eMain := dbEntry{
+		db:     entriesByName[MainSchema.DBName()].DB(),
+		locker: dbexec.NewSQLiteLock(),
+	}
+
+	eMedia := dbEntry{
+		db:     entriesByName[MediaSchema.DBName()].DB(),
+		locker: dbexec.NewSQLiteLock(),
+	}
+
+	eLink := dbEntry{
+		db:     entriesByName[LinkSchema.DBName()].DB(),
+		locker: dbexec.NewSQLiteLock(),
 	}
 
 	return &Repositories{
-		dbByName: dbByName,
-		dbNames:  dbNames,
+		dbRegistry: sqlitetypes.NewRegistry(entriesByName),
 
-		User:        auth.NewUserRepository(authDB, lockByDBName[persistence.DBAuthName]),
-		Role:        auth.NewRoleRepository(authDB, lockByDBName[persistence.DBAuthName]),
-		UserRole:    auth.NewUserRoleRepository(authDB, lockByDBName[persistence.DBAuthName]),
-		UserSession: auth.NewUserSessionRepository(authDB, lockByDBName[persistence.DBAuthName]),
+		User:        auth.NewUserRepository(eAuth.db, eAuth.locker),
+		Role:        auth.NewRoleRepository(eAuth.db, eAuth.locker),
+		UserRole:    auth.NewUserRoleRepository(eAuth.db, eAuth.locker),
+		UserSession: auth.NewUserSessionRepository(eAuth.db, eAuth.locker),
 
-		File:                  download.NewFileRepository(mainDB, lockByDBName[persistence.DBMainName]),
-		DownloadTask:          download.NewDownloadTaskRepository(mainDB, lockByDBName[persistence.DBMainName]),
-		DownloadDataMigration: download.NewDataMigrationRepository(mainDB, lockByDBName[persistence.DBMainName]),
+		File:                  download.NewFileRepository(eMain.db, eMain.locker),
+		DownloadTask:          download.NewDownloadTaskRepository(eMain.db, eMain.locker),
+		DownloadDataMigration: download.NewDataMigrationRepository(eMain.db, eMain.locker),
 
-		YoutubeChannel: media.NewYoutubeChannelRepository(mediaDB, lockByDBName[persistence.DBMediaName]),
-		SiteLogo:       media.NewSiteLogoRepository(mediaDB, lockByDBName[persistence.DBMediaName]),
-		Thumbnail:      media.NewThumbnailRepository(mediaDB, lockByDBName[persistence.DBMediaName]),
+		YoutubeChannel: media.NewYoutubeChannelRepository(eMedia.db, eMedia.locker),
+		SiteLogo:       media.NewSiteLogoRepository(eMedia.db, eMedia.locker),
+		Thumbnail:      media.NewThumbnailRepository(eMedia.db, eMedia.locker),
 
-		Link:      link.NewLinkRepository(linkDB, lockByDBName[persistence.DBLinkName]),
-		LickClick: link.NewLinkClickRepository(linkDB, lockByDBName[persistence.DBLinkName]),
+		Link:      link.NewLinkRepository(eLink.db, eLink.locker),
+		LickClick: link.NewLinkClickRepository(eLink.db, eLink.locker),
 	}
 }
 
-func (r *Repositories) GetDBNames() []persistence.DBName {
-	return r.dbNames
+func (r *Repositories) Schemas() []persistence.DBSchema {
+	return r.dbRegistry.Schemas()
+}
+
+func (r *Repositories) SchemasByName() map[string]persistence.DBSchema {
+	return r.dbRegistry.SchemasByName()
+}
+
+func (r *Repositories) EntriesByName() map[string]persistence.DBEntry {
+	return r.dbRegistry.EntriesByName()
 }

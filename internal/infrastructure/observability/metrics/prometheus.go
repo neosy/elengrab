@@ -21,8 +21,19 @@ var (
 		},
 		[]string{"method", "path"},
 	)
+
+	dbTableRows = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "sqlite_table_rows",
+			Help: "Number of rows in SQLite tables",
+		},
+		[]string{"db_name", "table"},
+	)
 )
 
 func Register() {
-	prometheus.MustRegister(httpRequestsTotal, httpRequestDuration)
+	prometheus.MustRegister(
+		httpRequestsTotal, httpRequestDuration,
+		dbTableRows,
+	)
 }
