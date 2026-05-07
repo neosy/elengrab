@@ -38,7 +38,7 @@ type Dependencies struct {
 	DBMaintenance         pworkers.DBMaintenanceRunner
 	DBMMetrics            pworkers.DBMMetricsRunner
 	DownloaderTask        pworkers.DownloadTaskRunner
-	AuthWebMaintenance    pworkers.AuthWebMaintenanceRunner
+	AuthWebStartup        pworkers.AuthWebStartupRunner
 	DownloaderMigrations  pworkers.MigrationsRunner
 
 	// options
@@ -68,93 +68,79 @@ func Initialize(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) {
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewStartupDatabaseJob(logger, deps.DBMaintenance),
-		nworkers.WithName("StartupMaintenanceDatabase"),
 		nworkers.WithMaxRuns(1),
 		nworkers.WithInitialDelay(1*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewStartupAuthWebJob(logger, deps.AuthWebMaintenance),
-		nworkers.WithName("StartupMaintenanceAuthWeb"),
+		wjobs.NewStartupAuthWebJob(logger, deps.AuthWebStartup),
 		nworkers.WithMaxRuns(1),
 		nworkers.WithInitialDelay(3*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewDownloaderMigrationsJob(logger, deps.DownloaderMigrations),
-		nworkers.WithName("DownloaderMigrations"),
 		nworkers.WithMaxRuns(1),
 		nworkers.WithInitialDelay(5*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewUpdateHashJob(logger, deps.DownloaderMaintenance),
-		nworkers.WithName("UpdateHash"),
 		nworkers.WithIntervalDefault(deps.IntervalUpdateHash, intervalUpdateHashDefault),
 		nworkers.WithInitialDelay(7*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewDeleteDuplicatesJob(logger, deps.DownloaderMaintenance),
-		nworkers.WithName("DeleteDuplicates"),
 		nworkers.WithIntervalDefault(deps.IntervalDeleteDuplicates, intervalDeleteDuplicatesDefault),
 		nworkers.WithInitialDelay(10*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewDeleteMissingFilesJob(logger, deps.DownloaderMaintenance, deps.MoveUnmatchedFilesEnabled),
-		nworkers.WithName("DeleteMissingFiles"),
 		nworkers.WithIntervalDefault(deps.IntervalDeleteMissingFiles, intervalDeleteMissingFilesDefault),
 		nworkers.WithInitialDelay(15*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewDeleteFailedDownloadsJob(logger, deps.DownloaderMaintenance),
-		nworkers.WithName("DeleteFailedDownloads"),
 		nworkers.WithIntervalDefault(deps.IntervalDeleteFailedDownloads, intervalDeleteFailedDownloadsDefault),
 		nworkers.WithInitialDelay(20*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		cachejobs.NewCleanCacheJob(logger, deps.YoutubeChannelCache),
-		nworkers.WithName("CleanYoutubeChannelCache"),
 		nworkers.WithIntervalDefault(deps.IntervalCleanYoutubeChannelCache, intervalCleanYoutubeChannelCacheDefault),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		cachejobs.NewCleanCacheJob(logger, deps.DownloadStateCache),
-		nworkers.WithName("CleanDownloadStateCache"),
 		nworkers.WithIntervalDefault(deps.IntervalCleanDownloadStateCache, intervalCleanDownloadStateCacheDefault),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		cachejobs.NewCleanCacheJob(logger, deps.SiteLogoCache),
-		nworkers.WithName("CleanSiteLogoCache"),
 		nworkers.WithIntervalDefault(deps.IntervalCleanSiteLogoCache, intervalCleanSiteLogoCacheDefault),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		cachejobs.NewCleanCacheJob(logger, deps.ThumbnailCache),
-		nworkers.WithName("CleanThumbnailCache"),
 		nworkers.WithIntervalDefault(deps.IntervalCleanThumbnailCache, intervalCleanThumbnailCacheDefault),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewbackupDatabaseJob(logger, deps.DBMaintenance),
-		nworkers.WithName("DatabaseBackups"),
 		nworkers.WithStartAt(backupDatabaseStartAt),
 		nworkers.WithIntervalDefault(deps.IntervalBackupDatabase, intervalBackupDatabaseDefault),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewFlushWALJob(logger, deps.DBMaintenance),
-		nworkers.WithName("FlusWAL"),
 		nworkers.WithIntervalDefault(deps.IntervalFlushWAL, intervalFlushWALDefault),
 	))
 
 	ws.Add(nworkers.NewWorker(
 		wjobs.NewUpdateSystemInfoJob(logger, deps.DownloaderTask),
-		nworkers.WithName("UpdateSystemInfo"),
 		nworkers.WithIntervalDefault(deps.intervalUpdateSystemInfo, intervalUpdateSystemInfoDefault),
 		nworkers.WithInitialDelay(1*time.Second),
 	))
@@ -162,7 +148,6 @@ func Initialize(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) {
 	if deps.MetricsEnabled {
 		ws.Add(nworkers.NewWorker(
 			wjobs.NewUpdateDBMetricsJob(logger, deps.DBMMetrics),
-			nworkers.WithName("UpdateDBMetrics"),
 			nworkers.WithIntervalDefault(deps.intervalUpdateDBMetrics, intervalUpdateDBMetricsDefault),
 			nworkers.WithInitialDelay(10*time.Second),
 		))

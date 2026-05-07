@@ -7,11 +7,6 @@ import (
 	"time"
 )
 
-// WorkerJob represents a single unit of work to be executed by a Worker
-type WorkerJob interface {
-	Execute(ctx context.Context) error
-}
-
 // Worker defines the interface for a worker that can run jobs periodically.
 type Worker interface {
 	// Starts the worker loop
@@ -25,18 +20,20 @@ type worker struct {
 	// indicates if the worker is currently running
 	running atomic.Bool
 	// the job to execute
-	job WorkerJob
+	job Job
 
 	// options
 	options WorkerOptions
 }
 
 // NewWorker creates a new Worker with the given job and options.
-func NewWorker(job WorkerJob, opts ...WorkerOption) Worker {
+func NewWorker(job Job, opts ...WorkerOption) Worker {
 	w := &worker{
 		job:     job,
 		options: DefaultWorkerOptions(),
 	}
+
+	w.options.Name = job.Name()
 
 	for _, opt := range opts {
 		opt(&w.options)

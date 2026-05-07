@@ -2,6 +2,6 @@ package pworkers
 
 import "context"
 
-type AuthWebMaintenanceRunner interface {
+type AuthWebStartupRunner interface {
 	Startup(ctx context.Context) error
 }

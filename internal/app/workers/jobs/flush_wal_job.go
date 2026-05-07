@@ -3,34 +3,18 @@ package wjobs
 import (
 	"context"
 	"log/slog"
-	"time"
 
-	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
+	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-type flushWALJob struct {
-	logger *slog.Logger
-	runner pworkers.DBMaintenanceRunner
-}
-
-func NewFlushWALJob(logger *slog.Logger, runner pworkers.DBMaintenanceRunner) *flushWALJob {
-	return &flushWALJob{
-		logger: logger,
-		runner: runner,
+func NewFlushWALJob(logger *slog.Logger, runner pworkers.DBMaintenanceRunner) nworkers.Job {
+	run := func(context.Context) error {
+		return runner.FlushWAL()
 	}
-}
 
-func (j *flushWALJob) Execute(ctx context.Context) error {
-	startTime := time.Now()
-	err := j.runner.FlushWAL()
-	elapsed := time.Since(startTime)
-
-	j.logger.Debug(
-		"Job done",
-		"name", "FlushWAL",
-		"elapsed", uformat.DurationFormat(elapsed),
+	return nworkers.NewJob(
+		"FlushWAL",
+		nworkers.MakeTimedJobExecute(logger, run),
 	)
-
-	return err
 }

@@ -1,36 +1,15 @@
 package wjobs
 
 import (
-	"context"
 	"log/slog"
-	"time"
 
-	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
+	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-type deleteDuplicatesJob struct {
-	logger *slog.Logger
-	runner pworkers.DownloadMaintenanceRunner
-}
-
-func NewDeleteDuplicatesJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) *deleteDuplicatesJob {
-	return &deleteDuplicatesJob{
-		logger: logger,
-		runner: runner,
-	}
-}
-
-func (j *deleteDuplicatesJob) Execute(ctx context.Context) error {
-	startTime := time.Now()
-	err := j.runner.DeleteDuplicates(ctx)
-	elapsed := time.Since(startTime)
-
-	j.logger.Debug(
-		"Job done",
-		"name", "DeleteDuplicates",
-		"elapsed", uformat.DurationFormat(elapsed),
+func NewDeleteDuplicatesJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) nworkers.Job {
+	return nworkers.NewJob(
+		"DeleteDuplicates",
+		nworkers.MakeTimedJobExecute(logger, runner.DeleteDuplicates),
 	)
-
-	return err
 }
