@@ -3,6 +3,7 @@ package downloader
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
@@ -10,6 +11,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
+	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 )
 
@@ -24,13 +26,23 @@ func (d *Downloader) prepareMetadata(
 		ctx,
 		url,
 		dlOptions,
-		d.executor.GetBestFormat,
+		d.executor.GetInfoWithBestFormat,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build download arguments: %w", err)
 	}
 
 	title := dtoMediaInfo.Title
+
+	if hostdetect.Instagram(url) && dtoMediaInfo.Description != "" {
+		first, _, ok := strings.Cut(dtoMediaInfo.Description, "\n")
+		if ok {
+			title = first
+		} else {
+			title = dtoMediaInfo.Description
+		}
+
+	}
 
 	// If no title, try to get title manually
 	if title == "" {
@@ -90,6 +102,7 @@ func (d *Downloader) prepareMetadata(
 	return &idto.DownloadMeta{
 		URL:          url,
 		Title:        title,
+		Description:  dtoMediaInfo.Description,
 		FileName:     fileName,
 		FileExt:      fileExt,
 		FileFullName: fileFullName,

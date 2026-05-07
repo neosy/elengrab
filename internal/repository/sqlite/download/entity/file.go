@@ -16,6 +16,7 @@ type File struct {
 	MediaUrl             string     `db:"media_url"`
 	MediaTitle           string     `db:"media_title"`
 	MediaTitleLower      string     `db:"media_title_lower"`
+	MediaDescription     *string    `db:"media_description"`
 	ChannelID            *string    `db:"channel_id"`
 	FileName             string     `db:"file_name"`
 	Ext                  string     `db:"ext"`

@@ -4,11 +4,12 @@ import (
 	"context"
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
+	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
 func FetchTitleFast(ctx context.Context, url string) (string, error) {
-	if isYouTube(url) {
+	if hostdetect.YouTube(url) {
 		info, err := FetchYoutubeInfoFast(url)
 		if err != nil {
 			return "", err

@@ -8,6 +8,7 @@ import (
 type FileInfoPatch struct {
 	ChannelID            **string
 	MediaTitle           *string
+	MediaDescription     **string
 	FileName             *string
 	Ext                  *string
 	FullName             *string
@@ -28,6 +29,10 @@ func PatchToFileDomain(patch *FileInfoPatch, file *ddownload.File) {
 
 	if patch.MediaTitle != nil {
 		file.MediaTitle = *patch.MediaTitle
+	}
+
+	if patch.MediaDescription != nil {
+		file.MediaDescription = *patch.MediaDescription
 	}
 
 	if patch.FileName != nil {
