@@ -58,7 +58,7 @@ type Dependencies struct {
 	intervalUpdateDBMetrics          time.Duration
 }
 
-func Initialize(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) {
+func Initialize(logger *slog.Logger, deps *Dependencies, ws *nworkers.Workers) {
 	now := time.Now().UTC()
 
 	backupDatabaseStartAt := time.Date(
