@@ -9,11 +9,12 @@ import (
 )
 
 type embedInfoResponse struct {
-	Title      string `json:"title"`
-	AuthorName string `json:"author_name"`
-	AuthorURL  string `json:"author_url"`
-	Thumbnail  string `json:"thumbnail_url"`
-	Provider   string `json:"provider_name"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	AuthorName  string `json:"author_name"`
+	AuthorURL   string `json:"author_url"`
+	Thumbnail   string `json:"thumbnail_url"`
+	Provider    string `json:"provider_name"`
 }
 
 func FetchYoutubeInfoFast(youtubeUrl string) (*embedInfoResponse, error) {

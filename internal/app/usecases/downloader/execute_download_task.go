@@ -222,6 +222,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 	patch := &dto.FileInfoPatch{
 		ChannelID:            &lastResult.ChannelID,
 		MediaTitle:           &lastResult.MediaTitle,
+		MediaDescription:     &lastResult.MediaDescription,
 		FileName:             &lastResult.Filename,
 		Ext:                  &lastResult.FileExt,
 		FullName:             &lastResult.FileFullName,
@@ -233,7 +234,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 
 	err = uc.fileStatus.Done(ctx, task.FileID, patch)
 	if err != nil {
-		uc.fileStatus.Failed(ctx, task.FileID, patch, uptr.String(err.Error()))
+		uc.fileStatus.Failed(ctx, task.FileID, patch, new(err.Error()))
 		return err
 	}
 

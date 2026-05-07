@@ -12,7 +12,7 @@ import (
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
-func (e *Executor) GetBestFormat(
+func (e *Executor) GetInfoWithBestFormat(
 	ctx context.Context,
 	url string,
 	format string,
@@ -73,7 +73,7 @@ func (e *Executor) GetBestFormat(
 		bestFormatIds = append(bestFormatIds, parts[0])
 	}
 
-	info, err := e.GetFormats(ctx, url, opt.useCookies)
+	info, err := e.GetInfo(ctx, url, opt.useCookies)
 	if err != nil {
 		return nil, fmt.Errorf("get formats error: %w", err)
 	}

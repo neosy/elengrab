@@ -7,12 +7,12 @@ import (
 )
 
 // GetBestFormat retrieves and parses video best format for the given URL.
-func (srv *YtDlpService) GetBestFormat(
+func (srv *YtDlpService) GetInfoWithBestFormat(
 	ctx context.Context,
 	url string,
 	useCookies bool,
 ) (*dmedia.MediaInfo, error) {
-	bestInfo, err := srv.downloader.GetBestFormat(ctx, url, "b", useCookies)
+	bestInfo, err := srv.downloader.GetInfoWithBestFormat(ctx, url, "b", useCookies)
 	if err != nil {
 		return nil, err
 	}

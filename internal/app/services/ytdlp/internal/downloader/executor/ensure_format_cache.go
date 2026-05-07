@@ -32,7 +32,7 @@ func (e *Executor) EnsureFormatCache(
 		e.logger.Debug("Format cache TTL expired", "url", url)
 	}
 
-	_, err = e.fetchAndCacheFormatsJSON(ctx, url, useCookies)
+	_, err = e.fetchAndCacheInfoJSON(ctx, url, useCookies)
 	if err != nil {
 		return fmt.Errorf("failed to fetch and cache formats JSON for URL %q: %w", url, err)
 	}

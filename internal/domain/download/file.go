@@ -22,8 +22,11 @@ type File struct {
 	// Media URL
 	MediaUrl string
 
-	// Youtube title
+	// Media title
 	MediaTitle string
+
+	// Media description
+	MediaDescription *string
 
 	// Channel ID
 	ChannelID *string
@@ -79,6 +82,7 @@ func (src *File) Copy() *File {
 
 	copy := uptr.Copy(src)
 	copy.UserID = uptr.Copy(src.UserID)
+	copy.MediaDescription = uptr.Copy(src.MediaDescription)
 	copy.ChannelID = uptr.Copy(src.ChannelID)
 	copy.FileSize = uptr.Copy(src.FileSize)
 	copy.PartialHash = uptr.Copy(src.PartialHash)

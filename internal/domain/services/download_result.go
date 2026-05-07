@@ -9,7 +9,8 @@ type DownloadResult struct {
 
 	ChannelID *string
 
-	MediaTitle string
+	MediaTitle       string
+	MediaDescription *string
 
 	// full path to the downloaded file
 	FilePath string
@@ -72,6 +73,8 @@ func (r *DownloadResult) MetadataChanged(last *DownloadResult) bool {
 		(r.ChannelID != nil && last.ChannelID != nil && *r.ChannelID != *last.ChannelID) ||
 		(r.Channel != nil && last.Channel == nil) ||
 		(r.MediaTitle != last.MediaTitle) ||
+		(r.MediaDescription != nil && last.MediaDescription == nil) ||
+		(r.MediaDescription != nil && last.MediaDescription != nil && *r.MediaDescription != *last.MediaDescription) ||
 		(r.Filesize != nil && last.Filesize == nil) ||
 		(r.Filesize != nil && last.Filesize != nil && *r.Filesize != *last.Filesize) ||
 		(r.MediaInfo != nil && last.MediaInfo == nil) ||

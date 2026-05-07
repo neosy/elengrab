@@ -65,7 +65,8 @@ func (m *Mappers) MapMediaInfoToDomain(info *idto.MediaInfo) *dmedia.MediaInfo {
 	}
 
 	return &dmedia.MediaInfo{
-		Title:   info.Title,
-		Formats: formats,
+		Title:       info.Title,
+		Description: info.Description,
+		Formats:     formats,
 	}
 }

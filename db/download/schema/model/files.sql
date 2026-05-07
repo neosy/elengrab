@@ -17,6 +17,9 @@ CREATE TABLE IF NOT EXISTS files (
     -- MediaTitleLower in lowercase for efficient case-insensitive searches
     media_title_lower TEXT NOT NULL,
 
+    -- Description media
+    media_description TEXT NULL,
+
     -- Channel ID
     channel_id TEXT NULL,
 
