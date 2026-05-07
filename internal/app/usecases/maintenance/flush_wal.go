@@ -1,5 +1,5 @@
 package maintenance
 
 func (m *Maintenance) FlushWAL() error {
-	return m.database.FlushWAL()
+	return m.repositories.FlushWAL()
 }

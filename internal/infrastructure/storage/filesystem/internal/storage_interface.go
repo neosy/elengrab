@@ -1,5 +1,7 @@
 package core
 
+import fstoragetypes "github.com/neosy/elengrab/internal/infrastructure/storage/filesystem/types"
+
 type Storage interface {
 	Get(keyPath string) ([]byte, error)
 	// Exists checks if file exists in storage.
@@ -12,7 +14,7 @@ type Storage interface {
 	Path(keyPath string) string
 
 	// Stats returns filesystem usage for the given path.
-	Stats() (StorageStats, error)
+	Stats() (fstoragetypes.StorageStats, error)
 
 	// Used returns the total disk space consumed by all files under the base path.
 	// It recursively walks the directory and sums file sizes.

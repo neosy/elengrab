@@ -11,10 +11,10 @@ import (
 
 type backupDatabaseJob struct {
 	logger *slog.Logger
-	runner pworkers.MaintenanceRunner
+	runner pworkers.DBMaintenanceRunner
 }
 
-func NewbackupDatabaseJob(logger *slog.Logger, runner pworkers.MaintenanceRunner) *backupDatabaseJob {
+func NewbackupDatabaseJob(logger *slog.Logger, runner pworkers.DBMaintenanceRunner) *backupDatabaseJob {
 	return &backupDatabaseJob{
 		logger: logger,
 		runner: runner,

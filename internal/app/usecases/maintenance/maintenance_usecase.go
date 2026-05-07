@@ -14,8 +14,8 @@ const (
 type Maintenance struct {
 	logger *slog.Logger
 
-	// Database
-	database persistence.Database
+	// Repositories
+	repositories persistence.Repositories
 
 	// options
 	appName             string
@@ -26,8 +26,8 @@ type Maintenance struct {
 func NewMaintenance(
 	logger *slog.Logger,
 
-	// repositoies
-	database persistence.Database,
+	// Repositories
+	repositories persistence.Repositories,
 
 	// options
 	appName string,
@@ -35,8 +35,8 @@ func NewMaintenance(
 	databaseBackupsKeep int,
 ) *Maintenance {
 	return &Maintenance{
-		logger:   logger,
-		database: database,
+		logger:       logger,
+		repositories: repositories,
 
 		// options
 		appName:             appName,

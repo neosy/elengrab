@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	core "github.com/neosy/elengrab/internal/infrastructure/storage/filesystem/internal"
+	storagetypes "github.com/neosy/elengrab/internal/infrastructure/storage/filesystem/types"
 )
 
 type downloadsStorage struct {
@@ -16,8 +17,8 @@ type downloadsStorage struct {
 	mediaDirName string
 }
 
-// NewDownloadsStorage creates a new instance of downloadsStorage with the provided base path for storage.
-func NewDownloadsStorage(basePath, mediaDirName string) (*downloadsStorage, error) {
+// newDownloadsStorage creates a new instance of downloadsStorage with the provided base path for storage.
+func newDownloadsStorage(basePath, mediaDirName string) (*downloadsStorage, error) {
 	storage, err := core.NewStorage(basePath)
 	if err != nil {
 		return nil, err
@@ -81,7 +82,7 @@ func (s *downloadsStorage) buildStorageKeyPath(fileName string) string {
 }
 
 // Stats returns filesystem usage for the given path.
-func (s *downloadsStorage) Stats() (StorageStats, error) {
+func (s *downloadsStorage) Stats() (storagetypes.StorageStats, error) {
 	return s.storage.Stats()
 }
 

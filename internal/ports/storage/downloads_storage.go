@@ -1,6 +1,6 @@
 package pstorage
 
-import fsstorage "github.com/neosy/elengrab/internal/infrastructure/storage/filesystem"
+import storagetypes "github.com/neosy/elengrab/internal/infrastructure/storage/filesystem/types"
 
 // DownloadsStorage defines the interface for managing downloads storage.
 type DownloadsStorage interface {
@@ -23,7 +23,7 @@ type DownloadsStorage interface {
 	Path(uniqueFileName string) string
 
 	// Stats returns filesystem usage for the given path.
-	Stats() (fsstorage.StorageStats, error)
+	Stats() (storagetypes.StorageStats, error)
 
 	// Used returns the total disk space consumed by all files under the base path.
 	// It recursively walks the directory and sums file sizes.

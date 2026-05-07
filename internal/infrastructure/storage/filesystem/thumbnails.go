@@ -13,8 +13,8 @@ type thumbnailsStorage struct {
 	storage core.Storage
 }
 
-// NewThumbnailsStorage creates a new instance of ThumbnailsStorage with the provided base path for storage.
-func NewThumbnailsStorage(basePath string) (*thumbnailsStorage, error) {
+// newThumbnailsStorage creates a new instance of ThumbnailsStorage with the provided base path for storage.
+func newThumbnailsStorage(basePath string) (*thumbnailsStorage, error) {
 	storage, err := core.NewStorage(basePath)
 	if err != nil {
 		return nil, err
