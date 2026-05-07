@@ -24,19 +24,12 @@ type Workers struct {
 	mu   sync.Mutex
 }
 
-// NewWorkers creates a new Workers manager with optional initialization function.
-// T can be used to pass dependencies to the init function.
-func NewWorkers[T any](logger *slog.Logger, deps T, init func(logger *slog.Logger, ws *Workers, deps T)) *Workers {
-	ws := &Workers{
+// NewWorkers creates a new Workers manager.
+func NewWorkers(logger *slog.Logger) *Workers {
+	return &Workers{
 		logger: logger,
 		stop:   make(chan struct{}),
 	}
-
-	if init != nil {
-		init(logger, ws, deps)
-	}
-
-	return ws
 }
 
 // Add registers a Worker. Returns an error if workers are already running.
