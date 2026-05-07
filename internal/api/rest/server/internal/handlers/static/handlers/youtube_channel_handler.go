@@ -8,8 +8,8 @@ import (
 )
 
 func (h *StaticHandlers) YoutubeChannelHandler(ctx *fasthttp.RequestCtx) {
-	channelID := ctx.UserValue(ChannelIdKey).(string)
-	if channelID == "" {
+	channelID, ok := ctx.UserValue(ChannelIdKey).(string)
+	if !ok || channelID == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrChannelIsRequired)
 		return
 	}

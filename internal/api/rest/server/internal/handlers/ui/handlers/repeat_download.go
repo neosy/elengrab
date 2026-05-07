@@ -19,8 +19,8 @@ func (h *DownloaderHandlers) RepeatDownloadHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	fileIdStr := ctx.UserValue(fileIdKey).(string)
-	if fileIdStr == "" {
+	fileIdStr, ok := ctx.UserValue(fileIdKey).(string)
+	if !ok || fileIdStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
 		return
 	}

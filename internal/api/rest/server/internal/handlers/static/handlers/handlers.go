@@ -62,7 +62,7 @@ func (h *StaticHandlers) newFSHandler(name string, htmlPathName string) fasthttp
 
 	handler := fs.NewRequestHandler()
 
-	re := regexp.MustCompile(`^(.*?)(\.[0-9a-f]{6,})?(\.css|\.js)$`)
+	re := regexp.MustCompile(`^(.*?)(\.[0-9a-f]{6,})?(\.css|\.js|\.json)$`)
 
 	return func(ctx *fasthttp.RequestCtx) {
 		path := httppaths.GroupStatic + "/" + htmlPathName

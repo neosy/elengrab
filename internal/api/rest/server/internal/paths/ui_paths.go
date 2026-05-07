@@ -15,6 +15,7 @@ const (
 
 	// Paths Downloader
 	PathGrab        = "/grab"
+	PathShareTarget = "/share-target"
 	PathHistory     = "/history"
 	PathDownload    = "/download"
 	PathSearch      = "/search"

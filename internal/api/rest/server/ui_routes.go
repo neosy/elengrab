@@ -48,6 +48,7 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		g.Use(middlewareError, s.authMiddleware.AuthOrGuest)
 		{
 			g.POST(httppaths.PathGrab, handlers.Downloader.GrabHandler)
+			g.GET(httppaths.PathShareTarget, handlers.Downloader.ShareTargetHandler)
 			g.DELETE(httppaths.PathFile, handlers.Downloader.DeleteRowHandler)
 			g.POST(httppaths.PathFileDownloadRepeat, handlers.Downloader.RepeatDownloadHandler)
 		}
@@ -59,7 +60,7 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 			g.GET(httppaths.PathFileRow, handlers.Downloader.GetFileRowHandler)
 			g.GET(httppaths.PathFileLogo, handlers.Downloader.GetFileLogoHandler)
 			g.GET(httppaths.PathFileMenu, handlers.Downloader.RowMenuHandler)
-			g.POST(httppaths.PathFileShortLink, handlers.Downloader.GetFileShortLinkHandler)
+			g.POST(httppaths.PathFileShortLink, handlers.Downloader.GetShortLinkHandler)
 			g.GET(httppaths.PathFileStream, handlers.Downloader.FileStreamHandler)
 			g.GET(httppaths.PathFileWatch, handlers.Downloader.FileWatchHandler)
 

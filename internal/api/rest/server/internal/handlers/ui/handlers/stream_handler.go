@@ -19,8 +19,8 @@ func (h *DownloaderHandlers) FileStreamHandler(ctx *fasthttp.RequestCtx) {
 	// Get user ID from context
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
-	fileIdStr := ctx.UserValue(fileIdKey).(string)
-	if fileIdStr == "" {
+	fileIdStr, ok := ctx.UserValue(fileIdKey).(string)
+	if !ok || fileIdStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
 		return
 	}
@@ -35,8 +35,8 @@ func (h *DownloaderHandlers) FileStreamHandler(ctx *fasthttp.RequestCtx) {
 }
 
 func (h *DownloaderHandlers) StreamShortCodeHandler(ctx *fasthttp.RequestCtx) {
-	shortCode := ctx.UserValue(shortCodeKey).(string)
-	if shortCode == "" {
+	shortCode, ok := ctx.UserValue(shortCodeKey).(string)
+	if !ok || shortCode == "" {
 		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("shortCode is required", fasthttp.StatusBadRequest))
 		return
 	}

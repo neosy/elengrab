@@ -51,20 +51,29 @@ func StructToMap(data any) map[string]any {
 	return result
 }
 
+func generateHashedFileName(dir string, fileName string) (string, error) {
+	filePath := filepath.Join(dir, fileName)
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+
+	hash := fmt.Sprintf("%x", sha256.Sum256(data))[:8] // short hash
+	ext := filepath.Ext(fileName)
+	name := strings.TrimSuffix(fileName, ext)
+
+	return fmt.Sprintf("%s.%s%s", name, hash, ext), nil
+}
+
 func generateHashedFileNames(dir string, fileNames []string) ([]string, error) {
 	var result = make([]string, len(fileNames))
 
 	for i, f := range fileNames {
-		filePath := filepath.Join(dir, f)
-		data, err := os.ReadFile(filePath)
+		var err error
+		result[i], err = generateHashedFileName(dir, f)
 		if err != nil {
 			return nil, err
 		}
-
-		hash := fmt.Sprintf("%x", sha256.Sum256(data))[:8] // короткий хэш
-		ext := filepath.Ext(f)
-		name := strings.TrimSuffix(f, ext)
-		result[i] = fmt.Sprintf("%s.%s%s", name, hash, ext)
 	}
 
 	return result, nil

@@ -9,8 +9,8 @@ import (
 )
 
 func (h *DownloaderHandlers) FileWatchHandler(ctx *fasthttp.RequestCtx) {
-	fileIdStr := ctx.UserValue(fileIdKey).(string)
-	if fileIdStr == "" {
+	fileIdStr, ok := ctx.UserValue(fileIdKey).(string)
+	if !ok || fileIdStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
 		return
 	}
