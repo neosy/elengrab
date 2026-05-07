@@ -15,19 +15,19 @@ import (
 //
 // The function accepts optional parameters (opts) to configure the request.
 // Currently supported option types are:
-//   - GetOptions   : general options for retrieval (e.g., Limit, AcceptLanguage).
-//     Only one GetOptions instance can be passed; later ones overwrite earlier ones.
+//   - MethodGetOptions   : general options for retrieval (e.g., Limit, AcceptLanguage).
+//     Only one MethodGetOptions instance can be passed; later ones overwrite earlier ones.
 //   - ClientOption : client-specific options (e.g., ClientOptionWithTimeout()).
 //     Multiple ClientOption instances can be passed and are all applied.
 func GetLinksInHead(ctx context.Context, url string, opts ...any) ([][]html.Attribute, error) {
 	var (
-		getOpts    GetOptions
+		getOpts    MethodGetOptions
 		clientOpts []ClientOption
 	)
 
 	for _, opt := range opts {
 		switch v := opt.(type) {
-		case GetOptions:
+		case MethodGetOptions:
 			getOpts = v
 		case ClientOption:
 			clientOpts = append(clientOpts, v)
