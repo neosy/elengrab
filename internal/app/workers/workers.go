@@ -42,11 +42,12 @@ type Dependencies struct {
 	DownloaderMigrations  pworkers.MigrationsRunner
 
 	// options
+	MetricsEnabled                   bool
 	IntervalUpdateHash               time.Duration
 	IntervalDeleteDuplicates         time.Duration
 	IntervalDeleteMissingFiles       time.Duration
 	IntervalDeleteFailedDownloads    time.Duration
-	EnableMoveUnmatchedFiles         bool
+	MoveUnmatchedFilesEnabled        bool
 	IntervalCleanYoutubeChannelCache time.Duration
 	IntervalCleanDownloadStateCache  time.Duration
 	IntervalCleanSiteLogoCache       time.Duration
@@ -101,7 +102,7 @@ func Initialize(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) {
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewDeleteMissingFilesJob(logger, deps.DownloaderMaintenance, deps.EnableMoveUnmatchedFiles),
+		wjobs.NewDeleteMissingFilesJob(logger, deps.DownloaderMaintenance, deps.MoveUnmatchedFilesEnabled),
 		nworkers.WithName("DeleteMissingFiles"),
 		nworkers.WithIntervalDefault(deps.IntervalDeleteMissingFiles, intervalDeleteMissingFilesDefault),
 		nworkers.WithInitialDelay(15*time.Second),
@@ -158,10 +159,12 @@ func Initialize(logger *slog.Logger, ws *nworkers.Workers, deps *Dependencies) {
 		nworkers.WithInitialDelay(1*time.Second),
 	))
 
-	ws.Add(nworkers.NewWorker(
-		wjobs.NewUpdateDBMetricsJob(logger, deps.DBMMetrics),
-		nworkers.WithName("UpdateDBMetrics"),
-		nworkers.WithIntervalDefault(deps.intervalUpdateDBMetrics, intervalUpdateDBMetricsDefault),
-		nworkers.WithInitialDelay(10*time.Second),
-	))
+	if deps.MetricsEnabled {
+		ws.Add(nworkers.NewWorker(
+			wjobs.NewUpdateDBMetricsJob(logger, deps.DBMMetrics),
+			nworkers.WithName("UpdateDBMetrics"),
+			nworkers.WithIntervalDefault(deps.intervalUpdateDBMetrics, intervalUpdateDBMetricsDefault),
+			nworkers.WithInitialDelay(10*time.Second),
+		))
+	}
 }
