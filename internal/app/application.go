@@ -232,7 +232,8 @@ func (a *Application) initialize() error {
 		IntervalCleanSiteLogoCache:       cleanSiteLogoCacheInterval,
 		IntervalCleanThumbnailCache:      cleanThumbnailCacheInterval,
 	}
-	a.Workers = nworkers.NewWorkers(a.logger, wsDeps, workers.Initialize)
+	a.Workers = nworkers.NewWorkers(a.logger)
+	workers.Initialize(a.logger, wsDeps, a.Workers)
 
 	return nil
 }
