@@ -3,44 +3,23 @@ package wjobs
 import (
 	"context"
 	"log/slog"
-	"time"
 
-	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
+	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
-
-type deleteMissingFilesJob struct {
-	logger *slog.Logger
-	runner pworkers.DownloadMaintenanceRunner
-
-	// options
-	enableMoveUnmatchedFiles bool
-}
 
 func NewDeleteMissingFilesJob(
 	logger *slog.Logger,
 	runner pworkers.DownloadMaintenanceRunner,
+
+	// options
 	enableMoveUnmatchedFiles bool,
-) *deleteMissingFilesJob {
-	return &deleteMissingFilesJob{
-		logger: logger,
-		runner: runner,
-
-		// options
-		enableMoveUnmatchedFiles: enableMoveUnmatchedFiles,
+) nworkers.Job {
+	run := func(ctx context.Context) error {
+		return runner.DeleteMissingFiles(ctx, enableMoveUnmatchedFiles)
 	}
-}
-
-func (j *deleteMissingFilesJob) Execute(ctx context.Context) error {
-	startTime := time.Now()
-	err := j.runner.DeleteMissingFiles(ctx, j.enableMoveUnmatchedFiles)
-	elapsed := time.Since(startTime)
-
-	j.logger.Debug(
-		"Job done",
-		"name", "DeleteMissingFiles",
-		"elapsed", uformat.DurationFormat(elapsed),
+	return nworkers.NewJob(
+		"DeleteMissingFiles",
+		nworkers.MakeTimedJobExecute(logger, run),
 	)
-
-	return err
 }

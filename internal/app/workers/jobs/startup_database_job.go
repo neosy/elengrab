@@ -1,36 +1,15 @@
 package wjobs
 
 import (
-	"context"
 	"log/slog"
-	"time"
 
-	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
+	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-type startupDatabaseJob struct {
-	logger *slog.Logger
-	runner pworkers.DBMaintenanceRunner
-}
-
-func NewStartupDatabaseJob(logger *slog.Logger, runner pworkers.DBMaintenanceRunner) *startupDatabaseJob {
-	return &startupDatabaseJob{
-		logger: logger,
-		runner: runner,
-	}
-}
-
-func (j *startupDatabaseJob) Execute(ctx context.Context) error {
-	startTime := time.Now()
-	err := j.runner.StartupDatabase(ctx)
-	elapsed := time.Since(startTime)
-
-	j.logger.Debug(
-		"Job done",
-		"name", "StartupMaintenanceDatabase",
-		"elapsed", uformat.DurationFormat(elapsed),
+func NewStartupDatabaseJob(logger *slog.Logger, runner pworkers.DBMaintenanceRunner) nworkers.Job {
+	return nworkers.NewJob(
+		"StartupMaintenanceDatabase",
+		nworkers.MakeTimedJobExecute(logger, runner.StartupDatabase),
 	)
-
-	return err
 }

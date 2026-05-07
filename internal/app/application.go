@@ -218,7 +218,7 @@ func (a *Application) initialize() error {
 		DBMaintenance:         a.Usecases.Maintenance,
 		DBMMetrics:            slRepositories,
 		DownloaderTask:        a.Usecases.Downloader,
-		AuthWebMaintenance:    a.Usecases.AuthWeb,
+		AuthWebStartup:        a.Usecases.AuthWeb,
 		DownloaderMigrations:  a.Usecases.Downloader,
 		// options
 		MetricsEnabled:                   a.cfg.AdminServer.Enable && a.cfg.AdminServer.DebugConfig.EnableMetrics,

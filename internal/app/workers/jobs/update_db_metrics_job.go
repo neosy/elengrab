@@ -3,34 +3,18 @@ package wjobs
 import (
 	"context"
 	"log/slog"
-	"time"
 
-	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
+	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-type updateDBMetricsJob struct {
-	logger *slog.Logger
-	runner pworkers.DBMMetricsRunner
-}
-
-func NewUpdateDBMetricsJob(logger *slog.Logger, runner pworkers.DBMMetricsRunner) *updateDBMetricsJob {
-	return &updateDBMetricsJob{
-		logger: logger,
-		runner: runner,
+func NewUpdateDBMetricsJob(logger *slog.Logger, runner pworkers.DBMMetricsRunner) nworkers.Job {
+	run := func(context.Context) error {
+		return runner.UpdateMetrics()
 	}
-}
 
-func (j *updateDBMetricsJob) Execute(ctx context.Context) error {
-	startTime := time.Now()
-	err := j.runner.UpdateMetrics()
-	elapsed := time.Since(startTime)
-
-	j.logger.Debug(
-		"Job done",
-		"name", "UpdateDBMetrics",
-		"elapsed", uformat.DurationFormat(elapsed),
+	return nworkers.NewJob(
+		"UpdateDBMetrics",
+		nworkers.MakeTimedJobExecute(logger, run),
 	)
-
-	return err
 }
