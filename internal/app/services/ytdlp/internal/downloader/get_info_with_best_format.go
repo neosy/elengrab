@@ -7,13 +7,13 @@ import (
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 
-func (d *Downloader) GetBestFormat(
+func (d *Downloader) GetInfoWithBestFormat(
 	ctx context.Context,
 	url string,
 	format string,
 	useCookies bool,
 ) (*dmedia.MediaInfo, error) {
-	info, err := d.executor.GetBestFormat(
+	info, err := d.executor.GetInfoWithBestFormat(
 		ctx,
 		url,
 		format,

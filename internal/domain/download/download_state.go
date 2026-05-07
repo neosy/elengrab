@@ -50,6 +50,7 @@ func (s *DownloadState) InitFromDownloadResult(result *dservices.DownloadResult,
 	}
 
 	s.File.MediaTitle = result.MediaTitle
+	s.File.MediaDescription = result.MediaDescription
 	s.File.Ext = result.FileExt
 
 	if result.Filesize != nil {

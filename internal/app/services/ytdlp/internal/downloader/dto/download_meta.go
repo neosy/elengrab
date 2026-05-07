@@ -11,6 +11,7 @@ import (
 type DownloadMeta struct {
 	URL                 string
 	Title               string
+	Description         string
 	FileName            string
 	FileExt             string
 	FileFullName        string
@@ -80,6 +81,7 @@ func (m *SafeDownloadMeta) InitialResult() *dservices.DownloadResult {
 	return &dservices.DownloadResult{
 		ChannelID:           meta.ChannelID,
 		MediaTitle:          meta.Title,
+		MediaDescription:    uptr.NonZeroString(meta.Description),
 		Filename:            meta.FileName,
 		FileExt:             ext,
 		FileFullName:        meta.FileFullName,

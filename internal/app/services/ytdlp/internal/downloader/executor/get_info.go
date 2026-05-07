@@ -14,12 +14,12 @@ import (
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
-func (e *Executor) GetFormats(
+func (e *Executor) GetInfo(
 	ctx context.Context,
 	url string,
 	useCookies bool,
 ) (*idto.MediaInfo, error) {
-	dataJSON, err := e.loadFormatsJSON(ctx, url, useCookies)
+	dataJSON, err := e.loadInfoJSON(ctx, url, useCookies)
 	if err != nil {
 		return nil, fmt.Errorf("get formats json error: %w", err)
 	}
@@ -42,7 +42,7 @@ func (e *Executor) GetFormats(
 	return info, nil
 }
 
-func (e *Executor) loadFormatsJSON(
+func (e *Executor) loadInfoJSON(
 	ctx context.Context,
 	url string,
 	useCookies bool,
@@ -63,7 +63,7 @@ func (e *Executor) loadFormatsJSON(
 		return dataJSON, nil
 	}
 
-	dataJSON, err = e.fetchAndCacheFormatsJSON(ctx, url, useCookies)
+	dataJSON, err = e.fetchAndCacheInfoJSON(ctx, url, useCookies)
 	if err != nil {
 		return nil, err
 	}
@@ -71,13 +71,13 @@ func (e *Executor) loadFormatsJSON(
 	return dataJSON, nil
 }
 
-func (e *Executor) fetchAndCacheFormatsJSON(
+func (e *Executor) fetchAndCacheInfoJSON(
 	ctx context.Context,
 	url string,
 	useCookies bool,
 ) ([]byte, error) {
 	startTime := time.Now()
-	dataJSON, err := e.fetchFormatsJSON(ctx, url, useCookies)
+	dataJSON, err := e.fetchInfoJSON(ctx, url, useCookies)
 	elapsed := time.Since(startTime)
 	if err != nil {
 		e.formatCache.DeleteByURL(url)
@@ -110,7 +110,7 @@ func (e *Executor) fetchAndCacheFormatsJSON(
 	return dataJSON, nil
 }
 
-func (e *Executor) fetchFormatsJSON(
+func (e *Executor) fetchInfoJSON(
 	ctx context.Context,
 	url string,
 	useCookies bool,
