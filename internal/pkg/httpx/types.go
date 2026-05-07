@@ -1,7 +1,7 @@
 package httpx
 
-// GetOptions defines optional parameters for Get methods.
-type GetOptions struct {
+// MethodMethodGetOptions defines optional parameters for Get methods.
+type MethodGetOptions struct {
 	// Limit specifies the maximum number of bytes to read from the response.
 	Limit int64
 	// AcceptLanguage sets the value for the "Accept-Language" HTTP header.

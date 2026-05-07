@@ -12,7 +12,7 @@ func (lf *SiteIconFetcher) fetchImage(ctx context.Context, imgURL string) (*dtyp
 	data, format, err := httpx.FetchImage(
 		ctx,
 		imgURL,
-		httpx.GetOptions{Limit: limitImage},
+		httpx.MethodGetOptions{Limit: limitImage},
 		httpx.ClientOptionWithTimeout(downloadImageTimeout),
 	)
 	if err != nil {

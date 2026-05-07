@@ -29,6 +29,7 @@ var (
 
 	parseImageFormatMap = map[string]ImageFormat{
 		"jpg":  ImageFormatJPEG,
+		"jfif": ImageFormatJPEG,
 		"png":  ImageFormatPNG,
 		"webp": ImageFormatWebP,
 		"ico":  ImageFormatIcon,

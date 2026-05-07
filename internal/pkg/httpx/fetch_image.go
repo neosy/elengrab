@@ -13,19 +13,19 @@ import (
 //
 // The function accepts optional parameters (opts) to configure the request.
 // Currently supported option types are:
-//   - GetOptions   : general options for image retrieval (e.g., limit, etc.)
-//     Only one GetOptions instance can be passed; later ones overwrite earlier ones.
+//   - MethodGetOptions   : general options for image retrieval (e.g., limit, etc.)
+//     Only one MethodGetOptions instance can be passed; later ones overwrite earlier ones.
 //   - ClientOption : client-specific options (e.g., ClientOptionWithTimeout())
 //     Multiple ClientOption instances can be passed and are all applied.//
 func FetchImage(ctx context.Context, url string, opts ...any) ([]byte, string, error) {
 	var (
-		getOpts    GetOptions
+		getOpts    MethodGetOptions
 		clientOpts []ClientOption
 	)
 
 	for _, opt := range opts {
 		switch v := opt.(type) {
-		case GetOptions:
+		case MethodGetOptions:
 			getOpts = v
 		case ClientOption:
 			clientOpts = append(clientOpts, v)

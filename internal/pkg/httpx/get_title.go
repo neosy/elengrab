@@ -13,13 +13,13 @@ import (
 
 func GetTitle(ctx context.Context, url string, opts ...any) (string, error) {
 	var (
-		getOpts    GetOptions
+		getOpts    MethodGetOptions
 		clientOpts []ClientOption
 	)
 
 	for _, opt := range opts {
 		switch v := opt.(type) {
-		case GetOptions:
+		case MethodGetOptions:
 			getOpts = v
 		case ClientOption:
 			clientOpts = append(clientOpts, v)
