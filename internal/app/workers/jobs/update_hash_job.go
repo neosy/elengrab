@@ -1,36 +1,15 @@
 package wjobs
 
 import (
-	"context"
 	"log/slog"
-	"time"
 
-	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
+	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-type updateHashJob struct {
-	logger *slog.Logger
-	runner pworkers.DownloadMaintenanceRunner
-}
-
-func NewUpdateHashJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) *updateHashJob {
-	return &updateHashJob{
-		logger: logger,
-		runner: runner,
-	}
-}
-
-func (j *updateHashJob) Execute(ctx context.Context) error {
-	startTime := time.Now()
-	err := j.runner.UpdateHash(ctx)
-	elapsed := time.Since(startTime)
-
-	j.logger.Debug(
-		"Job done",
-		"name", "UpdateHash",
-		"elapsed", uformat.DurationFormat(elapsed),
+func NewUpdateHashJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) nworkers.Job {
+	return nworkers.NewJob(
+		"UpdateHash",
+		nworkers.MakeTimedJobExecute(logger, runner.UpdateHash),
 	)
-
-	return err
 }

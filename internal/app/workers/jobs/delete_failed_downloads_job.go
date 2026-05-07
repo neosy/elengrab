@@ -1,36 +1,15 @@
 package wjobs
 
 import (
-	"context"
 	"log/slog"
-	"time"
 
-	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
+	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-type deleteFailedDownloadsJob struct {
-	logger *slog.Logger
-	runner pworkers.DownloadMaintenanceRunner
-}
-
-func NewDeleteFailedDownloadsJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) *deleteFailedDownloadsJob {
-	return &deleteFailedDownloadsJob{
-		logger: logger,
-		runner: runner,
-	}
-}
-
-func (j *deleteFailedDownloadsJob) Execute(ctx context.Context) error {
-	startTime := time.Now()
-	err := j.runner.DeleteFailedDownloads(ctx)
-	elapsed := time.Since(startTime)
-
-	j.logger.Debug(
-		"Job done",
-		"name", "DeleteFailedDownloads",
-		"elapsed", uformat.DurationFormat(elapsed),
+func NewDeleteFailedDownloadsJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) nworkers.Job {
+	return nworkers.NewJob(
+		"DeleteFailedDownloads",
+		nworkers.MakeTimedJobExecute(logger, runner.DeleteFailedDownloads),
 	)
-
-	return err
 }
