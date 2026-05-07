@@ -9,8 +9,8 @@ import (
 )
 
 func (h *StaticHandlers) ThumbnailHandler(ctx *fasthttp.RequestCtx) {
-	thumbnailIdStr := ctx.UserValue(thumbnailIdKey).(string)
-	if thumbnailIdStr == "" {
+	thumbnailIdStr, ok := ctx.UserValue(thumbnailIdKey).(string)
+	if !ok || thumbnailIdStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrThumbnailIdIsRequired)
 		return
 	}

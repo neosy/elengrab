@@ -9,9 +9,8 @@ import (
 )
 
 func (h *DownloaderHandlers) GetChannelAvatarHandler(ctx *fasthttp.RequestCtx) {
-	channelID := ctx.UserValue(channelIDKey).(string)
-
-	if channelID != "" {
+	channelID, ok := ctx.UserValue(channelIDKey).(string)
+	if !ok || channelID != "" {
 		channelInfo, _ := h.downloader.FindYoutubeChannelInfo(ctx, channelID)
 
 		if channelInfo != nil && len(channelInfo.ImageRaw) > 0 {

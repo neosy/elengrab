@@ -4,6 +4,8 @@ const (
 	CssPathsKey        = "CssPaths"
 	JsScriptsKey       = "JsScripts"
 	JsImportMapJSONKey = "JsImportMapJSON"
+	PwaPathsKey        = "PwaPaths"
+	PwaManifestPathKey = "PwaManifestPath"
 
 	CssStyleKey = "CssStyle"
 

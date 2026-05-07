@@ -46,6 +46,10 @@ func JsHttpPath(fileName string) string {
 	return httppaths.GroupStaticJs + "/" + fileName
 }
 
+func PwaHttpPath(fileName string) string {
+	return httppaths.GroupStaticPwa + "/" + fileName
+}
+
 func ThumbnailHttpPath(id string) string {
 	return httppaths.GroupStaticThumbnail + "/" + id
 }
