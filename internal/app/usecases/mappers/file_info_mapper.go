@@ -44,6 +44,7 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 		AvatarTitle:          avatarTitle,
 		MediaUrl:             file.MediaUrl,
 		MediaTitle:           mediaTitle,
+		MediaDescription:     uptr.Deref(file.MediaDescription),
 		HasSiteIcon:          hasSiteIcon,
 		FileName:             file.FileName,
 		FileExt:              file.Ext,
