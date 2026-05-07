@@ -260,6 +260,10 @@ audio {
     background-color: var(--bg-card);
 }
 
+.media-info-description:empty {
+    display: none;
+}
+
 button {
     background: none;
     border: none;
