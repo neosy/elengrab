@@ -2,6 +2,7 @@ const DOM_ELEMENTS = {
     player: null,
     video: null,
     videoWrapper: null,
+    mediaInfo: null,
 
     customControls: null,
     backButton: null,
@@ -28,6 +29,7 @@ function initDomElements() {
 
     DOM_ELEMENTS.videoWrapper = document.getElementById("videoWrapper");
     DOM_ELEMENTS.video = document.getElementById("videoElement");
+    DOM_ELEMENTS.mediaInfo = document.getElementById("mainContentMediaInfo")
     DOM_ELEMENTS.player = document.getElementById("videoElement");
     if (!DOM_ELEMENTS.player) {
         DOM_ELEMENTS.player = document.getElementById("audioElement");
@@ -112,6 +114,7 @@ function initPlayer() {
 // Also adds "is-full" class to wrapper if video is already full width (e.g. on mobile)
 function fitVideo() {
     const video = DOM_ELEMENTS.video;
+    const mediaInfo = DOM_ELEMENTS.mediaInfo;
 
     // Check if video wrapper is already full width (e.g. on mobile)
     const rect = DOM_ELEMENTS.videoWrapper.getBoundingClientRect();
@@ -124,6 +127,7 @@ function fitVideo() {
     if (!video.videoWidth || !video.videoHeight || styles.maxWidth === "none"  || styles.maxHeight === "none" ) {
         video.style.removeProperty("width");
         video.style.removeProperty("height");
+        mediaInfo.style.removeProperty("width");
         return;
     }
 
@@ -134,9 +138,20 @@ function fitVideo() {
     const vh = video.videoHeight;
 
     const scale = Math.min(maxW / vw, maxH / vh);
+    const width = vw * scale;
+    const maxWidth = 1000;
 
-    video.style.width = `${vw * scale}px`;
+    video.style.width = `${width}px`;
     video.style.height = `${vh * scale}px`;
+
+    if (width > maxWidth) {
+        mediaInfo.style.removeProperty("max-width");
+        mediaInfo.style.width = `${width}px`;
+    } else {
+        mediaInfo.style.removeProperty("width");
+        mediaInfo.style.maxWidth = `${maxWidth}px`;
+    }
+    
 }
 
 function formatTime(seconds) {

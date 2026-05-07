@@ -10,6 +10,7 @@
     --bg-button-hover: #e4e4e4;
     --bg-select-label: #ebebeb;
     --bg-tooltip: #171717;
+    --bg-card: rgba(0, 0, 0, 0.05);
     --text-primary: #333;
     --text-header: #333;
     --text-secondary: #555;
@@ -74,6 +75,7 @@
     --bg-button-hover: #3f444b;
     --bg-select-label: #1F1F1F;
     --bg-tooltip: #171717;
+    --bg-card: rgba(255, 255, 255, 0.1);
     --text-primary: #cfd8e3;
     --text-header: #cfd8e3;
     --text-secondary: #8b949e;
