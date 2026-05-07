@@ -40,7 +40,7 @@ body {
     font-family: "Inter", sans-serif;
     font-weight: 400;
 
-    background-color: var(--bg-main);
+    background-color: var(--bg-body);
     color: var(--text-primary);
 
     letter-spacing: -0.25px;
@@ -125,7 +125,7 @@ body {
 
     align-content: start;
 
-    background: var(--bg-main);
+    background: var(--bg-body);
 }
 
 .main_content {
@@ -233,9 +233,9 @@ audio {
 
 .main_content__media-info {
     display: inline-flex;
+    flex-direction: column;
     width: 100%;
     margin-top: 24px;
-    padding: 0 8px;
 
     justify-content: center;
 
@@ -247,8 +247,17 @@ audio {
 }
 
 .media-info-description {
+    padding: 24px;
+    border-radius: 20px;
+
     color: var(--text-secondary);
+   
     font-size: var(--h4);
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    background-color: var(--bg-card);
 }
 
 button {
@@ -310,7 +319,7 @@ button {
     padding: 24px;
     border-radius: 20px;
 
-    background-color: var(--bg-body);
+    background-color: var(--bg-card);
 }
 
 .sidebar-card_title {
@@ -424,6 +433,10 @@ button {
         max-width: 95vw;
         max-height: 80vh;
     }
+
+    .main_content__media-info {
+            padding: 0 4px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -470,7 +483,7 @@ button {
     }
 
     .main_content__sidebar {
-        padding: 0 5px;
+        padding: 0 4px;
     }
 }
 

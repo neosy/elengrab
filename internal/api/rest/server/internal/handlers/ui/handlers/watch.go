@@ -173,11 +173,12 @@ func (h *DownloaderHandlers) watch(
 	mediaParametes = append(mediaParametes, mediaParameter{"File Size", fileSize})
 
 	watcherValues := uivalues.WatcherValues{
-		ShowBackButton: showBackButton,
-		IsVideoPlayer:  isVideoPlayer,
-		MediaTitle:     fileInfo.MediaTitle,
-		MediaParametes: mediaParametes,
-		ContentType:    contentType,
+		ShowBackButton:   showBackButton,
+		IsVideoPlayer:    isVideoPlayer,
+		MediaTitle:       fileInfo.MediaTitle,
+		MediaDescription: fileInfo.MediaDescription,
+		MediaParametes:   mediaParametes,
+		ContentType:      contentType,
 	}
 
 	dataMap := uivalues.MergeMaps(
