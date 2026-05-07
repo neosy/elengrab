@@ -15,8 +15,8 @@ import (
 func (h *DownloaderHandlers) RowMenuHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
-	fileIdStr := ctx.UserValue(fileIdKey).(string)
-	if fileIdStr == "" {
+	fileIdStr, ok := ctx.UserValue(fileIdKey).(string)
+	if !ok || fileIdStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
 		return
 	}

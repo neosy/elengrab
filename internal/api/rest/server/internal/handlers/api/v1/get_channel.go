@@ -8,7 +8,9 @@ import (
 )
 
 func (h *V1Handlers) GetChannelByID(ctx *fasthttp.RequestCtx) {
-	channelID := ctx.UserValue(channelIDKey).(string)
+	args := ctx.QueryArgs()
+
+	channelID := string(args.Peek(channelIDKey))
 	if channelID == "" {
 		nfasthttp.WriteErrorx(ctx, errorx.New("channelID is required", exceptionx.WRONG_DATA))
 		return

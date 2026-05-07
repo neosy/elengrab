@@ -23,7 +23,7 @@
   {{- range .CssPaths }}
   <link rel="stylesheet" href="{{.}}">
   {{- end }}
-  <link rel="manifest" href="{{.PathStaticPwa}}/manifest.json">
+  <link rel="manifest" href="{{ .PwaManifestPath }}">
   <link rel="icon" type="image/png" sizes="16x16" href="{{.PathStaticImg}}/favicon-16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="{{.PathStaticImg}}/favicon-32.png">
   <link rel="icon" type="image/png" sizes="48x48" href="{{.PathStaticImg}}/favicon-48.png">

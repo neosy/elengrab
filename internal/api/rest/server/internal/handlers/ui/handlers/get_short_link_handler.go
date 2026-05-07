@@ -11,9 +11,9 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) GetFileShortLinkHandler(ctx *fasthttp.RequestCtx) {
-	fileIdStr := ctx.UserValue(fileIdKey).(string)
-	if fileIdStr == "" {
+func (h *DownloaderHandlers) GetShortLinkHandler(ctx *fasthttp.RequestCtx) {
+	fileIdStr, ok := ctx.UserValue(fileIdKey).(string)
+	if !ok || fileIdStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
 		return
 	}

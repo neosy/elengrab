@@ -157,6 +157,12 @@ func (h *DownloaderHandlers) watch(
 		return
 	}
 
+	pwaManifestPath, err := uivalues.PwaManifestPath(h.assetFolders.Pwa())
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
 	type mediaParameter struct {
 		Name  string
 		Value string
@@ -188,6 +194,7 @@ func (h *DownloaderHandlers) watch(
 	)
 	dataMap[uivalues.CssPathsKey] = cssPaths
 	dataMap[uivalues.JsScriptsKey] = jsScripts
+	dataMap[uivalues.PwaManifestPathKey] = pwaManifestPath
 	dataMap[uivalues.PathStreamKey] = streamPath
 
 	// Set content type so browser renders HTML properly

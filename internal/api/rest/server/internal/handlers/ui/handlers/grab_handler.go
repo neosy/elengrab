@@ -19,12 +19,11 @@ func (h *DownloaderHandlers) GrabHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	url := string(ctx.FormValue(formFieldMediaURLKey))
+	url = strings.TrimSpace(url)
 	if url == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrURLIsRequired)
 		return
 	}
-
-	url = strings.TrimSpace(url)
 
 	if err := h.validators.Validate.Var(url, "url"); err != nil {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrInvalidURL.Wrap(err))

@@ -57,6 +57,12 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	pwaManifestPath, err := uivalues.PwaManifestPath(h.assetFolders.Pwa())
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
 	var userAvatarActionMode = "none"
@@ -94,6 +100,7 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	dataMap[uivalues.CssPathsKey] = cssPaths
 	dataMap[uivalues.JsScriptsKey] = jsScripts
 	dataMap[uivalues.JsImportMapJSONKey] = template.HTML(jsImportMapJSON)
+	dataMap[uivalues.PwaManifestPathKey] = pwaManifestPath
 	dataMap[uivalues.UserAvatarIconKey] = template.HTML(
 		uivalues.IconFileRawByKey(uivalues.UserAvatarKeyByType(ctxUser.UserType()), iconsDir))
 	dataMap[uivalues.UserAvatarActionModeKey] = userAvatarActionMode
