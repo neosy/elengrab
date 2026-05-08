@@ -17,11 +17,12 @@ type StaticHandlers struct {
 
 	assetFolders assets.FolderPaths
 
-	cssHandler  fasthttp.RequestHandler
-	imgHandler  fasthttp.RequestHandler
-	iconHandler fasthttp.RequestHandler
-	jsHandler   fasthttp.RequestHandler
-	pwaHandler  fasthttp.RequestHandler
+	cssHandler   fasthttp.RequestHandler
+	fontsHandler fasthttp.RequestHandler
+	imgHandler   fasthttp.RequestHandler
+	iconHandler  fasthttp.RequestHandler
+	jsHandler    fasthttp.RequestHandler
+	pwaHandler   fasthttp.RequestHandler
 
 	// usecases
 	thumbnail  *thumbnail.Thumbnail
@@ -46,6 +47,7 @@ func NewStaticHandlers(
 	}
 
 	h.cssHandler = h.newFSHandler("css", "css")
+	h.fontsHandler = h.newFSHandler("fonts", "fonts")
 	h.imgHandler = h.newFSHandler("img", "img")
 	h.iconHandler = h.newFSHandler("img/icons", "icon")
 	h.jsHandler = h.newFSHandler("js", "js")

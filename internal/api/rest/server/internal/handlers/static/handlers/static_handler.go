@@ -8,6 +8,10 @@ func (h *StaticHandlers) StaticCssHandler(ctx *fasthttp.RequestCtx) {
 	h.cssHandler(ctx)
 }
 
+func (h *StaticHandlers) StaticFontsHandler(ctx *fasthttp.RequestCtx) {
+	h.fontsHandler(ctx)
+}
+
 func (h *StaticHandlers) StaticImgHandler(ctx *fasthttp.RequestCtx) {
 	h.imgHandler(ctx)
 }

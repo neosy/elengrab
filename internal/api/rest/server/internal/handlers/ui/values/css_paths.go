@@ -13,6 +13,7 @@ var (
 
 var (
 	CssIndexPaths = cssFileNames{
+		"font-inter.css",
 		"index-main.css",
 		"variables.css",
 		"theme-switcher.css",
@@ -25,12 +26,14 @@ var (
 	}.paths
 
 	CssAuthPaths = cssFileNames{
+		"font-inter.css",
 		"auth-main.css",
 		"variables.css",
 		"theme-switcher.css",
 	}.paths
 
 	CssWatchPaths = cssFileNames{
+		"font-inter.css",
 		"watch-main.css",
 		"variables.css",
 		"theme-switcher.css",
