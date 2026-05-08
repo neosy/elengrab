@@ -5,6 +5,7 @@ const (
 	GroupStatic = "/static"
 
 	GroupStaticCss            = GroupStatic + "/css"
+	GroupStaticFonts          = GroupStatic + "/fonts"
 	GroupStaticJs             = GroupStatic + "/js"
 	GroupStaticImg            = GroupStatic + "/img"
 	GroupStaticIcon           = GroupStatic + "/icon"
@@ -14,6 +15,7 @@ const (
 
 	// Path files
 	PathCssFiles       = "/css/{filepath:*}"
+	PathFontsFiles     = "/fonts/{filepath:*}"
 	PathImgFiles       = "/img/{filepath:*}"
 	PathImgFaviconICO  = "/img/favicon.ico"
 	PathIconFiles      = "/icon/{filepath:*}"
