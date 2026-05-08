@@ -16,9 +16,11 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 	g.Use(middlewareError, s.authMiddleware.AuthOrAnonym)
 	{
 		g.GET(httppaths.PathRegister, handlers.Downloader.AuthRegisterHandler)
+		g.HEAD(httppaths.PathRegister, handlers.Downloader.AuthRegisterHandler)
 		g.POST(httppaths.PathRegister, handlers.Downloader.AuthRegisterSubmitHandler)
 
 		g.GET(httppaths.PathLogin, handlers.Downloader.AuthLoginHandler)
+		g.HEAD(httppaths.PathLogin, handlers.Downloader.AuthLoginHandler)
 		g.POST(httppaths.PathLogin, handlers.Downloader.AuthLoginSubmitHandler)
 
 		g.GET(httppaths.PathLogout, handlers.Downloader.AuthLogoutHandler)
@@ -32,6 +34,7 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		g.Use(middlewareError, s.authMiddleware.RequireAuth)
 		{
 			g.GET(httppaths.PathAccountMenu, handlers.Downloader.AccountMenuHandler)
+			g.HEAD(httppaths.PathAccountMenu, handlers.Downloader.AccountMenuHandler)
 		}
 
 		// With middleware (error, auth optional)
@@ -39,6 +42,7 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		g.Use(middlewareError, s.authMiddleware.AuthOptional)
 		{
 			g.GET(httppaths.PathHistory, handlers.Downloader.GetFilesHistoryHandler)
+			g.HEAD(httppaths.PathHistory, handlers.Downloader.GetFilesHistoryHandler)
 			g.GET(httppaths.PathFilesEvents, handlers.Downloader.EventsHandler)
 			g.POST(httppaths.PathSearch, handlers.Downloader.SearchHandler)
 		}
@@ -58,11 +62,15 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		g.Use(middlewareError, s.authMiddleware.RequireAuthMode)
 		{
 			g.GET(httppaths.PathFileRow, handlers.Downloader.GetFileRowHandler)
+			g.HEAD(httppaths.PathFileRow, handlers.Downloader.GetFileRowHandler)
 			g.GET(httppaths.PathFileLogo, handlers.Downloader.GetFileLogoHandler)
+			g.HEAD(httppaths.PathFileLogo, handlers.Downloader.GetFileLogoHandler)
 			g.GET(httppaths.PathFileMenu, handlers.Downloader.RowMenuHandler)
 			g.POST(httppaths.PathFileShortLink, handlers.Downloader.GetShortLinkHandler)
 			g.GET(httppaths.PathFileStream, handlers.Downloader.FileStreamHandler)
+			g.HEAD(httppaths.PathFileStream, handlers.Downloader.FileStreamHandler)
 			g.GET(httppaths.PathFileWatch, handlers.Downloader.FileWatchHandler)
+			g.HEAD(httppaths.PathFileWatch, handlers.Downloader.FileWatchHandler)
 
 			g.GET(httppaths.PathDownload, handlers.Downloader.DownloadHandler)
 			g.HEAD(httppaths.PathDownload, handlers.Downloader.DownloadHandler)
@@ -73,6 +81,7 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		g.Use(middlewareError, s.authMiddleware.AuthOrAnonym)
 		{
 			g.GET(httppaths.PathChannelAvatar, handlers.Downloader.GetChannelAvatarHandler)
+			g.HEAD(httppaths.PathChannelAvatar, handlers.Downloader.GetChannelAvatarHandler)
 
 			g.GET(httppaths.PathStreamShortCode, handlers.Downloader.StreamShortCodeHandler)
 			g.HEAD(httppaths.PathStreamShortCode, handlers.Downloader.StreamShortCodeHandler)
