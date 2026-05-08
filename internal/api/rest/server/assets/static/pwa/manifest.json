@@ -1,18 +1,24 @@
 {
   "name": "Elengrab",
   "short_name": "Elengrab",
+  "description": "Download video and audio from YouTube, Facebook, Instagram, VK, TikTok, and more with Elengrab.",  
   "start_url": "/",
+  "scope": "/",  
   "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#121212",
   "icons": [
     {
       "src": "/static/img/android-chrome-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/static/img/android-chrome-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
   "share_target": {
