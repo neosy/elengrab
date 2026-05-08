@@ -7,6 +7,7 @@
 - Shard downloads directory to improve file storage scalability
 - Added prometheus db metrics
 - Added media description
+- Added PWA share target URL import handling
 
 ### 🎨 Style
 - Added global UI blocking overlay for menu interactions
