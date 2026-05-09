@@ -9,7 +9,7 @@
             <img class="result__avatar-image" src="{{ .PathDownloader }}/file/{{ .FileID }}/logo{{ $logoAttr }}" alt="Channel avatar">
         </span>
         <span class="result__media-url {{.ResultMediaUrlFade}}">
-            <a href="{{ .MediaURL }}" target="_blank">{{ .MediaTitle }}</a>
+            <a class="result__media-link" href="{{ .MediaURL }}" target="_blank">{{ .MediaTitle }}</a>
         </span>
     </div>
     <div class="result-right">
