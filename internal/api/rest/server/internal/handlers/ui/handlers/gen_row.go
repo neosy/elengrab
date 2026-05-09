@@ -23,6 +23,9 @@ type fileRowInfoData struct {
 	YoutubeChannelID string
 	ThumbnailID      string
 	AvatarTitle      string
+	ImageURL         string
+	ImageAvatarURL   string
+	ImageSiteURL     string
 	MediaTitle       string
 	MediaURL         string
 	FileSize         string
@@ -35,7 +38,6 @@ type fileRowInfoData struct {
 	StreamURL        string
 	WatchURL         string
 	DeleteURL        string
-	LogoVersion      string
 	RowID            string
 	ProgressID       string
 }
@@ -74,20 +76,47 @@ func (h *DownloaderHandlers) genRow(
 		youtubeChannelID = *fileInfo.ChannelID
 	}
 
-	logoVersion := ""
+	imageVersion := ""
 	if youtubeChannelID != "" {
-		logoVersion = "yt-channel"
+		imageVersion = "yt-channel"
 	} else if fileInfo.HasSiteIcon {
-		logoVersion = "site-logo"
+		imageVersion = "site-logo"
 	}
-	if logoVersion == "" {
-		logoVersion = fmt.Sprintf("%d", time.Now().UTC().Unix())
+	if fileInfo.Status != dtypes.FileStatusFailed && imageVersion == "" {
+		imageVersion = fmt.Sprintf("%d", time.Now().UTC().Unix())
 	}
 
 	var thumbnailID string
 	if fileInfo.MediaInfo != nil && fileInfo.MediaInfo.GetThumbnailID() != nil {
 		thumbnailID = fileInfo.MediaInfo.GetThumbnailID().String()
 	}
+
+	fileImageURL := httppaths.BuildPathFileImage(
+		fileInfo.FileID,
+		[]dtypes.ImageSource{
+			dtypes.ImageSourceThumbnail,
+			dtypes.ImageSourceAvatar,
+			dtypes.ImageSourceSite,
+		},
+	)
+	if imageVersion != "" {
+		fileImageURL += "&" + imageVersion
+	}
+
+	fileImageAvatarURL := httppaths.BuildPathFileImage(
+		fileInfo.FileID,
+		[]dtypes.ImageSource{
+			dtypes.ImageSourceAvatar,
+			dtypes.ImageSourceSite,
+		},
+	)
+
+	fileImageSiteURL := httppaths.BuildPathFileImage(
+		fileInfo.FileID,
+		[]dtypes.ImageSource{
+			dtypes.ImageSourceSite,
+		},
+	)
 
 	data := fileRowInfoData{
 		FileID:           fileInfo.FileID.String(),
@@ -96,6 +125,9 @@ func (h *DownloaderHandlers) genRow(
 		ThumbnailID:      thumbnailID,
 		AvatarTitle:      fileInfo.AvatarTitle,
 		MediaTitle:       fileInfo.MediaTitle,
+		ImageURL:         fileImageURL,
+		ImageAvatarURL:   fileImageAvatarURL,
+		ImageSiteURL:     fileImageSiteURL,
 		PathFileRow:      httppaths.BuildPathFileRow(fileInfo.FileID),
 		PathFileRepeat:   httppaths.BuildPathFileRepeat(fileInfo.FileID),
 		FileSize:         "-",
@@ -107,7 +139,6 @@ func (h *DownloaderHandlers) genRow(
 		WatchURL:         httppaths.BuildPathFileWatch(fileInfo.FileID),
 		StreamURL:        httppaths.BuildPathFileStream(fileInfo.FileID),
 		DeleteURL:        httppaths.BuildPathFile(httppaths.PathFile, fileInfo.FileID),
-		LogoVersion:      logoVersion,
 		RowID:            "row-" + fileInfo.FileID.String(),
 		ProgressID:       "progress-" + fileInfo.FileID.String(),
 	}

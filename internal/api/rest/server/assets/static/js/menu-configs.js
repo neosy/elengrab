@@ -107,11 +107,13 @@ const rowMenuConfig = {
   },
 
   beforeOpen(menu, trigger) {
+    document.documentElement.classList.add("ui-blocking-active");
     document.body.classList.add('ui-blocking-active');
     return true;
   },
 
   afterClose(menu) {
+    document.documentElement.classList.remove("ui-blocking-active");
     document.body.classList.remove('ui-blocking-active');
     return true;
   }

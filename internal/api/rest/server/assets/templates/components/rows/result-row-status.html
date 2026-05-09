@@ -2,11 +2,7 @@
 <div class="media-result__row inprogress {{ .ResultRowFade }}" id="{{ .RowID }}">
     <div class="media-result__row-content">
         <span class="media-result__avatar" title="{{ .AvatarTitle }}">
-            {{ $logoAttr := "" }}
-            {{ if ne .DownloadStatus "failed" }}
-                {{ $logoAttr = printf "?v=%s" .LogoVersion }}
-            {{ end }}
-            <img class="media-result__avatar-image" src="{{ .PathDownloader }}/file/{{ .FileID }}/logo{{ $logoAttr }}" alt="Channel avatar">
+            <img class="media-result__avatar-image" src="{{ .ImageURL }}" alt="Channel avatar">
         </span>
         <span class="media-result__title {{.ResultMediaUrlFade}}">
             <a class="media-result__title-link" href="{{ .MediaURL }}" target="_blank">{{ .MediaTitle }}</a>

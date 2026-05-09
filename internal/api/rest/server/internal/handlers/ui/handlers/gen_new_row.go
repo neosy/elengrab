@@ -10,6 +10,7 @@ import (
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 type newRowData struct {
@@ -21,7 +22,7 @@ type newRowData struct {
 	MediaURL         string
 	FileSize         string
 	Format           string
-	LogoVersion      string
+	ImageURL         string
 	DeleteURL        string
 }
 
@@ -29,10 +30,23 @@ func (h *DownloaderHandlers) genNewRow(
 	fileInfo *ucdto.ScheduleDownloadResponse,
 	pageHasDivItems bool,
 ) *bytes.Buffer {
+	imageSources := []dtypes.ImageSource{
+		dtypes.ImageSourceThumbnail,
+		dtypes.ImageSourceAvatar,
+		dtypes.ImageSourceSite,
+	}
+
+	imageVersion := fmt.Sprintf("%d", time.Now().UTC().Unix())
+
+	fileImageURL := httppaths.BuildPathFileImage(fileInfo.FileID, imageSources)
+	if imageVersion != "" {
+		fileImageURL += "&" + imageVersion
+	}
+
 	data := newRowData{
 		MediaURL:    fileInfo.URL,
-		LogoVersion: fmt.Sprintf("%d", time.Now().UTC().Unix()),
 		DeleteURL:   httppaths.BuildPathFile(httppaths.PathFile, fileInfo.FileID),
+		ImageURL:    fileImageURL,
 		FileID:      fileInfo.FileID.String(),
 		RowID:       "row-" + fileInfo.FileID.String(),
 		MediaTitle:  fileInfo.URL,
