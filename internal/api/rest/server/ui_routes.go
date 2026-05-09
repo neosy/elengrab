@@ -63,8 +63,8 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		{
 			g.GET(httppaths.PathFileRow, handlers.Downloader.GetFileRowHandler)
 			g.HEAD(httppaths.PathFileRow, handlers.Downloader.GetFileRowHandler)
-			g.GET(httppaths.PathFileLogo, handlers.Downloader.GetFileLogoHandler)
-			g.HEAD(httppaths.PathFileLogo, handlers.Downloader.GetFileLogoHandler)
+			g.GET(httppaths.PathFileImage, handlers.Downloader.GetFileImageHandler)
+			g.HEAD(httppaths.PathFileImage, handlers.Downloader.GetFileImageHandler)
 			g.GET(httppaths.PathFileMenu, handlers.Downloader.RowMenuHandler)
 			g.POST(httppaths.PathFileShortLink, handlers.Downloader.GetShortLinkHandler)
 			g.GET(httppaths.PathFileStream, handlers.Downloader.FileStreamHandler)

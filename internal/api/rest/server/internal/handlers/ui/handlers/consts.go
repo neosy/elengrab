@@ -22,6 +22,8 @@ const (
 	urlKey  = "url"
 	textKey = "text"
 
+	sourceKey = "source"
+
 	fileIdKey        = "fileId"
 	beforeKey        = "before"
 	channelIDKey     = "channelID"
