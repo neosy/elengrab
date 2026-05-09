@@ -1,12 +1,12 @@
 {{- define "result-row-load-history" }}
-    <div class="grab-result__row-load-history" id="row-load-history"
+    <div class="media-result__row-load-history" id="row-load-history"
 {{- if not .DisableHTMXEvent }}
     hx-get="{{.PathItemsHistory}}"
     hx-trigger="revealed once"
     hx-target="this"
     hx-swap="outerHTML"
 {{- end }}>
-        <span class="grab-result__row-history-loading">
+        <span class="media-result__row-history-loading">
             Loading...
         </span>
     </div>

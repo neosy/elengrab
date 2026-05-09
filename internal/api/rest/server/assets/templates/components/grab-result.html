@@ -1,16 +1,16 @@
-{{- define "grab-result" }}
-      <div class="grab-result" id="grab-result">
-        <div class="grab-result_info" id="result-info">
-          <div class="grab-result_info-row" id="result-info-row">
-              <span class="grab-result_info-failed" id="result-info-failed"></span>
+{{- define "media-result" }}
+      <div class="media-result" id="media-result">
+        <div class="media-result_info" id="result-info">
+          <div class="media-result_info-row" id="result-info-row">
+              <span class="media-result_info-failed" id="result-info-failed"></span>
           </div>
         </div>
         {{- if .ShowHistorySearch }}
-          <div class="result-toolbar">
+          <div class="media-result_toolbar">
             {{- template "history-search" . }}
           </div>
         {{- end }}
-        <div class="grab-result__rows-wrapper">
+        <div class="media-result__rows-wrapper">
           {{- template "result-rows" . }}
           {{- template "row-menu" . }}
         </div>

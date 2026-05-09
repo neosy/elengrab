@@ -23,10 +23,10 @@ export function initPlayer() {
     overlay.style.display = "none";
 
     document.addEventListener("click", (event) => {
-        const playBtn = event.target.closest(".avatar-play__button");
+        const playBtn = event.target.closest(".media-result__avatar-play-button");
         if (!playBtn) return;
 
-        const row = playBtn.closest(".grab-result__row");
+        const row = playBtn.closest(".media-result__row");
         if (!row) return;
 
         const mediaURL = row.dataset.media;
@@ -102,10 +102,10 @@ export function initPlayer() {
         const el = e.target;
         if (!(el instanceof Element)) return;
 
-        const playBtn = el.closest(".avatar-play__button");
+        const playBtn = el.closest(".media-result__avatar-play-button");
         if (!playBtn) return;
 
-        const row = playBtn.closest(".grab-result__row");
+        const row = playBtn.closest(".media-result__row");
         const isAudio = row.dataset.isAudio === "true";
 
         if (isAudio) return; // To open in new tab only applies to videos
