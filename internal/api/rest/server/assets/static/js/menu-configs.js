@@ -28,7 +28,7 @@ const accountMenuConfig = {
 
 // Row menu config
 const rowMenuConfig = {
-  triggerSelector: '.result__menu-button',
+  triggerSelector: '.media-result__menu-button',
   menuId: 'row-menu',
 
   actions: {
