@@ -2,9 +2,11 @@ package httppaths
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/google/uuid"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 // UI
@@ -25,7 +27,7 @@ const (
 	PathFile               = "/file/{fileId}"
 	PathFileRow            = "/file/{fileId}/row"
 	PathFileDownloadRepeat = "/file/{fileId}/repeat"
-	PathFileLogo           = "/file/{fileId}/logo"
+	PathFileImage          = "/file/{fileId}/image"
 	PathFileMenu           = "/files/{fileId}/menu"
 	PathFileShortLink      = "/files/{fileId}/short-link"
 	PathFileStream         = "/files/{fileId}/stream"
@@ -69,4 +71,24 @@ func BuildPathStreamShortCode(shortCode string) string {
 
 func BuildPathFileDownload(fileID uuid.UUID) string {
 	return fmt.Sprintf("%s?file=%s", GroupDownloader+PathDownload, fileID)
+}
+
+func BuildPathFileImage(fileID uuid.UUID, sources []dtypes.ImageSource) string {
+	var sourceStrings []string
+	for _, src := range sources {
+		if src.Exists() {
+			sourceStrings = append(sourceStrings, src.String())
+		}
+	}
+
+	var urlSufix string
+	if len(sourceStrings) > 0 {
+		imageValues := url.Values{}
+		imageValues.Set("source", strings.Join(sourceStrings, ","))
+		if len(imageValues) > 0 {
+			urlSufix = "?" + imageValues.Encode()
+		}
+	}
+
+	return BuildPathFile(PathFileImage, fileID) + urlSufix
 }

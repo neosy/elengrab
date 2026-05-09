@@ -13,6 +13,10 @@ html {
     scrollbar-gutter: stable;
 }
 
+html, body {
+  overflow-x: hidden;
+}
+
 body {
     display: flex;
     padding-bottom: 40px;
@@ -29,6 +33,7 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+html.ui-blocking-active,
 body.ui-blocking-active {
   overflow: hidden;
 }
