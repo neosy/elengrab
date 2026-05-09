@@ -23,7 +23,7 @@ export function initPlayer() {
     overlay.style.display = "none";
 
     document.addEventListener("click", (event) => {
-        const playBtn = event.target.closest(".media-result__avatar-play-button");
+        const playBtn = event.target.closest(".media-result__play-button");
         if (!playBtn) return;
 
         const row = playBtn.closest(".media-result__row");
@@ -102,7 +102,7 @@ export function initPlayer() {
         const el = e.target;
         if (!(el instanceof Element)) return;
 
-        const playBtn = el.closest(".media-result__avatar-play-button");
+        const playBtn = el.closest(".media-result__play-button");
         if (!playBtn) return;
 
         const row = playBtn.closest(".media-result__row");
