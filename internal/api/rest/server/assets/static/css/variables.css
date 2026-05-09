@@ -30,8 +30,8 @@
     --download-delete-hover: #c44b4b;
     --download-repeat: #ef5350;
     --download-repeat-hover: #ef5350;
-    --avatar-play__button: white;
-    --avatar-play__button-hover: #4caf50;
+    --media-result__avatar-play-button: white;
+    --media-result__avatar-play-button-hover: #4caf50;
     --row-menu-button: #6b7280;
     --row-menu-button-hover: #333;
     --error: #ef5350;
@@ -95,8 +95,8 @@
     --download-delete-hover: #c44b4b;
     --download-repeat: #ef5350;
     --download-repeat-hover: #ef5350;
-    --avatar-play__button: white;
-    --avatar-play__button-hover: #4caf50;
+    --media-result__avatar-play-button: white;
+    --media-result__avatar-play-button-hover: #4caf50;
     --row-menu-button: #6b7280;
     --row-menu-button-hover: #9e9e9e;
     --error: #f85149;

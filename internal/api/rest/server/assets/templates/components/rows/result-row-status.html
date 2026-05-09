@@ -1,45 +1,43 @@
 {{- define "result-row-status" }}
-<div class="grab-result__row inprogress {{ .ResultRowFade }}" id="{{ .RowID }}">
-    <div class="result-left">
-        <span class="result__avatar" title="{{ .AvatarTitle }}">
+<div class="media-result__row inprogress {{ .ResultRowFade }}" id="{{ .RowID }}">
+    <div class="media-result__row-content">
+        <span class="media-result__avatar" title="{{ .AvatarTitle }}">
             {{ $logoAttr := "" }}
             {{ if ne .DownloadStatus "failed" }}
                 {{ $logoAttr = printf "?v=%s" .LogoVersion }}
             {{ end }}
-            <img class="result__avatar-image" src="{{ .PathDownloader }}/file/{{ .FileID }}/logo{{ $logoAttr }}" alt="Channel avatar">
+            <img class="media-result__avatar-image" src="{{ .PathDownloader }}/file/{{ .FileID }}/logo{{ $logoAttr }}" alt="Channel avatar">
         </span>
-        <span class="result__media-url {{.ResultMediaUrlFade}}">
-            <a class="result__media-link" href="{{ .MediaURL }}" target="_blank">{{ .MediaTitle }}</a>
+        <span class="media-result__title {{.ResultMediaUrlFade}}">
+            <a class="media-result__title-link" href="{{ .MediaURL }}" target="_blank">{{ .MediaTitle }}</a>
         </span>
     </div>
-    <div class="result-right">
-        <span class="result__separator first">•</span>
-        <div class="result__size">
-            <span class="result__size-value {{.ResultSizeFade}}" data-id="size" title="Estimated file size">{{ .FileSize }}</span>
+    <div class="media-result__row-meta">
+        <div class="media-result__size">
+            <span class="media-result__size-value {{.ResultSizeFade}}" data-id="size" title="Estimated file size">{{ .FileSize }}</span>
         </div>
-        <span class="result__separator">•</span>
-        <div class="result__format">
-            <span class="result__format-value {{.ResultFormatFade}}" title="{{ .FormatTitle }}" data-tooltip="{{ .FormatTooltip }}" data-id="format">{{ .Format }}</span>
+        <div class="media-result__format">
+            <div class="media-result__format-value__wrapper"><span class="media-result__format-value {{.ResultFormatFade}}" title="{{ .FormatTitle }}" data-tooltip="{{ .FormatTooltip }}" data-id="format">{{ .Format }}</span></div>
         </div>
-        <span class="result__separator">•</span>
-        <div class="result__delete">
-            <button class="result__delete-row-button"
+        <div class="media-result__delete">
+            <button class="media-result__delete-row-button"
                 title="Delete this download task"
                 hx-delete="{{ .DeleteURL }}"
                 hx-swap="none">
                 {{ .GrabResultItemDeleteIcon }}
             </button>            
         </div>
-        <span class="result__separator">•</span>
-        <div class="result__status" title="{{ .ResultRowStatusTitle }}">
+        <div class="media-result__status" title="{{ .ResultRowStatusTitle }}">
         {{ if .IsItemSpiner }}
-            <div class="result__status-spinner {{ .WorkingStatus }}"></div>
-            {{ if eq .WorkingStatus "downloading" }}
-                {{- template "result-progress" . }}
-            {{ end }}
+            <div class="media-result__status-spinner__wrapper">
+                <div class="media-result__status-spinner {{ .WorkingStatus }}"></div>
+                {{ if eq .WorkingStatus "downloading" }}
+                    {{- template "result-progress" . }}
+                {{ end }}
+            </div>
         {{ else }}
             {{ if eq .DownloadStatus "failed" }}
-                <button class="result__status-button"
+                <button class="media-result__status-button"
                     hx-post="{{.PathFileRepeat}}"
                     hx-swap="none">
                     {{ .DownloadResultItemStatusFailedIcon }}
@@ -49,8 +47,8 @@
             {{ end }}
         {{ end }}
         </div>
-        <div class="result__menu">
-            <button type="button" class="result__menu-button" aria-label="Open the action menu" data-file-id="{{ .FileID }}">
+        <div class="media-result__menu">
+            <button type="button" class="media-result__menu-button" aria-label="Open the action menu" data-file-id="{{ .FileID }}">
                 <span class="dot"></span>
                 <span class="dot"></span>
                 <span class="dot"></span>
