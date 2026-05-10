@@ -72,3 +72,7 @@ func ValidateMediaHost(fl validator.FieldLevel) bool {
 	_, err := ParseMediaHost(fl.Field().String())
 	return err == nil
 }
+
+func (v MediaHost) ThumbnailSourceType() ThumbnailSourceType {
+	return MapMediaHostToThumbnailSourceType(v)
+}

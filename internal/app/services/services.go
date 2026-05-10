@@ -17,7 +17,8 @@ type Dependencies struct {
 }
 
 type Services struct {
-	YouTubeDownloader pservices.Downloader
+	Downloader pservices.Downloader
+	FFMpeg     pservices.FFMpeg
 }
 
 func New(logger *slog.Logger, deps *Dependencies) (*Services, error) {
@@ -38,6 +39,7 @@ func New(logger *slog.Logger, deps *Dependencies) (*Services, error) {
 	}
 
 	return &Services{
-		YouTubeDownloader: downloader,
+		Downloader: downloader,
+		FFMpeg:     ffmpeg,
 	}, nil
 }

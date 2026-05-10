@@ -25,7 +25,7 @@ func (uc *Downloader) broadcastFileAdd(file *ddownload.File) {
 	}
 
 	resp := &dto.ScheduleDownloadResponse{
-		URL:        file.MediaUrl,
+		URL:        file.MediaURL,
 		FileID:     file.FileID,
 		Status:     file.Status,
 		MediaTitle: file.MediaTitle,
