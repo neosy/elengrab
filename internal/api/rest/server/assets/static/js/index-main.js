@@ -168,12 +168,19 @@ document.addEventListener('DOMContentLoaded', () => {
     cookie.setupCookieSelectSync(SELECT_NAMES.qualityResolution, COOKIE_NAMES.qualityResolution);
     cookie.setupCookieSelectSync(SELECT_NAMES.format, COOKIE_NAMES.format);
 
+    // TODO Disabled. Problems resetting the position when pressing Back
     // Reload page if restored from bfcache (back/forward navigation)
-    window.addEventListener('pageshow', (event) => {
-        if (event.persisted) {
-            window.location.reload();
+    // window.addEventListener('pageshow', (event) => {
+    //     if (event.persisted) {
+    //         window.location.reload();
+    //     }
+    // });
+
+    window.addEventListener('pageshow', () => {
+        if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
+            globalEventSource = createSSEConnection();
         }
-    });
+    });    
 
     // Submit on Enter
     grabInputURL.addEventListener('keydown', (event) => {
@@ -274,6 +281,20 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn("SSE connection closed");
         sse?.close();
     });
+
+    // ------------------------------------------------------------
+    // Reconnect SSE when tab becomes visible again
+    // (fixes lost Server-Sent Events after browser tab sleep,
+    // background throttling, or mobile suspension)
+    // ------------------------------------------------------------
+    document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+        if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
+            globalEventSource = createSSEConnection();
+        }
+    }
+});
+
 });
 
 // Force scroll to top after full page load
