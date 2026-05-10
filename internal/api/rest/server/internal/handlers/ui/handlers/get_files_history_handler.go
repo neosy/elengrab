@@ -86,7 +86,7 @@ func (h *DownloaderHandlers) getFilesHistory(
 			continue
 		}
 
-		err = tmpl.ExecuteTemplate(buf, row.templateName, row.data)
+		err = tmpl.ExecuteTemplate(buf, uivalues.ComponentResultRowStatusKey, row.data)
 		if err != nil {
 			continue
 		}

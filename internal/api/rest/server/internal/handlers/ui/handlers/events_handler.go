@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
+	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
@@ -148,7 +149,7 @@ func (h *DownloaderHandlers) handleFileUpdate(w *bufio.Writer, event ucdto.Broad
 	}
 
 	var buf bytes.Buffer
-	err = tmpl.ExecuteTemplate(&buf, row.templateName, row.data)
+	err = tmpl.ExecuteTemplate(&buf, uivalues.ComponentResultRowStatusKey, row.data)
 	if err != nil {
 		return
 	}

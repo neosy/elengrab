@@ -15,6 +15,7 @@ import (
 
 type newRowData struct {
 	FileID           string
+	DownloadStatus   string
 	RowID            string
 	PathFileRow      string
 	YoutubeChannelID string
@@ -44,15 +45,16 @@ func (h *DownloaderHandlers) genNewRow(
 	}
 
 	data := newRowData{
-		MediaURL:    fileInfo.URL,
-		DeleteURL:   httppaths.BuildPathFile(httppaths.PathFile, fileInfo.FileID),
-		ImageURL:    fileImageURL,
-		FileID:      fileInfo.FileID.String(),
-		RowID:       "row-" + fileInfo.FileID.String(),
-		MediaTitle:  fileInfo.URL,
-		PathFileRow: httppaths.BuildPathFileRow(fileInfo.FileID),
-		FileSize:    "-",
-		Format:      "-",
+		MediaURL:       fileInfo.URL,
+		DownloadStatus: fileInfo.Status.String(),
+		DeleteURL:      httppaths.BuildPathFile(httppaths.PathFile, fileInfo.FileID),
+		ImageURL:       fileImageURL,
+		FileID:         fileInfo.FileID.String(),
+		RowID:          "row-" + fileInfo.FileID.String(),
+		MediaTitle:     fileInfo.URL,
+		PathFileRow:    httppaths.BuildPathFileRow(fileInfo.FileID),
+		FileSize:       "-",
+		Format:         "-",
 	}
 
 	dataMap := uivalues.MergeMaps(
