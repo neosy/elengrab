@@ -125,7 +125,7 @@ func (h *DownloaderHandlers) genRow(
 		AvatarTitle:      fileInfo.AvatarTitle,
 
 		MediaTitle: fileInfo.MediaTitle,
-		MediaURL:   fileInfo.MediaUrl,
+		MediaURL:   fileInfo.MediaURL,
 
 		ContentTimeAgo: fileInfo.CreatedTimeAgo,
 

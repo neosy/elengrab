@@ -225,7 +225,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 		MediaDescription:     &lastResult.MediaDescription,
 		FileName:             &lastResult.Filename,
 		Ext:                  &lastResult.FileExt,
-		FullName:             &lastResult.FileFullName,
+		FullFileName:         &lastResult.FileFullName,
 		FileSize:             &lastResult.Filesize,
 		PartialHash:          &lastResult.PartialHash,
 		SafeReadableFullName: safeReadableFullName,

@@ -20,7 +20,7 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 ) *dto.GetFileInfoResponse {
 	var mediaTitle = file.MediaTitle
 	if file.MediaTitle == "" {
-		mediaTitle = file.MediaUrl
+		mediaTitle = file.MediaURL
 	}
 
 	workingStatus := dto.WorkingStatusNone
@@ -43,14 +43,14 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 		WorkingStatus:        workingStatus,
 		ChannelID:            file.ChannelID,
 		AvatarTitle:          avatarTitle,
-		MediaUrl:             file.MediaUrl,
+		MediaURL:             file.MediaURL,
 		MediaTitle:           mediaTitle,
 		MediaDescription:     uptr.Deref(file.MediaDescription),
 		CreatedTimeAgo:       humanize.TimeAgo(file.CreatedAt),
 		HasSiteIcon:          hasSiteIcon,
 		FileName:             file.FileName,
 		FileExt:              file.Ext,
-		FileFullName:         file.FullName,
+		FileFullName:         file.FullFileName,
 		FileSize:             file.FileSize,
 		SafeReadableFullName: file.SafeReadableFullName,
 		StatusText:           uptr.Deref(file.ErrorMessage),

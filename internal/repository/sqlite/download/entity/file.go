@@ -13,14 +13,14 @@ type File struct {
 	FileID               uuid.UUID  `db:"file_id"`
 	UserID               *uuid.UUID `db:"user_id"`
 	Status               string     `db:"file_status"`
-	MediaUrl             string     `db:"media_url"`
+	MediaURL             string     `db:"media_url"`
 	MediaTitle           string     `db:"media_title"`
 	MediaTitleLower      string     `db:"media_title_lower"`
 	MediaDescription     *string    `db:"media_description"`
 	ChannelID            *string    `db:"channel_id"`
 	FileName             string     `db:"file_name"`
 	Ext                  string     `db:"ext"`
-	FullName             string     `db:"full_name"`
+	FullFileName         string     `db:"full_name"`
 	FileSize             *int64     `db:"file_size"`
 	PartialHash          *string    `db:"partial_hash"`
 	SafeReadableFullName string     `db:"safe_readable_full_name"`

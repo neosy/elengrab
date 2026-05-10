@@ -95,7 +95,7 @@ func (uc *Downloader) getFileImageSite(
 	ctx context.Context,
 	fileInfo *dto.GetFileInfoResponse,
 ) (*dtypes.ImageData, error) {
-	logo, err := uc.siteIcon.GetBySiteURL(ctx, httpx.BaseURL(fileInfo.MediaUrl))
+	logo, err := uc.siteIcon.GetBySiteURL(ctx, httpx.BaseURL(fileInfo.MediaURL))
 	if err != nil {
 		return nil, errorx.Errorf("avatar not found: %w", err)
 	}

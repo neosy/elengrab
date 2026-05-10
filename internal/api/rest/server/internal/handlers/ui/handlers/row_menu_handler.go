@@ -42,7 +42,7 @@ func (h *DownloaderHandlers) RowMenuHandler(ctx *fasthttp.RequestCtx) {
 		iconsDir,
 		map[string]string{
 			uivalues.RowMenuActionFileIdKey: fileId.String(),
-			uivalues.RowMenuActionURLKey:    fileResp.MediaUrl,
+			uivalues.RowMenuActionURLKey:    fileResp.MediaURL,
 		},
 		fileResp.Status == dtypes.FileStatusDone,
 	)
