@@ -46,9 +46,12 @@ const (
 
 	// Cache cleanup intervals
 	cleanYoutubeChannelCacheInterval = 5 * time.Minute
-	cleanDownloadStateCacheinterval  = 30 * time.Minute
+	cleanDownloadStateCacheInterval  = 30 * time.Minute
 	cleanSiteLogoCacheInterval       = 2 * time.Hour
 	cleanThumbnailCacheInterval      = 2 * time.Hour
+
+	// Intervals for updating metrics
+	updateDBMetricsInterval = 5 * time.Minute
 
 	// defaultWorkerIdleTime is the default idle duration before a dynamic pool worker can exit.
 	workerIdleTimeDefault = 15 * time.Minute
@@ -213,6 +216,7 @@ func (a *Application) initialize() error {
 		YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
 		SiteLogoCache:       inMemoryRepositories.SiteLogo,
 		ThumbnailCache:      inMemoryRepositories.Thumbnail,
+
 		// runners
 		DownloaderMaintenance: a.Usecases.Downloader,
 		DBMaintenance:         a.Usecases.Maintenance,
@@ -220,17 +224,18 @@ func (a *Application) initialize() error {
 		DownloaderTask:        a.Usecases.Downloader,
 		AuthWebStartup:        a.Usecases.AuthWeb,
 		DownloaderMigrations:  a.Usecases.Downloader,
+
 		// options
 		MetricsEnabled:                   a.cfg.AdminServer.Enable && a.cfg.AdminServer.DebugConfig.EnableMetrics,
-		IntervalUpdateHash:               a.cfg.Elengrab.Maintenance.IntervalUpdateHash,
-		IntervalDeleteDuplicates:         a.cfg.Elengrab.Maintenance.IntervalDeleteDuplicates,
-		IntervalDeleteMissingFiles:       a.cfg.Elengrab.Maintenance.IntervalDeleteMissingFiles,
-		IntervalDeleteFailedDownloads:    a.cfg.Elengrab.Maintenance.IntervalDeleteFailedDownloads,
+		UpdateHashInterval:               a.cfg.Elengrab.Maintenance.UpdateHashInterval,
+		DeleteDuplicatesInterval:         a.cfg.Elengrab.Maintenance.DeleteDuplicatesInterval,
+		DeleteMissingFilesInterval:       a.cfg.Elengrab.Maintenance.DeleteMissingFilesInterval,
+		DeleteFailedDownloadsInterval:    a.cfg.Elengrab.Maintenance.DeleteFailedDownloadsInterval,
 		MoveUnmatchedFilesEnabled:        a.cfg.Elengrab.Maintenance.MoveUnmatchedFilesEnabled,
-		IntervalCleanYoutubeChannelCache: cleanYoutubeChannelCacheInterval,
-		IntervalCleanDownloadStateCache:  cleanDownloadStateCacheinterval,
-		IntervalCleanSiteLogoCache:       cleanSiteLogoCacheInterval,
-		IntervalCleanThumbnailCache:      cleanThumbnailCacheInterval,
+		CleanYoutubeChannelCacheInterval: cleanYoutubeChannelCacheInterval,
+		CleanDownloadStateCacheInterval:  cleanDownloadStateCacheInterval,
+		CleanSiteLogoCacheInterval:       cleanSiteLogoCacheInterval,
+		CleanThumbnailCacheInterval:      cleanThumbnailCacheInterval,
 	}
 	a.Workers = nworkers.NewWorkers(a.logger)
 	workers.Initialize(a.logger, wsDeps, a.Workers)
