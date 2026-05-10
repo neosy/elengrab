@@ -17,36 +17,44 @@ import (
 )
 
 type fileRowInfoData struct {
-	FileID           string
-	PathFileRow      string
-	PathFileRepeat   string
+	FileID         string
+	DownloadStatus string
+	WorkingStatus  string
+
+	PathFileRow    string
+	PathFileRepeat string
+
 	YoutubeChannelID string
 	ThumbnailID      string
 	AvatarTitle      string
-	ImageURL         string
-	ImageAvatarURL   string
-	ImageSiteURL     string
-	MediaTitle       string
-	MediaURL         string
-	FileSize         string
-	Format           string
-	DataFormat       string
-	FormatTitle      string
-	FormatTooltip    string
-	IsAudio          string
-	DownloadURL      string
-	StreamURL        string
-	WatchURL         string
-	DeleteURL        string
-	RowID            string
-	ProgressID       string
+
+	ImageURL       string
+	ImageAvatarURL string
+	ImageSiteURL   string
+
+	MediaTitle string
+	MediaURL   string
+
+	ContentTimeAgo string
+
+	FileSize      string
+	Format        string
+	DataFormat    string
+	FormatTitle   string
+	FormatTooltip string
+	IsAudio       string
+	DownloadURL   string
+	StreamURL     string
+	WatchURL      string
+	DeleteURL     string
+	RowID         string
+	ProgressID    string
 }
 
 type genRowResult struct {
-	templateName string
-	data         map[string]any
-	httpStatus   int
-	err          error
+	data       map[string]any
+	httpStatus int
+	err        error
 }
 
 func (h *DownloaderHandlers) genRow(
@@ -119,28 +127,35 @@ func (h *DownloaderHandlers) genRow(
 	)
 
 	data := fileRowInfoData{
-		FileID:           fileInfo.FileID.String(),
-		MediaURL:         fileInfo.MediaUrl,
+		FileID:         fileInfo.FileID.String(),
+		DownloadStatus: fileInfo.Status.String(),
+		WorkingStatus:  dltypes.MapUsecaseWorkingStatusToUI(fileInfo.WorkingStatus).String(),
+
 		YoutubeChannelID: youtubeChannelID,
 		ThumbnailID:      thumbnailID,
 		AvatarTitle:      fileInfo.AvatarTitle,
-		MediaTitle:       fileInfo.MediaTitle,
-		ImageURL:         fileImageURL,
-		ImageAvatarURL:   fileImageAvatarURL,
-		ImageSiteURL:     fileImageSiteURL,
-		PathFileRow:      httppaths.BuildPathFileRow(fileInfo.FileID),
-		PathFileRepeat:   httppaths.BuildPathFileRepeat(fileInfo.FileID),
-		FileSize:         "-",
-		Format:           "-",
-		DataFormat:       "-",
-		FormatTitle:      fileInfo.MediaInfoText,
-		FormatTooltip:    fileInfo.MediaInfoTooltip,
-		DownloadURL:      httppaths.BuildPathFileDownload(fileInfo.FileID),
-		WatchURL:         httppaths.BuildPathFileWatch(fileInfo.FileID),
-		StreamURL:        httppaths.BuildPathFileStream(fileInfo.FileID),
-		DeleteURL:        httppaths.BuildPathFile(httppaths.PathFile, fileInfo.FileID),
-		RowID:            "row-" + fileInfo.FileID.String(),
-		ProgressID:       "progress-" + fileInfo.FileID.String(),
+
+		MediaTitle: fileInfo.MediaTitle,
+		MediaURL:   fileInfo.MediaUrl,
+
+		ContentTimeAgo: fileInfo.CreatedTimeAgo,
+
+		ImageURL:       fileImageURL,
+		ImageAvatarURL: fileImageAvatarURL,
+		ImageSiteURL:   fileImageSiteURL,
+		PathFileRow:    httppaths.BuildPathFileRow(fileInfo.FileID),
+		PathFileRepeat: httppaths.BuildPathFileRepeat(fileInfo.FileID),
+		FileSize:       "-",
+		Format:         "-",
+		DataFormat:     "-",
+		FormatTitle:    fileInfo.MediaInfoText,
+		FormatTooltip:  fileInfo.MediaInfoTooltip,
+		DownloadURL:    httppaths.BuildPathFileDownload(fileInfo.FileID),
+		WatchURL:       httppaths.BuildPathFileWatch(fileInfo.FileID),
+		StreamURL:      httppaths.BuildPathFileStream(fileInfo.FileID),
+		DeleteURL:      httppaths.BuildPathFile(httppaths.PathFile, fileInfo.FileID),
+		RowID:          "row-" + fileInfo.FileID.String(),
+		ProgressID:     "progress-" + fileInfo.FileID.String(),
 	}
 
 	if fileInfo.FileSize != nil && *fileInfo.FileSize > 0 {
@@ -202,21 +217,13 @@ func (h *DownloaderHandlers) genRow(
 		dataMap[uivalues.IsItemSpinerKey] = true
 	}
 
-	dataMap[uivalues.DownloadStatusKey] = fileInfo.Status.String()
-	dataMap[uivalues.DownloadWorkingStatusKey] = dltypes.MapUsecaseWorkingStatusToUI(fileInfo.WorkingStatus)
 	if fileInfo.Progress != nil {
 		dataMap[uivalues.DownloadingProgressPercentKey] = int(fileInfo.Progress.Percent())
 	}
 
-	var tmplFileName = uivalues.ComponentResultRowStatusKey
-	if fileInfo.Status == dtypes.FileStatusDone {
-		tmplFileName = uivalues.ComponentResultRowSuccessKey
-	}
-
 	return genRowResult{
-		templateName: tmplFileName,
-		data:         dataMap,
-		httpStatus:   fasthttp.StatusOK,
-		err:          nil,
+		data:       dataMap,
+		httpStatus: fasthttp.StatusOK,
+		err:        nil,
 	}
 }
