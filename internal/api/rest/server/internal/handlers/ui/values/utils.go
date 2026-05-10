@@ -1,13 +1,14 @@
 package uivalues
 
 import (
-	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"maps"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
 func MergeMaps(mapsList ...map[string]any) map[string]any {
@@ -51,30 +52,41 @@ func StructToMap(data any) map[string]any {
 	return result
 }
 
-func generateHashedFileName(dir string, fileName string) (string, error) {
+func fileNameWithHash(dir string, fileName string) (string, error) {
 	filePath := filepath.Join(dir, fileName)
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return "", err
 	}
 
-	hash := fmt.Sprintf("%x", sha256.Sum256(data))[:8] // short hash
+	hash := httpx.AssetFingerprintHex32(data)
 	ext := filepath.Ext(fileName)
 	name := strings.TrimSuffix(fileName, ext)
 
 	return fmt.Sprintf("%s.%s%s", name, hash, ext), nil
 }
 
-func generateHashedFileNames(dir string, fileNames []string) ([]string, error) {
+func fileNamesWithHash(dir string, fileNames []string) ([]string, error) {
 	var result = make([]string, len(fileNames))
 
 	for i, f := range fileNames {
 		var err error
-		result[i], err = generateHashedFileName(dir, f)
+		result[i], err = fileNameWithHash(dir, f)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	return result, nil
+}
+
+func fileRaw(fileName, dir string) ([]byte, error) {
+	filePath := filepath.Join(dir, string(fileName))
+
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }

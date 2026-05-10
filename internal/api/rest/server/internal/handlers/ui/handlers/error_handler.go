@@ -56,7 +56,7 @@ func (h *DownloaderHandlers) WriteErrorHandler(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	cssStyle := uivalues.CssFileRaw(uivalues.CssErrorFileName, h.assetFolders.Css())
+	cssStyleRaw, _ := uivalues.CssErrorFileName.Raw(h.assetFolders.Css())
 
 	errorValues := uivalues.NewErrorValues()
 	errorValues.Title = fmt.Sprintf("Error %v (%s)!!!", statusCode, statusText)
@@ -67,7 +67,7 @@ func (h *DownloaderHandlers) WriteErrorHandler(ctx *fasthttp.RequestCtx) {
 	errorValues.DebugErrorText = errorxResp.Errors
 
 	dataMap := uivalues.MergeMaps(uivalues.PathValues, errorValues.ToMap())
-	dataMap[uivalues.CssStyleKey] = template.HTML("<style>" + cssStyle + "</style>")
+	dataMap[uivalues.CssStyleKey] = template.HTML("<style>" + string(cssStyleRaw) + "</style>")
 	dataMap[uivalues.DebugDataKey] = template.HTML(strings.ReplaceAll(debugErrorText, "\n", "<br>"))
 
 	// Load template

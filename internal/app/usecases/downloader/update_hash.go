@@ -3,7 +3,7 @@ package downloader
 import (
 	"context"
 
-	"github.com/neosy/elengrab/internal/app/utils"
+	"github.com/neosy/elengrab/internal/app/utils/hash"
 )
 
 func (uc *Downloader) UpdateHash(ctx context.Context) error {
@@ -21,7 +21,7 @@ func (uc *Downloader) UpdateHash(ctx context.Context) error {
 			continue
 		}
 
-		h, err := utils.HashPartialMedia(filePath)
+		h, err := hash.FilePartialHash(filePath)
 		if err != nil {
 			uc.logger.Warn("Failed get hash partial", "filePath", filePath, "error", err)
 			continue
