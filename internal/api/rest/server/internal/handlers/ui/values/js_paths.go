@@ -101,12 +101,12 @@ func (scripts jsScripts) fileNames() []string {
 }
 
 func (scripts jsScripts) withPath(dir string) ([]jsScript, error) {
-	paths, err := generateHashedFileNames(dir, scripts.fileNames())
+	paths, err := fileNamesWithHash(dir, scripts.fileNames())
 	if err != nil {
 		return nil, err
 	}
 
-	var newScripts = make([]jsScript, len(scripts))
+	newScripts := make([]jsScript, len(scripts))
 	copy(newScripts, scripts)
 
 	for i, name := range paths {
@@ -116,23 +116,12 @@ func (scripts jsScripts) withPath(dir string) ([]jsScript, error) {
 	return newScripts, nil
 }
 
-func (names jsImportFileNames) mapWithPath(dir string) (jsImportMap, error) {
-	paths, err := generateHashedFileNames(dir, names)
-	if err != nil {
-		return nil, err
-	}
-
-	var jsMap = make(jsImportMap, len(paths))
-	for i, newName := range paths {
-		key := JsHttpPath(names[i])
-		jsMap[key] = JsHttpPath(newName)
-	}
-
-	return jsMap, nil
+func (names jsImportFileNames) nameKeysWithPath(dir string) (jsImportMap, error) {
+	return assetJsNameKeyPath(names, dir)
 }
 
 func (names jsImportFileNames) jsonForTemplate(dir string) ([]byte, error) {
-	jsMap, err := names.mapWithPath(dir)
+	jsMap, err := names.nameKeysWithPath(dir)
 	if err != nil {
 		return nil, err
 	}

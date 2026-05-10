@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html/template"
 	"path/filepath"
-	"time"
 
 	dltypes "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/types"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
@@ -84,16 +83,6 @@ func (h *DownloaderHandlers) genRow(
 		youtubeChannelID = *fileInfo.ChannelID
 	}
 
-	imageVersion := ""
-	if youtubeChannelID != "" {
-		imageVersion = "yt-channel"
-	} else if fileInfo.HasSiteIcon {
-		imageVersion = "site-logo"
-	}
-	if fileInfo.Status != dtypes.FileStatusFailed && imageVersion == "" {
-		imageVersion = fmt.Sprintf("%d", time.Now().UTC().Unix())
-	}
-
 	var thumbnailID string
 	if fileInfo.MediaInfo != nil && fileInfo.MediaInfo.GetThumbnailID() != nil {
 		thumbnailID = fileInfo.MediaInfo.GetThumbnailID().String()
@@ -101,18 +90,17 @@ func (h *DownloaderHandlers) genRow(
 
 	fileImageURL := httppaths.BuildPathFileImage(
 		fileInfo.FileID,
+		fileInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
 			dtypes.ImageSourceThumbnail,
 			dtypes.ImageSourceAvatar,
 			dtypes.ImageSourceSite,
 		},
 	)
-	if imageVersion != "" {
-		fileImageURL += "&" + imageVersion
-	}
 
 	fileImageAvatarURL := httppaths.BuildPathFileImage(
 		fileInfo.FileID,
+		fileInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
 			dtypes.ImageSourceAvatar,
 			dtypes.ImageSourceSite,
@@ -121,6 +109,7 @@ func (h *DownloaderHandlers) genRow(
 
 	fileImageSiteURL := httppaths.BuildPathFileImage(
 		fileInfo.FileID,
+		fileInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
 			dtypes.ImageSourceSite,
 		},
@@ -143,19 +132,23 @@ func (h *DownloaderHandlers) genRow(
 		ImageURL:       fileImageURL,
 		ImageAvatarURL: fileImageAvatarURL,
 		ImageSiteURL:   fileImageSiteURL,
+
 		PathFileRow:    httppaths.BuildPathFileRow(fileInfo.FileID),
 		PathFileRepeat: httppaths.BuildPathFileRepeat(fileInfo.FileID),
-		FileSize:       "-",
-		Format:         "-",
-		DataFormat:     "-",
-		FormatTitle:    fileInfo.MediaInfoText,
-		FormatTooltip:  fileInfo.MediaInfoTooltip,
-		DownloadURL:    httppaths.BuildPathFileDownload(fileInfo.FileID),
-		WatchURL:       httppaths.BuildPathFileWatch(fileInfo.FileID),
-		StreamURL:      httppaths.BuildPathFileStream(fileInfo.FileID),
-		DeleteURL:      httppaths.BuildPathFile(httppaths.PathFile, fileInfo.FileID),
-		RowID:          "row-" + fileInfo.FileID.String(),
-		ProgressID:     "progress-" + fileInfo.FileID.String(),
+
+		FileSize:      "-",
+		Format:        "-",
+		DataFormat:    "-",
+		FormatTitle:   fileInfo.MediaInfoText,
+		FormatTooltip: fileInfo.MediaInfoTooltip,
+
+		DownloadURL: httppaths.BuildPathFileDownload(fileInfo.FileID),
+		WatchURL:    httppaths.BuildPathFileWatch(fileInfo.FileID),
+		StreamURL:   httppaths.BuildPathFileStream(fileInfo.FileID),
+		DeleteURL:   httppaths.BuildPathFile(httppaths.PathFile, fileInfo.FileID),
+
+		RowID:      "row-" + fileInfo.FileID.String(),
+		ProgressID: "progress-" + fileInfo.FileID.String(),
 	}
 
 	if fileInfo.FileSize != nil && *fileInfo.FileSize > 0 {

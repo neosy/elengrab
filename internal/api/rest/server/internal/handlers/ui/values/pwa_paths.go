@@ -14,22 +14,9 @@ type (
 )
 
 func (name pwaFileName) path(dir string) (string, error) {
-	path, err := generateHashedFileName(dir, string(name))
-	if err != nil {
-		return "", err
-	}
-	return PwaHttpPath(path), nil
+	return assetPWAPath(string(name), dir)
 }
 
 func (names pwaFileNames) paths(dir string) ([]string, error) {
-	paths, err := generateHashedFileNames(dir, names)
-	if err != nil {
-		return nil, err
-	}
-
-	for i, fineName := range paths {
-		paths[i] = PwaHttpPath(fineName)
-	}
-
-	return paths, nil
+	return assetPWAPaths(names, dir)
 }

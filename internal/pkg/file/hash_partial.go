@@ -8,12 +8,12 @@ import (
 	"os"
 )
 
-// HashPartial computes a single combined hash from several file blocks.
+// PartialHash computes a single combined hash from several file blocks.
 // It is very fast because it does not read the entire file.
 //
 // blocks — number of blocks to read (e.g. 3: start, middle, end)
 // blockSize — size of each block in bytes (e.g. 1*1024*1024 = 1MB)
-func HashPartial(filePath string, blocks int, blockSize int64) (string, error) {
+func PartialHash(filePath string, blocks int, blockSize int64) (string, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
 		return "", err
@@ -82,7 +82,7 @@ func HashPartial(filePath string, blocks int, blockSize int64) (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-// HashPartialWithOffset computes a hash of a file by reading several blocks,
+// PartialHashWithOffset computes a hash of a file by reading several blocks,
 // optionally starting from a given offset. This is faster than hashing the
 // entire file and helps ignore variable headers in media files.
 //
@@ -90,7 +90,7 @@ func HashPartial(filePath string, blocks int, blockSize int64) (string, error) {
 // blocks    — number of blocks to read (e.g., 3: start, middle, end)
 // blockSize — size of each block in bytes (e.g., 1*1024*1024 = 1MB)
 // offset    — number of bytes to skip from the start of the file
-func HashPartialWithOffset(filePath string, blocks int, blockSize int64, offset int64) (string, error) {
+func PartialHashWithOffset(filePath string, blocks int, blockSize int64, offset int64) (string, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
 		return "", err

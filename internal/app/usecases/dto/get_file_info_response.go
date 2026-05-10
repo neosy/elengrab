@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/app/utils/hash"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -39,6 +40,27 @@ type GetFileInfoResponse struct {
 	UpdatedAt            time.Time
 }
 
-func (r *GetFileInfoResponse) IsYouTube() bool {
-	return hostdetect.YouTube(r.MediaUrl)
+func (fileInfo *GetFileInfoResponse) IsYouTube() bool {
+	return hostdetect.YouTube(fileInfo.MediaUrl)
+}
+
+func (fileInfo *GetFileInfoResponse) ImageMetaHash(withValues ...any) string {
+	values := []any{
+		fileInfo.FileID,
+		fileInfo.UpdatedAt,
+		fileInfo.Status.String(),
+		fileInfo.WorkingStatus.String(),
+		fileInfo.ChannelID,
+	}
+
+	if fileInfo.MediaInfo != nil {
+		values = append(values, fileInfo.MediaInfo.ThumbnailID)
+		values = append(values, fileInfo.MediaInfo.FrameThumbnailID)
+	}
+
+	if len(withValues) > 0 {
+		values = append(values, withValues...)
+	}
+
+	return hash.MetaHashHex32(values)
 }
