@@ -2,10 +2,8 @@ package handlers
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
 	"path/filepath"
-	"time"
 
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
@@ -37,12 +35,7 @@ func (h *DownloaderHandlers) genNewRow(
 		dtypes.ImageSourceSite,
 	}
 
-	imageVersion := fmt.Sprintf("%d", time.Now().UTC().Unix())
-
-	fileImageURL := httppaths.BuildPathFileImage(fileInfo.FileID, imageSources)
-	if imageVersion != "" {
-		fileImageURL += "&" + imageVersion
-	}
+	fileImageURL := httppaths.BuildPathFileImage(fileInfo.FileID, fileInfo.ImageMetaHash(), imageSources)
 
 	data := newRowData{
 		MediaURL:       fileInfo.URL,

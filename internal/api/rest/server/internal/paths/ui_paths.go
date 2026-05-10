@@ -73,7 +73,7 @@ func BuildPathFileDownload(fileID uuid.UUID) string {
 	return fmt.Sprintf("%s?file=%s", GroupDownloader+PathDownload, fileID)
 }
 
-func BuildPathFileImage(fileID uuid.UUID, sources []dtypes.ImageSource) string {
+func BuildPathFileImage(fileID uuid.UUID, verHash string, sources []dtypes.ImageSource) string {
 	var sourceStrings []string
 	for _, src := range sources {
 		if src.Exists() {
@@ -81,13 +81,19 @@ func BuildPathFileImage(fileID uuid.UUID, sources []dtypes.ImageSource) string {
 		}
 	}
 
-	var urlSufix string
+	var urlValues url.Values
 	if len(sourceStrings) > 0 {
-		imageValues := url.Values{}
-		imageValues.Set("source", strings.Join(sourceStrings, ","))
-		if len(imageValues) > 0 {
-			urlSufix = "?" + imageValues.Encode()
-		}
+		urlValues = url.Values{}
+		urlValues.Set("source", strings.Join(sourceStrings, ","))
+	}
+
+	if verHash != "" {
+		urlValues.Set("v", verHash)
+	}
+
+	var urlSufix string
+	if len(urlValues) > 0 {
+		urlSufix = "?" + urlValues.Encode()
 	}
 
 	return BuildPathFile(PathFileImage, fileID) + urlSufix

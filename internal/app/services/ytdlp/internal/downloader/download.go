@@ -10,7 +10,7 @@ import (
 	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
-	"github.com/neosy/elengrab/internal/app/utils"
+	"github.com/neosy/elengrab/internal/app/utils/hash"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -285,7 +285,7 @@ func (d *Downloader) refreshMediaInfo(ctx context.Context, meta *idto.SafeDownlo
 }
 
 func (d *Downloader) partialHash(filePath string) *string {
-	h, err := utils.HashPartialMedia(filePath)
+	h, err := hash.FilePartialHash(filePath)
 	if err == nil && h != "" {
 		return &h
 	}
