@@ -5,44 +5,27 @@ import (
 	"fmt"
 	"path/filepath"
 
-	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	nfile "github.com/neosy/elengrab/internal/pkg/file"
 )
 
-func (m *migrations) migrateMoveDownloadsToStorage(ctx context.Context) error {
-	exists, err := m.dlMigration.Exists(ctx, migrateMoveDownloadsToStorageID)
+func (m *migrations) moveDownloadsToStorage(ctx context.Context) (bool, error) {
+	fileNames, err := m.usecases.media.GetAllFullNames(ctx, true)
 	if err != nil {
-		return err
-	}
-
-	if exists {
-		return nil
-	}
-
-	fileNames, err := m.dlFile.GetAllFullNames(ctx, true)
-	if err != nil {
-		return err
-	}
-
-	markMigration := func() error {
-		migration := &ddownload.DataMigration{
-			MigrationID: migrateMoveDownloadsToStorageID,
-		}
-
-		err = m.dlMigration.Insert(ctx, migration)
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return false, err
 	}
 
 	if len(fileNames) == 0 {
-		return markMigration()
+		return false, nil
 	}
 
 	var hasErr = false
 	for fName := range fileNames {
+		select {
+		case <-ctx.Done():
+			return false, fmt.Errorf("context canceled: %w", ctx.Err())
+		default:
+		}
+
 		filePath := filepath.Join(m.dlStorage.BasePath(), fName)
 		exists, err := nfile.FileExists(filePath)
 		if err != nil {
@@ -62,8 +45,8 @@ func (m *migrations) migrateMoveDownloadsToStorage(ctx context.Context) error {
 	}
 
 	if hasErr {
-		return fmt.Errorf("errors in the migration process '%s'", migrateMoveDownloadsToStorageID)
+		return false, fmt.Errorf("errors in the migration process")
 	}
 
-	return markMigration()
+	return true, nil
 }

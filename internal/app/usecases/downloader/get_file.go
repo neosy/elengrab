@@ -111,7 +111,7 @@ func (uc *Downloader) findActualFileInfoByFile(
 	}
 
 	var hasSiteIcon bool
-	siteLogo, _ := uc.siteIcon.FindBySiteURL(ctx, httpx.BaseURL(file.MediaUrl))
+	siteLogo, _ := uc.siteIcon.FindBySiteURL(ctx, httpx.BaseURL(file.MediaURL))
 	if siteLogo != nil {
 		hasSiteIcon = true
 		if avatarTitle == "" {
@@ -175,7 +175,7 @@ func (uc *Downloader) GetFilePath(ctx context.Context, fileId uuid.UUID) (string
 		return "", err
 	}
 
-	return uc.downloadsStorage.Path(file.FullName), nil
+	return uc.downloadsStorage.Path(file.FullFileName), nil
 }
 
 // GetDownloadFileName retrieves the display file name and extension

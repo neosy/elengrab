@@ -51,7 +51,7 @@ func (uc *Downloader) ScheduleDownload(
 			FileID:   fileId,
 			UserID:   &userCtx.UserID,
 			FileName: filename,
-			MediaUrl: url,
+			MediaURL: url,
 		},
 		options,
 	)

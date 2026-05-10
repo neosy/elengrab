@@ -13,6 +13,10 @@ const (
 	ThumbnailSourceTypeNone ThumbnailSourceType = iota
 	ThumbnailSourceTypeYouTube
 	ThumbnailSourceTypeVimeo
+	ThumbnailSourceTypeInstagram
+	ThumbnailSourceTypeTwitch
+	ThumbnailSourceTypeTikTok
+	ThumbnailSourceTypeRutube
 	ThumbnailSourceTypeExternal
 	ThumbnailSourceTypeVideoFrame
 	ThumbnailSourceTypeGenerated
@@ -23,6 +27,10 @@ var (
 	thumbnailSourceTypeStringMap = map[ThumbnailSourceType]string{
 		ThumbnailSourceTypeYouTube:    "youtube",
 		ThumbnailSourceTypeVimeo:      "vimeo",
+		ThumbnailSourceTypeInstagram:  "instagram",
+		ThumbnailSourceTypeTwitch:     "twitch",
+		ThumbnailSourceTypeTikTok:     "tiktok",
+		ThumbnailSourceTypeRutube:     "rutube",
 		ThumbnailSourceTypeExternal:   "external",
 		ThumbnailSourceTypeVideoFrame: "video_frame",
 		ThumbnailSourceTypeGenerated:  "generated",
@@ -32,10 +40,23 @@ var (
 	parseThumbnailSourceTypeMap = map[string]ThumbnailSourceType{
 		"youtube":     ThumbnailSourceTypeYouTube,
 		"vimeo":       ThumbnailSourceTypeVimeo,
+		"instagram":   ThumbnailSourceTypeInstagram,
+		"twitch":      ThumbnailSourceTypeTwitch,
+		"tiktok":      ThumbnailSourceTypeTikTok,
+		"rutube":      ThumbnailSourceTypeRutube,
 		"external":    ThumbnailSourceTypeExternal,
 		"video_frame": ThumbnailSourceTypeVideoFrame,
 		"generated":   ThumbnailSourceTypeGenerated,
 		"upload":      ThumbnailSourceTypeUpload,
+	}
+
+	mapMediaHostToThumbnailSourceType = map[MediaHost]ThumbnailSourceType{
+		MediaHostYouTube:   ThumbnailSourceTypeYouTube,
+		MediaHostVimeo:     ThumbnailSourceTypeVimeo,
+		MediaHostInstagram: ThumbnailSourceTypeInstagram,
+		MediaHostTwitch:    ThumbnailSourceTypeTwitch,
+		MediaHostTikTok:    ThumbnailSourceTypeTikTok,
+		MediaHostRutube:    ThumbnailSourceTypeRutube,
 	}
 )
 
@@ -68,4 +89,8 @@ func ParseThumbnailSourceType(s string) (ThumbnailSourceType, error) {
 func ValidateThumbnailSourceType(fl validator.FieldLevel) bool {
 	_, err := ParseThumbnailSourceType(fl.Field().String())
 	return err == nil
+}
+
+func MapMediaHostToThumbnailSourceType(mediaHost MediaHost) ThumbnailSourceType {
+	return mapMediaHostToThumbnailSourceType[mediaHost]
 }

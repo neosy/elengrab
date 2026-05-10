@@ -60,11 +60,11 @@ func (uc *Downloader) deleteMissingFiles(ctx context.Context) error {
 
 	// Mark records for deletion if the file is missing
 	for _, file := range files {
-		exists, _ := uc.downloadsStorage.Exists(file.FullName)
+		exists, _ := uc.downloadsStorage.Exists(file.FullFileName)
 		if !exists {
 			err := uc.file.SoftDelete(ctx, file.FileID)
 			if err == nil {
-				uc.logger.Debug("Soft deleting file", "file_id", file.FileID, "fileName", file.FullName)
+				uc.logger.Debug("Soft deleting file", "file_id", file.FileID, "fileName", file.FullFileName)
 				uc.broadcastFileDelete(file.UserID, file.FileID)
 			}
 		}
@@ -80,16 +80,16 @@ func (uc *Downloader) deleteMissingFiles(ctx context.Context) error {
 	// Restore records if the file was found
 	// Permanently delete records if the file is still missing after the grace period
 	for _, file := range deletedFiles {
-		if file.FullName == "" {
+		if file.FullFileName == "" {
 			continue
 		}
-		if exists, _ := uc.downloadsStorage.Exists(file.FullName); exists {
+		if exists, _ := uc.downloadsStorage.Exists(file.FullFileName); exists {
 			err := uc.file.Restore(ctx, file.FileID)
 			if err != nil {
 				uc.logger.Warn("Failed to restore", "error", err)
 				continue
 			}
-			uc.logger.Debug("Restoring file in database", "fileId", file.FileID, "fileName", file.FullName)
+			uc.logger.Debug("Restoring file in database", "fileId", file.FileID, "fileName", file.FullFileName)
 			continue
 		}
 
@@ -100,7 +100,7 @@ func (uc *Downloader) deleteMissingFiles(ctx context.Context) error {
 				continue
 			}
 			uc.deleteThumbnails(ctx, file)
-			uc.logger.Debug("Hard deleting file from database", "fileId", file.FileID, "fileName", file.FullName)
+			uc.logger.Debug("Hard deleting file from database", "fileId", file.FileID, "fileName", file.FullFileName)
 			continue
 		}
 	}

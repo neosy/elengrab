@@ -8,9 +8,40 @@ import (
 func (m *migrations) ExecuteMigrations(ctx context.Context) error {
 	var hasError = false
 
-	err := m.migrateMoveDownloadsToStorage(ctx)
-	if err != nil {
-		hasError = true
+	for id, migration := range m.migrationIDs {
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("context canceled: %w", ctx.Err())
+		default:
+		}
+
+		exists, err := m.usecases.mediaMigration.Exists(ctx, id)
+		if err != nil {
+			hasError = true
+			continue
+		}
+
+		if exists {
+			continue
+		}
+
+		m.logger.Info("Start data migration...", "id", id)
+
+		done, err := migration.run(ctx)
+		if err != nil {
+			m.logger.Warn("Failed data migration process '%s'", "id", id, "error", err)
+			hasError = true
+			continue
+		}
+
+		if done {
+			err := m.markMigration(ctx, id)
+			if err != nil {
+				hasError = true
+			}
+		}
+
+		m.logger.Info("Data migration completed", "id", id)
 	}
 
 	if hasError {

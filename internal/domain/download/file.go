@@ -20,7 +20,7 @@ type File struct {
 	Status dtypes.FileStatus
 
 	// Media URL
-	MediaUrl string
+	MediaURL string
 
 	// Media title
 	MediaTitle string
@@ -38,7 +38,7 @@ type File struct {
 	Ext string
 
 	// Full file name including extension
-	FullName string
+	FullFileName string
 
 	// File size (byte)
 	FileSize *int64
@@ -72,7 +72,7 @@ type File struct {
 }
 
 func (f *File) IsYouTube() bool {
-	return hostdetect.YouTube(f.MediaUrl)
+	return hostdetect.YouTube(f.MediaURL)
 }
 
 func (src *File) Copy() *File {

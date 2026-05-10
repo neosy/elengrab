@@ -153,7 +153,8 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			thumbnail,
 
 			// services
-			deps.Services.YouTubeDownloader,
+			deps.Services.Downloader,
+			deps.Services.FFMpeg,
 
 			// options
 			deps.DemoMode,

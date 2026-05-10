@@ -18,7 +18,7 @@ type GetFileInfoResponse struct {
 	ChannelID   *string
 	AvatarTitle string
 
-	MediaUrl         string
+	MediaURL         string
 	MediaTitle       string
 	MediaDescription string
 
@@ -41,7 +41,7 @@ type GetFileInfoResponse struct {
 }
 
 func (fileInfo *GetFileInfoResponse) IsYouTube() bool {
-	return hostdetect.YouTube(fileInfo.MediaUrl)
+	return hostdetect.YouTube(fileInfo.MediaURL)
 }
 
 func (fileInfo *GetFileInfoResponse) ImageMetaHash(withValues ...any) string {
