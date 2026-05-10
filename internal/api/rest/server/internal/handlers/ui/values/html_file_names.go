@@ -31,7 +31,6 @@ const (
 	ComponentResultRowsKey              = "result-rows"
 	ComponentResultNewRowKey            = "result-new-row"
 	ComponentResultRowStatusKey         = "result-row-status"
-	ComponentResultRowSuccessKey        = "result-row-success"
 	ComponentResultLoadHistory          = "result-row-load-history"
 	ComponentResultShouldLoadHistoryKey = "result-row-should-load-history"
 	ComponentResultProgressKey          = "result-progress"

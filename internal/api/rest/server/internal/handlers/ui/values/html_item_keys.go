@@ -9,8 +9,6 @@ const (
 
 	CssStyleKey = "CssStyle"
 
-	DownloadStatusKey                     = "DownloadStatus"
-	DownloadWorkingStatusKey              = "WorkingStatus"
 	DownloadingProgressPercentKey         = "ProgressPercent"
 	ResultNoRowsKey                       = "ResultNoRows"
 	ResultRowsHTMLKey                     = "ResultRowsHTML"

@@ -1,0 +1,32 @@
+{{- define "media-result-status" }}
+                        {{- if eq .DownloadStatus "done" }}
+                        <div class="media-result__status">
+                            <a class="media-result__download-link" 
+                            href="{{ .DownloadURL }}" 
+                            title="Download media file" download>
+                            {{ .ResultRowStatusIcon }}
+                            </a>
+                        </div>
+                        {{- else }}
+                        <div class="media-result__status" title="{{ .ResultRowStatusTitle }}">
+                            {{- if .IsItemSpiner }}
+                            <div class="media-result__status-spinner__wrapper">
+                                <div class="media-result__status-spinner {{ .WorkingStatus }}"></div>
+                                {{- if eq .WorkingStatus "downloading" }}
+                                    {{- template "media-result-progress" . }}
+                                {{- end }}
+                            </div>
+                            {{- else }}
+                                {{- if eq .DownloadStatus "failed" }}
+                                <button class="media-result__status-button"
+                                    hx-post="{{.PathFileRepeat}}"
+                                    hx-swap="none">
+                                    {{ .DownloadResultItemStatusFailedIcon }}
+                                </button>            
+                                {{- else }}
+                                {{ .ResultRowStatusIcon }}
+                                {{- end }}
+                            {{- end }}
+                        </div>
+                        {{- end }}
+{{- end }}

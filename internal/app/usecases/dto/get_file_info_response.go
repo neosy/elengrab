@@ -10,14 +10,19 @@ import (
 )
 
 type GetFileInfoResponse struct {
-	FileID               uuid.UUID
-	Status               dtypes.FileStatus
-	WorkingStatus        WorkingStatus
-	ChannelID            *string
-	AvatarTitle          string
-	MediaUrl             string
-	MediaTitle           string
-	MediaDescription     string
+	FileID        uuid.UUID
+	Status        dtypes.FileStatus
+	WorkingStatus WorkingStatus
+
+	ChannelID   *string
+	AvatarTitle string
+
+	MediaUrl         string
+	MediaTitle       string
+	MediaDescription string
+
+	CreatedTimeAgo string
+
 	HasSiteIcon          bool
 	FileName             string
 	FileExt              string

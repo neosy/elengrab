@@ -8,6 +8,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/humanize"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
@@ -45,6 +46,7 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 		MediaUrl:             file.MediaUrl,
 		MediaTitle:           mediaTitle,
 		MediaDescription:     uptr.Deref(file.MediaDescription),
+		CreatedTimeAgo:       humanize.TimeAgo(file.CreatedAt),
 		HasSiteIcon:          hasSiteIcon,
 		FileName:             file.FileName,
 		FileExt:              file.Ext,

@@ -1,0 +1,9 @@
+{{- define "media-result-format" }}
+                        <div class="media-result__format">
+                            {{- if eq .DownloadStatus "done" }}
+                            <div class="media-result__format-value__wrapper"><span class="media-result__format-value" title="{{ .FormatTitle }}" data-tooltip="{{ .FormatTooltip }}" data-format="{{ .DataFormat }}">{{ .Format }}</span></div>
+                            {{- else }}
+                            <div class="media-result__format-value__wrapper"><span class="media-result__format-value {{.ResultFormatFade}}" title="{{ .FormatTitle }}" data-tooltip="{{ .FormatTooltip }}" data-id="format">{{ .Format }}</span></div>
+                            {{- end }}
+                        </div>
+{{- end }}

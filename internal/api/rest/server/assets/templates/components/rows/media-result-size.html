@@ -1,0 +1,9 @@
+{{- define "media-result-size" }}
+                        <div class="media-result__size">
+                            {{- if eq .DownloadStatus "done" }}
+                            <span class="media-result__size-value" title="Actual file size">{{ .FileSize }}</span>
+                            {{- else }}
+                            <span class="media-result__size-value {{ .ResultSizeFade }}" data-id="size" title="Estimated file size">{{ .FileSize }}</span>
+                            {{- end }}
+                        </div>
+{{- end }}
