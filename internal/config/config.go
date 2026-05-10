@@ -81,10 +81,10 @@ type ElengrabConfig struct {
 }
 
 type ElengrabMaintenanceConfig struct {
-	IntervalUpdateHash            time.Duration `env:"INTERVAL_UPDATE_HASH" envDefault:"8h"`
-	IntervalDeleteDuplicates      time.Duration `env:"INTERVAL_DELETE_DUPLICATES" envDefault:"1h"`
-	IntervalDeleteMissingFiles    time.Duration `env:"INTERVAL_DELETE_MISSING_FILES" envDefault:"12h"`
-	IntervalDeleteFailedDownloads time.Duration `env:"INTERVAL_DELETE_FAILED_DOWNLOADS" envDefault:"1h"`
+	UpdateHashInterval            time.Duration `env:"UPDATE_HASH_INTERVAL" envDefault:"8h"`
+	DeleteDuplicatesInterval      time.Duration `env:"DELETE_DUPLICATES_INTERVAL" envDefault:"1h"`
+	DeleteMissingFilesInterval    time.Duration `env:"DELETE_MISSING_FILES_INTERVAL" envDefault:"12h"`
+	DeleteFailedDownloadsInterval time.Duration `env:"DELETE_FAILED_DOWNLOADS_INTERVAL" envDefault:"1h"`
 
 	// EnableMoveUnmatchedFiles controls whether the periodic
 	// moveUnmatchedFiles operation is allowed. Default is false (disabled).
