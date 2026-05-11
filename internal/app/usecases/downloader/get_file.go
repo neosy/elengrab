@@ -89,7 +89,7 @@ func (uc *Downloader) findActualFileInfoByFile(
 	file *ddownload.File,
 ) (*dto.GetFileInfoResponse, error) {
 	var (
-		dlProgress *dservices.DownloadProgress
+		dlProgress *dservices.DownloaderProgress
 	)
 
 	if file == nil {
@@ -175,7 +175,7 @@ func (uc *Downloader) GetFilePath(ctx context.Context, fileId uuid.UUID) (string
 		return "", err
 	}
 
-	return uc.downloadsStorage.Path(file.FullFileName), nil
+	return uc.downloadsStorage.Path(file.FileFullName), nil
 }
 
 // GetDownloadFileName retrieves the display file name and extension

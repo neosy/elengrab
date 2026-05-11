@@ -3,10 +3,10 @@ package ytdlpsrv
 import (
 	"context"
 
-	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	dservices "github.com/neosy/elengrab/internal/domain/services"
 )
 
 // GetInfo retrieves and parses video formats for the given URL.
-func (srv *YtDlpService) GetInfo(ctx context.Context, url string, useCookies bool) (*dmedia.MediaInfo, error) {
+func (srv *YtDlpService) GetInfo(ctx context.Context, url string, useCookies bool) (*dservices.DownloaderMediaInfo, error) {
 	return srv.downloader.GetInfo(ctx, url, useCookies)
 }

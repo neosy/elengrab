@@ -67,7 +67,7 @@ func IconFileRawByKey(key string, svgDir string) string {
 	return IconFileRaw(IconFileName(key), svgDir)
 }
 
-func DownloadResultStatusIconSvgRaw(status dtypes.FileStatus, svgDir string) string {
+func DownloaderResultStatusIconSvgRaw(status dtypes.FileStatus, svgDir string) string {
 	var iconName string
 
 	switch status {

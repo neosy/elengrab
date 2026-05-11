@@ -13,7 +13,7 @@ type DownloadState struct {
 	TaskID *uuid.UUID
 
 	File     *File
-	Progress *dservices.DownloadProgress
+	Progress *dservices.DownloaderProgress
 }
 
 // InitFromFile initializes the state from a file.
@@ -35,8 +35,8 @@ func (s *DownloadState) InitFromFile(file *File) {
 	}
 }
 
-// InitFromDownloadResult initializes the state from a downloadResult.
-func (s *DownloadState) InitFromDownloadResult(result *dservices.DownloadResult, mediaInfo *dtypes.MediaInfo) {
+// InitFromDownloaderResult initializes the state from a downloadResult.
+func (s *DownloadState) InitFromDownloaderResult(result *dservices.DownloaderResult, mediaInfo *dtypes.MediaInfo) {
 	if s == nil {
 		return
 	}

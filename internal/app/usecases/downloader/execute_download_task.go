@@ -78,7 +78,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 	}
 
 	var (
-		lastResult, resultBeforeBroadcast, resultProgressBeforeBroadcast *dservices.DownloadResult
+		lastResult, resultBeforeBroadcast, resultProgressBeforeBroadcast *dservices.DownloaderResult
 
 		channelProcess, thumbnailProcess sync.Once
 
@@ -181,7 +181,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 			})
 		}
 
-		state.InitFromDownloadResult(lastResult, mediaInfo(lastResult.MediaInfo))
+		state.InitFromDownloaderResult(lastResult, mediaInfo(lastResult.MediaInfo))
 		uc.dlStateCache.Save(
 			ctx,
 			state,
@@ -225,7 +225,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 		MediaDescription:     &lastResult.MediaDescription,
 		FileName:             &lastResult.Filename,
 		Ext:                  &lastResult.FileExt,
-		FullFileName:         &lastResult.FileFullName,
+		FileFullName:         &lastResult.FileFullName,
 		FileSize:             &lastResult.Filesize,
 		PartialHash:          &lastResult.PartialHash,
 		SafeReadableFullName: safeReadableFullName,

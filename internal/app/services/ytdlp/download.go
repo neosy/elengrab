@@ -11,9 +11,9 @@ func (srv *YtDlpService) Download(
 	ctx context.Context,
 	url string,
 	options *dservices.DownloadOptions,
-) (<-chan *dservices.DownloadResult, error) {
+) (<-chan *dservices.DownloaderResult, error) {
 	// Create a full channel (read/write)
-	resultCh := make(chan *dservices.DownloadResult)
+	resultCh := make(chan *dservices.DownloaderResult)
 
 	// Launch the goroutine that writes into the channel
 	go func() {

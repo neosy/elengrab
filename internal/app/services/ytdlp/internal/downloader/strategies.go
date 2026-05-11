@@ -14,7 +14,7 @@ func (d *Downloader) downloadWithStrategies(
 	ctx context.Context,
 	url string,
 	meta *idto.SafeDownloadMeta,
-	onProgressUpdate func(dservices.DownloadProgress),
+	onProgressUpdate func(dservices.DownloaderProgress),
 ) ([]byte, error) {
 	// Define download attempts
 	type downloadAttempt struct {

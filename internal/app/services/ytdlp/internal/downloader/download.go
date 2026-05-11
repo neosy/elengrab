@@ -23,7 +23,7 @@ func (d *Downloader) Download(
 	ctx context.Context,
 	url string,
 	options *dservices.DownloadOptions,
-	downloadResultCh chan<- *dservices.DownloadResult,
+	downloadResultCh chan<- *dservices.DownloaderResult,
 ) {
 	var wg sync.WaitGroup
 	done := syncx.NewDoneSignal()
@@ -33,8 +33,8 @@ func (d *Downloader) Download(
 	}()
 
 	var (
-		sendError = func(data *dservices.DownloadResult, err error) {
-			var result = &dservices.DownloadResult{}
+		sendError = func(data *dservices.DownloaderResult, err error) {
+			var result = &dservices.DownloaderResult{}
 			if data != nil {
 				*result = *data
 			}
@@ -47,7 +47,7 @@ func (d *Downloader) Download(
 			}
 		}
 
-		sendData = func(data *dservices.DownloadResult) {
+		sendData = func(data *dservices.DownloaderResult) {
 			select {
 			case <-done.Done():
 			case downloadResultCh <- data:
@@ -80,7 +80,7 @@ func (d *Downloader) Download(
 			"url", url,
 			"elapsed", uformat.DurationFormat(elapsed),
 		)
-		sendData(&dservices.DownloadResult{
+		sendData(&dservices.DownloaderResult{
 			MediaTitle: title,
 		})
 	}
@@ -121,7 +121,7 @@ func (d *Downloader) Download(
 		dlOptions,
 	)
 	if err != nil {
-		sendError(&dservices.DownloadResult{MediaTitle: title}, err)
+		sendError(&dservices.DownloaderResult{MediaTitle: title}, err)
 		return
 	}
 
@@ -149,6 +149,7 @@ func (d *Downloader) Download(
 		defer cancel()
 		d.extractThumbnailFromURL(
 			ctx, url,
+			false, // Not needed, loading from cache.
 			func(imageData *dtypes.ImageData) {
 				meta.Lock()
 				meta.Meta.Thumbnail = imageData
@@ -160,7 +161,7 @@ func (d *Downloader) Download(
 
 	out, err := d.downloadWithStrategies(
 		ctx, url, &meta,
-		func(progress dservices.DownloadProgress) {
+		func(progress dservices.DownloaderProgress) {
 			meta.Lock()
 			meta.Meta.Progress = &progress
 			meta.Unlock()

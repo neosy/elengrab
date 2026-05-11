@@ -11,7 +11,7 @@ type FileInfoPatch struct {
 	MediaDescription     **string
 	FileName             *string
 	Ext                  *string
-	FullFileName         *string
+	FileFullName         *string
 	FileSize             **int64
 	PartialHash          **string
 	SafeReadableFullName *string
@@ -43,8 +43,8 @@ func PatchToFileDomain(patch *FileInfoPatch, file *ddownload.File) {
 		file.Ext = *patch.Ext
 	}
 
-	if patch.FullFileName != nil {
-		file.FullFileName = *patch.FullFileName
+	if patch.FileFullName != nil {
+		file.FileFullName = *patch.FileFullName
 	}
 
 	if patch.FileSize != nil {

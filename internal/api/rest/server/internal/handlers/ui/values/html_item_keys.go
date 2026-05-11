@@ -19,8 +19,8 @@ const (
 	IsItemHTMXOptionRepeatKey             = "IsItemHTMXOptionRepeat"
 	IsFileEventKey                        = "IsFileEvent"
 	IsItemSpinerKey                       = "IsItemSpiner"
-	DownloadResultItemDeleteIconKey       = "GrabResultItemDeleteIcon"
-	DownloadResultItemStatusFailedIconKey = "DownloadResultItemStatusFailedIcon"
+	DownloaderResultItemDeleteIconKey       = "GrabResultItemDeleteIcon"
+	DownloaderResultItemStatusFailedIconKey = "DownloaderResultItemStatusFailedIcon"
 	ShowHistorySearchKey                  = "ShowHistorySearch"
 	PathStreamKey                         = "PathStream"
 

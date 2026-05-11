@@ -38,7 +38,7 @@ type File struct {
 	Ext string
 
 	// Full file name including extension
-	FullFileName string
+	FileFullName string
 
 	// File size (byte)
 	FileSize *int64

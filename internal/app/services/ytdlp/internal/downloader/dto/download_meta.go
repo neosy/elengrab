@@ -23,7 +23,7 @@ type DownloadMeta struct {
 	Thumbnail           *dtypes.ImageData
 	ThumbnailVideoFrame *dtypes.ImageData
 	Channel             *dtypes.Channel
-	Progress            *dservices.DownloadProgress
+	Progress            *dservices.DownloaderProgress
 	Options             DownloadOptions
 }
 
@@ -70,7 +70,7 @@ func (m *SafeDownloadMeta) CopyMeta() *DownloadMeta {
 	return &metaCopy
 }
 
-func (m *SafeDownloadMeta) InitialResult() *dservices.DownloadResult {
+func (m *SafeDownloadMeta) InitialResult() *dservices.DownloaderResult {
 	meta := m.CopyMeta()
 
 	var ext = meta.FileExt
@@ -78,7 +78,7 @@ func (m *SafeDownloadMeta) InitialResult() *dservices.DownloadResult {
 		ext = meta.MediaInfo.Format.String()
 	}
 
-	return &dservices.DownloadResult{
+	return &dservices.DownloaderResult{
 		ChannelID:           meta.ChannelID,
 		MediaTitle:          meta.Title,
 		MediaDescription:    uptr.NonZeroString(meta.Description),
