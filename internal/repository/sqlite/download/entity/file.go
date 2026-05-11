@@ -20,7 +20,7 @@ type File struct {
 	ChannelID            *string    `db:"channel_id"`
 	FileName             string     `db:"file_name"`
 	Ext                  string     `db:"ext"`
-	FullFileName         string     `db:"full_name"`
+	FileFullName         string     `db:"full_name"`
 	FileSize             *int64     `db:"file_size"`
 	PartialHash          *string    `db:"partial_hash"`
 	SafeReadableFullName string     `db:"safe_readable_full_name"`

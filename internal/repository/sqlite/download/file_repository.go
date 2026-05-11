@@ -493,7 +493,7 @@ func (r *FileRepository) IterateFullNames(ctx context.Context, includeDeleted bo
 		sqlWhere = append(sqlWhere, squirrel.Eq{eFile.FieldName(&eFile.UserID): *r.filters.userID})
 	}
 
-	sqlQuery, args, err := squirrel.Select(eFile.FieldName(&eFile.FullFileName)).
+	sqlQuery, args, err := squirrel.Select(eFile.FieldName(&eFile.FileFullName)).
 		From(eFile.TableName()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).
@@ -624,7 +624,7 @@ func (r *FileRepository) GetDuplicateHashes(ctx context.Context, scope dtypes.Un
 
 	sqlWhere := squirrel.And{
 		squirrel.Expr(eFile.FieldName(&eFile.PartialHash) + " IS NOT NULL"),
-		squirrel.NotEq{eFile.FieldName(&eFile.FullFileName): ""},
+		squirrel.NotEq{eFile.FieldName(&eFile.FileFullName): ""},
 		squirrel.Eq{
 			eFile.FieldName(&eFile.Status):    dtypes.FileStatusDone.String(),
 			eFile.FieldName(&eFile.DeletedAt): nil,

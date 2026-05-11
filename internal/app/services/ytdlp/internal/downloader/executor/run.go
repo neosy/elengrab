@@ -24,7 +24,7 @@ func (e *Executor) RunYtDlp(
 	ctx context.Context,
 	url string,
 	meta *idto.DownloadMeta,
-	onProgressUpdate func(dservices.DownloadProgress),
+	onProgressUpdate func(dservices.DownloaderProgress),
 ) ([]byte, error) {
 	var (
 		done      = syncx.NewDoneSignal()

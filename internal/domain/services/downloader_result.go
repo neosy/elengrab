@@ -4,7 +4,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-type DownloadResult struct {
+type DownloaderResult struct {
 	Error error
 
 	ChannelID *string
@@ -43,10 +43,10 @@ type DownloadResult struct {
 	ThumbnailVideoFrame *dtypes.ImageData
 
 	// Download progress
-	Progress *DownloadProgress
+	Progress *DownloaderProgress
 }
 
-func (r *DownloadResult) ProgressChanged(last *DownloadResult) bool {
+func (r *DownloaderResult) ProgressChanged(last *DownloaderResult) bool {
 	if r == nil || last == nil {
 		return false
 	}
@@ -57,7 +57,7 @@ func (r *DownloadResult) ProgressChanged(last *DownloadResult) bool {
 			int(r.Progress.Percent()) < 100)
 }
 
-func (r *DownloadResult) MetadataChanged(last *DownloadResult) bool {
+func (r *DownloaderResult) MetadataChanged(last *DownloaderResult) bool {
 	if r == nil {
 		return false
 	}

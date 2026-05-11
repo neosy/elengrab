@@ -59,8 +59,8 @@ func (h *DownloaderHandlers) genNewRow(
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
 	dataMap[uivalues.ResultRowStatusIconKey] = template.HTML(
-		uivalues.DownloadResultStatusIconSvgRaw(fileInfo.Status, iconsDir))
-	dataMap[uivalues.DownloadResultItemDeleteIconKey] = template.HTML(
+		uivalues.DownloaderResultStatusIconSvgRaw(fileInfo.Status, iconsDir))
+	dataMap[uivalues.DownloaderResultItemDeleteIconKey] = template.HTML(
 		uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadDeleteIconNameKey), iconsDir))
 	dataMap[uivalues.IsItemHTMXOptionRepeatKey] = true
 	dataMap[uivalues.PageHasDivItemsKey] = pageHasDivItems

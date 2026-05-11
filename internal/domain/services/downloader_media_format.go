@@ -1,8 +1,8 @@
-package dmedia
+package dservices
 
 import dtypes "github.com/neosy/elengrab/internal/domain/types"
 
-type MediaFormat struct {
+type DownloaderMediaFormat struct {
 	// Type of the format (e.g., only_audio, only_video, video_audio)
 	FormatType dtypes.FormatType
 

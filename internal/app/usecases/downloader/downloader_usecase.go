@@ -7,7 +7,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/broadcaster"
-	dlmigration "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/dowload_data_migration"
+	dlmigration "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_data_migration"
 	dlstate "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_state_cache"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task"
 	dltasktatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task_status"

@@ -36,8 +36,8 @@ func (uc *Downloader) DeleteDuplicates(ctx context.Context) error {
 
 			uc.deleteThumbnails(ctx, file)
 
-			if err := uc.downloadsStorage.Delete(file.FullFileName); err != nil {
-				uc.logger.Warn("Failed delete file", "filePath", uc.downloadsStorage.Path(file.FullFileName), "error", err)
+			if err := uc.downloadsStorage.Delete(file.FileFullName); err != nil {
+				uc.logger.Warn("Failed delete file", "filePath", uc.downloadsStorage.Path(file.FileFullName), "error", err)
 				continue
 			}
 		}

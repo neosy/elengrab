@@ -94,7 +94,7 @@ func (uc *Downloader) DeleteFile(
 			return err
 		}
 
-		fileFullName = file.FullFileName
+		fileFullName = file.FileFullName
 
 		return nil
 	}

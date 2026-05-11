@@ -14,7 +14,7 @@ func (e *Executor) watchProgress(
 	fileSize *int64,
 	std io.Reader,
 	outBuf *bytes.Buffer,
-	onProgressUpdate func(dservices.DownloadProgress),
+	onProgressUpdate func(dservices.DownloaderProgress),
 ) {
 	var (
 		downloadedMap = make(map[int64]int64)
@@ -32,7 +32,7 @@ func (e *Executor) watchProgress(
 
 			// Call progress update callback
 			onProgressUpdate(
-				dservices.DownloadProgress{
+				dservices.DownloaderProgress{
 					DownloadedBytes: downloaded,
 					TotalBytes:      downloaded,
 				})
@@ -73,7 +73,7 @@ func (e *Executor) watchProgress(
 
 		// Call progress update callback
 		onProgressUpdate(
-			dservices.DownloadProgress{
+			dservices.DownloaderProgress{
 				DownloadedBytes:  downloaded,
 				TotalBytes:       total,
 				ETASeconds:       eta,

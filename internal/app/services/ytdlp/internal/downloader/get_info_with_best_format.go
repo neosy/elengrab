@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor"
-	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	dservices "github.com/neosy/elengrab/internal/domain/services"
 )
 
 func (d *Downloader) GetInfoWithBestFormat(
@@ -12,7 +12,7 @@ func (d *Downloader) GetInfoWithBestFormat(
 	url string,
 	format string,
 	useCookies bool,
-) (*dmedia.MediaInfo, error) {
+) (*dservices.DownloaderMediaInfo, error) {
 	info, err := d.executor.GetInfoWithBestFormat(
 		ctx,
 		url,
