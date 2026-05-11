@@ -179,15 +179,15 @@ func (h *DownloaderHandlers) genRow(
 	dataMap[uivalues.IsItemHTMXOptionRepeatKey] = isGrabResultItemHTMXOptionRepeat
 	dataMap[uivalues.IsFileEventKey] = isFileEvent
 	dataMap[uivalues.ResultRowStatusIconKey] = template.HTML(
-		uivalues.DownloadResultStatusIconSvgRaw(fileInfo.Status, iconsDir),
+		uivalues.DownloaderResultStatusIconSvgRaw(fileInfo.Status, iconsDir),
 	)
 	dataMap[uivalues.ResultRowStatusTitleKey] = fileInfo.StatusText
-	dataMap[uivalues.DownloadResultItemDeleteIconKey] = template.HTML(
+	dataMap[uivalues.DownloaderResultItemDeleteIconKey] = template.HTML(
 		uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadDeleteIconNameKey), iconsDir),
 	)
 
 	if fileInfo.Status == dtypes.FileStatusFailed {
-		dataMap[uivalues.DownloadResultItemStatusFailedIconKey] = template.HTML(
+		dataMap[uivalues.DownloaderResultItemStatusFailedIconKey] = template.HTML(
 			uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadRepeatIconNameKey), iconsDir),
 		)
 	}

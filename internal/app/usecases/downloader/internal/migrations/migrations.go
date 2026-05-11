@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	dlmigration "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/dowload_data_migration"
+	dlmigration "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_data_migration"
 	fileuc "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/file"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"

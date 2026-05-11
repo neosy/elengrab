@@ -2,13 +2,13 @@ package mappers
 
 import (
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
-	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
-func (m *Mappers) MapMediaInfoToDomain(info *idto.MediaInfo) *dmedia.MediaInfo {
-	var formats = make([]dmedia.MediaFormat, 0, len(info.Formats))
+func (m *Mappers) MapMediaInfoToDomain(info *idto.MediaInfo) *dservices.DownloaderMediaInfo {
+	var formats = make([]dservices.DownloaderMediaFormat, 0, len(info.Formats))
 
 	for _, f := range info.Formats {
 		var fps *int
@@ -45,7 +45,7 @@ func (m *Mappers) MapMediaInfoToDomain(info *idto.MediaInfo) *dmedia.MediaInfo {
 			formatType = dtypes.FormatTypeAudioOnly
 		}
 
-		formats = append(formats, dmedia.MediaFormat{
+		formats = append(formats, dservices.DownloaderMediaFormat{
 			FormatType: formatType,
 			FormatId:   f.FormatID,
 			FileExt:    f.FileExt,
@@ -64,7 +64,7 @@ func (m *Mappers) MapMediaInfoToDomain(info *idto.MediaInfo) *dmedia.MediaInfo {
 		})
 	}
 
-	return &dmedia.MediaInfo{
+	return &dservices.DownloaderMediaInfo{
 		Title:       info.Title,
 		Description: info.Description,
 		Formats:     formats,

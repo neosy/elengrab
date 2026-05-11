@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
@@ -12,9 +13,10 @@ import (
 func (d *Downloader) extractThumbnailFromURL(
 	ctx context.Context,
 	mediaURL string,
+	useCookies bool,
 	onDone func(imageData *dtypes.ImageData),
 ) {
-	imageData, err := d.FetchThumbnail(ctx, mediaURL)
+	imageData, err := d.FetchThumbnail(ctx, mediaURL, useCookies)
 	if err != nil {
 		return
 	}
@@ -26,13 +28,13 @@ func (d *Downloader) extractThumbnailFromURL(
 	onDone(imageData)
 }
 
-func (d *Downloader) ExtractThumbnailURL(ctx context.Context, mediaURL string) (string, error) {
+func (d *Downloader) ExtractThumbnailURL(ctx context.Context, mediaURL string, useCookies bool) (string, error) {
 	if mediaURL == "" {
 		return "", nil
 	}
 
 	startTime := time.Now()
-	imageURL, err := d.executor.ExtractBestThumbnailURL(ctx, mediaURL)
+	imageURL, err := d.executor.ExtractBestThumbnailURL(ctx, mediaURL, executor.WithUseCookies(useCookies))
 	elapsed := time.Since(startTime)
 	if err != nil {
 		d.logger.Debug("Failed to extract thumbnail url", "mediaUrl", mediaURL, "error", err)
@@ -54,8 +56,8 @@ func (d *Downloader) ExtractThumbnailURL(ctx context.Context, mediaURL string) (
 	return imageURL, nil
 }
 
-func (d *Downloader) FetchThumbnail(ctx context.Context, mediaURL string) (*dtypes.ImageData, error) {
-	imageURL, err := d.ExtractThumbnailURL(ctx, mediaURL)
+func (d *Downloader) FetchThumbnail(ctx context.Context, mediaURL string, useCookies bool) (*dtypes.ImageData, error) {
+	imageURL, err := d.ExtractThumbnailURL(ctx, mediaURL, useCookies)
 	if err != nil {
 		return nil, err
 	}

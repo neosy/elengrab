@@ -117,8 +117,8 @@ func (v FileFormat) AudioFormat() AudioFormat {
 }
 
 // ParseFileFormat converting string to FileFormat
-func ParseFileFormat(s string) (FileFormat, error) {
-	fileFormat := FileFormat(strings.ToLower(s))
+func ParseFileFormat(format string) (FileFormat, error) {
+	fileFormat := FileFormat(strings.ToLower(format))
 
 	if _, exists := fileFormatMap[fileFormat]; !exists {
 		return "", errors.New("invalid value for FileFormat")
@@ -129,10 +129,14 @@ func ParseFileFormat(s string) (FileFormat, error) {
 
 // MapFileExtToFileFormat
 func MapFileExtToFileFormat(ext string) FileFormat {
+	ext, _ = strings.CutPrefix(ext, ".")
+	ext = strings.ToLower(ext)
+
 	format, exist := fileExtToFileFormatMap[ext]
 	if !exist {
-		format = FileFormatNone
+		return FileFormatNone
 	}
+
 	return format
 }
 

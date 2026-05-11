@@ -13,9 +13,9 @@ func (uc *Downloader) UpdateHash(ctx context.Context) error {
 	}
 
 	for _, file := range files {
-		filePath := uc.downloadsStorage.Path(file.FullFileName)
+		filePath := uc.downloadsStorage.Path(file.FileFullName)
 
-		exists, err := uc.downloadsStorage.Exists(file.FullFileName)
+		exists, err := uc.downloadsStorage.Exists(file.FileFullName)
 		if err != nil || !exists {
 			uc.logger.Warn("File not found", "filePath", filePath, "error", err)
 			continue

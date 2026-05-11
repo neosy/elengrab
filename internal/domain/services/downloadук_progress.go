@@ -3,7 +3,7 @@ package dservices
 import uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 
 // Progress of the download
-type DownloadProgress struct {
+type DownloaderProgress struct {
 	// Total bytes downloaded
 	DownloadedBytes int64
 	// Total bytes to download
@@ -15,13 +15,13 @@ type DownloadProgress struct {
 }
 
 // Percent returns the download progress percentage.
-func (p DownloadProgress) Percent() float64 {
+func (p DownloaderProgress) Percent() float64 {
 	if p.TotalBytes == 0 {
 		return 0
 	}
 	return float64(p.DownloadedBytes) / float64(p.TotalBytes) * 100
 }
 
-func (src *DownloadProgress) Copy() *DownloadProgress {
+func (src *DownloaderProgress) Copy() *DownloaderProgress {
 	return uptr.Copy(src)
 }

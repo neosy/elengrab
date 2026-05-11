@@ -121,7 +121,7 @@ func (uc *File) GetWithoutPartialHash(ctx context.Context) ([]*ddownload.File, e
 	if len(gFiles) > 0 {
 		files = make([]*ddownload.File, 0, len(gFiles))
 		for _, file := range gFiles {
-			if file.FullFileName == "" {
+			if file.FileFullName == "" {
 				continue
 			}
 			files = append(files, file)

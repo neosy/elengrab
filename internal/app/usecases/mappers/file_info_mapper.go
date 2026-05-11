@@ -15,7 +15,7 @@ import (
 func (m *Mappers) MapFileDomainToFileInfoResponse(
 	file *ddownload.File,
 	avatarTitle string,
-	progress *dservices.DownloadProgress,
+	progress *dservices.DownloaderProgress,
 	hasSiteIcon bool,
 ) *dto.GetFileInfoResponse {
 	var mediaTitle = file.MediaTitle
@@ -50,7 +50,7 @@ func (m *Mappers) MapFileDomainToFileInfoResponse(
 		HasSiteIcon:          hasSiteIcon,
 		FileName:             file.FileName,
 		FileExt:              file.Ext,
-		FileFullName:         file.FullFileName,
+		FileFullName:         file.FileFullName,
 		FileSize:             file.FileSize,
 		SafeReadableFullName: file.SafeReadableFullName,
 		StatusText:           uptr.Deref(file.ErrorMessage),

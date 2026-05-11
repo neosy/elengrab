@@ -3,7 +3,7 @@ package ytdlpsrv
 import (
 	"context"
 
-	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	dservices "github.com/neosy/elengrab/internal/domain/services"
 )
 
 // GetBestFormat retrieves and parses video best format for the given URL.
@@ -11,7 +11,7 @@ func (srv *YtDlpService) GetInfoWithBestFormat(
 	ctx context.Context,
 	url string,
 	useCookies bool,
-) (*dmedia.MediaInfo, error) {
+) (*dservices.DownloaderMediaInfo, error) {
 	bestInfo, err := srv.downloader.GetInfoWithBestFormat(ctx, url, "b", useCookies)
 	if err != nil {
 		return nil, err
