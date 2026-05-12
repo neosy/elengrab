@@ -153,7 +153,7 @@ func (a *Application) initialize() error {
 		Repositories: usecases.DepRepositories{
 			Repositories: slRepositories,
 
-			File:                  slRepositories.File,
+			MediaDownload:         slRepositories.MediaDownload,
 			DownloadTask:          slRepositories.DownloadTask,
 			DownloadDataMigration: slRepositories.DownloadDataMigration,
 
@@ -229,9 +229,9 @@ func (a *Application) initialize() error {
 		MetricsEnabled:                   a.cfg.AdminServer.Enable && a.cfg.AdminServer.DebugConfig.EnableMetrics,
 		UpdateHashInterval:               a.cfg.Elengrab.Maintenance.UpdateHashInterval,
 		DeleteDuplicatesInterval:         a.cfg.Elengrab.Maintenance.DeleteDuplicatesInterval,
-		DeleteMissingFilesInterval:       a.cfg.Elengrab.Maintenance.DeleteMissingFilesInterval,
+		DeleteMissingDownloadsInterval:   a.cfg.Elengrab.Maintenance.DeleteMissingDownloadsInterval,
 		DeleteFailedDownloadsInterval:    a.cfg.Elengrab.Maintenance.DeleteFailedDownloadsInterval,
-		MoveUnmatchedFilesEnabled:        a.cfg.Elengrab.Maintenance.MoveUnmatchedFilesEnabled,
+		MoveUnmatchedDownloadsEnabled:    a.cfg.Elengrab.Maintenance.MoveUnmatchedDownloadsEnabled,
 		CleanYoutubeChannelCacheInterval: cleanYoutubeChannelCacheInterval,
 		CleanDownloadStateCacheInterval:  cleanDownloadStateCacheInterval,
 		CleanSiteLogoCacheInterval:       cleanSiteLogoCacheInterval,

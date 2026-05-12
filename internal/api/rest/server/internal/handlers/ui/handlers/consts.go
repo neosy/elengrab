@@ -24,7 +24,7 @@ const (
 
 	sourceKey = "source"
 
-	fileIdKey        = "fileId"
+	downloadIDKey        = "downloadID"
 	beforeKey        = "before"
 	channelIDKey     = "channelID"
 	filterByTitleKey = "title"

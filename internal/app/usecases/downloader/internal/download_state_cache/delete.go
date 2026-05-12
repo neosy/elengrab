@@ -6,6 +6,6 @@ import (
 	"github.com/google/uuid"
 )
 
-func (uc *DownloadStateCache) Delete(ctx context.Context, fileId uuid.UUID) error {
-	return uc.stateRep.Delete(ctx, fileId)
+func (uc *DownloadStateCache) Delete(ctx context.Context, downloadID uuid.UUID) error {
+	return uc.stateRep.Delete(ctx, downloadID)
 }

@@ -12,21 +12,21 @@ import (
 )
 
 func (h *DownloaderHandlers) GetShortLinkHandler(ctx *fasthttp.RequestCtx) {
-	fileIdStr, ok := ctx.UserValue(fileIdKey).(string)
-	if !ok || fileIdStr == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
+	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
+	if !ok || downloadIDStr == "" {
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return
 	}
 
-	fileId, err := uuid.Parse(fileIdStr)
+	downloadID, err := uuid.Parse(downloadIDStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsIncorrect.Wrap(err))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
 		return
 	}
 
 	url, err := h.linkWeb.CreateShortLink(
 		ctx,
-		strings.TrimSuffix(h.baseURL, "/")+httppaths.BuildPathFileWatch(fileId),
+		strings.TrimSuffix(h.baseURL, "/")+httppaths.BuildPathFileWatch(downloadID),
 	)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
@@ -34,7 +34,7 @@ func (h *DownloaderHandlers) GetShortLinkHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	resp := dto.GetFileShareLinkResponse{
-		FileID: fileId.String(),
+		FileID: downloadID.String(),
 		URL:    url,
 	}
 

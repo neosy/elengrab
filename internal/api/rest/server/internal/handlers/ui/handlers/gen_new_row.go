@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"html/template"
 	"path/filepath"
+	"time"
 
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
@@ -12,7 +13,7 @@ import (
 )
 
 type newRowData struct {
-	FileID           string
+	DownloadID           string
 	DownloadStatus   string
 	RowID            string
 	PathFileRow      string
@@ -26,7 +27,7 @@ type newRowData struct {
 }
 
 func (h *DownloaderHandlers) genNewRow(
-	fileInfo *ucdto.ScheduleDownloadResponse,
+	downloadInfo *ucdto.ScheduleDownloadResponse,
 	pageHasDivItems bool,
 ) *bytes.Buffer {
 	imageSources := []dtypes.ImageSource{
@@ -35,17 +36,17 @@ func (h *DownloaderHandlers) genNewRow(
 		dtypes.ImageSourceSite,
 	}
 
-	fileImageURL := httppaths.BuildPathFileImage(fileInfo.FileID, fileInfo.ImageMetaHash(), imageSources)
+	downloadImageURL := httppaths.BuildPathFileImage(downloadInfo.DownloadID, downloadInfo.ImageMetaHash(time.Now().String()), imageSources)
 
 	data := newRowData{
-		MediaURL:       fileInfo.URL,
-		DownloadStatus: fileInfo.Status.String(),
-		DeleteURL:      httppaths.BuildPathFile(httppaths.PathFile, fileInfo.FileID),
-		ImageURL:       fileImageURL,
-		FileID:         fileInfo.FileID.String(),
-		RowID:          "row-" + fileInfo.FileID.String(),
-		MediaTitle:     fileInfo.URL,
-		PathFileRow:    httppaths.BuildPathFileRow(fileInfo.FileID),
+		MediaURL:       downloadInfo.URL,
+		DownloadStatus: downloadInfo.Status.String(),
+		DeleteURL:      httppaths.BuildPathFile(httppaths.PathFile, downloadInfo.DownloadID),
+		ImageURL:       downloadImageURL,
+		DownloadID:         downloadInfo.DownloadID.String(),
+		RowID:          "row-" + downloadInfo.DownloadID.String(),
+		MediaTitle:     downloadInfo.URL,
+		PathFileRow:    httppaths.BuildPathFileRow(downloadInfo.DownloadID),
 		FileSize:       "-",
 		Format:         "-",
 	}
@@ -59,7 +60,7 @@ func (h *DownloaderHandlers) genNewRow(
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
 	dataMap[uivalues.ResultRowStatusIconKey] = template.HTML(
-		uivalues.DownloaderResultStatusIconSvgRaw(fileInfo.Status, iconsDir))
+		uivalues.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir))
 	dataMap[uivalues.DownloaderResultItemDeleteIconKey] = template.HTML(
 		uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadDeleteIconNameKey), iconsDir))
 	dataMap[uivalues.IsItemHTMXOptionRepeatKey] = true

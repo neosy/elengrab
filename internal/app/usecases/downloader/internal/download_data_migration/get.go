@@ -9,7 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-func (c *DataMigration) Find(ctx context.Context, migrationID string) (*ddownload.DataMigration, error) {
+func (c *DownloadMigration) Find(ctx context.Context, migrationID string) (*ddownload.DataMigration, error) {
 	migration, err := c.dataMigrationRep.Find(ctx, migrationID)
 	if err != nil {
 		c.logger.Warn("Failed to find migration", "error", err)
@@ -18,7 +18,7 @@ func (c *DataMigration) Find(ctx context.Context, migrationID string) (*ddownloa
 	return migration, nil
 }
 
-func (c *DataMigration) GetByMigrationID(ctx context.Context, migrationID string) (*ddownload.DataMigration, error) {
+func (c *DownloadMigration) GetByMigrationID(ctx context.Context, migrationID string) (*ddownload.DataMigration, error) {
 	migration, err := c.Find(ctx, migrationID)
 	if err != nil {
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
@@ -32,7 +32,7 @@ func (c *DataMigration) GetByMigrationID(ctx context.Context, migrationID string
 	return migration, nil
 }
 
-func (c *DataMigration) Exists(ctx context.Context, migrationID string) (bool, error) {
+func (c *DownloadMigration) Exists(ctx context.Context, migrationID string) (bool, error) {
 	exists, err := c.dataMigrationRep.Exists(ctx, migrationID)
 	if err != nil {
 		c.logger.Warn("Failed to exists migration", "error", err)

@@ -7,7 +7,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-func (c *DataMigration) Insert(ctx context.Context, migration *ddownload.DataMigration) error {
+func (c *DownloadMigration) Insert(ctx context.Context, migration *ddownload.DataMigration) error {
 	if migration == nil {
 		c.logger.Warn("Nil pointer in function")
 		return apperrors.ErrFuncParamNullPointer

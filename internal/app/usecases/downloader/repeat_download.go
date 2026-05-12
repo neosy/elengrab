@@ -9,14 +9,14 @@ import (
 	"github.com/neosy/elengrab/internal/exceptions"
 )
 
-// RepeatDownload repeats the download process for a specific file.
+// RepeatDownload repeats the download process for a specific download.
 func (uc *Downloader) RepeatDownload(
 	ctx context.Context,
 	userCtx dauth.UserContext,
-	fileID uuid.UUID,
-) (*dto.GetFileInfoResponse, error) {
+	downloadID uuid.UUID,
+) (*dto.GetMediaDownloadInfoResponse, error) {
 	var accessByUserID *uuid.UUID
-	if uc.authz.RestrictFilesByUser(userCtx.Roles) {
+	if uc.authz.RestrictDownloadsByUser(userCtx.Roles) {
 		accessByUserID = &userCtx.UserID
 	}
 
@@ -30,17 +30,17 @@ func (uc *Downloader) RepeatDownload(
 		return nil, exceptions.DEMO_MODE_RESTRICTION.NewErrorx()
 	}
 
-	err := uc.file.Tx(
+	err := uc.download.Tx(
 		ctx,
 		func(ctx context.Context) error {
-			file, err := uc.file.GetByFileID(ctx, accessByUserID, fileID)
+			download, err := uc.download.GetByDownloadID(ctx, accessByUserID, downloadID)
 			if err != nil {
 				return err
 			}
 
-			err = uc.fileStatus.New(ctx, file.FileID)
+			err = uc.downloadStatus.New(ctx, download.DownloadID)
 			if err != nil {
-				uc.logger.Error("Failed to set file status to new", "error", err)
+				uc.logger.Error("Failed to set download status to new", "error", err)
 				return err
 			}
 			return nil
@@ -50,24 +50,24 @@ func (uc *Downloader) RepeatDownload(
 		return nil, err
 	}
 
-	file, err := uc.file.GetByFileID(ctx, accessByUserID, fileID)
+	download, err := uc.download.GetByDownloadID(ctx, accessByUserID, downloadID)
 	if err != nil {
 		return nil, err
 	}
 
-	err = uc.addFileToQueueDownload(ctx, fileID, file.DownloadTask.TaskID)
+	err = uc.addDownloadToQueueDownload(ctx, downloadID, download.DownloadTask.TaskID)
 	if err != nil {
 		uc.logger.Error("Failed add to queue", "error", err)
 		return nil, err
 	}
 
-	file, err = uc.file.GetByFileID(ctx, accessByUserID, fileID)
+	download, err = uc.download.GetByDownloadID(ctx, accessByUserID, downloadID)
 	if err != nil {
 		return nil, err
 	}
 
-	uc.dlStateCache.SaveByFile(ctx, file)
-	uc.broadcastFileUpdate(ctx, fileID)
+	uc.dlStateCache.SaveByDownload(ctx, download)
+	uc.broadcastDownloadUpdate(ctx, downloadID)
 
-	return uc.findActualFileInfoByFile(ctx, file)
+	return uc.findActualDownloadInfoByDownload(ctx, download)
 }

@@ -67,15 +67,15 @@ func IconFileRawByKey(key string, svgDir string) string {
 	return IconFileRaw(IconFileName(key), svgDir)
 }
 
-func DownloaderResultStatusIconSvgRaw(status dtypes.FileStatus, svgDir string) string {
+func DownloaderResultStatusIconSvgRaw(status dtypes.MediaDownloadStatus, svgDir string) string {
 	var iconName string
 
 	switch status {
-	case dtypes.FileStatusNew, dtypes.FileStatusPending:
+	case dtypes.MediaDownloadStatusNew, dtypes.MediaDownloadStatusPending:
 		iconName = iconFileNames[DownloadPendingIconNameKey].(string)
-	case dtypes.FileStatusDone:
+	case dtypes.MediaDownloadStatusDone:
 		iconName = iconFileNames[DownloadIconNameKey].(string)
-	case dtypes.FileStatusFailed:
+	case dtypes.MediaDownloadStatusFailed:
 		iconName = iconFileNames[DownloadFailedIconNameKey].(string)
 	}
 

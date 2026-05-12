@@ -40,18 +40,18 @@ func (uc *Downloader) ScheduleDownload(
 		return err
 	}
 
-	fileId := uuid.New()
-	filename := fileId.String()
+	downloadID := uuid.New()
+	filename := downloadID.String()
 
 	options.Filename = &filename
 
-	err := uc.file.Create(
+	err := uc.download.Create(
 		ctx,
-		&ddownload.File{
-			FileID:   fileId,
-			UserID:   &userCtx.UserID,
-			FileName: filename,
-			MediaURL: url,
+		&ddownload.MediaDownload{
+			DownloadID: downloadID,
+			UserID:     &userCtx.UserID,
+			FileName:   filename,
+			MediaURL:   url,
 		},
 		options,
 	)
@@ -61,62 +61,62 @@ func (uc *Downloader) ScheduleDownload(
 	}
 
 	var accessByUserID *uuid.UUID
-	if uc.authz.RestrictFilesByUser(userCtx.Roles) {
+	if uc.authz.RestrictDownloadsByUser(userCtx.Roles) {
 		accessByUserID = &userCtx.UserID
 	}
 
-	file, err := uc.file.GetByFileID(ctx, accessByUserID, fileId)
+	download, err := uc.download.GetByDownloadID(ctx, accessByUserID, downloadID)
 	if err != nil {
-		uc.logger.Error("Failed find file", "error", err)
+		uc.logger.Error("Failed find download", "error", err)
 		return nil, returnErr(err)
 	}
-	if file.DownloadTask == nil {
-		file.DownloadTask, err = uc.dlTask.GetByFileID(ctx, fileId)
+	if download.DownloadTask == nil {
+		download.DownloadTask, err = uc.dlTask.GetByDownloadID(ctx, downloadID)
 		if err != nil {
 			uc.logger.Error("Failed find task", "error", err)
 			return nil, returnErr(err)
 		}
 	}
 
-	err = uc.addFileToQueueDownload(ctx, fileId, file.DownloadTask.TaskID)
+	err = uc.addDownloadToQueueDownload(ctx, downloadID, download.DownloadTask.TaskID)
 	if err != nil {
 		uc.logger.Error("Failed add to queue", "error", err)
 		return nil, returnErr(err)
 	}
 
-	f, _ := uc.file.GetByFileID(ctx, accessByUserID, fileId)
-	if f != nil {
-		file = f
+	tmpDownload, _ := uc.download.GetByDownloadID(ctx, accessByUserID, downloadID)
+	if tmpDownload != nil {
+		download = tmpDownload
 	}
 
-	uc.broadcastFileAdd(file)
+	uc.broadcastDownloadAdd(download)
 
 	return &dto.ScheduleDownloadResponse{
 		URL:        url,
-		FileID:     file.FileID,
-		Status:     file.Status,
-		MediaTitle: file.MediaTitle,
-		Format:     file.Ext,
+		DownloadID: download.DownloadID,
+		Status:     download.Status,
+		MediaTitle: download.MediaTitle,
+		Format:     download.Ext,
 	}, nil
 }
 
-func (uc *Downloader) addFileToQueueDownload(ctx context.Context, fileId uuid.UUID, taskId uuid.UUID) error {
+func (uc *Downloader) addDownloadToQueueDownload(ctx context.Context, downloadID uuid.UUID, taskId uuid.UUID) error {
 	var (
-		file *ddownload.File
+		download *ddownload.MediaDownload
 	)
 
-	err := uc.file.Tx(ctx, func(ctx context.Context) error {
+	err := uc.download.Tx(ctx, func(ctx context.Context) error {
 		jobID := uuid.New()
-		err := uc.fileStatus.Pending(ctx, fileId, taskId, jobID)
+		err := uc.downloadStatus.Pending(ctx, downloadID, taskId, jobID)
 		if err != nil {
-			uc.logger.Warn("Failed update status", "fileId", fileId, "error", err)
-			uc.dlStateCache.Delete(ctx, fileId)
+			uc.logger.Warn("Failed update status", "downloadID", downloadID, "error", err)
+			uc.dlStateCache.Delete(ctx, downloadID)
 			return err
 		}
 
-		file, err = uc.file.GetByFileID(ctx, nil, fileId)
+		download, err = uc.download.GetByDownloadID(ctx, nil, downloadID)
 		if err != nil {
-			uc.dlStateCache.Delete(ctx, fileId)
+			uc.dlStateCache.Delete(ctx, downloadID)
 			return err
 		}
 
@@ -127,14 +127,14 @@ func (uc *Downloader) addFileToQueueDownload(ctx context.Context, fileId uuid.UU
 		return err
 	}
 
-	job := uc.enqueueDownloadTask(file.DownloadTask)
+	job := uc.enqueueDownloadTask(download.DownloadTask)
 	if job == nil {
-		uc.logger.Warn("Task has not been added to the queue", "fileId", file.FileID)
+		uc.logger.Warn("Task has not been added to the queue", "downloadID", download.DownloadID)
 
-		e := uc.fileStatus.Failed(ctx, fileId, nil, uptr.String("failed to enqueue download task"))
+		e := uc.downloadStatus.Failed(ctx, downloadID, nil, uptr.String("failed to enqueue download task"))
 		if e != nil {
-			uc.logger.Warn("Failed update status", "fileId", file.FileID, "error", e)
-			uc.dlStateCache.Delete(ctx, fileId)
+			uc.logger.Warn("Failed update status", "downloadID", download.DownloadID, "error", e)
+			uc.dlStateCache.Delete(ctx, downloadID)
 			return errorx.Errorf(
 				"task has not been added to the queue: %w", e,
 				exceptions.QUEUE_PUBLISH_FAILED,

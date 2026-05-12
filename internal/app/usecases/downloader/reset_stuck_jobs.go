@@ -7,16 +7,16 @@ import (
 )
 
 func (uc *Downloader) ResetStuckJobs(ctx context.Context) error {
-	err := uc.file.Tx(
+	err := uc.download.Tx(
 		ctx,
 		func(ctx context.Context) error {
 			if err := uc.dlTask.ResetStatus(ctx); err != nil {
 				return err
 			}
-			if err := uc.file.ResetStatus(ctx); err != nil {
+			if err := uc.download.ResetStatus(ctx); err != nil {
 				return err
 			}
-			if err := uc.file.DeleteBroken(ctx); err != nil {
+			if err := uc.download.DeleteBroken(ctx); err != nil {
 				return err
 			}
 			return nil
@@ -26,14 +26,14 @@ func (uc *Downloader) ResetStuckJobs(ctx context.Context) error {
 		return err
 	}
 
-	files, err := uc.file.GetByStatus(ctx, dtypes.FileStatusNew)
+	downloads, err := uc.download.GetByStatus(ctx, dtypes.MediaDownloadStatusNew)
 	if err != nil {
 		return err
 	}
 
-	for _, file := range files {
-		if file.DownloadTask != nil {
-			uc.addFileToQueueDownload(ctx, file.FileID, file.DownloadTask.TaskID)
+	for _, download := range downloads {
+		if download.DownloadTask != nil {
+			uc.addDownloadToQueueDownload(ctx, download.DownloadID, download.DownloadTask.TaskID)
 		}
 	}
 

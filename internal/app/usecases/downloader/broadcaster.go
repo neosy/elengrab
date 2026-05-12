@@ -14,104 +14,104 @@ func (uc *Downloader) Broadcaster() *broadcaster.Broadcaster {
 	return uc.broadcaster
 }
 
-func (uc *Downloader) broadcastFileAdd(file *ddownload.File) {
-	if file == nil {
+func (uc *Downloader) broadcastDownloadAdd(download *ddownload.MediaDownload) {
+	if download == nil {
 		return
 	}
 
 	var accessByUserID uuid.UUID
-	if uc.authz.RestrictFilesByUser(nil) && file.UserID != nil {
-		accessByUserID = *file.UserID
+	if uc.authz.RestrictDownloadsByUser(nil) && download.UserID != nil {
+		accessByUserID = *download.UserID
 	}
 
 	resp := &dto.ScheduleDownloadResponse{
-		URL:        file.MediaURL,
-		FileID:     file.FileID,
-		Status:     file.Status,
-		MediaTitle: file.MediaTitle,
-		Format:     file.Ext,
+		URL:        download.MediaURL,
+		DownloadID: download.DownloadID,
+		Status:     download.Status,
+		MediaTitle: download.MediaTitle,
+		Format:     download.Ext,
 	}
 
 	if accessByUserID == uuid.Nil {
-		uc.broadcaster.Broadcast(dto.BroadcastEventTypeFileAdd, resp)
+		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadAdd, resp)
 	} else {
-		uc.broadcaster.BroadcastToUser(accessByUserID, dto.BroadcastEventTypeFileAdd, resp)
+		uc.broadcaster.BroadcastToUser(accessByUserID, dto.BroadcastEventTypeDownloadAdd, resp)
 	}
 }
 
-func (uc *Downloader) broadcastFileUpdate(
+func (uc *Downloader) broadcastDownloadUpdate(
 	ctx context.Context,
-	fileID uuid.UUID,
+	downloadID uuid.UUID,
 ) {
-	fileInfo, err := uc.findActualFileInfo(ctx, nil, fileID)
+	downloadInfo, err := uc.findActualDownloadInfo(ctx, nil, downloadID)
 	if err != nil {
-		uc.logger.Error("Failed find file info", "error", err)
+		uc.logger.Error("Failed find download info", "error", err)
 		return
 	}
 
-	if fileInfo == nil {
+	if downloadInfo == nil {
 		return
 	}
 
 	var accessByUserID uuid.UUID
-	if uc.authz.RestrictFilesByUser(nil) && fileInfo.UserID != nil {
-		accessByUserID = *fileInfo.UserID
+	if uc.authz.RestrictDownloadsByUser(nil) && downloadInfo.UserID != nil {
+		accessByUserID = *downloadInfo.UserID
 	}
 
 	if accessByUserID == uuid.Nil {
-		uc.broadcaster.Broadcast(dto.BroadcastEventTypeFileUpdate, fileInfo)
+		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadUpdate, downloadInfo)
 	} else {
-		uc.broadcaster.BroadcastToUser(accessByUserID, dto.BroadcastEventTypeFileUpdate, fileInfo)
+		uc.broadcaster.BroadcastToUser(accessByUserID, dto.BroadcastEventTypeDownloadUpdate, downloadInfo)
 	}
 }
 
-func (uc *Downloader) broadcastFileDelete(
+func (uc *Downloader) broadcastDownloadDelete(
 	userID *uuid.UUID,
-	fileID uuid.UUID,
+	downloadID uuid.UUID,
 ) {
 	var accessByUserID uuid.UUID
-	if uc.authz.RestrictFilesByUser(nil) && userID != nil {
+	if uc.authz.RestrictDownloadsByUser(nil) && userID != nil {
 		accessByUserID = *userID
 	}
 
 	if accessByUserID == uuid.Nil {
-		uc.broadcaster.Broadcast(dto.BroadcastEventTypeFileDelete, fileID)
+		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadDelete, downloadID)
 	} else {
-		uc.broadcaster.BroadcastToUser(accessByUserID, dto.BroadcastEventTypeFileDelete, fileID)
+		uc.broadcaster.BroadcastToUser(accessByUserID, dto.BroadcastEventTypeDownloadDelete, downloadID)
 	}
 }
 
-func (uc *Downloader) broadcastFileProgressUpdate(
+func (uc *Downloader) broadcastDownloadProgressUpdate(
 	ctx context.Context,
-	fileID uuid.UUID,
+	downloadID uuid.UUID,
 ) {
-	fileInfo, err := uc.findActualFileInfo(ctx, nil, fileID)
+	downloadInfo, err := uc.findActualDownloadInfo(ctx, nil, downloadID)
 	if err != nil {
-		uc.logger.Error("Failed find file info", "error", err)
+		uc.logger.Error("Failed find download info", "error", err)
 		return
 	}
 
-	if fileInfo == nil {
+	if downloadInfo == nil {
 		return
 	}
 
-	if fileInfo.WorkingStatus != dto.WorkingStatusDownloading {
+	if downloadInfo.WorkingStatus != dto.WorkingStatusDownloading {
 		return
 	}
 
 	var percent int = 0
-	if fileInfo.Progress != nil {
-		percent = int(fileInfo.Progress.Percent())
+	if downloadInfo.Progress != nil {
+		percent = int(downloadInfo.Progress.Percent())
 	}
 
-	resp := dto.FileProgressResponse{
-		FileID:  fileID,
-		Percent: percent,
+	resp := dto.MediaDownloadProgressResponse{
+		DownloadID: downloadID,
+		Percent:    percent,
 	}
 
 	var accessByUserID uuid.UUID
-	if uc.authz.RestrictFilesByUser(nil) && fileInfo.UserID != nil {
-		accessByUserID = *fileInfo.UserID
+	if uc.authz.RestrictDownloadsByUser(nil) && downloadInfo.UserID != nil {
+		accessByUserID = *downloadInfo.UserID
 	}
 
 	if accessByUserID == uuid.Nil {

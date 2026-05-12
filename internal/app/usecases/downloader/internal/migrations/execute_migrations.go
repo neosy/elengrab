@@ -15,7 +15,7 @@ func (m *migrations) ExecuteMigrations(ctx context.Context) error {
 		default:
 		}
 
-		exists, err := m.usecases.mediaMigration.Exists(ctx, id)
+		exists, err := m.usecases.downloadMigration.Exists(ctx, id)
 		if err != nil {
 			hasError = true
 			continue

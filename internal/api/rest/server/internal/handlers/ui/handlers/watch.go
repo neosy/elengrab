@@ -20,7 +20,7 @@ func (h *DownloaderHandlers) watch(
 	ctx *fasthttp.RequestCtx,
 	pageURL string,
 	streamPath string,
-	fileID uuid.UUID,
+	downloadID uuid.UUID,
 	showBackButton bool,
 ) {
 	if ctx.IsHead() {
@@ -29,7 +29,7 @@ func (h *DownloaderHandlers) watch(
 		return
 	}
 
-	fileInfo, err := h.downloader.GetFileInfoUnrestricted(ctx, fileID)
+	downloadInfo, err := h.downloader.GetDownloadInfoUnrestricted(ctx, downloadID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -45,13 +45,13 @@ func (h *DownloaderHandlers) watch(
 		videoWidth    = 0
 		videoHeight   = 0
 	)
-	if fileInfo.MediaInfo != nil {
-		ext := fileInfo.MediaInfo.Format.Ext()
+	if downloadInfo.MediaInfo != nil {
+		ext := downloadInfo.MediaInfo.Format.Ext()
 
-		isVideoPlayer = fileInfo.MediaInfo.Format.IsVideo()
+		isVideoPlayer = downloadInfo.MediaInfo.Format.IsVideo()
 		format = strings.ToUpper(ext)
 
-		if videoInfo := fileInfo.MediaInfo.VideoInfo; videoInfo != nil {
+		if videoInfo := downloadInfo.MediaInfo.VideoInfo; videoInfo != nil {
 			qValues := []string{strings.ToUpper(videoInfo.Codec.String())}
 			if videoInfo.Resolution != dtypes.VideoResolutionNone {
 				qValues = append(qValues, videoInfo.Resolution.String())
@@ -61,27 +61,27 @@ func (h *DownloaderHandlers) watch(
 			videoWidth = videoInfo.Width
 			videoHeight = videoInfo.Height
 		}
-		if fileInfo.MediaInfo.AudioInfo != nil {
+		if downloadInfo.MediaInfo.AudioInfo != nil {
 			parts := make([]string, 0, 2)
-			parts = append(parts, fmt.Sprintf("%v kbps ", fileInfo.MediaInfo.AudioInfo.Bitrate))
-			if fileInfo.MediaInfo.AudioInfo.SampleRate != nil {
-				parts = append(parts, fmt.Sprintf("%v Hz ", *fileInfo.MediaInfo.AudioInfo.SampleRate))
+			parts = append(parts, fmt.Sprintf("%v kbps ", downloadInfo.MediaInfo.AudioInfo.Bitrate))
+			if downloadInfo.MediaInfo.AudioInfo.SampleRate != nil {
+				parts = append(parts, fmt.Sprintf("%v Hz ", *downloadInfo.MediaInfo.AudioInfo.SampleRate))
 			}
 			audioQuality = strings.Join(parts, " • ")
 		}
 	}
 
-	if fileInfo.FileSize != nil {
-		fileSize = uformat.BytesHuman(*fileInfo.FileSize)
+	if downloadInfo.FileSize != nil {
+		fileSize = uformat.BytesHuman(*downloadInfo.FileSize)
 	}
 
 	mediaURL := h.baseURL + streamPath
 	prefixType := fnx.Ternary(isVideoPlayer, "video", "audio")
-	description := fileInfo.MediaTitle + fmt.Sprintf(" [%s]", fileInfo.MediaInfoText)
+	description := downloadInfo.MediaTitle + fmt.Sprintf(" [%s]", downloadInfo.MediaInfoText)
 
 	var imageData *dtypes.ImageData
-	if fileInfo.MediaInfo != nil && fileInfo.MediaInfo.GetThumbnailID() != nil {
-		thumbnail, _ := h.thumbnail.GetInfoByThumbID(ctx, *fileInfo.MediaInfo.GetThumbnailID())
+	if downloadInfo.MediaInfo != nil && downloadInfo.MediaInfo.GetThumbnailID() != nil {
+		thumbnail, _ := h.thumbnail.GetInfoByThumbID(ctx, *downloadInfo.MediaInfo.GetThumbnailID())
 		if thumbnail != nil {
 			imageData = thumbnail.ImageData()
 		}
@@ -90,8 +90,8 @@ func (h *DownloaderHandlers) watch(
 		}
 	}
 
-	if imageData == nil && fileInfo.ChannelID != nil && fileInfo.IsYouTube() {
-		channel, _ := h.downloader.FindYoutubeChannelInfo(ctx, *fileInfo.ChannelID)
+	if imageData == nil && downloadInfo.ChannelID != nil && downloadInfo.IsYouTube() {
+		channel, _ := h.downloader.FindYoutubeChannelInfo(ctx, *downloadInfo.ChannelID)
 		if channel != nil && len(channel.ImageRaw) > 0 {
 			imageData = channel.ImageData()
 		}
@@ -111,7 +111,7 @@ func (h *DownloaderHandlers) watch(
 	metaOgItems := make(uivalues.MetaOgItems, 0, 20)
 	metaOgItems.Add("site_name", iconfig.AppName)
 	metaOgItems.Add("type", fnx.Ternary(isVideoPlayer, "video.other", "music.song"))
-	metaOgItems.Add("title", fileInfo.MediaTitle)
+	metaOgItems.Add("title", downloadInfo.MediaTitle)
 	metaOgItems.Add("description", description)
 	metaOgItems.Add("url", pageURL)
 	metaOgItems.Add("image", imageData.URL)
@@ -135,12 +135,12 @@ func (h *DownloaderHandlers) watch(
 
 	metaNameItems := make(uivalues.MetaNameItems, 0, 4)
 	metaNameItems.Add("twitter:card", "summary_large_image")
-	metaNameItems.Add("twitter:title", fileInfo.MediaTitle)
+	metaNameItems.Add("twitter:title", downloadInfo.MediaTitle)
 	metaNameItems.Add("twitter:description", description)
 	metaNameItems.Add("twitter:image", imageData.URL)
 
 	baseValues := uivalues.NewBaseValues()
-	baseValues.Title = fileInfo.MediaTitle
+	baseValues.Title = downloadInfo.MediaTitle
 	baseValues.ShowFooter = false
 	baseValues.MetaOgItems = metaOgItems
 	baseValues.MetaNameItems = metaNameItems
@@ -181,8 +181,8 @@ func (h *DownloaderHandlers) watch(
 	watcherValues := uivalues.WatcherValues{
 		ShowBackButton:   showBackButton,
 		IsVideoPlayer:    isVideoPlayer,
-		MediaTitle:       fileInfo.MediaTitle,
-		MediaDescription: fileInfo.MediaDescription,
+		MediaTitle:       downloadInfo.MediaTitle,
+		MediaDescription: downloadInfo.MediaDescription,
 		MediaParametes:   mediaParametes,
 		ContentType:      contentType,
 	}
