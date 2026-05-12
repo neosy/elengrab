@@ -10,7 +10,7 @@ import (
 )
 
 func (uc *DownloadTask) FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.DownloadTask, error) {
-	task, err := uc.TaskRep.FindByFileID(ctx, downloadID)
+	task, err := uc.TaskRep.FindByDownloadID(ctx, downloadID)
 	if err != nil {
 		uc.logger.Warn("Error finding record", "error", err)
 		return nil, err

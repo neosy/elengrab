@@ -111,7 +111,7 @@ func (h *DownloaderHandlers) handleDownloadAdd(w *bufio.Writer, event ucdto.Broa
 	html := strings.TrimSpace(buf.String())
 
 	data := struct {
-		DownloadID string `json:"downloadID"`
+		DownloadID string `json:"itemId"`
 		HTML       string `json:"html"`
 	}{
 		DownloadID: downloadInfo.DownloadID.String(),
@@ -157,7 +157,7 @@ func (h *DownloaderHandlers) handleDownloadUpdate(w *bufio.Writer, event ucdto.B
 	html := strings.TrimSpace(buf.String())
 
 	data := struct {
-		DownloadID string `json:"downloadID"`
+		DownloadID string `json:"itemId"`
 		HTML       string `json:"html"`
 	}{
 		DownloadID: downloadInfo.DownloadID.String(),
@@ -181,7 +181,7 @@ func (h *DownloaderHandlers) handleDownloadDelete(w *bufio.Writer, event ucdto.B
 	}
 
 	data := struct {
-		DownloadID string `json:"downloadID"`
+		DownloadID string `json:"itemId"`
 	}{
 		DownloadID: downloadID.String(),
 	}
@@ -210,7 +210,7 @@ func (h *DownloaderHandlers) handleProgressUpdate(w *bufio.Writer, event ucdto.B
 
 	data := struct {
 		Field      string `json:"field"`
-		DownloadID string `json:"downloadID"`
+		DownloadID string `json:"itemId"`
 		Value      any    `json:"value"`
 	}{
 		Field:      "progress",

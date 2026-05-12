@@ -27,7 +27,7 @@ func (h *DownloaderHandlers) RowMenuHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	fileResp, err := h.downloader.GetDownloadInfo(ctx, *ctxUser, downloadID)
+	downloadResp, err := h.downloader.GetDownloadInfo(ctx, *ctxUser, downloadID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -41,10 +41,10 @@ func (h *DownloaderHandlers) RowMenuHandler(ctx *fasthttp.RequestCtx) {
 	dataMap[uivalues.RowMenuActionsKey] = uivalues.RowMenuActions(
 		iconsDir,
 		map[string]string{
-			uivalues.RowMenuActionFileIdKey: downloadID.String(),
-			uivalues.RowMenuActionURLKey:    fileResp.MediaURL,
+			uivalues.RowMenuActionItemIDKey: downloadID.String(),
+			uivalues.RowMenuActionURLKey:    downloadResp.MediaURL,
 		},
-		fileResp.Status == dtypes.MediaDownloadStatusDone,
+		downloadResp.Status == dtypes.MediaDownloadStatusDone,
 	)
 
 	// Load template

@@ -26,7 +26,7 @@ type DownloadTaskRepository struct {
 }
 
 type taskByFields struct {
-	fileID *uuid.UUID
+	downloadID *uuid.UUID
 	status *dtypes.DownloadTaskStatus
 }
 
@@ -163,12 +163,12 @@ func (r *DownloadTaskRepository) FindByTaskID(ctx context.Context, taskID uuid.U
 	return task, nil
 }
 
-func (r *DownloadTaskRepository) FindByFileID(ctx context.Context, fileID uuid.UUID) (*ddownload.DownloadTask, error) {
+func (r *DownloadTaskRepository) FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.DownloadTask, error) {
 	var ent edownload.DownloadTask
 
 	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
 		From(ent.TableName()).
-		Where(squirrel.Eq{ent.FieldName(&ent.DownloadID): fileID.String()}).
+		Where(squirrel.Eq{ent.FieldName(&ent.DownloadID): downloadID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()
@@ -234,8 +234,8 @@ func (r *DownloadTaskRepository) deleteBy(ctx context.Context, byFields taskByFi
 	var ent edownload.DownloadTask
 
 	sqlWhere := squirrel.Expr("TRUE")
-	if byFields.fileID != nil {
-		sqlWhere = squirrel.Eq{ent.FieldName(&ent.DownloadID): byFields.fileID.String()}
+	if byFields.downloadID != nil {
+		sqlWhere = squirrel.Eq{ent.FieldName(&ent.DownloadID): byFields.downloadID.String()}
 	} else if byFields.status != nil {
 		sqlWhere = squirrel.Eq{ent.FieldName(&ent.Status): byFields.status.String()}
 	}
@@ -260,8 +260,8 @@ func (r *DownloadTaskRepository) deleteBy(ctx context.Context, byFields taskByFi
 	return nil
 }
 
-func (r *DownloadTaskRepository) DeleteByFileID(ctx context.Context, fileID uuid.UUID) error {
-	return r.deleteBy(ctx, taskByFields{fileID: &fileID})
+func (r *DownloadTaskRepository) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
+	return r.deleteBy(ctx, taskByFields{downloadID: &downloadID})
 }
 
 func (r *DownloadTaskRepository) DeleteByStatus(ctx context.Context, status dtypes.DownloadTaskStatus) error {

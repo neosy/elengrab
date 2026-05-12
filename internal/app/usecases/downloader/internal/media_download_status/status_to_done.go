@@ -23,7 +23,7 @@ func (s *MediaDownloadStatus) Done(
 	}
 
 	return s.download.Tx(ctx, func(ctx context.Context) error {
-		err := s.dlTask.DeleteByFileID(ctx, downloadID)
+		err := s.dlTask.DeleteByDownloadID(ctx, downloadID)
 		if err != nil {
 			return err
 		}

@@ -15,7 +15,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) FileStreamHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) DownloadItemStreamHandler(ctx *fasthttp.RequestCtx) {
 	// Get user ID from context
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 

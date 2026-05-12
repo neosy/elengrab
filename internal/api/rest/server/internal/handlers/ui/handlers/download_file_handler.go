@@ -11,11 +11,11 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) DownloadFileHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
 	// Get the file name from the query parameter
-	downloadIDStr := string(ctx.QueryArgs().Peek("file"))
+	downloadIDStr := string(ctx.QueryArgs().Peek(downloadIDKey))
 	if downloadIDStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return

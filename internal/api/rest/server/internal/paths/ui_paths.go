@@ -16,24 +16,25 @@ const (
 	GroupAccount    = "/account"
 
 	// Paths Downloader
-	PathGrab        = "/grab"
-	PathShareTarget = "/share-target"
-	PathHistory     = "/history"
-	PathDownload    = "/download"
-	PathSearch      = "/search"
-	PathAccountMenu = "/account-menu"
+	PathAccountMenu  = "/account-menu"
+	PathGrab         = "/grab"
+	PathShareTarget  = "/share-target"
+	PathHistory      = "/history"
+	PathDownloadFile = "/download"
+	PathSearch       = "/search"
+	PathEvents       = "/events"
 
-	PathFilesEvents        = "/files/events"
-	PathFile               = "/file/{fileId}"
-	PathFileRow            = "/file/{fileId}/row"
-	PathFileDownloadRepeat = "/file/{fileId}/repeat"
-	PathFileImage          = "/file/{fileId}/image"
-	PathFileMenu           = "/files/{fileId}/menu"
-	PathFileShortLink      = "/files/{fileId}/short-link"
-	PathFileStream         = "/files/{fileId}/stream"
-	PathFileWatch          = "/file/{fileId}/watch"
+	// Paths items Downloader
+	PathMediaItem               = "/items/{itemId}"
+	PathMediaItemRow            = "/items/{itemId}/row"
+	PathMediaItemDownloadRepeat = "/items/{itemId}/repeat"
+	PathMediaItemImage          = "/items/{itemId}/image"
+	PathMediaItemMenu           = "/items/{itemId}/menu"
+	PathMediaItemShortLink      = "/items/{itemId}/short-link"
+	PathMediaItemStream         = "/items/{itemId}/stream"
+	PathMediaItemWatch          = "/items/{itemId}/watch"
 
-	PathChannelAvatar = "/channel/{channelID}/avatar"
+	PathChannelAvatar = "/channels/{channelId}/avatar"
 
 	// Paths Account
 	PathRegister = "/register"
@@ -45,35 +46,35 @@ const (
 	PathStreamShortCode = "/stream/{shortCode}"
 )
 
-func BuildPathFile(path string, fileID uuid.UUID) string {
-	return GroupDownloader + strings.Replace(path, "{fileId}", fileID.String(), 1)
+func BuildPathMediaItem(path string, downloadID uuid.UUID) string {
+	return GroupDownloader + strings.Replace(path, "{itemId}", downloadID.String(), 1)
 }
 
-func BuildPathFileRow(fileID uuid.UUID) string {
-	return BuildPathFile(PathFileRow, fileID)
+func BuildPathMediaItemRow(downloadID uuid.UUID) string {
+	return BuildPathMediaItem(PathMediaItemRow, downloadID)
 }
 
-func BuildPathFileRepeat(fileID uuid.UUID) string {
-	return BuildPathFile(PathFileDownloadRepeat, fileID)
+func BuildPathMediaItemDownloadRepeat(downloadID uuid.UUID) string {
+	return BuildPathMediaItem(PathMediaItemDownloadRepeat, downloadID)
 }
 
-func BuildPathFileStream(fileID uuid.UUID) string {
-	return BuildPathFile(PathFileStream, fileID)
+func BuildPathMediaItemStream(downloadID uuid.UUID) string {
+	return BuildPathMediaItem(PathMediaItemStream, downloadID)
 }
 
-func BuildPathFileWatch(fileID uuid.UUID) string {
-	return BuildPathFile(PathFileWatch, fileID)
+func BuildPathMediaItemWatch(downloadID uuid.UUID) string {
+	return BuildPathMediaItem(PathMediaItemWatch, downloadID)
 }
 
 func BuildPathStreamShortCode(shortCode string) string {
 	return GroupDownloader + strings.Replace(PathStreamShortCode, "{shortCode}", shortCode, 1)
 }
 
-func BuildPathFileDownload(fileID uuid.UUID) string {
-	return fmt.Sprintf("%s?file=%s", GroupDownloader+PathDownload, fileID)
+func BuildPathMediaItemDownload(downloadID uuid.UUID) string {
+	return fmt.Sprintf("%s?itemId=%s", GroupDownloader+PathDownloadFile, downloadID)
 }
 
-func BuildPathFileImage(fileID uuid.UUID, verHash string, sources []dtypes.ImageSource) string {
+func BuildPathMediaItemImage(downloadID uuid.UUID, verHash string, sources []dtypes.ImageSource) string {
 	var sourceStrings []string
 	for _, src := range sources {
 		if src.Exists() {
@@ -96,5 +97,5 @@ func BuildPathFileImage(fileID uuid.UUID, verHash string, sources []dtypes.Image
 		urlSufix = "?" + urlValues.Encode()
 	}
 
-	return BuildPathFile(PathFileImage, fileID) + urlSufix
+	return BuildPathMediaItem(PathMediaItemImage, downloadID) + urlSufix
 }

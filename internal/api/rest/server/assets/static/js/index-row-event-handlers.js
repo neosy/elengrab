@@ -10,7 +10,7 @@ export function handleRowAdd(event) {
     try {
         // Payload is raw HTML with multiple rows
         const data = JSON.parse(event.data);
-        if (!data.fileId || !data.html) return
+        if (!data.itemId || !data.html) return
 
         // Find the container that holds all rows
         const container = document.getElementById(DOM_IDS.resultRows);
@@ -23,7 +23,7 @@ export function handleRowAdd(event) {
         // Insert all rows right after the placeholder
         placeholder.insertAdjacentHTML("afterend", data.html);
 
-        const newEl = document.getElementById(DOM_IDS.row(data.fileId));
+        const newEl = document.getElementById(DOM_IDS.row(data.itemId));
         if (newEl) {
             // If the element exists, remove it from the DOM
             const elNoItems = document.getElementById(DOM_IDS.rowNoItems);
@@ -54,9 +54,9 @@ export function handleRowAdd(event) {
 export function handleRowUpdate(event) {
     try {
         const data = JSON.parse(event.data);
-        if (!data.fileId || !data.html) return
+        if (!data.itemId || !data.html) return
 
-        const el = document.getElementById(DOM_IDS.row(data.fileId));
+        const el = document.getElementById(DOM_IDS.row(data.itemId));
         if (!el) return;
 
         const temp = document.createElement("div");
@@ -79,9 +79,9 @@ export function handleRowUpdate(event) {
 export function handleRowDelete(event) {
     try {
         const data = JSON.parse(event.data);
-        if (!data.fileId) return;
+        if (!data.itemId) return;
 
-        const el = document.getElementById(DOM_IDS.row(data.fileId));
+        const el = document.getElementById(DOM_IDS.row(data.itemId));
         if (!el) return;
 
         // initial styles for animation
@@ -127,20 +127,20 @@ export function handleSystemInfoUpdate(event) {
 export function handleRowPatchField(event) {
     try {
         const data = JSON.parse(event.data);
-        if (!data.field || !data.fileId || !data.value) return
+        if (!data.field || !data.itemId || !data.value) return
 
         switch (data.field) {
-            case "progress": handleRowPatchProgress(data.fileId, data.value);
+            case "progress": handleRowPatchProgress(data.itemId, data.value);
         }
     } catch (err) {
         console.error(`SSE ${event.type} handler error:`, err);
     }
 }
 
-function handleRowPatchProgress(fileId, value) {
-    if (!fileId || !value) return
+function handleRowPatchProgress(itemId, value) {
+    if (!itemId || !value) return
 
-    const el = document.getElementById(DOM_IDS.progressRow(fileId));
+    const el = document.getElementById(DOM_IDS.progressRow(itemId));
     if (!el) return;
 
     el.textContent = value

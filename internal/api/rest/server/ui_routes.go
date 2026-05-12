@@ -41,9 +41,9 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		g = nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r)
 		g.Use(middlewareError, s.authMiddleware.AuthOptional)
 		{
-			g.GET(httppaths.PathHistory, handlers.Downloader.GetFilesHistoryHandler)
-			g.HEAD(httppaths.PathHistory, handlers.Downloader.GetFilesHistoryHandler)
-			g.GET(httppaths.PathFilesEvents, handlers.Downloader.EventsHandler)
+			g.GET(httppaths.PathHistory, handlers.Downloader.GetDownloadsHistoryHandler)
+			g.HEAD(httppaths.PathHistory, handlers.Downloader.GetDownloadsHistoryHandler)
+			g.GET(httppaths.PathEvents, handlers.Downloader.EventsHandler)
 			g.POST(httppaths.PathSearch, handlers.Downloader.SearchHandler)
 		}
 
@@ -53,27 +53,27 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 		{
 			g.POST(httppaths.PathGrab, handlers.Downloader.GrabHandler)
 			g.GET(httppaths.PathShareTarget, handlers.Downloader.ShareTargetHandler)
-			g.DELETE(httppaths.PathFile, handlers.Downloader.DeleteRowHandler)
-			g.POST(httppaths.PathFileDownloadRepeat, handlers.Downloader.RepeatDownloadHandler)
+			g.DELETE(httppaths.PathMediaItem, handlers.Downloader.DeleteRowHandler)
+			g.POST(httppaths.PathMediaItemDownloadRepeat, handlers.Downloader.RepeatDownloadHandler)
 		}
 
 		// With middleware (error, require auth mode)
 		g = nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r)
 		g.Use(middlewareError, s.authMiddleware.RequireAuthMode)
 		{
-			g.GET(httppaths.PathFileRow, handlers.Downloader.GetFileRowHandler)
-			g.HEAD(httppaths.PathFileRow, handlers.Downloader.GetFileRowHandler)
-			g.GET(httppaths.PathFileImage, handlers.Downloader.GetFileImageHandler)
-			g.HEAD(httppaths.PathFileImage, handlers.Downloader.GetFileImageHandler)
-			g.GET(httppaths.PathFileMenu, handlers.Downloader.RowMenuHandler)
-			g.POST(httppaths.PathFileShortLink, handlers.Downloader.GetShortLinkHandler)
-			g.GET(httppaths.PathFileStream, handlers.Downloader.FileStreamHandler)
-			g.HEAD(httppaths.PathFileStream, handlers.Downloader.FileStreamHandler)
-			g.GET(httppaths.PathFileWatch, handlers.Downloader.FileWatchHandler)
-			g.HEAD(httppaths.PathFileWatch, handlers.Downloader.FileWatchHandler)
+			g.GET(httppaths.PathMediaItemRow, handlers.Downloader.GetDownloadItemRowHandler)
+			g.HEAD(httppaths.PathMediaItemRow, handlers.Downloader.GetDownloadItemRowHandler)
+			g.GET(httppaths.PathMediaItemImage, handlers.Downloader.GetDownloadItemImageHandler)
+			g.HEAD(httppaths.PathMediaItemImage, handlers.Downloader.GetDownloadItemImageHandler)
+			g.GET(httppaths.PathMediaItemMenu, handlers.Downloader.RowMenuHandler)
+			g.POST(httppaths.PathMediaItemShortLink, handlers.Downloader.CreateShortLinkHandler)
+			g.GET(httppaths.PathMediaItemStream, handlers.Downloader.DownloadItemStreamHandler)
+			g.HEAD(httppaths.PathMediaItemStream, handlers.Downloader.DownloadItemStreamHandler)
+			g.GET(httppaths.PathMediaItemWatch, handlers.Downloader.DownloadItemWatchHandler)
+			g.HEAD(httppaths.PathMediaItemWatch, handlers.Downloader.DownloadItemWatchHandler)
 
-			g.GET(httppaths.PathDownload, handlers.Downloader.DownloadHandler)
-			g.HEAD(httppaths.PathDownload, handlers.Downloader.DownloadHandler)
+			g.GET(httppaths.PathDownloadFile, handlers.Downloader.DownloadFileHandler)
+			g.HEAD(httppaths.PathDownloadFile, handlers.Downloader.DownloadFileHandler)
 		}
 
 		// With middleware (error, auth or anonym)

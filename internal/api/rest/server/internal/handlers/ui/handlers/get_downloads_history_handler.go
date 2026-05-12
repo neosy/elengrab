@@ -12,7 +12,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) GetDownloadsHistoryHandler(ctx *fasthttp.RequestCtx) {
 	var before = time.Now().UTC()
 
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
@@ -31,7 +31,7 @@ func (h *DownloaderHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 	filters := parseFilters(ctx)
 
 	var bodyBuffer bytes.Buffer
-	err := h.getFilesHistory(ctx, &bodyBuffer, *ctxUser, before, filters)
+	err := h.getDownloadsHistory(ctx, &bodyBuffer, *ctxUser, before, filters)
 	if err != nil {
 		ctx.SetStatusCode(fasthttp.StatusOK)
 		ctx.SetBodyString("")
@@ -42,7 +42,7 @@ func (h *DownloaderHandlers) GetFilesHistoryHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetBody(bodyBuffer.Bytes())
 }
 
-func (h *DownloaderHandlers) getFilesHistory(
+func (h *DownloaderHandlers) getDownloadsHistory(
 	ctx context.Context,
 	buf *bytes.Buffer,
 	userCtx dauth.UserContext,
@@ -138,7 +138,7 @@ func (h *DownloaderHandlers) genRowShouldLoadHistory(
 	}
 
 	dataMap := uivalues.MergeMaps(uivalues.PathValues)
-	dataMap[uivalues.PathItemsHistoryKey] = dataMap[uivalues.PathItemsHistoryKey].(string) + queryString
+	dataMap[uivalues.PathDownloaderHistoryKey] = dataMap[uivalues.PathDownloaderHistoryKey].(string) + queryString
 	dataMap[uivalues.DisableHTMXEventKey] = true
 
 	// Load template
