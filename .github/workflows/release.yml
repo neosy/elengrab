@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag (example: v0.9.5)'
+        description: 'Release tag (example: v0.18.5)'
         required: false
       prerelease:
         description: 'Create prerelease?'
@@ -36,18 +36,18 @@ jobs:
             arch_name: x64
             ext: ".exe"
             archive: zip
-          # - goos: darwin
-          #   os_name: mac
-          #   goarch: amd64
-          #   arch_name: x64
-          #   ext: ""
-          #   archive: zip
-          # - goos: darwin
-          #   os_name: mac
-          #   goarch: arm64
-          #   arch_name: arm64
-          #   ext: ""
-          #   archive: zip
+          - goos: darwin
+            os_name: mac
+            goarch: amd64
+            arch_name: x64
+            ext: ""
+            archive: zip
+          - goos: darwin
+            os_name: mac
+            goarch: arm64
+            arch_name: arm64
+            ext: ""
+            archive: zip
 
     steps:
       - name: Checkout
