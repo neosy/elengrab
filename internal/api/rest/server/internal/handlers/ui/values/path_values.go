@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	PathItemsHistoryKey = "PathItemsHistory"
+	PathDownloaderHistoryKey = "PathDownloaderHistory"
 )
 
 var (
@@ -21,12 +21,13 @@ var (
 		"PathAuthRegister": httppaths.GroupAccount + httppaths.PathRegister,
 		"PathAuthLogin":    httppaths.GroupAccount + httppaths.PathLogin,
 
-		"PathDownloader":     httppaths.GroupDownloader,
-		"PathAccountMenu":    httppaths.GroupDownloader + httppaths.PathAccountMenu,
-		"PathRowMenu":        httppaths.GroupDownloader + httppaths.PathFileMenu,
-		PathItemsHistoryKey:  httppaths.GroupDownloader + httppaths.PathHistory,
-		"PathDownloaderGrab": httppaths.GroupDownloader + httppaths.PathGrab,
-		"PathHistorySearch":  httppaths.GroupDownloader + httppaths.PathSearch,
+		"PathDownloader":         httppaths.GroupDownloader,
+		"PathAccountMenu":        httppaths.GroupDownloader + httppaths.PathAccountMenu,
+		"PathRowMenu":            httppaths.GroupDownloader + httppaths.PathMediaItemMenu,
+		PathDownloaderHistoryKey: httppaths.GroupDownloader + httppaths.PathHistory,
+		"PathDownloaderGrab":     httppaths.GroupDownloader + httppaths.PathGrab,
+		"PathDownloaderSearch":   httppaths.GroupDownloader + httppaths.PathSearch,
+		"PathDownloaderEvents":   httppaths.GroupDownloader + httppaths.PathEvents,
 	}
 )
 

@@ -1,6 +1,6 @@
 package dto
 
-type GetFileShareLinkResponse struct {
-	FileID string `json:"downloadID"`
-	URL    string `json:"url"`
+type GetDownloadShareLinkResponse struct {
+	DownloadID string `json:"itemId"`
+	URL        string `json:"url"`
 }

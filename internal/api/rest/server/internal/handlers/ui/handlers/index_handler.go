@@ -31,7 +31,7 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
 	var rowsBuf bytes.Buffer
-	err := h.getFilesHistory(ctx, &rowsBuf, *ctxUser, time.Now().UTC(), nil)
+	err := h.getDownloadsHistory(ctx, &rowsBuf, *ctxUser, time.Now().UTC(), nil)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

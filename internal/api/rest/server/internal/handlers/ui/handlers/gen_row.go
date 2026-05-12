@@ -15,13 +15,13 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-type fileRowInfoData struct {
+type downloadRowInfoData struct {
 	DownloadID     string
 	DownloadStatus string
 	WorkingStatus  string
 
-	PathFileRow    string
-	PathFileRepeat string
+	PathDownloadRow    string
+	PathDownloadRepeat string
 
 	YoutubeChannelID string
 	ThumbnailID      string
@@ -88,7 +88,7 @@ func (h *DownloaderHandlers) genRow(
 		thumbnailID = downloadInfo.MediaInfo.GetThumbnailID().String()
 	}
 
-	fileImageURL := httppaths.BuildPathFileImage(
+	downloadItemImageURL := httppaths.BuildPathMediaItemImage(
 		downloadInfo.DownloadID,
 		downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
@@ -98,7 +98,7 @@ func (h *DownloaderHandlers) genRow(
 		},
 	)
 
-	fileImageAvatarURL := httppaths.BuildPathFileImage(
+	downloadItemImageAvatarURL := httppaths.BuildPathMediaItemImage(
 		downloadInfo.DownloadID,
 		downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
@@ -107,7 +107,7 @@ func (h *DownloaderHandlers) genRow(
 		},
 	)
 
-	fileImageSiteURL := httppaths.BuildPathFileImage(
+	downloadItemImageSiteURL := httppaths.BuildPathMediaItemImage(
 		downloadInfo.DownloadID,
 		downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
@@ -115,7 +115,7 @@ func (h *DownloaderHandlers) genRow(
 		},
 	)
 
-	data := fileRowInfoData{
+	data := downloadRowInfoData{
 		DownloadID:     downloadInfo.DownloadID.String(),
 		DownloadStatus: downloadInfo.Status.String(),
 		WorkingStatus:  dltypes.MapUsecaseWorkingStatusToUI(downloadInfo.WorkingStatus).String(),
@@ -129,12 +129,12 @@ func (h *DownloaderHandlers) genRow(
 
 		ContentTimeAgo: downloadInfo.CreatedTimeAgo,
 
-		ImageURL:       fileImageURL,
-		ImageAvatarURL: fileImageAvatarURL,
-		ImageSiteURL:   fileImageSiteURL,
+		ImageURL:       downloadItemImageURL,
+		ImageAvatarURL: downloadItemImageAvatarURL,
+		ImageSiteURL:   downloadItemImageSiteURL,
 
-		PathFileRow:    httppaths.BuildPathFileRow(downloadInfo.DownloadID),
-		PathFileRepeat: httppaths.BuildPathFileRepeat(downloadInfo.DownloadID),
+		PathDownloadRow:    httppaths.BuildPathMediaItemRow(downloadInfo.DownloadID),
+		PathDownloadRepeat: httppaths.BuildPathMediaItemDownloadRepeat(downloadInfo.DownloadID),
 
 		FileSize:      "-",
 		Format:        "-",
@@ -142,10 +142,10 @@ func (h *DownloaderHandlers) genRow(
 		FormatTitle:   downloadInfo.MediaInfoText,
 		FormatTooltip: downloadInfo.MediaInfoTooltip,
 
-		DownloadURL: httppaths.BuildPathFileDownload(downloadInfo.DownloadID),
-		WatchURL:    httppaths.BuildPathFileWatch(downloadInfo.DownloadID),
-		StreamURL:   httppaths.BuildPathFileStream(downloadInfo.DownloadID),
-		DeleteURL:   httppaths.BuildPathFile(httppaths.PathFile, downloadInfo.DownloadID),
+		DownloadURL: httppaths.BuildPathMediaItemDownload(downloadInfo.DownloadID),
+		WatchURL:    httppaths.BuildPathMediaItemWatch(downloadInfo.DownloadID),
+		StreamURL:   httppaths.BuildPathMediaItemStream(downloadInfo.DownloadID),
+		DeleteURL:   httppaths.BuildPathMediaItem(httppaths.PathMediaItem, downloadInfo.DownloadID),
 
 		RowID:      "row-" + downloadInfo.DownloadID.String(),
 		ProgressID: "progress-" + downloadInfo.DownloadID.String(),
@@ -177,7 +177,7 @@ func (h *DownloaderHandlers) genRow(
 	}
 
 	dataMap[uivalues.IsItemHTMXOptionRepeatKey] = isGrabResultItemHTMXOptionRepeat
-	dataMap[uivalues.IsFileEventKey] = isDownloadEvent
+	dataMap[uivalues.IsDownloadEventKey] = isDownloadEvent
 	dataMap[uivalues.ResultRowStatusIconKey] = template.HTML(
 		uivalues.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir),
 	)

@@ -13,7 +13,7 @@ import (
 )
 
 type newRowData struct {
-	DownloadID           string
+	DownloadID       string
 	DownloadStatus   string
 	RowID            string
 	PathFileRow      string
@@ -36,17 +36,17 @@ func (h *DownloaderHandlers) genNewRow(
 		dtypes.ImageSourceSite,
 	}
 
-	downloadImageURL := httppaths.BuildPathFileImage(downloadInfo.DownloadID, downloadInfo.ImageMetaHash(time.Now().String()), imageSources)
+	downloadImageURL := httppaths.BuildPathMediaItemImage(downloadInfo.DownloadID, downloadInfo.ImageMetaHash(time.Now().String()), imageSources)
 
 	data := newRowData{
 		MediaURL:       downloadInfo.URL,
 		DownloadStatus: downloadInfo.Status.String(),
-		DeleteURL:      httppaths.BuildPathFile(httppaths.PathFile, downloadInfo.DownloadID),
+		DeleteURL:      httppaths.BuildPathMediaItem(httppaths.PathMediaItem, downloadInfo.DownloadID),
 		ImageURL:       downloadImageURL,
-		DownloadID:         downloadInfo.DownloadID.String(),
+		DownloadID:     downloadInfo.DownloadID.String(),
 		RowID:          "row-" + downloadInfo.DownloadID.String(),
 		MediaTitle:     downloadInfo.URL,
-		PathFileRow:    httppaths.BuildPathFileRow(downloadInfo.DownloadID),
+		PathFileRow:    httppaths.BuildPathMediaItemRow(downloadInfo.DownloadID),
 		FileSize:       "-",
 		Format:         "-",
 	}

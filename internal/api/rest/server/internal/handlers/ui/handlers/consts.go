@@ -19,14 +19,13 @@ const (
 	formFieldQualityResolutionKey = "quality-resolution"
 	formFieldFormatKey            = "format"
 
-	urlKey  = "url"
-	textKey = "text"
-
+	urlKey    = "url"
+	textKey   = "text"
 	sourceKey = "source"
 
-	downloadIDKey        = "downloadID"
+	downloadIDKey    = "itemId"
 	beforeKey        = "before"
-	channelIDKey     = "channelID"
+	channelIDKey     = "channelId"
 	filterByTitleKey = "title"
 	searchKey        = "search"
 	shortCodeKey     = "shortCode"
