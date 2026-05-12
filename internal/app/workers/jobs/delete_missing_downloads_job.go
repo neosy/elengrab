@@ -13,10 +13,10 @@ func NewDeleteMissingDownloadsJob(
 	runner pworkers.DownloadMaintenanceRunner,
 
 	// options
-	enableMoveUnmatchedDownloads bool,
+	enableMoveUnmatchedFiles bool,
 ) nworkers.Job {
 	run := func(ctx context.Context) error {
-		return runner.DeleteMissingDownloads(ctx, enableMoveUnmatchedDownloads)
+		return runner.DeleteMissingDownloads(ctx, enableMoveUnmatchedFiles)
 	}
 	return nworkers.NewJob(
 		"DeleteMissingDownloads",
