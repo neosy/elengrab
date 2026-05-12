@@ -231,7 +231,7 @@ func (a *Application) initialize() error {
 		DeleteDuplicatesInterval:         a.cfg.Elengrab.Maintenance.DeleteDuplicatesInterval,
 		DeleteMissingDownloadsInterval:   a.cfg.Elengrab.Maintenance.DeleteMissingDownloadsInterval,
 		DeleteFailedDownloadsInterval:    a.cfg.Elengrab.Maintenance.DeleteFailedDownloadsInterval,
-		MoveUnmatchedDownloadsEnabled:    a.cfg.Elengrab.Maintenance.MoveUnmatchedDownloadsEnabled,
+		MoveUnmatchedFilesEnabled:        a.cfg.Elengrab.Maintenance.MoveUnmatchedFilesEnabled,
 		CleanYoutubeChannelCacheInterval: cleanYoutubeChannelCacheInterval,
 		CleanDownloadStateCacheInterval:  cleanDownloadStateCacheInterval,
 		CleanSiteLogoCacheInterval:       cleanSiteLogoCacheInterval,

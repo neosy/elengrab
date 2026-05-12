@@ -6,6 +6,6 @@ import "context"
 type DownloadMaintenanceRunner interface {
 	UpdateHash(ctx context.Context) error
 	DeleteDuplicates(ctx context.Context) error
-	DeleteMissingDownloads(ctx context.Context, enableMoveUnmatchedDownloads bool) error
+	DeleteMissingDownloads(ctx context.Context, enableMoveUnmatchedFiles bool) error
 	DeleteFailedDownloads(ctx context.Context) error
 }
