@@ -27,7 +27,7 @@ const (
 )
 
 const (
-	RowMenuActionFileIdKey = "{fileId}"
+	RowMenuActionItemIDKey = "{itemId}"
 	RowMenuActionURLKey    = "{url}"
 )
 
@@ -37,9 +37,9 @@ var rowMenuActions = []rowMenuAction{
 		Action:         "watch",
 		Title:          "Watch",
 		IconFileName:   "menu-play-icon.svg",
-		URL:            httppaths.GroupDownloader + httppaths.PathFileWatch,
+		URL:            httppaths.GroupDownloader + httppaths.PathMediaItemWatch,
 		NewTab:         false,
-		replaceInURL:   RowMenuActionFileIdKey,
+		replaceInURL:   RowMenuActionItemIDKey,
 		onlyStatusDone: true,
 	},
 	{
@@ -59,8 +59,8 @@ var rowMenuActions = []rowMenuAction{
 		Action:         "share-link",
 		Title:          "Share link",
 		IconFileName:   "menu-share-link-icon.svg",
-		URL:            httppaths.GroupDownloader + httppaths.PathFileShortLink,
-		replaceInURL:   RowMenuActionFileIdKey,
+		URL:            httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
+		replaceInURL:   RowMenuActionItemIDKey,
 		onlyStatusDone: true,
 	},
 
@@ -69,8 +69,8 @@ var rowMenuActions = []rowMenuAction{
 		Action:         "copy-link",
 		Title:          "Copy short link",
 		IconFileName:   "menu-copy-link-icon.svg",
-		URL:            httppaths.GroupDownloader + httppaths.PathFileShortLink,
-		replaceInURL:   RowMenuActionFileIdKey,
+		URL:            httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
+		replaceInURL:   RowMenuActionItemIDKey,
 		onlyStatusDone: true,
 	},
 
@@ -81,8 +81,8 @@ var rowMenuActions = []rowMenuAction{
 		Action:       "delete",
 		Title:        "Delete",
 		IconFileName: "download-delete-icon.svg",
-		URL:          httppaths.GroupDownloader + httppaths.PathFile,
-		replaceInURL: RowMenuActionFileIdKey,
+		URL:          httppaths.GroupDownloader + httppaths.PathMediaItem,
+		replaceInURL: RowMenuActionItemIDKey,
 	},
 }
 

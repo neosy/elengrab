@@ -109,7 +109,7 @@ function createSSEConnection() {
             globalEventSource.close();
         }        
 
-        globalEventSource = new EventSource("/downloader/files/events");
+        globalEventSource = new EventSource("/downloader/events");
 
         // Server is considered online when these events arrive
         globalEventSource.addEventListener("connected", () => setServerStatus(true));

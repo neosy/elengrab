@@ -11,7 +11,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) GetShortLinkHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) CreateShortLinkHandler(ctx *fasthttp.RequestCtx) {
 	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
 	if !ok || downloadIDStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
@@ -26,16 +26,16 @@ func (h *DownloaderHandlers) GetShortLinkHandler(ctx *fasthttp.RequestCtx) {
 
 	url, err := h.linkWeb.CreateShortLink(
 		ctx,
-		strings.TrimSuffix(h.baseURL, "/")+httppaths.BuildPathFileWatch(downloadID),
+		strings.TrimSuffix(h.baseURL, "/")+httppaths.BuildPathMediaItemWatch(downloadID),
 	)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	resp := dto.GetFileShareLinkResponse{
-		FileID: downloadID.String(),
-		URL:    url,
+	resp := dto.GetDownloadShareLinkResponse{
+		DownloadID: downloadID.String(),
+		URL:        url,
 	}
 
 	nfasthttp.WriteResponse(ctx, resp)

@@ -11,7 +11,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) GetFileRowHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) GetDownloadItemRowHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
 	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)

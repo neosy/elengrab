@@ -64,14 +64,14 @@ func (m *Mappers) MapDownloadTaskEntityToDomain(eTask *edownload.DownloadTask) (
 		return nil, err
 	}
 
-	fileID, err := uuid.Parse(usql.String(eTask.DownloadID))
+	downloadID, err := uuid.Parse(usql.String(eTask.DownloadID))
 	if err != nil {
 		return nil, err
 	}
 
 	return &ddownload.DownloadTask{
 		TaskID:     taskID,
-		DownloadID: fileID,
+		DownloadID: downloadID,
 		Status:     dtypes.MustParseDownloadTaskStatus(usql.String(eTask.Status)),
 		MediaUrl:   usql.String(eTask.MediaUrl),
 		Options:    options,

@@ -1,3 +1,3 @@
 {{- define "media-result-progress" }}
-<span class="result__progress-percent" id="{{ .ProgressID }}" {{ if .IsFileProgressEvent }}hx-swap-oob="innerHTML"{{ end }}>{{ .ProgressPercent }}</span>
+<span class="result__progress-percent" id="{{ .ProgressID }}" {{ if .IsDownloadProgressEvent }}hx-swap-oob="innerHTML"{{ end }}>{{ .ProgressPercent }}</span>
 {{- end }}

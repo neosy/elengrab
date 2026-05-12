@@ -6,6 +6,6 @@ const (
 	GroupV1YoutubeChannelClient = "/api/v1/client/yt-channel"
 
 	// Get youtube channel info
-	PathV1GetYoutubeChannelByID   = "/{channelID}"
-	PathV1GetYoutubeChannelAvatar = "/{channelID}/avatar"
+	PathV1GetYoutubeChannelByID   = "/{channelId}"
+	PathV1GetYoutubeChannelAvatar = "/{channelId}/avatar"
 )

@@ -99,11 +99,11 @@ const rowMenuConfig = {
 
   buildUrl(menu, btn) {
     let url = menu.dataset.menuUrl;
-    const fileId = btn.dataset.fileId;
+    const itemId = btn.dataset.itemId;
 
-    if (!url || !fileId) return null;
+    if (!url || !itemId) return null;
 
-    return url.replace('%7bfileId%7d', fileId);
+    return url.replace('%7bitemId%7d', itemId);
   },
 
   beforeOpen(menu, trigger) {

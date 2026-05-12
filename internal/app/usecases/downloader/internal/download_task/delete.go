@@ -16,6 +16,6 @@ func (uc *DownloadTask) Delete(ctx context.Context, taskID uuid.UUID) error {
 	return err
 }
 
-func (uc *DownloadTask) DeleteByFileID(ctx context.Context, downloadID uuid.UUID) error {
-	return uc.TaskRep.DeleteByFileID(ctx, downloadID)
+func (uc *DownloadTask) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
+	return uc.TaskRep.DeleteByDownloadID(ctx, downloadID)
 }
