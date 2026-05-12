@@ -9,23 +9,23 @@ import (
 )
 
 func (h *DownloaderHandlers) FileWatchHandler(ctx *fasthttp.RequestCtx) {
-	fileIdStr, ok := ctx.UserValue(fileIdKey).(string)
-	if !ok || fileIdStr == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
+	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
+	if !ok || downloadIDStr == "" {
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return
 	}
 
-	fileID, err := uuid.Parse(fileIdStr)
+	downloadID, err := uuid.Parse(downloadIDStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsIncorrect.Wrap(err))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
 		return
 	}
 
 	h.watch(
 		ctx,
-		httppaths.BuildPathFileWatch(fileID),
-		httppaths.BuildPathFileStream(fileID),
-		fileID,
+		httppaths.BuildPathFileWatch(downloadID),
+		httppaths.BuildPathFileStream(downloadID),
+		downloadID,
 		true,
 	)
 }

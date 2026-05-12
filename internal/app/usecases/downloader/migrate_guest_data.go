@@ -7,5 +7,5 @@ import (
 )
 
 func (uc *Downloader) MigrateGuestData(ctx context.Context, guestID, userID uuid.UUID) error {
-	return uc.file.UpdateUser(ctx, guestID, userID)
+	return uc.download.UpdateUser(ctx, guestID, userID)
 }

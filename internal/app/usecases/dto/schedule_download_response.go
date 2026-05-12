@@ -1,8 +1,6 @@
 package dto
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/utils/hash"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -11,8 +9,8 @@ import (
 type ScheduleDownloadResponse struct {
 	URL string
 	// file ID
-	FileID     uuid.UUID
-	Status     dtypes.FileStatus
+	DownloadID uuid.UUID
+	Status     dtypes.MediaDownloadStatus
 	MediaTitle string
 	// format type
 	Format string
@@ -20,9 +18,8 @@ type ScheduleDownloadResponse struct {
 
 func (r *ScheduleDownloadResponse) ImageMetaHash(withValues ...any) string {
 	values := []any{
-		r.FileID,
+		r.DownloadID,
 		r.Status.String(),
-		time.Now(),
 	}
 
 	if len(withValues) > 0 {

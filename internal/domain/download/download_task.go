@@ -13,7 +13,7 @@ type DownloadTask struct {
 	TaskID uuid.UUID
 
 	// Unique file identifier (UUID)
-	FileID uuid.UUID
+	DownloadID uuid.UUID
 
 	// Status
 	Status dtypes.DownloadTaskStatus

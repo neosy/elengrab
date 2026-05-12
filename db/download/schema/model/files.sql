@@ -1,3 +1,5 @@
+-- TODO: Rename to `media_downloads`. 
+-- New table `media_sources` will be added as parent (one source → multiple files).
 CREATE TABLE IF NOT EXISTS files (
     -- Unique file identifier (UUID)
     file_id TEXT PRIMARY KEY,

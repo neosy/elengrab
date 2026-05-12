@@ -15,8 +15,8 @@ func (d *Downloader) ExecuteMigrations(ctx context.Context) error {
 		d.logger,
 		d.downloadsStorage,
 		// usecases
-		d.file,
-		d.dlDataMigration,
+		d.download,
+		d.downloadMigration,
 		d.thumbnail,
 		// services
 		d.downloaderSrv,

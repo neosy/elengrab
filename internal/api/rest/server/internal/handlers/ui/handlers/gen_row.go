@@ -16,7 +16,7 @@ import (
 )
 
 type fileRowInfoData struct {
-	FileID         string
+	DownloadID     string
 	DownloadStatus string
 	WorkingStatus  string
 
@@ -57,8 +57,8 @@ type genRowResult struct {
 }
 
 func (h *DownloaderHandlers) genRow(
-	fileInfo *dto.GetFileInfoResponse,
-	isFileEvent bool,
+	downloadInfo *dto.GetMediaDownloadInfoResponse,
+	isDownloadEvent bool,
 ) genRowResult {
 	var (
 		cacheChanged = struct {
@@ -71,7 +71,7 @@ func (h *DownloaderHandlers) genRow(
 		}{}
 	)
 
-	if fileInfo == nil {
+	if downloadInfo == nil {
 		return genRowResult{
 			httpStatus: fasthttp.StatusInternalServerError,
 			err:        errorx.New("the request returned an empty"),
@@ -79,18 +79,18 @@ func (h *DownloaderHandlers) genRow(
 	}
 
 	var youtubeChannelID string
-	if fileInfo.ChannelID != nil && fileInfo.IsYouTube() {
-		youtubeChannelID = *fileInfo.ChannelID
+	if downloadInfo.ChannelID != nil && downloadInfo.IsYouTube() {
+		youtubeChannelID = *downloadInfo.ChannelID
 	}
 
 	var thumbnailID string
-	if fileInfo.MediaInfo != nil && fileInfo.MediaInfo.GetThumbnailID() != nil {
-		thumbnailID = fileInfo.MediaInfo.GetThumbnailID().String()
+	if downloadInfo.MediaInfo != nil && downloadInfo.MediaInfo.GetThumbnailID() != nil {
+		thumbnailID = downloadInfo.MediaInfo.GetThumbnailID().String()
 	}
 
 	fileImageURL := httppaths.BuildPathFileImage(
-		fileInfo.FileID,
-		fileInfo.ImageMetaHash(),
+		downloadInfo.DownloadID,
+		downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
 			dtypes.ImageSourceThumbnail,
 			dtypes.ImageSourceAvatar,
@@ -99,8 +99,8 @@ func (h *DownloaderHandlers) genRow(
 	)
 
 	fileImageAvatarURL := httppaths.BuildPathFileImage(
-		fileInfo.FileID,
-		fileInfo.ImageMetaHash(),
+		downloadInfo.DownloadID,
+		downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
 			dtypes.ImageSourceAvatar,
 			dtypes.ImageSourceSite,
@@ -108,58 +108,58 @@ func (h *DownloaderHandlers) genRow(
 	)
 
 	fileImageSiteURL := httppaths.BuildPathFileImage(
-		fileInfo.FileID,
-		fileInfo.ImageMetaHash(),
+		downloadInfo.DownloadID,
+		downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
 			dtypes.ImageSourceSite,
 		},
 	)
 
 	data := fileRowInfoData{
-		FileID:         fileInfo.FileID.String(),
-		DownloadStatus: fileInfo.Status.String(),
-		WorkingStatus:  dltypes.MapUsecaseWorkingStatusToUI(fileInfo.WorkingStatus).String(),
+		DownloadID:     downloadInfo.DownloadID.String(),
+		DownloadStatus: downloadInfo.Status.String(),
+		WorkingStatus:  dltypes.MapUsecaseWorkingStatusToUI(downloadInfo.WorkingStatus).String(),
 
 		YoutubeChannelID: youtubeChannelID,
 		ThumbnailID:      thumbnailID,
-		AvatarTitle:      fileInfo.AvatarTitle,
+		AvatarTitle:      downloadInfo.AvatarTitle,
 
-		MediaTitle: fileInfo.MediaTitle,
-		MediaURL:   fileInfo.MediaURL,
+		MediaTitle: downloadInfo.MediaTitle,
+		MediaURL:   downloadInfo.MediaURL,
 
-		ContentTimeAgo: fileInfo.CreatedTimeAgo,
+		ContentTimeAgo: downloadInfo.CreatedTimeAgo,
 
 		ImageURL:       fileImageURL,
 		ImageAvatarURL: fileImageAvatarURL,
 		ImageSiteURL:   fileImageSiteURL,
 
-		PathFileRow:    httppaths.BuildPathFileRow(fileInfo.FileID),
-		PathFileRepeat: httppaths.BuildPathFileRepeat(fileInfo.FileID),
+		PathFileRow:    httppaths.BuildPathFileRow(downloadInfo.DownloadID),
+		PathFileRepeat: httppaths.BuildPathFileRepeat(downloadInfo.DownloadID),
 
 		FileSize:      "-",
 		Format:        "-",
 		DataFormat:    "-",
-		FormatTitle:   fileInfo.MediaInfoText,
-		FormatTooltip: fileInfo.MediaInfoTooltip,
+		FormatTitle:   downloadInfo.MediaInfoText,
+		FormatTooltip: downloadInfo.MediaInfoTooltip,
 
-		DownloadURL: httppaths.BuildPathFileDownload(fileInfo.FileID),
-		WatchURL:    httppaths.BuildPathFileWatch(fileInfo.FileID),
-		StreamURL:   httppaths.BuildPathFileStream(fileInfo.FileID),
-		DeleteURL:   httppaths.BuildPathFile(httppaths.PathFile, fileInfo.FileID),
+		DownloadURL: httppaths.BuildPathFileDownload(downloadInfo.DownloadID),
+		WatchURL:    httppaths.BuildPathFileWatch(downloadInfo.DownloadID),
+		StreamURL:   httppaths.BuildPathFileStream(downloadInfo.DownloadID),
+		DeleteURL:   httppaths.BuildPathFile(httppaths.PathFile, downloadInfo.DownloadID),
 
-		RowID:      "row-" + fileInfo.FileID.String(),
-		ProgressID: "progress-" + fileInfo.FileID.String(),
+		RowID:      "row-" + downloadInfo.DownloadID.String(),
+		ProgressID: "progress-" + downloadInfo.DownloadID.String(),
 	}
 
-	if fileInfo.FileSize != nil && *fileInfo.FileSize > 0 {
-		data.FileSize = uformat.BytesHuman(*fileInfo.FileSize)
+	if downloadInfo.FileSize != nil && *downloadInfo.FileSize > 0 {
+		data.FileSize = uformat.BytesHuman(*downloadInfo.FileSize)
 	}
-	if fileInfo.FileExt != "" {
-		data.Format = fileInfo.FileExt
-		data.DataFormat = fileInfo.FileExt
+	if downloadInfo.FileExt != "" {
+		data.Format = downloadInfo.FileExt
+		data.DataFormat = downloadInfo.FileExt
 	}
-	if fileInfo.MediaInfo != nil {
-		data.IsAudio = fmt.Sprint(fileInfo.MediaInfo.FormatType == dtypes.FormatTypeAudioOnly)
+	if downloadInfo.MediaInfo != nil {
+		data.IsAudio = fmt.Sprint(downloadInfo.MediaInfo.FormatType == dtypes.FormatTypeAudioOnly)
 	}
 
 	dataMap := uivalues.MergeMaps(
@@ -171,22 +171,22 @@ func (h *DownloaderHandlers) genRow(
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
 	var isGrabResultItemHTMXOptionRepeat = false
-	switch fileInfo.Status {
-	case dtypes.FileStatusNew, dtypes.FileStatusPending, dtypes.FileStatusWorking:
+	switch downloadInfo.Status {
+	case dtypes.MediaDownloadStatusNew, dtypes.MediaDownloadStatusPending, dtypes.MediaDownloadStatusWorking:
 		isGrabResultItemHTMXOptionRepeat = true
 	}
 
 	dataMap[uivalues.IsItemHTMXOptionRepeatKey] = isGrabResultItemHTMXOptionRepeat
-	dataMap[uivalues.IsFileEventKey] = isFileEvent
+	dataMap[uivalues.IsFileEventKey] = isDownloadEvent
 	dataMap[uivalues.ResultRowStatusIconKey] = template.HTML(
-		uivalues.DownloaderResultStatusIconSvgRaw(fileInfo.Status, iconsDir),
+		uivalues.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir),
 	)
-	dataMap[uivalues.ResultRowStatusTitleKey] = fileInfo.StatusText
+	dataMap[uivalues.ResultRowStatusTitleKey] = downloadInfo.StatusText
 	dataMap[uivalues.DownloaderResultItemDeleteIconKey] = template.HTML(
 		uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadDeleteIconNameKey), iconsDir),
 	)
 
-	if fileInfo.Status == dtypes.FileStatusFailed {
+	if downloadInfo.Status == dtypes.MediaDownloadStatusFailed {
 		dataMap[uivalues.DownloaderResultItemStatusFailedIconKey] = template.HTML(
 			uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadRepeatIconNameKey), iconsDir),
 		)
@@ -206,12 +206,12 @@ func (h *DownloaderHandlers) genRow(
 	}
 
 	dataMap[uivalues.IsItemSpinerKey] = false
-	if fileInfo.Status == dtypes.FileStatusWorking {
+	if downloadInfo.Status == dtypes.MediaDownloadStatusWorking {
 		dataMap[uivalues.IsItemSpinerKey] = true
 	}
 
-	if fileInfo.Progress != nil {
-		dataMap[uivalues.DownloadingProgressPercentKey] = int(fileInfo.Progress.Percent())
+	if downloadInfo.Progress != nil {
+		dataMap[uivalues.DownloadingProgressPercentKey] = int(downloadInfo.Progress.Percent())
 	}
 
 	return genRowResult{

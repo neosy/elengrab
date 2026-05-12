@@ -85,12 +85,12 @@ func (h *DownloaderHandlers) sendPing(w *bufio.Writer) {
 
 func (h *DownloaderHandlers) handleEvent(w *bufio.Writer, event ucdto.BroadcastEvent) {
 	switch event.Type {
-	case ucdto.BroadcastEventTypeFileAdd:
-		h.handleFileAdd(w, event)
-	case ucdto.BroadcastEventTypeFileUpdate:
-		h.handleFileUpdate(w, event)
-	case ucdto.BroadcastEventTypeFileDelete:
-		h.handleFileDelete(w, event)
+	case ucdto.BroadcastEventTypeDownloadAdd:
+		h.handleDownloadAdd(w, event)
+	case ucdto.BroadcastEventTypeDownloadUpdate:
+		h.handleDownloadUpdate(w, event)
+	case ucdto.BroadcastEventTypeDownloadDelete:
+		h.handleDownloadDelete(w, event)
 	case ucdto.BroadcastEventTypeProgressUpdate:
 		h.handleProgressUpdate(w, event)
 	case ucdto.BroadcastEventTypeSystemInfoUpdate:
@@ -100,22 +100,22 @@ func (h *DownloaderHandlers) handleEvent(w *bufio.Writer, event ucdto.BroadcastE
 	}
 }
 
-func (h *DownloaderHandlers) handleFileAdd(w *bufio.Writer, event ucdto.BroadcastEvent) {
-	fileInfo, ok := event.Data.(*ucdto.ScheduleDownloadResponse)
+func (h *DownloaderHandlers) handleDownloadAdd(w *bufio.Writer, event ucdto.BroadcastEvent) {
+	downloadInfo, ok := event.Data.(*ucdto.ScheduleDownloadResponse)
 	if !ok {
 		return
 	}
 
-	buf := h.genNewRow(fileInfo, false)
+	buf := h.genNewRow(downloadInfo, false)
 
 	html := strings.TrimSpace(buf.String())
 
 	data := struct {
-		FileID string `json:"fileId"`
-		HTML   string `json:"html"`
+		DownloadID string `json:"downloadID"`
+		HTML       string `json:"html"`
 	}{
-		FileID: fileInfo.FileID.String(),
-		HTML:   html,
+		DownloadID: downloadInfo.DownloadID.String(),
+		HTML:       html,
 	}
 
 	jsonData, err := json.Marshal(data)
@@ -128,13 +128,13 @@ func (h *DownloaderHandlers) handleFileAdd(w *bufio.Writer, event ucdto.Broadcas
 	w.Flush()
 }
 
-func (h *DownloaderHandlers) handleFileUpdate(w *bufio.Writer, event ucdto.BroadcastEvent) {
-	fileInfo, ok := event.Data.(*ucdto.GetFileInfoResponse)
+func (h *DownloaderHandlers) handleDownloadUpdate(w *bufio.Writer, event ucdto.BroadcastEvent) {
+	downloadInfo, ok := event.Data.(*ucdto.GetMediaDownloadInfoResponse)
 	if !ok {
 		return
 	}
 
-	row := h.genRow(fileInfo, true)
+	row := h.genRow(downloadInfo, true)
 	if row.err != nil {
 		return
 	}
@@ -157,11 +157,11 @@ func (h *DownloaderHandlers) handleFileUpdate(w *bufio.Writer, event ucdto.Broad
 	html := strings.TrimSpace(buf.String())
 
 	data := struct {
-		FileID string `json:"fileId"`
-		HTML   string `json:"html"`
+		DownloadID string `json:"downloadID"`
+		HTML       string `json:"html"`
 	}{
-		FileID: fileInfo.FileID.String(),
-		HTML:   html,
+		DownloadID: downloadInfo.DownloadID.String(),
+		HTML:       html,
 	}
 
 	jsonData, err := json.Marshal(data)
@@ -174,16 +174,16 @@ func (h *DownloaderHandlers) handleFileUpdate(w *bufio.Writer, event ucdto.Broad
 	w.Flush()
 }
 
-func (h *DownloaderHandlers) handleFileDelete(w *bufio.Writer, event ucdto.BroadcastEvent) {
-	fileID, ok := event.Data.(uuid.UUID)
+func (h *DownloaderHandlers) handleDownloadDelete(w *bufio.Writer, event ucdto.BroadcastEvent) {
+	downloadID, ok := event.Data.(uuid.UUID)
 	if !ok {
 		return
 	}
 
 	data := struct {
-		FileID string `json:"fileId"`
+		DownloadID string `json:"downloadID"`
 	}{
-		FileID: fileID.String(),
+		DownloadID: downloadID.String(),
 	}
 
 	jsonData, err := json.Marshal(data)
@@ -198,24 +198,24 @@ func (h *DownloaderHandlers) handleFileDelete(w *bufio.Writer, event ucdto.Broad
 
 func (h *DownloaderHandlers) handleProgressUpdate(w *bufio.Writer, event ucdto.BroadcastEvent) {
 	type dataProgress struct {
-		ProgressID          string
-		IsFileProgressEvent bool
-		ProgressPercent     int
+		ProgressID              string
+		IsDownloadProgressEvent bool
+		ProgressPercent         int
 	}
 
-	progress, ok := event.Data.(ucdto.FileProgressResponse)
+	progress, ok := event.Data.(ucdto.MediaDownloadProgressResponse)
 	if !ok {
 		return
 	}
 
 	data := struct {
-		Field  string `json:"field"`
-		FileID string `json:"fileId"`
-		Value  any    `json:"value"`
+		Field      string `json:"field"`
+		DownloadID string `json:"downloadID"`
+		Value      any    `json:"value"`
 	}{
-		Field:  "progress",
-		FileID: progress.FileID.String(),
-		Value:  progress.Percent,
+		Field:      "progress",
+		DownloadID: progress.DownloadID.String(),
+		Value:      progress.Percent,
 	}
 
 	jsonData, err := json.Marshal(data)

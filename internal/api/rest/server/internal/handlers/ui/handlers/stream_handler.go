@@ -19,19 +19,19 @@ func (h *DownloaderHandlers) FileStreamHandler(ctx *fasthttp.RequestCtx) {
 	// Get user ID from context
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
-	fileIdStr, ok := ctx.UserValue(fileIdKey).(string)
-	if !ok || fileIdStr == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
+	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
+	if !ok || downloadIDStr == "" {
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return
 	}
 
-	fileID, err := uuid.Parse(fileIdStr)
+	downloadID, err := uuid.Parse(downloadIDStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsIncorrect.Wrap(err))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
 		return
 	}
 
-	h.stream(ctx, *ctxUser, fileID, false)
+	h.stream(ctx, *ctxUser, downloadID, false)
 }
 
 func (h *DownloaderHandlers) StreamShortCodeHandler(ctx *fasthttp.RequestCtx) {
@@ -58,35 +58,35 @@ func (h *DownloaderHandlers) StreamShortCodeHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	fileID := stripUUIDFromPath(link.OriginalURL)
-	if fileID == uuid.Nil {
+	downloadID := stripUUIDFromPath(link.OriginalURL)
+	if downloadID == uuid.Nil {
 		nfasthttp.WriteErrorx(
 			ctx,
 			errorx.New(
-				"fileId is incorrect",
+				"downloadID is incorrect",
 				exceptionx.WRONG_DATA,
 				exceptionx.WRONG_DATA.ErrorMessage(),
 			))
 	}
 
-	h.stream(ctx, dauth.UserContext{}, fileID, true)
+	h.stream(ctx, dauth.UserContext{}, downloadID, true)
 }
 
 func (h *DownloaderHandlers) stream(
 	ctx *fasthttp.RequestCtx,
 	ctxUser dauth.UserContext,
-	fileID uuid.UUID,
+	downloadID uuid.UUID,
 	unrestricted bool,
 ) {
 	var (
-		fileInfo *dto.GetFileInfoResponse
-		err      error
+		downloadInfo *dto.GetMediaDownloadInfoResponse
+		err          error
 	)
 	// Retrieve file info
 	if unrestricted {
-		fileInfo, err = h.downloader.GetFileInfoUnrestricted(ctx, fileID)
+		downloadInfo, err = h.downloader.GetDownloadInfoUnrestricted(ctx, downloadID)
 	} else {
-		fileInfo, err = h.downloader.GetFileInfo(ctx, ctxUser, fileID)
+		downloadInfo, err = h.downloader.GetDownloadInfo(ctx, ctxUser, downloadID)
 	}
 
 	if err != nil {
@@ -96,8 +96,8 @@ func (h *DownloaderHandlers) stream(
 
 	// Build the full path to the file
 	var filePath string
-	if fileInfo.FileFullName != "" {
-		filePath = h.downloadsStorage.Path(fileInfo.FileFullName)
+	if downloadInfo.FileFullName != "" {
+		filePath = h.downloadsStorage.Path(downloadInfo.FileFullName)
 	}
 
 	// Check if the file exists
@@ -110,7 +110,7 @@ func (h *DownloaderHandlers) stream(
 	}
 
 	// Detect content type by extension
-	contentType := httpx.ContentTypeByExt(fileInfo.FileExt)
+	contentType := httpx.ContentTypeByExt(downloadInfo.FileExt)
 
 	// Set headers for streaming in browser
 	ctx.Response.Header.Set("Content-Type", contentType)
@@ -119,5 +119,5 @@ func (h *DownloaderHandlers) stream(
 	ctx.Response.Header.Set("Cache-Control", "public, max-age=3600")
 
 	// Stream the file directly (memory-efficient, supports Range)
-	nfasthttp.SendFileDirect(ctx, filePath, fileInfo.SafeReadableFullName, contentType)
+	nfasthttp.SendFileDirect(ctx, filePath, downloadInfo.SafeReadableFullName, contentType)
 }

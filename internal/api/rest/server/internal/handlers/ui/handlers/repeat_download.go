@@ -20,25 +20,25 @@ func (h *DownloaderHandlers) RepeatDownloadHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	fileIdStr, ok := ctx.UserValue(fileIdKey).(string)
-	if !ok || fileIdStr == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
+	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
+	if !ok || downloadIDStr == "" {
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return
 	}
 
-	fileId, err := uuid.Parse(fileIdStr)
+	downloadID, err := uuid.Parse(downloadIDStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsIncorrect.Wrap(err))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
 		return
 	}
 
-	fileInfo, err := h.downloader.RepeatDownload(ctx, *ctxUser, fileId)
+	downloadInfo, err := h.downloader.RepeatDownload(ctx, *ctxUser, downloadID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	row := h.genRow(fileInfo, false)
+	row := h.genRow(downloadInfo, false)
 	if row.err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

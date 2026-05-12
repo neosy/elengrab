@@ -15,19 +15,19 @@ import (
 func (h *DownloaderHandlers) RowMenuHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
-	fileIdStr, ok := ctx.UserValue(fileIdKey).(string)
-	if !ok || fileIdStr == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
+	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
+	if !ok || downloadIDStr == "" {
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return
 	}
 
-	fileId, err := uuid.Parse(fileIdStr)
+	downloadID, err := uuid.Parse(downloadIDStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsIncorrect.Wrap(err))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
 		return
 	}
 
-	fileResp, err := h.downloader.GetFileInfo(ctx, *ctxUser, fileId)
+	fileResp, err := h.downloader.GetDownloadInfo(ctx, *ctxUser, downloadID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -41,10 +41,10 @@ func (h *DownloaderHandlers) RowMenuHandler(ctx *fasthttp.RequestCtx) {
 	dataMap[uivalues.RowMenuActionsKey] = uivalues.RowMenuActions(
 		iconsDir,
 		map[string]string{
-			uivalues.RowMenuActionFileIdKey: fileId.String(),
+			uivalues.RowMenuActionFileIdKey: downloadID.String(),
 			uivalues.RowMenuActionURLKey:    fileResp.MediaURL,
 		},
-		fileResp.Status == dtypes.FileStatusDone,
+		fileResp.Status == dtypes.MediaDownloadStatusDone,
 	)
 
 	// Load template

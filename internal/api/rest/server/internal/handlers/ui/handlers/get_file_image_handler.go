@@ -19,15 +19,15 @@ import (
 func (h *DownloaderHandlers) GetFileImageHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
-	fileIdStr, ok := ctx.UserValue(fileIdKey).(string)
-	if !ok || fileIdStr == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
+	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
+	if !ok || downloadIDStr == "" {
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return
 	}
 
-	fileID, err := uuid.Parse(fileIdStr)
+	downloadID, err := uuid.Parse(downloadIDStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsIncorrect.Wrap(err))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
 		return
 	}
 
@@ -49,7 +49,7 @@ func (h *DownloaderHandlers) GetFileImageHandler(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	imageData, err := h.downloader.GetFileImage(ctx, *ctxUser, fileID, imageSources)
+	imageData, err := h.downloader.GetDownloadImage(ctx, *ctxUser, downloadID, imageSources)
 	if err == nil && imageData != nil && len(imageData.Raw) > 0 {
 		ctx.SetContentType(httpx.ContentTypeByExt(imageData.Format.String()))
 		ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")

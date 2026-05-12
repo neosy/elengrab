@@ -7,15 +7,15 @@ import (
 )
 
 func (uc *Downloader) UpdateHash(ctx context.Context) error {
-	files, err := uc.file.GetWithoutPartialHash(ctx)
+	downloads, err := uc.download.GetWithoutPartialHash(ctx)
 	if err != nil {
 		return err
 	}
 
-	for _, file := range files {
-		filePath := uc.downloadsStorage.Path(file.FileFullName)
+	for _, download := range downloads {
+		filePath := uc.downloadsStorage.Path(download.FileFullName)
 
-		exists, err := uc.downloadsStorage.Exists(file.FileFullName)
+		exists, err := uc.downloadsStorage.Exists(download.FileFullName)
 		if err != nil || !exists {
 			uc.logger.Warn("File not found", "filePath", filePath, "error", err)
 			continue
@@ -27,8 +27,8 @@ func (uc *Downloader) UpdateHash(ctx context.Context) error {
 			continue
 		}
 
-		file.PartialHash = &h
-		err = uc.file.Update(ctx, file)
+		download.PartialHash = &h
+		err = uc.download.Update(ctx, download)
 		if err != nil {
 			continue
 		}

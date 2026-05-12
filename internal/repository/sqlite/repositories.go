@@ -21,7 +21,7 @@ type Repositories struct {
 	UserRole    persistence.UserRoleRepository
 	UserSession persistence.UserSessionRepository
 
-	File                  persistence.FileRepository
+	MediaDownload         persistence.MediaDownloadRepository
 	DownloadTask          persistence.DownloadTaskRepository
 	DownloadDataMigration persistence.DownloadDataMigrationRepository
 
@@ -74,7 +74,7 @@ func New(dbEntries []persistence.DBEntry) *Repositories {
 		UserRole:    auth.NewUserRoleRepository(eAuth.db, eAuth.locker),
 		UserSession: auth.NewUserSessionRepository(eAuth.db, eAuth.locker),
 
-		File:                  download.NewFileRepository(eMain.db, eMain.locker),
+		MediaDownload:         download.NewMediaDownloadRepository(eMain.db, eMain.locker),
 		DownloadTask:          download.NewDownloadTaskRepository(eMain.db, eMain.locker),
 		DownloadDataMigration: download.NewDataMigrationRepository(eMain.db, eMain.locker),
 

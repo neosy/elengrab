@@ -18,9 +18,9 @@ var (
 
 	ErrUnauthorized = exceptionx.UNAUTHORIZED.NewErrorx().(errorx.Errorx)
 
-	ErrFileNotFound      = ierrors.ErrFileNotFound
-	ErrFileIdIsRequired  = errorx.NewWithMessage("fileId is required", exceptions.INVALID_REQUEST)
-	ErrFileIdIsIncorrect = errorx.NewWithMessage("fileId is incorrect", exceptions.INVALID_REQUEST)
+	ErrFileNotFound          = ierrors.ErrFileNotFound
+	ErrDownloadIDIsRequired  = errorx.NewWithMessage("downloadId is required", exceptions.INVALID_REQUEST)
+	ErrDownloadIDIsIncorrect = errorx.NewWithMessage("downloadId is incorrect", exceptions.INVALID_REQUEST)
 
 	ErrThumbnailNotFound      = ierrors.ErrThumbnailNotFound
 	ErrThumbnailIdIsRequired  = errorx.NewWithMessage("thumbnailId is required", exceptions.INVALID_REQUEST)

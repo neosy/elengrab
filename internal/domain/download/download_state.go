@@ -8,30 +8,30 @@ import (
 )
 
 type DownloadState struct {
-	UserID *uuid.UUID
-	FileID uuid.UUID
-	TaskID *uuid.UUID
+	UserID     *uuid.UUID
+	DownloadID uuid.UUID
+	TaskID     *uuid.UUID
 
-	File     *File
+	Download *MediaDownload
 	Progress *dservices.DownloaderProgress
 }
 
 // InitFromFile initializes the state from a file.
-func (s *DownloadState) InitFromFile(file *File) {
+func (s *DownloadState) InitFromFile(download *MediaDownload) {
 	if s == nil {
 		return
 	}
 
-	if file == nil {
+	if download == nil {
 		return
 	}
 
-	s.UserID = file.UserID
-	s.FileID = file.FileID
-	s.File = file
+	s.UserID = download.UserID
+	s.DownloadID = download.DownloadID
+	s.Download = download
 
-	if file.DownloadTask != nil {
-		s.TaskID = &file.DownloadTask.TaskID
+	if download.DownloadTask != nil {
+		s.TaskID = &download.DownloadTask.TaskID
 	}
 }
 
@@ -46,23 +46,23 @@ func (s *DownloadState) InitFromDownloaderResult(result *dservices.DownloaderRes
 	}
 
 	if result.ChannelID != nil && result.Channel != nil {
-		s.File.ChannelID = result.ChannelID
+		s.Download.ChannelID = result.ChannelID
 	}
 
-	s.File.MediaTitle = result.MediaTitle
-	s.File.MediaDescription = result.MediaDescription
-	s.File.Ext = result.FileExt
+	s.Download.MediaTitle = result.MediaTitle
+	s.Download.MediaDescription = result.MediaDescription
+	s.Download.Ext = result.FileExt
 
 	if result.Filesize != nil {
-		s.File.FileSize = result.Filesize
+		s.Download.FileSize = result.Filesize
 	}
 
 	if result.PartialHash != nil {
-		s.File.PartialHash = result.PartialHash
+		s.Download.PartialHash = result.PartialHash
 	}
 
 	if mediaInfo != nil {
-		s.File.MediaInfo = mediaInfo
+		s.Download.MediaInfo = mediaInfo
 	}
 
 	if result.Progress != nil {
@@ -79,7 +79,7 @@ func (src *DownloadState) Copy() *DownloadState {
 	copy := uptr.Copy(src)
 	copy.UserID = uptr.Copy(src.UserID)
 	copy.TaskID = uptr.Copy(src.TaskID)
-	copy.File = src.File.Copy()
+	copy.Download = src.Download.Copy()
 	copy.Progress = src.Progress.Copy()
 
 	return copy

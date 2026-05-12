@@ -15,28 +15,28 @@ func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
 	// Get the file name from the query parameter
-	fileIdStr := string(ctx.QueryArgs().Peek("file"))
-	if fileIdStr == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsRequired)
+	downloadIDStr := string(ctx.QueryArgs().Peek("file"))
+	if downloadIDStr == "" {
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return
 	}
 
-	fileId, err := uuid.Parse(fileIdStr)
+	downloadID, err := uuid.Parse(downloadIDStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileIdIsIncorrect.Wrap(err))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
 		return
 	}
 
-	// Build the full path to the file
-	fileInfo, err := h.downloader.GetFileInfo(ctx, *ctxUser, fileId)
+	// Build the full path to the download
+	downloadInfo, err := h.downloader.GetDownloadInfo(ctx, *ctxUser, downloadID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
 	var filePath string
-	if fileInfo.FileFullName != "" {
-		filePath = h.downloadsStorage.Path(fileInfo.FileFullName)
+	if downloadInfo.FileFullName != "" {
+		filePath = h.downloadsStorage.Path(downloadInfo.FileFullName)
 	}
 
 	// Check if the file exists
@@ -46,8 +46,8 @@ func (h *DownloaderHandlers) DownloadHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Detect content type by extension
-	contentType := httpx.ContentTypeByExt(fileInfo.FileExt)
+	contentType := httpx.ContentTypeByExt(downloadInfo.FileExt)
 
 	// Send file via streaming
-	nfasthttp.SendFileDirect(ctx, filePath, fileInfo.SafeReadableFullName, contentType)
+	nfasthttp.SendFileDirect(ctx, filePath, downloadInfo.SafeReadableFullName, contentType)
 }
