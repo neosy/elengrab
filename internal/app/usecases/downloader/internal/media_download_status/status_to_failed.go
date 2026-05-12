@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
@@ -13,14 +12,9 @@ import (
 func (s *MediaDownloadStatus) Failed(
 	ctx context.Context,
 	downloadID uuid.UUID,
-	patch *dto.MediaDownloadInfoPatch,
+	patch func(*ddownload.MediaDownload),
 	message *string,
 ) error {
-	updateFieldsFunc := func(download *ddownload.MediaDownload) {
-		dto.PatchToMediaDownloadDomain(patch, download)
-		download.ErrorMessage = message
-	}
-
 	task, err := s.dlTask.GetByDownloadID(ctx, downloadID)
 	if err != nil {
 		return err
@@ -31,10 +25,18 @@ func (s *MediaDownloadStatus) Failed(
 		return err
 	}
 
-	return s.updateStatus(
+	err = s.updateStatus(
 		ctx,
 		downloadID,
 		dtypes.MediaDownloadStatusFailed,
-		updateFieldsFunc,
+		func(download *ddownload.MediaDownload) {
+			patch(download)
+			download.ErrorMessage = message
+		},
 	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
