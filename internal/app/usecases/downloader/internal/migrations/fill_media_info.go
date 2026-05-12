@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
-	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
@@ -146,9 +145,10 @@ func (m *migrations) fillMediaInfo(ctx context.Context) (bool, error) {
 			FrameThumbnailID: frameThumbnailID,
 		}
 
-		err = m.usecases.download.Patch(ctx, nil, media.DownloadID,
-			&dto.MediaDownloadInfoPatch{
-				MediaInfo: &mediaInfo,
+		err = m.usecases.download.Patch(
+			ctx, nil, media.DownloadID,
+			func(download *ddownload.MediaDownload) {
+				download.MediaInfo = mediaInfo
 			},
 		)
 		if err != nil {

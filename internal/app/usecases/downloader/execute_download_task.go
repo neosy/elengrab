@@ -116,19 +116,16 @@ func (uc *Downloader) ExecuteDownloadTask(
 				"error", r.Error,
 			)
 
-			var patch *dto.MediaDownloadInfoPatch
-			if lastResult != nil {
-				patch = &dto.MediaDownloadInfoPatch{
-					ChannelID: &lastResult.ChannelID,
-				}
+			patch := func(download *ddownload.MediaDownload) {
+				download.ChannelID = lastResult.ChannelID
 				if lastResult.MediaTitle != "" {
-					patch.MediaTitle = &lastResult.MediaTitle
+					download.MediaTitle = lastResult.MediaTitle
 				}
 				if lastResult.FileExt != "" {
-					patch.Ext = &lastResult.FileExt
+					download.Ext = lastResult.FileExt
 				}
 				if lastResult.Filesize != nil && *lastResult.Filesize != 0 {
-					patch.FileSize = &lastResult.Filesize
+					download.FileSize = lastResult.Filesize
 				}
 			}
 			uc.downloadStatus.Failed(ctx, task.DownloadID, patch, uptr.String(r.Error.Error()))
@@ -215,21 +212,17 @@ func (uc *Downloader) ExecuteDownloadTask(
 		}
 	}
 
-	safeReadableFullName := uptr.String(
-		fmt.Sprintf("%s.%s", nfasthttp.SanitizeFileName(lastResult.MediaTitle), lastResult.FileExt),
-	)
-
-	patch := &dto.MediaDownloadInfoPatch{
-		ChannelID:            &lastResult.ChannelID,
-		MediaTitle:           &lastResult.MediaTitle,
-		MediaDescription:     &lastResult.MediaDescription,
-		FileName:             &lastResult.Filename,
-		Ext:                  &lastResult.FileExt,
-		FileFullName:         &lastResult.FileFullName,
-		FileSize:             &lastResult.Filesize,
-		PartialHash:          &lastResult.PartialHash,
-		SafeReadableFullName: safeReadableFullName,
-		MediaInfo:            new(mediaInfo(lastResult.MediaInfo)),
+	patch := func(download *ddownload.MediaDownload) {
+		download.ChannelID = lastResult.ChannelID
+		download.MediaTitle = lastResult.MediaTitle
+		download.MediaDescription = lastResult.MediaDescription
+		download.FileName = lastResult.Filename
+		download.Ext = lastResult.FileExt
+		download.FileFullName = lastResult.FileFullName
+		download.FileSize = lastResult.Filesize
+		download.PartialHash = lastResult.PartialHash
+		download.SafeReadableFullName = fmt.Sprintf("%s.%s", nfasthttp.SanitizeFileName(lastResult.MediaTitle), lastResult.FileExt)
+		download.MediaInfo = mediaInfo(lastResult.MediaInfo)
 	}
 
 	err = uc.downloadStatus.Done(ctx, task.DownloadID, patch)

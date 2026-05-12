@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
-	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -54,18 +53,19 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 		downloadID uuid.UUID,
 		imageData *dtypes.ImageData,
 		sourceType dtypes.ThumbnailSourceType,
-		mediaInfo func(thumbID uuid.UUID) *dtypes.MediaInfo,
+		mutateMediaInfo func(mediaInfo *dtypes.MediaInfo, thumbID uuid.UUID),
 	) error {
 		thumbID, err := m.createThumbnail(ctx, imageData, sourceType)
 		if err != nil {
 			return err
 		}
 
-		mInfo := mediaInfo(thumbID)
-
-		err = m.usecases.download.Patch(ctx, nil, downloadID, &dto.MediaDownloadInfoPatch{
-			MediaInfo: &mInfo,
-		})
+		err = m.usecases.download.PatchMediaInfo(
+			ctx, nil, downloadID,
+			func(mediaInfo *dtypes.MediaInfo) {
+				mutateMediaInfo(mediaInfo, thumbID)
+			},
+		)
 		if err != nil {
 			m.usecases.thumbnail.Delete(ctx, thumbID)
 			return err
@@ -102,8 +102,6 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 		default:
 		}
 
-		mediaInfo := media.MediaInfo
-
 		if media.MediaInfo.ThumbnailID == nil {
 			imageData := fetchThumbnail(ctx, media.MediaURL)
 			if imageData != nil {
@@ -113,9 +111,8 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 				}
 
 				err = createThumbnail(media.DownloadID, imageData, sourceType,
-					func(thumbID uuid.UUID) *dtypes.MediaInfo {
+					func(mediaInfo *dtypes.MediaInfo, thumbID uuid.UUID) {
 						mediaInfo.ThumbnailID = &thumbID
-						return mediaInfo
 					},
 				)
 				if err != nil {
@@ -133,9 +130,8 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 
 			if imageData != nil {
 				err = createThumbnail(media.DownloadID, imageData, dtypes.ThumbnailSourceTypeVideoFrame,
-					func(thumbID uuid.UUID) *dtypes.MediaInfo {
+					func(mediaInfo *dtypes.MediaInfo, thumbID uuid.UUID) {
 						mediaInfo.FrameThumbnailID = &thumbID
-						return mediaInfo
 					},
 				)
 				if err != nil {
