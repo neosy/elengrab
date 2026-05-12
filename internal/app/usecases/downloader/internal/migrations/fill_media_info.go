@@ -21,11 +21,6 @@ func (m *migrations) fillMediaInfo(ctx context.Context) (bool, error) {
 	)
 
 	var (
-		hasError bool = false
-		medias   []*ddownload.File
-	)
-
-	var (
 		fetchThumbnail = makeFetchThumbnail(
 			m.logger,
 			retryCountDefault, retryDelayDefault,
@@ -56,23 +51,12 @@ func (m *migrations) fillMediaInfo(ctx context.Context) (bool, error) {
 		)
 	)
 
-	err := m.usecases.media.GetAll(ctx, false,
-		func(media *ddownload.File) error {
-			if media == nil {
-				return nil
+	medias, err := m.getAllDownloads(ctx, false,
+		func(download *ddownload.MediaDownload) bool {
+			if download.MediaInfo == nil {
+				return true
 			}
-
-			if media.MediaURL == "" {
-				return nil
-			}
-
-			if media.MediaInfo != nil {
-				return nil
-			}
-
-			medias = append(medias, media)
-
-			return nil
+			return false
 		},
 	)
 	if err != nil {
@@ -84,6 +68,8 @@ func (m *migrations) fillMediaInfo(ctx context.Context) (bool, error) {
 	}
 
 	m.logger.Debug("Found medias with empty mediaInfo", "count", len(medias))
+
+	var hasError bool
 
 	for i, media := range medias {
 		m.logger.Debug("Fill media info", "index", i+1, "total", len(medias))
@@ -160,8 +146,8 @@ func (m *migrations) fillMediaInfo(ctx context.Context) (bool, error) {
 			FrameThumbnailID: frameThumbnailID,
 		}
 
-		err = m.usecases.media.Patch(ctx, nil, media.FileID,
-			&dto.FileInfoPatch{
+		err = m.usecases.download.Patch(ctx, nil, media.DownloadID,
+			&dto.MediaDownloadInfoPatch{
 				MediaInfo: &mediaInfo,
 			},
 		)

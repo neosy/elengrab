@@ -11,20 +11,20 @@ func (uc *DownloadStateCache) Save(ctx context.Context, state *ddownload.Downloa
 	return uc.stateRep.Save(ctx, state)
 }
 
-func (uc *DownloadStateCache) SaveByFile(ctx context.Context, file *ddownload.File) error {
-	if file == nil {
+func (uc *DownloadStateCache) SaveByDownload(ctx context.Context, download *ddownload.MediaDownload) error {
+	if download == nil {
 		return nil
 	}
 
 	var taskId *uuid.UUID
-	if file.DownloadTask != nil {
-		taskId = &file.DownloadTask.TaskID
+	if download.DownloadTask != nil {
+		taskId = &download.DownloadTask.TaskID
 	}
 
 	state := &ddownload.DownloadState{
-		FileID: file.FileID,
-		TaskID: taskId,
-		File:   file,
+		DownloadID: download.DownloadID,
+		TaskID:     taskId,
+		Download:   download,
 	}
 
 	return uc.stateRep.Save(ctx, state)

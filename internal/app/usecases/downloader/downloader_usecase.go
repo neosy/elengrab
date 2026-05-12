@@ -11,8 +11,8 @@ import (
 	dlstate "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_state_cache"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task"
 	dltasktatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task_status"
-	fileuc "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/file"
-	filestatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/file_status"
+	mediadownload "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download"
+	downloadstatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download_status"
 	siteicon "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon"
 	iconfetcher "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon_fetcher"
 	ytchannel "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/youtube_channel"
@@ -41,16 +41,16 @@ type Downloader struct {
 	dlDispetcher nworkerpool.JobDispatcher
 
 	// internal
-	file            *fileuc.File
-	dlTask          *dltask.DownloadTask
-	fileStatus      *filestatus.FileStatus
-	dlTaskStatus    *dltasktatus.DownloadTaskStatus
-	ytChannel       *ytchannel.YoutubeChannel
-	siteIcon        *siteicon.SiteIcon
-	dlStateCache    *dlstate.DownloadStateCache
-	siteIconFetcher *iconfetcher.SiteIconFetcher
-	authz           *authz.Authorization
-	dlDataMigration *dlmigration.DataMigration
+	download          *mediadownload.MediaDownload
+	dlTask            *dltask.DownloadTask
+	downloadStatus    *downloadstatus.MediaDownloadStatus
+	dlTaskStatus      *dltasktatus.DownloadTaskStatus
+	ytChannel         *ytchannel.YoutubeChannel
+	siteIcon          *siteicon.SiteIcon
+	dlStateCache      *dlstate.DownloadStateCache
+	siteIconFetcher   *iconfetcher.SiteIconFetcher
+	authz             *authz.Authorization
+	downloadMigration *dlmigration.DownloadMigration
 
 	// broadcasters
 	broadcaster *broadcaster.Broadcaster
@@ -75,9 +75,9 @@ func NewDownloader(
 	logger *slog.Logger,
 
 	// repositories
-	fileRep persistence.FileRepository,
+	downloadRep persistence.MediaDownloadRepository,
 	dlTaskRep persistence.DownloadTaskRepository,
-	dlDataMigration persistence.DownloadDataMigrationRepository,
+	downloadMigrationRep persistence.DownloadDataMigrationRepository,
 	ytChannelRep persistence.YoutubeChannelRepository,
 	siteLogoRep persistence.SiteLogoRepository,
 	thumbnailRep persistence.ThumbnailRepository,
@@ -111,7 +111,7 @@ func NewDownloader(
 	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRep)
 
 	dlTask := dltask.NewDownloadTask(logger, dlTaskRep, dlStateCache)
-	file := fileuc.NewFile(logger, fileRep, dlTask, dlStateCache)
+	download := mediadownload.NewMediaDownload(logger, downloadRep, dlTask, dlStateCache)
 	dlTaskStatus := dltasktatus.NewDownloadTaskStatus(logger, dlTask)
 
 	return &Downloader{
@@ -135,15 +135,15 @@ func NewDownloader(
 		dlDispetcher: dlDispetcher,
 
 		// internal
-		file:            file,
-		dlTask:          dlTask,
-		fileStatus:      filestatus.NewFileStatus(logger, file, dlTask, dlTaskStatus),
-		dlTaskStatus:    dlTaskStatus,
-		ytChannel:       ytchannel.NewYoutubeChannel(logger, ytChannelRep, ytChannelCacheRep),
-		siteIcon:        siteicon.NewSiteIcon(logger, siteLogoRep, siteLogoCacheRep),
-		siteIconFetcher: iconfetcher.NewSiteIconFetcher(logger),
-		authz:           authz.NewAuthorization(logger, appMode),
-		dlDataMigration: dlmigration.NewdataMigration(logger, dlDataMigration),
+		download:          download,
+		dlTask:            dlTask,
+		downloadStatus:    downloadstatus.NewMediaDownloadStatus(logger, download, dlTask, dlTaskStatus),
+		dlTaskStatus:      dlTaskStatus,
+		ytChannel:         ytchannel.NewYoutubeChannel(logger, ytChannelRep, ytChannelCacheRep),
+		siteIcon:          siteicon.NewSiteIcon(logger, siteLogoRep, siteLogoCacheRep),
+		siteIconFetcher:   iconfetcher.NewSiteIconFetcher(logger),
+		authz:             authz.NewAuthorization(logger, appMode),
+		downloadMigration: dlmigration.NewDownloadMigration(logger, downloadMigrationRep),
 
 		// broadcasters
 		broadcaster: broadcaster.NewBroadcaster(),

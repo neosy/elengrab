@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	updateHashIntervalDefault            = 8 * time.Hour
-	deleteDuplicatesIntervalDefault      = 1 * time.Hour
-	deleteMissingFilesIntervalDefault    = 30 * time.Minute
-	deleteFailedDownloadsIntervalDefault = 1 * time.Hour
+	updateHashIntervalDefault             = 8 * time.Hour
+	deleteDuplicatesIntervalDefault       = 1 * time.Hour
+	deleteMissingDownloadsIntervalDefault = 30 * time.Minute
+	deleteFailedDownloadsIntervalDefault  = 1 * time.Hour
 
 	cleanYoutubeChannelCacheIntervalDefault = 5 * time.Minute
 	cleanDownloadStateCacheIntervalDefault  = 20 * time.Minute
@@ -45,12 +45,12 @@ type Dependencies struct {
 	DownloaderMigrations  pworkers.MigrationsRunner
 
 	// options
-	MetricsEnabled                bool
-	UpdateHashInterval            time.Duration
-	DeleteDuplicatesInterval      time.Duration
-	DeleteMissingFilesInterval    time.Duration
-	DeleteFailedDownloadsInterval time.Duration
-	MoveUnmatchedFilesEnabled     bool
+	MetricsEnabled                 bool
+	UpdateHashInterval             time.Duration
+	DeleteDuplicatesInterval       time.Duration
+	DeleteMissingDownloadsInterval time.Duration
+	DeleteFailedDownloadsInterval  time.Duration
+	MoveUnmatchedDownloadsEnabled  bool
 
 	// caches
 	CleanYoutubeChannelCacheInterval time.Duration
@@ -105,8 +105,8 @@ func Initialize(logger *slog.Logger, deps *Dependencies, ws *nworkers.Workers) {
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewDeleteMissingFilesJob(logger, deps.DownloaderMaintenance, deps.MoveUnmatchedFilesEnabled),
-		nworkers.WithIntervalDefault(deps.DeleteMissingFilesInterval, deleteMissingFilesIntervalDefault),
+		wjobs.NewDeleteMissingDownloadsJob(logger, deps.DownloaderMaintenance, deps.MoveUnmatchedDownloadsEnabled),
+		nworkers.WithIntervalDefault(deps.DeleteMissingDownloadsInterval, deleteMissingDownloadsIntervalDefault),
 		nworkers.WithInitialDelay(15*time.Second),
 	))
 

@@ -4,10 +4,10 @@ type BroadcastEventType uint8
 
 const (
 	BroadcastEventTypeNone BroadcastEventType = iota
-	BroadcastEventTypeFileAdd
-	BroadcastEventTypeFileUpdate
+	BroadcastEventTypeDownloadAdd
+	BroadcastEventTypeDownloadUpdate
 	BroadcastEventTypeProgressUpdate
-	BroadcastEventTypeFileDelete
+	BroadcastEventTypeDownloadDelete
 	BroadcastEventTypeSystemInfoUpdate
 	BroadcastEventTypeNotification
 )
@@ -16,9 +16,9 @@ var (
 	// broadcastEventTypeMap implementation of a set for BroadcastEventType
 	broadcastEventTypeMap = map[BroadcastEventType]string{
 		BroadcastEventTypeNone:             "none",
-		BroadcastEventTypeFileAdd:          "file_add",
-		BroadcastEventTypeFileUpdate:       "file_update",
-		BroadcastEventTypeFileDelete:       "file_delete",
+		BroadcastEventTypeDownloadAdd:      "download_add",
+		BroadcastEventTypeDownloadUpdate:   "download_update",
+		BroadcastEventTypeDownloadDelete:   "download_delete",
 		BroadcastEventTypeProgressUpdate:   "progress_update",
 		BroadcastEventTypeSystemInfoUpdate: "system_info_update",
 		BroadcastEventTypeNotification:     "notification",

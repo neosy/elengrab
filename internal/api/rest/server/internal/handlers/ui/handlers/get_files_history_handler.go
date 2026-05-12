@@ -74,8 +74,8 @@ func (h *DownloaderHandlers) getFilesHistory(
 
 	before = lines[len(lines)-1].CreatedAt
 
-	for i, fileInfo := range lines {
-		row := h.genRow(fileInfo, false)
+	for i, downloadInfo := range lines {
+		row := h.genRow(downloadInfo, false)
 		if row.err != nil {
 			continue
 		}

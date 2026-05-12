@@ -60,7 +60,7 @@ type DepRepositories struct {
 	UserRole    persistence.UserRoleRepository
 	UserSession persistence.UserSessionRepository
 
-	File                  persistence.FileRepository
+	MediaDownload         persistence.MediaDownloadRepository
 	DownloadTask          persistence.DownloadTaskRepository
 	DownloadDataMigration persistence.DownloadDataMigrationRepository
 
@@ -131,7 +131,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			logger,
 
 			// repositories
-			deps.Repositories.File,
+			deps.Repositories.MediaDownload,
 			deps.Repositories.DownloadTask,
 			deps.Repositories.DownloadDataMigration,
 			deps.Repositories.YoutubeChannel,

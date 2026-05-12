@@ -168,7 +168,7 @@ func (r *DownloadTaskRepository) FindByFileID(ctx context.Context, fileID uuid.U
 
 	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
 		From(ent.TableName()).
-		Where(squirrel.Eq{ent.FieldName(&ent.FileID): fileID.String()}).
+		Where(squirrel.Eq{ent.FieldName(&ent.DownloadID): fileID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()
@@ -235,7 +235,7 @@ func (r *DownloadTaskRepository) deleteBy(ctx context.Context, byFields taskByFi
 
 	sqlWhere := squirrel.Expr("TRUE")
 	if byFields.fileID != nil {
-		sqlWhere = squirrel.Eq{ent.FieldName(&ent.FileID): byFields.fileID.String()}
+		sqlWhere = squirrel.Eq{ent.FieldName(&ent.DownloadID): byFields.fileID.String()}
 	} else if byFields.status != nil {
 		sqlWhere = squirrel.Eq{ent.FieldName(&ent.Status): byFields.status.String()}
 	}

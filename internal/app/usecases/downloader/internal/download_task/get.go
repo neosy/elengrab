@@ -9,8 +9,8 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-func (uc *DownloadTask) FindByFileID(ctx context.Context, fileId uuid.UUID) (*ddownload.DownloadTask, error) {
-	task, err := uc.TaskRep.FindByFileID(ctx, fileId)
+func (uc *DownloadTask) FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.DownloadTask, error) {
+	task, err := uc.TaskRep.FindByFileID(ctx, downloadID)
 	if err != nil {
 		uc.logger.Warn("Error finding record", "error", err)
 		return nil, err
@@ -19,15 +19,15 @@ func (uc *DownloadTask) FindByFileID(ctx context.Context, fileId uuid.UUID) (*dd
 	return task, err
 }
 
-func (uc *DownloadTask) GetByFileID(ctx context.Context, fileId uuid.UUID) (*ddownload.DownloadTask, error) {
-	task, err := uc.FindByFileID(ctx, fileId)
+func (uc *DownloadTask) GetByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.DownloadTask, error) {
+	task, err := uc.FindByDownloadID(ctx, downloadID)
 	if err != nil {
 		return nil, err
 	}
 
 	if task == nil {
-		uc.logger.Warn("Record not found", "fileId", fileId)
-		return nil, errorx.Errorf("task not found for fileId: %s", fileId, exceptionx.NOT_FOUND)
+		uc.logger.Warn("Record not found", "downloadID", downloadID)
+		return nil, errorx.Errorf("task not found for downloadID: %s", downloadID, exceptionx.NOT_FOUND)
 	}
 
 	return task, err

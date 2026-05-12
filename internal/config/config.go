@@ -81,14 +81,14 @@ type ElengrabConfig struct {
 }
 
 type ElengrabMaintenanceConfig struct {
-	UpdateHashInterval            time.Duration `env:"UPDATE_HASH_INTERVAL" envDefault:"8h"`
-	DeleteDuplicatesInterval      time.Duration `env:"DELETE_DUPLICATES_INTERVAL" envDefault:"1h"`
-	DeleteMissingFilesInterval    time.Duration `env:"DELETE_MISSING_FILES_INTERVAL" envDefault:"12h"`
-	DeleteFailedDownloadsInterval time.Duration `env:"DELETE_FAILED_DOWNLOADS_INTERVAL" envDefault:"1h"`
+	UpdateHashInterval             time.Duration `env:"UPDATE_HASH_INTERVAL" envDefault:"8h"`
+	DeleteDuplicatesInterval       time.Duration `env:"DELETE_DUPLICATES_INTERVAL" envDefault:"1h"`
+	DeleteMissingDownloadsInterval time.Duration `env:"DELETE_MISSING_DOWNLOADS_INTERVAL" envDefault:"12h"`
+	DeleteFailedDownloadsInterval  time.Duration `env:"DELETE_FAILED_DOWNLOADS_INTERVAL" envDefault:"1h"`
 
-	// EnableMoveUnmatchedFiles controls whether the periodic
-	// moveUnmatchedFiles operation is allowed. Default is false (disabled).
-	MoveUnmatchedFilesEnabled bool `env:"ENABLE_MOVE_UNMATCHED_FILES" envDefault:"false"`
+	// EnableMoveUnmatchedDownloads controls whether the periodic
+	// moveUnmatchedDownloads operation is allowed. Default is false (disabled).
+	MoveUnmatchedDownloadsEnabled bool `env:"ENABLE_MOVE_UNMATCHED_DOWNLOADS" envDefault:"false"`
 
 	// DatabaseBackupsKeep defines how many of the latest backup files to keep.
 	// If the value is 0, old backup files will not be cleaned up.

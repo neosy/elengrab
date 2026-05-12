@@ -15,6 +15,9 @@ var (
 	ErrFileNotFound = exceptions.FILE_NOT_FOUND.NewErrorx(
 		errorx.WithErrorMessage("The requested file could not be found"),
 	).(errorx.Errorx)
+	ErrDownloadNotFound = exceptions.DOWNLOAD_NOT_FOUND.NewErrorx(
+		errorx.WithErrorMessage("media download could not be found"),
+	).(errorx.Errorx)
 	ErrThumbnailNotFound = exceptions.THUMBNAIL_NOT_FOUND.NewErrorx(
 		errorx.WithErrorMessage("The requested thumbnail could not be found"),
 	).(errorx.Errorx)

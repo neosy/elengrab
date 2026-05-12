@@ -10,8 +10,8 @@ func (uc *DownloadTask) deleteToDownloadStateCache(ctx context.Context, taskID u
 	dlStateCache, _ := uc.dlStateCache.FindByTaskID(ctx, taskID)
 	if dlStateCache != nil {
 		dlStateCache.TaskID = nil
-		if dlStateCache.File != nil {
-			dlStateCache.File.DownloadTask = nil
+		if dlStateCache.Download != nil {
+			dlStateCache.Download.DownloadTask = nil
 		}
 	}
 }

@@ -26,13 +26,13 @@ func (uc *Downloader) ExecuteDownloadTask(
 		return apperrors.ErrFuncParamNullPointer
 	}
 
-	err := uc.fileStatus.Working(ctx, task.FileID, task.TaskID, workerId)
+	err := uc.downloadStatus.Working(ctx, task.DownloadID, task.TaskID, workerId)
 	if err != nil {
 		uc.logger.Error("Failed update status", "error", err)
 		return err
 	}
 
-	uc.broadcastFileUpdate(ctx, task.FileID)
+	uc.broadcastDownloadUpdate(ctx, task.DownloadID)
 
 	var wg sync.WaitGroup
 	defer func() {
@@ -44,8 +44,8 @@ func (uc *Downloader) ExecuteDownloadTask(
 		uc.fetchIcon(ctx, task.MediaUrl)
 	})
 
-	// Broadcast update file info to clients
-	defer uc.broadcastFileUpdate(ctx, task.FileID)
+	// Broadcast update download info to clients
+	defer uc.broadcastDownloadUpdate(ctx, task.DownloadID)
 
 	resultCh, err := uc.downloaderSrv.Download(
 		ctx,
@@ -59,11 +59,11 @@ func (uc *Downloader) ExecuteDownloadTask(
 				"Failed to download: The context was canceled",
 				"error", err,
 			)
-			file, e := uc.file.FindByFileID(uc.appCtx, nil, task.FileID)
-			if e == nil && file != nil {
-				uc.fileStatus.Failed(uc.appCtx, task.FileID, nil, uptr.String(err.Error()))
+			download, e := uc.download.FindByDownloadID(uc.appCtx, nil, task.DownloadID)
+			if e == nil && download != nil {
+				uc.downloadStatus.Failed(uc.appCtx, task.DownloadID, nil, uptr.String(err.Error()))
 			}
-			uc.dlStateCache.Delete(uc.appCtx, task.FileID)
+			uc.dlStateCache.Delete(uc.appCtx, task.DownloadID)
 			return ctx.Err()
 		}
 
@@ -72,7 +72,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 			"error", err,
 		)
 
-		uc.fileStatus.Failed(ctx, task.FileID, nil, uptr.String(err.Error()))
+		uc.downloadStatus.Failed(ctx, task.DownloadID, nil, uptr.String(err.Error()))
 
 		return err
 	}
@@ -102,23 +102,23 @@ func (uc *Downloader) ExecuteDownloadTask(
 		if r.Error != nil {
 			// The context was canceled
 			if ctx.Err() != nil {
-				file, e := uc.file.FindByFileID(uc.appCtx, nil, task.FileID)
-				if e == nil && file != nil {
-					uc.fileStatus.Failed(uc.appCtx, task.FileID, nil, uptr.String(r.Error.Error()))
+				download, e := uc.download.FindByDownloadID(uc.appCtx, nil, task.DownloadID)
+				if e == nil && download != nil {
+					uc.downloadStatus.Failed(uc.appCtx, task.DownloadID, nil, uptr.String(r.Error.Error()))
 				}
-				uc.dlStateCache.Delete(uc.appCtx, task.FileID)
+				uc.dlStateCache.Delete(uc.appCtx, task.DownloadID)
 				return ctx.Err()
 			}
 
 			uc.logger.Error(
 				"Failed to download",
-				"fileId", task.FileID,
+				"downloadID", task.DownloadID,
 				"error", r.Error,
 			)
 
-			var patch *dto.FileInfoPatch
+			var patch *dto.MediaDownloadInfoPatch
 			if lastResult != nil {
-				patch = &dto.FileInfoPatch{
+				patch = &dto.MediaDownloadInfoPatch{
 					ChannelID: &lastResult.ChannelID,
 				}
 				if lastResult.MediaTitle != "" {
@@ -131,18 +131,18 @@ func (uc *Downloader) ExecuteDownloadTask(
 					patch.FileSize = &lastResult.Filesize
 				}
 			}
-			uc.fileStatus.Failed(ctx, task.FileID, patch, uptr.String(r.Error.Error()))
+			uc.downloadStatus.Failed(ctx, task.DownloadID, patch, uptr.String(r.Error.Error()))
 			return r.Error
 		}
 
-		state, err := uc.dlStateCache.FindByFileID(ctx, nil, task.FileID)
+		state, err := uc.dlStateCache.FindByDownloadID(ctx, nil, task.DownloadID)
 		if err != nil {
 			uc.logger.Error(
 				"Failed to download",
-				"action", "Find by fileId",
+				"action", "Find by downloadID",
 				"error", err,
 			)
-			uc.fileStatus.Failed(ctx, task.FileID, nil, uptr.String(err.Error()))
+			uc.downloadStatus.Failed(ctx, task.DownloadID, nil, uptr.String(err.Error()))
 			return err
 		}
 
@@ -192,10 +192,10 @@ func (uc *Downloader) ExecuteDownloadTask(
 		}
 
 		if lastResult.MetadataChanged(resultBeforeBroadcast) {
-			uc.broadcastFileUpdate(ctx, task.FileID)
+			uc.broadcastDownloadUpdate(ctx, task.DownloadID)
 			resultBeforeBroadcast = lastResult
 		} else if lastResult.ProgressChanged(resultProgressBeforeBroadcast) {
-			uc.broadcastFileProgressUpdate(ctx, task.FileID)
+			uc.broadcastDownloadProgressUpdate(ctx, task.DownloadID)
 			resultProgressBeforeBroadcast = lastResult
 		}
 	}
@@ -219,7 +219,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 		fmt.Sprintf("%s.%s", nfasthttp.SanitizeFileName(lastResult.MediaTitle), lastResult.FileExt),
 	)
 
-	patch := &dto.FileInfoPatch{
+	patch := &dto.MediaDownloadInfoPatch{
 		ChannelID:            &lastResult.ChannelID,
 		MediaTitle:           &lastResult.MediaTitle,
 		MediaDescription:     &lastResult.MediaDescription,
@@ -232,9 +232,9 @@ func (uc *Downloader) ExecuteDownloadTask(
 		MediaInfo:            new(mediaInfo(lastResult.MediaInfo)),
 	}
 
-	err = uc.fileStatus.Done(ctx, task.FileID, patch)
+	err = uc.downloadStatus.Done(ctx, task.DownloadID, patch)
 	if err != nil {
-		uc.fileStatus.Failed(ctx, task.FileID, patch, new(err.Error()))
+		uc.downloadStatus.Failed(ctx, task.DownloadID, patch, new(err.Error()))
 		return err
 	}
 

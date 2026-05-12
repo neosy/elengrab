@@ -6,18 +6,18 @@ import (
 	"github.com/neosy/elengrab/internal/ports/persistence"
 )
 
-type DataMigration struct {
+type DownloadMigration struct {
 	logger *slog.Logger
 
 	// repositories
 	dataMigrationRep persistence.DownloadDataMigrationRepository
 }
 
-func NewdataMigration(
+func NewDownloadMigration(
 	logger *slog.Logger,
 	dataMigrationRep persistence.DownloadDataMigrationRepository,
-) *DataMigration {
-	return &DataMigration{
+) *DownloadMigration {
+	return &DownloadMigration{
 		logger:           logger,
 		dataMigrationRep: dataMigrationRep,
 	}

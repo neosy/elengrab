@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	dlmigration "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_data_migration"
-	fileuc "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/file"
+	fileuc "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
@@ -13,9 +13,9 @@ import (
 )
 
 type usecases struct {
-	media          *fileuc.File
-	mediaMigration *dlmigration.DataMigration
-	thumbnail      *thumbnail.Thumbnail
+	download          *fileuc.MediaDownload
+	downloadMigration *dlmigration.DownloadMigration
+	thumbnail         *thumbnail.Thumbnail
 }
 
 type services struct {
@@ -38,8 +38,8 @@ func NewMigrations(
 	logger *slog.Logger,
 	dlStorage pstorage.DownloadsStorage,
 	// usecases
-	media *fileuc.File,
-	mediaMigration *dlmigration.DataMigration,
+	download *fileuc.MediaDownload,
+	downloadMigration *dlmigration.DownloadMigration,
 	thumbnail *thumbnail.Thumbnail,
 	// services
 	downloader pservices.Downloader,
@@ -53,9 +53,9 @@ func NewMigrations(
 		dlStorage: dlStorage,
 
 		usecases: usecases{
-			media:          media,
-			mediaMigration: mediaMigration,
-			thumbnail:      thumbnail,
+			download:          download,
+			downloadMigration: downloadMigration,
+			thumbnail:         thumbnail,
 		},
 
 		services: services{
@@ -74,7 +74,7 @@ func (m *migrations) markMigration(ctx context.Context, migrationID string) erro
 		MigrationID: migrationID,
 	}
 
-	err := m.usecases.mediaMigration.Insert(ctx, migration)
+	err := m.usecases.downloadMigration.Insert(ctx, migration)
 	if err != nil {
 		return err
 	}

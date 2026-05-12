@@ -10,9 +10,9 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-type GetFileInfoResponse struct {
-	FileID        uuid.UUID
-	Status        dtypes.FileStatus
+type GetMediaDownloadInfoResponse struct {
+	DownloadID    uuid.UUID
+	Status        dtypes.MediaDownloadStatus
 	WorkingStatus WorkingStatus
 
 	ChannelID   *string
@@ -40,22 +40,22 @@ type GetFileInfoResponse struct {
 	UpdatedAt            time.Time
 }
 
-func (fileInfo *GetFileInfoResponse) IsYouTube() bool {
-	return hostdetect.YouTube(fileInfo.MediaURL)
+func (downloadInfo *GetMediaDownloadInfoResponse) IsYouTube() bool {
+	return hostdetect.YouTube(downloadInfo.MediaURL)
 }
 
-func (fileInfo *GetFileInfoResponse) ImageMetaHash(withValues ...any) string {
+func (downloadInfo *GetMediaDownloadInfoResponse) ImageMetaHash(withValues ...any) string {
 	values := []any{
-		fileInfo.FileID,
-		fileInfo.UpdatedAt,
-		fileInfo.Status.String(),
-		fileInfo.WorkingStatus.String(),
-		fileInfo.ChannelID,
+		downloadInfo.DownloadID,
+		downloadInfo.UpdatedAt,
+		downloadInfo.Status.String(),
+		downloadInfo.WorkingStatus.String(),
+		downloadInfo.ChannelID,
 	}
 
-	if fileInfo.MediaInfo != nil {
-		values = append(values, fileInfo.MediaInfo.ThumbnailID)
-		values = append(values, fileInfo.MediaInfo.FrameThumbnailID)
+	if downloadInfo.MediaInfo != nil {
+		values = append(values, downloadInfo.MediaInfo.ThumbnailID)
+		values = append(values, downloadInfo.MediaInfo.FrameThumbnailID)
 	}
 
 	if len(withValues) > 0 {

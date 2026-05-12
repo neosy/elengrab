@@ -6,13 +6,13 @@ import (
 	"github.com/google/uuid"
 )
 
-func (uc *DownloadTask) saveToDownloadStateCache(ctx context.Context, fileID uuid.UUID, taskID uuid.UUID) {
-	dlStateCache, _ := uc.dlStateCache.FindByFileID(ctx, nil, fileID)
-	if dlStateCache != nil && dlStateCache.File != nil {
+func (uc *DownloadTask) saveToDownloadStateCache(ctx context.Context, downloadID uuid.UUID, taskID uuid.UUID) {
+	dlStateCache, _ := uc.dlStateCache.FindByDownloadID(ctx, nil, downloadID)
+	if dlStateCache != nil && dlStateCache.Download != nil {
 		task, _ := uc.FindByTaskID(ctx, taskID)
 		if task != nil {
 			dlStateCache.TaskID = &task.TaskID
-			dlStateCache.File.DownloadTask = task
+			dlStateCache.Download.DownloadTask = task
 			err := uc.dlStateCache.Save(ctx, dlStateCache)
 			if err != nil {
 				uc.logger.Warn("Failed to save download state cache", "error", err)

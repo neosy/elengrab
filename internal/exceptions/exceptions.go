@@ -50,14 +50,19 @@ var (
 		exceptionx.WithMessage("Service downloader returned an empty value"),
 		exceptionx.WithHTTPStatus(fasthttp.StatusBadGateway),
 	)
+	DOWNLOAD_NOT_FOUND = exceptions.AddSeq(
+		"DOWNLOAD_NOT_FOUND",
+		exceptionx.WithMessage("Media download not found"),
+		exceptionx.WithHTTPStatus(fasthttp.StatusNotFound),
+	)
 	FILE_NOT_FOUND = exceptions.AddSeq(
 		"FILE_NOT_FOUND",
 		exceptionx.WithMessage("File not found"),
 		exceptionx.WithHTTPStatus(fasthttp.StatusNotFound),
 	)
-	FILE_ID_IS_NIL = exceptions.AddSeq(
-		"FILE_ID_IS_NIL",
-		exceptionx.WithMessage("invalid file ID: nil UUID"),
+	DOWNLOAD_ID_IS_NIL = exceptions.AddSeq(
+		"DOWNLOAD_ID_IS_NIL",
+		exceptionx.WithMessage("invalid download ID: nil UUID"),
 		exceptionx.WithHTTPStatus(fasthttp.StatusUnprocessableEntity),
 	)
 	QUEUE_PUBLISH_FAILED = exceptions.AddSeq(

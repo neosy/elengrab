@@ -12,8 +12,8 @@ var (
 	ErrDownloaderEmptyResponse = exceptions.DOWNLOADER_EMPTY_RESPONSE.NewErrorx(
 		errorx.WithErrorMessage("We couldn't retrieve the data. Please try again later"),
 	).(errorx.Errorx)
-	ErrFileNotFound = ierrors.ErrFileNotFound
-	ErrFileIDIsNil  = exceptions.FILE_ID_IS_NIL.NewErrorx(
+	ErrDownloadNotFound = ierrors.ErrDownloadNotFound
+	ErrDownloadIDIsNil  = exceptions.DOWNLOAD_ID_IS_NIL.NewErrorx(
 		errorx.WithErrorMessage("Invalid request"),
 	).(errorx.Errorx)
 )

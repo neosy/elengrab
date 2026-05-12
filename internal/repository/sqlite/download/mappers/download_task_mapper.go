@@ -28,13 +28,13 @@ func (m *Mappers) MapDownloadTaskDomainToEntity(task *ddownload.DownloadTask) (*
 	}
 
 	return &edownload.DownloadTask{
-		TaskID:   sql.NullString{String: task.TaskID.String(), Valid: true},
-		FileID:   sql.NullString{String: task.FileID.String(), Valid: true},
-		Status:   sql.NullString{String: task.Status.String(), Valid: true},
-		MediaUrl: sql.NullString{String: task.MediaUrl, Valid: true},
-		Options:  sql.NullString{String: optionsJson, Valid: task.Options != nil},
-		WorkerID: sql.NullInt64{Int64: int64(uptr.Deref(task.WorkerID)), Valid: task.WorkerID != nil},
-		JobID:    sql.NullString{String: jobID, Valid: task.JobID != nil},
+		TaskID:     sql.NullString{String: task.TaskID.String(), Valid: true},
+		DownloadID: sql.NullString{String: task.DownloadID.String(), Valid: true},
+		Status:     sql.NullString{String: task.Status.String(), Valid: true},
+		MediaUrl:   sql.NullString{String: task.MediaUrl, Valid: true},
+		Options:    sql.NullString{String: optionsJson, Valid: task.Options != nil},
+		WorkerID:   sql.NullInt64{Int64: int64(uptr.Deref(task.WorkerID)), Valid: task.WorkerID != nil},
+		JobID:      sql.NullString{String: jobID, Valid: task.JobID != nil},
 	}, nil
 }
 
@@ -64,20 +64,20 @@ func (m *Mappers) MapDownloadTaskEntityToDomain(eTask *edownload.DownloadTask) (
 		return nil, err
 	}
 
-	fileID, err := uuid.Parse(usql.String(eTask.FileID))
+	fileID, err := uuid.Parse(usql.String(eTask.DownloadID))
 	if err != nil {
 		return nil, err
 	}
 
 	return &ddownload.DownloadTask{
-		TaskID:    taskID,
-		FileID:    fileID,
-		Status:    dtypes.MustParseDownloadTaskStatus(usql.String(eTask.Status)),
-		MediaUrl:  usql.String(eTask.MediaUrl),
-		Options:   options,
-		JobID:     jobID,
-		WorkerID:  uptr.NonZero(uint64(usql.Int64(eTask.WorkerID))),
-		CreatedAt: usql.Time(eTask.CreatedAt),
-		UpdatedAt: usql.Time(eTask.UpdatedAt),
+		TaskID:     taskID,
+		DownloadID: fileID,
+		Status:     dtypes.MustParseDownloadTaskStatus(usql.String(eTask.Status)),
+		MediaUrl:   usql.String(eTask.MediaUrl),
+		Options:    options,
+		JobID:      jobID,
+		WorkerID:   uptr.NonZero(uint64(usql.Int64(eTask.WorkerID))),
+		CreatedAt:  usql.Time(eTask.CreatedAt),
+		UpdatedAt:  usql.Time(eTask.UpdatedAt),
 	}, nil
 }

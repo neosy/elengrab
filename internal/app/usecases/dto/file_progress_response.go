@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type FileProgressResponse struct {
-	FileID  uuid.UUID
-	Percent int
+type MediaDownloadProgressResponse struct {
+	DownloadID uuid.UUID
+	Percent    int
 }

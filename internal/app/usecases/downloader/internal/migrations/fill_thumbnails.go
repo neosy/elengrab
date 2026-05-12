@@ -20,11 +20,6 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 	)
 
 	var (
-		hasError bool = false
-		medias   []*ddownload.File
-	)
-
-	var (
 		fetchThumbnail = makeFetchThumbnail(
 			m.logger,
 			retryCountDefault, retryDelayDefault,
@@ -55,8 +50,8 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 		)
 	)
 
-	addThumbnail := func(
-		fileID uuid.UUID,
+	createThumbnail := func(
+		downloadID uuid.UUID,
 		imageData *dtypes.ImageData,
 		sourceType dtypes.ThumbnailSourceType,
 		mediaInfo func(thumbID uuid.UUID) *dtypes.MediaInfo,
@@ -68,7 +63,7 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 
 		mInfo := mediaInfo(thumbID)
 
-		err = m.usecases.media.Patch(ctx, nil, fileID, &dto.FileInfoPatch{
+		err = m.usecases.download.Patch(ctx, nil, downloadID, &dto.MediaDownloadInfoPatch{
 			MediaInfo: &mInfo,
 		})
 		if err != nil {
@@ -78,23 +73,12 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 		return nil
 	}
 
-	err := m.usecases.media.GetAll(ctx, false,
-		func(media *ddownload.File) error {
-			if media == nil || media.MediaInfo == nil {
-				return nil
+	medias, err := m.getAllDownloads(ctx, false,
+		func(download *ddownload.MediaDownload) bool {
+			if download.MediaInfo.ThumbnailID == nil && download.MediaInfo.FrameThumbnailID == nil {
+				return true
 			}
-
-			if media.MediaURL == "" {
-				return nil
-			}
-
-			if media.MediaInfo.ThumbnailID != nil || media.MediaInfo.FrameThumbnailID != nil {
-				return nil
-			}
-
-			medias = append(medias, media)
-
-			return nil
+			return false
 		},
 	)
 	if err != nil {
@@ -106,6 +90,8 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 	}
 
 	m.logger.Debug("Found medias without thumbnails", "count", len(medias))
+
+	var hasError bool
 
 	for i, media := range medias {
 		m.logger.Debug("Fetching thumbnails", "index", i+1, "total", len(medias))
@@ -126,7 +112,7 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 					sourceType = dtypes.ThumbnailSourceTypeExternal
 				}
 
-				err = addThumbnail(media.FileID, imageData, sourceType,
+				err = createThumbnail(media.DownloadID, imageData, sourceType,
 					func(thumbID uuid.UUID) *dtypes.MediaInfo {
 						mediaInfo.ThumbnailID = &thumbID
 						return mediaInfo
@@ -146,7 +132,7 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 			}
 
 			if imageData != nil {
-				err = addThumbnail(media.FileID, imageData, dtypes.ThumbnailSourceTypeVideoFrame,
+				err = createThumbnail(media.DownloadID, imageData, dtypes.ThumbnailSourceTypeVideoFrame,
 					func(thumbID uuid.UUID) *dtypes.MediaInfo {
 						mediaInfo.FrameThumbnailID = &thumbID
 						return mediaInfo

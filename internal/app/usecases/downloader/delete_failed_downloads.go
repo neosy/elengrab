@@ -16,23 +16,23 @@ const (
 // DeleteFailedDownloads removes database records for videos
 // that were not successfully downloaded from YouTube.
 func (uc *Downloader) DeleteFailedDownloads(ctx context.Context) error {
-	files, err := uc.file.GetByStatus(ctx, dtypes.FileStatusFailed)
+	downloads, err := uc.download.GetByStatus(ctx, dtypes.MediaDownloadStatusFailed)
 	if err != nil {
-		uc.logger.Error("Failed to get by status", "status", dtypes.FileStatusFailed, "error", err)
+		uc.logger.Error("Failed to get by status", "status", dtypes.MediaDownloadStatusFailed, "error", err)
 		return err
 
 	}
 
-	for _, file := range files {
-		if time.Now().UTC().After(file.CreatedAt.UTC().Add(failedDownloadRetentionPeriod)) {
-			err := uc.file.HardDelete(ctx, file.FileID)
+	for _, download := range downloads {
+		if time.Now().UTC().After(download.CreatedAt.UTC().Add(failedDownloadRetentionPeriod)) {
+			err := uc.download.HardDelete(ctx, download.DownloadID)
 			if err != nil {
-				uc.logger.Warn("Failed to hard delete file", "fileId", file.FileID, "error", err)
+				uc.logger.Warn("Failed to hard delete download", "downloadID", download.DownloadID, "error", err)
 				continue
 			}
-			uc.deleteThumbnails(ctx, file)
-			uc.logger.Debug("Hard deleted file download", "fileId", file.FileID)
-			uc.broadcastFileDelete(file.UserID, file.FileID)
+			uc.deleteThumbnails(ctx, download)
+			uc.logger.Debug("Hard deleted download download", "downloadID", download.DownloadID)
+			uc.broadcastDownloadDelete(download.UserID, download.DownloadID)
 		}
 	}
 
