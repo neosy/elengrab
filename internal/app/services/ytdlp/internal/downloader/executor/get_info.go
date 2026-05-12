@@ -11,6 +11,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
+	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
@@ -38,6 +39,13 @@ func (e *Executor) GetInfo(
 	}
 
 	info.ChannelTitle = strings.TrimSpace(info.ChannelTitle)
+
+	if hostdetect.Instagram(url) && info.Description != "" {
+		first, _, _ := strings.Cut(info.Description, "\n")
+		if first != "" {
+			info.Title = first
+		}
+	}
 
 	return info, nil
 }
