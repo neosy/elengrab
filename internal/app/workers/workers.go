@@ -50,7 +50,7 @@ type Dependencies struct {
 	DeleteDuplicatesInterval       time.Duration
 	DeleteMissingDownloadsInterval time.Duration
 	DeleteFailedDownloadsInterval  time.Duration
-	MoveUnmatchedDownloadsEnabled  bool
+	MoveUnmatchedFilesEnabled      bool
 
 	// caches
 	CleanYoutubeChannelCacheInterval time.Duration
@@ -105,7 +105,7 @@ func Initialize(logger *slog.Logger, deps *Dependencies, ws *nworkers.Workers) {
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewDeleteMissingDownloadsJob(logger, deps.DownloaderMaintenance, deps.MoveUnmatchedDownloadsEnabled),
+		wjobs.NewDeleteMissingDownloadsJob(logger, deps.DownloaderMaintenance, deps.MoveUnmatchedFilesEnabled),
 		nworkers.WithIntervalDefault(deps.DeleteMissingDownloadsInterval, deleteMissingDownloadsIntervalDefault),
 		nworkers.WithInitialDelay(15*time.Second),
 	))

@@ -20,7 +20,7 @@ const (
 
 	// moveUnmatchedFileRetentionPeriod defines how long unmatched downloads
 	// should remain in the downloads directory before being moved.
-	moveUnmatchedDownloadRetentionPeriod = 24 * time.Hour
+	moveUnmatchedFileRetentionPeriod = 24 * time.Hour
 
 	// lostDirName defines the name of the subdirectory where orphaned
 	// or unmatched downloads from the downloads folder are moved.
@@ -30,15 +30,15 @@ const (
 // DeleteMissingDownloads removes downloads from the database that no longer exist
 // in the downloads directory, and moves any orphaned downloads found on disk
 // into the "lost" folder for further inspection.
-func (uc *Downloader) DeleteMissingDownloads(ctx context.Context, enableMoveUnmatchedDownloads bool) error {
+func (uc *Downloader) DeleteMissingDownloads(ctx context.Context, enableMoveUnmatchedFiles bool) error {
 	err := uc.deleteMissingDownloads(ctx)
 	if err != nil {
 		uc.logger.Error("Failed to delete missing downloads", "error", err)
 		return err
 	}
 
-	if enableMoveUnmatchedDownloads {
-		err = uc.moveUnmatchedDownloads(ctx)
+	if enableMoveUnmatchedFiles {
+		err = uc.moveUnmatchedFiles(ctx)
 		if err != nil {
 			uc.logger.Error("Failed to move unmatched downloads", "error", err)
 			return err
@@ -108,10 +108,10 @@ func (uc *Downloader) deleteMissingDownloads(ctx context.Context) error {
 	return nil
 }
 
-// moveUnmatchedDownloads scans the downloads directory and moves all downloads
+// moveUnmatchedFiles scans the downloads directory and moves all files
 // that do not exist in the database into the "lost" subdirectory.
 // This helps clean up orphaned downloads that were downloaded but not recorded.
-func (uc *Downloader) moveUnmatchedDownloads(ctx context.Context) error {
+func (uc *Downloader) moveUnmatchedFiles(ctx context.Context) error {
 	// Load all known filenames from DB (including deleted)
 	names, err := uc.download.GetAllFullNames(ctx, true)
 	if err != nil {
@@ -149,7 +149,7 @@ func (uc *Downloader) moveUnmatchedDownloads(ctx context.Context) error {
 				return nil
 			}
 
-			if now.Before(info.ModTime().UTC().Add(moveUnmatchedDownloadRetentionPeriod)) {
+			if now.Before(info.ModTime().UTC().Add(moveUnmatchedFileRetentionPeriod)) {
 				return nil
 			}
 
