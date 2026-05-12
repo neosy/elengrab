@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
@@ -15,24 +14,29 @@ import (
 func (s *MediaDownloadStatus) Done(
 	ctx context.Context,
 	downloadID uuid.UUID,
-	patch *dto.MediaDownloadInfoPatch,
+	patch func(*ddownload.MediaDownload),
 ) error {
-	updateFieldsFunc := func(file *ddownload.MediaDownload) {
-		dto.PatchToMediaDownloadDomain(patch, file)
-		file.DownloadedAt = uptr.Any(time.Now().UTC())
-	}
-
-	return s.download.Tx(ctx, func(ctx context.Context) error {
+	tx := func(ctx context.Context) error {
 		err := s.dlTask.DeleteByDownloadID(ctx, downloadID)
 		if err != nil {
 			return err
 		}
 
-		return s.updateStatus(
+		err = s.updateStatus(
 			ctx,
 			downloadID,
 			dtypes.MediaDownloadStatusDone,
-			updateFieldsFunc,
+			func(download *ddownload.MediaDownload) {
+				patch(download)
+				download.DownloadedAt = uptr.Any(time.Now().UTC())
+			},
 		)
-	})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	return s.download.Tx(ctx, tx)
 }
