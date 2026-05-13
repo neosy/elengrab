@@ -13,7 +13,13 @@
                                 {{- end }}
                             </span>
                             <span class="media-result__title">
-                                <a class="media-result__title-link" href="{{ .Values.MediaURL }}" target="_blank">{{ .Values.MediaTitle }}</a>
+                                {{- $linkURL := .Values.WatchURL }}
+                                {{- $linkTarget := "_self" }}
+                                {{- if ne .Values.DownloadStatus "done" }}
+                                    {{ $linkURL = .Values.MediaURL }} 
+                                    {{- $linkTarget = "_blank" }}
+                                {{- end }}
+                                <a class="media-result__title-link" href="{{ $linkURL }}" target="{{ $linkTarget }}">{{ .Values.MediaTitle }}</a>
                                 <div class="media-result__title-meta">
                                     <span class="media-result__content-time-ago">{{ .Values.ContentTimeAgo }}</span>
                                 </div>
