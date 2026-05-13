@@ -1,7 +1,6 @@
 package uivalues
 
 import (
-	"encoding/json"
 	"fmt"
 	"maps"
 	"os"
@@ -11,7 +10,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
-func MergeMaps(mapsList ...map[string]any) map[string]any {
+func mergeMaps(mapsList ...map[string]any) map[string]any {
 	totalLen := 0
 	for _, m := range mapsList {
 		totalLen += len(m)
@@ -23,33 +22,6 @@ func MergeMaps(mapsList ...map[string]any) map[string]any {
 	}
 
 	return merged
-}
-
-func StructToMap(data any) map[string]any {
-	var result = make(map[string]any)
-
-	b, err := json.Marshal(data)
-	if err != nil {
-		return result
-	}
-
-	var temp map[string]any
-	if err := json.Unmarshal(b, &temp); err != nil {
-		return result
-	}
-
-	for k, v := range temp {
-		switch vv := v.(type) {
-		case bool:
-			result[k] = vv
-		case any:
-			result[k] = vv
-		default:
-			result[k] = fmt.Sprintf("%v", vv)
-		}
-	}
-
-	return result
 }
 
 func fileNameWithHash(dir string, fileName string) (string, error) {

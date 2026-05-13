@@ -3,8 +3,8 @@
 <html lang="en" prefix="og: https://ogp.me/ns#">
 <head>
   <meta charset="UTF-8">
-  <title>{{ .Title }}</title>
-  <meta name="description" content="{{ .Description }}">
+  <title>{{ .BaseValues.Title }}</title>
+  <meta name="description" content="{{ .BaseValues.Description }}">
   <script>
     try {
       if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme: dark)').matches)){
@@ -14,32 +14,32 @@
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
   <meta name="theme-color" id="theme-color-meta" content="#171717">
-  {{- range .MetaOgItems  }}
+  {{- range .BaseValues.MetaOgItems  }}
   <meta property="og:{{ .OgProperty }}" content="{{ .Content }}" />
   {{- end }}
-  {{- range .MetaNameItems  }}
+  {{- range .BaseValues.MetaNameItems  }}
   <meta name="{{ .Name }}" content="{{ .Content }}" />
   {{- end }}
-  {{- range .CssPaths }}
+  {{- range .Paths.Css }}
   <link rel="stylesheet" href="{{.}}">
   {{- end }}
-  <link rel="manifest" href="{{ .PwaManifestPath }}">
-  <link rel="icon" type="image/png" sizes="16x16" href="{{.PathStaticImg}}/favicon-16.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="{{.PathStaticImg}}/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="48x48" href="{{.PathStaticImg}}/favicon-48.png">
-  <link rel="icon" type="image/png" sizes="64x64" href="{{.PathStaticImg}}/favicon-64.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="{{.PathStaticImg}}/android-chrome-rounded-192x192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="{{.PathStaticImg}}/android-chrome-rounded-512x512.png">
-  <link rel="icon" type="image/x-icon" href="{{.PathStaticImg}}/favicon.ico">
-  <link rel="apple-touch-icon" sizes="180x180" href="{{.PathStaticImg}}/apple-touch-icon.png">
-  {{- if .JsImportMapJSON }}
+  <link rel="manifest" href="{{ .Paths.PwaManifest }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{.BasePaths.StaticImg}}/favicon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{.BasePaths.StaticImg}}/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="{{.BasePaths.StaticImg}}/favicon-48.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="{{.BasePaths.StaticImg}}/favicon-64.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="{{.BasePaths.StaticImg}}/android-chrome-rounded-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="{{.BasePaths.StaticImg}}/android-chrome-rounded-512x512.png">
+  <link rel="icon" type="image/x-icon" href="{{.BasePaths.StaticImg}}/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{.BasePaths.StaticImg}}/apple-touch-icon.png">
+  {{- if .Paths.JsImportMapJSON }}
   <script type="importmap">
-  {{- .JsImportMapJSON }}
+  {{- .Paths.JsImportMapJSON }}
   </script>
   {{- end }}
-  {{- range .JsScripts }}
   {{- /* <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.4/dist/sse.min.js"></script> */}}
+  {{- range .Paths.JsScripts }}
     {{- if .Type}}
   <script{{if .Defer}} defer{{end}} type="{{.Type}}" src="{{.Path}}"></script>
     {{- else }}
@@ -48,7 +48,7 @@
   {{- end }}
 </head>
 <body>
-  {{- if .ShowHeader }}
+  {{- if .BaseValues.ShowHeader }}
   <header class="header">
     {{- block "header" . }}{{ end }}
   </header>
@@ -56,7 +56,7 @@
   <main class="main">
     {{- template "content" . }}
   </main>
-  {{- if .ShowFooter }}
+  {{- if .BaseValues.ShowFooter }}
   <footer class="footer">
     {{- block "footer" . }}{{ end }}
   </footer>

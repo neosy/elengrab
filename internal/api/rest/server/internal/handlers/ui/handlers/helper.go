@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"html/template"
+	"net/url"
 	"path/filepath"
 	"strings"
 	"unicode"
@@ -10,11 +11,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
+	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
+	"github.com/neosy/elengrab/internal/pkg/stringx"
 	"github.com/valyala/fasthttp"
 )
 
@@ -145,4 +148,23 @@ func stripUUIDFromPath(path string) uuid.UUID {
 	}
 
 	return uuid.Nil
+}
+
+func mediaSourceFromURL(mediaURL string) string {
+	source := hostdetect.Detect(mediaURL).Title()
+	if source != "" {
+		return source
+	}
+
+	u, err := url.Parse(mediaURL)
+	if err != nil {
+		return mediaURL
+	}
+
+	source = stringx.Capitalize(u.Hostname())
+	if source != "" {
+		return source
+	}
+
+	return mediaURL
 }

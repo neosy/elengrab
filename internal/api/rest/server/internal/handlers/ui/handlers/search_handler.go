@@ -28,9 +28,15 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	dataMap := uivalues.MergeMaps(uivalues.PathValues)
-	dataMap[uivalues.ResultNoRowsKey] = rowsBuf.Len() == 0
-	dataMap[uivalues.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
+	extraData := make(map[string]any)
+	extraData[uivalues.ResultNoRowsKey] = rowsBuf.Len() == 0
+	extraData[uivalues.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
+
+	pageData := uivalues.RowFragmentData{
+		BasePaths: uivalues.NewBasePaths(),
+		Values:    uivalues.RowFragmentValues{},
+		Extra:     extraData,
+	}
 
 	// Load template
 	tmpl, err := h.templates.Clone()
@@ -40,7 +46,7 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	var bodyBuffer bytes.Buffer
-	if err := tmpl.ExecuteTemplate(&bodyBuffer, uivalues.ComponentResultRowsKey, dataMap); err != nil {
+	if err := tmpl.ExecuteTemplate(&bodyBuffer, uivalues.ComponentResultRowsKey, pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

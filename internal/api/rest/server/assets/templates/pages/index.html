@@ -8,10 +8,10 @@
 {{- define "user-menu" }}
       <div class="user-menu">
         {{- template "theme-switcher" . }}
-        <div class="user-avatar" id="user-avatar" data-action="{{ .UserAvatarActionMode }}">
-          {{- if eq .UserAvatarActionMode "login" }}<a href="{{ .PathAuthLogin }}">{{- end }}
-          {{- .UserAvatarIcon }}
-          {{- if eq .UserAvatarActionMode "login" }}</a>{{- end }}
+        <div class="user-avatar" id="user-avatar" data-action="{{ .Extra.UserAvatarActionMode }}">
+          {{- if eq .Extra.UserAvatarActionMode "login" }}<a href="{{ .BasePaths.AuthLogin }}">{{- end }}
+          {{- .Extra.UserAvatarIcon }}
+          {{- if eq .Extra.UserAvatarActionMode "login" }}</a>{{- end }}
         </div>
       </div>
       {{- template "account-menu" . }}
@@ -21,8 +21,8 @@
     <div class="main-header">
       {{- block "user-menu" . }}{{- end }}
       <a class="main-header__link" href="/">
-          <img class="main-header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
-          <h1 class="main-header__title">{{.Header}}</h1>
+          <img class="main-header__logo-image" src="{{.BasePaths.StaticImg}}/logo-512.png">
+          <h1 class="main-header__title">{{.BaseValues.Header}}</h1>
       </a>
     </div>
     {{- template "grab-form" . }}
@@ -39,11 +39,11 @@
     <div class="footer__app-version">
       <span id="server-status-dot" class="server-status-dot"></span>
       <a class="app-version__link" href="https://github.com/neosy/elengrab" target="_blank" title="View source code on GitHub">
-        v<span id="app-version">{{ .AppVersion }}</span>
+        v<span id="app-version">{{ .BaseValues.AppVersion }}</span>
       </a>
     </div>
     <div class="footer__disk-volume">
-      Free: <span id="disk-free">{{ .DiskFree }}</span> |
-      Used: <span id="disk-used">{{ .DiskUsed }}</span>
+      Free: <span id="disk-free">{{ .Values.DiskFree }}</span> |
+      Used: <span id="disk-used">{{ .Values.DiskUsed }}</span>
     </div>
 {{- end }}

@@ -1,14 +1,14 @@
 {{- define "media-result-delete" }}
                         {{- $title := "Delete downloaded media file" }}
-                        {{- if ne .DownloadStatus "done" }}
+                        {{- if ne .Values.DownloadStatus "done" }}
                             {{- $title = "Delete this download task" }}
                         {{- end }}
                         <div class="media-result__delete">
                             <button class="media-result__delete-row-button"
                                 title="{{ $title }}"
-                                hx-delete="{{ .DeleteURL }}"
+                                hx-delete="{{ .Values.DeleteURL }}"
                                 hx-swap="none">
-                                {{ .GrabResultItemDeleteIcon }}
+                                {{ .Values.DownloaderResultItemDeleteIcon }}
                             </button>            
                         </div>
 {{- end }}
