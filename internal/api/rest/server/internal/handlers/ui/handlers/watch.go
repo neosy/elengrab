@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"html/template"
 	"strconv"
 	"strings"
 
@@ -38,15 +37,14 @@ func (h *DownloaderHandlers) watch(
 	}
 
 	var (
-		format         = "-"
-		videoQuality   string
-		audioQuality   string
-		fileSize       = "-"
-		isVideoPlayer  = true
-		contentType    = "text/html"
-		videoWidth     = 0
-		videoHeight    = 0
-		originalSource template.HTML
+		format        = "-"
+		videoQuality  string
+		audioQuality  string
+		fileSize      = "-"
+		isVideoPlayer = true
+		contentType   = "text/html"
+		videoWidth    = 0
+		videoHeight   = 0
 	)
 	if downloadInfo.MediaInfo != nil {
 		ext := downloadInfo.MediaInfo.Format.Ext()
@@ -80,14 +78,6 @@ func (h *DownloaderHandlers) watch(
 			audioQuality = strings.Join(values, " • ")
 		}
 	}
-
-	originalSource = template.HTML(
-		fmt.Sprintf(
-			`<a href="%s" target="_blank">%s</a>`,
-			downloadInfo.MediaURL,
-			mediaSourceFromURL(downloadInfo.MediaURL),
-		),
-	)
 
 	if downloadInfo.FileSize != nil {
 		fileSize = uformat.BytesHuman(*downloadInfo.FileSize)
@@ -190,7 +180,15 @@ func (h *DownloaderHandlers) watch(
 		mediaParameters = append(mediaParameters, uivalues.MediaParameter{Name: "Audio", Value: audioQuality})
 	}
 	mediaParameters = append(mediaParameters, uivalues.MediaParameter{Name: "File Size", Value: fileSize})
-	mediaParameters = append(mediaParameters, uivalues.MediaParameter{Name: "Original Source", Value: originalSource})
+	if downloadInfo.MediaURL != "" {
+		mediaParameters = append(mediaParameters,
+			uivalues.MediaParameter{
+				Name:  "Original Source",
+				Value: mediaSourceFromURL(downloadInfo.MediaURL),
+				URL:   downloadInfo.MediaURL,
+			},
+		)
+	}
 
 	titleImageURL := httppaths.BuildPathMediaItemImage(
 		downloadInfo.DownloadID,

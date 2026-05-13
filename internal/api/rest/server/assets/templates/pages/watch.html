@@ -93,7 +93,11 @@
                     {{- range .Values.MediaParameters }} 
                     <div class="sidebar-card__parameters_item">
                         <span class="parameters_item_name">{{ .Name }}</span>
+                        {{- if not .URL }}
                         <span class="parameters_item_value">{{ .Value }}</span>
+                        {{- else }}
+                        <a class="parameters_item_link" href="{{ .URL }}" target="_blank">{{ .Value }}</a>
+                        {{- end }}
                     </div>
                     {{- end }}
                 </div>
