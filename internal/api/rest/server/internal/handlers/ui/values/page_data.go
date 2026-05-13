@@ -53,7 +53,8 @@ type (
 
 	MediaParameter struct {
 		Name  string
-		Value any
+		Value string
+		URL   string
 	}
 )
 
