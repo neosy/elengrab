@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"html/template"
 	"strconv"
 	"strings"
 
@@ -36,14 +37,15 @@ func (h *DownloaderHandlers) watch(
 	}
 
 	var (
-		format        = "-"
-		videoQuality  = ""
-		audioQuality  = ""
-		fileSize      = "-"
-		isVideoPlayer = true
-		contentType   = "text/html"
-		videoWidth    = 0
-		videoHeight   = 0
+		format         = "-"
+		videoQuality   string
+		audioQuality   string
+		fileSize       = "-"
+		isVideoPlayer  = true
+		contentType    = "text/html"
+		videoWidth     = 0
+		videoHeight    = 0
+		originalSource template.HTML
 	)
 	if downloadInfo.MediaInfo != nil {
 		ext := downloadInfo.MediaInfo.Format.Ext()
@@ -52,24 +54,39 @@ func (h *DownloaderHandlers) watch(
 		format = strings.ToUpper(ext)
 
 		if videoInfo := downloadInfo.MediaInfo.VideoInfo; videoInfo != nil {
-			qValues := []string{strings.ToUpper(videoInfo.Codec.String())}
+			values := []string{strings.ToUpper(videoInfo.Codec.String())}
 			if videoInfo.Resolution != dtypes.VideoResolutionNone {
-				qValues = append(qValues, videoInfo.Resolution.String())
+				values = append(values, videoInfo.Resolution.String())
 			}
-			qValues = append(qValues, videoInfo.ResolutionString())
-			videoQuality = strings.Join(qValues, " • ")
+			values = append(values, videoInfo.ResolutionString())
+
+			videoQuality = strings.Join(values, " • ")
+
 			videoWidth = videoInfo.Width
 			videoHeight = videoInfo.Height
 		}
-		if downloadInfo.MediaInfo.AudioInfo != nil {
-			parts := make([]string, 0, 2)
-			parts = append(parts, fmt.Sprintf("%v kbps ", downloadInfo.MediaInfo.AudioInfo.Bitrate))
-			if downloadInfo.MediaInfo.AudioInfo.SampleRate != nil {
-				parts = append(parts, fmt.Sprintf("%v Hz ", *downloadInfo.MediaInfo.AudioInfo.SampleRate))
+		if audioInfo := downloadInfo.MediaInfo.AudioInfo; audioInfo != nil {
+			values := make([]string, 0, 3)
+			if audioInfo.Codec.Title() != "" {
+				values = append(values, audioInfo.Codec.Title())
 			}
-			audioQuality = strings.Join(parts, " • ")
+			if audioInfo.Bitrate > 0 {
+				values = append(values, fmt.Sprintf("%d kbps", audioInfo.Bitrate))
+			}
+			if audioInfo.SampleRate != nil && *audioInfo.SampleRate > 0 {
+				values = append(values, fmt.Sprintf("%d Hz", *audioInfo.SampleRate))
+			}
+			audioQuality = strings.Join(values, " • ")
 		}
 	}
+
+	originalSource = template.HTML(
+		fmt.Sprintf(
+			`<a href="%s" target="_blank">%s</a>`,
+			downloadInfo.MediaURL,
+			mediaSourceFromURL(downloadInfo.MediaURL),
+		),
+	)
 
 	if downloadInfo.FileSize != nil {
 		fileSize = uformat.BytesHuman(*downloadInfo.FileSize)
@@ -163,39 +180,35 @@ func (h *DownloaderHandlers) watch(
 		return
 	}
 
-	type mediaParameter struct {
-		Name  string
-		Value string
-	}
-
-	mediaParametes := make([]mediaParameter, 0, 4)
-	mediaParametes = append(mediaParametes, mediaParameter{"Format", format})
+	mediaParameters := make([]uivalues.MediaParameter, 0, 4)
+	mediaParameters = append(mediaParameters, uivalues.MediaParameter{Name: "Format", Value: format})
 	if videoQuality != "" {
-		mediaParametes = append(mediaParametes, mediaParameter{"Video", videoQuality})
+		mediaParameters = append(mediaParameters, uivalues.MediaParameter{Name: "Video", Value: videoQuality})
 	}
 	if audioQuality != "" {
-		mediaParametes = append(mediaParametes, mediaParameter{"Audio", audioQuality})
+		mediaParameters = append(mediaParameters, uivalues.MediaParameter{Name: "Audio", Value: audioQuality})
 	}
-	mediaParametes = append(mediaParametes, mediaParameter{"File Size", fileSize})
+	mediaParameters = append(mediaParameters, uivalues.MediaParameter{Name: "File Size", Value: fileSize})
+	mediaParameters = append(mediaParameters, uivalues.MediaParameter{Name: "Original Source", Value: originalSource})
 
-	watcherValues := uivalues.WatcherValues{
-		ShowBackButton:   showBackButton,
-		IsVideoPlayer:    isVideoPlayer,
-		MediaTitle:       downloadInfo.MediaTitle,
-		MediaDescription: downloadInfo.MediaDescription,
-		MediaParametes:   mediaParametes,
-		ContentType:      contentType,
+	pageData := uivalues.WatchPageData{
+		BaseValues: baseValues,
+		BasePaths:  uivalues.NewBasePaths(),
+		Paths: uivalues.PagePaths{
+			Css:         cssPaths,
+			JsScripts:   jsScripts,
+			PwaManifest: pwaManifestPath,
+			Stream:      streamPath,
+		},
+		Values: uivalues.WatchPageValues{
+			ShowBackButton:   showBackButton,
+			IsVideoPlayer:    isVideoPlayer,
+			MediaTitle:       downloadInfo.MediaTitle,
+			MediaDescription: downloadInfo.MediaDescription,
+			MediaParameters:  mediaParameters,
+			ContentType:      contentType,
+		},
 	}
-
-	dataMap := uivalues.MergeMaps(
-		uivalues.PathValues,
-		baseValues.ToMap(),
-		watcherValues.ToMap(),
-	)
-	dataMap[uivalues.CssPathsKey] = cssPaths
-	dataMap[uivalues.JsScriptsKey] = jsScripts
-	dataMap[uivalues.PwaManifestPathKey] = pwaManifestPath
-	dataMap[uivalues.PathStreamKey] = streamPath
 
 	// Set content type so browser renders HTML properly
 	ctx.SetContentType("text/html; charset=utf-8")
@@ -208,7 +221,7 @@ func (h *DownloaderHandlers) watch(
 	}
 
 	// Execute template with PageTitle
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageWatch.Key(), dataMap); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageWatch.Key(), pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

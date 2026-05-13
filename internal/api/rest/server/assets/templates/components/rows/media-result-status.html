@@ -1,30 +1,30 @@
 {{- define "media-result-status" }}
-                        {{- if eq .DownloadStatus "done" }}
+                        {{- if eq .Values.DownloadStatus "done" }}
                         <div class="media-result__status">
                             <a class="media-result__download-link" 
-                            href="{{ .DownloadURL }}" 
+                            href="{{ .Values.DownloadURL }}" 
                             title="Download media file" download>
-                            {{ .ResultRowStatusIcon }}
+                            {{ .Values.DownloaderResultItemStatusIcon }}
                             </a>
                         </div>
                         {{- else }}
-                        <div class="media-result__status" title="{{ .ResultRowStatusTitle }}">
-                            {{- if .IsItemSpiner }}
+                        <div class="media-result__status" title="{{ .Values.ResultRowStatusTitle }}">
+                            {{- if .Values.IsItemSpiner }}
                             <div class="media-result__status-spinner__wrapper">
-                                <div class="media-result__status-spinner {{ .WorkingStatus }}"></div>
-                                {{- if eq .WorkingStatus "downloading" }}
+                                <div class="media-result__status-spinner {{ .Values.WorkingStatus }}"></div>
+                                {{- if eq .Values.WorkingStatus "downloading" }}
                                     {{- template "media-result-progress" . }}
                                 {{- end }}
                             </div>
                             {{- else }}
-                                {{- if eq .DownloadStatus "failed" }}
+                                {{- if eq .Values.DownloadStatus "failed" }}
                                 <button class="media-result__status-button"
-                                    hx-post="{{ .PathDownloadRepeat }}"
+                                    hx-post="{{ .BasePaths.DownloadRepeat }}"
                                     hx-swap="none">
-                                    {{ .DownloaderResultItemStatusFailedIcon }}
+                                    {{ .Values.DownloaderResultItemStatusFailedIcon }}
                                 </button>            
                                 {{- else }}
-                                {{ .ResultRowStatusIcon }}
+                                {{ .Values.DownloaderResultItemStatusIcon }}
                                 {{- end }}
                             {{- end }}
                         </div>

@@ -58,17 +58,21 @@ func (h *DownloaderHandlers) WriteErrorHandler(ctx *fasthttp.RequestCtx) {
 
 	cssStyleRaw, _ := uivalues.CssErrorFileName.Raw(h.assetFolders.Css())
 
-	errorValues := uivalues.NewErrorValues()
-	errorValues.Title = fmt.Sprintf("Error %v (%s)!!!", statusCode, statusText)
-	errorValues.BaseURL = fnx.Ternary(h.baseURL != "", h.baseURL, "/")
-	errorValues.ErrorCode = statusCode
-	errorValues.ErrorTitle = statusText
-	errorValues.ErrorText = errorText
-	errorValues.DebugErrorText = errorxResp.Errors
-
-	dataMap := uivalues.MergeMaps(uivalues.PathValues, errorValues.ToMap())
-	dataMap[uivalues.CssStyleKey] = template.HTML("<style>" + string(cssStyleRaw) + "</style>")
-	dataMap[uivalues.DebugDataKey] = template.HTML(strings.ReplaceAll(debugErrorText, "\n", "<br>"))
+	pageData := uivalues.ErrorPageData{
+		BaseValues: uivalues.NewBaseValues(),
+		BasePaths:  uivalues.NewBasePaths(),
+		Values: uivalues.ErrorPageValues{
+			Title:          fmt.Sprintf("Error %v (%s)!!!", statusCode, statusText),
+			Header:         uivalues.Header,
+			BaseURL:        fnx.Ternary(h.baseURL != "", h.baseURL, "/"),
+			CssStyle:       template.HTML("<style>" + string(cssStyleRaw) + "</style>"),
+			ErrorCode:      statusCode,
+			ErrorTitle:     statusText,
+			ErrorText:      errorText,
+			DebugErrorText: errorxResp.Errors,
+			DebugData:      template.HTML(strings.ReplaceAll(debugErrorText, "\n", "<br>")),
+		},
+	}
 
 	// Load template
 	tmpl, err := h.loadPage(uivalues.PageError.FileName())
@@ -81,7 +85,7 @@ func (h *DownloaderHandlers) WriteErrorHandler(ctx *fasthttp.RequestCtx) {
 	ctx.Response.SetBody(nil)
 
 	// Execute template with PageTitle
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageError.Key(), dataMap); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageError.Key(), pageData); err != nil {
 		ctx.Response.SetBody(body)
 		h.logger.Error("Failed to execute template", "error", err)
 		return

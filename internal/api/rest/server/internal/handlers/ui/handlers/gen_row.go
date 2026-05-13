@@ -15,43 +15,8 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-type downloadRowInfoData struct {
-	DownloadID     string
-	DownloadStatus string
-	WorkingStatus  string
-
-	PathDownloadRow    string
-	PathDownloadRepeat string
-
-	YoutubeChannelID string
-	ThumbnailID      string
-	AvatarTitle      string
-
-	ImageURL       string
-	ImageAvatarURL string
-	ImageSiteURL   string
-
-	MediaTitle string
-	MediaURL   string
-
-	ContentTimeAgo string
-
-	FileSize      string
-	Format        string
-	DataFormat    string
-	FormatTitle   string
-	FormatTooltip string
-	IsAudio       string
-	DownloadURL   string
-	StreamURL     string
-	WatchURL      string
-	DeleteURL     string
-	RowID         string
-	ProgressID    string
-}
-
 type genRowResult struct {
-	data       map[string]any
+	data       uivalues.RowFragmentData
 	httpStatus int
 	err        error
 }
@@ -115,7 +80,15 @@ func (h *DownloaderHandlers) genRow(
 		},
 	)
 
-	data := downloadRowInfoData{
+	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
+
+	var isGrabResultItemHTMXOptionRepeat = false
+	switch downloadInfo.Status {
+	case dtypes.MediaDownloadStatusNew, dtypes.MediaDownloadStatusPending, dtypes.MediaDownloadStatusWorking:
+		isGrabResultItemHTMXOptionRepeat = true
+	}
+
+	data := uivalues.RowFragmentValues{
 		DownloadID:     downloadInfo.DownloadID.String(),
 		DownloadStatus: downloadInfo.Status.String(),
 		WorkingStatus:  dltypes.MapUsecaseWorkingStatusToUI(downloadInfo.WorkingStatus).String(),
@@ -133,8 +106,8 @@ func (h *DownloaderHandlers) genRow(
 		ImageAvatarURL: downloadItemImageAvatarURL,
 		ImageSiteURL:   downloadItemImageSiteURL,
 
-		PathDownloadRow:    httppaths.BuildPathMediaItemRow(downloadInfo.DownloadID),
-		PathDownloadRepeat: httppaths.BuildPathMediaItemDownloadRepeat(downloadInfo.DownloadID),
+		DownloadRowPath:    httppaths.BuildPathMediaItemRow(downloadInfo.DownloadID),
+		DownloadRepeatPath: httppaths.BuildPathMediaItemDownloadRepeat(downloadInfo.DownloadID),
 
 		FileSize:      "-",
 		Format:        "-",
@@ -149,6 +122,22 @@ func (h *DownloaderHandlers) genRow(
 
 		RowID:      "row-" + downloadInfo.DownloadID.String(),
 		ProgressID: "progress-" + downloadInfo.DownloadID.String(),
+
+		IsItemHTMXOptionRepeat:         isGrabResultItemHTMXOptionRepeat,
+		IsDownloadEvent:                isDownloadEvent,
+		ResultRowStatusTitle:           downloadInfo.StatusText,
+		DownloaderResultItemStatusIcon: template.HTML(uivalues.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir)),
+		DownloaderResultItemDeleteIcon: template.HTML(uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadDeleteIconNameKey), iconsDir)),
+		ResultMediaUrlFade:             "",
+		ResultSizeFade:                 "",
+		ResultFormatFade:               "",
+		IsItemSpiner:                   downloadInfo.Status == dtypes.MediaDownloadStatusWorking,
+	}
+
+	if downloadInfo.Status == dtypes.MediaDownloadStatusFailed {
+		data.DownloaderResultItemStatusFailedIcon = template.HTML(
+			uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadRepeatIconNameKey), iconsDir),
+		)
 	}
 
 	if downloadInfo.FileSize != nil && *downloadInfo.FileSize > 0 {
@@ -162,60 +151,31 @@ func (h *DownloaderHandlers) genRow(
 		data.IsAudio = fmt.Sprint(downloadInfo.MediaInfo.FormatType == dtypes.FormatTypeAudioOnly)
 	}
 
-	dataMap := uivalues.MergeMaps(
-		uivalues.PathValues,
-		uivalues.IconFileNames(),
-		uivalues.StructToMap(data),
-	)
-
-	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
-
-	var isGrabResultItemHTMXOptionRepeat = false
-	switch downloadInfo.Status {
-	case dtypes.MediaDownloadStatusNew, dtypes.MediaDownloadStatusPending, dtypes.MediaDownloadStatusWorking:
-		isGrabResultItemHTMXOptionRepeat = true
-	}
-
-	dataMap[uivalues.IsItemHTMXOptionRepeatKey] = isGrabResultItemHTMXOptionRepeat
-	dataMap[uivalues.IsDownloadEventKey] = isDownloadEvent
-	dataMap[uivalues.ResultRowStatusIconKey] = template.HTML(
-		uivalues.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir),
-	)
-	dataMap[uivalues.ResultRowStatusTitleKey] = downloadInfo.StatusText
-	dataMap[uivalues.DownloaderResultItemDeleteIconKey] = template.HTML(
-		uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadDeleteIconNameKey), iconsDir),
-	)
-
-	if downloadInfo.Status == dtypes.MediaDownloadStatusFailed {
-		dataMap[uivalues.DownloaderResultItemStatusFailedIconKey] = template.HTML(
-			uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadRepeatIconNameKey), iconsDir),
-		)
-	}
-
-	dataMap[uivalues.ResultMediaUrlFadeKey] = ""
-	dataMap[uivalues.ResultSizeFadeKey] = ""
-	dataMap[uivalues.ResultFormatFadeKey] = ""
 	if cacheChanged.mediaTitle {
-		dataMap[uivalues.ResultMediaUrlFadeKey] = "fade-text"
+		data.ResultMediaUrlFade = "fade-text"
 	}
 	if cacheChanged.FileSize {
-		dataMap[uivalues.ResultSizeFadeKey] = "fade-text"
+		data.ResultSizeFade = "fade-text"
 	}
 	if cacheChanged.Format {
-		dataMap[uivalues.ResultFormatFadeKey] = "fade-text"
+		data.ResultFormatFade = "fade-text"
 	}
 
-	dataMap[uivalues.IsItemSpinerKey] = false
-	if downloadInfo.Status == dtypes.MediaDownloadStatusWorking {
-		dataMap[uivalues.IsItemSpinerKey] = true
-	}
+	extraData := make(map[string]any)
 
 	if downloadInfo.Progress != nil {
-		dataMap[uivalues.DownloadingProgressPercentKey] = int(downloadInfo.Progress.Percent())
+		extraData[uivalues.DownloadingProgressPercentKey] = int(downloadInfo.Progress.Percent())
+	}
+
+	pageData := uivalues.RowFragmentData{
+		BasePaths:     uivalues.NewBasePaths(),
+		Values:        data,
+		IconFileNames: uivalues.IconFileNames(),
+		Extra:         extraData,
 	}
 
 	return genRowResult{
-		data:       dataMap,
+		data:       pageData,
 		httpStatus: fasthttp.StatusOK,
 		err:        nil,
 	}

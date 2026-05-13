@@ -1,9 +1,9 @@
 {{- define "media-result-row-thumbnail" }}
-                    {{- if .ThumbnailID }}
+                    {{- if .Values.ThumbnailID }}
                     <div class="media-result__row-thumbnail full-bleed">
-                        <button class="media-result__thumbnail-play-button media-result__play-button" data-watch-url="{{ .WatchURL }}">
+                        <button class="media-result__thumbnail-play-button media-result__play-button" data-watch-url="{{ .Values.WatchURL }}">
                             <div class="media-result__thumbnail-image__wrapper">
-                                <img class="media-result__thumbnail-image" src="{{ .PathStaticThumbnail }}/{{ .ThumbnailID }}" alt="Video thumbnail">
+                                <img class="media-result__thumbnail-image" src="{{ .BasePaths.StaticThumbnail }}/{{ .Values.ThumbnailID }}" alt="Video thumbnail">
                             </div>
                         </button>
                     </div>

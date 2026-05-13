@@ -1,11 +1,11 @@
 {{- define "grab-form" }}
       <form id="grabForm"
-            hx-post="{{.PathDownloaderGrab}}"
+            hx-post="{{.BasePaths.DownloaderGrab}}"
             hx-include="#mediaURL, [name='formatType']"
             hx-swap="none">
         <div class="grab-area">
           <div class="grab-area__input-wrapper">
-            <input class="grab-area__input" type="text" id="mediaURL" name="mediaURL" placeholder="{{ .InputGrabPlaceholder }}" maxlength="255">
+            <input class="grab-area__input" type="text" id="mediaURL" name="mediaURL" placeholder="{{ .Values.GrabForm.InputPlaceholder }}" maxlength="255">
           </div>
           <div class="grab-area__action">
             <button type="button" class="grab-area__action-button" id="inputActionBtn"></button>

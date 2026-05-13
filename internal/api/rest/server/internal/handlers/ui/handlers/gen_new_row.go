@@ -12,20 +12,6 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-type newRowData struct {
-	DownloadID       string
-	DownloadStatus   string
-	RowID            string
-	PathFileRow      string
-	YoutubeChannelID string
-	MediaTitle       string
-	MediaURL         string
-	FileSize         string
-	Format           string
-	ImageURL         string
-	DeleteURL        string
-}
-
 func (h *DownloaderHandlers) genNewRow(
 	downloadInfo *ucdto.ScheduleDownloadResponse,
 	pageHasDivItems bool,
@@ -38,7 +24,9 @@ func (h *DownloaderHandlers) genNewRow(
 
 	downloadImageURL := httppaths.BuildPathMediaItemImage(downloadInfo.DownloadID, downloadInfo.ImageMetaHash(time.Now().String()), imageSources)
 
-	data := newRowData{
+	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
+
+	data := uivalues.RowFragmentValues{
 		MediaURL:       downloadInfo.URL,
 		DownloadStatus: downloadInfo.Status.String(),
 		DeleteURL:      httppaths.BuildPathMediaItem(httppaths.PathMediaItem, downloadInfo.DownloadID),
@@ -46,30 +34,26 @@ func (h *DownloaderHandlers) genNewRow(
 		DownloadID:     downloadInfo.DownloadID.String(),
 		RowID:          "row-" + downloadInfo.DownloadID.String(),
 		MediaTitle:     downloadInfo.URL,
-		PathFileRow:    httppaths.BuildPathMediaItemRow(downloadInfo.DownloadID),
+		FilePath:       httppaths.BuildPathMediaItemRow(downloadInfo.DownloadID),
 		FileSize:       "-",
 		Format:         "-",
+
+		DownloaderResultItemStatusIcon: template.HTML(uivalues.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir)),
+		DownloaderResultItemDeleteIcon: template.HTML(uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadDeleteIconNameKey), iconsDir)),
+		IsItemHTMXOptionRepeat:         true,
+		PageHasDivItems:                pageHasDivItems,
+		ResultRowFade:                  "fade-in",
+		ResultRowStatusTitle:           "",
+		ResultMediaUrlFade:             "",
+		ResultSizeFade:                 "",
+		ResultFormatFade:               "",
 	}
 
-	dataMap := uivalues.MergeMaps(
-		uivalues.PathValues,
-		uivalues.IconFileNames(),
-		uivalues.StructToMap(data),
-	)
-
-	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
-
-	dataMap[uivalues.ResultRowStatusIconKey] = template.HTML(
-		uivalues.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir))
-	dataMap[uivalues.DownloaderResultItemDeleteIconKey] = template.HTML(
-		uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadDeleteIconNameKey), iconsDir))
-	dataMap[uivalues.IsItemHTMXOptionRepeatKey] = true
-	dataMap[uivalues.PageHasDivItemsKey] = pageHasDivItems
-	dataMap[uivalues.ResultRowFadeKey] = "fade-in"
-	dataMap[uivalues.ResultRowStatusTitleKey] = ""
-	dataMap[uivalues.ResultMediaUrlFadeKey] = ""
-	dataMap[uivalues.ResultSizeFadeKey] = ""
-	dataMap[uivalues.ResultFormatFadeKey] = ""
+	pageData := uivalues.RowFragmentData{
+		BasePaths:     uivalues.NewBasePaths(),
+		Values:        data,
+		IconFileNames: uivalues.IconFileNames(),
+	}
 
 	// Load template
 	tmpl, err := h.templates.Clone()
@@ -78,7 +62,7 @@ func (h *DownloaderHandlers) genNewRow(
 	}
 
 	var buf bytes.Buffer
-	err = tmpl.ExecuteTemplate(&buf, uivalues.ComponentResultNewRowKey, dataMap)
+	err = tmpl.ExecuteTemplate(&buf, uivalues.ComponentResultNewRowKey, pageData)
 	if err != nil {
 		return nil
 	}

@@ -4,18 +4,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, minimum-scale=1, width=device-width">
-    <title>{{ .Title }}</title>
-    {{- .CssStyle }}
+    <title>{{ .Values.Title }}</title>
+    {{- .Values.CssStyle }}
 </head>
 <body>
-    <a class="header__logo-link" href="{{ .BaseURL }}">
-        <img class="header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
-        <h1 class="header__logo-title">{{.Header}}</h1>
+    <a class="header__logo-link" href="{{ .Values.BaseURL }}">
+        <img class="header__logo-image" src="{{.BasePaths.StaticImg}}/logo-512.png">
+        <h1 class="header__logo-title">{{.Values.Header}}</h1>
     </a>
-    <p><b>{{ .ErrorCode }}.</b> <ins>{{ .ErrorTitle }}</ins></p>
-    <p>{{ .ErrorText }}</p>
-    {{- if .DebugErrorText }}<p><b>Errors:</b> <ins>{{ .DebugErrorText }}</ins></p>{{ end }}
-    {{- if .DebugData }}<p><b>Data:</b> <ins>{{ .DebugData }}</ins></p>{{ end }}
+    <p><b>{{ .Values.ErrorCode }}.</b> <ins>{{ .Values.ErrorTitle }}</ins></p>
+    <p>{{ .Values.ErrorText }}</p>
+    {{- if .Values.DebugErrorText }}<p><b>Errors:</b> <ins>{{ .Values.DebugErrorText }}</ins></p>{{ end }}
+    {{- if .Values.DebugData }}<p><b>Data:</b> <ins>{{ .Values.DebugData }}</ins></p>{{ end }}
 </body>
 </html>
 {{- end }}

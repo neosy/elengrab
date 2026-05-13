@@ -12,19 +12,19 @@
     <div class="main_register">
         <div class="main-header">
           <a class="main-header__link" href="/">
-            <img class="main-header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
-            <h1 class="main-header__title">{{.Header}}</h1>
+            <img class="main-header__logo-image" src="{{.BasePaths.StaticImg}}/logo-512.png">
+            <h1 class="main-header__title">{{.BaseValues.Header}}</h1>
           </a>
         </div>
         <h2>Registration</h2>
         <form id="authForm"
-              hx-post="{{.PathAuthRegister}}"
+              hx-post="{{.BasePaths.AuthRegister}}"
               hx-target="#error"
               hx-swap="innerHTML">
-            <input type="text" name="login" placeholder="Login" required value="{{.Login}}">
+            <input type="text" name="login" placeholder="Login" required value="">
             <input type="password" id="password" name="password" placeholder="Password" required>
             <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
-            <div class="error" id="error">{{.ErrorMsg}}</div>
+            <div class="error" id="error"></div>
             <button type="submit">Register</button>
         </form>
     </div>    

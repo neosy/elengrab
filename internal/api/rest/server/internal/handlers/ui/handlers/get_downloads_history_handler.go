@@ -77,17 +77,30 @@ func (h *DownloaderHandlers) getDownloadsHistory(
 	for i, downloadInfo := range lines {
 		row := h.genRow(downloadInfo, false)
 		if row.err != nil {
+			h.logger.Warn(
+				"Failed to generate row",
+				"error", err,
+			)
 			continue
 		}
 
 		// Load template
 		tmpl, err := h.templates.Clone()
 		if err != nil {
+			h.logger.Warn(
+				"Failed to clone templates",
+				"error", err,
+			)
 			continue
 		}
 
 		err = tmpl.ExecuteTemplate(buf, uivalues.ComponentResultRowStatusKey, row.data)
 		if err != nil {
+			h.logger.Warn(
+				"Failed to execute template",
+				"name", uivalues.ComponentResultRowStatusKey,
+				"error", err,
+			)
 			continue
 		}
 
@@ -104,8 +117,12 @@ func (h *DownloaderHandlers) getDownloadsHistory(
 }
 
 func (h *DownloaderHandlers) genRowLoadHistory(buf *bytes.Buffer) error {
-	dataMap := uivalues.MergeMaps()
-	dataMap[uivalues.DisableHTMXEventKey] = true
+	extraData := make(map[string]any)
+	extraData[uivalues.DisableHTMXEventKey] = true
+
+	pageData := uivalues.PageFragmentData{
+		Extra: extraData,
+	}
 
 	// Load template
 	tmpl, err := h.templates.Clone()
@@ -113,7 +130,7 @@ func (h *DownloaderHandlers) genRowLoadHistory(buf *bytes.Buffer) error {
 		return errInternal(err)
 	}
 
-	err = tmpl.ExecuteTemplate(buf, uivalues.ComponentResultLoadHistory, dataMap)
+	err = tmpl.ExecuteTemplate(buf, uivalues.ComponentResultLoadHistory, pageData)
 	if err != nil {
 		return errInternal(err)
 	}
@@ -137,9 +154,16 @@ func (h *DownloaderHandlers) genRowShouldLoadHistory(
 		queryString += fmt.Sprintf("&filter[%s]=%s", filterByTitleKey, filterByTitle)
 	}
 
-	dataMap := uivalues.MergeMaps(uivalues.PathValues)
-	dataMap[uivalues.PathDownloaderHistoryKey] = dataMap[uivalues.PathDownloaderHistoryKey].(string) + queryString
-	dataMap[uivalues.DisableHTMXEventKey] = true
+	basePaths := uivalues.NewBasePaths()
+	basePaths.DownloaderHistory += queryString
+
+	extraData := make(map[string]any)
+	extraData[uivalues.DisableHTMXEventKey] = true
+
+	pageData := uivalues.PageFragmentData{
+		BasePaths: basePaths,
+		Extra:     extraData,
+	}
 
 	// Load template
 	tmpl, err := h.templates.Clone()
@@ -147,7 +171,7 @@ func (h *DownloaderHandlers) genRowShouldLoadHistory(
 		return errInternal(err)
 	}
 
-	err = tmpl.ExecuteTemplate(buf, uivalues.ComponentResultShouldLoadHistoryKey, dataMap)
+	err = tmpl.ExecuteTemplate(buf, uivalues.ComponentResultShouldLoadHistoryKey, pageData)
 	if err != nil {
 		return errInternal(err)
 	}
