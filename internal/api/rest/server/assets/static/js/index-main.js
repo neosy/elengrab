@@ -97,23 +97,23 @@ function createSSEConnection() {
         if (!el) return;
 
         if (online) {
+            console.info("SSE connection opened");
             el.classList.add("online");
         } else {
+            console.warn("SSE connection closed");
             el.classList.remove("online");
         }
     }
 
     // Internal function to (re)connect
     function connect() {
-        if (globalEventSource) {
-            globalEventSource.close();
-        }        
+        globalEventSource?.close();
 
         globalEventSource = new EventSource("/downloader/events");
 
         // Server is considered online when these events arrive
         globalEventSource.addEventListener("connected", () => setServerStatus(true));
-        globalEventSource.addEventListener("ping", () => setServerStatus(true));
+        // globalEventSource.addEventListener("ping", () => setServerStatus(true));
 
         // Business events
         globalEventSource.addEventListener("row-add", rowEventHandlers.handleRowAdd);
@@ -128,10 +128,11 @@ function createSSEConnection() {
 
         // On error: mark offline and reconnect
         globalEventSource.onerror = function(err) {
-            console.error("SSE connection lost:", err);
-            setServerStatus(false);
-
-            globalEventSource.close();
+            if (globalEventSource && globalEventSource.readyState !== EventSource.CLOSED) {
+                console.error("SSE connection lost:", err);
+                setServerStatus(false);
+                globalEventSource?.close();
+            }
 
             // Reconnect after delay
             setTimeout(connect, 5000);
@@ -143,8 +144,10 @@ function createSSEConnection() {
 
     // Return only API to close connection from outside
     return {
-        close: () => globalEventSource?.close()
-    };
+        close: () => {
+            setServerStatus(false);
+            globalEventSource?.close();
+        }};
 }
 
 // -------------------------------------------------------------
@@ -175,12 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
     //         window.location.reload();
     //     }
     // });
-
-    window.addEventListener('pageshow', () => {
-        if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
-            globalEventSource = createSSEConnection();
-        }
-    });    
 
     // Submit on Enter
     grabInputURL.addEventListener('keydown', (event) => {
@@ -274,12 +271,18 @@ document.addEventListener('DOMContentLoaded', () => {
     actionButton.initInputClearButton('.history-search__input_wrapper');
 
     // Create SSE connection
-    const sse = createSSEConnection();
+    var sse = null;
+    window.addEventListener('pageshow', () => {
+        if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
+            sse = createSSEConnection();
+        }
+    });    
 
     // Close SSE on page unload
     window.addEventListener("beforeunload", () => {
-        console.warn("SSE connection closed");
-        sse?.close();
+        if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
+            sse = createSSEConnection();
+        }
     });
 
     // ------------------------------------------------------------
@@ -290,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
         if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
-            globalEventSource = createSSEConnection();
+            sse = createSSEConnection();
         }
     }
 });
