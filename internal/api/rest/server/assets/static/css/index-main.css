@@ -110,7 +110,8 @@ body.ui-blocking-active {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-bottom: 20px;
+    margin-bottom: 20px;
+    /* padding-bottom: 20px; */
 }
 
 .main-header * {
@@ -285,6 +286,11 @@ body.ui-blocking-active {
 }
 
 @media (max-width: 480px) {
+    .main-header {
+        justify-content: left;
+        margin-bottom: 15px;
+    }
+
     body {
         margin: 0;
         background: var(--bg-main);

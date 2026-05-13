@@ -460,7 +460,7 @@ button {
 
     .header__inner {
         margin: 6px;
-        /* margin-bottom: 3px; */
+        margin-bottom: 10px;
     }
 
     .header__logo-text h5 {
