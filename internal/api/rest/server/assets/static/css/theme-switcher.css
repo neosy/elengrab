@@ -41,8 +41,8 @@
 }
 
 .theme-switcher__toggle-button .icon {
-    width: 22px;
-    height: 22px;
+    width: 27px;
+    height: 27px;
     position: absolute;
     transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55),
                 opacity 0.5s ease;
@@ -82,12 +82,23 @@
         right: 12px;
     }
     .theme-switcher__toggle-button {
+        width: 35px;
+        height: 35px;
+    }
+    .theme-switcher__toggle-button .icon {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .theme-switcher__toggle-button {
         width: 30px;
         height: 30px;
     }
     .theme-switcher__toggle-button .icon {
-        width: 20px;
-        height: 20px;
+        width: 22px;
+        height: 22px;
     }
 }
 
