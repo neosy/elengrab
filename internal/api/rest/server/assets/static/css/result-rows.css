@@ -888,6 +888,14 @@
         transform: translateX(-50%);
     }
 
+    .media-result__avatar-play-button svg {
+        opacity: 0;
+    }
+
+    .media-result__avatar-play-button:hover svg {
+        opacity: 1;
+    }
+
     .media-result__title-meta {
         display: flex;
     }

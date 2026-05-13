@@ -88,6 +88,13 @@ func (h *DownloaderHandlers) genRow(
 		isGrabResultItemHTMXOptionRepeat = true
 	}
 
+	var watchURL, downloadURL, streamURL string
+	if downloadInfo.Status == dtypes.MediaDownloadStatusDone {
+		watchURL = httppaths.BuildPathMediaItemWatch(downloadInfo.DownloadID)
+		downloadURL = httppaths.BuildPathMediaItemDownload(downloadInfo.DownloadID)
+		streamURL = httppaths.BuildPathMediaItemStream(downloadInfo.DownloadID)
+	}
+
 	data := uivalues.RowFragmentValues{
 		DownloadID:     downloadInfo.DownloadID.String(),
 		DownloadStatus: downloadInfo.Status.String(),
@@ -115,9 +122,9 @@ func (h *DownloaderHandlers) genRow(
 		FormatTitle:   downloadInfo.MediaInfoText,
 		FormatTooltip: downloadInfo.MediaInfoTooltip,
 
-		DownloadURL: httppaths.BuildPathMediaItemDownload(downloadInfo.DownloadID),
-		WatchURL:    httppaths.BuildPathMediaItemWatch(downloadInfo.DownloadID),
-		StreamURL:   httppaths.BuildPathMediaItemStream(downloadInfo.DownloadID),
+		DownloadURL: downloadURL,
+		WatchURL:    watchURL,
+		StreamURL:   streamURL,
 		DeleteURL:   httppaths.BuildPathMediaItem(httppaths.PathMediaItem, downloadInfo.DownloadID),
 
 		RowID:      "row-" + downloadInfo.DownloadID.String(),
