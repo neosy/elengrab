@@ -480,6 +480,10 @@ button {
     .main_content__media-info {
             padding: 0 4px;
     }
+
+    .media-info__title {    
+        align-items: start;
+    }
 }
 
 @media (max-width: 480px) {
