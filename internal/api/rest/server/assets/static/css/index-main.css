@@ -241,13 +241,13 @@ body.ui-blocking-active {
     }
 
     .user-menu > div {
-        width: 30px;
-        height: 30px;
+        width: 35px;
+        height: 35px;
     }
 
     .user-avatar svg {
-        width: 23px;
-        height: 23px;
+        width: 27px;
+        height: 27px;
     }
 
     .main {
@@ -275,6 +275,10 @@ body.ui-blocking-active {
 }
 
 @media (max-width: 580px) {
+    .main-header {
+        justify-content: left;
+    }
+
     .media-result__row {
         overflow: visible !important;
     }
@@ -287,8 +291,17 @@ body.ui-blocking-active {
 
 @media (max-width: 480px) {
     .main-header {
-        justify-content: left;
         margin-bottom: 15px;
+    }
+
+    .user-menu > div {
+        width: 30px;
+        height: 30px;
+    }
+
+    .user-avatar svg {
+        width: 23px;
+        height: 23px;
     }
 
     body {
