@@ -45,9 +45,10 @@ type (
 
 		ContentType string `json:"ContentType,omitempty"`
 
-		MediaTitle       string
-		MediaDescription string
-		MediaParameters  []MediaParameter
+		MediaTitle         string
+		MediaTitleImageURL string
+		MediaDescription   string
+		MediaParameters    []MediaParameter
 	}
 
 	MediaParameter struct {
