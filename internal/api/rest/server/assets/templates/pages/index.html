@@ -3,19 +3,23 @@
 {{- end }}
 
 {{- define "header" }}
-    <div class="user-menu">
-      {{- template "theme-switcher" . }}
-      <div class="user-avatar" id="user-avatar" data-action="{{ .UserAvatarActionMode }}">
-        {{- if eq .UserAvatarActionMode "login" }}<a href="{{ .PathAuthLogin }}">{{- end }}
-        {{- .UserAvatarIcon }}
-        {{- if eq .UserAvatarActionMode "login" }}</a>{{- end }}
+{{- end }}
+
+{{- define "user-menu" }}
+      <div class="user-menu">
+        {{- template "theme-switcher" . }}
+        <div class="user-avatar" id="user-avatar" data-action="{{ .UserAvatarActionMode }}">
+          {{- if eq .UserAvatarActionMode "login" }}<a href="{{ .PathAuthLogin }}">{{- end }}
+          {{- .UserAvatarIcon }}
+          {{- if eq .UserAvatarActionMode "login" }}</a>{{- end }}
+        </div>
       </div>
-    </div>
-    {{- template "account-menu" . }}
+      {{- template "account-menu" . }}
 {{- end }}
 
 {{- define "content" }}
     <div class="main-header">
+      {{- block "user-menu" . }}{{- end }}
       <a class="main-header__link" href="/">
           <img class="main-header__logo-image" src="{{.PathStaticImg}}/logo-512.png">
           <h1 class="main-header__title">{{.Header}}</h1>
