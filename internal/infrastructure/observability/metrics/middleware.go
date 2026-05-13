@@ -35,8 +35,8 @@ func MiddlewareHandler(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 
 func normalizePath(p string) string {
 	switch {
-	// /downloader/files/{id}/stream
-	case strings.HasPrefix(p, "/downloader/files/"):
+	// /downloader/items/{id}/stream
+	case strings.HasPrefix(p, "/downloader/items/"):
 		return normalizeBySegments(p, 3, "/downloader/items/:id")
 
 	// /downloader/stream/{id}
