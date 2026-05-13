@@ -246,8 +246,32 @@ audio {
     line-height: 1.5;
 }
 
-.media-info-title {
+.media-info__title {
+    display: flex;
+    flex-direction: row;
+
     margin-bottom: 8px;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+.media-info__title-image {
+    display: block;
+
+    width: 30px;
+    height: 30px;
+
+    /* Make the image circular */
+    border-radius: 50%;
+
+    /* Preserve aspect ratio and fill the circle */
+    object-fit: cover;
+}
+
+.media-info__title-text {
+    display: inline;    
 }
 
 .media-info-description {

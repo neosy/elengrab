@@ -79,7 +79,10 @@
                 {{- end }}
             </div>
             <div class="main_content__media-info" id="mainContentMediaInfo">
-                <h2 class="media-info-title" id="mediaTitle">{{ .Values.MediaTitle }}</h2>
+                <div class="media-info__title">                
+                    <img class="media-info__title-image" src="{{ .Values.MediaTitleImageURL }}" alt="Channel avatar">
+                    <h2 class="media-info__title-text" id="mediaTitle">{{ .Values.MediaTitle }}</h2>
+                </div>
                 <p class="media-info-description" id="mediaDescription">{{ .Values.MediaDescription }}</p>
             </div>
         </div>

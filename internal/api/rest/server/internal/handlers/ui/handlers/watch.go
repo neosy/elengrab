@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
@@ -191,6 +192,15 @@ func (h *DownloaderHandlers) watch(
 	mediaParameters = append(mediaParameters, uivalues.MediaParameter{Name: "File Size", Value: fileSize})
 	mediaParameters = append(mediaParameters, uivalues.MediaParameter{Name: "Original Source", Value: originalSource})
 
+	titleImageURL := httppaths.BuildPathMediaItemImage(
+		downloadInfo.DownloadID,
+		downloadInfo.ImageMetaHash(),
+		[]dtypes.ImageSource{
+			dtypes.ImageSourceAvatar,
+			dtypes.ImageSourceSite,
+		},
+	)
+
 	pageData := uivalues.WatchPageData{
 		BaseValues: baseValues,
 		BasePaths:  uivalues.NewBasePaths(),
@@ -201,12 +211,13 @@ func (h *DownloaderHandlers) watch(
 			Stream:      streamPath,
 		},
 		Values: uivalues.WatchPageValues{
-			ShowBackButton:   showBackButton,
-			IsVideoPlayer:    isVideoPlayer,
-			MediaTitle:       downloadInfo.MediaTitle,
-			MediaDescription: downloadInfo.MediaDescription,
-			MediaParameters:  mediaParameters,
-			ContentType:      contentType,
+			ShowBackButton:     showBackButton,
+			IsVideoPlayer:      isVideoPlayer,
+			MediaTitle:         downloadInfo.MediaTitle,
+			MediaDescription:   downloadInfo.MediaDescription,
+			MediaParameters:    mediaParameters,
+			ContentType:        contentType,
+			MediaTitleImageURL: titleImageURL,
 		},
 	}
 
