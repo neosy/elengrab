@@ -35,10 +35,8 @@ func (h *DownloaderHandlers) RowMenuHandler(ctx *fasthttp.RequestCtx) {
 
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
-	dataMap := uivalues.MergeMaps(
-		uivalues.PathValues,
-	)
-	dataMap[uivalues.RowMenuActionsKey] = uivalues.RowMenuActions(
+	extraData := make(map[string]any)
+	extraData[uivalues.RowMenuActionsKey] = uivalues.RowMenuActions(
 		iconsDir,
 		map[string]string{
 			uivalues.RowMenuActionItemIDKey: downloadID.String(),
@@ -46,6 +44,11 @@ func (h *DownloaderHandlers) RowMenuHandler(ctx *fasthttp.RequestCtx) {
 		},
 		downloadResp.Status == dtypes.MediaDownloadStatusDone,
 	)
+
+	pageData := uivalues.PageFragmentData{
+		BasePaths: uivalues.NewBasePaths(),
+		Extra:     extraData,
+	}
 
 	// Load template
 	tmpl, err := h.templates.Clone()
@@ -55,7 +58,7 @@ func (h *DownloaderHandlers) RowMenuHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Execute template
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.ComponentRowMenuContentKey, dataMap); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, uivalues.ComponentRowMenuContentKey, pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

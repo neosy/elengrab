@@ -8,28 +8,55 @@ const (
 	PathDownloaderHistoryKey = "PathDownloaderHistory"
 )
 
-var (
-	PathValues = map[string]any{
-		"PathStaticImg":            httppaths.GroupStaticImg,
-		"PathStaticIcons":          httppaths.GroupStaticIcon,
-		"PathStaticCss":            httppaths.GroupStaticCss,
-		"PathStaticJs":             httppaths.GroupStaticJs,
-		"PathStaticPwa":            httppaths.GroupStaticPwa,
-		"PathStaticThumbnail":      httppaths.GroupStaticThumbnail,
-		"PathStaticYoutubeChannel": httppaths.GroupStaticYoutubeChannel,
+type (
+	basePaths struct {
+		StaticImg            string
+		StaticIcons          string
+		StaticCss            string
+		StaticJs             string
+		StaticPwa            string
+		StaticThumbnail      string
+		StaticYoutubeChannel string
 
-		"PathAuthRegister": httppaths.GroupAccount + httppaths.PathRegister,
-		"PathAuthLogin":    httppaths.GroupAccount + httppaths.PathLogin,
+		AuthRegister string
+		AuthLogin    string
 
-		"PathDownloader":         httppaths.GroupDownloader,
-		"PathAccountMenu":        httppaths.GroupDownloader + httppaths.PathAccountMenu,
-		"PathRowMenu":            httppaths.GroupDownloader + httppaths.PathMediaItemMenu,
-		PathDownloaderHistoryKey: httppaths.GroupDownloader + httppaths.PathHistory,
-		"PathDownloaderGrab":     httppaths.GroupDownloader + httppaths.PathGrab,
-		"PathDownloaderSearch":   httppaths.GroupDownloader + httppaths.PathSearch,
-		"PathDownloaderEvents":   httppaths.GroupDownloader + httppaths.PathEvents,
+		Downloader        string
+		AccountMenu       string
+		RowMenu           string
+		DownloaderHistory string
+		DownloaderGrab    string
+		DownloaderSearch  string
+		DownloaderEvents  string
 	}
 )
+
+var (
+	basePathsDefault = basePaths{
+		StaticImg:            httppaths.GroupStaticImg,
+		StaticIcons:          httppaths.GroupStaticIcon,
+		StaticCss:            httppaths.GroupStaticCss,
+		StaticJs:             httppaths.GroupStaticJs,
+		StaticPwa:            httppaths.GroupStaticPwa,
+		StaticThumbnail:      httppaths.GroupStaticThumbnail,
+		StaticYoutubeChannel: httppaths.GroupStaticYoutubeChannel,
+
+		AuthRegister: httppaths.GroupAccount + httppaths.PathRegister,
+		AuthLogin:    httppaths.GroupAccount + httppaths.PathLogin,
+
+		Downloader:        httppaths.GroupDownloader,
+		AccountMenu:       httppaths.GroupDownloader + httppaths.PathAccountMenu,
+		RowMenu:           httppaths.GroupDownloader + httppaths.PathMediaItemMenu,
+		DownloaderHistory: httppaths.GroupDownloader + httppaths.PathHistory,
+		DownloaderGrab:    httppaths.GroupDownloader + httppaths.PathGrab,
+		DownloaderSearch:  httppaths.GroupDownloader + httppaths.PathSearch,
+		DownloaderEvents:  httppaths.GroupDownloader + httppaths.PathEvents,
+	}
+)
+
+func NewBasePaths() basePaths {
+	return basePathsDefault
+}
 
 func ImageHttpPath(fileName string) string {
 	return httppaths.GroupStaticImg + "/" + fileName

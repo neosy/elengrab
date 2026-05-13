@@ -21,7 +21,7 @@ const (
 )
 
 var (
-	mediaHostStringMap = map[MediaHost]string{
+	mapMediaHostString = map[MediaHost]string{
 		MediaHostYouTube:   "youtube",
 		MediaHostFacebook:  "facebook",
 		MediaHostInstagram: "instagram",
@@ -31,7 +31,17 @@ var (
 		MediaHostRutube:    "rutube",
 	}
 
-	parseMediaHostMap = map[string]MediaHost{
+	mapMediaHostTitle = map[MediaHost]string{
+		MediaHostYouTube:   "YouTube",
+		MediaHostFacebook:  "Facebook",
+		MediaHostInstagram: "Instagram",
+		MediaHostTwitch:    "Twitch",
+		MediaHostTikTok:    "TikTok",
+		MediaHostVimeo:     "Vimeo",
+		MediaHostRutube:    "RuTube",
+	}
+
+	mapParseMediaHost = map[string]MediaHost{
 		"youtube":   MediaHostYouTube,
 		"facebook":  MediaHostFacebook,
 		"instagram": MediaHostInstagram,
@@ -44,7 +54,12 @@ var (
 
 // String returns the value as a string.
 func (v MediaHost) String() string {
-	return mediaHostStringMap[v]
+	return mapMediaHostString[v]
+}
+
+// Title returns the title.
+func (v MediaHost) Title() string {
+	return mapMediaHostTitle[v]
 }
 
 // Ptr returns the pointer.
@@ -54,13 +69,13 @@ func (v MediaHost) Ptr() *MediaHost {
 
 // Exists returns true if the MediaHost is valid.
 func (v MediaHost) Exists() bool {
-	_, exists := mediaHostStringMap[v]
+	_, exists := mapMediaHostString[v]
 	return exists
 }
 
 // ParseMediaHost converting string to MediaHost
 func ParseMediaHost(s string) (MediaHost, error) {
-	mediaHost, exists := parseMediaHostMap[strings.ToLower(s)]
+	mediaHost, exists := mapParseMediaHost[strings.ToLower(s)]
 	if !exists {
 		return MediaHostNone, errors.New("invalid value for MediaHost")
 	}

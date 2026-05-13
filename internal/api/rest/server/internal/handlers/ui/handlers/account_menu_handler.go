@@ -19,14 +19,17 @@ func (h *DownloaderHandlers) AccountMenuHandler(ctx *fasthttp.RequestCtx) {
 
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
-	dataMap := uivalues.MergeMaps(
-		uivalues.PathValues,
-	)
-	dataMap[uivalues.UserAvatarIconKey] = template.HTML(
+	extraData := make(map[string]any)
+	extraData[uivalues.UserAvatarIconKey] = template.HTML(
 		uivalues.IconFileRawByKey(uivalues.UserAvatarKeyByType(ctxUser.UserType()), iconsDir))
-	dataMap[uivalues.UserLoginKey] = capitalize(ctxUser.Login)
-	dataMap[uivalues.UserEmailKey] = ctxUser.Email
-	dataMap[uivalues.AccountMenuActionsKey] = uivalues.AccountMenuActions(iconsDir)
+	extraData[uivalues.UserLoginKey] = capitalize(ctxUser.Login)
+	extraData[uivalues.UserEmailKey] = ctxUser.Email
+	extraData[uivalues.AccountMenuActionsKey] = uivalues.AccountMenuActions(iconsDir)
+
+	pageData := uivalues.PageFragmentData{
+		BasePaths: uivalues.NewBasePaths(),
+		Extra:     extraData,
+	}
 
 	// Load template
 	tmpl, err := h.templates.Clone()
@@ -36,7 +39,7 @@ func (h *DownloaderHandlers) AccountMenuHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Execute template
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.ComponentAccountMenuContentKey, dataMap); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, uivalues.ComponentAccountMenuContentKey, pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

@@ -6,7 +6,7 @@
                     placeholder="Search media"
                     maxlength="255"
                     autocomplete="off"
-                    hx-post="{{.PathDownloaderSearch}}"
+                    hx-post="{{.BasePaths.DownloaderSearch}}"
                     hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load[this.value.length > 0]"
                     hx-target="#media-result-rows"
                     hx-swap="outerHTML">

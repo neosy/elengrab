@@ -1,8 +1,8 @@
 {{- define "result-row-status" }}
-                {{- if eq .DownloadStatus "done" }}
-                <div class="media-result__row success" id="{{ .RowID }}" data-media="{{ .StreamURL }}" data-is-audio="{{ .IsAudio }}">
+                {{- if eq .Values.DownloadStatus "done" }}
+                <div class="media-result__row success" id="{{ .Values.RowID }}" data-media="{{ .Values.StreamURL }}" data-is-audio="{{ .Values.IsAudio }}">
                 {{- else }}
-                <div class="media-result__row inprogress {{ .ResultRowFade }}" id="{{ .RowID }}">
+                <div class="media-result__row inprogress {{ .Values.ResultRowFade }}" id="{{ .Values.RowID }}">
                 {{- end }}
                     {{- template "media-result-row-thumbnail" . }}
                     {{- template "media-result-row-content" . }}

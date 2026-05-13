@@ -47,12 +47,14 @@ func (h *DownloaderHandlers) AuthRegisterHandler(ctx *fasthttp.RequestCtx) {
 	baseValues := uivalues.NewBaseValues()
 	baseValues.Title = uivalues.PageAuthRegisterTitle
 
-	dataMap := uivalues.MergeMaps(
-		baseValues.ToMap(),
-		uivalues.PathValues,
-	)
-	dataMap[uivalues.CssPathsKey] = cssPaths
-	dataMap[uivalues.JsScriptsKey] = jsScripts
+	pageData := uivalues.AuthRegisterPageData{
+		BaseValues: baseValues,
+		BasePaths:  uivalues.NewBasePaths(),
+		Paths: uivalues.PagePaths{
+			Css:       cssPaths,
+			JsScripts: jsScripts,
+		},
+	}
 
 	// Load template
 	tmpl, err := h.loadPage(uivalues.PageAuthRegister.FileName())
@@ -65,7 +67,7 @@ func (h *DownloaderHandlers) AuthRegisterHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("text/html; charset=utf-8")
 
 	// Execute template
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageAuthRegister.Key(), dataMap); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageAuthRegister.Key(), pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

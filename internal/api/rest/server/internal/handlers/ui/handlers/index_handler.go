@@ -92,24 +92,33 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	baseValues := uivalues.NewBaseValues()
 	baseValues.MetaOgItems = metaOgItems
 
-	dataMap := uivalues.MergeMaps(
-		baseValues.ToMap(),
-		uivalues.FormGrabValues,
-		uivalues.PathValues,
+	extraData := make(map[string]any)
+	extraData[uivalues.UserAvatarIconKey] = template.HTML(
+		uivalues.IconFileRawByKey(uivalues.UserAvatarKeyByType(ctxUser.UserType()), iconsDir),
 	)
-	dataMap[uivalues.CssPathsKey] = cssPaths
-	dataMap[uivalues.JsScriptsKey] = jsScripts
-	dataMap[uivalues.JsImportMapJSONKey] = template.HTML(jsImportMapJSON)
-	dataMap[uivalues.PwaManifestPathKey] = pwaManifestPath
-	dataMap[uivalues.UserAvatarIconKey] = template.HTML(
-		uivalues.IconFileRawByKey(uivalues.UserAvatarKeyByType(ctxUser.UserType()), iconsDir))
-	dataMap[uivalues.UserAvatarActionModeKey] = userAvatarActionMode
-	dataMap[uivalues.ShowHistorySearchKey] = true
-	dataMap[uivalues.ResultNoRowsKey] = rowsBuf.Len() == 0
-	dataMap[uivalues.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
-	dataMap[uivalues.AppVersionKey] = systemInfo.AppVersion
-	dataMap[uivalues.DiskFreeKey] = uformat.BytesHuman(int64(systemInfo.DiskFree))
-	dataMap[uivalues.DiskUsedKey] = uformat.BytesHuman(int64(systemInfo.DiskUsed))
+	extraData[uivalues.UserAvatarActionModeKey] = userAvatarActionMode
+	extraData[uivalues.ResultNoRowsKey] = rowsBuf.Len() == 0
+	extraData[uivalues.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
+
+	pageData := uivalues.IndexPageData{
+		BasePaths:  uivalues.NewBasePaths(),
+		BaseValues: baseValues,
+		Paths: uivalues.PagePaths{
+			Css:             cssPaths,
+			JsScripts:       jsScripts,
+			PwaManifest:     pwaManifestPath,
+			JsImportMapJSON: template.HTML(jsImportMapJSON),
+		},
+		Values: uivalues.IndexPageValues{
+			ShowHistorySearch: true,
+			DiskFree:          uformat.BytesHuman(int64(systemInfo.DiskFree)),
+			DiskUsed:          uformat.BytesHuman(int64(systemInfo.DiskUsed)),
+			GrabForm: uivalues.IndexGrabForm{
+				InputPlaceholder: uivalues.IndexGrabFormInputPlaceholder,
+			},
+		},
+		Extra: extraData,
+	}
 
 	// Set content type so browser renders HTML properly
 	ctx.SetContentType("text/html; charset=utf-8")
@@ -122,7 +131,7 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Execute template with PageTitle
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageIndex.Key(), dataMap); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageIndex.Key(), pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

@@ -1,11 +1,11 @@
 {{- define "media-result-row-content" }}
                     <div class="media-result__row-content">
                         <div class="media-result__content-main">
-                            <span class="media-result__avatar" title="{{ .AvatarTitle }}">
-                                <img class="media-result__avatar-image" src="{{ .ImageURL }}" alt="Channel avatar">
-                                <img class="media-result__avatar-image--avatar" src="{{ .ImageAvatarURL }}" alt="Channel avatar">
-                                {{- if eq .DownloadStatus "done" }}
-                                <button class="media-result__avatar-play-button media-result__play-button" data-watch-url="{{ .WatchURL }}">
+                            <span class="media-result__avatar" title="{{ .Values.AvatarTitle }}">
+                                <img class="media-result__avatar-image" src="{{ .Values.ImageURL }}" alt="Channel avatar">
+                                <img class="media-result__avatar-image--avatar" src="{{ .Values.ImageAvatarURL }}" alt="Channel avatar">
+                                {{- if eq .Values.DownloadStatus "done" }}
+                                <button class="media-result__avatar-play-button media-result__play-button" data-watch-url="{{ .Values.WatchURL }}">
                                     <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M21.4086 9.35258C23.5305 10.5065 23.5305 13.4935 21.4086 14.6474L8.59662 21.6145C6.53435 22.736 4 21.2763 4 18.9671L4 5.0329C4 2.72368 6.53435 1.26402 8.59661 2.38548L21.4086 9.35258Z" fill="currentColor"/>
                                     </svg>                                
@@ -13,9 +13,9 @@
                                 {{- end }}
                             </span>
                             <span class="media-result__title">
-                                <a class="media-result__title-link" href="{{ .MediaURL }}" target="_blank">{{ .MediaTitle }}</a>
+                                <a class="media-result__title-link" href="{{ .Values.MediaURL }}" target="_blank">{{ .Values.MediaTitle }}</a>
                                 <div class="media-result__title-meta">
-                                    <span class="media-result__content-time-ago">{{ .ContentTimeAgo }}</span>
+                                    <span class="media-result__content-time-ago">{{ .Values.ContentTimeAgo }}</span>
                                 </div>
                             </span>
                         </div>

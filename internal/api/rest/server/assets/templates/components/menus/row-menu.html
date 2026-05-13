@@ -1,7 +1,7 @@
 {{- define "row-menu" }}
 <div class="menu menu-row" id="row-menu"
-    data-menu-url="{{ .PathRowMenu }}"
-    hx-get="{{ .PathRowMenu }}"
+    data-menu-url="{{ .BasePaths.RowMenu }}"
+    hx-get="{{ .BasePaths.RowMenu }}"
     hx-trigger="manual"
     hx-target="this"
     hx-swap="innerHTML">
@@ -16,7 +16,7 @@
         ✕
     </button>
     <div class="menu-actions">
-        {{- range .RowMenuActions }}
+        {{- range .Extra.RowMenuActions }}
           {{- if eq .RenderType "divider" }}
             <div class="menu-action__divider"></div>
           {{- else if eq .RenderType "link" }}
