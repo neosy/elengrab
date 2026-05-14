@@ -105,7 +105,7 @@ func (h *DownloaderHandlers) getDownloadsHistory(
 		}
 
 		if loadNextHistory && i == preloadHistoryAfter-1 {
-			h.genRowShouldLoadHistory(buf, before, filters)
+			h.renderRowShouldLoadHistory(buf, before, filters)
 		}
 	}
 
@@ -138,7 +138,7 @@ func (h *DownloaderHandlers) genRowLoadHistory(buf *bytes.Buffer) error {
 	return nil
 }
 
-func (h *DownloaderHandlers) genRowShouldLoadHistory(
+func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 	buf *bytes.Buffer,
 	before time.Time,
 	filters requestFilters,
