@@ -252,13 +252,15 @@ audio {
 
     margin-bottom: 8px;
 
-    align-items: center;
+    align-items: start;
 
     gap: 10px;
 }
 
 .media-info__title-image {
     display: block;
+
+    margin-top: 0.3em;
 
     width: 30px;
     height: 30px;
@@ -481,8 +483,8 @@ button {
             padding: 0 4px;
     }
 
-    .media-info__title {    
-        align-items: start;
+    .media-info__title-image {
+        margin-top: 0;
     }
 }
 
