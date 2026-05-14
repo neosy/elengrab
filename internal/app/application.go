@@ -54,7 +54,8 @@ const (
 	cleanThumbnailFileCacheInterval  = 30 * time.Minute
 
 	// Intervals for updating metrics
-	updateDBMetricsInterval = 5 * time.Minute
+	updateSystemInfoInterval = 15 * time.Minute
+	updateDBMetricsInterval  = 5 * time.Minute
 
 	// defaultWorkerIdleTime is the default idle duration before a dynamic pool worker can exit.
 	workerIdleTimeDefault = 15 * time.Minute
@@ -243,6 +244,10 @@ func (a *Application) initialize() error {
 		CleanSiteLogoCacheInterval:       cleanSiteLogoCacheInterval,
 		CleanThumbnailCacheInterval:      cleanThumbnailCacheInterval,
 		CleanThumbnailFileCacheInterval:  cleanThumbnailFileCacheInterval,
+
+		// metrics
+		UpdateSystemInfoInterval: updateSystemInfoInterval,
+		UpdateDBMetricsInterval:  updateDBMetricsInterval,
 	}
 	a.Workers = nworkers.NewWorkers(a.logger)
 	workers.Initialize(a.logger, wsDeps, a.Workers)

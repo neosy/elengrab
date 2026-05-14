@@ -65,6 +65,7 @@ type Dependencies struct {
 	BackupDatabaseInterval time.Duration
 	FlushWALInterval       time.Duration
 
+	// metrics
 	UpdateSystemInfoInterval time.Duration
 	UpdateDBMetricsInterval  time.Duration
 }
