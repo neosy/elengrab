@@ -306,9 +306,9 @@ button {
 
 .back-button {
   display: flex;
-  width: 44px;
-  height: 44px;
-  margin-right: 5px;
+  width: 35px;
+  height: 35px;
+  margin-right: 10px;
   padding: 0;
 
   align-items: center;
@@ -500,6 +500,11 @@ button {
     .header__inner {
         margin: 6px;
         margin-bottom: 10px;
+    }
+
+    .back-button {
+        width: auto;
+        height: auto;
     }
 
     .header__logo-text h5 {
