@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor"
@@ -56,7 +57,27 @@ func (d *Downloader) ExtractThumbnailURL(ctx context.Context, mediaURL string, u
 	return imageURL, nil
 }
 
+func (d *Downloader) fetchYouTubeShortThumbnail(ctx context.Context, mediaURL string) (*dtypes.ImageData, error) {
+	youtubeShortID, err := helper.ExtractYouTubeShortID(mediaURL)
+	if err != nil {
+		return nil, err
+	}
+
+	imageURL := fmt.Sprintf("https://i.ytimg.com/vi/%s/oar2.jpg", youtubeShortID)
+	imageData, err := helper.FetchImage(ctx, imageURL)
+	if err != nil {
+		return nil, err
+	}
+
+	return imageData, nil
+}
+
 func (d *Downloader) FetchThumbnail(ctx context.Context, mediaURL string, useCookies bool) (*dtypes.ImageData, error) {
+	imageData, _ := d.fetchYouTubeShortThumbnail(ctx, mediaURL)
+	if imageData != nil {
+		return imageData, nil
+	}
+
 	imageURL, err := d.ExtractThumbnailURL(ctx, mediaURL, useCookies)
 	if err != nil {
 		return nil, err
@@ -66,7 +87,7 @@ func (d *Downloader) FetchThumbnail(ctx context.Context, mediaURL string, useCoo
 		return nil, nil
 	}
 
-	imageData, err := helper.FetchImage(ctx, imageURL)
+	imageData, err = helper.FetchImage(ctx, imageURL)
 	if err != nil {
 		d.logger.Debug("Failed to fetch thumbnail from URL", "mediaUrl", mediaURL, "thumbnailURL", imageURL, "error", err)
 		return nil, err
