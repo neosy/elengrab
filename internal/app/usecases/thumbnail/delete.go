@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
@@ -41,6 +42,9 @@ func (t *Thumbnail) Delete(ctx context.Context, thumbID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
+
+	fileID := dmedia.MakeThumbnailStorageKey(thumbID, thumbnail.Variant.String(), thumbnail.Format.String())
+	t.thumbnailFileCache.Delete(fileID)
 
 	t.logger.Debug(
 		"Thumbnail deleted",

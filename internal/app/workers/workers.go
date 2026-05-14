@@ -21,6 +21,7 @@ const (
 	cleanDownloadStateCacheIntervalDefault  = 20 * time.Minute
 	cleanSiteLogoCacheIntervalDefault       = 2 * time.Hour
 	cleanThumbnailCacheIntervalDefault      = 2 * time.Hour
+	cleanThumbnailFileCacheIntervalDefault  = 1 * time.Hour
 
 	backupDatabaseIntervalDefault = 1 * 24 * time.Hour
 	flushWALIntervalDefault       = 1 * time.Hour
@@ -35,6 +36,7 @@ type Dependencies struct {
 	YoutubeChannelCache persistence.YoutubeChannelCacheRepository
 	SiteLogoCache       persistence.SiteLogoCacheRepository
 	ThumbnailCache      persistence.ThumbnailCacheRepository
+	ThumbnailFileCache  persistence.ThumbnailFileCacheRepository
 
 	// runners
 	DownloaderMaintenance pworkers.DownloadMaintenanceRunner
@@ -57,6 +59,7 @@ type Dependencies struct {
 	CleanDownloadStateCacheInterval  time.Duration
 	CleanSiteLogoCacheInterval       time.Duration
 	CleanThumbnailCacheInterval      time.Duration
+	CleanThumbnailFileCacheInterval  time.Duration
 
 	// db
 	BackupDatabaseInterval time.Duration
@@ -134,6 +137,11 @@ func Initialize(logger *slog.Logger, deps *Dependencies, ws *nworkers.Workers) {
 	ws.Add(nworkers.NewWorker(
 		cachejobs.NewCleanCacheJob(logger, deps.ThumbnailCache),
 		nworkers.WithIntervalDefault(deps.CleanThumbnailCacheInterval, cleanThumbnailCacheIntervalDefault),
+	))
+
+	ws.Add(nworkers.NewWorker(
+		cachejobs.NewCleanCacheJob(logger, deps.ThumbnailFileCache),
+		nworkers.WithIntervalDefault(deps.CleanThumbnailFileCacheInterval, cleanThumbnailFileCacheIntervalDefault),
 	))
 
 	ws.Add(nworkers.NewWorker(
