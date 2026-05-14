@@ -977,3 +977,10 @@
         width: 100%;
     }
 }
+
+/* On touch devices for better UX */
+@media (hover: none) and (pointer: coarse) and (max-width: 580px) {
+    .media-result__source {
+        display: none;
+    }
+}
