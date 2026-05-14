@@ -5,8 +5,5 @@ func Copy[T any](v *T) *T {
 	if v == nil {
 		return nil
 	}
-
-	copy := *v
-
-	return &copy
+	return new(*v)
 }

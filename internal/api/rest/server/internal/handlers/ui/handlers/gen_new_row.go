@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"html/template"
 	"path/filepath"
 	"time"
 
@@ -38,8 +37,8 @@ func (h *DownloaderHandlers) genNewRow(
 		FileSize:       "-",
 		Format:         "-",
 
-		DownloaderResultItemStatusIcon: template.HTML(uivalues.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir)),
-		DownloaderResultItemDeleteIcon: template.HTML(uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadDeleteIconNameKey), iconsDir)),
+		DownloaderResultItemStatusIcon: uivalues.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir),
+		DownloaderResultItemDeleteIcon: uivalues.IconFileRawByKey(uivalues.DownloadDeleteIconNameKey, iconsDir),
 		IsItemHTMXOptionRepeat:         true,
 		PageHasDivItems:                pageHasDivItems,
 		ResultRowFade:                  "fade-in",

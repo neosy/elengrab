@@ -417,7 +417,7 @@
 
 .media-result__row-meta {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 0;
 }
 
@@ -437,7 +437,7 @@
 
 .media-result__size {
     display: inline-flex;
-    width: 80px;
+    width: calc(80px + var(--media-result-separator-width));
     justify-content: right;
     align-items: center;
     overflow: hidden;
@@ -447,8 +447,11 @@
 
 .media-result__size-value {
     display: inline-flex;
-    justify-content: center;
+    width: 100%;
+
+    justify-content: right;
     align-items: center;
+
     font-size: 0.9rem;
     border-radius: 4px;
     margin: 0 4px;
@@ -489,6 +492,37 @@
 .media-result__format-value[data-format="mp4"]    { color: #1e88e5; }
 .media-result__format-value[data-format="webm"]   { color: #7e57c2; }
 
+.media-result__source {
+    display: inline-flex;
+    width: calc(20px + var(--media-result-separator-width));
+    height: 25px;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.media-result__source-link {
+    display: inline-flex;
+
+    justify-content: center;
+    align-items: center;
+}
+
+.media-result__source-link svg {
+    width: 22px;
+    height: 22px;
+    pointer-events: none;
+    color: var(--text-secondary);
+    transition: transform .25s ease;
+}
+
+.media-result__source-link:hover svg {
+    color: var(--row-icon-hover-blue);
+    transform: scale(1.2);
+}
+
 
 .media-result__delete {
     display: inline-flex;
@@ -500,6 +534,35 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.media-result__delete-row-button {
+    display: inline-flex;
+
+    padding: 0;
+    margin: 0;
+
+    align-items: center;
+    justify-content: center;
+
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+
+    width: auto;
+    height: auto;
+}
+
+.media-result__delete-row-button svg {
+    pointer-events: none;
+    color: var(--row-icon-gray);
+    transition: transform .25s ease;
+}
+
+.media-result__delete-row-button:hover svg {
+    color: var(--row-icon-hover-red);
+    transform: scale(1.2);
 }
 
 .media-result__status {
@@ -661,32 +724,6 @@
 .icon-download-delete {
     width: 20px;
     height: 20px;
-}
-
-.media-result__delete-row-button {
-    background: none;
-    border: none;
-    padding: 0;
-    margin: 0;
-    outline: none;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    width: auto;
-    height: auto;
-}
-
-.media-result__delete-row-button svg {
-    pointer-events: none;
-    color: var(--download-delete);
-    transition: transform .25s ease;
-}
-
-.media-result__delete-row-button:hover svg {
-    color: var(--download-delete-hover);
-    transform: scale(1.2);
 }
 
 .media-result__status-button {

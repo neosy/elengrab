@@ -1,7 +1,6 @@
 package uivalues
 
 import (
-	"html/template"
 	"strings"
 
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
@@ -97,7 +96,7 @@ func RowMenuActions(svgDir string, mapReplaceUrl map[string]string, isStatusDone
 		action := &actions[len(actions)-1]
 
 		if action.IconFileName != "" {
-			action.IconSvg = template.HTML(IconFileRaw(action.IconFileName, svgDir))
+			action.IconSvg = IconFileRaw(action.IconFileName, svgDir)
 		}
 
 		if key := action.replaceInURL; key != "" {

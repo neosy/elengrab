@@ -169,6 +169,7 @@ type (
 		RowID         string
 		ProgressID    string
 
+		DownloaderResultItemSourceLinkIcon   template.HTML
 		DownloaderResultItemStatusIcon       template.HTML
 		DownloaderResultItemDeleteIcon       template.HTML
 		DownloaderResultItemStatusFailedIcon template.HTML

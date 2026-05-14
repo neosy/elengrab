@@ -130,20 +130,21 @@ func (h *DownloaderHandlers) genRow(
 		RowID:      "row-" + downloadInfo.DownloadID.String(),
 		ProgressID: "progress-" + downloadInfo.DownloadID.String(),
 
-		IsItemHTMXOptionRepeat:         isGrabResultItemHTMXOptionRepeat,
-		IsDownloadEvent:                isDownloadEvent,
-		ResultRowStatusTitle:           downloadInfo.StatusText,
-		DownloaderResultItemStatusIcon: template.HTML(uivalues.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir)),
-		DownloaderResultItemDeleteIcon: template.HTML(uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadDeleteIconNameKey), iconsDir)),
-		ResultMediaUrlFade:             "",
-		ResultSizeFade:                 "",
-		ResultFormatFade:               "",
-		IsItemSpiner:                   downloadInfo.Status == dtypes.MediaDownloadStatusWorking,
+		IsItemHTMXOptionRepeat:             isGrabResultItemHTMXOptionRepeat,
+		IsDownloadEvent:                    isDownloadEvent,
+		ResultRowStatusTitle:               downloadInfo.StatusText,
+		DownloaderResultItemSourceLinkIcon: uivalues.IconFileRawByKey(uivalues.DownloadSourceLinkIconNameKey, iconsDir),
+		DownloaderResultItemStatusIcon:     uivalues.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir),
+		DownloaderResultItemDeleteIcon:     uivalues.IconFileRawByKey(uivalues.DownloadDeleteIconNameKey, iconsDir),
+		ResultMediaUrlFade:                 "",
+		ResultSizeFade:                     "",
+		ResultFormatFade:                   "",
+		IsItemSpiner:                       downloadInfo.Status == dtypes.MediaDownloadStatusWorking,
 	}
 
 	if downloadInfo.Status == dtypes.MediaDownloadStatusFailed {
 		data.DownloaderResultItemStatusFailedIcon = template.HTML(
-			uivalues.IconFileRaw(uivalues.IconFileName(uivalues.DownloadRepeatIconNameKey), iconsDir),
+			uivalues.IconFileRawByKey(uivalues.DownloadRepeatIconNameKey, iconsDir),
 		)
 	}
 
