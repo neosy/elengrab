@@ -34,7 +34,7 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 
 	pageData := uivalues.RowFragmentData{
 		BasePaths: uivalues.NewBasePaths(),
-		Values:    uivalues.RowFragmentValues{},
+		Values:    &uivalues.RowFragmentValues{},
 		Extra:     extraData,
 	}
 

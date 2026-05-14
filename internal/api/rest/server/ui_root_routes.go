@@ -16,15 +16,15 @@ func (s *httpServer) setupUIRootRoutes(r *router.Router, handlers *uih.UIHandler
 	g.Use(middlewareError, s.authMiddleware.AuthOrAnonym)
 	{
 		// Index
-		g.GET(httppaths.PathIndex, handlers.Downloader.IndexHandler)
-		r.HEAD(httppaths.PathIndex, handlers.Downloader.IndexHandler)
+		g.GET(httppaths.PathIndex, handlers.Downloader.IndexPageHandler)
+		r.HEAD(httppaths.PathIndex, handlers.Downloader.IndexPageHandler)
 
 		// /favicon.ico
-		g.GET(httppaths.PathRootFaviconICO, handlers.Downloader.RooFilesHandler)
-		r.HEAD(httppaths.PathRootFaviconICO, handlers.Downloader.RooFilesHandler)
+		g.GET(httppaths.PathRootFaviconICO, handlers.Downloader.AssetFabiconHandler)
+		r.HEAD(httppaths.PathRootFaviconICO, handlers.Downloader.AssetFabiconHandler)
 
 		// /robots.txt
-		g.GET(httppaths.PathRootRobotsTxt, handlers.Downloader.RooFilesHandler)
-		g.HEAD(httppaths.PathRootRobotsTxt, handlers.Downloader.RooFilesHandler)
+		g.GET(httppaths.PathRootRobotsTxt, handlers.Downloader.AssetRobotsHandler)
+		g.HEAD(httppaths.PathRootRobotsTxt, handlers.Downloader.AssetRobotsHandler)
 	}
 }

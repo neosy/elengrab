@@ -12,7 +12,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) ShareTargetHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) ImportFromShareHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser, err := policy.ResolveUserOrFallback(ctx, h.appMode)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)

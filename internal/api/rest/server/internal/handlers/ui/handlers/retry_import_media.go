@@ -13,7 +13,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) RepeatDownloadHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) RetryImportMediaHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser, err := policy.ResolveUserOrFallback(ctx, h.appMode)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
@@ -32,13 +32,13 @@ func (h *DownloaderHandlers) RepeatDownloadHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	downloadInfo, err := h.downloader.RepeatDownload(ctx, *ctxUser, downloadID)
+	downloadInfo, err := h.downloader.RetryDownload(ctx, *ctxUser, downloadID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	row := h.genRow(downloadInfo, false)
+	row := h.renderMediaItemRow(downloadInfo, false)
 	if row.err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

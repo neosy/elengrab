@@ -14,7 +14,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) AuthLoginHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) AuthLoginPageHandler(ctx *fasthttp.RequestCtx) {
 	if err := nfasthttp.EnforceHTTPS(ctx); err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -56,7 +56,7 @@ func (h *DownloaderHandlers) AuthLoginHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Load template
-	tmpl, err := h.loadPage(uivalues.PageAuthLogin.FileName())
+	tmpl, err := h.loadPageTemplate(uivalues.PageAuthLogin.FileName())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
