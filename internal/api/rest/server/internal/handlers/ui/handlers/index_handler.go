@@ -93,9 +93,7 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	baseValues.MetaOgItems = metaOgItems
 
 	extraData := make(map[string]any)
-	extraData[uivalues.UserAvatarIconKey] = template.HTML(
-		uivalues.IconFileRawByKey(uivalues.UserAvatarKeyByType(ctxUser.UserType()), iconsDir),
-	)
+	extraData[uivalues.UserAvatarIconKey] = uivalues.IconFileRawByKey(uivalues.UserAvatarKeyByType(ctxUser.UserType()), iconsDir)
 	extraData[uivalues.UserAvatarActionModeKey] = userAvatarActionMode
 	extraData[uivalues.ResultNoRowsKey] = rowsBuf.Len() == 0
 	extraData[uivalues.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())

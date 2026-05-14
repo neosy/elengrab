@@ -26,14 +26,10 @@
     --search-border-input: #ebebeb;
     --shadow: rgba(0,0,0,0.1);
     --download: #4caf50;
-    --download-delete: #6b7280;
-    --download-delete-hover: #c44b4b;
     --download-repeat: #ef5350;
     --download-repeat-hover: #ef5350;
     --media-result__avatar-play-button: white;
     --media-result__avatar-play-button-hover: #4caf50;
-    --row-menu-button: #6b7280;
-    --row-menu-button-hover: #333;
     --error: #ef5350;
     --spinner-light: #d0d0d0;
     --spinner-dl-start: #9e9e9e;
@@ -41,6 +37,12 @@
     --spinner-dl-finish: #4a90e2;
     --server-status-offline: #555;
     --server-status-online: #4caf50;
+
+    --row-menu-button: #6b7280;
+    --row-menu-button-hover: #333;
+    --row-icon-gray: #6b7280;
+    --row-icon-hover-blue: #3b82f6;
+    --row-icon-hover-red: #c44b4b;
 
     --bg-auth-button: #007bff;
     --bg-auth-button-hover: #0056b3;
@@ -91,19 +93,21 @@
     --search-border-input: #555;
     --shadow: rgba(0,0,0,0.4);
     --download: #58d660;
-    --download-delete: #6b7280;
-    --download-delete-hover: #c44b4b;
     --download-repeat: #ef5350;
     --download-repeat-hover: #ef5350;
     --media-result__avatar-play-button: white;
     --media-result__avatar-play-button-hover: #4caf50;
-    --row-menu-button: #6b7280;
-    --row-menu-button-hover: #9e9e9e;
     --error: #f85149;
     --spinner-light: #30363d;
     --spinner-accent: #58a6ff;
     --server-status-offline: #8b949e;
     --server-status-online: #58d660;
+
+    --row-menu-button: #6b7280;
+    --row-menu-button-hover: #9e9e9e;
+    --row-icon-gray: #6b7280;
+    --row-icon-hover-blue: #3b82f6;
+    --row-icon-hover-red: #c44b4b;
 
     --bg-auth-button: #007bff;
     --bg-auth-button-hover: #0056b3;

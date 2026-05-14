@@ -66,7 +66,7 @@ func NewCache[K comparable, T any](copier CacheCopier[T]) Cache[K, T] {
 //
 // Example usage:
 //
-//	cache := NewCacheWithDefaultCopier[uint64, User, *User]()
+//	cache := NewCacheWithDeaultCopier[uint64, User, *User]()
 //
 // Note: The type *T (or equivalent) must implement the Copy() method.
 //
