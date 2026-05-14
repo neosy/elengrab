@@ -68,9 +68,9 @@ func NewThumbnail() *Thumbnail {
 	}
 }
 
-// makeStorageUUID generates a (analog of UUID v5) based on mediaID, variant, and version using a predefined namespace
-func MakeStorageUUID(mediaID, variant string, version int) uuid.UUID {
-	name := fmt.Sprintf("%s_%s_%d", mediaID, variant, version)
+// MakeThumbnailStorageKey generates a (analog of UUID v5) based on mediaID, variant, and format using a predefined namespace
+func MakeThumbnailStorageKey(thumbID uuid.UUID, variant string, format string) uuid.UUID {
+	name := fmt.Sprintf("%s_%s_%s", thumbID.String(), variant, format)
 	return uuid.NewSHA1(thumbnailNamespace, []byte(name))
 }
 
@@ -80,7 +80,7 @@ func (t *Thumbnail) InitStorageKey() error {
 		return fmt.Errorf("invalid media thumbnail data for storage key generation")
 	}
 
-	//t.StorageKey = MakeStorageUUID(t.MediaID.String(), t.Variant.String(), int(t.Version))
+	//t.StorageKey = MakeThumbnailStorageKey(t.MediaID, t.Variant.String(), int(t.Version))
 	t.StorageKey = t.ThumbID
 
 	return nil
@@ -148,7 +148,7 @@ func (t *Thumbnail) Copy() *Thumbnail {
 	thumbnailCopy.SourceID = uptr.Copy(t.SourceID)
 	thumbnailCopy.SourceURL = uptr.Copy(t.SourceURL)
 
-	imageRaw := make([]byte, 0, len(thumbnailCopy.ImageRaw))
+	imageRaw := make([]byte, len(thumbnailCopy.ImageRaw))
 	copy(imageRaw, thumbnailCopy.ImageRaw)
 
 	return &thumbnailCopy

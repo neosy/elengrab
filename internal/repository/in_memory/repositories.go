@@ -12,6 +12,7 @@ type Repositories struct {
 	YoutubeChannel persistence.YoutubeChannelCacheRepository
 	SiteLogo       persistence.SiteLogoCacheRepository
 	Thumbnail      persistence.ThumbnailCacheRepository
+	ThumbnailFile  persistence.ThumbnailFileCacheRepository
 }
 
 type Dependencies struct {
@@ -19,6 +20,7 @@ type Dependencies struct {
 	YoutubeChannelCacheTTL time.Duration
 	SiteLogoCacheTTL       time.Duration
 	ThumbnailCacheTTL      time.Duration
+	ThumbnailFileCacheTTL  time.Duration
 }
 
 // New returns a new Repositories struct.
@@ -28,5 +30,6 @@ func New(deps Dependencies) *Repositories {
 		YoutubeChannel: newYoutubeChannelRepository(deps.YoutubeChannelCacheTTL),
 		SiteLogo:       newSiteLogoRepository(deps.SiteLogoCacheTTL),
 		Thumbnail:      newThumbnailRepository(deps.ThumbnailCacheTTL),
+		ThumbnailFile:  newThumbnailFileRepository(deps.ThumbnailFileCacheTTL),
 	}
 }

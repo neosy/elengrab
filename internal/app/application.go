@@ -38,6 +38,8 @@ const (
 	siteLogoCacheTTL = 1 * 24 * time.Hour
 	// TTL for thumbnail information cache
 	thumbnailCacheTTL = 1 * 24 * time.Hour
+	// for thumbnail file cache
+	thumbnailFileCacheTTL = 60 * time.Minute
 
 	// Update interval for site logo information
 	logoUpdateInterval = 24 * time.Hour
@@ -49,6 +51,7 @@ const (
 	cleanDownloadStateCacheInterval  = 30 * time.Minute
 	cleanSiteLogoCacheInterval       = 2 * time.Hour
 	cleanThumbnailCacheInterval      = 2 * time.Hour
+	cleanThumbnailFileCacheInterval  = 30 * time.Minute
 
 	// Intervals for updating metrics
 	updateDBMetricsInterval = 5 * time.Minute
@@ -174,6 +177,7 @@ func (a *Application) initialize() error {
 			YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
 			SiteLogoCache:       inMemoryRepositories.SiteLogo,
 			ThumbnailCache:      inMemoryRepositories.Thumbnail,
+			ThumbnailFileCache:  inMemoryRepositories.ThumbnailFile,
 		},
 
 		Storages: usecases.DepStorages{
@@ -216,6 +220,7 @@ func (a *Application) initialize() error {
 		YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
 		SiteLogoCache:       inMemoryRepositories.SiteLogo,
 		ThumbnailCache:      inMemoryRepositories.Thumbnail,
+		ThumbnailFileCache:  inMemoryRepositories.ThumbnailFile,
 
 		// runners
 		DownloaderMaintenance: a.Usecases.Downloader,
@@ -226,16 +231,18 @@ func (a *Application) initialize() error {
 		DownloaderMigrations:  a.Usecases.Downloader,
 
 		// options
-		MetricsEnabled:                   a.cfg.AdminServer.Enable && a.cfg.AdminServer.DebugConfig.EnableMetrics,
-		UpdateHashInterval:               a.cfg.Elengrab.Maintenance.UpdateHashInterval,
-		DeleteDuplicatesInterval:         a.cfg.Elengrab.Maintenance.DeleteDuplicatesInterval,
-		DeleteMissingDownloadsInterval:   a.cfg.Elengrab.Maintenance.DeleteMissingDownloadsInterval,
-		DeleteFailedDownloadsInterval:    a.cfg.Elengrab.Maintenance.DeleteFailedDownloadsInterval,
-		MoveUnmatchedFilesEnabled:        a.cfg.Elengrab.Maintenance.MoveUnmatchedFilesEnabled,
+		MetricsEnabled:                 a.cfg.AdminServer.Enable && a.cfg.AdminServer.DebugConfig.EnableMetrics,
+		UpdateHashInterval:             a.cfg.Elengrab.Maintenance.UpdateHashInterval,
+		DeleteDuplicatesInterval:       a.cfg.Elengrab.Maintenance.DeleteDuplicatesInterval,
+		DeleteMissingDownloadsInterval: a.cfg.Elengrab.Maintenance.DeleteMissingDownloadsInterval,
+		DeleteFailedDownloadsInterval:  a.cfg.Elengrab.Maintenance.DeleteFailedDownloadsInterval,
+		MoveUnmatchedFilesEnabled:      a.cfg.Elengrab.Maintenance.MoveUnmatchedFilesEnabled,
+
 		CleanYoutubeChannelCacheInterval: cleanYoutubeChannelCacheInterval,
 		CleanDownloadStateCacheInterval:  cleanDownloadStateCacheInterval,
 		CleanSiteLogoCacheInterval:       cleanSiteLogoCacheInterval,
 		CleanThumbnailCacheInterval:      cleanThumbnailCacheInterval,
+		CleanThumbnailFileCacheInterval:  cleanThumbnailFileCacheInterval,
 	}
 	a.Workers = nworkers.NewWorkers(a.logger)
 	workers.Initialize(a.logger, wsDeps, a.Workers)
@@ -378,6 +385,7 @@ func (a *Application) initInMemoryRepositories() *inmemoryrep.Repositories {
 		YoutubeChannelCacheTTL: youtubeChannelCacheTTL,
 		SiteLogoCacheTTL:       siteLogoCacheTTL,
 		ThumbnailCacheTTL:      thumbnailCacheTTL,
+		ThumbnailFileCacheTTL:  thumbnailFileCacheTTL,
 	}
 	return inmemoryrep.New(inMemoryDeps)
 }

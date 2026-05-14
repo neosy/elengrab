@@ -13,22 +13,38 @@ type Thumbnail struct {
 	logger  *slog.Logger
 	mappers *mappers.Mappers
 
-	store   *store.ThumbnailStore
+	// Caches
+	thumbnailFileCache persistence.ThumbnailFileCacheRepository
+
+	// Storages
 	storage pstorage.ThumbnailsStorage
+
+	// Internal usecases
+	store *store.ThumbnailStore
 }
 
 // NewThumbnail is the constructor for Thumbnail use case.
 func NewThumbnail(
 	logger *slog.Logger,
+	// Repositories
 	thumbnailRep persistence.ThumbnailRepository,
-	thumbnailCacheRep persistence.ThumbnailCacheRepository,
+	// Caches
+	thumbnailCache persistence.ThumbnailCacheRepository,
+	thumbnailFileCache persistence.ThumbnailFileCacheRepository,
+	// Usecaes
 	storage pstorage.ThumbnailsStorage,
 ) *Thumbnail {
 	return &Thumbnail{
 		logger:  logger,
 		mappers: mappers.NewMappers(),
 
-		store:   store.NewThumbnailStore(logger, thumbnailRep, thumbnailCacheRep),
+		// Cahces
+		thumbnailFileCache: thumbnailFileCache,
+
+		// Storages
 		storage: storage,
+
+		// Internal usecases
+		store: store.NewThumbnailStore(logger, thumbnailRep, thumbnailCache),
 	}
 }
