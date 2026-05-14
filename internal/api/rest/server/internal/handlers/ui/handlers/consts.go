@@ -7,8 +7,8 @@ import (
 const (
 	dateFormate = time.RFC3339
 
-	loadHistoryLimit    = 30
-	preloadHistoryAfter = 29
+	loadHistoryLimit    = 20
+	preloadHistoryAfter = 17
 
 	formFieldLoginKey           = "login"
 	formFieldPasswordKey        = "password"
