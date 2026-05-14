@@ -877,17 +877,20 @@
         align-items: center;
         position: relative;
         padding-top: 5px;
-        padding-bottom: 25px;
+        padding-bottom: 45px;
         gap: 10px;
     }
 
     .media-result__row::after {
-        content: "";
         position: absolute;
-        bottom: 10px;
-        left: 50%;
+
         width: 80%;
         height: 1px;
+
+        bottom: 20px;
+        left: 50%;
+        
+        content: "";
         background: var(--border-result);
         transform: translateX(-50%);
     }
