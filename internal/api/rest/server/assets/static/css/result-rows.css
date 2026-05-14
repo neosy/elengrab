@@ -947,6 +947,7 @@
     .media-result__title-link {
         display: inline-block;
         width: auto;
+        margin-right: 8%;
     }
 
     .media-result__size,
