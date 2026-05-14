@@ -182,6 +182,10 @@
     padding: 0;
 }
 
+.media-result__row-load-history {
+    overflow-anchor: auto;
+}
+
 .media-result__row-placeholder {
     display: none;
 }
