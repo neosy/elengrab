@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	iconfig "github.com/neosy/elengrab/internal/config"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
@@ -16,19 +16,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-// IndexHandlers serves the main page (index.html)
-func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
-	if ctx.IsHead() {
-		ctx.SetContentType("text/html; charset=utf-8")
-		ctx.SetStatusCode(fasthttp.StatusOK)
-		return
-	}
-
-	if h.redirectGuestIfAuthRequired(ctx) {
-		return
-	}
-
-	ctxUser := policy.ResolveUserOrAnonym(ctx)
+func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *dauth.UserContext) {
 
 	var rowsBuf bytes.Buffer
 	err := h.getDownloadsHistory(ctx, &rowsBuf, *ctxUser, time.Now().UTC(), nil)
@@ -122,7 +110,7 @@ func (h *DownloaderHandlers) IndexHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("text/html; charset=utf-8")
 
 	// Load template
-	tmpl, err := h.loadPage(uivalues.PageIndex.FileName())
+	tmpl, err := h.loadPageTemplate(uivalues.PageIndex.FileName())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return

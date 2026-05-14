@@ -11,7 +11,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-func (h *DownloaderHandlers) genNewRow(
+func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 	downloadInfo *ucdto.ScheduleDownloadResponse,
 	pageHasDivItems bool,
 ) *bytes.Buffer {
@@ -50,7 +50,7 @@ func (h *DownloaderHandlers) genNewRow(
 
 	pageData := uivalues.RowFragmentData{
 		BasePaths:     uivalues.NewBasePaths(),
-		Values:        data,
+		Values:        &data,
 		IconFileNames: uivalues.IconFileNames(),
 	}
 

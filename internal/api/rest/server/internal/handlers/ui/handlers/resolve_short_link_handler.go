@@ -9,7 +9,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) ShortLinkHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) ResolveShortLinkHandler(ctx *fasthttp.RequestCtx) {
 	shortCode, ok := ctx.UserValue(shortCodeKey).(string)
 	if !ok || shortCode == "" {
 		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("shortCode is required", fasthttp.StatusBadRequest))
@@ -41,7 +41,14 @@ func (h *DownloaderHandlers) ShortLinkHandler(ctx *fasthttp.RequestCtx) {
 
 	if downloadID := stripUUIDFromPath(link.OriginalURL); downloadID != uuid.Nil {
 		streamPath := httppaths.BuildPathStreamShortCode(shortCode)
-		h.watch(ctx, shortURL, streamPath, downloadID, false)
+		h.renderWatchPage(ctx,
+			renderWatchPageRequest{
+				pageURL:        shortURL,
+				streamPath:     streamPath,
+				downloadID:     downloadID,
+				showBackButton: false,
+			},
+		)
 		return
 	}
 

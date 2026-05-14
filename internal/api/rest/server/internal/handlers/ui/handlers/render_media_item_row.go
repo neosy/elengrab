@@ -15,16 +15,16 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-type genRowResult struct {
+type renderMediaItemRowResponse struct {
 	data       uivalues.RowFragmentData
 	httpStatus int
 	err        error
 }
 
-func (h *DownloaderHandlers) genRow(
+func (h *DownloaderHandlers) renderMediaItemRow(
 	downloadInfo *dto.GetMediaDownloadInfoResponse,
 	isDownloadEvent bool,
-) genRowResult {
+) renderMediaItemRowResponse {
 	var (
 		cacheChanged = struct {
 			youtubeChannelID bool
@@ -37,7 +37,7 @@ func (h *DownloaderHandlers) genRow(
 	)
 
 	if downloadInfo == nil {
-		return genRowResult{
+		return renderMediaItemRowResponse{
 			httpStatus: fasthttp.StatusInternalServerError,
 			err:        errorx.New("the request returned an empty"),
 		}
@@ -177,12 +177,12 @@ func (h *DownloaderHandlers) genRow(
 
 	pageData := uivalues.RowFragmentData{
 		BasePaths:     uivalues.NewBasePaths(),
-		Values:        data,
+		Values:        &data,
 		IconFileNames: uivalues.IconFileNames(),
 		Extra:         extraData,
 	}
 
-	return genRowResult{
+	return renderMediaItemRowResponse{
 		data:       pageData,
 		httpStatus: fasthttp.StatusOK,
 		err:        nil,
