@@ -129,7 +129,7 @@ type (
 	RowFragmentData struct {
 		BasePaths     basePaths
 		BaseValues    baseValues
-		Values        RowFragmentValues
+		Values        *RowFragmentValues
 		IconFileNames map[string]any
 		Extra         map[string]any
 	}

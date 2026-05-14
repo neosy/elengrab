@@ -71,7 +71,7 @@ func (h *DownloaderHandlers) redirectGuestIfAuthRequired(ctx *fasthttp.RequestCt
 	return false
 }
 
-func (h *DownloaderHandlers) loadPage(fileName string) (*template.Template, error) {
+func (h *DownloaderHandlers) loadPageTemplate(fileName string) (*template.Template, error) {
 	t, err := h.templates.Clone()
 	if err != nil {
 		return nil, err

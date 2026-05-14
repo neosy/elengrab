@@ -1,17 +1,18 @@
 package handlers
 
 import (
-	"bytes"
+	"path/filepath"
 
 	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) GetDownloadItemRowHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
 	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
@@ -26,21 +27,27 @@ func (h *DownloaderHandlers) GetDownloadItemRowHandler(ctx *fasthttp.RequestCtx)
 		return
 	}
 
-	downloadInfo, err := h.downloader.GetDownloadInfo(ctx, *ctxUser, downloadID)
+	downloadResp, err := h.downloader.GetDownloadInfo(ctx, *ctxUser, downloadID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	row := h.genRow(downloadInfo, false)
-	if row.err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
-		return
-	}
-	if row.httpStatus == fasthttp.StatusNoContent {
-		ctx.SetStatusCode(row.httpStatus)
-		ctx.Response.Header.Set("HX-Trigger", "no-op")
-		return
+	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
+
+	extraData := make(map[string]any)
+	extraData[uivalues.RowMenuActionsKey] = uivalues.RowMenuActions(
+		iconsDir,
+		map[string]string{
+			uivalues.RowMenuActionItemIDKey: downloadID.String(),
+			uivalues.RowMenuActionURLKey:    downloadResp.MediaURL,
+		},
+		downloadResp.Status == dtypes.MediaDownloadStatusDone,
+	)
+
+	pageData := uivalues.PageFragmentData{
+		BasePaths: uivalues.NewBasePaths(),
+		Extra:     extraData,
 	}
 
 	// Load template
@@ -50,13 +57,9 @@ func (h *DownloaderHandlers) GetDownloadItemRowHandler(ctx *fasthttp.RequestCtx)
 		return
 	}
 
-	var buf bytes.Buffer
-	err = tmpl.ExecuteTemplate(&buf, uivalues.ComponentResultRowStatusKey, row.data)
-	if err != nil {
+	// Execute template
+	if err := tmpl.ExecuteTemplate(ctx, uivalues.ComponentRowMenuContentKey, pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
-
-	ctx.SetBody(buf.Bytes())
-	ctx.SetStatusCode(fasthttp.StatusOK)
 }

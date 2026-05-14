@@ -17,12 +17,16 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) watch(
+type renderWatchPageRequest struct {
+	pageURL        string
+	streamPath     string
+	downloadID     uuid.UUID
+	showBackButton bool
+}
+
+func (h *DownloaderHandlers) renderWatchPage(
 	ctx *fasthttp.RequestCtx,
-	pageURL string,
-	streamPath string,
-	downloadID uuid.UUID,
-	showBackButton bool,
+	req renderWatchPageRequest,
 ) {
 	if ctx.IsHead() {
 		ctx.SetContentType("text/html; charset=utf-8")
@@ -30,7 +34,7 @@ func (h *DownloaderHandlers) watch(
 		return
 	}
 
-	downloadInfo, err := h.downloader.GetDownloadInfoUnrestricted(ctx, downloadID)
+	downloadInfo, err := h.downloader.GetDownloadInfoUnrestricted(ctx, req.downloadID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -83,7 +87,7 @@ func (h *DownloaderHandlers) watch(
 		fileSize = uformat.BytesHuman(*downloadInfo.FileSize)
 	}
 
-	mediaURL := h.baseURL + streamPath
+	mediaURL := h.baseURL + req.streamPath
 	prefixType := fnx.Ternary(isVideoPlayer, "video", "audio")
 	description := downloadInfo.MediaTitle + fmt.Sprintf(" [%s]", downloadInfo.MediaInfoText)
 
@@ -121,7 +125,7 @@ func (h *DownloaderHandlers) watch(
 	metaOgItems.Add("type", fnx.Ternary(isVideoPlayer, "video.other", "music.song"))
 	metaOgItems.Add("title", downloadInfo.MediaTitle)
 	metaOgItems.Add("description", description)
-	metaOgItems.Add("url", pageURL)
+	metaOgItems.Add("url", req.pageURL)
 	metaOgItems.Add("image", imageData.URL)
 	metaOgItems.Add("image:secure_url", imageData.URL)
 	metaOgItems.Add("image:type", httpx.ContentTypeByExt(imageData.Format.String()))
@@ -206,10 +210,10 @@ func (h *DownloaderHandlers) watch(
 			Css:         cssPaths,
 			JsScripts:   jsScripts,
 			PwaManifest: pwaManifestPath,
-			Stream:      streamPath,
+			Stream:      req.streamPath,
 		},
 		Values: uivalues.WatchPageValues{
-			ShowBackButton:     showBackButton,
+			ShowBackButton:     req.showBackButton,
 			IsVideoPlayer:      isVideoPlayer,
 			MediaTitle:         downloadInfo.MediaTitle,
 			MediaDescription:   downloadInfo.MediaDescription,
@@ -223,7 +227,7 @@ func (h *DownloaderHandlers) watch(
 	ctx.SetContentType("text/html; charset=utf-8")
 
 	// Load template
-	tmpl, err := h.loadPage(uivalues.PageWatch.FileName())
+	tmpl, err := h.loadPageTemplate(uivalues.PageWatch.FileName())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return

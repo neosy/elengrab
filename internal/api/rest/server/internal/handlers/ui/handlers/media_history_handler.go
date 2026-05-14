@@ -12,7 +12,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) GetDownloadsHistoryHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) MediaHistoryHandler(ctx *fasthttp.RequestCtx) {
 	var before = time.Now().UTC()
 
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
@@ -75,7 +75,7 @@ func (h *DownloaderHandlers) getDownloadsHistory(
 	before = lines[len(lines)-1].CreatedAt
 
 	for i, downloadInfo := range lines {
-		row := h.genRow(downloadInfo, false)
+		row := h.renderMediaItemRow(downloadInfo, false)
 		if row.err != nil {
 			h.logger.Warn(
 				"Failed to generate row",

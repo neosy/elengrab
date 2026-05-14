@@ -1,23 +1,17 @@
 package handlers
 
 import (
-	"encoding/json"
+	"strings"
 
 	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/dto"
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
+	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) DeleteRowHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser, err := policy.ResolveUserOrFallback(ctx, h.appMode)
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
-		return
-	}
-
+func (h *DownloaderHandlers) CreateMediaShareLinkHandler(ctx *fasthttp.RequestCtx) {
 	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
 	if !ok || downloadIDStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
@@ -30,20 +24,19 @@ func (h *DownloaderHandlers) DeleteRowHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	err = h.downloader.DeleteDownload(ctx, *ctxUser, downloadID)
+	url, err := h.linkWeb.CreateShortLink(
+		ctx,
+		strings.TrimSuffix(h.baseURL, "/")+httppaths.BuildPathMediaItemWatch(downloadID),
+	)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	dataResp := dto.GrabResponse{
-		GuestCreated: ctxUser.GuestCreated,
+	resp := dto.GetDownloadShareLinkResponse{
+		DownloadID: downloadID.String(),
+		URL:        url,
 	}
 
-	dataJSON, _ := json.Marshal(dataResp)
-	if dataJSON != nil {
-		ctx.Response.Header.Set("HX-Trigger", string(dataJSON))
-	}
-
-	ctx.SetStatusCode(fasthttp.StatusNoContent)
+	nfasthttp.WriteResponse(ctx, resp)
 }

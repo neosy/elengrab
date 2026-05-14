@@ -17,7 +17,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) EventsHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) EventsStreamHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 	connectionID := uuid.New()
 
@@ -106,7 +106,7 @@ func (h *DownloaderHandlers) handleDownloadAdd(w *bufio.Writer, event ucdto.Broa
 		return
 	}
 
-	buf := h.genNewRow(downloadInfo, false)
+	buf := h.renderMediaItemRowPlaceholder(downloadInfo, false)
 
 	html := strings.TrimSpace(buf.String())
 
@@ -134,7 +134,7 @@ func (h *DownloaderHandlers) handleDownloadUpdate(w *bufio.Writer, event ucdto.B
 		return
 	}
 
-	row := h.genRow(downloadInfo, true)
+	row := h.renderMediaItemRow(downloadInfo, true)
 	if row.err != nil {
 		return
 	}

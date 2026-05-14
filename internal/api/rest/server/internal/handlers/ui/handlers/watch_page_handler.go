@@ -8,7 +8,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) DownloadItemWatchHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) WatchPageByDownloadIDHandler(ctx *fasthttp.RequestCtx) {
 	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
 	if !ok || downloadIDStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
@@ -21,11 +21,12 @@ func (h *DownloaderHandlers) DownloadItemWatchHandler(ctx *fasthttp.RequestCtx) 
 		return
 	}
 
-	h.watch(
-		ctx,
-		httppaths.BuildPathMediaItemWatch(downloadID),
-		httppaths.BuildPathMediaItemStream(downloadID),
-		downloadID,
-		true,
+	h.renderWatchPage(ctx,
+		renderWatchPageRequest{
+			pageURL:        httppaths.BuildPathMediaItemWatch(downloadID),
+			streamPath:     httppaths.BuildPathMediaItemStream(downloadID),
+			downloadID:     downloadID,
+			showBackButton: true,
+		},
 	)
 }

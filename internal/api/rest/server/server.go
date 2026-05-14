@@ -78,7 +78,7 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *h
 		appEnv: appEnv,
 
 		authMiddleware:  authmw.NewAuthMiddleware(logger, deps.Usecases.Auth, deps.AppMode),
-		errorMiddleware: errormw.NewErrorMiddleware(logger, handlers.UI.Downloader.WriteErrorHandler),
+		errorMiddleware: errormw.NewErrorMiddleware(logger, handlers.UI.Downloader.ErrorPageHandler),
 
 		handlers: handlers,
 

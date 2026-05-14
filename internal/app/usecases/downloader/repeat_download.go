@@ -9,8 +9,8 @@ import (
 	"github.com/neosy/elengrab/internal/exceptions"
 )
 
-// RepeatDownload repeats the download process for a specific download.
-func (uc *Downloader) RepeatDownload(
+// RetryDownload repeats the download process for a specific download.
+func (uc *Downloader) RetryDownload(
 	ctx context.Context,
 	userCtx dauth.UserContext,
 	downloadID uuid.UUID,
