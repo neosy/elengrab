@@ -944,6 +944,11 @@
         display: flex;
     }
 
+    .media-result__title-link {
+        display: inline-block;
+        width: auto;
+    }
+
     .media-result__size,
     .media-result__format,
     .media-result__status {
