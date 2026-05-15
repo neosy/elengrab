@@ -1,5 +1,13 @@
 # Releases
 
+
+## v0.19.1 — 2026-05-15
+
+### 🐛 Fix
+- Add the creation of necessary directories to dockerfile
+
+---
+
 ## v0.19.0 — 2026-05-15
 
 ### ✨ Features
