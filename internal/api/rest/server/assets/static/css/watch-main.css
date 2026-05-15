@@ -32,6 +32,15 @@ h2 { font-size: var(--h2); font-weight: 600; }
 h3 { font-size: var(--h3); font-weight: 600; }
 h4 { font-size: var(--h4); }
 
+.no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    -webkit-touch-callout: none;
+}
+
 html, body {
   overflow-x: hidden;
 }
@@ -543,18 +552,22 @@ button {
 
 /* Disable text selection and tap highlight on touch devices for better UX */
 @media (hover: none) and (pointer: coarse) {
-  * {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-user-select: none;
-    user-select: none;
-  }
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
 
-  button, a {
-    -webkit-touch-callout: none;
-  }
+    button,
+    img {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
 
-  button:focus,
-  a:focus {
-    outline: none;
-  }
+        -webkit-touch-callout: none;
+   }  
+
+    button:focus,
+    a:focus {
+        outline: none;
+    }
 }

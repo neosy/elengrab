@@ -360,7 +360,7 @@
 .media-result__title {
     margin-left: 5px;
     text-align: left;
-    
+
     overflow-wrap: anywhere;
     word-break: break-word;
 }
@@ -700,12 +700,6 @@
     font-weight: 500;
     width: fit-content;
     margin-top: 25px;
-}
-
-.result-loading-text {
-    color: var(--text-secondary);
-    letter-spacing: 0.4px;
-    user-select: none;
 }
 
 .icon-download-wait {
