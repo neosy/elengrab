@@ -37,8 +37,10 @@ type Dependencies struct {
 
 	BaseURL string
 
+	// Short link
 	BaseShortURL    string
 	ShortCodeLength uint8
+	ShortLinkTTL    time.Duration
 
 	DatabaseBackupsDir  string
 	DatabaseBackupsKeep int
@@ -109,7 +111,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 		logger,
 		deps.Repositories.Link,
 		deps.Repositories.LinkClick,
-		link.LinkOptionBaseURL(deps.BaseShortURL),
+		link.WithBaseURL(deps.BaseShortURL),
 	)
 
 	thumbnail := thumbnail.NewThumbnail(
@@ -174,8 +176,16 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.DatabaseBackupsDir,
 			deps.DatabaseBackupsKeep,
 		),
-		Link:      link,
-		LinkWeb:   linkweb.NewLinkWeb(logger, link, deps.BaseShortURL, deps.ShortCodeLength),
+		Link: link,
+		LinkWeb: linkweb.NewLinkWeb(
+			logger,
+			linkweb.Dependencies{Link: link},
+			linkweb.Options{
+				BaseShortURL:    deps.BaseShortURL,
+				ShortCodeLength: deps.ShortCodeLength,
+				LinkTTL:         deps.ShortLinkTTL,
+			},
+		),
 		Thumbnail: thumbnail,
 	}
 }
