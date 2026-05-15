@@ -11,28 +11,43 @@ var (
 var (
 	CssIndexPaths = cssFileNames{
 		"font-inter.css",
-		"index-main.css",
+		"base.css",
+		"interactions.css",
+		"utilities.css",
 		"variables.css",
+
+		"page-index.css",
 		"theme-switcher.css",
+
 		"menu.css",
-		"menu-overrides.css",
+		"menu-variants.css",
+
 		"grab-form.css",
 		"result-rows.css",
+
 		"player.css",
 		"notifications.css",
 	}.paths
 
 	CssAuthPaths = cssFileNames{
 		"font-inter.css",
-		"auth-main.css",
+		"base.css",
+		"interactions.css",
+		"utilities.css",
 		"variables.css",
+
+		"page-auth.css",
 		"theme-switcher.css",
 	}.paths
 
 	CssWatchPaths = cssFileNames{
 		"font-inter.css",
-		"watch-main.css",
+		"base.css",
+		"interactions.css",
+		"utilities.css",
 		"variables.css",
+
+		"page-watch.css",
 		"theme-switcher.css",
 	}.paths
 )

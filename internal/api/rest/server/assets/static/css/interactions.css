@@ -1,0 +1,36 @@
+/* Mobile touch UX tweaks */
+@media (hover: none) and (pointer: coarse) {
+    /* Remove tap highlight on interactive elements */
+    button,
+    a,
+    input,
+    textarea,
+    img,
+    svg {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Prevent text selection and iOS long-press menu */
+    button,
+    img {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+
+        -webkit-touch-callout: none;
+    }
+
+    /* Remove default focus outline on touch devices */
+    button:focus,
+    a:focus {
+        outline: none;
+    }
+}
+
+/* Keyboard accessibility focus state */
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid #4c9ffe;
+    outline-offset: 2px;
+}
