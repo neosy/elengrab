@@ -33,19 +33,25 @@ func (h *DownloaderHandlers) MediaItemImageHandler(ctx *fasthttp.RequestCtx) {
 
 	args := ctx.QueryArgs()
 	argImageSource := string(args.Peek(sourceKey))
-	argImageSources := strings.Split(argImageSource, ",")
+	argImageSource = strings.TrimSpace(argImageSource)
 
 	var imageSources []dtypes.ImageSource
 
-	for _, src := range argImageSources {
-		if err := h.validators.Validate.Var(src, "required,imageSource"); err != nil {
-			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
-			return
-		}
+	if argImageSource != "" {
+		for src := range strings.SplitSeq(argImageSource, ",") {
+			if src == "" {
+				continue
+			}
 
-		source, err := dtypes.ParseImageSource(src)
-		if err == nil {
-			imageSources = append(imageSources, source)
+			if err := h.validators.Validate.Var(src, "required,imageSource"); err != nil {
+				nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+				return
+			}
+
+			source, err := dtypes.ParseImageSource(src)
+			if err == nil {
+				imageSources = append(imageSources, source)
+			}
 		}
 	}
 
