@@ -1,12 +1,12 @@
-package uivalues
+package paths
 
 var (
-	assetCssPaths = newAssetPaths(CssHttpPath)
+	assetCssPaths = newAssetPaths(CssPath)
 
-	assetPWAPath  = newAssetPath(PwaHttpPath)
-	assetPWAPaths = newAssetPaths(PwaHttpPath)
+	assetPWAPath  = newAssetPath(PwaPath)
+	assetPWAPaths = newAssetPaths(PwaPath)
 
-	assetJsNameKeyPath = newAssetNameKeyPaths(JsHttpPath)
+	assetJsNameKeyPath = newAssetNameKeyPaths(JsPath)
 )
 
 type (
@@ -49,7 +49,7 @@ func newAssetNameKeyPaths(httpPath func(fileName string) string) assetNameKeyPat
 
 		var jsMap = make(jsImportMap, len(paths))
 		for i, newName := range paths {
-			key := JsHttpPath(fileNames[i])
+			key := JsPath(fileNames[i])
 			jsMap[key] = httpPath(newName)
 		}
 

@@ -5,8 +5,11 @@ import (
 	"html/template"
 	"path/filepath"
 
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/items"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
 	dltypes "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/types"
-	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -16,7 +19,7 @@ import (
 )
 
 type renderMediaItemRowResponse struct {
-	data       uivalues.RowFragmentData
+	data       pages.RowFragmentData
 	httpStatus int
 	err        error
 }
@@ -95,7 +98,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		streamURL = httppaths.BuildPathMediaItemStream(downloadInfo.DownloadID)
 	}
 
-	data := uivalues.RowFragmentValues{
+	data := pages.RowFragmentValues{
 		DownloadID:     downloadInfo.DownloadID.String(),
 		DownloadStatus: downloadInfo.Status.String(),
 		WorkingStatus:  dltypes.MapUsecaseWorkingStatusToUI(downloadInfo.WorkingStatus).String(),
@@ -133,9 +136,9 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		IsItemHTMXOptionRepeat:             isGrabResultItemHTMXOptionRepeat,
 		IsDownloadEvent:                    isDownloadEvent,
 		ResultRowStatusTitle:               downloadInfo.StatusText,
-		DownloaderResultItemSourceLinkIcon: uivalues.IconFileRawByKey(uivalues.DownloadSourceLinkIconNameKey, iconsDir),
-		DownloaderResultItemStatusIcon:     uivalues.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir),
-		DownloaderResultItemDeleteIcon:     uivalues.IconFileRawByKey(uivalues.DownloadDeleteIconNameKey, iconsDir),
+		DownloaderResultItemSourceLinkIcon: icons.FileRawByKey(icons.DownloadSourceLinkIconNameKey, iconsDir),
+		DownloaderResultItemStatusIcon:     icons.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir),
+		DownloaderResultItemDeleteIcon:     icons.FileRawByKey(icons.DownloadDeleteIconNameKey, iconsDir),
 		ResultMediaUrlFade:                 "",
 		ResultSizeFade:                     "",
 		ResultFormatFade:                   "",
@@ -144,7 +147,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 
 	if downloadInfo.Status == dtypes.MediaDownloadStatusFailed {
 		data.DownloaderResultItemStatusFailedIcon = template.HTML(
-			uivalues.IconFileRawByKey(uivalues.DownloadRepeatIconNameKey, iconsDir),
+			icons.FileRawByKey(icons.DownloadRepeatIconNameKey, iconsDir),
 		)
 	}
 
@@ -172,13 +175,13 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	extraData := make(map[string]any)
 
 	if downloadInfo.Progress != nil {
-		extraData[uivalues.DownloadingProgressPercentKey] = int(downloadInfo.Progress.Percent())
+		extraData[items.DownloadingProgressPercentKey] = int(downloadInfo.Progress.Percent())
 	}
 
-	pageData := uivalues.RowFragmentData{
-		BasePaths:     uivalues.NewBasePaths(),
+	pageData := pages.RowFragmentData{
+		BasePaths:     paths.NewPaths(),
 		Values:        &data,
-		IconFileNames: uivalues.IconFileNames(),
+		IconFileNames: icons.FileNames(),
 		Extra:         extraData,
 	}
 

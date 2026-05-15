@@ -5,8 +5,12 @@ import (
 
 	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/components"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/items"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/menu"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
-	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
@@ -36,17 +40,17 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
 	extraData := make(map[string]any)
-	extraData[uivalues.RowMenuActionsKey] = uivalues.RowMenuActions(
+	extraData[items.RowMenuActionsKey] = menu.RowMenuActions(
 		iconsDir,
 		map[string]string{
-			uivalues.RowMenuActionItemIDKey: downloadID.String(),
-			uivalues.RowMenuActionURLKey:    downloadResp.MediaURL,
+			menu.RowMenuActionItemIDKey: downloadID.String(),
+			menu.RowMenuActionURLKey:    downloadResp.MediaURL,
 		},
 		downloadResp.Status == dtypes.MediaDownloadStatusDone,
 	)
 
-	pageData := uivalues.PageFragmentData{
-		BasePaths: uivalues.NewBasePaths(),
+	pageData := pages.PageFragmentData{
+		BasePaths: paths.NewPaths(),
 		Extra:     extraData,
 	}
 
@@ -58,7 +62,7 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Execute template
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.ComponentRowMenuContentKey, pageData); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, components.RowMenuContentKey, pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

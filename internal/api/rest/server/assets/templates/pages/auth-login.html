@@ -1,14 +1,14 @@
-{{- define "auth-login" }}
+{{- define "auth-login-page" -}}
     {{- template "auth" . }}
-{{- end }}
+{{- end -}}
 
-{{- define "header" }}
+{{- define "header" -}}
     <div class="user-menu">
       {{- template "theme-switcher" . }}
     </div>
-{{- end }}
+{{- end -}}
 
-{{- define "content" }}
+{{- define "content" -}}
     <div class="main_login">
         <div class="main-header">
           <a class="main-header__link" href="/">
@@ -27,4 +27,4 @@
             <button type="submit">Login</button>
         </form>
     </div>    
-{{- end }}
+{{- end -}}

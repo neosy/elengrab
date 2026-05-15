@@ -4,8 +4,13 @@ import (
 	"html/template"
 	"path/filepath"
 
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/components"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/items"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/menu"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
-	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -20,14 +25,14 @@ func (h *DownloaderHandlers) AccountMenuHandler(ctx *fasthttp.RequestCtx) {
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
 	extraData := make(map[string]any)
-	extraData[uivalues.UserAvatarIconKey] = template.HTML(
-		uivalues.IconFileRawByKey(uivalues.UserAvatarKeyByType(ctxUser.UserType()), iconsDir))
-	extraData[uivalues.UserLoginKey] = capitalize(ctxUser.Login)
-	extraData[uivalues.UserEmailKey] = ctxUser.Email
-	extraData[uivalues.AccountMenuActionsKey] = uivalues.AccountMenuActions(iconsDir)
+	extraData[items.UserAvatarIconKey] = template.HTML(
+		icons.FileRawByKey(icons.UserAvatarKeyByType(ctxUser.UserType()), iconsDir))
+	extraData[items.UserLoginKey] = capitalize(ctxUser.Login)
+	extraData[items.UserEmailKey] = ctxUser.Email
+	extraData[items.AccountMenuActionsKey] = menu.AccountMenuActions(iconsDir)
 
-	pageData := uivalues.PageFragmentData{
-		BasePaths: uivalues.NewBasePaths(),
+	pageData := pages.PageFragmentData{
+		BasePaths: paths.NewPaths(),
 		Extra:     extraData,
 	}
 
@@ -39,7 +44,7 @@ func (h *DownloaderHandlers) AccountMenuHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Execute template
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.ComponentAccountMenuContentKey, pageData); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, components.AccountMenuContentKey, pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

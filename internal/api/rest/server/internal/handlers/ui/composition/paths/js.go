@@ -1,4 +1,4 @@
-package uivalues
+package paths
 
 import (
 	"encoding/json"
@@ -81,13 +81,13 @@ var (
 )
 
 type (
-	jsScript struct {
+	JsScript struct {
 		Path  string
 		Type  string
 		Defer bool
 	}
 
-	jsScripts         []jsScript
+	jsScripts         []JsScript
 	jsImportFileNames []string
 	jsImportMap       map[string]string
 )
@@ -100,17 +100,17 @@ func (scripts jsScripts) fileNames() []string {
 	return names
 }
 
-func (scripts jsScripts) withPath(dir string) ([]jsScript, error) {
+func (scripts jsScripts) withPath(dir string) ([]JsScript, error) {
 	paths, err := fileNamesWithHash(dir, scripts.fileNames())
 	if err != nil {
 		return nil, err
 	}
 
-	newScripts := make([]jsScript, len(scripts))
+	newScripts := make([]JsScript, len(scripts))
 	copy(newScripts, scripts)
 
 	for i, name := range paths {
-		newScripts[i].Path = JsHttpPath(name)
+		newScripts[i].Path = JsPath(name)
 	}
 
 	return newScripts, nil

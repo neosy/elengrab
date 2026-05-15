@@ -1,4 +1,4 @@
-package uivalues
+package paths
 
 import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
@@ -9,7 +9,7 @@ const (
 )
 
 type (
-	basePaths struct {
+	Paths struct {
 		StaticImg            string
 		StaticIcons          string
 		StaticCss            string
@@ -32,7 +32,7 @@ type (
 )
 
 var (
-	basePathsDefault = basePaths{
+	basePathsDefault = Paths{
 		StaticImg:            httppaths.GroupStaticImg,
 		StaticIcons:          httppaths.GroupStaticIcon,
 		StaticCss:            httppaths.GroupStaticCss,
@@ -54,34 +54,34 @@ var (
 	}
 )
 
-func NewBasePaths() basePaths {
+func NewPaths() Paths {
 	return basePathsDefault
 }
 
-func ImageHttpPath(fileName string) string {
+func ImagePath(fileName string) string {
 	return httppaths.GroupStaticImg + "/" + fileName
 }
 
-func IconHttpPath(fileName string) string {
+func IconPath(fileName string) string {
 	return httppaths.GroupStaticIcon + "/" + fileName
 }
 
-func CssHttpPath(fileName string) string {
+func CssPath(fileName string) string {
 	return httppaths.GroupStaticCss + "/" + fileName
 }
 
-func JsHttpPath(fileName string) string {
+func JsPath(fileName string) string {
 	return httppaths.GroupStaticJs + "/" + fileName
 }
 
-func PwaHttpPath(fileName string) string {
+func PwaPath(fileName string) string {
 	return httppaths.GroupStaticPwa + "/" + fileName
 }
 
-func ThumbnailHttpPath(id string) string {
+func ThumbnailPath(id string) string {
 	return httppaths.GroupStaticThumbnail + "/" + id
 }
 
-func YoutubeChannelHttpPath(channelId string) string {
+func YoutubeChannelPath(channelId string) string {
 	return httppaths.GroupStaticYoutubeChannel + "/" + channelId
 }

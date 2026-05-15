@@ -1,11 +1,15 @@
-package uivalues
+package pages
 
-import "html/template"
+import (
+	"html/template"
+
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
+)
 
 // Index page
 type (
 	IndexPageData struct {
-		BasePaths  basePaths
+		BasePaths  paths.Paths
 		BaseValues baseValues
 		Paths      PagePaths
 		Values     IndexPageValues
@@ -29,7 +33,7 @@ type (
 // Watch page
 type (
 	WatchPageData struct {
-		BasePaths  basePaths
+		BasePaths  paths.Paths
 		BaseValues baseValues
 		Paths      PagePaths
 		Values     WatchPageValues
@@ -61,7 +65,7 @@ type (
 // Auth login page
 type (
 	AuthLoginPageData struct {
-		BasePaths  basePaths
+		BasePaths  paths.Paths
 		BaseValues baseValues
 		Paths      PagePaths
 		Extra      map[string]any
@@ -71,7 +75,7 @@ type (
 // Auth register page
 type (
 	AuthRegisterPageData struct {
-		BasePaths  basePaths
+		BasePaths  paths.Paths
 		BaseValues baseValues
 		Paths      PagePaths
 		Extra      map[string]any
@@ -81,7 +85,7 @@ type (
 // Error page
 type (
 	ErrorPageData struct {
-		BasePaths  basePaths
+		BasePaths  paths.Paths
 		BaseValues baseValues
 		Values     ErrorPageValues
 		Extra      map[string]any
@@ -107,7 +111,7 @@ type (
 	PagePaths struct {
 		Css []string
 
-		JsScripts       []jsScript
+		JsScripts       []paths.JsScript
 		JsImportMapJSON template.HTML
 
 		PwaManifest string
@@ -118,7 +122,7 @@ type (
 // Page fragment
 type (
 	PageFragmentData struct {
-		BasePaths  basePaths
+		BasePaths  paths.Paths
 		BaseValues baseValues
 		Extra      map[string]any
 	}
@@ -127,7 +131,7 @@ type (
 // Row fragment
 type (
 	RowFragmentData struct {
-		BasePaths     basePaths
+		BasePaths     paths.Paths
 		BaseValues    baseValues
 		Values        *RowFragmentValues
 		IconFileNames map[string]any

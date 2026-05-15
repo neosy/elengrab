@@ -1,11 +1,11 @@
-{{- define "index" }}
+{{- define "index-page" }}
     {{- template "base" . }}
-{{- end }}
+{{- end -}}
 
-{{- define "header" }}
-{{- end }}
+{{- define "header" -}}
+{{- end -}}
 
-{{- define "user-menu" }}
+{{- define "user-menu" -}}
       <div class="user-menu">
         {{- template "theme-switcher" . }}
         <div class="user-avatar no-select" id="user-avatar" data-action="{{ .Extra.UserAvatarActionMode }}">
@@ -15,9 +15,9 @@
         </div>
       </div>
       {{- template "account-menu" . }}
-{{- end }}
+{{- end -}}
 
-{{- define "content" }}
+{{- define "content" -}}
     <div class="main-header">
       {{- block "user-menu" . }}{{- end }}
       <a class="main-header__link" href="/">
@@ -33,9 +33,9 @@
     <div id="audio-bar"></div>
     {{- template "menu-overlay" . }}
     {{- template "notification-area" .}}
-{{- end }}
+{{- end -}}
 
-{{- define "footer" }}
+{{- define "footer" -}}
     <div class="footer__app-version">
       <span id="server-status-dot" class="server-status-dot"></span>
       <a class="app-version__link" href="https://github.com/neosy/elengrab" target="_blank" title="View source code on GitHub">
@@ -46,4 +46,4 @@
       Free: <span id="disk-free">{{ .Values.DiskFree }}</span> |
       Used: <span id="disk-used">{{ .Values.DiskUsed }}</span>
     </div>
-{{- end }}
+{{- end -}}

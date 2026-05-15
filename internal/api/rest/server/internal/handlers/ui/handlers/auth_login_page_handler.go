@@ -5,8 +5,9 @@ import (
 
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
-	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -31,32 +32,32 @@ func (h *DownloaderHandlers) AuthLoginPageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	cssPaths, err := uivalues.CssAuthPaths(h.assetFolders.Css())
+	cssPaths, err := paths.CssAuthPaths(h.assetFolders.Css())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	jsScripts, err := uivalues.JsAuthPaths(h.assetFolders.Js())
+	jsScripts, err := paths.JsAuthPaths(h.assetFolders.Js())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	baseValues := uivalues.NewBaseValues()
-	baseValues.Title = uivalues.PageAuthLoginTitle
+	baseValues := pages.NewBaseValues()
+	baseValues.Title = pages.PageAuthLoginTitle
 
-	pageData := uivalues.AuthLoginPageData{
+	pageData := pages.AuthLoginPageData{
 		BaseValues: baseValues,
-		BasePaths:  uivalues.NewBasePaths(),
-		Paths: uivalues.PagePaths{
+		BasePaths:  paths.NewPaths(),
+		Paths: pages.PagePaths{
 			Css:       cssPaths,
 			JsScripts: jsScripts,
 		},
 	}
 
 	// Load template
-	tmpl, err := h.loadPageTemplate(uivalues.PageAuthLogin.FileName())
+	tmpl, err := h.loadPageTemplate(pages.AuthLoginPage.FileName())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
@@ -66,7 +67,7 @@ func (h *DownloaderHandlers) AuthLoginPageHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("text/html; charset=utf-8")
 
 	// Execute template
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageAuthLogin.Key(), pageData); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, pages.AuthLoginPage.Key(), pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
