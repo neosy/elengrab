@@ -116,7 +116,7 @@ stack-deploy: ## Deploy containers
 stack-rm: ## Remove containers
 	@docker stack rm $(STACK_NAME)
 
-checkout: ## git checkout -b
+checkout: ## Create branch with auto task id, e.g. git checkout -b fix/L001-name
 	@if [ ! -f $(TASK_ID_FILE) ]; then echo "L000" > $(TASK_ID_FILE); fi
 	@branch_goal=$(filter-out $@,$(MAKECMDGOALS)); \
 	base=$$(echo $$branch_goal | cut -d'/' -f1); \
