@@ -1,18 +1,26 @@
 # Releases
 
-## v0.19.0 — 2026-05-10
+## v0.19.0 — 2026-05-15
 
 ### ✨ Features
-- Added thumbnail support for media files, improving visual representation in media lists (#291)
-- Shard downloads directory to improve file storage scalability
+- Added thumbnail support for media files in lists (#291)
+- Implemented download directory sharding for better storage scalability
 - Added prometheus db metrics
-- Added media description
+- Added media descriptions (incl. watch page integration)
 - Added PWA share target URL import handling
+- Introduced configurable short link TTL via SHORT_LINK_TTL_DAYS
 
 ### 🎨 Style
 - Added global UI blocking overlay for menu interactions
 - Implemented backdrop (screen dimming) when blocking menus are open
 - Added scroll lock behavior while blocking menu is active
+- Added persistent notification area at the bottom of the screen
+- Introduced unified notification styling for light and dark themes
+- Added description to watch page media
+- Replaced global user-select disabling with targeted touch interaction styles
+- Improved mobile layout: avatar positioning, title alignment, and user menu placement
+- Improved infinite scroll preload trigger behavior on mobile
+- Maskable icon visual updates
 
 ### 🖥️ UI / Frontend
 - Added persistent notification area at the bottom of the screen
@@ -22,17 +30,36 @@
 - Added a description to the watch
 
 ### ⚡ Performance
-- Added thumbnail cache
+- Added SVG rendering cache to reduce recomputation overhead
+- Introduced in-memory cache for thumbnail file storage
 
 ### 🧩 Refactor
 - Introduce streaming full names iterator in repository
+- Reorganized UI folder into composition-based structure
+- Renamed REST handlers for improved consistency
+- Refactored HTML template data handling
+- Refactored downloader migrations and internal data flow
 
 ### 🧪 Test
 - Added admin server (http://127.0.0.1:6060/.../...)
-  - http://127.0.0.1:6060/debug/pprof/
-  - http://127.0.0.1:6060/metrics
-  - http://127.0.0.1:6060/healthz
+  - /debug/pprof/
+  - /metrics
+  - /healthz
 - Added fasthttp prometheus middleware
+
+### 🏗 Build / Migrations
+- Added macOS amd64 and arm64 release targets
+- Introduced migrations:
+  - media info backfill
+  - media description backfill
+  - thumbnail generation pipeline
+- Downloader-related migration refactor and data normalization updates
+
+### 🐛 Fix
+- Fixed Prometheus metrics interval update behavior
+- Fixed SSE reconnection logic in frontend
+- Fixed metric path normalization issues
+- Fixed PWA manifest enctype warning
 
 ---
 
