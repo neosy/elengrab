@@ -35,7 +35,7 @@ RUN  if [ "$INSTALL_DENO" = "true" ]; then \
     # Create necessary directories and install dependencies
 RUN mkdir ${APP_DIR} \
     && cd ${APP_DIR} \
-        && mkdir -p bin assets downloads sqlite/data sqlite/backups \
+        && mkdir -p bin assets media cookies downloads sqlite/data sqlite/backups \
     # time Zone
     && ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime \
     # Remove packages to keep image small
