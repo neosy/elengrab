@@ -9,10 +9,14 @@ export
 VERSION_FILE := "VERSION"
 VERSION_START := "0.1.0"
 
-VERSION := $(shell cat $(VERSION_FILE))
+
+VERSION := $(shell \
+  test -f $(VERSION_FILE) || echo "0.0.0" > $(VERSION_FILE); \
+  cat $(VERSION_FILE) \
+)
 # VERSION_NEW := $(shell echo $(VERSION) | awk -F. '{print $$1"."$$2"."$$3+1}')
 
-.DEFAULT_GOAL := help
+TASK_ID_FILE=.task_id
 
 help: ## List of commands
 	@awk 'BEGIN { \
@@ -111,3 +115,23 @@ stack-deploy: ## Deploy containers
 
 stack-rm: ## Remove containers
 	@docker stack rm $(STACK_NAME)
+
+checkout: ## git checkout -b
+	@if [ ! -f $(TASK_ID_FILE) ]; then echo "L000" > $(TASK_ID_FILE); fi
+	@branch_goal=$(filter-out $@,$(MAKECMDGOALS)); \
+	base=$$(echo $$branch_goal | cut -d'/' -f1); \
+	name=$$(echo $$branch_goal | cut -d'/' -f2-); \
+	current=$$(cat $(TASK_ID_FILE)); \
+	prefix=$$(echo $$current | sed 's/[0-9]*$$//'); \
+	number=$$(echo $$current | sed 's/^[^0-9]*//'); \
+	next=$$((number + 1)); \
+	id=$$(printf "%s%03d" "$$prefix" "$$next"); \
+	printf "%s" "$$id" > $(TASK_ID_FILE); \
+	branch=$$(if [ "$$base" = "$$name" ]; then echo "$$id-$$base"; else echo "$$base/$$id-$$name"; fi); \
+	git checkout -b $$branch
+
+# Catch-all rule to ignore extra MAKECMDGOALS arguments
+# Prevents "No rule to make target ..." errors when passing pseudo-arguments
+# (e.g. make checkout fix/long-name)
+%:
+	@:

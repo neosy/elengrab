@@ -11,6 +11,9 @@
 # godotenv file
 .env
 
+# local task counter
+.task_id
+
 # ignore local files
 /secrets/
 /local/
