@@ -20,19 +20,19 @@ func DefaultLinkOptions() LinkOptions {
 	}
 }
 
-func LinkOptionBaseURL(url string) LinkOption {
+func WithBaseURL(url string) LinkOption {
 	return func(o *LinkOptions) {
 		o.BaseURL = url
 	}
 }
 
-func LinkOptionShortCodeLength(length uint8) LinkOption {
+func WithShortCodeLength(length uint8) LinkOption {
 	return func(o *LinkOptions) {
 		o.ShortCodeLength = length
 	}
 }
 
-func LinkOptionDeterministic(deterministic bool) LinkOption {
+func WithDeterministic(deterministic bool) LinkOption {
 	return func(o *LinkOptions) {
 		o.Deterministic = deterministic
 	}
