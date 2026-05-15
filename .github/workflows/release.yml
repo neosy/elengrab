@@ -196,6 +196,18 @@ jobs:
           name: elengrab-binaries-windows-amd64
           path: dist/windows-amd64
 
+      - name: Download darwin-amd64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: elengrab-binaries-darwin-amd64
+          path: dist/darwin-amd64
+
+      - name: Download darwin-arm64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: elengrab-binaries-darwin-arm64
+          path: dist/darwin-arm64
+          
       - name: Publish Release
         uses: softprops/action-gh-release@v1
         with:
