@@ -1,14 +1,14 @@
-{{- define "auth-register" }}
+{{- define "auth-register-page" -}}
     {{- template "auth" . }}
-{{- end }}
+{{- end -}}
 
-{{- define "header" }}
+{{- define "header" -}}
     <div class="user-menu">
       {{- template "theme-switcher" . }}
     </div>
-{{- end }}
+{{- end -}}
 
-{{- define "content" }}
+{{- define "content" -}}
     <div class="main_register">
         <div class="main-header">
           <a class="main-header__link" href="/">
@@ -28,4 +28,4 @@
             <button type="submit">Register</button>
         </form>
     </div>    
-{{- end }}
+{{- end -}}

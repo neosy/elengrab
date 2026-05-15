@@ -1,4 +1,4 @@
-package uivalues
+package paths
 
 var (
 	PwaManifestPath = pwaFileName("manifest.json").path

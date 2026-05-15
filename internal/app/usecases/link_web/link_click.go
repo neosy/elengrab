@@ -25,7 +25,7 @@ func (u *LinkWeb) ShortLinkClick(
 		referrerPtr = &referrer
 	}
 
-	link, err := u.link.ShortLinkClick(
+	link, err := u.link.Click(
 		ctx,
 		&dto.ShortLinkClickRequest{
 			ShortURL:  shortURL,

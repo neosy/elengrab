@@ -1,4 +1,4 @@
-package uivalues
+package images
 
 const (
 	Elengrab512ImageFileName     = "android-chrome-rounded-512x512.png"

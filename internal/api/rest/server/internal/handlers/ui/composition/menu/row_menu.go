@@ -1,8 +1,9 @@
-package uivalues
+package menu
 
 import (
 	"strings"
 
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 )
 
@@ -96,7 +97,7 @@ func RowMenuActions(svgDir string, mapReplaceUrl map[string]string, isStatusDone
 		action := &actions[len(actions)-1]
 
 		if action.IconFileName != "" {
-			action.IconSvg = IconFileRaw(action.IconFileName, svgDir)
+			action.IconSvg = icons.FileRaw(action.IconFileName, svgDir)
 		}
 
 		if key := action.replaceInURL; key != "" {

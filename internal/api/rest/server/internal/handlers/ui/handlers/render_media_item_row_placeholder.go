@@ -5,7 +5,10 @@ import (
 	"path/filepath"
 	"time"
 
-	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/components"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -25,7 +28,7 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 
 	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
 
-	data := uivalues.RowFragmentValues{
+	data := pages.RowFragmentValues{
 		MediaURL:       downloadInfo.URL,
 		DownloadStatus: downloadInfo.Status.String(),
 		DeleteURL:      httppaths.BuildPathMediaItem(httppaths.PathMediaItem, downloadInfo.DownloadID),
@@ -37,8 +40,8 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 		FileSize:       "-",
 		Format:         "-",
 
-		DownloaderResultItemStatusIcon: uivalues.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir),
-		DownloaderResultItemDeleteIcon: uivalues.IconFileRawByKey(uivalues.DownloadDeleteIconNameKey, iconsDir),
+		DownloaderResultItemStatusIcon: icons.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir),
+		DownloaderResultItemDeleteIcon: icons.FileRawByKey(icons.DownloadDeleteIconNameKey, iconsDir),
 		IsItemHTMXOptionRepeat:         true,
 		PageHasDivItems:                pageHasDivItems,
 		ResultRowFade:                  "fade-in",
@@ -48,10 +51,10 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 		ResultFormatFade:               "",
 	}
 
-	pageData := uivalues.RowFragmentData{
-		BasePaths:     uivalues.NewBasePaths(),
+	pageData := pages.RowFragmentData{
+		BasePaths:     paths.NewPaths(),
 		Values:        &data,
-		IconFileNames: uivalues.IconFileNames(),
+		IconFileNames: icons.FileNames(),
 	}
 
 	// Load template
@@ -61,7 +64,7 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 	}
 
 	var buf bytes.Buffer
-	err = tmpl.ExecuteTemplate(&buf, uivalues.ComponentResultNewRowKey, pageData)
+	err = tmpl.ExecuteTemplate(&buf, components.ResultNewRowKey, pageData)
 	if err != nil {
 		return nil
 	}

@@ -1,4 +1,4 @@
-package uivalues
+package items
 
 const (
 	DownloadingProgressPercentKey = "ProgressPercent"

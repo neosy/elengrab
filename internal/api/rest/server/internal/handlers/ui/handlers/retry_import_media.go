@@ -6,9 +6,9 @@ import (
 
 	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/dto"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
-	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -56,7 +56,7 @@ func (h *DownloaderHandlers) RetryImportMediaHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	var buf bytes.Buffer
-	err = tmpl.ExecuteTemplate(&buf, uivalues.ComponentResultRowStatusKey, row.data)
+	err = tmpl.ExecuteTemplate(&buf, components.ResultRowStatusKey, row.data)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return

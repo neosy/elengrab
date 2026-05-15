@@ -214,7 +214,7 @@ body.ui-blocking-active {
 
 @media (max-width: 768px) {
     .user-menu {
-        top: 0;
+        top: 12px;
         gap: 8px;
     }
 
