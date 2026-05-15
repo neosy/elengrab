@@ -96,10 +96,6 @@
     font-size: 24px;
     color: var(--text-grab-area__action-button);
     background: transparent;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
     -webkit-tap-highlight-color: transparent;
     outline: none;
     cursor: pointer;
@@ -128,15 +124,14 @@
 
 .grab-area__submit-button {
     padding: 4px 18px;
+
     border: 2px solid transparent;
     border-radius: 20px;
+    
     font-size: 18px;
     color: var(--text-primary);
     background-color: var(--bg-button);
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+
     -webkit-tap-highlight-color: transparent;
     outline: none;
     cursor: pointer;

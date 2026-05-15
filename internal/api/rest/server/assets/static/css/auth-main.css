@@ -1,3 +1,12 @@
+.no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    -webkit-touch-callout: none;
+}
+
 body {
     display: flex;
     height: 100vh;
@@ -130,16 +139,21 @@ input:-webkit-autofill:focus {
 button {
     width: 100%;
     padding: 4px 18px;
+
     border: 2px solid transparent;
     border-radius: 15px;
+
     font-size: 18px;
     color: var(--text-auth-button);
     background-color: var(--bg-auth-button);
+
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+
     -webkit-tap-highlight-color: transparent;
+
     outline: none;
     cursor: pointer;
     transition: border-color 0.5s ease, background-color 0.5s ease, color 0.5s ease, transform 0.3s ease;
@@ -157,18 +171,22 @@ button:hover {
 
 /* Disable text selection and tap highlight on touch devices for better UX */
 @media (hover: none) and (pointer: coarse) {
-  * {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-user-select: none;
-    user-select: none;
-  }
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
 
-  button, a {
-    -webkit-touch-callout: none;
-  }
+    button,
+    img {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
 
-  button:focus,
-  a:focus {
-    outline: none;
-  }
+        -webkit-touch-callout: none;
+   }  
+
+    button:focus,
+    a:focus {
+        outline: none;
+    }
 }

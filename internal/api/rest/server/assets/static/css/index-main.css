@@ -9,12 +9,21 @@
   box-sizing: border-box;
 }
 
+.no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    -webkit-touch-callout: none;
+}
+
 html {
     scrollbar-gutter: stable;
 }
 
 html, body {
-  overflow-x: hidden;
+    overflow-x: hidden;
 }
 
 body {
@@ -65,11 +74,7 @@ body.ui-blocking-active {
 
     cursor: pointer;
 
-    user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
     -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;    
 
     transition: border-color 0.5s ease, background-color 0.5s ease, color 0.5s ease, transform 0.5s ease;
 }
@@ -337,23 +342,27 @@ body.ui-blocking-active {
 
 /* Disable text selection and tap highlight on touch devices for better UX */
 @media (hover: none) and (pointer: coarse) {
-  * {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-user-select: none;
-    user-select: none;
-  }
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
 
-  button, a {
-    -webkit-touch-callout: none;
-  }
+    button,
+    img {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
 
-  button:focus,
-  a:focus {
-    outline: none;
-  }
+        -webkit-touch-callout: none;
+   }  
 
-  .user-avatar {
-    border: none;
-    background-color: transparent !important;
-  }
+    button:focus,
+    a:focus {
+        outline: none;
+    }
+
+    .user-avatar {
+        border: none;
+        background-color: transparent !important;
+    }
 }

@@ -8,7 +8,7 @@
 {{- define "user-menu" }}
       <div class="user-menu">
         {{- template "theme-switcher" . }}
-        <div class="user-avatar" id="user-avatar" data-action="{{ .Extra.UserAvatarActionMode }}">
+        <div class="user-avatar no-select" id="user-avatar" data-action="{{ .Extra.UserAvatarActionMode }}">
           {{- if eq .Extra.UserAvatarActionMode "login" }}<a href="{{ .BasePaths.AuthLogin }}">{{- end }}
           {{- .Extra.UserAvatarIcon }}
           {{- if eq .Extra.UserAvatarActionMode "login" }}</a>{{- end }}
