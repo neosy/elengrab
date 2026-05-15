@@ -5,8 +5,11 @@ import (
 	"html/template"
 	"time"
 
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/components"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/items"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
-	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/valyala/fasthttp"
 )
@@ -29,12 +32,12 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	extraData := make(map[string]any)
-	extraData[uivalues.ResultNoRowsKey] = rowsBuf.Len() == 0
-	extraData[uivalues.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
+	extraData[items.ResultNoRowsKey] = rowsBuf.Len() == 0
+	extraData[items.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
 
-	pageData := uivalues.RowFragmentData{
-		BasePaths: uivalues.NewBasePaths(),
-		Values:    &uivalues.RowFragmentValues{},
+	pageData := pages.RowFragmentData{
+		BasePaths: paths.NewPaths(),
+		Values:    &pages.RowFragmentValues{},
 		Extra:     extraData,
 	}
 
@@ -46,7 +49,7 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	var bodyBuffer bytes.Buffer
-	if err := tmpl.ExecuteTemplate(&bodyBuffer, uivalues.ComponentResultRowsKey, pageData); err != nil {
+	if err := tmpl.ExecuteTemplate(&bodyBuffer, components.ResultRowsKey, pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

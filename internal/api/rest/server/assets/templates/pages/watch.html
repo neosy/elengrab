@@ -1,19 +1,19 @@
-{{- define "watch" }}
+{{- define "watch-page" -}}
     {{- template "base" . }}
-{{- end }}
+{{- end -}}
 
-{{- define "header" }}
+{{- define "header" -}}
     <div class="user-menu">
       {{- template "theme-switcher" . }}
     </div>
     <div class="header__inner">
-        {{- if .Values.ShowBackButton }}
+        {{- if .Values.ShowBackButton -}}
         <button class="back-button" id="backButton">
             <svg viewBox="0 0 24 24">
                 <path d="M15 18l-6-6 6-6" />
             </svg>
         </button>
-        {{- end }}
+        {{- end -}}
         <a class="header__logo-link" href="/">
             <img class="header__logo-image" src="{{.BasePaths.StaticImg}}/logo-512.png">
             <div class="header__logo-text">
@@ -22,32 +22,32 @@
             </div>
         </a>
     </div>
-{{- end }}
+{{- end -}}
 
-{{- define "content" }}
+{{- define "content" -}}
     <div class="main_content">
         <div class="main_content__player">
             <div class="media__container" id="mediaContainer">
                 <div class="media_wrapper" id="videoWrapper">
-                    {{- if .Values.IsVideoPlayer }}
+                    {{- if .Values.IsVideoPlayer -}}
                     <video id="videoElement" controls="false" autoplay playsinline disablePictureInPicture>
-                        {{- if .Values.ContentType }}
+                        {{- if .Values.ContentType -}}
                         <source src="{{ .Paths.Stream }}" type="{{ .Values.ContentType }}">
-                        {{- end }}
+                        {{- end -}}
                         <source src="{{ .Paths.Stream }}">
                         Your browser does not support the video tag.
                     </video>
-                    {{- else}}
+                    {{- else -}}
                     <audio id="audioElement" controls="false" autoplay playsinline>
-                        {{- if .Values.ContentType }}
+                        {{- if .Values.ContentType -}}
                         <source src="{{ .Paths.Stream }}" type="{{ .Values.ContentType }}">
-                        {{- end }}
+                        {{- end -}}
                         <source src="{{ .Paths.Stream }}">
                         Your browser does not support the video tag.
                     </audio>
-                    {{- end}}
+                    {{- end -}}
                 </div>
-                {{- if .Values.ShowControls }}
+                {{- if .Values.ShowControls -}}
                 <div class="controls" id="customControls">
                     <div class="progress-bar" id="progressBar">
                         <div class="progress" id="progress"></div>
@@ -76,7 +76,7 @@
                         </div>
                     </div>
                 </div>
-                {{- end }}
+                {{- end -}}
             </div>
             <div class="main_content__media-info" id="mainContentMediaInfo">
                 <div class="media-info__title">                
@@ -90,19 +90,19 @@
             <div class="sidebar-card">
                 <h3 class="sidebar-card_title">Media Info</h3>
                 <div class="sidebar-card__parameters">
-                    {{- range .Values.MediaParameters }} 
+                    {{- range .Values.MediaParameters -}} 
                     <div class="sidebar-card__parameters_item">
                         <span class="parameters_item_name">{{ .Name }}</span>
-                        {{- if not .URL }}
+                        {{- if not .URL -}}
                         <span class="parameters_item_value">{{ .Value }}</span>
-                        {{- else }}
+                        {{- else -}}
                         <a class="parameters_item_link" href="{{ .URL }}" target="_blank">{{ .Value }}</a>
-                        {{- end }}
+                        {{- end -}}
                     </div>
-                    {{- end }}
+                    {{- end -}}
                 </div>
             </div>
-            {{- if .Values.ShowPlaylist }}
+            {{- if .Values.ShowPlaylist -}}
             <div class="sidebar-card">
                 <h3 style="font-weight: 600; margin-bottom: 20px; color: #e4e4e7;">Next in the playlist</h3>
                 <div id="playlistContainer" style="display: flex; flex-direction: column; gap: 12px;">
@@ -115,7 +115,7 @@
                     </div>
                 </div>
             </div>
-            {{- end }}
+            {{- end -}}
         </div>
     </div>
-{{- end }}
+{{- end -}}

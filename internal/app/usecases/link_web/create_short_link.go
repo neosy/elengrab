@@ -36,7 +36,7 @@ func (u *LinkWeb) CreateShortLink(ctx context.Context, url string) (string, erro
 		return link.ShortURL, nil
 	}
 
-	link, err = u.link.CreateLink(
+	link, err = u.link.Create(
 		ctx,
 		&dto.LinkCreateRequest{
 			OriginalURL:     url,

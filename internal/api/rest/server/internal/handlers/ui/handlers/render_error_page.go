@@ -6,7 +6,8 @@ import (
 	"mime"
 	"strings"
 
-	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/neosy/elengrab/internal/pkg/fnx"
 	"github.com/valyala/fasthttp"
@@ -23,14 +24,14 @@ func (h *DownloaderHandlers) renderErrorPage(
 	ctx *fasthttp.RequestCtx,
 	req renderErrorPageRequest,
 ) {
-	cssStyleRaw, _ := uivalues.CssErrorFileName.Raw(h.assetFolders.Css())
+	cssStyleRaw, _ := paths.CssErrorFileName.Raw(h.assetFolders.Css())
 
-	pageData := uivalues.ErrorPageData{
-		BaseValues: uivalues.NewBaseValues(),
-		BasePaths:  uivalues.NewBasePaths(),
-		Values: uivalues.ErrorPageValues{
+	pageData := pages.ErrorPageData{
+		BaseValues: pages.NewBaseValues(),
+		BasePaths:  paths.NewPaths(),
+		Values: pages.ErrorPageValues{
 			Title:          fmt.Sprintf("Error %v (%s)!!!", req.statusCode, req.statusText),
-			Header:         uivalues.Header,
+			Header:         pages.Header,
 			BaseURL:        fnx.Ternary(h.baseURL != "", h.baseURL, "/"),
 			CssStyle:       template.HTML("<style>" + string(cssStyleRaw) + "</style>"),
 			ErrorCode:      req.statusCode,
@@ -42,7 +43,7 @@ func (h *DownloaderHandlers) renderErrorPage(
 	}
 
 	// Load template
-	tmpl, err := h.loadPageTemplate(uivalues.PageError.FileName())
+	tmpl, err := h.loadPageTemplate(pages.ErrorPage.FileName())
 	if err != nil {
 		h.logger.Error("Failed to load template", "error", err)
 		return
@@ -52,7 +53,7 @@ func (h *DownloaderHandlers) renderErrorPage(
 	ctx.Response.SetBody(nil)
 
 	// Execute template with PageTitle
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageError.Key(), pageData); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, pages.ErrorPage.Key(), pageData); err != nil {
 		ctx.Response.SetBody(body)
 		h.logger.Error("Failed to execute template", "error", err)
 		return

@@ -6,7 +6,11 @@ import (
 	"path/filepath"
 	"time"
 
-	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/images"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/items"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -27,25 +31,25 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 
 	systemInfo := h.downloader.SystemInfo()
 
-	cssPaths, err := uivalues.CssIndexPaths(h.assetFolders.Css())
+	cssPaths, err := paths.CssIndexPaths(h.assetFolders.Css())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	jsScripts, err := uivalues.JsIndexPaths(h.assetFolders.Js())
+	jsScripts, err := paths.JsIndexPaths(h.assetFolders.Js())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	jsImportMapJSON, err := uivalues.JsIndexImportMapJSON(h.assetFolders.Js())
+	jsImportMapJSON, err := paths.JsIndexImportMapJSON(h.assetFolders.Js())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	pwaManifestPath, err := uivalues.PwaManifestPath(h.assetFolders.Pwa())
+	pwaManifestPath, err := paths.PwaManifestPath(h.assetFolders.Pwa())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -62,13 +66,13 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 		}
 	}
 
-	imageURL := h.baseURL + uivalues.ImageHttpPath(uivalues.Elengrab1280ImageJpgFileName)
+	imageURL := h.baseURL + paths.ImagePath(images.Elengrab1280ImageJpgFileName)
 
-	metaOgItems := make(uivalues.MetaOgItems, 0, 15)
+	metaOgItems := make(pages.MetaOgItems, 0, 15)
 	metaOgItems.Add("site_name", iconfig.AppName)
 	metaOgItems.Add("type", "website")
-	metaOgItems.Add("title", uivalues.PageTitle)
-	metaOgItems.Add("description", uivalues.PageDescription)
+	metaOgItems.Add("title", pages.PageTitle)
+	metaOgItems.Add("description", pages.PageDescription)
 	metaOgItems.Add("url", h.baseURL)
 	metaOgItems.Add("image", imageURL)
 	metaOgItems.Add("image:secure_url", imageURL)
@@ -77,30 +81,30 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 	metaOgItems.Add("image:height", "720")
 	metaOgItems.Add("image:alt", "Elengrab logo")
 
-	baseValues := uivalues.NewBaseValues()
+	baseValues := pages.NewBaseValues()
 	baseValues.MetaOgItems = metaOgItems
 
 	extraData := make(map[string]any)
-	extraData[uivalues.UserAvatarIconKey] = uivalues.IconFileRawByKey(uivalues.UserAvatarKeyByType(ctxUser.UserType()), iconsDir)
-	extraData[uivalues.UserAvatarActionModeKey] = userAvatarActionMode
-	extraData[uivalues.ResultNoRowsKey] = rowsBuf.Len() == 0
-	extraData[uivalues.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
+	extraData[items.UserAvatarIconKey] = icons.FileRawByKey(icons.UserAvatarKeyByType(ctxUser.UserType()), iconsDir)
+	extraData[items.UserAvatarActionModeKey] = userAvatarActionMode
+	extraData[items.ResultNoRowsKey] = rowsBuf.Len() == 0
+	extraData[items.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
 
-	pageData := uivalues.IndexPageData{
-		BasePaths:  uivalues.NewBasePaths(),
+	pageData := pages.IndexPageData{
+		BasePaths:  paths.NewPaths(),
 		BaseValues: baseValues,
-		Paths: uivalues.PagePaths{
+		Paths: pages.PagePaths{
 			Css:             cssPaths,
 			JsScripts:       jsScripts,
 			PwaManifest:     pwaManifestPath,
 			JsImportMapJSON: template.HTML(jsImportMapJSON),
 		},
-		Values: uivalues.IndexPageValues{
+		Values: pages.IndexPageValues{
 			ShowHistorySearch: true,
 			DiskFree:          uformat.BytesHuman(int64(systemInfo.DiskFree)),
 			DiskUsed:          uformat.BytesHuman(int64(systemInfo.DiskUsed)),
-			GrabForm: uivalues.IndexGrabForm{
-				InputPlaceholder: uivalues.IndexGrabFormInputPlaceholder,
+			GrabForm: pages.IndexGrabForm{
+				InputPlaceholder: pages.IndexGrabFormInputPlaceholder,
 			},
 		},
 		Extra: extraData,
@@ -110,14 +114,14 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 	ctx.SetContentType("text/html; charset=utf-8")
 
 	// Load template
-	tmpl, err := h.loadPageTemplate(uivalues.PageIndex.FileName())
+	tmpl, err := h.loadPageTemplate(pages.IndexPage.FileName())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
 
 	// Execute template with PageTitle
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageIndex.Key(), pageData); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, pages.IndexPage.Key(), pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

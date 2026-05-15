@@ -1,4 +1,4 @@
-package uivalues
+package paths
 
 import (
 	"github.com/neosy/elengrab/internal/pkg/httpx"

@@ -1,6 +1,7 @@
-package uivalues
+package menu
 
 import (
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 )
 
@@ -24,7 +25,7 @@ var accountMenuActions = []accountMenuAction{
 func AccountMenuActions(svgDir string) []accountMenuAction {
 	actions := append([]accountMenuAction(nil), accountMenuActions...)
 	for i, action := range actions {
-		actions[i].IconSvg = IconFileRaw(action.IconFileName, svgDir)
+		actions[i].IconSvg = icons.FileRaw(action.IconFileName, svgDir)
 	}
 	return actions
 }

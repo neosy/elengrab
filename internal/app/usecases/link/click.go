@@ -13,9 +13,9 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-// ShortLinkClick handles a click on a short link: validates the request, checks link availability,
+// Click handles a click on a short link: validates the request, checks link availability,
 // and records the click in the database. Returns the created click record.
-func (u *Link) ShortLinkClick(ctx context.Context, req *dto.ShortLinkClickRequest) (*dlink.Link, error) {
+func (u *Link) Click(ctx context.Context, req *dto.ShortLinkClickRequest) (*dlink.Link, error) {
 	linkClick := u.mappers.MapShortLinkClickRequestToDomain(req)
 	return u.click(ctx, linkClick)
 }

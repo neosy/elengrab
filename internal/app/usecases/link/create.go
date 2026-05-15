@@ -11,7 +11,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-func (u *Link) CreateLink(ctx context.Context, req *dto.LinkCreateRequest) (*dlink.Link, error) {
+func (u *Link) Create(ctx context.Context, req *dto.LinkCreateRequest) (*dlink.Link, error) {
 	if req == nil {
 		return nil, linkerr.ErrFunctionNilParameter
 	}

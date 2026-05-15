@@ -6,7 +6,9 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/images"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -98,7 +100,7 @@ func (h *DownloaderHandlers) renderWatchPage(
 			imageData = thumbnail.ImageData()
 		}
 		if imageData != nil {
-			imageData.URL = h.baseURL + uivalues.ThumbnailHttpPath(thumbnail.ThumbID.String())
+			imageData.URL = h.baseURL + paths.ThumbnailPath(thumbnail.ThumbID.String())
 		}
 	}
 
@@ -108,19 +110,19 @@ func (h *DownloaderHandlers) renderWatchPage(
 			imageData = channel.ImageData()
 		}
 		if imageData != nil {
-			imageData.URL = h.baseURL + uivalues.YoutubeChannelHttpPath(channel.ChannelID)
+			imageData.URL = h.baseURL + paths.YoutubeChannelPath(channel.ChannelID)
 		}
 	}
 
 	if imageData == nil || imageData.Width < 120 {
 		imageData = &dtypes.ImageData{
-			URL:    h.baseURL + uivalues.ImageHttpPath(uivalues.Elengrab1280ImageJpgFileName),
+			URL:    h.baseURL + paths.ImagePath(images.Elengrab1280ImageJpgFileName),
 			Width:  1280,
 			Height: 720,
 		}
 	}
 
-	metaOgItems := make(uivalues.MetaOgItems, 0, 20)
+	metaOgItems := make(pages.MetaOgItems, 0, 20)
 	metaOgItems.Add("site_name", iconfig.AppName)
 	metaOgItems.Add("type", fnx.Ternary(isVideoPlayer, "video.other", "music.song"))
 	metaOgItems.Add("title", downloadInfo.MediaTitle)
@@ -145,48 +147,48 @@ func (h *DownloaderHandlers) renderWatchPage(
 		metaOgItems.Add("video:height", strconv.Itoa(videoHeight))
 	}
 
-	metaNameItems := make(uivalues.MetaNameItems, 0, 4)
+	metaNameItems := make(pages.MetaNameItems, 0, 4)
 	metaNameItems.Add("twitter:card", "summary_large_image")
 	metaNameItems.Add("twitter:title", downloadInfo.MediaTitle)
 	metaNameItems.Add("twitter:description", description)
 	metaNameItems.Add("twitter:image", imageData.URL)
 
-	baseValues := uivalues.NewBaseValues()
+	baseValues := pages.NewBaseValues()
 	baseValues.Title = downloadInfo.MediaTitle
 	baseValues.ShowFooter = false
 	baseValues.MetaOgItems = metaOgItems
 	baseValues.MetaNameItems = metaNameItems
 
-	cssPaths, err := uivalues.CssWatchPaths(h.assetFolders.Css())
+	cssPaths, err := paths.CssWatchPaths(h.assetFolders.Css())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	jsScripts, err := uivalues.JsWatchPaths(h.assetFolders.Js())
+	jsScripts, err := paths.JsWatchPaths(h.assetFolders.Js())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	pwaManifestPath, err := uivalues.PwaManifestPath(h.assetFolders.Pwa())
+	pwaManifestPath, err := paths.PwaManifestPath(h.assetFolders.Pwa())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	mediaParameters := make([]uivalues.MediaParameter, 0, 4)
-	mediaParameters = append(mediaParameters, uivalues.MediaParameter{Name: "Format", Value: format})
+	mediaParameters := make([]pages.MediaParameter, 0, 4)
+	mediaParameters = append(mediaParameters, pages.MediaParameter{Name: "Format", Value: format})
 	if videoQuality != "" {
-		mediaParameters = append(mediaParameters, uivalues.MediaParameter{Name: "Video", Value: videoQuality})
+		mediaParameters = append(mediaParameters, pages.MediaParameter{Name: "Video", Value: videoQuality})
 	}
 	if audioQuality != "" {
-		mediaParameters = append(mediaParameters, uivalues.MediaParameter{Name: "Audio", Value: audioQuality})
+		mediaParameters = append(mediaParameters, pages.MediaParameter{Name: "Audio", Value: audioQuality})
 	}
-	mediaParameters = append(mediaParameters, uivalues.MediaParameter{Name: "File Size", Value: fileSize})
+	mediaParameters = append(mediaParameters, pages.MediaParameter{Name: "File Size", Value: fileSize})
 	if downloadInfo.MediaURL != "" {
 		mediaParameters = append(mediaParameters,
-			uivalues.MediaParameter{
+			pages.MediaParameter{
 				Name:  "Original Source",
 				Value: mediaSourceFromURL(downloadInfo.MediaURL),
 				URL:   downloadInfo.MediaURL,
@@ -203,16 +205,16 @@ func (h *DownloaderHandlers) renderWatchPage(
 		},
 	)
 
-	pageData := uivalues.WatchPageData{
+	pageData := pages.WatchPageData{
 		BaseValues: baseValues,
-		BasePaths:  uivalues.NewBasePaths(),
-		Paths: uivalues.PagePaths{
+		BasePaths:  paths.NewPaths(),
+		Paths: pages.PagePaths{
 			Css:         cssPaths,
 			JsScripts:   jsScripts,
 			PwaManifest: pwaManifestPath,
 			Stream:      req.streamPath,
 		},
-		Values: uivalues.WatchPageValues{
+		Values: pages.WatchPageValues{
 			ShowBackButton:     req.showBackButton,
 			IsVideoPlayer:      isVideoPlayer,
 			MediaTitle:         downloadInfo.MediaTitle,
@@ -227,14 +229,14 @@ func (h *DownloaderHandlers) renderWatchPage(
 	ctx.SetContentType("text/html; charset=utf-8")
 
 	// Load template
-	tmpl, err := h.loadPageTemplate(uivalues.PageWatch.FileName())
+	tmpl, err := h.loadPageTemplate(pages.WatchPage.FileName())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
 
 	// Execute template with PageTitle
-	if err := tmpl.ExecuteTemplate(ctx, uivalues.PageWatch.Key(), pageData); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, pages.WatchPage.Key(), pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

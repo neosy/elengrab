@@ -1,4 +1,4 @@
-package uivalues
+package pages
 
 import (
 	iconfig "github.com/neosy/elengrab/internal/config"

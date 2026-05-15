@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/components"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/items"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
-	uivalues "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/values"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/valyala/fasthttp"
 )
@@ -94,11 +97,11 @@ func (h *DownloaderHandlers) getDownloadsHistory(
 			continue
 		}
 
-		err = tmpl.ExecuteTemplate(buf, uivalues.ComponentResultRowStatusKey, row.data)
+		err = tmpl.ExecuteTemplate(buf, components.ResultRowStatusKey, row.data)
 		if err != nil {
 			h.logger.Warn(
 				"Failed to execute template",
-				"name", uivalues.ComponentResultRowStatusKey,
+				"name", components.ResultRowStatusKey,
 				"error", err,
 			)
 			continue
@@ -118,9 +121,9 @@ func (h *DownloaderHandlers) getDownloadsHistory(
 
 func (h *DownloaderHandlers) genRowLoadHistory(buf *bytes.Buffer) error {
 	extraData := make(map[string]any)
-	extraData[uivalues.DisableHTMXEventKey] = true
+	extraData[items.DisableHTMXEventKey] = true
 
-	pageData := uivalues.PageFragmentData{
+	pageData := pages.PageFragmentData{
 		Extra: extraData,
 	}
 
@@ -130,7 +133,7 @@ func (h *DownloaderHandlers) genRowLoadHistory(buf *bytes.Buffer) error {
 		return errInternal(err)
 	}
 
-	err = tmpl.ExecuteTemplate(buf, uivalues.ComponentResultLoadHistory, pageData)
+	err = tmpl.ExecuteTemplate(buf, components.ResultLoadHistory, pageData)
 	if err != nil {
 		return errInternal(err)
 	}
@@ -154,13 +157,13 @@ func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 		queryString += fmt.Sprintf("&filter[%s]=%s", filterByTitleKey, filterByTitle)
 	}
 
-	basePaths := uivalues.NewBasePaths()
+	basePaths := paths.NewPaths()
 	basePaths.DownloaderHistory += queryString
 
 	extraData := make(map[string]any)
-	extraData[uivalues.DisableHTMXEventKey] = true
+	extraData[items.DisableHTMXEventKey] = true
 
-	pageData := uivalues.PageFragmentData{
+	pageData := pages.PageFragmentData{
 		BasePaths: basePaths,
 		Extra:     extraData,
 	}
@@ -171,7 +174,7 @@ func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 		return errInternal(err)
 	}
 
-	err = tmpl.ExecuteTemplate(buf, uivalues.ComponentResultShouldLoadHistoryKey, pageData)
+	err = tmpl.ExecuteTemplate(buf, components.ResultShouldLoadHistoryKey, pageData)
 	if err != nil {
 		return errInternal(err)
 	}

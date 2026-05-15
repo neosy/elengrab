@@ -1,28 +1,13 @@
-package uivalues
+package paths
 
 import (
 	"fmt"
-	"maps"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
-
-func mergeMaps(mapsList ...map[string]any) map[string]any {
-	totalLen := 0
-	for _, m := range mapsList {
-		totalLen += len(m)
-	}
-
-	merged := make(map[string]any, totalLen)
-	for _, m := range mapsList {
-		maps.Copy(merged, m)
-	}
-
-	return merged
-}
 
 func fileNameWithHash(dir string, fileName string) (string, error) {
 	filePath := filepath.Join(dir, fileName)
