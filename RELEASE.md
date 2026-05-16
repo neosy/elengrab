@@ -1,5 +1,14 @@
 # Releases
 
+## v0.20.0 — 2026-05-25
+
+### 🏗 Build / Migrations
+- Add automatic branch id generator
+
+### 🐛 Fix
+- Handle empty argImageSource for SplitSeq
+
+---
 
 ## v0.19.1 — 2026-05-15
 
