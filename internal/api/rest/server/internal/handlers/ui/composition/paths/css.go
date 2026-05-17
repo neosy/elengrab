@@ -5,10 +5,8 @@ import (
 )
 
 var (
-	CssErrorFileName cssFileName = "error.css"
-)
+	CssErrorFileName cssFileName = "page-error.css"
 
-var (
 	CssIndexPaths = cssFileNames{
 		"font-inter.css",
 		"base.css",

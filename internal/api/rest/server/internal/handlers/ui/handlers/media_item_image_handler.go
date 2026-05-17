@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"path/filepath"
 	"strings"
 
 	"github.com/google/uuid"
@@ -64,8 +63,7 @@ func (h *DownloaderHandlers) MediaItemImageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
-	defaultAvatarSVG := icons.FileRawByKey(icons.MediaDefaultIconNameKey, iconsDir)
+	defaultAvatarSVG := icons.FileRawByKey(icons.MediaDefaultIconNameKey, h.assetFolders.Icons())
 
 	ctx.SetContentType("image/svg+xml")
 	ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")

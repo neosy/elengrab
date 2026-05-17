@@ -3,7 +3,6 @@ package handlers
 import (
 	"bytes"
 	"html/template"
-	"path/filepath"
 	"time"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
@@ -55,8 +54,6 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 		return
 	}
 
-	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
-
 	var userAvatarActionMode = "none"
 	if !h.downloader.DemoMode() {
 		if ctxUser.UserType() < dtypes.UserTypeUser {
@@ -85,7 +82,7 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 	baseValues.MetaOgItems = metaOgItems
 
 	extraData := make(map[string]any)
-	extraData[items.UserAvatarIconKey] = icons.FileRawByKey(icons.UserAvatarKeyByType(ctxUser.UserType()), iconsDir)
+	extraData[items.UserAvatarIconKey] = icons.FileRawByKey(icons.UserAvatarKeyByType(ctxUser.UserType()), h.assetFolders.Icons())
 	extraData[items.UserAvatarActionModeKey] = userAvatarActionMode
 	extraData[items.ResultNoRowsKey] = rowsBuf.Len() == 0
 	extraData[items.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
@@ -105,6 +102,8 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 			DiskUsed:          uformat.BytesHuman(int64(systemInfo.DiskUsed)),
 			GrabForm: pages.IndexGrabForm{
 				InputPlaceholder: pages.IndexGrabFormInputPlaceholder,
+				GetButtonTitle:   pages.IndexGrabGetButtonTitle,
+				GetButtonIcon:    icons.FileRawByKey(icons.IndexGrabGetButtonIconNameKey, h.assetFolders.Icons()),
 			},
 		},
 		Extra: extraData,

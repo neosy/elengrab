@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"html/template"
-	"path/filepath"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
@@ -22,14 +21,12 @@ func (h *DownloaderHandlers) AccountMenuHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
-
 	extraData := make(map[string]any)
 	extraData[items.UserAvatarIconKey] = template.HTML(
-		icons.FileRawByKey(icons.UserAvatarKeyByType(ctxUser.UserType()), iconsDir))
+		icons.FileRawByKey(icons.UserAvatarKeyByType(ctxUser.UserType()), h.assetFolders.Icons()))
 	extraData[items.UserLoginKey] = capitalize(ctxUser.Login)
 	extraData[items.UserEmailKey] = ctxUser.Email
-	extraData[items.AccountMenuActionsKey] = menu.AccountMenuActions(iconsDir)
+	extraData[items.AccountMenuActionsKey] = menu.AccountMenuActions(h.assetFolders.Icons())
 
 	pageData := pages.PageFragmentData{
 		BasePaths: paths.NewPaths(),

@@ -10,13 +10,13 @@ const (
 
 type (
 	Paths struct {
-		StaticImg            string
-		StaticIcons          string
-		StaticCss            string
-		StaticJs             string
-		StaticPwa            string
-		StaticThumbnail      string
-		StaticYoutubeChannel string
+		StaticImages          string
+		StaticIcons           string
+		StaticCss             string
+		StaticJs              string
+		StaticPwa             string
+		StaticThumbnails      string
+		StaticYoutubeChannels string
 
 		AuthRegister string
 		AuthLogin    string
@@ -33,13 +33,13 @@ type (
 
 var (
 	basePathsDefault = Paths{
-		StaticImg:            httppaths.GroupStaticImg,
-		StaticIcons:          httppaths.GroupStaticIcon,
-		StaticCss:            httppaths.GroupStaticCss,
-		StaticJs:             httppaths.GroupStaticJs,
-		StaticPwa:            httppaths.GroupStaticPwa,
-		StaticThumbnail:      httppaths.GroupStaticThumbnail,
-		StaticYoutubeChannel: httppaths.GroupStaticYoutubeChannel,
+		StaticImages:          httppaths.GroupStaticImages,
+		StaticIcons:           httppaths.GroupStaticIcons,
+		StaticCss:             httppaths.GroupStaticCss,
+		StaticJs:              httppaths.GroupStaticJs,
+		StaticPwa:             httppaths.GroupStaticPwa,
+		StaticThumbnails:      httppaths.GroupStaticThumbnails,
+		StaticYoutubeChannels: httppaths.GroupStaticYoutubeChannels,
 
 		AuthRegister: httppaths.GroupAccount + httppaths.PathRegister,
 		AuthLogin:    httppaths.GroupAccount + httppaths.PathLogin,
@@ -59,11 +59,11 @@ func NewPaths() Paths {
 }
 
 func ImagePath(fileName string) string {
-	return httppaths.GroupStaticImg + "/" + fileName
+	return httppaths.GroupStaticImages + "/" + fileName
 }
 
 func IconPath(fileName string) string {
-	return httppaths.GroupStaticIcon + "/" + fileName
+	return httppaths.GroupStaticIcons + "/" + fileName
 }
 
 func CssPath(fileName string) string {
@@ -79,9 +79,9 @@ func PwaPath(fileName string) string {
 }
 
 func ThumbnailPath(id string) string {
-	return httppaths.GroupStaticThumbnail + "/" + id
+	return httppaths.GroupStaticThumbnails + "/" + id
 }
 
 func YoutubeChannelPath(channelId string) string {
-	return httppaths.GroupStaticYoutubeChannel + "/" + channelId
+	return httppaths.GroupStaticYoutubeChannels + "/" + channelId
 }

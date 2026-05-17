@@ -77,7 +77,7 @@ func (h *DownloaderHandlers) loadPageTemplate(fileName string) (*template.Templa
 		return nil, err
 	}
 
-	t, err = t.ParseFiles(filepath.Join(h.assetsDir, "templates", "pages", fileName))
+	t, err = t.ParseFiles(filepath.Join(h.assetFolders.Pages(), fileName))
 	if err != nil {
 		return nil, err
 	}

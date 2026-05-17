@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"path/filepath"
-
 	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/components"
@@ -37,11 +35,9 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
-
 	extraData := make(map[string]any)
 	extraData[items.RowMenuActionsKey] = menu.RowMenuActions(
-		iconsDir,
+		h.assetFolders.Icons(),
 		map[string]string{
 			menu.RowMenuActionItemIDKey: downloadID.String(),
 			menu.RowMenuActionURLKey:    downloadResp.MediaURL,
