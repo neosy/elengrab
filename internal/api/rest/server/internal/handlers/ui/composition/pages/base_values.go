@@ -5,12 +5,14 @@ import (
 )
 
 const (
-	PageTitle                     = "Elengrab — Fast Media Downloader | YouTube, VK Video and more"
-	PageDescription               = "Download video and audio from YouTube, Facebook, Instagram, VK, TikTok, and more with Elengrab."
-	PageAuthRegisterTitle         = "Registration - Elengrab"
-	PageAuthLoginTitle            = "Login - Elengrab"
-	Header                        = "Elengrab"
+	PageTitle             = "Elengrab — Fast Media Downloader | YouTube, VK Video and more"
+	PageDescription       = "Download video and audio from YouTube, Facebook, Instagram, VK, TikTok, and more with Elengrab."
+	PageAuthRegisterTitle = "Registration - Elengrab"
+	PageAuthLoginTitle    = "Login - Elengrab"
+	Header                = "Elengrab"
+
 	IndexGrabFormInputPlaceholder = "Enter video or audio URL"
+	IndexGrabGetButtonTitle       = "Get"
 )
 
 type baseValues struct {

@@ -80,9 +80,9 @@
 
     background-color: var(--text-secondary);
 
-    -webkit-mask: url('/static/icon/search-icon.svg') no-repeat center;
+    -webkit-mask: url('/static/icons/search-icon.svg') no-repeat center;
     -webkit-mask-size: contain;
-    mask: url('/static/icon/search-icon.svg') no-repeat center;
+    mask: url('/static/icons/search-icon.svg') no-repeat center;
     mask-size: contain;
 
     pointer-events: none;

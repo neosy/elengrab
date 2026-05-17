@@ -10,6 +10,8 @@ const (
 	UserAvatarGuestIconNameKey  = "UserAvatarGuestIconName"
 	UserAvatarAnonymIconNameKey = "UserAvatarAnonymIconName"
 
+	IndexGrabGetButtonIconNameKey = "IndexGrabGetButtonIconName"
+
 	DownloadIconNameKey           = "DownloadIconName"
 	DownloadFailedIconNameKey     = "DownloadFailedIconName"
 	DownloadPendingIconNameKey    = "DownloadPendingIconName"
@@ -25,6 +27,8 @@ var (
 		UserAvatarUserIconNameKey:   "user-default.svg",
 		UserAvatarGuestIconNameKey:  "user-guest.svg",
 		UserAvatarAnonymIconNameKey: "user-anonymous-2.svg",
+
+		IndexGrabGetButtonIconNameKey: "download-cloud-icon.svg",
 
 		DownloadIconNameKey:           "download-light-icon.svg",
 		DownloadFailedIconNameKey:     "download-warning-icon.svg",

@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"html/template"
-	"path/filepath"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/items"
@@ -83,8 +82,6 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		},
 	)
 
-	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
-
 	var isGrabResultItemHTMXOptionRepeat = false
 	switch downloadInfo.Status {
 	case dtypes.MediaDownloadStatusNew, dtypes.MediaDownloadStatusPending, dtypes.MediaDownloadStatusWorking:
@@ -136,9 +133,9 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		IsItemHTMXOptionRepeat:             isGrabResultItemHTMXOptionRepeat,
 		IsDownloadEvent:                    isDownloadEvent,
 		ResultRowStatusTitle:               downloadInfo.StatusText,
-		DownloaderResultItemSourceLinkIcon: icons.FileRawByKey(icons.DownloadSourceLinkIconNameKey, iconsDir),
-		DownloaderResultItemStatusIcon:     icons.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir),
-		DownloaderResultItemDeleteIcon:     icons.FileRawByKey(icons.DownloadDeleteIconNameKey, iconsDir),
+		DownloaderResultItemSourceLinkIcon: icons.FileRawByKey(icons.DownloadSourceLinkIconNameKey, h.assetFolders.Icons()),
+		DownloaderResultItemStatusIcon:     icons.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, h.assetFolders.Icons()),
+		DownloaderResultItemDeleteIcon:     icons.FileRawByKey(icons.DownloadDeleteIconNameKey, h.assetFolders.Icons()),
 		ResultMediaUrlFade:                 "",
 		ResultSizeFade:                     "",
 		ResultFormatFade:                   "",
@@ -147,7 +144,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 
 	if downloadInfo.Status == dtypes.MediaDownloadStatusFailed {
 		data.DownloaderResultItemStatusFailedIcon = template.HTML(
-			icons.FileRawByKey(icons.DownloadRepeatIconNameKey, iconsDir),
+			icons.FileRawByKey(icons.DownloadRepeatIconNameKey, h.assetFolders.Icons()),
 		)
 	}
 
