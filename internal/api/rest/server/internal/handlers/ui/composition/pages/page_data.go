@@ -26,9 +26,10 @@ type (
 	}
 
 	IndexGrabForm struct {
-		InputPlaceholder string
-		GetButtonTitle   string
-		GetButtonIcon    template.HTML
+		InputPlaceholder   string
+		GetButtonTitle     string
+		SettingsButtonIcon template.HTML
+		GetButtonIcon      template.HTML
 	}
 )
 

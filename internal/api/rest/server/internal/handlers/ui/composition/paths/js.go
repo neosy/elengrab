@@ -55,15 +55,16 @@ var (
 		"helper.js",
 		"constants.js",
 		"cookie.js",
+		"storage-state.js",
 		"tooltip.js",
 		"notifications.js",
 		"menu.js",
 		"menu-configs.js",
+		"index-dom-ids.js",
+		"index-dom-elements.js",
 		"action-buttons.js",
 		"index-row-event-handlers.js",
 		"index-player.js",
-		"index-dom-ids.js",
-		"index-dom-elements.js",
 	}.jsonForTemplate
 
 	JsWatchPaths = jsScripts{

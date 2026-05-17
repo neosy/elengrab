@@ -101,9 +101,10 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 			DiskFree:          uformat.BytesHuman(int64(systemInfo.DiskFree)),
 			DiskUsed:          uformat.BytesHuman(int64(systemInfo.DiskUsed)),
 			GrabForm: pages.IndexGrabForm{
-				InputPlaceholder: pages.IndexGrabFormInputPlaceholder,
-				GetButtonTitle:   pages.IndexGrabGetButtonTitle,
-				GetButtonIcon:    icons.FileRawByKey(icons.IndexGrabGetButtonIconNameKey, h.assetFolders.Icons()),
+				InputPlaceholder:   pages.IndexGrabFormInputPlaceholder,
+				SettingsButtonIcon: icons.FileRawByKey(icons.IndexGrabSettingsButtonIconNameKey, h.assetFolders.Icons()),
+				GetButtonTitle:     pages.IndexGrabGetButtonTitle,
+				GetButtonIcon:      icons.FileRawByKey(icons.IndexGrabGetButtonIconNameKey, h.assetFolders.Icons()),
 			},
 		},
 		Extra: extraData,
