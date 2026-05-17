@@ -3,7 +3,7 @@
 ## v0.20.0 — 2026-05-25
 
 ### 🏗 Build / Migrations
-- Add automatic branch id generator
+- Add automatic branch id generator [L001]
 
 ### 🐛 Fix
 - Handle empty argImageSource for SplitSeq

@@ -37,7 +37,6 @@ type DownloaderHandlers struct {
 	appMode         dtypes.AppMode
 	baseURL         string
 	shortLinkPrefix string
-	assetsDir       string
 }
 
 func NewDownloaderHandlers(
@@ -74,6 +73,5 @@ func NewDownloaderHandlers(
 		appMode:         appMode,
 		baseURL:         baseURL,
 		shortLinkPrefix: shortLinkPrefix,
-		assetsDir:       assetsDir,
 	}
 }

@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"path/filepath"
-
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/valyala/fasthttp"
@@ -22,8 +20,7 @@ func (h *DownloaderHandlers) GetChannelAvatarHandler(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
-	defaultAvatarSVG := icons.FileRawByKey(icons.MediaDefaultIconNameKey, iconsDir)
+	defaultAvatarSVG := icons.FileRawByKey(icons.MediaDefaultIconNameKey, h.assetFolders.Icons())
 
 	ctx.SetContentType("image/svg+xml")
 	ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")

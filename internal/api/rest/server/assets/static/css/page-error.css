@@ -26,7 +26,7 @@ body {
 }
 
 * > body {
-    background: url(/static/img/robot.png) 100% 5px no-repeat;
+    background: url(/static/images/robot.png) 100% 5px no-repeat;
     padding-right: 205px;
 }
 

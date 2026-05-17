@@ -48,8 +48,8 @@ func NewStaticHandlers(
 
 	h.cssHandler = h.newFSHandler("css", "css")
 	h.fontsHandler = h.newFSHandler("fonts", "fonts")
-	h.imgHandler = h.newFSHandler("img", "img")
-	h.iconHandler = h.newFSHandler("img/icons", "icon")
+	h.imgHandler = h.newFSHandler("images", "images")
+	h.iconHandler = h.newFSHandler("icons", "icons")
 	h.jsHandler = h.newFSHandler("js", "js")
 	h.pwaHandler = h.newFSHandler("pwa", "pwa")
 

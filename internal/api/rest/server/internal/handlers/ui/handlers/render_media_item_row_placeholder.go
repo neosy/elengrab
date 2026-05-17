@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"path/filepath"
 	"time"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/components"
@@ -26,8 +25,6 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 
 	downloadImageURL := httppaths.BuildPathMediaItemImage(downloadInfo.DownloadID, downloadInfo.ImageMetaHash(time.Now().String()), imageSources)
 
-	iconsDir := filepath.Join(h.assetsDir, "static/img/icons")
-
 	data := pages.RowFragmentValues{
 		MediaURL:       downloadInfo.URL,
 		DownloadStatus: downloadInfo.Status.String(),
@@ -40,8 +37,8 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 		FileSize:       "-",
 		Format:         "-",
 
-		DownloaderResultItemStatusIcon: icons.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, iconsDir),
-		DownloaderResultItemDeleteIcon: icons.FileRawByKey(icons.DownloadDeleteIconNameKey, iconsDir),
+		DownloaderResultItemStatusIcon: icons.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, h.assetFolders.Icons()),
+		DownloaderResultItemDeleteIcon: icons.FileRawByKey(icons.DownloadDeleteIconNameKey, h.assetFolders.Icons()),
 		IsItemHTMXOptionRepeat:         true,
 		PageHasDivItems:                pageHasDivItems,
 		ResultRowFade:                  "fade-in",
