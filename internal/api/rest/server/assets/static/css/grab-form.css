@@ -108,8 +108,8 @@
     }
 
     .grab-area__action-button {
-        width: 30px;
-        height: 30px;
+        width: 32px;
+        height: 32px;
     }
 }
 
@@ -171,10 +171,11 @@
 .grab-area__submit-button svg {
     display: none;
 
-    width: 25px;
-    height: 25px;
+    width: 28px;
+    height: 28px;
     
     color: var(--text-primary);
+    transition: color 0.5s ease, transform 0.3s ease;
 }
 
 @media (max-width: 580px) {
@@ -183,6 +184,12 @@
         height: 35px;
 
         padding: 0;
+
+        background-color: transparent;
+    }
+
+    .grab-area__submit-button:active {
+        transform: scale(1);
     }
 
     .grab-area__submit-button svg {
@@ -191,6 +198,23 @@
 
     .grab-area__submit-button-title {
         display: none;
+    }
+}
+
+@media ((max-width: 580px) and (hover: hover)) {
+    .grab-area__submit-button:hover {
+        border-color: transparent;
+        background-color: transparent;
+
+        transform: scale(1.1);
+    }
+
+    .grab-area__submit-button:active {
+        transform: scale(0.95);
+    }
+
+    .grab-area__submit-button svg:hover {
+        color: var(--border-input);
     }
 }
 
