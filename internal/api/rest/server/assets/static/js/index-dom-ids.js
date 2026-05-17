@@ -6,6 +6,10 @@ export const DOM_IDS = {
     grabForm: "grabForm",
     mediaURL: "mediaURL",
     inputActionBtn: "inputActionBtn",
+    inputActionSettingsBtn: "inputActionSettingsBtn",
+    grabOptionsCollapse: "grabOptionsCollapse",
+    grabOptions: "grabOptions",
+
     resultInfo: "result-info",
     resultInfoRow: "result-info-row",
     resultInfoFailed: "result-info-failed",

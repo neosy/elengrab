@@ -1,3 +1,5 @@
+import { DOM_IDS } from "./index-dom-ids.js";
+import { DOM_ELEMENTS } from "./index-dom-elements.js";
 import * as helper from './helper.js';
 import * as cookie from './cookie.js';
 import * as actionButton from './action-buttons.js';
@@ -5,8 +7,6 @@ import * as rowEventHandlers from './index-row-event-handlers.js';
 import { initPlayer } from './index-player.js';
 import { initTooltips } from './tooltip.js';
 import { initIndexMenus as initMenu } from './menu-configs.js';
-import { DOM_IDS } from "./index-dom-ids.js";
-import { DOM_ELEMENTS } from "./index-dom-elements.js";
 import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
 import * as notify from './notifications.js';
 
@@ -263,6 +263,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Init inline media player
     initPlayer();
+
+    // Init settiongs action button
+    actionButton.initInputSettingsButton(DOM_ELEMENTS.inputActionSettingsBtn, DOM_ELEMENTS.grabOptionsCollapse, DOM_ELEMENTS.grabOptions)
 
     // Init action button for input field
     actionButton.initInputPasteClearButton(grabInputURL, grabInputActionBtn)

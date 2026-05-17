@@ -2,11 +2,15 @@
 
 ## v0.20.0 — 2026-05-25
 
+### ✨ Features
+- Added a Settings button to the Grab form [L007]
+
 ### 🎨 Style
-- Reduce the get button for small screens [L004]
+- Reduced the get button for small screens [L004]
+- Reduced the action button size
 
 ### 🏗 Build / Migrations
-- Add automatic branch id generator [L001]
+- Added automatic branch id generator [L001]
 
 ### 🐛 Fix
 - Handle empty argImageSource for SplitSeq

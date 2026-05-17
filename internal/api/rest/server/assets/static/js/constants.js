@@ -15,6 +15,10 @@ export const COOKIE_NAMES = {
     format: "select_format"
 };
 
+export const STORAGE_KEYS = {
+    grabOptionsCollapsed: "grabOptionsCollapsed",
+}
+
 // Action button icon URLs
 export const ICON_PASTE = 'static/icons/action-paste-v2-icon.svg';
 export const ICON_CLEAR = 'static/icons/action-clear-icon.svg';
