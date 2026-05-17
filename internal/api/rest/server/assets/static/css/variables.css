@@ -38,6 +38,8 @@
     --server-status-offline: #555;
     --server-status-online: #4caf50;
 
+    --text-blue: #2563eb;
+
     --row-menu-button: #6b7280;
     --row-menu-button-hover: #333;
     --row-icon-gray: #6b7280;
@@ -102,6 +104,8 @@
     --spinner-accent: #58a6ff;
     --server-status-offline: #8b949e;
     --server-status-online: #58d660;
+
+    --text-blue: #60a5fa;
 
     --row-menu-button: #6b7280;
     --row-menu-button-hover: #9e9e9e;

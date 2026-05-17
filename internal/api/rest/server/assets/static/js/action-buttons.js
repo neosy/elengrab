@@ -1,4 +1,5 @@
-import { ICON_PASTE, ICON_CLEAR } from './constants.js';
+import { ICON_PASTE, ICON_CLEAR, STORAGE_KEYS } from './constants.js';
+import StorageState from './storage-state.js';
 
 // -------------------------------------------------------------
 // Set SVG icon for the action button
@@ -136,4 +137,67 @@ export function initInputClearButton(wrapperSelector) {
         // Initialization during loading (for example, auto-completion)
         updateState();
     });
+}
+
+/**
+ * Initialize 'settings' action button.
+ * @param {HTMLElement} btn
+ * @param {HTMLDivElement} collapse
+ * @param {HTMLDivElement} options
+ */
+export function initInputSettingsButton(btn, collapse, options) {
+    if (!btn || !collapse || !options) return;
+
+    const KEY = STORAGE_KEYS.grabOptionsCollapsed;
+    const collapsed = StorageState.get(KEY, true);
+
+    const selects = {
+        codec: options.querySelector('[name="quality-codec"]'),
+        resolution: options.querySelector('[name="quality-resolution"]'),
+        format: options.querySelector('[name="format"]'),
+    };
+    const defaults = {
+        codec: getDefaultValue(selects.codec),
+        resolution: getDefaultValue(selects.resolution),
+        format: getDefaultValue(selects.format),
+    };
+
+    applyState(collapsed);
+    updateButtonState();
+
+    btn.addEventListener('click', () => {
+        const isCollapsedNext = !StorageState.get(KEY, true);
+
+        StorageState.set(KEY, isCollapsedNext);
+
+        applyState(isCollapsedNext);
+    });    
+
+    Object.values(selects).forEach((el) => {
+        el.addEventListener('change', updateButtonState);
+    });
+
+    function applyState(collapsed) {
+        collapse.classList.toggle('is-collapsed', collapsed);
+        btn.classList.toggle('is-active', !collapsed);
+
+        btn.setAttribute('aria-expanded', String(!collapsed));
+    }
+
+    function getDefaultValue(select) {
+        const selected = select.querySelector('option[selected]');
+        return selected ? selected.value : select.value;
+    }
+    
+    function isDirty() {
+        return (
+            selects.codec.value !== defaults.codec ||
+            selects.resolution.value !== defaults.resolution ||
+            selects.format.value !== defaults.format
+        );
+    }
+
+    function updateButtonState() {
+        btn.classList.toggle('is-dirty', isDirty());
+    }
 }
