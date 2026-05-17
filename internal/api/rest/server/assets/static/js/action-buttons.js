@@ -45,17 +45,17 @@ function setIcon(btn, url, alt) {
 export async function updateInputPasteClearButton(input, btn) {
     if (!input || !btn) return;
 
-    const showPaste = true; //!input.value.trim();
+    const showPaste = !input.value.trim();
 
     if (showPaste) {
         // Paste button only if Clipboard API is available
-        // if (!navigator.clipboard || !navigator.clipboard.readText) {
-        //     btn.style.display = 'none';
-        //     btn.dataset.state = 'none';
-        //     return;
-        // } else {
-        //     btn.style.display = '';
-        // }
+        if (!navigator.clipboard || !navigator.clipboard.readText) {
+            btn.style.display = 'none';
+            btn.dataset.state = 'none';
+            return;
+        } else {
+            btn.style.display = '';
+        }
 
         setIcon(btn, ICON_PASTE, 'Paste from clipboard');
         btn.dataset.state = 'paste';
