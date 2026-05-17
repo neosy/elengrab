@@ -2,11 +2,17 @@
 
 ## v0.20.0 — 2026-05-25
 
+### 🎨 Style
+- Reduce the get button for small screens [L004]
+
 ### 🏗 Build / Migrations
 - Add automatic branch id generator [L001]
 
 ### 🐛 Fix
 - Handle empty argImageSource for SplitSeq
+
+### 🧩 Refactor
+- Rename static paths
 
 ---
 
