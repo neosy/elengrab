@@ -7,8 +7,9 @@
 
 {{- define "user-menu" -}}
       <div class="user-menu">
+        <div class="user-menu__button-wrapper user-menu__search"><button class="user-menu__search-button" id="userMenuSearchButton" type="button">{{ .Values.UserMenuSearchButtonIcon }}</button></div>
         {{- template "theme-switcher" . }}
-        <div class="user-avatar no-select" id="user-avatar" data-action="{{ .Extra.UserAvatarActionMode }}">
+        <div class="user-menu__button-wrapper user-avatar no-select" id="user-avatar" data-action="{{ .Extra.UserAvatarActionMode }}">
           {{- if eq .Extra.UserAvatarActionMode "login" }}<a href="{{ .BasePaths.AuthLogin }}">{{- end }}
           {{- .Extra.UserAvatarIcon }}
           {{- if eq .Extra.UserAvatarActionMode "login" }}</a>{{- end }}
@@ -18,12 +19,16 @@
 {{- end -}}
 
 {{- define "content" -}}
-    <div class="main-header">
-      {{- block "user-menu" . }}{{- end }}
-      <a class="main-header__link" href="/">
-          <img class="main-header__logo-image" src="{{ .BasePaths.StaticImages }}/logo-512.png">
-          <h1 class="main-header__title">{{ .BaseValues.Header }}</h1>
-      </a>
+    <div class="main-header" id="mainHeader">
+      <div class="main-header__left"></div>
+      <div class="main-header__content">
+        <a class="main-header__link" href="/">
+            <img class="main-header__logo-image" src="{{ .BasePaths.StaticImages }}/logo-512.png">
+            <h1 class="main-header__title">{{ .BaseValues.Header }}</h1>
+        </a>
+        {{- block "user-menu" . }}{{- end }}
+      </div>
+      <div class="main-header__search">{{ template "history-search" . }}</div>
     </div>
     {{- template "grab-form" . }}
     {{- template "media-result" . }}

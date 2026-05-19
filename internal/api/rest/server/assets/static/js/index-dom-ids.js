@@ -3,8 +3,11 @@ export const DOM_IDS = {
     rowTopPlaceholder: "row-top-placeholder",
     rowNoItems: "row-no-items",
 
+    historySearchInputWrapper: "historySearchInputWrapper",
+    historySearchClearButton: "historySearchClearButton",
+
     grabForm: "grabForm",
-    mediaURL: "mediaURL",
+    mediaURLInput: "mediaURLInput",
     inputActionBtn: "inputActionBtn",
     inputActionSettingsBtn: "inputActionSettingsBtn",
     grabOptionsCollapse: "grabOptionsCollapse",
