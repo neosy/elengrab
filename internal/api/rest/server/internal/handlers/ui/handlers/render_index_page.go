@@ -82,7 +82,7 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 	baseValues.MetaOgItems = metaOgItems
 
 	extraData := make(map[string]any)
-	extraData[items.UserAvatarIconKey] = icons.FileRawByKey(icons.UserAvatarKeyByType(ctxUser.UserType()), h.assetFolders.Icons())
+	extraData[items.UserAvatarIconKey] = icons.UserAvatarIconByType(ctxUser.UserType()).FileRaw()
 	extraData[items.UserAvatarActionModeKey] = userAvatarActionMode
 	extraData[items.ResultNoRowsKey] = rowsBuf.Len() == 0
 	extraData[items.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
@@ -102,9 +102,9 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 			DiskUsed:          uformat.BytesHuman(int64(systemInfo.DiskUsed)),
 			GrabForm: pages.IndexGrabForm{
 				InputPlaceholder:   pages.IndexGrabFormInputPlaceholder,
-				SettingsButtonIcon: icons.FileRawByKey(icons.IndexGrabSettingsButtonIconNameKey, h.assetFolders.Icons()),
+				SettingsButtonIcon: icons.IndexGrabSettingsButtonIcon.FileRaw(),
 				GetButtonTitle:     pages.IndexGrabGetButtonTitle,
-				GetButtonIcon:      icons.FileRawByKey(icons.IndexGrabGetButtonIconNameKey, h.assetFolders.Icons()),
+				GetButtonIcon:      icons.IndexGrabGetButtonIcon.FileRaw(),
 			},
 		},
 		Extra: extraData,

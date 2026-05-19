@@ -13,7 +13,7 @@ type rowMenuAction struct {
 	Title      string `json:"title"`
 	IconSvg    any    `json:"iconSvg,omitempty"`
 
-	IconFileName   string
+	icon           icons.Icon
 	URL            string
 	NewTab         bool
 	replaceInURL   string
@@ -36,7 +36,7 @@ var rowMenuActions = []rowMenuAction{
 		RenderType:     menuActionRenderTypeLink,
 		Action:         "watch",
 		Title:          "Watch",
-		IconFileName:   "menu-play-icon.svg",
+		icon:           icons.DownloaderRowMenuPlayIcon,
 		URL:            httppaths.GroupDownloader + httppaths.PathMediaItemWatch,
 		NewTab:         false,
 		replaceInURL:   RowMenuActionItemIDKey,
@@ -46,7 +46,7 @@ var rowMenuActions = []rowMenuAction{
 		RenderType:   menuActionRenderTypeLink,
 		Action:       "open-original",
 		Title:        "Open original in new tab",
-		IconFileName: "menu-external-link-icon.svg",
+		icon:         icons.DownloaderRowMenuExternalLinkIcon,
 		URL:          RowMenuActionURLKey,
 		NewTab:       true,
 		replaceInURL: RowMenuActionURLKey,
@@ -58,7 +58,7 @@ var rowMenuActions = []rowMenuAction{
 		RenderType:     menuActionRenderTypeAction,
 		Action:         "share-link",
 		Title:          "Share link",
-		IconFileName:   "menu-share-link-icon.svg",
+		icon:           icons.DownloaderRowMenuShareLinkIcon,
 		URL:            httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
 		replaceInURL:   RowMenuActionItemIDKey,
 		onlyStatusDone: true,
@@ -68,7 +68,7 @@ var rowMenuActions = []rowMenuAction{
 		RenderType:     menuActionRenderTypeAction,
 		Action:         "copy-link",
 		Title:          "Copy short link",
-		IconFileName:   "menu-copy-link-icon.svg",
+		icon:           icons.DownloaderRowMenuCopyLinkIcon,
 		URL:            httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
 		replaceInURL:   RowMenuActionItemIDKey,
 		onlyStatusDone: true,
@@ -80,13 +80,13 @@ var rowMenuActions = []rowMenuAction{
 		RenderType:   menuActionRenderTypeAction,
 		Action:       "delete",
 		Title:        "Delete",
-		IconFileName: "download-delete-icon.svg",
+		icon:         icons.DownloaderRowMenuDeleteIcon,
 		URL:          httppaths.GroupDownloader + httppaths.PathMediaItem,
 		replaceInURL: RowMenuActionItemIDKey,
 	},
 }
 
-func RowMenuActions(svgDir string, mapReplaceUrl map[string]string, isStatusDone bool) []rowMenuAction {
+func RowMenuActions(mapReplaceUrl map[string]string, isStatusDone bool) []rowMenuAction {
 	actions := make([]rowMenuAction, 0, len(rowMenuActions))
 	for _, a := range rowMenuActions {
 		if !isStatusDone && a.onlyStatusDone {
@@ -96,8 +96,8 @@ func RowMenuActions(svgDir string, mapReplaceUrl map[string]string, isStatusDone
 		actions = append(actions, a)
 		action := &actions[len(actions)-1]
 
-		if action.IconFileName != "" {
-			action.IconSvg = icons.FileRaw(action.IconFileName, svgDir)
+		if action.icon.FileName() != "" {
+			action.IconSvg = action.icon.FileRaw()
 		}
 
 		if key := action.replaceInURL; key != "" {
