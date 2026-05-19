@@ -4,6 +4,7 @@
 
 ### ✨ Features
 - Added a Settings button to the Grab form [L007]
+- Moved the search to header [L010]
 
 ### 🎨 Style
 - Reduced the get button for small screens [L004]

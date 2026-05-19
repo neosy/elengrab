@@ -17,7 +17,9 @@ type (
 	}
 
 	IndexPageValues struct {
-		ShowHistorySearch bool
+		UserMenuSearchButtonIcon template.HTML
+		SearchBackArrowIcon      template.HTML
+		ShowHistorySearch        bool
 
 		DiskFree string
 		DiskUsed string

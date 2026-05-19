@@ -250,14 +250,27 @@
   opacity: 0;
 }
 
+.grab-options__wrapper {
+    display: flex;
+
+    min-width: 0;
+    min-height: 0;
+
+    justify-content: center;
+
+    transform: translateY(0);
+
+    transition: transform 250ms ease;
+}
+
 .grab-options {
     display: flex;
     flex-wrap: wrap;
 
-    min-width: 0;
-    min-height: 0;
-    margin: 15px auto 0;
     max-width: 700px;
+
+    margin-top: 15px;
+
     gap: 20px;
 
     justify-content: center;

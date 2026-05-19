@@ -97,9 +97,11 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 			JsImportMapJSON: template.HTML(jsImportMapJSON),
 		},
 		Values: pages.IndexPageValues{
-			ShowHistorySearch: true,
-			DiskFree:          uformat.BytesHuman(int64(systemInfo.DiskFree)),
-			DiskUsed:          uformat.BytesHuman(int64(systemInfo.DiskUsed)),
+			UserMenuSearchButtonIcon: icons.UserMenuSearchIcon.FileRaw(),
+			SearchBackArrowIcon:      icons.SearchBackArrowIcon.FileRaw(),
+			ShowHistorySearch:        true,
+			DiskFree:                 uformat.BytesHuman(int64(systemInfo.DiskFree)),
+			DiskUsed:                 uformat.BytesHuman(int64(systemInfo.DiskUsed)),
 			GrabForm: pages.IndexGrabForm{
 				InputPlaceholder:   pages.IndexGrabFormInputPlaceholder,
 				SettingsButtonIcon: icons.IndexGrabSettingsButtonIcon.FileRaw(),

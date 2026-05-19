@@ -1,16 +1,18 @@
 {{- define "history-search" }}
-            <div class="history-search">
-                <div class="history-search__input_wrapper">
+            <div class="history-search" id="historySearch">
+                <div class="history-search__back-arrow"><button class="history-search__back-arrow-button" id="historySearchBackButton" type="button">{{ .Values.SearchBackArrowIcon }}</button></div>
+                <div class="history-search__input_wrapper" id="historySearchInputWrapper">
                     <input class="history-search__input"
+                    id="historySearchInput"
                     type="search" name="search"
                     placeholder="Search media"
                     maxlength="255"
                     autocomplete="off"
-                    hx-post="{{.BasePaths.DownloaderSearch}}"
+                    hx-post="{{ .BasePaths.DownloaderSearch }}"
                     hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load[this.value.length > 0]"
                     hx-target="#media-result-rows"
                     hx-swap="outerHTML">
-                    <button class="history-search__clear-button" type="button">×</button>
+                    <button class="history-search__clear-button" id="historySearchClearButton" type="button">×</button>
                 </div>
             </div>
 {{- end }}

@@ -1,11 +1,11 @@
 {{- define "grab-form" }}
       <form id="grabForm"
             hx-post="{{.BasePaths.DownloaderGrab}}"
-            hx-include="#mediaURL, [name='formatType']"
+            hx-include="#mediaURLInput, [name='formatType']"
             hx-swap="none">
         <div class="grab-area">
           <div class="grab-area__input-wrapper">
-            <input class="grab-area__input" type="text" id="mediaURL" name="mediaURL" placeholder="{{ .Values.GrabForm.InputPlaceholder }}" maxlength="255">
+            <input class="grab-area__input" type="text" id="mediaURLInput" name="mediaURL" placeholder="{{ .Values.GrabForm.InputPlaceholder }}" maxlength="255">
           </div>
           <div class="grab-area__action">
             <button class="grab-area__action-button grab-area__action-button-paste no-select" id="inputActionBtn" type="button"></button>
@@ -16,40 +16,42 @@
           </div>
         </div>
         <div class="grab-options-collapse is-collapsed" id="grabOptionsCollapse">
-          <div class="grab-options" id="grabOptions">
-            <div class="grab-option">
-              <span class="grab-option__label">Quality</span>
-              <select name="quality-codec" title="Select your preferred video/audio quality or codec">
-                <option value="best" selected>Best</option>
-                <option value="only_audio">Only audio</option>
-                <option value="h264">Video H.264</option>
-                <option value="h265">Video H.265</option>
-                <option value="av1">Video AV1</option>
-              </select>
-              <select name="quality-resolution" title="Select the video resolution you prefer">
-                <option value="empty" hidden>Max</option>
-                <option value="max" selected>Max</option>
-                <option value="1080">1080p</option>
-                <option value="720">720p</option>
-                <option value="480">480p</option>
-                <option value="360">360p</option>
-              </select>
-            </div>
-            <div class="grab-option">
-              <span class="grab-option__label">Format</span>
-              <select name="format" title="Select the desired output format for video or audio">
-                <option value="auto" selected>Auto</option>
-                <optgroup label="Video">
-                  <option value="mp4">MP4</option>
-                  <option value="webm">WebM</option>
-                </optgroup>
-                <optgroup label="Audio">
-                  <option value="mp3">MP3</option>
-                  <option value="m4a">M4A</option>
-                  <option value="flac">FLAC</option>
-                  <option value="opus">OPUS</option>
-                </optgroup>
-              </select>
+          <div class="grab-options__wrapper">
+            <div class="grab-options" id="grabOptions">
+              <div class="grab-option">
+                <span class="grab-option__label">Quality</span>
+                <select name="quality-codec" title="Select your preferred video/audio quality or codec">
+                  <option value="best" selected>Best</option>
+                  <option value="only_audio">Only audio</option>
+                  <option value="h264">Video H.264</option>
+                  <option value="h265">Video H.265</option>
+                  <option value="av1">Video AV1</option>
+                </select>
+                <select name="quality-resolution" title="Select the video resolution you prefer">
+                  <option value="empty" hidden>Max</option>
+                  <option value="max" selected>Max</option>
+                  <option value="1080">1080p</option>
+                  <option value="720">720p</option>
+                  <option value="480">480p</option>
+                  <option value="360">360p</option>
+                </select>
+              </div>
+              <div class="grab-option">
+                <span class="grab-option__label">Format</span>
+                <select name="format" title="Select the desired output format for video or audio">
+                  <option value="auto" selected>Auto</option>
+                  <optgroup label="Video">
+                    <option value="mp4">MP4</option>
+                    <option value="webm">WebM</option>
+                  </optgroup>
+                  <optgroup label="Audio">
+                    <option value="mp3">MP3</option>
+                    <option value="m4a">M4A</option>
+                    <option value="flac">FLAC</option>
+                    <option value="opus">OPUS</option>
+                  </optgroup>
+                </select>
+              </div>
             </div>
           </div>
         </div>
