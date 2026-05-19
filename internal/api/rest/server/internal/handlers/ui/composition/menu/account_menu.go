@@ -6,26 +6,26 @@ import (
 )
 
 type accountMenuAction struct {
-	Action       string `json:"action"`
-	Title        string `json:"title"`
-	IconSvg      any    `json:"iconSvg,omitempty"`
-	IconFileName string
-	URL          string
+	Action  string `json:"action"`
+	Title   string `json:"title"`
+	IconSvg any    `json:"iconSvg,omitempty"`
+	icon    icons.Icon
+	URL     string
 }
 
 var accountMenuActions = []accountMenuAction{
 	{
-		Action:       "logout",
-		Title:        "Logout",
-		IconFileName: "menu-logout-icon.svg",
-		URL:          httppaths.GroupAccount + httppaths.PathLogout,
+		Action: "logout",
+		Title:  "Logout",
+		icon:   icons.AccountMenuLogoutIcon,
+		URL:    httppaths.GroupAccount + httppaths.PathLogout,
 	},
 }
 
-func AccountMenuActions(svgDir string) []accountMenuAction {
+func AccountMenuActions() []accountMenuAction {
 	actions := append([]accountMenuAction(nil), accountMenuActions...)
 	for i, action := range actions {
-		actions[i].IconSvg = icons.FileRaw(action.IconFileName, svgDir)
+		actions[i].IconSvg = action.icon.FileRaw()
 	}
 	return actions
 }

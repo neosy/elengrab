@@ -124,6 +124,8 @@ checkout: ## Create branch with auto task id, e.g. git checkout -b fix/L001-name
 	current=$$(cat $(TASK_ID_FILE)); \
 	prefix=$$(echo $$current | sed 's/[0-9]*$$//'); \
 	number=$$(echo $$current | sed 's/^[^0-9]*//'); \
+	number=$$(echo $$number | sed 's/^0*//'); \
+	[ -z "$$number" ] && number=0; \
 	next=$$((number + 1)); \
 	id=$$(printf "%s%03d" "$$prefix" "$$next"); \
 	printf "%s" "$$id" > $(TASK_ID_FILE); \

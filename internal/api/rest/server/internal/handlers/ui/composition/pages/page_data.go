@@ -137,7 +137,7 @@ type (
 		BasePaths     paths.Paths
 		BaseValues    baseValues
 		Values        *RowFragmentValues
-		IconFileNames map[string]any
+		IconFileNames map[string]string
 		Extra         map[string]any
 	}
 

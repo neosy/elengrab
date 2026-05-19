@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/mappers"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/validators"
 	"github.com/neosy/elengrab/internal/app/usecases"
@@ -52,13 +53,17 @@ func NewDownloaderHandlers(
 	shortLinkPrefix string,
 	assetsDir string,
 ) *DownloaderHandlers {
+	assetFolders := assets.NewFolderPaths(assetsDir)
+
+	icons.Init(assetFolders.Icons())
+
 	return &DownloaderHandlers{
 		logger:     logger,
 		mappers:    mappers.NewMappers(),
 		validators: validators.NewValidators(),
 
 		templates:    templates,
-		assetFolders: assets.NewFolderPaths(assetsDir),
+		assetFolders: assetFolders,
 
 		// Storages
 		downloadsStorage: downloadsStorage,

@@ -63,7 +63,7 @@ func (h *DownloaderHandlers) MediaItemImageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	defaultAvatarSVG := icons.FileRawByKey(icons.MediaDefaultIconNameKey, h.assetFolders.Icons())
+	defaultAvatarSVG := icons.MediaDefaultIcon.FileRaw()
 
 	ctx.SetContentType("image/svg+xml")
 	ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
