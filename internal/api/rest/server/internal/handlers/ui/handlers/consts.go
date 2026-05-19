@@ -8,7 +8,7 @@ const (
 	dateFormate = time.RFC3339
 
 	loadHistoryLimit    = 20
-	preloadHistoryAfter = 17
+	preloadHistoryAfter = 19
 
 	formFieldLoginKey           = "login"
 	formFieldPasswordKey        = "password"

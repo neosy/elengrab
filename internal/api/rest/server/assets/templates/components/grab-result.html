@@ -5,11 +5,7 @@
               <span class="media-result_info-failed" id="result-info-failed"></span>
           </div>
         </div>
-        {{- if .Values.ShowHistorySearch }}
-          <div class="media-result_toolbar">
-            {{- template "history-search" . }}
-          </div>
-        {{- end }}
+        <div class="media-result_toolbar"></div>
         <div class="media-result__rows-wrapper">
           {{- template "result-rows" . }}
           {{- template "row-menu" . }}

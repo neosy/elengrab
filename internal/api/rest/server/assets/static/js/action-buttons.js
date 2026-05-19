@@ -104,39 +104,45 @@ export function initInputPasteClearButton(input, btn) {
     });
 }
 
-// -------------------------------------------------------------
-// Function: initInputClearButton
-// Adds a clear (×) button to any input field inside a wrapper
-// wrapperSelector — CSS selector of the container that contains the input + button
-// -------------------------------------------------------------
-export function initInputClearButton(wrapperSelector) {
-    const wrappers = document.querySelectorAll(wrapperSelector);
-    if (!wrappers.length) return;
+/**
+* Function: initInputClearButton
+* Adds a clear (×) button to any input field inside a wrapper
+* wrapperSelector — CSS selector of the container that contains the input + button
+ * @param {HTMLDivElement} wrapper
+ * @param {HTMLButtonElement} btn
+*/
+export function initInputClearButton(wrapper, btn) {
+    if (!wrapper || !btn) return;
 
-    wrappers.forEach(wrapper => {
-        const input = wrapper.querySelector('input');
-        const clearBtn = wrapper.querySelector('button.history-search__clear-button');
+    const input = wrapper.querySelector('input');
 
-        if (!input || !clearBtn) return;
+    if (!input || !btn) return;
 
-        const updateState = () => {
-            const hasValue = input.value.trim() !== '';
-            wrapper.classList.toggle('has-value', hasValue);
-            input.classList.toggle('has-value', hasValue);
-        };
+    const updateState = () => {
+        const hasValue = input.value.trim() !== '';
+        wrapper.classList.toggle('has-value', hasValue);
+        input.classList.toggle('has-value', hasValue);
+    };
 
-        input.addEventListener('input', updateState);
+    input.addEventListener('input', updateState);
 
-        clearBtn.addEventListener('click', () => {
-            input.value = '';
-            input.focus();
-            updateState();
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-        });
-
-        // Initialization during loading (for example, auto-completion)
-        updateState();
+    btn.addEventListener('click', () => {
+        clear();
     });
+
+    // Initialization during loading (for example, auto-completion)
+    updateState();
+
+    function clear() {
+        input.value = '';
+        input.focus();
+        updateState();
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    return {
+        clear
+    }  
 }
 
 /**

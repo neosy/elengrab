@@ -150,6 +150,33 @@ function createSSEConnection() {
         }};
 }
 
+function initSearching(clear) {
+    const searchBtn = document.getElementById("userMenuSearchButton");
+    const backBtn = document.getElementById("historySearchBackButton");
+    const mainHeader = document.getElementById("mainHeader");
+    const searchInput = document.getElementById("historySearchInput");
+
+    if (!searchBtn || !mainHeader || !backBtn) return;
+
+    searchBtn.addEventListener('click', () => {
+        openSearching();
+    });    
+
+    backBtn.addEventListener('click', () => {
+        closeSearching();
+    });
+
+    function openSearching() {
+        mainHeader.classList.toggle('is-search', true);
+        searchInput.focus();
+    }
+
+    function closeSearching() {
+        mainHeader.classList.toggle('is-search', false);
+        clear();
+    }
+}
+
 // -------------------------------------------------------------
 // Main Init
 // -------------------------------------------------------------
@@ -163,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const grabForm = document.querySelector(`#${DOM_IDS.grabForm}`);
     const buttonGrab = document.querySelector('.grab-area__submit-button');
 
-    const grabInputURL = DOM_ELEMENTS.mediaURL;
+    const grabURLInput = DOM_ELEMENTS.mediaURLInput;
     const grabInputActionBtn = DOM_ELEMENTS.inputActionBtn;
 
     // Sync selects with cookies
@@ -180,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // });
 
     // Submit on Enter
-    grabInputURL.addEventListener('keydown', (event) => {
+    grabURLInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
             buttonGrab.click();
@@ -189,10 +216,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Clear before HTMX request
     htmx.on(`#${DOM_IDS.grabForm}`, 'htmx:beforeRequest', () => {
-        if (grabInputURL) {
-            grabInputURL.value = '';
+        if (grabURLInput) {
+            grabURLInput.value = '';
             // update action button after clearing
-            actionButton.updateInputPasteClearButton(grabInputURL, grabInputActionBtn);
+            actionButton.updateInputPasteClearButton(grabURLInput, grabInputActionBtn);
         }
         if (DOM_ELEMENTS.resultInfo) DOM_ELEMENTS.resultInfo.classList.remove("show");
     });
@@ -203,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- Error handling (HTTP >= 400, except 503) ---
         if (xhr.status >= 400 && xhr.status !== 503) {
-            if (grabInputURL) grabInputURL.value = '';
+            if (grabURLInput) grabURLInput.value = '';
 
             if (DOM_ELEMENTS.resultInfo && DOM_ELEMENTS.resultInfoFailed) {
                 let text = xhr.responseText;
@@ -268,10 +295,13 @@ document.addEventListener('DOMContentLoaded', () => {
     actionButton.initInputSettingsButton(DOM_ELEMENTS.inputActionSettingsBtn, DOM_ELEMENTS.grabOptionsCollapse, DOM_ELEMENTS.grabOptions)
 
     // Init action button for input field
-    actionButton.initInputPasteClearButton(grabInputURL, grabInputActionBtn)
+    actionButton.initInputPasteClearButton(grabURLInput, grabInputActionBtn)
 
-    // Init action button for input
-    actionButton.initInputClearButton('.history-search__input_wrapper');
+    // Init action button for search input
+    const searchInputClearButton = actionButton.initInputClearButton(DOM_ELEMENTS.historySearchInputWrapper, DOM_ELEMENTS.historySearchClearButton);
+
+    // Init search elements
+    initSearching(searchInputClearButton.clear);
 
     // Create SSE connection
     var sse = null;
