@@ -37,8 +37,8 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 		FileSize:       "-",
 		Format:         "-",
 
-		DownloaderResultItemStatusIcon: icons.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, h.assetFolders.Icons()),
-		DownloaderResultItemDeleteIcon: icons.FileRawByKey(icons.DownloadDeleteIconNameKey, h.assetFolders.Icons()),
+		DownloaderResultItemStatusIcon: icons.DownloaderIconByStatus(downloadInfo.Status).FileRaw(),
+		DownloaderResultItemDeleteIcon: icons.DownloadDeleteIcon.FileRaw(),
 		IsItemHTMXOptionRepeat:         true,
 		PageHasDivItems:                pageHasDivItems,
 		ResultRowFade:                  "fade-in",
@@ -51,7 +51,7 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 	pageData := pages.RowFragmentData{
 		BasePaths:     paths.NewPaths(),
 		Values:        &data,
-		IconFileNames: icons.FileNames(),
+		IconFileNames: icons.FileNamesByKey(),
 	}
 
 	// Load template

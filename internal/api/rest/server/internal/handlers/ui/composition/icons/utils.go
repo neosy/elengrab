@@ -2,29 +2,26 @@ package icons
 
 import (
 	"html/template"
-
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"os"
+	"path/filepath"
 )
 
-func DownloaderResultStatusIconSvgRaw(status dtypes.MediaDownloadStatus, svgDir string) template.HTML {
-	var iconName string
+func FileRaw(fileName string, iconsDir string) template.HTML {
+	const svgEmpty = `<svg width="1em" height="1em"></svg>`
 
-	switch status {
-	case dtypes.MediaDownloadStatusNew, dtypes.MediaDownloadStatusPending:
-		iconName = iconFileNames[DownloadPendingIconNameKey].(string)
-	case dtypes.MediaDownloadStatusDone:
-		iconName = iconFileNames[DownloadIconNameKey].(string)
-	case dtypes.MediaDownloadStatusFailed:
-		iconName = iconFileNames[DownloadFailedIconNameKey].(string)
+	icon := iconCache.Find(fileName)
+	if icon != nil {
+		return icon.raw
 	}
 
-	return FileRaw(iconName, svgDir)
-}
+	filePath := filepath.Join(iconsDir, fileName)
 
-func UserAvatarKeyByType(userType dtypes.UserType) string {
-	key := userAvatarKeysByType[userType]
-	if key == "" {
-		return UserAvatarAnonymIconNameKey
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return svgEmpty
 	}
-	return key
+
+	iconCache.Save(fileName, &iconEntry{template.HTML(data)}, iconCacheTTL)
+
+	return template.HTML(data)
 }

@@ -37,7 +37,6 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 
 	extraData := make(map[string]any)
 	extraData[items.RowMenuActionsKey] = menu.RowMenuActions(
-		h.assetFolders.Icons(),
 		map[string]string{
 			menu.RowMenuActionItemIDKey: downloadID.String(),
 			menu.RowMenuActionURLKey:    downloadResp.MediaURL,

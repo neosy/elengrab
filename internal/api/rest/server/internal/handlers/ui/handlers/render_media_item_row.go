@@ -133,9 +133,9 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		IsItemHTMXOptionRepeat:             isGrabResultItemHTMXOptionRepeat,
 		IsDownloadEvent:                    isDownloadEvent,
 		ResultRowStatusTitle:               downloadInfo.StatusText,
-		DownloaderResultItemSourceLinkIcon: icons.FileRawByKey(icons.DownloadSourceLinkIconNameKey, h.assetFolders.Icons()),
-		DownloaderResultItemStatusIcon:     icons.DownloaderResultStatusIconSvgRaw(downloadInfo.Status, h.assetFolders.Icons()),
-		DownloaderResultItemDeleteIcon:     icons.FileRawByKey(icons.DownloadDeleteIconNameKey, h.assetFolders.Icons()),
+		DownloaderResultItemSourceLinkIcon: icons.DownloadSourceLinkIcon.FileRaw(),
+		DownloaderResultItemStatusIcon:     icons.DownloaderIconByStatus(downloadInfo.Status).FileRaw(),
+		DownloaderResultItemDeleteIcon:     icons.DownloadDeleteIcon.FileRaw(),
 		ResultMediaUrlFade:                 "",
 		ResultSizeFade:                     "",
 		ResultFormatFade:                   "",
@@ -144,7 +144,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 
 	if downloadInfo.Status == dtypes.MediaDownloadStatusFailed {
 		data.DownloaderResultItemStatusFailedIcon = template.HTML(
-			icons.FileRawByKey(icons.DownloadRepeatIconNameKey, h.assetFolders.Icons()),
+			icons.DownloadRepeatIcon.FileRaw(),
 		)
 	}
 
@@ -178,7 +178,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	pageData := pages.RowFragmentData{
 		BasePaths:     paths.NewPaths(),
 		Values:        &data,
-		IconFileNames: icons.FileNames(),
+		IconFileNames: icons.FileNamesByKey(),
 		Extra:         extraData,
 	}
 
