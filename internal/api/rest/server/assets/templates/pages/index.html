@@ -2,9 +2,6 @@
     {{- template "base" . }}
 {{- end -}}
 
-{{- define "header" -}}
-{{- end -}}
-
 {{- define "user-menu" -}}
       <div class="user-menu">
         <div class="user-menu__button-wrapper user-menu__search"><button class="user-menu__search-button" id="userMenuSearchButton" type="button">{{ .Values.UserMenuSearchButtonIcon }}</button></div>
@@ -18,18 +15,21 @@
       {{- template "account-menu" . }}
 {{- end -}}
 
-{{- define "content" -}}
-    <div class="main-header" id="mainHeader">
-      <div class="main-header__left"></div>
-      <div class="main-header__content">
-        <a class="main-header__link" href="/">
-            <img class="main-header__logo-image" src="{{ .BasePaths.StaticImages }}/logo-512.png">
-            <h1 class="main-header__title">{{ .BaseValues.Header }}</h1>
+{{- define "header" -}}
+    <div class="header__container" id="headerContainer">
+      <div class="header__left"></div>
+      <div class="header__content">
+        <a class="header__link" href="/">
+            <img class="header__logo-image" src="{{ .BasePaths.StaticImages }}/logo-512.png">
+            <h1 class="header__title">{{ .BaseValues.Header }}</h1>
         </a>
-        {{- block "user-menu" . }}{{- end }}
       </div>
-      <div class="main-header__search">{{ template "history-search" . }}</div>
+      <div class="header__search">{{ template "history-search" . }}</div>
+      {{- block "user-menu" . }}{{- end }}
     </div>
+{{- end -}}
+
+{{- define "content" -}}
     {{- template "grab-form" . }}
     {{- template "media-result" . }}
     <div id="media-player-overlay">
