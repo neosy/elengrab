@@ -15,18 +15,13 @@ func (d *Downloader) extractThumbnailFromURL(
 	ctx context.Context,
 	mediaURL string,
 	useCookies bool,
-	onDone func(imageData *dtypes.ImageData),
-) {
+) *dtypes.ImageData {
 	imageData, err := d.FetchThumbnail(ctx, mediaURL, useCookies)
 	if err != nil {
-		return
+		return nil
 	}
 
-	if imageData == nil {
-		return
-	}
-
-	onDone(imageData)
+	return imageData
 }
 
 func (d *Downloader) ExtractThumbnailURL(ctx context.Context, mediaURL string, useCookies bool) (string, error) {

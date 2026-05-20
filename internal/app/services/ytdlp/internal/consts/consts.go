@@ -16,6 +16,9 @@ const (
 	YtDlpTimeout         = 2 * time.Hour
 	YtDlpRetryDelay      = 2 * time.Second
 
+	FetchImageLimit   = 4096 << 10 // 4096 KB
+	FetchImageTimeout = 10 * time.Second
+
 	FormatCacheTTL = 2 * time.Hour
 
 	ConcurrentFragmentsDefault = 5

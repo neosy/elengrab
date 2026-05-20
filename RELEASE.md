@@ -15,6 +15,7 @@
 
 ### 🐛 Fix
 - Handle empty argImageSource for SplitSeq
+- Change yt-dlp webm re-encoding codec to VP9
 
 ### 🧩 Refactor
 - Rename static paths

@@ -19,7 +19,7 @@
                             {{- else }}
                                 {{- if eq .Values.DownloadStatus "failed" }}
                                 <button class="media-result__status-button"
-                                    hx-post="{{ .BasePaths.DownloadRepeat }}"
+                                    hx-post="{{ .Values.DownloadRepeatPath }}"
                                     hx-swap="none">
                                     {{ .Values.DownloaderResultItemStatusFailedIcon }}
                                 </button>            
