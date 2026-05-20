@@ -1,8 +1,6 @@
 package helper
 
 import (
-	"time"
-
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
@@ -21,7 +19,4 @@ const (
 	audioQualityAACBitrateDefault  = "160k"
 	audioQualityOPUSDefault        = "160k"
 	audioQualityFLACBitrateDefault = 965
-
-	limitImage        = 4096 << 10 // 4096 KB
-	fetchImageTimeout = 5 * time.Second
 )

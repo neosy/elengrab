@@ -3,6 +3,7 @@ package helper
 import (
 	"context"
 
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/imgx"
@@ -13,8 +14,8 @@ func FetchImage(ctx context.Context, imgURL string) (*dtypes.ImageData, error) {
 	raw, format, err := httpx.FetchImage(
 		ctx,
 		imgURL,
-		httpx.MethodGetOptions{Limit: limitImage},
-		httpx.ClientOptionWithTimeout(fetchImageTimeout),
+		httpx.MethodGetOptions{Limit: consts.FetchImageLimit},
+		httpx.ClientOptionWithTimeout(consts.FetchImageTimeout),
 	)
 	if err != nil {
 		return nil, err

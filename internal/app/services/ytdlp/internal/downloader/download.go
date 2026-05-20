@@ -16,7 +16,6 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/syncx"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 func (d *Downloader) Download(
@@ -131,32 +130,30 @@ func (d *Downloader) Download(
 	// Returns a channel from which the avatar can be read once the goroutine completes.
 	if options.DownloadChannelAvatar {
 		wg.Go(func() {
-			d.fetchAndBuildChannelAvatar(
-				meta.CopyMeta(),
-				func(channel *dtypes.Channel) {
-					meta.Lock()
-					meta.Meta.Channel = channel
-					meta.Unlock()
-					sendData(meta.InitialResult())
-				},
-			)
+			channel := d.fetchAndBuildChannelAvatar(meta.CopyMeta())
+			if channel != nil {
+				meta.Lock()
+				meta.Meta.Channel = channel
+				meta.Unlock()
+				sendData(meta.InitialResult())
+			}
 		})
 	}
 
 	// Start asynchronous get of thumbnail
 	wg.Go(func() {
-		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		ctx, cancel := context.WithTimeout(ctx, 8*time.Second)
 		defer cancel()
-		d.extractThumbnailFromURL(
+		imgData := d.extractThumbnailFromURL(
 			ctx, url,
 			false, // Not needed, loading from cache.
-			func(imageData *dtypes.ImageData) {
-				meta.Lock()
-				meta.Meta.Thumbnail = imageData
-				meta.Unlock()
-				sendData(meta.InitialResult())
-			},
 		)
+		if imgData != nil {
+			meta.Lock()
+			meta.Meta.Thumbnail = imgData
+			meta.Unlock()
+			sendData(meta.InitialResult())
+		}
 	})
 
 	out, err := d.downloadWithStrategies(
@@ -182,18 +179,32 @@ func (d *Downloader) Download(
 		"out", string(out),
 	)
 
-	// Get the actual file size
-	d.refreshFileSize(&meta)
-
-	// Waiting for background processes to complete
-	wg.Wait()
+	// Get (asynchronous) the actual file size
+	wg.Go(func() {
+		size := d.fileSize(meta.Meta.FileFullName)
+		if size != 0 {
+			meta.Lock()
+			meta.Meta.FileSize = &size
+			meta.Unlock()
+		}
+	})
 
 	// Start asynchronous reading metadata from the given file.
 	wg.Go(func() {
-		ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
-		d.refreshMediaInfo(ctx, &meta)
-		sendData(meta.InitialResult())
+		vInfo, aInfo := d.extractMediaInfoFromFile(ctx, meta.Meta.FileFullName, meta.Meta.MediaInfo)
+		if vInfo != nil || aInfo != nil {
+			meta.Lock()
+			if vInfo != nil {
+				meta.Meta.MediaInfo.VideoInfo = vInfo
+			}
+			if aInfo != nil {
+				meta.Meta.MediaInfo.AudioInfo = aInfo
+			}
+			meta.Unlock()
+			sendData(meta.InitialResult())
+		}
 	})
 
 	// Start asynchronous extracting a thumbnail frame from the video file.
@@ -201,8 +212,13 @@ func (d *Downloader) Download(
 		wg.Go(func() {
 			ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 			defer cancel()
-			d.extractAndSaveThumbnail(ctx, &meta)
-			sendData(meta.InitialResult())
+			imgData := d.extractThumbnailFromFile(ctx, meta.Meta.FileFullName)
+			if imgData != nil {
+				meta.Lock()
+				meta.Meta.ThumbnailVideoFrame = imgData
+				meta.Unlock()
+				sendData(meta.InitialResult())
+			}
 		})
 	}
 
@@ -227,7 +243,7 @@ func (d *Downloader) Download(
 	d.logger.Debug("Download success", "meta", meta.Meta)
 }
 
-func (d *Downloader) extractAndSaveThumbnail(ctx context.Context, meta *idto.SafeDownloadMeta) {
+func (d *Downloader) extractThumbnailFromFile(ctx context.Context, fileName string) *dtypes.ImageData {
 	extractBestFrame := func(ctx context.Context, filePath string) (*dtypes.ImageData, error) {
 		imgData, err := d.ffmpeg.ExtractBestFrame(
 			ctx,
@@ -252,37 +268,28 @@ func (d *Downloader) extractAndSaveThumbnail(ctx context.Context, meta *idto.Saf
 	}
 
 	var err error
-	imgData, err := extractBestFrame(ctx, d.storage.Path(meta.Meta.FileFullName))
+	imgData, err := extractBestFrame(ctx, d.storage.Path(fileName))
 	if err != nil {
-		return
+		return nil
 	}
-	if imgData != nil {
-		meta.Lock()
-		meta.Meta.ThumbnailVideoFrame = imgData
-		meta.Unlock()
-	}
+
+	return imgData
 }
 
-func (d *Downloader) refreshMediaInfo(ctx context.Context, meta *idto.SafeDownloadMeta) {
-	vInfo, aInfo, err := d.ffmpeg.GetVideoAudioInfoFromFile(ctx, d.storage.Path(meta.Meta.FileFullName), meta.Meta.MediaInfo)
+func (d *Downloader) extractMediaInfoFromFile(
+	ctx context.Context, fileName string, mediaInfo *dservices.MediaInfo,
+) (*dtypes.VideoInfo, *dtypes.AudioInfo) {
+	vInfo, aInfo, err := d.ffmpeg.GetVideoAudioInfoFromFile(ctx, d.storage.Path(fileName), mediaInfo)
 	if err != nil {
 		d.logger.Warn(
 			"Failed to get media info from file",
-			"filePath", d.storage.Path(meta.Meta.FileFullName),
+			"filePath", d.storage.Path(fileName),
 			"error", err,
 		)
-		return
+		return nil, nil
 	}
-	if vInfo != nil || aInfo != nil {
-		meta.Lock()
-		if vInfo != nil {
-			meta.Meta.MediaInfo.VideoInfo = vInfo
-		}
-		if aInfo != nil {
-			meta.Meta.MediaInfo.AudioInfo = aInfo
-		}
-		meta.Unlock()
-	}
+
+	return vInfo, aInfo
 }
 
 func (d *Downloader) partialHash(filePath string) *string {
@@ -293,11 +300,10 @@ func (d *Downloader) partialHash(filePath string) *string {
 	return nil
 }
 
-func (d *Downloader) refreshFileSize(meta *idto.SafeDownloadMeta) {
-	fileInfo, err := os.Stat(d.storage.Path(meta.Meta.FileFullName))
-	if err == nil {
-		meta.Lock()
-		meta.Meta.FileSize = uptr.Int64(fileInfo.Size())
-		meta.Unlock()
+func (d *Downloader) fileSize(fileName string) int64 {
+	fileInfo, err := os.Stat(d.storage.Path(fileName))
+	if err != nil {
+		return 0
 	}
+	return int64(fileInfo.Size())
 }
