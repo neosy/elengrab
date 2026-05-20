@@ -36,7 +36,7 @@ type DownloadOptions struct {
 }
 
 type SafeDownloadMeta struct {
-	mu   sync.Mutex
+	mu   sync.RWMutex
 	Meta *DownloadMeta
 }
 
@@ -48,9 +48,17 @@ func (m *SafeDownloadMeta) Unlock() {
 	m.mu.Unlock()
 }
 
+func (m *SafeDownloadMeta) RLock() {
+	m.mu.RLock()
+}
+
+func (m *SafeDownloadMeta) RUnlock() {
+	m.mu.RUnlock()
+}
+
 func (m *SafeDownloadMeta) CopyMeta() *DownloadMeta {
-	m.Lock()
-	defer m.Unlock()
+	m.RLock()
+	defer m.RUnlock()
 
 	if m == nil || m.Meta == nil {
 		return nil

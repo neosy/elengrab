@@ -45,7 +45,7 @@ func PrepareDownload(
 
 		var resolution string
 		if dlOptions.VideoResolution.Height() > 0 {
-			resolution = fmt.Sprintf("[height<=%d][width<=%d]", dlOptions.VideoResolution.Width(), dlOptions.VideoResolution.Width())
+			resolution = fmt.Sprintf("[height<%d][width<%d]", dlOptions.VideoResolution.Width(), dlOptions.VideoResolution.Width())
 		}
 
 		var (

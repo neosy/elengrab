@@ -13,12 +13,9 @@ import (
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
-func (d *Downloader) fetchAndBuildChannelAvatar(
-	meta *idto.DownloadMeta,
-	onChannelDone func(*dtypes.Channel),
-) {
+func (d *Downloader) fetchAndBuildChannelAvatar(meta *idto.DownloadMeta) *dtypes.Channel {
 	if meta.ChannelURL == "" {
-		return
+		return nil
 	}
 
 	startTime := time.Now()
@@ -26,18 +23,17 @@ func (d *Downloader) fetchAndBuildChannelAvatar(
 	elapsed := time.Since(startTime)
 	if err != nil {
 		d.logger.Debug("Failed to get channel avatar", "channelURL", meta.ChannelURL, "error", err)
-		return
+		return nil
 	}
 	if len(avatarSources) == 0 {
 		d.logger.Debug("Avatar not found", "channelURL", meta.ChannelURL)
-		return
+		return nil
 	}
 
-	var channel *dtypes.Channel
 	src := avatarSources[0]
 	if len(src.Raw) == 0 {
 		d.logger.Debug("Avatar image not found", "channelURL", meta.ChannelURL)
-		return
+		return nil
 	}
 
 	d.logger.Info(
@@ -53,10 +49,10 @@ func (d *Downloader) fetchAndBuildChannelAvatar(
 			"format", src.Format,
 			"error", err,
 		)
-		return
+		return nil
 	}
 
-	channel = &dtypes.Channel{
+	return &dtypes.Channel{
 		URL:   meta.ChannelURL,
 		Title: meta.ChannelTitle,
 		Avatar: &dtypes.ChannelAvatar{
@@ -65,8 +61,6 @@ func (d *Downloader) fetchAndBuildChannelAvatar(
 			ImageFormat: imageFormat,
 		},
 	}
-
-	onChannelDone(channel)
 }
 
 // fetchChannelAvatar fetches the HTML of a YouTube channel page,
