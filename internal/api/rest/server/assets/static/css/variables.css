@@ -1,4 +1,7 @@
 :root {
+    --header-bg-transparent: rgba(240, 240, 240, 0.95);
+    --header-bg-light-transparent: rgba(250, 250, 250, 0.92);
+
     --bg-body: #f0f0f0;
     --bg-main: white;
     --bg-footer: rgba(240, 240, 240, 0.5);
@@ -24,7 +27,7 @@
     --border-select: #dfe3e8;
     --border-result: #dfe3e8;
     --search-border-input: #ebebeb;
-    --shadow: rgba(0,0,0,0.1);
+    --border-shadow: rgba(0,0,0,0.1);
     --download: #4caf50;
     --download-repeat: #ef5350;
     --download-repeat-hover: #ef5350;
@@ -68,9 +71,12 @@
 }
 
 .dark {
+    --header-bg-transparent: rgba(23, 23, 23, 0.95);
+    --header-bg-light-transparent: rgba(31, 31, 31, 0.9);
+
     --bg-body: #171717;
     --bg-main: #1F1F1F;
-    --bg-footer: rgba(23, 23, 23, 0.5);;
+    --bg-footer: rgba(23, 23, 23, 0.5);
     --bg-result: #1F1F1F;
     --bg-input: #2c2c2c;
     --bg-input-focus: #2c2c2c;

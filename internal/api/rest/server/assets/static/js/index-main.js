@@ -153,10 +153,10 @@ function createSSEConnection() {
 function initSearching(clear) {
     const searchBtn = document.getElementById("userMenuSearchButton");
     const backBtn = document.getElementById("historySearchBackButton");
-    const mainHeader = document.getElementById("mainHeader");
+    const headerContainer = document.getElementById("headerContainer");
     const searchInput = document.getElementById("historySearchInput");
 
-    if (!searchBtn || !mainHeader || !backBtn) return;
+    if (!searchBtn || !headerContainer || !backBtn) return;
 
     searchBtn.addEventListener('click', () => {
         openSearching();
@@ -167,14 +167,43 @@ function initSearching(clear) {
     });
 
     function openSearching() {
-        mainHeader.classList.toggle('is-search', true);
+        headerContainer.classList.toggle('is-search', true);
         searchInput.focus();
     }
 
     function closeSearching() {
-        mainHeader.classList.toggle('is-search', false);
+        headerContainer.classList.toggle('is-search', false);
         clear();
     }
+}
+
+function initHeaderAutoHide() {
+    let lastScrollTop = 0;
+    let ticking = false;
+    const header = document.getElementById('header');
+    const hiddenClass = "header--hidden";
+
+    function updateHeader() {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+        if (scrollTop > lastScrollTop && scrollTop > 250) {
+            header.classList.add(hiddenClass);
+        } else {
+            header.classList.remove(hiddenClass);
+        }
+
+        lastScrollTop = Math.max(scrollTop, 0);
+        ticking = false;
+    }
+
+    function handleScroll() {
+        if (!ticking) {
+            requestAnimationFrame(updateHeader);
+            ticking = true;
+        }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
 }
 
 // -------------------------------------------------------------
@@ -282,6 +311,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init quality/format sync
     setupQualityFormatLogic();
 
+    // Initialize header auto-hide on scroll
+    initHeaderAutoHide();
+
     // Init tooltips
     initTooltips();
 
@@ -324,13 +356,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // background throttling, or mobile suspension)
     // ------------------------------------------------------------
     document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-        if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
-            sse = createSSEConnection();
+        if (document.visibilityState === "visible") {
+            if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
+                sse = createSSEConnection();
+            }
         }
-    }
-});
-
+    });
 });
 
 // Force scroll to top after full page load
