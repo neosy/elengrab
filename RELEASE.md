@@ -20,6 +20,7 @@
 
 ### 🧩 Refactor
 - Rename static paths
+- Splited required and deferred migrations execution flow
 
 ---
 

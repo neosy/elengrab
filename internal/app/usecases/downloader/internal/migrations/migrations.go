@@ -26,7 +26,8 @@ type services struct {
 type migrations struct {
 	logger *slog.Logger
 
-	migrationIDs migrationIDMap
+	requiredMigrationIDs migrationIDs
+	deferredMigrationIDs migrationIDs
 
 	dlStorage pstorage.DownloadsStorage
 
@@ -48,7 +49,8 @@ func NewMigrations(
 	migrations := &migrations{
 		logger: logger,
 
-		migrationIDs: make(migrationIDMap),
+		requiredMigrationIDs: make([]*migrationID, 0),
+		deferredMigrationIDs: make([]*migrationID, 0),
 
 		dlStorage: dlStorage,
 

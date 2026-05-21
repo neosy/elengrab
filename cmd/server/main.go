@@ -36,6 +36,14 @@ func main() {
 	}
 	defer app.Shutdown()
 
+	// Run required migrations before starting the web service.
+	// Application startup must be aborted if any required migration fails.
+	err = app.RunRequiredMigrations()
+	if err != nil {
+		logger.Error("failed to run required migrations", "error", err)
+		os.Exit(1)
+	}
+
 	// Admin server
 	infra.StartAdminHTTPServer(app.Context(), cfg.AdminServer)
 

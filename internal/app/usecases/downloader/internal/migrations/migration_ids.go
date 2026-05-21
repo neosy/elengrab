@@ -8,12 +8,12 @@ type (
 		id  string
 		run migrationRunner
 	}
-	migrationIDMap map[string]*migrationID
+	migrationIDs []*migrationID
 )
 
-func (m migrationIDMap) addMigration(id string, run migrationRunner) {
-	m[id] = &migrationID{
+func (m migrationIDs) addMigration(id string, run migrationRunner) {
+	m = append(m, &migrationID{
 		id:  id,
 		run: run,
-	}
+	})
 }
