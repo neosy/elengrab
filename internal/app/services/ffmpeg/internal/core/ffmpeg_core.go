@@ -8,16 +8,18 @@ type FFmpegCore struct {
 	info *info
 
 	// parameters
-	ffmpegPath string
+	ffmpegPath  string
+	ffprobePath string
 }
 
-func NewFFmpegCore(logger *slog.Logger, path string) *FFmpegCore {
+func NewFFmpegCore(logger *slog.Logger, ffmpegPath, ffprobePath string) *FFmpegCore {
 	return &FFmpegCore{
 		logger: logger,
 
 		info: newInfo(),
 
 		// parameters
-		ffmpegPath: path,
+		ffmpegPath:  ffmpegPath,
+		ffprobePath: ffprobePath,
 	}
 }

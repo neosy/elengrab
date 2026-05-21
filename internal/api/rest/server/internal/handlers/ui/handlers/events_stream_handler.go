@@ -13,7 +13,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
+	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/valyala/fasthttp"
 )
 
@@ -238,8 +238,8 @@ func (h *DownloaderHandlers) handleSystemInfoUpdate(w *bufio.Writer, event ucdto
 		DiskFree string `json:"diskFree"`
 		DiskUsed string `json:"diskUsed"`
 	}{
-		DiskFree: uformat.BytesHuman(int64(systemInfo.DiskFree)),
-		DiskUsed: uformat.BytesHuman(int64(systemInfo.DiskUsed)),
+		DiskFree: humanize.Bytes(int64(systemInfo.DiskFree)),
+		DiskUsed: humanize.Bytes(int64(systemInfo.DiskUsed)),
 	}
 
 	jsonData, err := json.Marshal(data)

@@ -5,7 +5,8 @@
 ### ✨ Features
 - Added a Settings button to the Grab form [L007]
 - Moved the search to header [L010]
-- Hide header on scroll down [L012]
+- The title is hidden when scrolling down [L012]
+- Added media duration [L014]
 
 ### 🎨 Style
 - Reduced the get button for small screens [L004]

@@ -36,7 +36,7 @@ func (uc *Downloader) GetDownloadImage(
 	for _, src := range sources {
 		switch src {
 		case dtypes.ImageSourceThumbnail:
-			imageData, err = uc.getDownloadImageThumbnail(ctx, downloadInfo)
+			imageData, err = uc.getDownloadImageThumbnail(ctx, downloadInfo.MediaInfo)
 		case dtypes.ImageSourceAvatar:
 			imageData, err = uc.getDownloadImageAvatar(ctx, downloadInfo)
 		case dtypes.ImageSourceSite:
@@ -60,10 +60,10 @@ func (uc *Downloader) GetDownloadImage(
 
 func (uc *Downloader) getDownloadImageThumbnail(
 	ctx context.Context,
-	downloadInfo *dto.GetMediaDownloadInfoResponse,
+	mediaInfo *dtypes.MediaInfo,
 ) (*dtypes.ImageData, error) {
-	if downloadInfo.MediaInfo != nil && downloadInfo.MediaInfo.GetThumbnailID() != nil {
-		thumbnail, _ := uc.thumbnail.GetByThumbID(ctx, *downloadInfo.MediaInfo.GetThumbnailID())
+	if mediaInfo != nil && mediaInfo.PreferredThumbnailID() != uuid.Nil {
+		thumbnail, _ := uc.thumbnail.GetByThumbID(ctx, mediaInfo.PreferredThumbnailID())
 		if thumbnail != nil {
 			if imageData := thumbnail.ImageData(); imageData != nil {
 				return imageData, nil

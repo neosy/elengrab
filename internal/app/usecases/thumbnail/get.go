@@ -75,3 +75,12 @@ func (t *Thumbnail) GetInfoByThumbID(ctx context.Context, thumbID uuid.UUID) (*d
 
 	return thumbnail, nil
 }
+
+func (t *Thumbnail) FindInfoByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, error) {
+	thumbnail, err := t.store.FindByThumbID(ctx, thumbID)
+	if err != nil {
+		return nil, err
+	}
+
+	return thumbnail, nil
+}

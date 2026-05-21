@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 
+	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/items"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
@@ -13,7 +14,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
+	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/valyala/fasthttp"
 )
 
@@ -51,8 +52,8 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	}
 
 	var thumbnailID string
-	if downloadInfo.MediaInfo != nil && downloadInfo.MediaInfo.GetThumbnailID() != nil {
-		thumbnailID = downloadInfo.MediaInfo.GetThumbnailID().String()
+	if downloadInfo.MediaInfo != nil && downloadInfo.MediaInfo.PreferredThumbnailID() != uuid.Nil {
+		thumbnailID = downloadInfo.MediaInfo.PreferredThumbnailID().String()
 	}
 
 	downloadItemImageURL := httppaths.BuildPathMediaItemImage(
@@ -101,8 +102,10 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		WorkingStatus:  dltypes.MapUsecaseWorkingStatusToUI(downloadInfo.WorkingStatus).String(),
 
 		YoutubeChannelID: youtubeChannelID,
-		ThumbnailID:      thumbnailID,
 		AvatarTitle:      downloadInfo.AvatarTitle,
+
+		ThumbnailID:         thumbnailID,
+		ThumbnailIsPortrait: downloadInfo.ThumbnalIsPortrait,
 
 		MediaTitle: downloadInfo.MediaTitle,
 		MediaURL:   downloadInfo.MediaURL,
@@ -116,9 +119,10 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		DownloadRowPath:    httppaths.BuildPathMediaItemRow(downloadInfo.DownloadID),
 		DownloadRepeatPath: httppaths.BuildPathMediaItemDownloadRepeat(downloadInfo.DownloadID),
 
-		FileSize:      "-",
-		Format:        "-",
-		DataFormat:    "-",
+		FileSize:   "-",
+		Format:     "-",
+		DataFormat: "-",
+
 		FormatTitle:   downloadInfo.MediaInfoText,
 		FormatTooltip: downloadInfo.MediaInfoTooltip,
 
@@ -149,13 +153,15 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	}
 
 	if downloadInfo.FileSize != nil && *downloadInfo.FileSize > 0 {
-		data.FileSize = uformat.BytesHuman(*downloadInfo.FileSize)
+		data.FileSize = humanize.Bytes(*downloadInfo.FileSize)
 	}
 	if downloadInfo.FileExt != "" {
 		data.Format = downloadInfo.FileExt
 		data.DataFormat = downloadInfo.FileExt
 	}
 	if downloadInfo.MediaInfo != nil {
+		data.Duration = downloadInfo.MediaInfo.FormatDuration()
+		data.VideoIsShort = downloadInfo.MediaInfo.IsPortrait()
 		data.IsAudio = fmt.Sprint(downloadInfo.MediaInfo.FormatType == dtypes.FormatTypeAudioOnly)
 	}
 

@@ -17,6 +17,7 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 	avatarTitle string,
 	progress *dservices.DownloaderProgress,
 	hasSiteIcon bool,
+	thumbnailIsPortrait bool,
 ) *dto.GetMediaDownloadInfoResponse {
 	var mediaTitle = download.MediaTitle
 	if download.MediaTitle == "" {
@@ -38,16 +39,24 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 	mediaInfoText := mediaInfoText(download.MediaInfo)
 
 	return &dto.GetMediaDownloadInfoResponse{
-		DownloadID:           download.DownloadID,
-		Status:               download.Status,
-		WorkingStatus:        workingStatus,
-		ChannelID:            download.ChannelID,
-		AvatarTitle:          avatarTitle,
-		MediaURL:             download.MediaURL,
-		MediaTitle:           mediaTitle,
-		MediaDescription:     uptr.Deref(download.MediaDescription),
-		CreatedTimeAgo:       humanize.TimeAgo(download.CreatedAt),
-		HasSiteIcon:          hasSiteIcon,
+		DownloadID: download.DownloadID,
+
+		Status:        download.Status,
+		WorkingStatus: workingStatus,
+
+		ChannelID:   download.ChannelID,
+		AvatarTitle: avatarTitle,
+
+		MediaURL: download.MediaURL,
+
+		MediaTitle:       mediaTitle,
+		MediaDescription: uptr.Deref(download.MediaDescription),
+
+		CreatedTimeAgo: humanize.TimeAgo(download.CreatedAt),
+
+		HasSiteIcon:        hasSiteIcon,
+		ThumbnalIsPortrait: thumbnailIsPortrait,
+
 		FileName:             download.FileName,
 		FileExt:              download.Ext,
 		FileFullName:         download.FileFullName,

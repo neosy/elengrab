@@ -152,8 +152,10 @@ type (
 		DownloadRepeatPath string
 
 		YoutubeChannelID string
-		ThumbnailID      string
 		AvatarTitle      string
+
+		ThumbnailID         string
+		ThumbnailIsPortrait bool
 
 		ImageURL       string
 		ImageAvatarURL string
@@ -164,19 +166,26 @@ type (
 
 		ContentTimeAgo string
 
-		FilePath      string
-		FileSize      string
+		FilePath string
+		FileSize string
+
+		Duration string
+
 		Format        string
 		DataFormat    string
 		FormatTitle   string
 		FormatTooltip string
-		IsAudio       string
-		DownloadURL   string
-		StreamURL     string
-		WatchURL      string
-		DeleteURL     string
-		RowID         string
-		ProgressID    string
+
+		IsAudio      string
+		VideoIsShort bool
+
+		DownloadURL string
+		StreamURL   string
+		WatchURL    string
+		DeleteURL   string
+
+		RowID      string
+		ProgressID string
 
 		DownloaderResultItemSourceLinkIcon   template.HTML
 		DownloaderResultItemStatusIcon       template.HTML
