@@ -119,7 +119,13 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 		}
 	}
 
-	return uc.mappers.MapDownloadDomainToDownloadInfoResponse(download, avatarTitle, dlProgress, hasSiteIcon), nil
+	var isPortrait bool
+	thumbnail, _ := uc.thumbnail.FindInfoByThumbID(ctx, download.MediaInfo.PreferredThumbnailID())
+	if thumbnail != nil {
+		isPortrait = thumbnail.IsPortrait()
+	}
+
+	return uc.mappers.MapDownloadDomainToDownloadInfoResponse(download, avatarTitle, dlProgress, hasSiteIcon, isPortrait), nil
 }
 
 // LoadHistory retrieves the download history for a user.

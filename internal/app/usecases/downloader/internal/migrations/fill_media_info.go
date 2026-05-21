@@ -94,16 +94,20 @@ func (m *migrations) fillMediaInfo(ctx context.Context) (bool, error) {
 			Format:     fileFormat,
 		}
 
-		videoInfo, audioInfo, _ := m.services.ffmpeg.GetVideoAudioInfoFromFile(
+		mediaInfoResp, _ := m.services.ffmpeg.ExtractVideoAudioInfoFromFile(
 			ctx,
 			m.dlStorage.Path(media.FileFullName),
 			srvMediaInfo,
 		)
 
-		if videoInfo != nil {
-			formatType = dtypes.FormatTypeVideoAudio
-		} else if audioInfo != nil {
-			formatType = dtypes.FormatTypeVideoAudio
+		var (
+			videoInfo *dtypes.VideoInfo
+			audioInfo *dtypes.AudioInfo
+		)
+		if mediaInfoResp != nil {
+			formatType = mediaInfoResp.FormatType
+			videoInfo = mediaInfoResp.VideoInfo
+			audioInfo = mediaInfoResp.AudioInfo
 		}
 
 		imageData := fetchThumbnail(ctx, media.MediaURL)

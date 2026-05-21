@@ -153,3 +153,15 @@ func (t *Thumbnail) Copy() *Thumbnail {
 
 	return &thumbnailCopy
 }
+
+func (t *Thumbnail) IsPortrait() bool {
+	if t == nil {
+		return false
+	}
+
+	if t.Width == nil || t.Height == nil {
+		return false
+	}
+
+	return *t.Width < *t.Height
+}

@@ -5,18 +5,50 @@ import (
 	"strings"
 
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
-// parseAudio parses an ffmpeg "Audio:" line into AudioInfo.
-func (info *info) parseAudio(line string, srcAudioInfo *dtypes.AudioInfo) *dtypes.AudioInfo {
+// parseAudioFromFFprobe parses an FFprobe "stream" line into AudioInfo.
+func (info *info) parseAudioFromFFprobe(stream ffprobeStream, srcAudioInfo *dtypes.AudioInfo) *dtypes.AudioInfo {
+	var (
+		audioInfo = srcAudioInfo.Copy()
+	)
+
+	if audioInfo == nil {
+		audioInfo = &dtypes.AudioInfo{}
+	}
+
+	audioCodec, err := dtypes.ParseAudioCodec(stream.CodecName)
+	if err == nil {
+		audioInfo.Codec = audioCodec
+	}
+
+	sampleRate, err := strconv.Atoi(stream.SampleRate)
+	if err == nil && sampleRate != 0 {
+		audioInfo.SampleRate = &sampleRate
+	}
+
+	bitrate, err := strconv.Atoi(stream.BitRate)
+	if err == nil && bitrate != 0 {
+		audioInfo.Bitrate = int(bitrate / 1000)
+	}
+
+	// Discard audio info if codec not set
+	if audioInfo.Codec == "" {
+		return nil
+	}
+
+	return audioInfo
+}
+
+// parseAudioFromFFmppeg parses an FFmpeg "Audio:" line into AudioInfo.
+func (info *info) parseAudioFromFFmppeg(line string, srcAudioInfo *dtypes.AudioInfo) *dtypes.AudioInfo {
 	if line == "" {
 		return nil
 	}
 
 	var (
 		infoSetter audioInfoSetter
-		audioInfo  = uptr.Copy(srcAudioInfo)
+		audioInfo  = srcAudioInfo.Copy()
 	)
 
 	if audioInfo == nil {
@@ -65,7 +97,7 @@ func (info *info) parseAudio(line string, srcAudioInfo *dtypes.AudioInfo) *dtype
 	}
 
 	// Discard audio info if codec not set
-	if audioInfo != nil && (audioInfo.Codec == "") {
+	if audioInfo.Codec == "" {
 		return nil
 	}
 

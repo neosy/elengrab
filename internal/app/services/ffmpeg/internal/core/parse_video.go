@@ -5,18 +5,55 @@ import (
 	"strings"
 
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
-// parseVideo parses an ffmpeg "Video:" line into VideoInfo.
-func (info *info) parseVideo(line string, srcVideoInfo *dtypes.VideoInfo) *dtypes.VideoInfo {
+// parseVideoFromFFprobe parses an FFprobe "stream" line into VideoInfo.
+func (info *info) parseVideoFromFFprobe(stream ffprobeStream, srcVideoInfo *dtypes.VideoInfo) *dtypes.VideoInfo {
+	var (
+		videoInfo = srcVideoInfo.Copy()
+	)
+
+	if videoInfo == nil {
+		videoInfo = &dtypes.VideoInfo{}
+	}
+
+	videoCodec, err := dtypes.ParseVideoCodec(stream.CodecName)
+	if err == nil {
+		videoInfo.Codec = videoCodec
+	}
+
+	if stream.Width > 0 {
+		videoInfo.Width = stream.Width
+	}
+
+	if stream.Height > 0 {
+		videoInfo.Height = stream.Height
+	}
+
+	videoInfo.Resolution = dtypes.ParseVideoResolutionWH(uint16(videoInfo.Width), uint16(videoInfo.Height))
+
+	bitrate, err := strconv.Atoi(stream.BitRate)
+	if err == nil && bitrate != 0 {
+		videoInfo.Bitrate = int(bitrate / 1000)
+	}
+
+	// Discard video info if codec not set
+	if videoInfo.Codec == "" {
+		return nil
+	}
+
+	return videoInfo
+}
+
+// parseVideo parses an FFmpeg "Video:" line into VideoInfo.
+func (info *info) parseVideoFromFFmppeg(line string, srcVideoInfo *dtypes.VideoInfo) *dtypes.VideoInfo {
 	if line == "" {
 		return nil
 	}
 
 	var (
 		infoSetter videoInfoSetter
-		videoInfo  = uptr.Copy(srcVideoInfo)
+		videoInfo  = srcVideoInfo.Copy()
 	)
 
 	if videoInfo == nil {
@@ -32,7 +69,7 @@ func (info *info) parseVideo(line string, srcVideoInfo *dtypes.VideoInfo) *dtype
 		}
 
 		// First field is codec
-		if i == 0 {
+		if !infoSetter.codec && i == 0 {
 			videoCodec, err := dtypes.ParseVideoCodec(fields[0])
 			if err == nil {
 				videoInfo.Codec = videoCodec
@@ -70,7 +107,7 @@ func (info *info) parseVideo(line string, srcVideoInfo *dtypes.VideoInfo) *dtype
 	}
 
 	// Discard video info if codec not set
-	if videoInfo != nil && (videoInfo.Codec == "") {
+	if videoInfo.Codec == "" {
 		return nil
 	}
 

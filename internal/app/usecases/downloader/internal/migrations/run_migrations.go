@@ -6,17 +6,17 @@ import (
 )
 
 func (m *migrations) RunRequiredMigrations(ctx context.Context) error {
-	return m.runMigrations(ctx, m.requiredMigrationIDs)
+	return m.runMigrations(ctx, m.requiredMigrationList)
 }
 
 func (m *migrations) RunDeferredMigrations(ctx context.Context) error {
-	return m.runMigrations(ctx, m.deferredMigrationIDs)
+	return m.runMigrations(ctx, m.deferredMigrationList)
 }
 
-func (m *migrations) runMigrations(ctx context.Context, migrationIDs migrationIDs) error {
+func (m *migrations) runMigrations(ctx context.Context, migrationList migrationList) error {
 	var hasError = false
 
-	for _, migration := range migrationIDs {
+	for _, migration := range migrationList.items {
 		select {
 		case <-ctx.Done():
 			return fmt.Errorf("context canceled: %w", ctx.Err())

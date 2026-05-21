@@ -1,5 +1,6 @@
 package ffmpegsrv
 
 const (
-	ffmpegName = "ffmpeg"
+	ffmpegName  = "ffmpeg"
+	ffprobeName = "ffprobe"
 )

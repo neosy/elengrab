@@ -8,11 +8,17 @@ type (
 		id  string
 		run migrationRunner
 	}
-	migrationIDs []*migrationID
+	migrationList struct {
+		items []*migrationID
+	}
 )
 
-func (m migrationIDs) addMigration(id string, run migrationRunner) {
-	m = append(m, &migrationID{
+func NewMigrationList() migrationList {
+	return migrationList{}
+}
+
+func (m *migrationList) add(id string, run migrationRunner) {
+	m.items = append(m.items, &migrationID{
 		id:  id,
 		run: run,
 	})

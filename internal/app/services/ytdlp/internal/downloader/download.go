@@ -193,14 +193,17 @@ func (d *Downloader) Download(
 	wg.Go(func() {
 		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
-		vInfo, aInfo := d.extractMediaInfoFromFile(ctx, meta.Meta.FileFullName, meta.Meta.MediaInfo)
-		if vInfo != nil || aInfo != nil {
+		mediaInfo := d.extractMediaInfoFromFile(ctx, meta.Meta.FileFullName, meta.Meta.MediaInfo)
+		if mediaInfo != nil {
 			meta.Lock()
-			if vInfo != nil {
-				meta.Meta.MediaInfo.VideoInfo = vInfo
+			if mediaInfo.Duration > 0 {
+				meta.Meta.MediaInfo.Duration = mediaInfo.Duration
 			}
-			if aInfo != nil {
-				meta.Meta.MediaInfo.AudioInfo = aInfo
+			if mediaInfo.VideoInfo != nil {
+				meta.Meta.MediaInfo.VideoInfo = mediaInfo.VideoInfo
+			}
+			if mediaInfo.AudioInfo != nil {
+				meta.Meta.MediaInfo.AudioInfo = mediaInfo.AudioInfo
 			}
 			meta.Unlock()
 			sendData(meta.InitialResult())
@@ -278,18 +281,18 @@ func (d *Downloader) extractThumbnailFromFile(ctx context.Context, fileName stri
 
 func (d *Downloader) extractMediaInfoFromFile(
 	ctx context.Context, fileName string, mediaInfo *dservices.MediaInfo,
-) (*dtypes.VideoInfo, *dtypes.AudioInfo) {
-	vInfo, aInfo, err := d.ffmpeg.GetVideoAudioInfoFromFile(ctx, d.storage.Path(fileName), mediaInfo)
+) *dservices.MediaInfo {
+	mediaInfo, err := d.ffmpeg.ExtractVideoAudioInfoFromFile(ctx, d.storage.Path(fileName), mediaInfo)
 	if err != nil {
 		d.logger.Warn(
 			"Failed to get media info from file",
 			"filePath", d.storage.Path(fileName),
 			"error", err,
 		)
-		return nil, nil
+		return nil
 	}
 
-	return vInfo, aInfo
+	return mediaInfo
 }
 
 func (d *Downloader) partialHash(filePath string) *string {

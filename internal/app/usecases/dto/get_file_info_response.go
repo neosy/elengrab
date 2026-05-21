@@ -18,6 +18,8 @@ type GetMediaDownloadInfoResponse struct {
 	ChannelID   *string
 	AvatarTitle string
 
+	ThumbnalIsPortrait bool
+
 	MediaURL         string
 	MediaTitle       string
 	MediaDescription string
