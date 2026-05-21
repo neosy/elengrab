@@ -268,6 +268,19 @@ func (a *Application) Logger() *slog.Logger {
 	return a.logger
 }
 
+func (a *Application) RunRequiredMigrations() error {
+	a.logger.Info("Running required migrations")
+
+	err := a.Usecases.Downloader.RunRequiredMigrations(a.ctx)
+	if err != nil {
+		return err
+	}
+
+	a.logger.Debug("Required migrations completed")
+
+	return nil
+}
+
 func (a *Application) StartBackground() error {
 	if err := a.WorkerPool.Start(a.ctx); err != nil {
 		a.logger.Error("Failed to start worker pool", "err", err)
