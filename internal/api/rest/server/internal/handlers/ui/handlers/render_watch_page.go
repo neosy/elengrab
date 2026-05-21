@@ -15,7 +15,7 @@ import (
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/neosy/elengrab/internal/pkg/fnx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
-	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
+	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/valyala/fasthttp"
 )
 
@@ -86,7 +86,7 @@ func (h *DownloaderHandlers) renderWatchPage(
 	}
 
 	if downloadInfo.FileSize != nil {
-		fileSize = uformat.BytesHuman(*downloadInfo.FileSize)
+		fileSize = humanize.Bytes(*downloadInfo.FileSize)
 	}
 
 	mediaURL := h.baseURL + req.streamPath
@@ -94,8 +94,8 @@ func (h *DownloaderHandlers) renderWatchPage(
 	description := downloadInfo.MediaTitle + fmt.Sprintf(" [%s]", downloadInfo.MediaInfoText)
 
 	var imageData *dtypes.ImageData
-	if downloadInfo.MediaInfo != nil && downloadInfo.MediaInfo.GetThumbnailID() != nil {
-		thumbnail, _ := h.thumbnail.GetInfoByThumbID(ctx, *downloadInfo.MediaInfo.GetThumbnailID())
+	if downloadInfo.MediaInfo != nil && downloadInfo.MediaInfo.PreferredThumbnailID() != uuid.Nil {
+		thumbnail, _ := h.thumbnail.GetByThumbID(ctx, downloadInfo.MediaInfo.PreferredThumbnailID())
 		if thumbnail != nil {
 			imageData = thumbnail.ImageData()
 		}
@@ -179,6 +179,7 @@ func (h *DownloaderHandlers) renderWatchPage(
 
 	mediaParameters := make([]pages.MediaParameter, 0, 4)
 	mediaParameters = append(mediaParameters, pages.MediaParameter{Name: "Format", Value: format})
+	mediaParameters = append(mediaParameters, pages.MediaParameter{Name: "Duration", Value: downloadInfo.MediaInfo.FormatDuration()})
 	if videoQuality != "" {
 		mediaParameters = append(mediaParameters, pages.MediaParameter{Name: "Video", Value: videoQuality})
 	}

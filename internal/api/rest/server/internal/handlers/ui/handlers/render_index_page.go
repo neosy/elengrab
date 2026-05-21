@@ -15,7 +15,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
-	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
+	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/valyala/fasthttp"
 )
 
@@ -100,8 +100,8 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 			UserMenuSearchButtonIcon: icons.UserMenuSearchIcon.FileRaw(),
 			SearchBackArrowIcon:      icons.SearchBackArrowIcon.FileRaw(),
 			ShowHistorySearch:        true,
-			DiskFree:                 uformat.BytesHuman(int64(systemInfo.DiskFree)),
-			DiskUsed:                 uformat.BytesHuman(int64(systemInfo.DiskUsed)),
+			DiskFree:                 humanize.Bytes(int64(systemInfo.DiskFree)),
+			DiskUsed:                 humanize.Bytes(int64(systemInfo.DiskUsed)),
 			GrabForm: pages.IndexGrabForm{
 				InputPlaceholder:   pages.IndexGrabFormInputPlaceholder,
 				SettingsButtonIcon: icons.IndexGrabSettingsButtonIcon.FileRaw(),

@@ -20,7 +20,12 @@ func NewFFmpegService(
 	logger *slog.Logger,
 	binDir string,
 ) (*FFmpegService, error) {
-	cmdPath, err := utils.ResolveCmdPath(ffmpegName, binDir)
+	cmdFFmpegPath, err := utils.ResolveCmdPath(ffmpegName, binDir)
+	if err != nil {
+		return nil, err
+	}
+
+	cmdFFprobePath, err := utils.ResolveCmdPath(ffprobeName, binDir)
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +37,15 @@ func NewFFmpegService(
 		logger.Debug("FFmpeg executable found in PATH", "executable", ffmpegName)
 	}
 
+	err = utils.CheckFFprobe(ffprobeName)
+	if err != nil {
+		return nil, err
+	} else {
+		logger.Debug("FFprobe executable found in PATH", "executable", ffprobeName)
+	}
+
 	return &FFmpegService{
 		logger: logger,
-		core:   core.NewFFmpegCore(logger, cmdPath),
+		core:   core.NewFFmpegCore(logger, cmdFFmpegPath, cmdFFprobePath),
 	}, nil
 }
