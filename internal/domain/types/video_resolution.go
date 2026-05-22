@@ -14,58 +14,107 @@ type VideoResolution string
 
 const (
 	VideoResolutionNone  VideoResolution = "none"
+	VideoResolutionMin   VideoResolution = "min"
 	VideoResolutionMax   VideoResolution = "max"
+	VideoResolution16k   VideoResolution = "16k"
+	VideoResolution8k    VideoResolution = "8k"
 	VideoResolution4k    VideoResolution = "4k"
 	VideoResolution2k    VideoResolution = "2k"
 	VideoResolution1080p VideoResolution = "1080p"
 	VideoResolution720p  VideoResolution = "720p"
 	VideoResolution480p  VideoResolution = "480p"
 	VideoResolution360p  VideoResolution = "360p"
+	VideoResolution240p  VideoResolution = "240p"
+	VideoResolution120p  VideoResolution = "120p"
 )
 
 var (
 	videoResolutionMap = map[VideoResolution]struct{}{
-		VideoResolutionNone:  {},
-		VideoResolutionMax:   {},
+		VideoResolutionNone: {},
+
+		VideoResolutionMin: {},
+		VideoResolutionMax: {},
+
+		VideoResolution16k:   {},
+		VideoResolution8k:    {},
 		VideoResolution4k:    {},
 		VideoResolution2k:    {},
 		VideoResolution1080p: {},
 		VideoResolution720p:  {},
 		VideoResolution480p:  {},
 		VideoResolution360p:  {},
+		VideoResolution240p:  {},
+		VideoResolution120p:  {},
 	}
 
+	videoResolutionOrder = []VideoResolution{
+		VideoResolution120p,
+		VideoResolution240p,
+		VideoResolution360p,
+		VideoResolution480p,
+		VideoResolution720p,
+		VideoResolution1080p,
+		VideoResolution2k,
+		VideoResolution4k,
+		VideoResolution8k,
+		VideoResolution16k,
+	}
+
+	videoResolutionIndex = make(map[VideoResolution]int)
+
 	videoResolutionHeightMap = map[VideoResolution]uint16{
-		VideoResolutionNone:  0,
-		VideoResolutionMax:   0,
+		VideoResolutionNone: 0,
+		VideoResolutionMin:  120,
+		VideoResolutionMax:  8640,
+
+		VideoResolution16k:   8640,
+		VideoResolution8k:    4320,
 		VideoResolution4k:    2160,
 		VideoResolution2k:    1440,
 		VideoResolution1080p: 1080,
 		VideoResolution720p:  720,
 		VideoResolution480p:  480,
 		VideoResolution360p:  360,
+		VideoResolution240p:  240,
+		VideoResolution120p:  120,
 	}
 
 	videoResolutionWidthMap = map[VideoResolution]uint16{
-		VideoResolutionNone:  0,
-		VideoResolutionMax:   0,
+		VideoResolutionNone: 0,
+		VideoResolutionMin:  160,
+		VideoResolutionMax:  15360,
+
+		VideoResolution16k:   15360,
+		VideoResolution8k:    7680,
 		VideoResolution4k:    3840,
 		VideoResolution2k:    2560,
 		VideoResolution1080p: 1920,
 		VideoResolution720p:  1280,
 		VideoResolution480p:  854,
 		VideoResolution360p:  640,
+		VideoResolution240p:  426,
+		VideoResolution120p:  160,
 	}
 
 	heightToResolutionMap = map[uint16]VideoResolution{
+		8640: VideoResolution16k,
+		4320: VideoResolution8k,
 		2160: VideoResolution4k,
 		1440: VideoResolution2k,
 		1080: VideoResolution1080p,
 		720:  VideoResolution720p,
 		480:  VideoResolution480p,
 		360:  VideoResolution360p,
+		240:  VideoResolution240p,
+		120:  VideoResolution120p,
 	}
 )
+
+func init() {
+	for i, v := range videoResolutionOrder {
+		videoResolutionIndex[v] = i
+	}
+}
 
 // String returns the value as a string.
 func (v VideoResolution) String() string {
@@ -147,10 +196,32 @@ func ValidateVideoResolution(fl validator.FieldLevel) bool {
 	return VideoResolution(fl.Field().String()).Exists()
 }
 
+// Height returns the height in pixels for the given VideoResolution.
 func (v VideoResolution) Height() uint16 {
 	return videoResolutionHeightMap[v]
 }
 
+// Width returns the width in pixels for the given VideoResolution.
 func (v VideoResolution) Width() uint16 {
 	return videoResolutionWidthMap[v]
+}
+
+// Prev returns the next lower VideoResolution. If there is no lower resolution, it returns VideoResolutionNone.
+func (v VideoResolution) Prev() VideoResolution {
+	index := videoResolutionIndex[v]
+	if index == 0 || index >= len(videoResolutionOrder) {
+		return VideoResolutionNone
+	}
+
+	return videoResolutionOrder[index-1]
+}
+
+// Next returns the next higher VideoResolution. If there is no higher resolution, it returns VideoResolutionNone.
+func (v VideoResolution) Next() VideoResolution {
+	index := videoResolutionIndex[v]
+	if index-1 >= len(videoResolutionOrder) {
+		return VideoResolutionNone
+	}
+
+	return videoResolutionOrder[index+1]
 }
