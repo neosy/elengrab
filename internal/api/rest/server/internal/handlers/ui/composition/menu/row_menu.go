@@ -7,82 +7,98 @@ import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 )
 
-type rowMenuAction struct {
-	RenderType string `json:"renderType"` // "link" | "action" | "divider"
-	Action     string `json:"action"`
-	Title      string `json:"title"`
-	IconSvg    any    `json:"iconSvg,omitempty"`
-
-	icon           icons.Icon
-	URL            string
-	NewTab         bool
-	replaceInURL   string
-	onlyStatusDone bool
-}
-
-const (
-	menuActionRenderTypeLink    = "link"
-	menuActionRenderTypeAction  = "action"
-	menuActionRenderTypeDivider = "divider"
-)
-
 const (
 	RowMenuActionItemIDKey = "{itemId}"
 	RowMenuActionURLKey    = "{url}"
 )
 
+type rowMenuAction struct {
+	menuAction
+	icon           icons.Icon
+	onlyStatusDone bool
+}
+
 var rowMenuActions = []rowMenuAction{
 	{
-		RenderType:     menuActionRenderTypeLink,
-		Action:         "watch",
-		Title:          "Watch",
+		menuAction: menuAction{
+			RenderType: renderTypeLink,
+			Action:     "watch",
+			Title:      "Watch",
+			Link: linkOptions{
+				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemWatch,
+				NewTab:       false,
+				replaceInURL: RowMenuActionItemIDKey,
+			},
+		},
 		icon:           icons.DownloaderRowMenuPlayIcon,
-		URL:            httppaths.GroupDownloader + httppaths.PathMediaItemWatch,
-		NewTab:         false,
-		replaceInURL:   RowMenuActionItemIDKey,
 		onlyStatusDone: true,
 	},
+
 	{
-		RenderType:   menuActionRenderTypeLink,
-		Action:       "open-original",
-		Title:        "Open original in new tab",
-		icon:         icons.DownloaderRowMenuExternalLinkIcon,
-		URL:          RowMenuActionURLKey,
-		NewTab:       true,
-		replaceInURL: RowMenuActionURLKey,
+		menuAction: menuAction{
+			RenderType: renderTypeLink,
+			Action:     "open-original",
+			Title:      "Open original in new tab",
+			Link: linkOptions{
+				URL:          RowMenuActionURLKey,
+				NewTab:       true,
+				replaceInURL: RowMenuActionURLKey,
+			},
+		},
+		icon: icons.DownloaderRowMenuExternalLinkIcon,
 	},
 
-	{RenderType: menuActionRenderTypeDivider},
+	{
+		menuAction: menuAction{
+			RenderType: renderTypeDivider,
+		},
+	},
 
 	{
-		RenderType:     menuActionRenderTypeAction,
-		Action:         "share-link",
-		Title:          "Share link",
+		menuAction: menuAction{
+			RenderType: renderTypeAction,
+			Action:     "share-link",
+			Title:      "Share link",
+			Link: linkOptions{
+				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
+				replaceInURL: RowMenuActionItemIDKey,
+			},
+		},
 		icon:           icons.DownloaderRowMenuShareLinkIcon,
-		URL:            httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
-		replaceInURL:   RowMenuActionItemIDKey,
 		onlyStatusDone: true,
 	},
 
 	{
-		RenderType:     menuActionRenderTypeAction,
-		Action:         "copy-link",
-		Title:          "Copy short link",
+		menuAction: menuAction{
+			RenderType: renderTypeAction,
+			Action:     "copy-link",
+			Title:      "Copy short link",
+			Link: linkOptions{
+				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
+				replaceInURL: RowMenuActionItemIDKey,
+			},
+		},
 		icon:           icons.DownloaderRowMenuCopyLinkIcon,
-		URL:            httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
-		replaceInURL:   RowMenuActionItemIDKey,
 		onlyStatusDone: true,
 	},
 
-	{RenderType: menuActionRenderTypeDivider},
+	{
+		menuAction: menuAction{
+			RenderType: renderTypeDivider,
+		},
+	},
 
 	{
-		RenderType:   menuActionRenderTypeAction,
-		Action:       "delete",
-		Title:        "Delete",
-		icon:         icons.DownloaderRowMenuDeleteIcon,
-		URL:          httppaths.GroupDownloader + httppaths.PathMediaItem,
-		replaceInURL: RowMenuActionItemIDKey,
+		menuAction: menuAction{
+			RenderType: renderTypeAction,
+			Action:     "delete",
+			Title:      "Delete",
+			Link: linkOptions{
+				URL:          httppaths.GroupDownloader + httppaths.PathMediaItem,
+				replaceInURL: RowMenuActionItemIDKey,
+			},
+		},
+		icon: icons.DownloaderRowMenuDeleteIcon,
 	},
 }
 
@@ -100,10 +116,10 @@ func RowMenuActions(mapReplaceUrl map[string]string, isStatusDone bool) []rowMen
 			action.IconSvg = action.icon.FileRaw()
 		}
 
-		if key := action.replaceInURL; key != "" {
+		if key := action.Link.replaceInURL; key != "" {
 			value, ok := mapReplaceUrl[key]
 			if ok {
-				action.URL = strings.Replace(action.URL, key, value, 1)
+				action.Link.URL = strings.Replace(action.Link.URL, key, value, 1)
 			}
 		}
 	}

@@ -38,7 +38,7 @@ func (h *DownloaderHandlers) AuthLoginPageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	jsScripts, err := paths.JsAuthPaths(h.assetFolders.Js())
+	jsScripts, err := paths.AuthPageJsPaths(h.assetFolders.Js())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

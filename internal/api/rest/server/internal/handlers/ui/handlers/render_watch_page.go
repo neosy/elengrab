@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"html/template"
 	"strconv"
 	"strings"
 
@@ -165,7 +166,13 @@ func (h *DownloaderHandlers) renderWatchPage(
 		return
 	}
 
-	jsScripts, err := paths.JsWatchPaths(h.assetFolders.Js())
+	jsScripts, err := paths.WatchPageJsPaths(h.assetFolders.Js())
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
+	jsImportJSON, err := paths.WatchPageJsImportJSON(h.assetFolders.Js())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -210,10 +217,11 @@ func (h *DownloaderHandlers) renderWatchPage(
 		BaseValues: baseValues,
 		BasePaths:  paths.NewPaths(),
 		Paths: pages.PagePaths{
-			Css:         cssPaths,
-			JsScripts:   jsScripts,
-			PwaManifest: pwaManifestPath,
-			Stream:      req.streamPath,
+			Css:             cssPaths,
+			JsScripts:       jsScripts,
+			JsImportMapJSON: template.HTML(jsImportJSON),
+			PwaManifest:     pwaManifestPath,
+			Stream:          req.streamPath,
 		},
 		Values: pages.WatchPageValues{
 			ShowBackButton:     req.showBackButton,

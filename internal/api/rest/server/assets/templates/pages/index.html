@@ -12,7 +12,6 @@
           {{- if eq .Extra.UserAvatarActionMode "login" }}</a>{{- end }}
         </div>
       </div>
-      {{- template "account-menu" . }}
 {{- end -}}
 
 {{- define "header" -}}
@@ -36,8 +35,6 @@
         <div id="media-player__wrapper"></div>
     </div>
     <div id="audio-bar"></div>
-    {{- template "menu-overlay" . }}
-    {{- template "notification-area" .}}
 {{- end -}}
 
 {{- define "footer" -}}
@@ -51,4 +48,15 @@
       Free: <span id="disk-free">{{ .Values.DiskFree }}</span> |
       Used: <span id="disk-used">{{ .Values.DiskUsed }}</span>
     </div>
+    <div class="footer__right">
+      <a class="footer__settings-link" id="footerSettingsLink" data-action="menu">Settings</a>
+    </div>
+{{- end -}}
+
+{{- define "overlays"  -}}
+    {{- template "account-menu" . }}
+    {{- template "settings-menu" . }}
+    {{- template "row-menu" . }}
+    {{- template "menu-overlay" . }}
+    {{- template "notification-area" .}}
 {{- end -}}

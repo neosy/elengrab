@@ -1,14 +1,15 @@
-import { DOM_IDS } from "./index-dom-ids.js";
-import { DOM_ELEMENTS } from "./index-dom-elements.js";
-import * as helper from './helper.js';
+import { DOM_ELEMENTS, initDomElements } from "./index.dom.js";
+import * as helper from './utils.js';
 import * as cookie from './cookie.js';
+import * as browser from './browser.js';
 import * as actionButton from './action-buttons.js';
-import * as rowEventHandlers from './index-row-event-handlers.js';
-import { initPlayer } from './index-player.js';
-import { initTooltips } from './tooltip.js';
-import { initIndexMenus as initMenu } from './menu-configs.js';
+import * as rowEventHandlers from './index.sse.events.js';
+import { initPlayer } from './player.js';
+import * as tooltip from './tooltip.js';
+import { initIndexMenus as initMenu } from './index.menu-configs.js';
 import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
 import * as notify from './notifications.js';
+import * as view from './index.view.js';
 
 // Global variables
 let globalEventSource = null;
@@ -216,7 +217,9 @@ if ('scrollRestoration' in history) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const grabForm = document.querySelector(`#${DOM_IDS.grabForm}`);
+    initDomElements();
+
+    const grabForm = DOM_ELEMENTS.grabForm;
     const buttonGrab = document.querySelector('.grab-area__submit-button');
 
     const grabURLInput = DOM_ELEMENTS.mediaURLInput;
@@ -244,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Clear before HTMX request
-    htmx.on(`#${DOM_IDS.grabForm}`, 'htmx:beforeRequest', () => {
+    htmx.on(grabForm, 'htmx:beforeRequest', () => {
         if (grabURLInput) {
             grabURLInput.value = '';
             // update action button after clearing
@@ -254,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Handle HTMX response for grab form
-    htmx.on(`#${DOM_IDS.grabForm}`, 'htmx:afterOnLoad', (event) => {
+    htmx.on(grabForm, 'htmx:afterOnLoad', (event) => {
         const xhr = event.detail.xhr;
 
         // --- Error handling (HTTP >= 400, except 503) ---
@@ -311,11 +314,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init quality/format sync
     setupQualityFormatLogic();
 
+    // Initialize viewport height sync (fixes mobile PWA viewport issues)
+    browser.initViewportHeightVar();
+
     // Initialize header auto-hide on scroll
     initHeaderAutoHide();
 
+    // Apply persisted grid/list layout state on initial page load 
+    view.initGridView();
+
     // Init tooltips
-    initTooltips();
+    tooltip.initTooltips();
 
     // Init menu
     initMenu();

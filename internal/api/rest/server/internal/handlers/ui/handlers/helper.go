@@ -49,7 +49,7 @@ func parseFilters(ctx *fasthttp.RequestCtx) requestFilters {
 	return filters
 }
 
-func capitalize(s string) string {
+func capitalize1(s string) string {
 	if s == "" {
 		return s
 	}

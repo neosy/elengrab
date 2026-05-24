@@ -36,7 +36,7 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	extraData := make(map[string]any)
-	extraData[items.RowMenuActionsKey] = menu.RowMenuActions(
+	extraData[items.MenuActionsKey] = menu.RowMenuActions(
 		map[string]string{
 			menu.RowMenuActionItemIDKey: downloadID.String(),
 			menu.RowMenuActionURLKey:    downloadResp.MediaURL,
@@ -57,7 +57,7 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Execute template
-	if err := tmpl.ExecuteTemplate(ctx, components.RowMenuContentKey, pageData); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, components.MenuContentKey, pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

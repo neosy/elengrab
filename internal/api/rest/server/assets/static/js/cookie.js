@@ -1,4 +1,4 @@
-import * as helper from './helper.js';
+import * as utils from './utils.js';
 import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
 
 // -------------------------------------------------------------
@@ -30,7 +30,7 @@ const cookie = (() => {
 // -------------------------------------------------------------
 export function saveAllSelectsToCookie() {
     Object.entries(SELECT_NAMES).forEach(([key, name]) => {
-        const el = helper.getSelectByName(name);
+        const el = utils.getSelectByName(name);
         if (el) cookie.set(COOKIE_NAMES[key], el.value);
     });
 }
@@ -39,7 +39,7 @@ export function saveAllSelectsToCookie() {
 // Restore select value from cookie
 // -------------------------------------------------------------
 export function setupCookieSelectSync(selectName, cookieName) {
-    const selectElement = helper.getSelectByName(selectName);
+    const selectElement = utils.getSelectByName(selectName);
     if (!selectElement) return;
 
     const savedValue = cookie.get(cookieName);

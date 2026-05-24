@@ -11,6 +11,7 @@
 ### 🎨 Style
 - Reduced the get button for small screens [L004]
 - Reduced the action button size
+- Added columns and thumbnails for wide screens [L016]
 
 ### 🏗 Build / Migrations
 - Added automatic branch id generator [L001]

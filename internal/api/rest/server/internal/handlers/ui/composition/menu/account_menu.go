@@ -24,8 +24,8 @@ var accountMenuActions = []accountMenuAction{
 
 func AccountMenuActions() []accountMenuAction {
 	actions := append([]accountMenuAction(nil), accountMenuActions...)
-	for i, action := range actions {
-		actions[i].IconSvg = action.icon.FileRaw()
+	for _, action := range actions {
+		action.IconSvg = action.icon.FileRaw()
 	}
 	return actions
 }

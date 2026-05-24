@@ -5,80 +5,76 @@ import (
 )
 
 var (
-	JsIndexPaths = jsScripts{
+	IndexPageJsPaths = jsScripts{
 		{
 			Path:  "htmx.min.js",
 			Type:  "",
 			Defer: false,
 		},
-		// {
-		// 	Path:  "sse.min.js",
-		// 	Type:  "",
-		// 	Defer: false,
-		// },
 		{
 			Path:  "theme-switcher.js",
 			Type:  "",
 			Defer: true,
 		},
 		{
-			Path:  "index-main.js",
+			Path:  "index.page.js",
 			Type:  "module",
 			Defer: false,
 		},
 	}.withPath
 
-	JsAuthPaths = jsScripts{
+	AuthPageJsPaths = jsScripts{
 		{
 			Path:  "htmx.min.js",
 			Type:  "",
 			Defer: false,
 		},
-		// {
-		// 	Path:  "sse.min.js",
-		// 	Type:  "",
-		// 	Defer: false,
-		// },
 		{
 			Path:  "theme-switcher.js",
 			Type:  "",
 			Defer: true,
 		},
 		{
-			Path:  "auth-main.js",
+			Path:  "auth.page.js",
 			Type:  "module",
 			Defer: false,
 		},
 	}.withPath
 
-	JsIndexImportMapJSON = jsImportFileNames{
-		"helper.js",
+	WatchPageJsPaths = jsScripts{
+		{
+			Path:  "theme-switcher.js",
+			Type:  "",
+			Defer: true,
+		},
+		{
+			Path:  "watch.page.js",
+			Type:  "module",
+			Defer: false,
+		},
+	}.withPath
+
+	IndexPageJsImportJSON = jsImportFileNames{
+		"utils.js",
 		"constants.js",
 		"cookie.js",
+		"browser.js",
 		"storage-state.js",
 		"tooltip.js",
 		"notifications.js",
 		"menu.js",
-		"menu-configs.js",
-		"index-dom-ids.js",
-		"index-dom-elements.js",
+		"share.js",
 		"action-buttons.js",
-		"index-row-event-handlers.js",
-		"index-player.js",
+		"player.js",
+		"index.dom.js",
+		"index.sse.events.js",
+		"index.view.js",
+		"index.menu-configs.js",
 	}.jsonForTemplate
 
-	JsWatchPaths = jsScripts{
-		{
-			Path:  "theme-switcher.js",
-			Type:  "",
-			Defer: true,
-		},
-		{
-			Path:  "watch-main.js",
-			Type:  "module",
-			Defer: false,
-		},
-	}.withPath
+	WatchPageJsImportJSON = jsImportFileNames{
+		"watch.dom.js",
+	}.jsonForTemplate
 )
 
 type (
