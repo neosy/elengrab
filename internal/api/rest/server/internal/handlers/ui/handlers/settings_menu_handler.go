@@ -2,29 +2,17 @@ package handlers
 
 import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/components"
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/items"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/menu"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
-	"github.com/neosy/elengrab/internal/pkg/stringx"
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) AccountMenuHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser, err := policy.EnsureUser(ctx)
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
-		return
-	}
-
+func (h *DownloaderHandlers) SettingsMenuHandler(ctx *fasthttp.RequestCtx) {
 	extraData := make(map[string]any)
-	extraData[items.UserAvatarIconKey] = icons.UserAvatarIconByType(ctxUser.UserType()).FileRaw()
-	extraData[items.UserLoginKey] = stringx.Capitalize(ctxUser.Login)
-	extraData[items.UserEmailKey] = ctxUser.Email
-	extraData[items.AccountMenuActionsKey] = menu.AccountMenuActions()
+	extraData[items.MenuActionsKey] = menu.SettingsMenuActions()
 
 	pageData := pages.PageFragmentData{
 		BasePaths: paths.NewPaths(),
@@ -39,7 +27,7 @@ func (h *DownloaderHandlers) AccountMenuHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Execute template
-	if err := tmpl.ExecuteTemplate(ctx, components.AccountMenuContentKey, pageData); err != nil {
+	if err := tmpl.ExecuteTemplate(ctx, components.MenuContentKey, pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

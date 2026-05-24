@@ -1,5 +1,4 @@
-import { DOM_IDS } from "./index-dom-ids.js";
-import { DOM_ELEMENTS } from "./index-dom-elements.js";
+import { DOM_IDS, DOM_ELEMENTS } from "./index.dom.js";
 import * as notify from './notifications.js';
 
 // -------------------------------------------------------------
@@ -13,11 +12,11 @@ export function handleRowAdd(event) {
         if (!data.itemId || !data.html) return
 
         // Find the container that holds all rows
-        const container = document.getElementById(DOM_IDS.resultRows);
+        const container = DOM_ELEMENTS.resultRows;
         if (!container) return;
 
         // Find the top placeholder div
-        const placeholder = document.getElementById(DOM_IDS.rowTopPlaceholder);
+        const placeholder = DOM_ELEMENTS.rowTopPlaceholder;
         if (!placeholder) return;
 
         // Insert all rows right after the placeholder
@@ -26,7 +25,7 @@ export function handleRowAdd(event) {
         const newEl = document.getElementById(DOM_IDS.row(data.itemId));
         if (newEl) {
             // If the element exists, remove it from the DOM
-            const elNoItems = document.getElementById(DOM_IDS.rowNoItems);
+            const elNoItems = DOM_ELEMENTS.rowNoItems;
             if (elNoItems) {
                 elNoItems.remove();
             }

@@ -9,7 +9,7 @@ import (
 func FileRaw(fileName string, iconsDir string) template.HTML {
 	const svgEmpty = `<svg width="1em" height="1em"></svg>`
 
-	icon := iconCache.Find(fileName)
+	icon, _, _ := iconRep.Find(fileName)
 	if icon != nil {
 		return icon.raw
 	}
@@ -21,7 +21,7 @@ func FileRaw(fileName string, iconsDir string) template.HTML {
 		return svgEmpty
 	}
 
-	iconCache.Save(fileName, &iconEntry{template.HTML(data)}, iconCacheTTL)
+	iconRep.Save(fileName, &iconEntry{template.HTML(data)})
 
 	return template.HTML(data)
 }

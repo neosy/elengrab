@@ -24,6 +24,7 @@ type (
 		Downloader        string
 		AccountMenu       string
 		RowMenu           string
+		SettingsMenu      string
 		DownloaderHistory string
 		DownloaderGrab    string
 		DownloaderSearch  string
@@ -46,6 +47,7 @@ var (
 
 		Downloader:        httppaths.GroupDownloader,
 		AccountMenu:       httppaths.GroupDownloader + httppaths.PathAccountMenu,
+		SettingsMenu:      httppaths.GroupDownloader + httppaths.PathSettingsMenu,
 		RowMenu:           httppaths.GroupDownloader + httppaths.PathMediaItemMenu,
 		DownloaderHistory: httppaths.GroupDownloader + httppaths.PathHistory,
 		DownloaderGrab:    httppaths.GroupDownloader + httppaths.PathGrab,
