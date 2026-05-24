@@ -1,11 +1,13 @@
-import { shareLink } from './helper.js';
+import * as constants from './constants.js';
+import * as share from './share.js';
 import { initMenu } from './menu.js';
 import * as notify from './notifications.js';
+import * as view from './index.view.js';
 
 // Account menu config
 const accountMenuConfig = {
   triggerSelector: '#user-avatar',
-  menuId: 'account-menu',
+  menuId: 'accountMenu',
 
   actions: {
     default(item) {
@@ -26,14 +28,68 @@ const accountMenuConfig = {
   }
 };
 
+// Settings menu config
+const settingsMenuConfig = {
+  triggerSelector: '#footerSettingsLink',
+  menuId: 'settingsMenu',
+
+  actions: {
+    gridView(item) {
+      const isGridView = view.toggleGridView();
+    }
+  },
+
+  beforeRenderElement(el, id) {
+    if (!el ) return;
+
+    if (id === "grid-view") {
+      const span = el.querySelector('.menu-action__content-text-value');
+      let text = el.dataset.text
+
+      if (span && text) {
+        text = `${text}: ${view.getGridView() ? 'on' : 'off'}`;
+        span.textContent = text;
+      }
+    }
+  },
+
+  position(menu, btn) {
+    const rect = btn.getBoundingClientRect();
+
+    menu.style.left = 'auto';
+    menu.style.right = `${window.innerWidth - rect.right}px`;
+
+    requestAnimationFrame(() => {
+      menu.style.bottom = `${window.innerHeight - rect.top + 6}px`;
+      menu.style.top = 'auto';      
+    });
+  },
+
+  isMobile() {
+    return false;
+  },
+
+  isOverlay: false,
+
+  shouldOpen(trigger) {
+    if (trigger.dataset.action !== 'menu') return false;
+    return true;
+  },
+
+  beforeOpen(menu, trigger) {
+    menu.innerHTML = "";
+    return true;
+  }
+};
+
 // Row menu config
 const rowMenuConfig = {
   triggerSelector: '.media-result__menu-button',
-  menuId: 'row-menu',
+  menuId: 'rowMenu',
 
   actions: {
     async shareLink(item) {
-      const result = await shareLink({
+      const result = await share.shareLink({
         endpoint: item.dataset.url,
         method: 'POST',
         title: "Elengrab",
@@ -122,5 +178,6 @@ const rowMenuConfig = {
 // Initialize all menus
 export function initIndexMenus() {
   initMenu(accountMenuConfig);
+  initMenu(settingsMenuConfig);
   initMenu(rowMenuConfig);
 }

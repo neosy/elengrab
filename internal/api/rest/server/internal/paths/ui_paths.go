@@ -17,6 +17,7 @@ const (
 
 	// Paths Downloader
 	PathAccountMenu  = "/account-menu"
+	PathSettingsMenu = "/settings-menu"
 	PathGrab         = "/grab"
 	PathShareTarget  = "/share-target"
 	PathHistory      = "/history"

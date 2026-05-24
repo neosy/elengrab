@@ -5,6 +5,8 @@ const isPWA =
 
 const MENU_SHOW_CLASS = 'menu--show';
 const MENU_OVERLAY_SHOW_CLASS = 'menu-overlay--show';
+const MENU_MOBILE_LAYOUT_CLASS = 'menu--mobile-layout';
+const MENU_ACTION_CLASS = 'menu-action';
 const MENU_HASH = "#menu"
 
 const menuOverlay = document.getElementById("menu-overlay");
@@ -22,12 +24,40 @@ export function closeAllMenus(except = null, fnAfterClose) {
 }
 
 // Generic menu initializer
+/**
+ * Menu configuration
+ *
+ * @typedef {(item: HTMLElement) => void} menuAction
+ * @typedef {Object.<string, menuAction>} menuActions 
+ *
+ * Required:
+ * @property {string} triggerSelector
+ * @property {string} menuId
+ * @property {menuActions} actions
+ *
+ * Hooks (DOM lifecycle):
+ * @property {(menu: HTMLElement, trigger: HTMLElement) => void} [beforeOpen]
+ * @property {(menu: HTMLElement) => void} [afterClose]
+ *
+ * Rendering:
+ * @property {(el: HTMLElement, id: string) => void} [beforeRenderElement]
+ * @property {(el: HTMLElement, trigger: HTMLElement) => void} [position]
+ *
+ * Logic:
+ * @property {(trigger: HTMLElement) => string} [shouldOpen]
+ * @property {(menu: HTMLElement, trigger: HTMLElement) => string} [buildUrl]
+ * @property {() => boolean} [isMobile]
+ * @property {boolean} [isOverlay]
+ */
 export function initMenu(config) {
   const {
     triggerSelector,
     menuId,
     actions = {},
     position,
+    isMobile,
+    isOverlay = true,
+    beforeRenderElement,
     buildUrl,
     shouldOpen,
     beforeOpen,
@@ -56,7 +86,7 @@ export function initMenu(config) {
     }
   }
 
-  function isMobile() {
+  function isMobileDefault() {
     return window.matchMedia('(max-width: 768px)').matches;
   }
 
@@ -65,6 +95,8 @@ export function initMenu(config) {
     props.forEach(prop => {
       menu.style[prop] = '';
     });
+    menu.classList.remove(MENU_MOBILE_LAYOUT_CLASS);
+    menu.classList.add(MENU_MOBILE_LAYOUT_CLASS);
   }  
 
   function syncMenuWithHash() {
@@ -97,12 +129,6 @@ export function initMenu(config) {
 
     menu._activeTrigger = trigger;
 
-    if (isMobile()) {
-      applyMobile(menu);
-    } else {
-      position?.(menu, trigger);
-    }
-
     if (buildUrl) {
       const url = buildUrl(menu, trigger);
       if (url) {
@@ -118,12 +144,33 @@ export function initMenu(config) {
 
     beforeOpen?.(menu, trigger);
 
+    if (isOverlay) {
+      menuOverlay && (menuOverlay.classList.add(MENU_OVERLAY_SHOW_CLASS));
+    }
+   
     menu.innerHTML = "";
-    menu.classList.add(MENU_SHOW_CLASS);
-    menuOverlay && (menuOverlay.classList.add(MENU_OVERLAY_SHOW_CLASS));
     activeMenus.add(menu);
 
     window.htmx?.trigger(menu, 'manual');
+
+    menu.addEventListener(
+      'htmx:afterSettle',
+      () => {
+        menu.querySelectorAll(`.${MENU_ACTION_CLASS}`).forEach(el => {
+          const id = el.id.replace('menu-action-', '');
+          beforeRenderElement?.(el, id);
+        });
+
+        menu.classList.add(MENU_SHOW_CLASS);
+
+        if (isMobile ? isMobile() : isMobileDefault()) {
+          applyMobile(menu);
+        } else {
+          position?.(menu, trigger);
+        }
+      },
+      { once: true }
+    );        
   });
 
   /** Handle clicks inside the menu */
@@ -171,10 +218,14 @@ export function initMenu(config) {
 
 function closeMenu(menu, fnAfterClose) {
   menuState.set(menu.id, false);
+  
   history.replaceState(null, "", location.pathname + location.search);
+
   menu.classList.remove(MENU_SHOW_CLASS);
   menuOverlay && (menuOverlay.classList.remove(MENU_OVERLAY_SHOW_CLASS));
+
   menu._activeTrigger = null;
+
   activeMenus.delete(menu);
   fnAfterClose?.(menu);
 }

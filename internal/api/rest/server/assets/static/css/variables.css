@@ -43,6 +43,8 @@
 
     --text-blue: #2563eb;
 
+    --row-block-hover-bg: rgba(80, 140, 255, 0.10);
+
     --row-menu-button: #6b7280;
     --row-menu-button-hover: #333;
     --row-icon-gray: #6b7280;
@@ -71,7 +73,7 @@
 }
 
 .dark {
-    --header-bg-transparent: rgba(23, 23, 23, 0.95);
+    --header-bg-transparent: rgba(23, 23, 23, 0.9);
     --header-bg-light-transparent: rgba(31, 31, 31, 0.9);
 
     --bg-body: #171717;
@@ -112,6 +114,8 @@
     --server-status-online: #58d660;
 
     --text-blue: #60a5fa;
+
+    --row-block-hover-bg: rgba(80, 140, 255, 0.16);
 
     --row-menu-button: #6b7280;
     --row-menu-button-hover: #9e9e9e;

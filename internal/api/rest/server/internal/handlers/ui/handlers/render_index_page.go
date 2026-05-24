@@ -36,13 +36,13 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 		return
 	}
 
-	jsScripts, err := paths.JsIndexPaths(h.assetFolders.Js())
+	jsScripts, err := paths.IndexPageJsPaths(h.assetFolders.Js())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	jsImportMapJSON, err := paths.JsIndexImportMapJSON(h.assetFolders.Js())
+	jsImportJSON, err := paths.IndexPageJsImportJSON(h.assetFolders.Js())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -94,7 +94,7 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 			Css:             cssPaths,
 			JsScripts:       jsScripts,
 			PwaManifest:     pwaManifestPath,
-			JsImportMapJSON: template.HTML(jsImportMapJSON),
+			JsImportMapJSON: template.HTML(jsImportJSON),
 		},
 		Values: pages.IndexPageValues{
 			UserMenuSearchButtonIcon: icons.UserMenuSearchIcon.FileRaw(),

@@ -83,6 +83,8 @@ func (s *httpServer) setupUIRoutes(r *router.Router, handlers *uih.UIHandlers) {
 			g.GET(httppaths.PathChannelAvatar, handlers.Downloader.GetChannelAvatarHandler)
 			g.HEAD(httppaths.PathChannelAvatar, handlers.Downloader.GetChannelAvatarHandler)
 
+			g.GET(httppaths.PathSettingsMenu, handlers.Downloader.SettingsMenuHandler)
+
 			g.GET(httppaths.PathStreamShortCode, handlers.Downloader.StreamShortCodeHandler)
 			g.HEAD(httppaths.PathStreamShortCode, handlers.Downloader.StreamShortCodeHandler)
 		}

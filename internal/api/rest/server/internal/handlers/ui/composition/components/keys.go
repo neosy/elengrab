@@ -2,7 +2,7 @@ package components
 
 const (
 	AccountMenuContentKey = "account-menu-content"
-	RowMenuContentKey     = "row-menu-content"
+	MenuContentKey        = "menu-content"
 
 	ResultRowsKey              = "result-rows"
 	ResultNewRowKey            = "result-new-row"

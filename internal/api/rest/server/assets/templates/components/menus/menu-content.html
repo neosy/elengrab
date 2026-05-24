@@ -1,0 +1,43 @@
+{{- define "menu-content" }}
+    <button class="menu-close"
+            type="button"
+            aria-label="Close menu"
+            data-action="close">
+        ✕
+    </button>
+    <div class="menu-actions">
+        {{- range .Extra.MenuActions }}
+          {{- if eq .RenderType "divider" }}
+            <div class="menu-action__divider"></div>
+          {{- else if eq .RenderType "link" }}
+            <a class="menu-action menu-action--link menu-action--{{ .Action }}" id="menu-action-{{ .Action }}"
+                href="{{ .Link.URL }}"
+                {{- if .Link.NewTab }} target="_blank" rel="noopener noreferrer" {{- end }}>
+                <div class="menu-action__content">
+                    {{- if .IconSvg }}
+                    <div class="menu-action__content-icon">
+                        {{ .IconSvg }}
+                    </div>
+                    {{- end }}
+                    <div class="menu-action__content-text">
+                        <span>{{ .Title }}</span>
+                    </div>
+                </div>
+            </a>
+          {{- else }}
+          <div class="menu-action menu-action--{{ .Action }}" id="menu-action-{{ .Action }}" data-action="{{ .Action }}" data-url="{{ .Link.URL }}" data-new-tab="{{ .Link.NewTab }}" data-text="{{ .Text }}">
+                <div class="menu-action__content">
+                    {{- if .IconSvg }}
+                    <div class="menu-action__content-icon">
+                        {{ .IconSvg }}
+                    </div>
+                    {{- end }}
+                    <div class="menu-action__content-text">
+                        <span class="menu-action__content-text-value">{{ .Title }}</span>
+                    </div>
+                </div>
+            </div>
+          {{- end }}
+        {{- end }}
+    </div>
+{{- end }}

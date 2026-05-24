@@ -32,6 +32,12 @@
     color: #666;
 }
 
+/* Settings menu */
+.menu-settings {
+    position: fixed;
+    transform-origin: top;
+}
+
 /* Row menu*/
 .menu-row {
     position: fixed;

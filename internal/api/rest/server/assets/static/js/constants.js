@@ -17,8 +17,14 @@ export const COOKIE_NAMES = {
 
 export const STORAGE_KEYS = {
     grabOptionsCollapsed: "grabOptionsCollapsed",
+    settingsGridView: "settingsGridView",
 }
 
 // Action button icon URLs
 export const ICON_PASTE = 'static/icons/action-paste-v2-icon.svg';
 export const ICON_CLEAR = 'static/icons/action-clear-icon.svg';
+
+// Class names
+export const CLASS_NAMES = {
+    gridView: "grid-view",
+}

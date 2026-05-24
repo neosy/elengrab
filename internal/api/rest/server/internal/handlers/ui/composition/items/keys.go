@@ -11,7 +11,7 @@ const (
 	UserEmailKey = "UserEmail"
 
 	AccountMenuActionsKey = "AccountMenuActions"
-	RowMenuActionsKey     = "RowMenuActions"
+	MenuActionsKey        = "MenuActions"
 
 	DisableHTMXEventKey = "DisableHTMXEvent"
 
