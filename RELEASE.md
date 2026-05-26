@@ -1,6 +1,13 @@
 # Releases
 
-## v0.20.0 — 2026-05-25
+## v0.20.1 — 2026-05-27
+
+### 🎨 Style
+- The height of the thumbnails is limited
+
+---
+
+## v0.20.0 — 2026-05-26
 
 ### ✨ Features
 - Added a Settings button to the Grab form [L007]
