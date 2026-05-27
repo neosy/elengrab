@@ -8,7 +8,7 @@
 
     --media-result-rows-display: grid;
     --media-result-rows-grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-    --media-result-rows-gap: 12px;
+    --media-result-rows-gap: 8px;
     --media-result-rows-margin-top: 10px;
     --media-result-rows-padding: 0;
     --media-result-rows-align-items: start;
@@ -20,7 +20,7 @@
     --media-result-row-justify-content: center;
     --media-result-row-position: relative;
     --media-result-row-padding-top: 5px;
-    --media-result-row-padding-bottom: 25px;
+    --media-result-row-padding-bottom: 10px;
     --media-result-row-gap: 10px;
     --media-result-row-overflow: visible;
 
@@ -49,6 +49,7 @@
 
     --media-result-row-meta-display: flex;
     --media-result-row-meta-justify-content: center;
+    --media-result-title-meta-margin-top: 0;
 
     --media-result-avatar-image-display: none;
     --media-result-avatar-image-avatar-display: inline;
@@ -153,11 +154,12 @@
 
         --media-result-row-align-items: center;
         --media-result-row-padding-bottom: 45px;
+        --media-result-row-gap: 10px;
         --media-result-row-overflow: hidden;
 
         --media-result-row-thumbnail-aspect-ratio: 0;
 
-        --media-result-thumbnail-play-button-witdh: 100%;
+        --media-result-thumbnail-play-button-witdh: auto;
         --media-result-thumbnail-play-button-height: auto;
 
         --media-result-thumbnail-image-wrapper-display: inline-block;
@@ -170,6 +172,8 @@
         --media-result-thumbnail-image-width: 100%;
         --media-result-thumbnail-image-height: auto;
         --media-result-thumbnail-image-object-fit: contain;
+
+        --media-result-title-meta-margin-top: 4px;
     }
 
     .media-result__row-thumbnail.full-bleed {
@@ -643,7 +647,7 @@
 .media-result__title-meta {
     display: var(--media-result-title-meta-display);
     flex-direction: row;
-    margin-top: 4px;
+    margin-top: var(--media-result-title-meta-margin-top);
 
     color: var(--text-secondary);
 }
