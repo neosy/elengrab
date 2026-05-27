@@ -27,4 +27,5 @@ export const ICON_CLEAR = 'static/icons/action-clear-icon.svg';
 // Class names
 export const CLASS_NAMES = {
     gridView: "grid-view",
+    listView: "list-view",
 }

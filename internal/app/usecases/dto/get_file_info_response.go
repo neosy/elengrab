@@ -33,13 +33,16 @@ type GetMediaDownloadInfoResponse struct {
 	FileSize             *int64
 	SafeReadableFullName string
 	StatusText           string
-	MediaInfo            *dtypes.MediaInfo
-	MediaInfoText        string
-	MediaInfoTooltip     string
 	Progress             *dservices.DownloaderProgress
-	UserID               *uuid.UUID
-	CreatedAt            time.Time
-	UpdatedAt            time.Time
+
+	MediaInfo        *dtypes.MediaInfo
+	MediaInfoText    string
+	MediaInfoTooltip string
+
+	UserID *uuid.UUID
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (downloadInfo *GetMediaDownloadInfoResponse) IsYouTube() bool {

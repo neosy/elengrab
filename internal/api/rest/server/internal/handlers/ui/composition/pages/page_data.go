@@ -156,6 +156,7 @@ type (
 
 		ThumbnailID         string
 		ThumbnailIsPortrait bool
+		ThumbnailURL        string
 
 		ImageURL       string
 		ImageAvatarURL string

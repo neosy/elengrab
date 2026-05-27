@@ -1,5 +1,11 @@
 package httppaths
 
+import (
+	"strings"
+
+	"github.com/google/uuid"
+)
+
 const (
 	// Groups
 	GroupStatic = "/static"
@@ -24,3 +30,7 @@ const (
 	PathThumbnail       = "/thumbnails/{thumbnailId}"
 	PathYoutubeChannel  = "/ytchannels/{channelId}"
 )
+
+func BuildThumbnailPath(thumbID uuid.UUID) string {
+	return GroupStatic + strings.Replace(PathThumbnail, "{thumbnailId}", thumbID.String(), 1)
+}

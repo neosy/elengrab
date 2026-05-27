@@ -3,6 +3,7 @@ import storageState from './storage-state.js';
 
 export function applyGridView(isGridView) {
   document.body.classList.toggle(constants.CLASS_NAMES.gridView, isGridView);
+  document.body.classList.toggle(constants.CLASS_NAMES.listView, !isGridView);
 }
 
 export function toggleGridView() {
