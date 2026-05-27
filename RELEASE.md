@@ -8,6 +8,9 @@
 - Stretch the thumbnail in width
 - Added default music and video thumbnails
 
+### 🐛 Fix
+- Init element id in JS
+
 ---
 
 ## v0.20.0 — 2026-05-26
