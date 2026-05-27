@@ -122,7 +122,7 @@ body {
 
     align-content: start;
 
-    background: var(--bg-body);
+    background: var(--body-bg);
 }
 
 .main_content {

@@ -31,6 +31,7 @@
     --media-result-thumbnail-play-button-witdh: var(--thumbnail-image-width);
     --media-result-thumbnail-play-button-height: 100%;
 
+    --media-result-thumbnail-bg-display: none;
     --media-result-thumbnail-image-wrapper-display: flex;
     --media-result-thumbnail-image-wrapper-width: var(--thumbnail-image-width);
     --media-result-thumbnail-image-wrapper-height: 100%;
@@ -159,7 +160,6 @@
         --media-result-thumbnail-play-button-witdh: 100%;
         --media-result-thumbnail-play-button-height: auto;
 
-        --media-result-thumbnail-bg-display: none;
         --media-result-thumbnail-image-wrapper-display: inline-block;
         --media-result-thumbnail-image-wrapper-justify-content: center;
         --media-result-thumbnail-image-wrapper-width: 100%;
@@ -235,7 +235,7 @@
 
     margin-top: 20px;
 
-    background: var(--bg-result);
+    background: var(--result-bg);
     transition: all 0.2s ease;
 }
 
@@ -272,7 +272,7 @@
     grid-template-columns: var(--media-result-rows-grid-template-columns);
     gap: var(--media-result-rows-gap);
 
-    background: var(--bg-result);
+    background: var(--result-bg);
     color: var(--text-primary);
 
     font-size: 16px;
@@ -322,7 +322,7 @@
 
     gap: var(--media-result-row-gap);
 
-    background: var(--bg-result);
+    background: var(--result-bg);
     transition: background 0.2s ease, transform 0.2s ease;
 
     opacity: 1;
@@ -547,9 +547,12 @@
     border: none;
     background: transparent;
 
-    cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     outline: none;
+}
+
+.media-result__row.success .media-result__play-button {
+    cursor: pointer;
 }
 
 .media-result__avatar-play-button {
@@ -935,7 +938,7 @@
     gap: 10px;
     padding: 12px;
     border-radius: 8px;
-    background-color: var(--bg-result);
+    background-color: var(--result-bg);
     box-shadow: 0 2px 6px var(--shadow);
     color: var(--text-primary);
     font-family: "Inter", "Segoe UI", sans-serif;

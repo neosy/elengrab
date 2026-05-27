@@ -39,7 +39,7 @@ body {
     max-width: 320px;
     min-width: 280px;
     padding: 24px;
-    background: var(--bg-main);
+    background: var(--main-bg);
     border-radius: 20px;
     box-shadow: 0 2px 6px var(--shadow);
 }
