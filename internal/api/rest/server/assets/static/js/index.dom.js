@@ -1,11 +1,12 @@
 export const DOM_IDS = {
+    rowTopPlaceholder: "row-top-placeholder",
+    
     row: (id) => `row-${id}`,
     progressRow: (id) => `progress-${id}`,
 };
 
 export const DOM_ELEMENTS = {
     resultRows: null,
-    rowTopPlaceholder: null,
     rowNoItems: null,
 
     grabForm: null,
@@ -29,7 +30,6 @@ export const DOM_ELEMENTS = {
 
 export function initDomElements() {    
     DOM_ELEMENTS.resultRows = document.getElementById("media-result-rows");
-    DOM_ELEMENTS.rowTopPlaceholder = document.getElementById("row-top-placeholder");
     DOM_ELEMENTS.rowNoItems = document.getElementById("row-no-items");
 
     DOM_ELEMENTS.grabForm = document.getElementById("grabForm");

@@ -16,7 +16,7 @@ export function handleRowAdd(event) {
         if (!container) return;
 
         // Find the top placeholder div
-        const placeholder = DOM_ELEMENTS.rowTopPlaceholder;
+        const placeholder = document.getElementById(DOM_IDS.rowTopPlaceholder);
         if (!placeholder) return;
 
         // Insert all rows right after the placeholder
