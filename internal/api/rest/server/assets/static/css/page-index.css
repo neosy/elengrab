@@ -130,7 +130,7 @@ html, body {
 }
 
 @media (max-width: 768px) {
-    .header--hidden {
+    .header--hidden:not(.is-search) {
         transform: translateY(-100%);
     }
 }
@@ -479,7 +479,7 @@ body.ui-blocking-active {
     margin: 0;
 }
 
-.header__container.is-search {
+header.is-search .header__container {
     .header__link,
     .user-menu__search {
         display: none;

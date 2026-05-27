@@ -28,4 +28,5 @@ export const ICON_CLEAR = 'static/icons/action-clear-icon.svg';
 export const CLASS_NAMES = {
     gridView: "grid-view",
     listView: "list-view",
+    isSearch: "is-search",
 }

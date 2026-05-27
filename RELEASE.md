@@ -7,6 +7,7 @@
 - Increased the number of thumbnails to 4 columns
 - Stretch the thumbnail in width
 - Added default music and video thumbnails
+- Keep header visible during search
 
 ### 🐛 Fix
 - Init element id in JS

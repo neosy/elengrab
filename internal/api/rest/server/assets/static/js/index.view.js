@@ -28,3 +28,30 @@ export function initGridView() {
 export function getGridView() {
   return storageState.get(constants.STORAGE_KEYS.settingsGridView, true);
 }
+
+export function initSearching(clear) {
+    const searchBtn = document.getElementById("userMenuSearchButton");
+    const backBtn = document.getElementById("historySearchBackButton");
+    const header = document.getElementById("header");
+    const searchInput = document.getElementById("historySearchInput");
+
+    if (!searchBtn || !header || !backBtn) return;
+
+    searchBtn.addEventListener('click', () => {
+        openSearching(header, searchInput);
+    });    
+
+    backBtn.addEventListener('click', () => {
+        closeSearching(header);
+    });
+}
+
+function openSearching(header, input) {
+    header.classList.toggle(constants.CLASS_NAMES.isSearch, true);
+    input.focus();
+}
+
+function closeSearching(header) {
+    header.classList.toggle(constants.CLASS_NAMES.isSearch, false);
+    clear();
+}
