@@ -67,7 +67,7 @@
     left: 0;
     right: 0;
     pointer-events: auto;
-    background: var(--bg-main);
+    background: var(--main-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     padding: 10px 40px;

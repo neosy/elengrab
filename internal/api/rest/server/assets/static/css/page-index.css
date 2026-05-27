@@ -1,7 +1,5 @@
 
 :root {
-    --body-bg: var(--bg-body);
-
     --main-content-max: 1260px;
     --main-content-width: 95%;
 
@@ -23,8 +21,6 @@
     --main-padding-top: calc(var(--main-padding) - 10px);
     --main-padding-bottom: 10px;
 
-    --main-bg: var(--bg-main);
-
     --main-border-radius: 20px;
     --main-border-box-shadow: 0 2px 6px var(--border-shadow);
 
@@ -42,7 +38,14 @@
 }
 
 .grid-view {
+    --body-bg: var(--main-bg);
+    --result-bg: var(--main-bg);
+    --header-bg: var(--header-bg-light-transparent);
+
     --main-content-max: 100%;
+
+    --main-border-radius: 0;
+    --main-border-box-shadow: none;
     
     --header-max-width: var(--main-content-max);
     --header-left: calc((100vw - min(var(--main-content-width), var(--main-content-max))) / 2);
@@ -52,10 +55,11 @@
 
 @media (max-width: 768px) {
     :root {
-        --body-bg: var(--bg-main);
+        --body-bg: var(--main-bg);
+        --result-bg: var(--main-bg);
+        --header-bg: var(--header-bg-light-transparent);
 
         --header-height: 50px;
-        --header-bg: var(--header-bg-light-transparent);
 
         --header-logo-image-height: 2.5em;
         --header-title-font-size: 40px;
@@ -554,7 +558,7 @@ body.ui-blocking-active {
 
     border-radius: 20px 20px 0 0;
 
-    background: var(--bg-footer);
+    background: var(--footer-bg);
     color: var(--text-secondary);
 
     backdrop-filter: blur(6px);
@@ -639,7 +643,7 @@ body.ui-blocking-active {
 @media (max-width: 480px) {
     body {
         margin: 0;
-        background: var(--bg-main);
+        background: var(--main-bg);
     }
 
     .main {
