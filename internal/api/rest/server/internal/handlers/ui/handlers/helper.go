@@ -9,6 +9,8 @@ import (
 	"unicode"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/images"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/handlers/policy"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
@@ -167,4 +169,20 @@ func mediaSourceFromURL(mediaURL string) string {
 	}
 
 	return mediaURL
+}
+
+func (h *DownloaderHandlers) thumbnailURL(mediaInfo *dtypes.MediaInfo) string {
+	if mediaInfo == nil || mediaInfo.FormatType == dtypes.FormatTypeNone {
+		return paths.ImagePath(images.ThumbnailDefaultFileName)
+	}
+
+	if thumbID := mediaInfo.PreferredThumbnailID(); thumbID != uuid.Nil {
+		return httppaths.BuildThumbnailPath(thumbID)
+	}
+
+	if mediaInfo.FormatType == dtypes.FormatTypeAudioOnly {
+		return paths.ImagePath(images.ThumbnailMusicDefaultFileName)
+	}
+
+	return paths.ImagePath(images.ThumbnailVideoDefaultFileName)
 }

@@ -216,6 +216,10 @@ if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
 }
 
+// Apply persisted grid/list layout state on initial page load 
+view.initGridView();
+document.body.classList.add('layout-ready');
+
 document.addEventListener('DOMContentLoaded', () => {
     initDomElements();
 
@@ -319,9 +323,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize header auto-hide on scroll
     initHeaderAutoHide();
-
-    // Apply persisted grid/list layout state on initial page load 
-    view.initGridView();
 
     // Init tooltips
     tooltip.initTooltips();
