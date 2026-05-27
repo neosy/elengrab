@@ -16,7 +16,8 @@
 }
 
 :root {
-    --media-thumbnail-image-max-height: calc(var(--vh, 1vh) * 60);
+    --thumbnail-image-max-height: calc(var(--vh, 1vh) * 60);
+    --thumbnail-image-width: auto;
 
     --media-result-rows-display: flex;
     --media-result-rows-grid-template-columns: none;
@@ -36,7 +37,7 @@
     --media-result-row-gap: 12px;
     --media-result-row-overflow: hidden;
 
-    --media-result-thumbnail-play-button-witdh: auto;
+    --media-result-thumbnail-play-button-witdh: var(--thumbnail-image-width);
     --media-result-thumbnail-play-button-height: auto;
 
     --media-result-row-thumbnail-display: none;
@@ -44,11 +45,11 @@
     --media-result-row-thumbnail-aspect-ratio: 0;
     --media-result-thumbnail-image-wrapper-display: inline-block;
     --media-result-thumbnail-image-wrapper-justify-content: center;
-    --media-result-thumbnail-image-wrapper-width: auto;
+    --media-result-thumbnail-image-wrapper-width: var(--thumbnail-image-width);
     --media-result-thumbnail-image-wrapper-height: auto;
     --media-result-thumbnail-image-display: block;
     --media-result-thumbnail-image-max-width: auto;
-    --media-result-thumbnail-image-max-height: min(var(--media-thumbnail-image-max-height), 250px);
+    --media-result-thumbnail-image-max-height: min(var(--thumbnail-image-max-height), 250px);
     --media-result-thumbnail-image-width: 100%;
     --media-result-thumbnail-image-height: auto;
     --media-result-thumbnail-image-object-fit: contain;
@@ -83,6 +84,8 @@
 }
 
 .grid-view {
+    --thumbnail-image-width: 100%;
+
     --media-result-rows-display: grid;
     --media-result-rows-grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
     --media-result-rows-gap: 12px;
@@ -98,19 +101,20 @@
     --media-result-row-gap: 10px;
     --media-result-row-overflow: visible;
 
-    --media-result-thumbnail-play-button-witdh: auto;
+    --media-result-thumbnail-play-button-witdh: var(--thumbnail-image-width);
     --media-result-thumbnail-play-button-height: 100%;
 
     --media-result-row-thumbnail-display: flex;
     --media-result-row-thumbnail-aspect-ratio: 16 / 9;
     --media-result-thumbnail-image-wrapper-display: flex;
-    --media-result-thumbnail-image-wrapper-width: auto;
+    --media-result-thumbnail-image-wrapper-width: var(--thumbnail-image-width);
     --media-result-thumbnail-image-wrapper-height: 100%;
     --media-result-thumbnail-image-wrapper-justify-content: center;
     --media-result-thumbnail-image-max-width: 100%;
-    --media-result-thumbnail-image-max-height: min(var(--media-thumbnail-image-max-height), 250px);
-    --media-result-thumbnail-image-width: auto;
+    --media-result-thumbnail-image-max-height: min(var(--thumbnail-image-max-height), 250px);
+    --media-result-thumbnail-image-width: var(--thumbnail-image-width);
     --media-result-thumbnail-image-height: auto;
+    --media-result-thumbnail-image-object-fit: cover;
     
     --media-result-content-main-align-items: start;
     --media-result-content-main-text-align: left;
@@ -132,6 +136,15 @@
     --media-result-size-value-padding: 2px 0px;
     --media-result-format-width: auto;
     --media-result-status-width: auto;
+}
+
+.grid-view .thumbnail--portrait * {
+    --thumbnail-image-width: auto;
+
+    --media-result-thumbnail-play-button-witdh: var(--thumbnail-image-width);
+    --media-result-thumbnail-image-wrapper-width: var(--thumbnail-image-width);
+    --media-result-thumbnail-image-width: var(--thumbnail-image-width);
+    --media-result-thumbnail-image-object-fit: contain;
 }
 
 @media (max-width: 1650px) {
@@ -181,7 +194,7 @@
         --media-result-thumbnail-image-wrapper-height: auto;
         --media-result-thumbnail-image-wrapper-justify-content: center;
         --media-result-thumbnail-image-max-width: auto;
-        --media-result-thumbnail-image-max-height: var(--media-thumbnail-image-max-height);
+        --media-result-thumbnail-image-max-height: var(--thumbnail-image-max-height);
         --media-result-thumbnail-image-width: 100%;
         --media-result-thumbnail-image-height: auto;
         --media-result-thumbnail-image-object-fit: contain;
@@ -426,7 +439,7 @@
 }
 
 @media (max-width: 580px) {
-    .media-result__thumbnail-image__wrapper.thumbnail--portrait {
+    .thumbnail--portrait .media-result__thumbnail-image__wrapper {
         width: auto;
         border-radius: var(--thumbnail-image-wrapper-portrait-border-radius);
     }

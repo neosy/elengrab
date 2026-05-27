@@ -5,6 +5,7 @@
 ### 🎨 Style
 - The height of the thumbnails is limited
 - Increased the number of thumbnails to 4 columns
+- Stretch the thumbnail in width
 
 ---
 
