@@ -151,33 +151,6 @@ function createSSEConnection() {
         }};
 }
 
-function initSearching(clear) {
-    const searchBtn = document.getElementById("userMenuSearchButton");
-    const backBtn = document.getElementById("historySearchBackButton");
-    const headerContainer = document.getElementById("headerContainer");
-    const searchInput = document.getElementById("historySearchInput");
-
-    if (!searchBtn || !headerContainer || !backBtn) return;
-
-    searchBtn.addEventListener('click', () => {
-        openSearching();
-    });    
-
-    backBtn.addEventListener('click', () => {
-        closeSearching();
-    });
-
-    function openSearching() {
-        headerContainer.classList.toggle('is-search', true);
-        searchInput.focus();
-    }
-
-    function closeSearching() {
-        headerContainer.classList.toggle('is-search', false);
-        clear();
-    }
-}
-
 function initHeaderAutoHide() {
     let lastScrollTop = 0;
     let ticking = false;
@@ -343,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInputClearButton = actionButton.initInputClearButton(DOM_ELEMENTS.historySearchInputWrapper, DOM_ELEMENTS.historySearchClearButton);
 
     // Init search elements
-    initSearching(searchInputClearButton.clear);
+    view.initSearching(searchInputClearButton.clear);
 
     // Create SSE connection
     var sse = null;
