@@ -18,9 +18,9 @@ import (
 func (e *Executor) GetInfo(
 	ctx context.Context,
 	url string,
-	useCookies bool,
+	opts ...idto.ExecutorOption,
 ) (*idto.MediaInfo, error) {
-	dataJSON, err := e.loadInfoJSON(ctx, url, useCookies)
+	dataJSON, err := e.loadInfoJSON(ctx, url, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("get formats json error: %w", err)
 	}
@@ -53,7 +53,7 @@ func (e *Executor) GetInfo(
 func (e *Executor) loadInfoJSON(
 	ctx context.Context,
 	url string,
-	useCookies bool,
+	opts ...idto.ExecutorOption,
 ) ([]byte, error) {
 	startTime := time.Now()
 	dataJSON, err := e.formatCache.LoadByURL(url)
@@ -71,7 +71,7 @@ func (e *Executor) loadInfoJSON(
 		return dataJSON, nil
 	}
 
-	dataJSON, err = e.fetchAndCacheInfoJSON(ctx, url, useCookies)
+	dataJSON, err = e.fetchAndCacheInfoJSON(ctx, url, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -82,10 +82,10 @@ func (e *Executor) loadInfoJSON(
 func (e *Executor) fetchAndCacheInfoJSON(
 	ctx context.Context,
 	url string,
-	useCookies bool,
+	opts ...idto.ExecutorOption,
 ) ([]byte, error) {
 	startTime := time.Now()
-	dataJSON, err := e.fetchInfoJSON(ctx, url, useCookies)
+	dataJSON, err := e.fetchInfoJSON(ctx, url, opts...)
 	elapsed := time.Since(startTime)
 	if err != nil {
 		e.formatCache.DeleteByURL(url)
@@ -121,7 +121,7 @@ func (e *Executor) fetchAndCacheInfoJSON(
 func (e *Executor) fetchInfoJSON(
 	ctx context.Context,
 	url string,
-	useCookies bool,
+	opts ...idto.ExecutorOption,
 ) ([]byte, error) {
 	// Prepare command arguments
 	var args []string
@@ -130,9 +130,7 @@ func (e *Executor) fetchInfoJSON(
 	args = append(args, "--dump-json")
 
 	// Add YouTube cookies if allowed in service options
-	if useCookies {
-		args = addYouTubeCookiesToArgs(e.logger, args, e.serviceOptions)
-	}
+	args = addCookiesToArgs(e.logger, args, opts...)
 
 	args = append(args, url)
 

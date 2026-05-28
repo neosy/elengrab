@@ -138,7 +138,7 @@ func (a *Application) initialize() error {
 		Storage:          storages.Download,
 		YtDlpOptions: []ytdlpdto.Option{
 			ytdlpdto.WithCookiesDir(cookiesDir),
-			ytdlpdto.WithYoutubeAllowCookies(a.cfg.Elengrab.YoutubeAllowCookies),
+			ytdlpdto.WithAllowCookies(a.cfg.Elengrab.AllowCookies),
 		},
 	}
 	services, err := services.New(a.logger, srvDeps)
@@ -340,7 +340,7 @@ func (a *Application) initEnsureDirs() error {
 
 func (a *Application) cookiesDir() string {
 	cookiesDir, err := nfile.AbsPath(a.cfg.Elengrab.RootDir, a.cfg.Elengrab.CookiesDir)
-	if err != nil && a.cfg.Elengrab.YoutubeAllowCookies {
+	if err != nil && a.cfg.Elengrab.AllowCookies {
 		a.logger.Warn(
 			"Failed to get abs path for cookies directory",
 			"path", a.cfg.Elengrab.CookiesDir,

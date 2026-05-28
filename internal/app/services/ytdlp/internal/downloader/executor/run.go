@@ -24,6 +24,7 @@ func (e *Executor) RunYtDlp(
 	ctx context.Context,
 	url string,
 	meta *idto.DownloadMeta,
+	options *idto.DownloadExecOptions,
 	onProgressUpdate func(dservices.DownloaderProgress),
 ) ([]byte, error) {
 	var (
@@ -50,10 +51,10 @@ func (e *Executor) RunYtDlp(
 	}()
 
 	// Copy args to avoid modifying the original slice
-	args := meta.Options.Args[0:len(meta.Options.Args):len(meta.Options.Args)]
+	args := options.CopyArgs()
 
 	// Add concurrent fragments argument
-	args = append(args, "--concurrent-fragments", strconv.Itoa(int(meta.Options.ConcurrentFragments)))
+	args = append(args, "--concurrent-fragments", strconv.Itoa(int(options.ConcurrentFragments)))
 
 	// Add progress output to yt-dlp arguments
 	args = append(
@@ -67,7 +68,7 @@ func (e *Executor) RunYtDlp(
 	tmpFilePath := filepath.Join(workDir, meta.FileFullName)
 
 	// If no extractor args provided, use cache and isolated paths
-	if meta.Options.ExtractorArgs == nil {
+	if options.ExtractorArgs == nil {
 		// Add cache directory to yt-dlp arguments
 		args = append(args, "--cache-dir", cacheDir)
 
@@ -78,16 +79,14 @@ func (e *Executor) RunYtDlp(
 		args = append(args, "--load-info-json", e.formatCache.CacheFilePath(url))
 	} else {
 		// Add extractor args
-		args = append(args, "--extractor-args", *meta.Options.ExtractorArgs)
+		args = append(args, "--extractor-args", *options.ExtractorArgs)
 
 		// Do not use cache for custom extractor args
 		args = append(args, meta.URL)
 	}
 
 	// Add YouTube cookies if allowed in service options
-	if meta.Options.RequiresYouTubeCookies {
-		args = addYouTubeCookiesToArgs(e.logger, args, e.serviceOptions)
-	}
+	args = addCookiesToArgs(e.logger, args, idto.WithUseCookies(options.CookieFilePath))
 
 	// Add output file path to yt-dlp arguments
 	args = append(args, "-o", tmpFilePath)

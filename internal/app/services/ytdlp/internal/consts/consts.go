@@ -6,10 +6,9 @@ const (
 	YtDlpName = "yt-dlp"
 	DenoName  = "deno"
 
-	YtDlpTempDir               = ".yt-dlp"
-	YtDlpCacheDir              = ".yt-dlp/cache"
-	YtDlpFormatCacheDir        = ".yt-dlp/format-cache"
-	YtDlpYouTubeCookieFileName = "youtube-cookies.txt"
+	YtDlpTempDir        = ".yt-dlp"
+	YtDlpCacheDir       = ".yt-dlp/cache"
+	YtDlpFormatCacheDir = ".yt-dlp/format-cache"
 
 	ChannelAvatarTimeout = 5 * time.Second
 	FetchTitleTimeout    = 3 * time.Second

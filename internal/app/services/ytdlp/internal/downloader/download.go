@@ -58,8 +58,8 @@ func (d *Downloader) Download(
 	url = strings.TrimSpace(url)
 
 	// Prepare download options with defaults and user overrides
-	dlOptions, fileName, includeTitleInFilename :=
-		helper.PrepareDownloadOptions(d.serviceOptions.ConcurrentFragments, options)
+	dlOptions :=
+		helper.PrepareDownloadOptions(url, d.serviceOptions, options)
 
 	// Try to fetch the title fast
 	startTime := time.Now()
@@ -84,39 +84,40 @@ func (d *Downloader) Download(
 		})
 	}
 
-	var requiresYouTubeCookies = false
-	err = d.executor.EnsureFormatCache(ctx, url, false)
+	var needCookies bool
+	err = d.executor.EnsureFormatCache(ctx, url)
 	if err != nil {
-		requiresYouTubeCookies = d.serviceOptions.YoutubeAllowCookies &&
-			helper.CheckForYouTubeCookiesError(err)
-		if !requiresYouTubeCookies {
+		needCookies = dlOptions.AllowCookies() && helper.CheckCookiesError(err)
+		if !needCookies {
 			sendError(nil, errorx.Errorf("failed to ensure format cache: %w", err))
 			return
 		}
 	}
 
-	if requiresYouTubeCookies {
+	if needCookies {
 		d.logger.Debug(
-			"YouTube cookies are enabled",
+			"Cookies are enabled",
 			"title", title,
 			"url", url,
 		)
-		err = d.executor.EnsureFormatCache(ctx, url, true)
+
+		err = d.executor.EnsureFormatCache(ctx, url, idto.WithUseCookies(dlOptions.CookieFilePath))
 		if err != nil {
 			sendError(nil, errorx.Errorf("failed to ensure format cache: %w", err))
 			return
 		}
+
+		dlOptions.NeedsCookies = true
 	}
 
-	dlOptions.RequiresYouTubeCookies = requiresYouTubeCookies
-
 	// Prepare download metadata
-	var meta idto.SafeDownloadMeta
-	meta.Meta, err = d.prepareMetadata(
+	var (
+		meta        idto.SafeDownloadMeta
+		execOptions *idto.DownloadExecOptions
+	)
+	meta.Meta, execOptions, err = d.prepareDownload(
 		ctx,
 		url,
-		fileName,
-		includeTitleInFilename,
 		dlOptions,
 	)
 	if err != nil {
@@ -157,7 +158,7 @@ func (d *Downloader) Download(
 	})
 
 	out, err := d.downloadWithStrategies(
-		ctx, url, &meta,
+		ctx, url, meta.CopyMeta(), execOptions.Copy(),
 		func(progress dservices.DownloaderProgress) {
 			meta.Lock()
 			meta.Meta.Progress = &progress

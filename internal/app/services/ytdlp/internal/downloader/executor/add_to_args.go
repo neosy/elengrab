@@ -1,39 +1,18 @@
 package executor
 
 import (
-	"fmt"
 	"log/slog"
-	"path/filepath"
 
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
-	nfile "github.com/neosy/elengrab/internal/pkg/file"
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 )
 
-func addYouTubeCookiesToArgs(logger *slog.Logger, args []string, serviceOptions dto.Options) []string {
-	// Check if cookies are allowed in the service options
-	if serviceOptions.YoutubeAllowCookies {
-		path, err := ensureYouTubeCookiePath(serviceOptions.CookiesDir)
-		if err != nil {
-			logger.Warn("Failed YouTube cookie file", "error", err)
-		}
-		if path != "" {
-			// Append the cookies file path to the arguments if it exists
-			args = append(args, "--cookies", path)
-		}
-	}
-	return args
-}
+func addCookiesToArgs(logger *slog.Logger, args []string, opts ...idto.ExecutorOption) []string {
+	options := idto.NewExecutorOptions(opts...)
 
-func ensureYouTubeCookiePath(cookiesDir string) (string, error) {
-	cookieFilePath := filepath.Join(cookiesDir, consts.YtDlpYouTubeCookieFileName)
-	// Check if the cookies file exists
-	exists, err := nfile.FileExists(cookieFilePath)
-	if err != nil {
-		return "", fmt.Errorf("Failed check cookies file %s: %w", cookieFilePath, err)
+	// Append the cookies file path to the arguments if it exists
+	if options.CookieFilePath != "" {
+		args = append(args, "--cookies", options.CookieFilePath)
 	}
-	if !exists {
-		return "", fmt.Errorf("Cookies file '%s' not found", cookieFilePath)
-	}
-	return cookieFilePath, nil
+
+	return args
 }

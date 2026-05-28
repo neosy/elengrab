@@ -16,15 +16,15 @@ func (e *Executor) GetInfoWithBestFormat(
 	ctx context.Context,
 	url string,
 	format string,
-	opts ...Option,
+	opts ...idto.ExecutorOption,
 ) (*idto.MediaInfo, error) {
-	var opt = newDefaultOptions()
+	var opt = idto.NewExecutorOptions(opts...)
 	for _, o := range opts {
 		o(opt)
 	}
 
-	if opt.ensureCache {
-		err := e.EnsureFormatCache(ctx, url, opt.useCookies)
+	if opt.EnsureCache {
+		err := e.EnsureFormatCache(ctx, url, opts...)
 		if err != nil {
 			return nil, err
 		}
@@ -36,9 +36,7 @@ func (e *Executor) GetInfoWithBestFormat(
 	args = append(args, "--no-warnings", "--quiet")
 
 	// Add YouTube cookies if allowed in service options
-	if opt.useCookies {
-		args = addYouTubeCookiesToArgs(e.logger, args, e.serviceOptions)
-	}
+	args = addCookiesToArgs(e.logger, args, opts...)
 
 	args = append(args, "-f", format)
 	args = append(args, "--load-info-json", e.formatCache.CacheFilePath(url))
@@ -73,7 +71,7 @@ func (e *Executor) GetInfoWithBestFormat(
 		bestFormatIds = append(bestFormatIds, parts[0])
 	}
 
-	info, err := e.GetInfo(ctx, url, opt.useCookies)
+	info, err := e.GetInfo(ctx, url, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("get formats error: %w", err)
 	}

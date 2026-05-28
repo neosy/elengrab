@@ -2,7 +2,6 @@ package ytdlpsrv
 
 import (
 	"log/slog"
-	"path/filepath"
 
 	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
@@ -45,58 +44,42 @@ func NewYtDlpService(
 
 	_, err = utils.LookupExecutable(consts.DenoName)
 	if err != nil {
-		if options.YoutubeAllowCookies {
-			options.YoutubeAllowCookies = false
+		if options.AllowCookies {
+			options.AllowCookies = false
 			logger.Warn(
 				"Deno executable not found in PATH",
 				"executable", consts.DenoName,
 				"error", err,
 			)
-			logger.Info("YoutubeAllowCookies has been disabled")
+			logger.Info("AllowCookies has been disabled")
 		}
 	} else {
 		logger.Debug("Deno executable found in PATH", "executable", consts.DenoName)
 	}
 
-	if options.YoutubeAllowCookies && options.CookiesDir == "" {
-		options.YoutubeAllowCookies = false
-		logger.Warn("YoutubeAllowCookies enabled but CookiesDir is empty")
-		logger.Info("YoutubeAllowCookies has been disabled")
+	if options.AllowCookies && options.CookiesDir == "" {
+		options.AllowCookies = false
+		logger.Warn("AllowCookies enabled but CookiesDir is empty")
+		logger.Info("AllowCookies has been disabled")
 	}
 
-	if options.YoutubeAllowCookies {
+	if options.AllowCookies {
 		exists, err := nfile.DirExists(options.CookiesDir)
 		if err != nil {
-			options.YoutubeAllowCookies = false
+			options.AllowCookies = false
 			logger.Warn("Error checking if directory exists", "dir", options.CookiesDir, "error", err)
-			logger.Info("YoutubeAllowCookies has been disabled")
+			logger.Info("AllowCookies has been disabled")
 		} else if !exists {
-			options.YoutubeAllowCookies = false
+			options.AllowCookies = false
 			logger.Warn("Directory cookies does not exist", "dir", options.CookiesDir)
-			logger.Info("YoutubeAllowCookies has been disabled")
+			logger.Info("AllowCookies has been disabled")
 		} else {
 			logger.Debug("Cookies directory exists", "dir", options.CookiesDir)
 		}
 	}
 
-	if options.YoutubeAllowCookies {
-		path := filepath.Join(options.CookiesDir, consts.YtDlpYouTubeCookieFileName)
-		exists, err := nfile.FileExists(path)
-		if err != nil {
-			options.YoutubeAllowCookies = false
-			logger.Warn("Failed to check cookies file existence", "path", path, "error", err)
-			logger.Info("YoutubeAllowCookies has been disabled")
-		} else if !exists {
-			options.YoutubeAllowCookies = false
-			logger.Warn("Cookies file does not exist", "path", path)
-			logger.Info("YoutubeAllowCookies has been disabled")
-		} else {
-			logger.Debug("Cookies file exists", "path", path)
-		}
-	}
-
-	if options.YoutubeAllowCookies {
-		logger.Info("YoutubeAllowCookies option is enabled")
+	if options.AllowCookies {
+		logger.Info("AllowCookies option is enabled")
 	}
 
 	return &YtDlpService{
