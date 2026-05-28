@@ -1,6 +1,6 @@
 # Releases
 
-## v0.20.1 — 2026-05-27
+## v0.20.1 — 2026-05-28
 
 ### 🎨 Style
 - The height of the thumbnails is limited
