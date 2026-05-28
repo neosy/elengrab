@@ -7,18 +7,16 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 )
 
-func (d *Downloader) prepareMetadata(
+func (d *Downloader) prepareDownload(
 	ctx context.Context,
-	url, fileName string,
-	includeTitleInFilename bool,
+	url string,
 	dlOptions idto.DLOptions,
-) (*idto.DownloadMeta, error) {
+) (*idto.DownloadMeta, *idto.DownloadExecOptions, error) {
 	// Build yt-dlp arguments and get file extension and title
 	args, fileExt, dtoMediaInfo, mediaInfo, err := helper.PrepareDownload(
 		ctx,
@@ -27,7 +25,7 @@ func (d *Downloader) prepareMetadata(
 		d.executor.GetInfoWithBestFormat,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to build download arguments: %w", err)
+		return nil, nil, fmt.Errorf("failed to build download arguments: %w", err)
 	}
 
 	title := dtoMediaInfo.Title
@@ -37,19 +35,20 @@ func (d *Downloader) prepareMetadata(
 		title, err = d.executor.GetTitle(
 			ctx,
 			url,
-			executor.WithUseCookies(dlOptions.RequiresYouTubeCookies),
+			idto.WithUseCookies(dlOptions.CookieFilePathIfNeeded()),
 		)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get title: %w", err)
+			return nil, nil, fmt.Errorf("failed to get title: %w", err)
 		}
 	}
 
 	// Generate a unique filename if none provided
+	fileName := dlOptions.FileName
 	if fileName == "" {
 		fileName = uuid.New().String()
 	}
 
-	if includeTitleInFilename {
+	if dlOptions.IncludeTitleInFilename {
 		// Sanitize the title to ensure it is a valid file name.
 		title := nfasthttp.SanitizeFileName(title)
 		// Truncate the title to fit within the maximum length allowed for filenames.
@@ -79,15 +78,7 @@ func (d *Downloader) prepareMetadata(
 		channelID = &dtoMediaInfo.ChannelID
 	}
 
-	options := idto.DownloadOptions{
-		ConcurrentFragments:    dlOptions.ConcurrentFragments,
-		RequiresYouTubeCookies: dlOptions.RequiresYouTubeCookies,
-		Extractor:              dtoMediaInfo.Extractor,
-		ExtractorArgs:          nil,
-		Args:                   args,
-	}
-
-	return &idto.DownloadMeta{
+	meta := &idto.DownloadMeta{
 		URL:          url,
 		Title:        title,
 		Description:  dtoMediaInfo.Description,
@@ -99,6 +90,15 @@ func (d *Downloader) prepareMetadata(
 		ChannelURL:   dtoMediaInfo.ChannelUrl,
 		ChannelTitle: dtoMediaInfo.ChannelTitle,
 		MediaInfo:    mediaInfo,
-		Options:      options,
-	}, nil
+	}
+
+	execOptions := &idto.DownloadExecOptions{
+		ConcurrentFragments: dlOptions.ConcurrentFragments,
+		CookieFilePath:      dlOptions.CookieFilePathIfNeeded(),
+		Extractor:           dtoMediaInfo.Extractor,
+		ExtractorArgs:       nil,
+		Args:                args,
+	}
+
+	return meta, execOptions, nil
 }

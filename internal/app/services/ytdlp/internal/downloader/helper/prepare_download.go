@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/fnx"
@@ -18,7 +17,7 @@ func PrepareDownload(
 	ctx context.Context,
 	url string,
 	dlOptions idto.DLOptions,
-	bestFormat func(ctx context.Context, url string, format string, opts ...executor.Option) (*idto.MediaInfo, error),
+	bestFormat func(ctx context.Context, url string, format string, opts ...idto.ExecutorOption) (*idto.MediaInfo, error),
 ) (args []string, fileExt string, dtoMediaInfo *idto.MediaInfo, mediaInfo *dservices.MediaInfo, err error) {
 	var (
 		outVideoCodec = dtypes.VideoCodecNone
@@ -116,8 +115,8 @@ func PrepareDownload(
 			ctx,
 			url,
 			bestFormatQuery,
-			executor.WithUseCookies(dlOptions.RequiresYouTubeCookies),
-			executor.WithEnsureCache(false),
+			idto.WithUseCookies(dlOptions.CookieFilePathIfNeeded()),
+			idto.WithEnsureCache(false),
 		)
 		if err != nil {
 			return nil, "", nil, nil, err
@@ -313,8 +312,8 @@ func PrepareDownload(
 			ctx,
 			url,
 			format,
-			executor.WithUseCookies(dlOptions.RequiresYouTubeCookies),
-			executor.WithEnsureCache(false),
+			idto.WithUseCookies(dlOptions.CookieFilePathIfNeeded()),
+			idto.WithEnsureCache(false),
 		)
 		if err != nil {
 			return nil, "", nil, nil, err

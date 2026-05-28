@@ -8,20 +8,17 @@ import (
 	"strings"
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 )
 
-func (e *Executor) ExtractBestThumbnailURL(ctx context.Context, mediaURL string, opts ...Option) (string, error) {
+func (e *Executor) ExtractBestThumbnailURL(ctx context.Context, mediaURL string, opts ...idto.ExecutorOption) (string, error) {
 	var (
-		opt = newDefaultOptions()
+		opt = idto.NewExecutorOptions(opts...)
 		cmd *exec.Cmd
 	)
 
-	for _, o := range opts {
-		o(opt)
-	}
-
-	if opt.ensureCache {
-		err := e.EnsureFormatCache(ctx, mediaURL, opt.useCookies)
+	if opt.EnsureCache {
+		err := e.EnsureFormatCache(ctx, mediaURL, opts...)
 		if err != nil {
 			return "", fmt.Errorf("failed to ensure format cache: %w", err)
 		}
@@ -33,9 +30,7 @@ func (e *Executor) ExtractBestThumbnailURL(ctx context.Context, mediaURL string,
 	args = append(args, "--no-playlist", "--no-warnings", "--print", "%(thumbnails.-1.url)s")
 
 	// Add YouTube cookies if allowed in service options
-	if opt.useCookies {
-		args = addYouTubeCookiesToArgs(e.logger, args, e.serviceOptions)
-	}
+	args = addCookiesToArgs(e.logger, args, opts...)
 
 	args = append(args, "--load-info-json", e.formatCache.CacheFilePath(mediaURL))
 	cmd = exec.CommandContext(ctx, e.ytDlpPath, args...)

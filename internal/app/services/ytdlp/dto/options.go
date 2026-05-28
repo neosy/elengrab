@@ -11,8 +11,8 @@ type Options struct {
 
 	// CookiesDir path for storing cookies
 	CookiesDir string
-	// YoutubeAllowCookies allow cookies for YouTube
-	YoutubeAllowCookies bool
+	// AllowCookies allow cookies for YouTube, Instagram, etc
+	AllowCookies bool
 }
 
 // NewOptions sets default values for Options fields
@@ -34,8 +34,8 @@ func WithCookiesDir(value string) Option {
 	}
 }
 
-func WithYoutubeAllowCookies(value bool) Option {
+func WithAllowCookies(value bool) Option {
 	return func(opt *Options) {
-		opt.YoutubeAllowCookies = value
+		opt.AllowCookies = value
 	}
 }

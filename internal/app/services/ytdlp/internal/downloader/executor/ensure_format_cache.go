@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"os"
+
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 )
 
 func (e *Executor) EnsureFormatCache(
 	ctx context.Context,
 	url string,
-	useCookies bool,
+	opts ...idto.ExecutorOption,
 ) error {
 	valid, err := e.formatCache.IsTTLValidByURL(url)
 	if err != nil {
@@ -32,7 +34,7 @@ func (e *Executor) EnsureFormatCache(
 		e.logger.Debug("Format cache TTL expired", "url", url)
 	}
 
-	_, err = e.fetchAndCacheInfoJSON(ctx, url, useCookies)
+	_, err = e.fetchAndCacheInfoJSON(ctx, url, opts...)
 	if err != nil {
 		return fmt.Errorf("failed to fetch and cache formats JSON for URL %q: %w", url, err)
 	}
