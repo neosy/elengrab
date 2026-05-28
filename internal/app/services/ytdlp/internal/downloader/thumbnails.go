@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor"
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
@@ -29,8 +29,13 @@ func (d *Downloader) ExtractThumbnailURL(ctx context.Context, mediaURL string, u
 		return "", nil
 	}
 
+	var cookieFileName string
+	if useCookies {
+		cookieFileName, _ = helper.CookieFilePathFromURL(mediaURL, d.serviceOptions.CookiesDir)
+	}
+
 	startTime := time.Now()
-	imageURL, err := d.executor.ExtractBestThumbnailURL(ctx, mediaURL, executor.WithUseCookies(useCookies))
+	imageURL, err := d.executor.ExtractBestThumbnailURL(ctx, mediaURL, idto.WithUseCookies(cookieFileName))
 	elapsed := time.Since(startTime)
 	if err != nil {
 		d.logger.Debug("Failed to extract thumbnail url", "mediaUrl", mediaURL, "error", err)

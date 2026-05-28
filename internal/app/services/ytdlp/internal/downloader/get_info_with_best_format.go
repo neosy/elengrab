@@ -3,7 +3,8 @@ package downloader
 import (
 	"context"
 
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor"
+	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 )
 
@@ -13,11 +14,15 @@ func (d *Downloader) GetInfoWithBestFormat(
 	format string,
 	useCookies bool,
 ) (*dservices.DownloaderMediaInfo, error) {
+	var cookieFileName string
+	if useCookies {
+		cookieFileName, _ = helper.CookieFilePathFromURL(url, d.serviceOptions.CookiesDir)
+	}
 	info, err := d.executor.GetInfoWithBestFormat(
 		ctx,
 		url,
 		format,
-		executor.WithUseCookies(useCookies),
+		idto.WithUseCookies(cookieFileName),
 	)
 	if err != nil {
 		return nil, err

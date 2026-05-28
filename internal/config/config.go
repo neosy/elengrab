@@ -74,9 +74,9 @@ type ElengrabConfig struct {
 
 	DownloadWorkers       uint32 `env:"DOWNLOAD_WORKERS" envDefault:"3"`
 	DeleteDuplicatesScope string `env:"DELETE_DUPLICATES_SCOPE" envDefault:"per_user"`
-	// YoutubeAllowCookies allow cookies when downloading YouTube videos.
+	// AllowCookies allow cookies when downloading media.
 	// Default is false (disabled).
-	YoutubeAllowCookies bool `env:"YOUTUBE_ALLOW_COOKIES" envDefault:"false"`
+	AllowCookies bool `env:"ALLOW_COOKIES" envDefault:"false"`
 
 	Maintenance ElengrabMaintenanceConfig `envPrefix:"MAINTENANCE_"`
 }

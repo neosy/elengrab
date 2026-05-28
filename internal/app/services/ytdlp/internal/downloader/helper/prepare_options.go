@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
@@ -11,24 +12,28 @@ import (
 // PrepareDownloadOptions prepare download options with defaults and user overrides
 // return dlOptions, downloadDir, fileName, includeTitleInFilename
 func PrepareDownloadOptions(
-	concurrentFragments uint8,
+	url string,
+	serviceOptions dto.Options,
 	options *dservices.DownloadOptions,
-) (idto.DLOptions, string, bool) {
+) idto.DLOptions {
 	// Set default values
 	dlOptions := idto.DLOptions{
-		FormatType:          formatTypeDefault,
-		VideoFormat:         videoFormatDefault,
-		VideoCodec:          videoCodecDefault,
-		VideoResolution:     videoResolutionDefault,
-		AudioFormat:         audioFormatDefault,
-		ConcurrentFragments: concurrentFragments,
+		FormatType:             formatTypeDefault,
+		VideoFormat:            videoFormatDefault,
+		VideoCodec:             videoCodecDefault,
+		VideoResolution:        videoResolutionDefault,
+		AudioFormat:            audioFormatDefault,
+		ConcurrentFragments:    serviceOptions.ConcurrentFragments,
+		IncludeTitleInFilename: false,
 	}
-	fileName := ""
-	includeTitleInFilename := false
+
+	if serviceOptions.AllowCookies {
+		dlOptions.CookieFilePath, _ = CookieFilePathFromURL(url, serviceOptions.CookiesDir)
+	}
 
 	// If no options provided, return defaults
 	if options == nil {
-		return dlOptions, fileName, includeTitleInFilename
+		return dlOptions
 	}
 
 	if dlOptions.ConcurrentFragments == 0 || dlOptions.ConcurrentFragments > 20 {
@@ -62,11 +67,11 @@ func PrepareDownloadOptions(
 
 	// Override file name if provided
 	if options.Filename != nil {
-		fileName = nfile.FileNameWithoutExt(*options.Filename)
+		dlOptions.FileName = nfile.FileNameWithoutExt(*options.Filename)
 	}
 
 	// Include title in filename
-	includeTitleInFilename = options.IncludeTitleInFilename
+	dlOptions.IncludeTitleInFilename = options.IncludeTitleInFilename
 
-	return dlOptions, fileName, includeTitleInFilename
+	return dlOptions
 }

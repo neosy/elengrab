@@ -13,7 +13,8 @@ import (
 func (d *Downloader) downloadWithStrategies(
 	ctx context.Context,
 	url string,
-	meta *idto.SafeDownloadMeta,
+	meta *idto.DownloadMeta,
+	options *idto.DownloadExecOptions,
 	onProgressUpdate func(dservices.DownloaderProgress),
 ) ([]byte, error) {
 	// Define download attempts
@@ -31,7 +32,7 @@ func (d *Downloader) downloadWithStrategies(
 	})
 
 	// Additional attempts for YouTube extractor
-	if meta.Meta.Options.Extractor == "youtube" {
+	if options.Extractor == "youtube" {
 		attempts = append(attempts,
 			downloadAttempt{
 				concurrentFragments: new(uint8(1)),
@@ -77,12 +78,11 @@ func (d *Downloader) downloadWithStrategies(
 		)
 
 		// Create a copy of the metadata for this attempt
-		metaCopy := meta.CopyMeta()
 		if attempt.extractorArgs != nil {
-			metaCopy.Options.ExtractorArgs = attempt.extractorArgs
+			options.ExtractorArgs = attempt.extractorArgs
 		}
 		if attempt.concurrentFragments != nil {
-			metaCopy.Options.ConcurrentFragments = *attempt.concurrentFragments
+			options.ConcurrentFragments = *attempt.concurrentFragments
 		}
 
 		// Function to run the download process
@@ -91,7 +91,8 @@ func (d *Downloader) downloadWithStrategies(
 		out, err = d.executor.RunYtDlp(
 			ctx,
 			url,
-			metaCopy,
+			meta,
+			options,
 			onProgressUpdate,
 		)
 		if err == nil {
