@@ -82,12 +82,6 @@ body {
     user-select: none;
 }
 
-.header__logo-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0px;
-}
-
 .header__logo-link {
     display: flex;
     align-items: center;
@@ -100,6 +94,12 @@ body {
 .header__logo-image {
     height: 2.4em;
     width: auto;
+}
+
+.header__logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
 }
 
 .header__logo-title {

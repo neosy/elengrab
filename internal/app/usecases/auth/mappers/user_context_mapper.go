@@ -12,10 +12,10 @@ func (m *Mappers) MapUserSessionDomainToUserContext(
 	needsRefresh func(*dauth.UserSession) bool,
 ) *dto.AuthUserResponse {
 	return &dto.AuthUserResponse{
-		UserID: user.UserID,
-		Login:  user.Login.String(),
-		Email:  uptr.Deref(user.Email),
-		Roles:  user.Roles,
-		Token:  m.MapUserSessionDomainToToken(session, needsRefresh),
+		UserID:  user.UserID,
+		Login:   user.Login.String(),
+		Email:   uptr.Deref(user.Email),
+		RoleIDs: user.RoleIDs,
+		Token:   m.MapUserSessionDomainToToken(session, needsRefresh),
 	}
 }

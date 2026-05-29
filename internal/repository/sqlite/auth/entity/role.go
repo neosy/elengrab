@@ -57,3 +57,9 @@ func (e *Role) FieldPointers() []any {
 	ptrs, _ := e.BaseEntity.FieldPointers(e)
 	return ptrs
 }
+
+// FieldPointer returns a pointer to the field of the given struct specified by tag.
+func (e *Role) FieldPointer(fieldName string) any {
+	ptr, _ := e.BaseEntity.FieldPointer(e, fieldName)
+	return ptr
+}

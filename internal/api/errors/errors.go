@@ -31,4 +31,7 @@ var (
 
 	ErrURLIsRequired = errorx.NewWithMessage("URL is required", exceptions.INVALID_REQUEST)
 	ErrInvalidURL    = errorx.NewWithMessage("invalid URL", exceptions.INVALID_REQUEST)
+
+	ErrUserIDIsRequired  = errorx.NewWithMessage("userId is required", exceptions.INVALID_REQUEST)
+	ErrUserIDIsIncorrect = errorx.NewWithMessage("uerId is incorrect", exceptions.INVALID_REQUEST)
 )

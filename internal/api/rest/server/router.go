@@ -13,8 +13,9 @@ func (s *httpServer) newRouter() *router.Router {
 	r.MethodNotAllowed = s.errorMiddleware.ErrorMethodNotAllowedHandler
 
 	s.setupStaticRoutes(r, s.handlers.Static)
-	s.setupUIRootRoutes(r, s.handlers.UI)
-	s.setupUIRoutes(r, s.handlers.UI)
+	s.setupUIRootRoutes(r, s.handlers.UI.Downloader)
+	s.setupUIAdminRoutes(r, s.handlers.UI.Admin)
+	s.setupUIDownloaderRoutes(r, s.handlers.UI.Downloader)
 	s.setupAPIV1Routes(r, s.handlers.API)
 
 	return r

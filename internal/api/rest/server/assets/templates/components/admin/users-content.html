@@ -1,0 +1,61 @@
+{{- define "admin-users-content" }}
+                <div class="panel content__panel users-panel" id="contentUsersPanel">
+                    {{- template "admin-users-panel-body" . }}
+                </div>
+                <div class="panel content-detail__panel user-detail-panel" id="userDetailPanel">
+                    <div class="panel-detail__header user-panel__header">
+                        <h3 id="userDetailUserName"></h3>
+                        <button class="panel-btn btn-close" id="userDetailCloseBtn">✕</button>
+                    </div>
+                    <div class="panel-detail__body">
+                        <div id="userDetailBody" data-query-path="{{ .UserDetailQueryPath }}" hx-get="" hx-trigger="loadUserDetail" hx-target="this" hx-swap="innerHTML">
+                        </div>
+                        <div class="user-panel__actions">
+                            <button class="panel-btn btn-secondary" id="userDetailCancelBtn">Cancel</button>
+                            <button class="panel-btn btn-success" id="userDetailSaveBtn">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+{{- end }}
+
+{{- define "admin-users-panel-body" }}
+                    <div class="panel__header panel__header--users">
+                        {{- template "content-panel-header-title" . }}
+                        <button class="panel-btn btn-primary refresh-btn">Refresh</button>
+                    </div>                    
+                    <div class="panel__container panel__container--table users-panel__container">
+                        <table class="users-panel__table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>Login</th>
+                                    <th class="users-table__col-name">Name</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Roles</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTBody">
+                            {{- range .Users }}
+                                <tr id="row-user-{{ .UserID }}" hx-get="{{ .LoadTableRowPath }}" hx-trigger="loadUserTableRow" hx-target="this" hx-swap="innerHTML">
+                                    {{ template "admin-users-panel-user-table-row" . }}
+                                </tr>
+                            {{- end }}
+                            </tbody>
+                        </table>                        
+                    </div>
+{{- end }}
+
+{{- define "admin-users-panel-user-table-row" }}
+                                    {{- $classStatus := printf " user-status--%s" (lower .Status) }}
+                                    <td>{{ .Login }}</td>
+                                    <td class="users-table__col-name"><strong>{{ .Name }}</strong></td>
+                                    <td class="cell-clamp-2">{{ .Email }}</td>
+                                    <td><span class="user-status{{ $classStatus }}">{{ .Status }}</span></td>
+                                    <td class="cell-clamp-2">{{ .Roles }}</td>
+                                    <td class="text-right">
+                                        <div class="users-table__actions-content">
+                                            <button class="panel-btn panel-btn--icon user-edit-btn" title="User edit" data-user-id="{{ .UserID }}" data-user-name="{{ .Name }}">{{ .Icons.UserEdit }}</button>
+                                        </div>
+                                    </td>
+{{- end }}

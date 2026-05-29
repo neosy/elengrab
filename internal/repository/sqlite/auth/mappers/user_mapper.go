@@ -1,6 +1,7 @@
 package mappers
 
 import (
+	"database/sql"
 	"strings"
 
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -33,13 +34,9 @@ func (m *Mappers) MapUserEntityToDomain(user *eauth.User, rolesCSV string) (*dau
 
 	roleIds := strings.Split(rolesCSV, ",")
 
-	var roles = make([]dtypes.UserRole, 0, len(roleIds))
+	var roleIDs = make([]string, 0, len(roleIds))
 	for _, roleID := range roleIds {
-		role, err := dtypes.ParseUserRole(roleID)
-		if err != nil {
-			continue
-		}
-		roles = append(roles, role)
+		roleIDs = append(roleIDs, roleID)
 	}
 
 	return &dauth.User{
@@ -49,9 +46,35 @@ func (m *Mappers) MapUserEntityToDomain(user *eauth.User, rolesCSV string) (*dau
 		PasswordHash:      user.PasswordHash,
 		PasswordUpdatedAt: user.PasswordUpdatedAt,
 		IsActive:          isActive,
-		Roles:             roles,
+		RoleIDs:           roleIDs,
 		CreatedAt:         user.CreatedAt,
 		UpdatedAt:         user.UpdatedAt,
 		DeletedAt:         user.DeletedAt,
 	}, nil
+}
+
+func (m *Mappers) MapUserRowsToDomainUsers(rows *sql.Rows, fn func(*dauth.User) error) error {
+	var (
+		eUser eauth.User
+		roles string
+	)
+
+	for rows.Next() {
+		err := rows.Scan(append(eUser.FieldPointers(), &roles)...)
+		if err != nil {
+			return err
+		}
+
+		user, err := m.MapUserEntityToDomain(&eUser, roles)
+		if err != nil {
+			return err
+		}
+
+		err = fn(user)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

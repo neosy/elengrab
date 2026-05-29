@@ -48,3 +48,11 @@ func (uc *Role) Exists(ctx context.Context, roleID string) (bool, error) {
 
 	return exists, nil
 }
+
+func (uc *Role) GetAll(ctx context.Context) ([]*dauth.Role, error) {
+	return uc.roleRep.GetAll(ctx)
+}
+
+func (uc *Role) GetAllWithoutGuest(ctx context.Context) ([]*dauth.Role, error) {
+	return uc.roleRep.WithoutGuest().GetAll(ctx)
+}

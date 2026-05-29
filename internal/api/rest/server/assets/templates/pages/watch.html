@@ -1,8 +1,9 @@
-{{- define "watch-page" -}}
+{{- define "watch-page" }}
     {{- template "base" . }}
-{{- end -}}
+{{- end }}
 
-{{- define "header" -}}
+{{- define "header" }}
+  <header class="header" id="header">
     <div class="user-menu">
       {{- template "theme-switcher" . }}
     </div>
@@ -22,9 +23,11 @@
             </div>
         </a>
     </div>
-{{- end -}}
+  </header>
+{{- end }}
 
-{{- define "content" -}}
+{{- define "main" }}
+  <main class="main">
     <div class="main_content">
         <div class="main_content__player">
             <div class="media__container" id="mediaContainer">
@@ -32,17 +35,17 @@
                     {{- if .Values.IsVideoPlayer -}}
                     <video id="videoElement" controls="false" autoplay playsinline disablePictureInPicture>
                         {{- if .Values.ContentType -}}
-                        <source src="{{ .Paths.Stream }}" type="{{ .Values.ContentType }}">
+                        <source src="{{ .Paths.StreamURL }}" type="{{ .Values.ContentType }}">
                         {{- end -}}
-                        <source src="{{ .Paths.Stream }}">
+                        <source src="{{ .Paths.StreamURL }}">
                         Your browser does not support the video tag.
                     </video>
                     {{- else -}}
                     <audio id="audioElement" controls="false" autoplay playsinline>
                         {{- if .Values.ContentType -}}
-                        <source src="{{ .Paths.Stream }}" type="{{ .Values.ContentType }}">
+                        <source src="{{ .Paths.StreamURL }}" type="{{ .Values.ContentType }}">
                         {{- end -}}
-                        <source src="{{ .Paths.Stream }}">
+                        <source src="{{ .Paths.StreamURL }}">
                         Your browser does not support the video tag.
                     </audio>
                     {{- end -}}
@@ -76,7 +79,7 @@
                         </div>
                     </div>
                 </div>
-                {{- end -}}
+                {{- end }}
             </div>
             <div class="main_content__media-info" id="mainContentMediaInfo">
                 <div class="media-info__title">                
@@ -118,7 +121,5 @@
             {{- end -}}
         </div>
     </div>
-{{- end -}}
-
-{{- define "overlays"  -}}
-{{- end -}}
+  </main>
+{{- end }}

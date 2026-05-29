@@ -1,0 +1,53 @@
+{{- define "admin-page" }}
+    {{- template "base" . }}
+{{- end -}}
+
+{{- define "header" }}
+  <header class="header" id="header">
+    <div class="header__left" id="headerLeft">
+        <div class="header__title">
+            <a class="header__title-logo-link" href="/">
+                <img class="header__title-logo-image" src="{{ .BasePaths.StaticImages }}/logo-512.png">
+            </a>
+            <div class="header__title-logo-text">
+                <a class="header__title-logo-link" href="/">
+                  <h1 class="header__title-logo-title">{{ .BaseValues.Header }}</h1>
+                </a>
+                <a class="header__title-logo-link" href="/admin">
+                  <h4 class="header__title-logo-description">Admin Panel</h3>
+                </a>
+            </div>
+        </div>
+        <div class="header__page-title">
+            {{- $classLogo := " logo--icon" -}}
+            {{- if .Values.IsPageLogoSymbol -}}
+                {{ $classLogo = " logo--symbol" }}
+            {{- end -}}
+            <span class="header__page-logo page--{{ .Values.PageName }}{{ $classLogo }}">{{ .Values.PageLogoHTML }}</span>
+            <h1>{{ .Values.PageTitle }}</h1>
+        </div>
+      </div>
+    </div>
+    <div class="header__right">
+      <div class="user-menu">
+        {{- template "theme-switcher" . }}
+      </div>
+    </div>
+  </header>
+{{- end }}
+
+{{- define "main" }}
+  <main class="main">
+    <div class="main__row">
+        <aside class="sidebar">
+            {{- template "admin-sidebar-logo" . }}
+            {{- template "admin-nav-menu" . }}
+        </aside>
+        {{- template "admin-main-content" . }}
+    </div>
+  </main>
+{{- end }}
+
+{{- define "overlays"  -}}
+    {{- template "notification-area" .}}
+{{- end }}

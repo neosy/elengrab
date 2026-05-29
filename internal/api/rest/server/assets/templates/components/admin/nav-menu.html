@@ -1,0 +1,13 @@
+{{- define "admin-nav-menu" }}
+            <nav class="nav-menu">
+            {{- range .Values.NavMenu }}
+                {{- if .IsVisible }}
+                    {{- $classActive := "" }}
+                    {{- if .IsActive }}{{ $classActive = " active" }}{{ end }}
+                <a href="{{ .URL }}" class="nav-item{{ $classActive }}" data-page="{{ .PageName }}">
+                    <span class="nav-icon">{{ .LogoHTML }}</span> {{ .Title }}
+                </a>
+                {{- end }}
+            {{- end }}
+            </nav>
+{{- end }}

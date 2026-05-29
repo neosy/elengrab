@@ -6,6 +6,31 @@
     --main-bg: #fff;
     --footer-bg: rgba(240, 240, 240, 0.5);
 
+    --admin-body-bg: #f3f5f6;
+    --admin-header-bg: #fff;
+    --admin-sidebar-bg: #2b3642;
+    --admin-sidebar-item-hover: #334155;
+    --admin-sidebar-item-active: #1f2a37;
+
+    --admin-panel-bg: #fff;
+    --admin-panel-border: #eee;
+
+    --admin-table-th-bg: #f8f9fa;
+    --admin-info-block-bg: #f8f9fa;
+    --admin-info-block-select-bg: #e8f5e9;
+    --admin-info-block-hover-bg: #ebf3fd;
+
+    --admin-btn-primary-bg: #3498db;
+    --admin-btn-secondary-bg: #95a5a6;
+    --admin-btn-success-bg: #2ecc71;
+
+    --text-light: #eee;
+    --text-gray: #8b949e;
+    --text-light-gray: #cfd8e3;
+    --text-blue: #2563eb;
+
+    --back-button-bg: rgba(0, 0, 0, 0.08);
+
     --result-bg: white;
     --bg-input: white;
     --bg-input-focus: #f5f5f5;
@@ -42,8 +67,6 @@
     --server-status-offline: #555;
     --server-status-online: #4caf50;
 
-    --text-blue: #2563eb;
-
     --row-block-hover-bg: rgba(80, 140, 255, 0.10);
 
     --row-menu-button: #6b7280;
@@ -78,8 +101,31 @@
     --header-bg-light-transparent: rgba(31, 31, 31, 0.9);
 
     --body-bg: #171717;
-    --main-bg: #1F1F1F;
+    --main-bg: #1f1f1f;
     --footer-bg: rgba(23, 23, 23, 0.5);
+
+    --admin-body-bg: #1E1F20;
+    --admin-header-bg: #282a2c;
+    --admin-sidebar-bg: #171e24;
+    --admin-sidebar-item-hover: #223042;
+    --admin-sidebar-item-active: #1e2937;
+
+    --admin-panel-bg: #37393B;
+    --admin-panel-border: rgba(255, 255, 255, 0.12);
+
+    --admin-table-th-bg: #313335;
+    --admin-info-block-bg: #313335;
+    --admin-info-block-select-bg: #324c33;
+    --admin-info-block-hover-bg: #47494B;
+
+    --admin-btn-primary-bg: #1478bb;
+    --admin-btn-secondary-bg: #758586;
+    --admin-btn-success-bg: #208148;
+
+    --back-button-bg: rgba(255, 255, 255, 0.08);
+
+    --text-light: #cfd8e3;
+    --text-blue: #60a5fa;
 
     --result-bg: #1F1F1F;
     --bg-input: #2c2c2c;
@@ -114,8 +160,6 @@
     --spinner-accent: #58a6ff;
     --server-status-offline: #8b949e;
     --server-status-online: #58d660;
-
-    --text-blue: #60a5fa;
 
     --row-block-hover-bg: rgba(80, 140, 255, 0.16);
 

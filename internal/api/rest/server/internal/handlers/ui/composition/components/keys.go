@@ -10,4 +10,7 @@ const (
 	ResultLoadHistory          = "result-row-load-history"
 	ResultShouldLoadHistoryKey = "result-row-should-load-history"
 	ResultProgressKey          = "result-progress"
+
+	AmdinUserDetailPanelKey        = "admin-user-detail-panel-body"
+	AdminUsersPanelUserTableRowKey = "admin-users-panel-user-table-row"
 )

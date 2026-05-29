@@ -16,7 +16,7 @@ func (uc *Downloader) RetryDownload(
 	downloadID uuid.UUID,
 ) (*dto.GetMediaDownloadInfoResponse, error) {
 	var accessByUserID *uuid.UUID
-	if uc.authz.RestrictDownloadsByUser(userCtx.Roles) {
+	if uc.authz.RestrictDownloadsByUser(userCtx.RoleIDs) {
 		accessByUserID = &userCtx.UserID
 	}
 

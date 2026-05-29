@@ -88,6 +88,34 @@ func (r *UserRoleRepository) Save(ctx context.Context, userRole *dauth.UserRole)
 	return nil
 }
 
+func (r *UserRoleRepository) Delete(ctx context.Context, userID uuid.UUID, roleID string) error {
+	var eUserRole eauth.UserRole
+
+	sqlWhere := squirrel.And{
+		squirrel.Eq{eUserRole.FieldName(&eUserRole.UserID): userID.String()},
+		squirrel.Eq{eUserRole.FieldName(&eUserRole.RoleID): roleID},
+	}
+
+	// Build DELETE query
+	sqlBuilder := squirrel.Delete(eUserRole.TableName()).
+		Where(sqlWhere).
+		PlaceholderFormat(squirrel.Dollar)
+
+	// Generate SQL and args
+	sqlStr, args, err := sqlBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to delete user role: %v", err)
+	}
+
+	return nil
+}
+
 func (r *UserRoleRepository) Find(
 	ctx context.Context,
 	userID uuid.UUID,

@@ -1,5 +1,5 @@
 package icons
 
-func Init(dir string) {
+func InitDir(dir string) {
 	iconsDir = dir
 }

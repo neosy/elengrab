@@ -114,3 +114,45 @@ func (u *User) ExistsByLogin(ctx context.Context, login dtypes.Login) (bool, err
 
 	return exists, nil
 }
+
+func (u *User) GetAllUsers(ctx context.Context) ([]*dauth.User, error) {
+	var users []*dauth.User
+
+	rep := u.userRep.WithoutDeleted()
+
+	err := rep.IterateGetAll(
+		ctx,
+		func(u *dauth.User) error {
+			u.PasswordHash = nil
+			users = append(users, u)
+			return nil
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func (u *User) GetAllUsersWithoutGuest(ctx context.Context) ([]*dauth.User, error) {
+	var users []*dauth.User
+
+	rep := u.userRep.WithoutDeleted().WithoutGuest()
+
+	err := rep.IterateGetAll(
+		ctx,
+		func(u *dauth.User) error {
+			u.PasswordHash = nil
+			users = append(users, u)
+			return nil
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}

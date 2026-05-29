@@ -29,7 +29,7 @@ func (u *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption)
 		user.UserID = uuid.New()
 	}
 
-	var roles []dtypes.UserRole
+	var roles []string
 
 	for _, opt := range opts {
 		opt(&roles)
@@ -48,7 +48,7 @@ func (u *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption)
 					ctx,
 					&dauth.UserRole{
 						UserID: user.UserID,
-						RoleID: role.String(),
+						RoleID: role,
 					},
 				)
 				return err

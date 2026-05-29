@@ -5,9 +5,9 @@ import (
 )
 
 var (
-	CssErrorFileName cssFileName = "page-error.css"
+	ErrorCssFileName cssFileName = "page-error.css"
 
-	CssIndexPaths = cssFileNames{
+	IndexCssPaths = cssFileNames{
 		"font-inter.css",
 		"base.css",
 		"interactions.css",
@@ -27,7 +27,18 @@ var (
 		"notifications.css",
 	}.paths
 
-	CssAuthPaths = cssFileNames{
+	AdminCssPaths = cssFileNames{
+		"font-inter.css",
+		"base.css",
+		"utilities.css",
+		"variables.css",
+		"notifications.css",
+
+		"page-admin.css",
+		"theme-switcher.css",
+	}.paths
+
+	AuthCssPaths = cssFileNames{
 		"font-inter.css",
 		"base.css",
 		"interactions.css",
@@ -38,7 +49,7 @@ var (
 		"theme-switcher.css",
 	}.paths
 
-	CssWatchPaths = cssFileNames{
+	WatchCssPaths = cssFileNames{
 		"font-inter.css",
 		"base.css",
 		"interactions.css",
