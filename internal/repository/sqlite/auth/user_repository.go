@@ -12,7 +12,9 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
+	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth/mappers"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
@@ -22,6 +24,9 @@ type UserRepository struct {
 	mappers *mappers.Mappers
 	db      *sql.DB
 	lock    dbexec.WriteLocker
+
+	filtersByName filtersByName
+	queryOptions  queryOptions
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -34,12 +39,27 @@ func NewUserRepository(db *sql.DB, lock dbexec.WriteLocker) *UserRepository {
 		db:      db,
 		lock:    lock,
 
+		filtersByName: make(map[string]any),
+
 		// options
 		retryOptions: dbexec.RetryOptions{
 			MaxRetries: maxRetriesDefault,
 			Delay:      retryDelayDefault,
 		},
 	}
+}
+
+func (r *UserRepository) Copy() *UserRepository {
+	rep := uptr.Copy(r)
+
+	rep.mappers = r.mappers
+	rep.db = r.db
+	rep.lock = r.lock
+
+	rep.filtersByName = rep.filtersByName.copy()
+	rep.queryOptions = rep.queryOptions.copy()
+
+	return rep
 }
 
 func (r *UserRepository) Insert(ctx context.Context, user *dauth.User) error {
@@ -299,6 +319,91 @@ func (r *UserRepository) findByFieldName(ctx context.Context, fieldName string, 
 	return user, nil
 }
 
+func (r *UserRepository) IterateGetAll(ctx context.Context, fn func(*dauth.User) error) error {
+	return r.iterateGetAll(ctx, dbutils.OrderAsc, fn)
+}
+
+func (r *UserRepository) iterateGetAll(
+	ctx context.Context,
+	sortOrderBy string,
+	fn func(*dauth.User) error,
+) error {
+	var (
+		eUser     eauth.User
+		eUserRole eauth.UserRole
+
+		aliasUsers     = "u"
+		aliasUserRoles = "r"
+	)
+
+	selectFields := append(
+		eUser.FieldsAllWithAlias(aliasUsers),
+		"GROUP_CONCAT("+eUserRole.FieldNameWithAlias(&eUserRole.RoleID, aliasUserRoles)+") AS roles",
+	)
+
+	var sqlWhere = squirrel.And{}
+
+	if r.queryOptions.beforeTime != nil && !r.queryOptions.beforeTime.IsZero() {
+		t := r.queryOptions.beforeTime.UTC().Add(-1 * time.Nanosecond)
+		sqlWhere = append(sqlWhere, squirrel.Lt{eUser.FieldNameWithAlias(&eUser.CreatedAt, aliasUsers): t})
+	}
+	if r.queryOptions.withoutGuest != nil && *r.queryOptions.withoutGuest {
+		sqlWhere = append(sqlWhere, squirrel.NotEq{eUserRole.FieldNameWithAlias(&eUserRole.RoleID, aliasUserRoles): dtypes.UserRoleGuest.String()})
+	}
+
+	for name, value := range r.filtersByName {
+		if name != "" {
+			sqlWhere = append(sqlWhere, squirrel.Eq{eUser.FieldNameWithAlias(eUser.FieldPointer(name), aliasUsers): value})
+		}
+	}
+
+	// Create an ORDER BY clause based on fieldы with the specified sort order.
+	orderBy := "MIN(" + eUser.FieldNameWithAlias(&eUser.Login, aliasUsers) + ") COLLATE NOCASE" + " " + sortOrderBy
+
+	qb := squirrel.Select(selectFields...).
+		From(eUser.TableName() + " AS " + aliasUsers).
+		LeftJoin(
+			eUserRole.TableName() + " AS " + aliasUserRoles +
+				" ON " + eUserRole.FieldNameWithAlias(&eUserRole.UserID, aliasUserRoles) +
+				" = " + eUser.FieldNameWithAlias(&eUser.UserID, aliasUsers),
+		).
+		Where(sqlWhere).
+		OrderBy(orderBy).
+		GroupBy(eUser.FieldNameWithAlias(&eUser.UserID, aliasUsers)).
+		PlaceholderFormat(squirrel.Dollar)
+
+	if r.queryOptions.limit != nil && *r.queryOptions.limit > 0 {
+		qb = qb.Limit(*r.queryOptions.limit)
+	}
+
+	sqlQuery, args, err := qb.ToSql()
+	if err != nil {
+		return fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	db := dbexec.Resolve(ctx, r.db)
+	rows, err := db.QueryContext(ctx, sqlQuery, args...)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	if rows != nil {
+		err = r.mappers.MapUserRowsToDomainUsers(rows, func(f *dauth.User) error {
+			if err := fn(f); err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (r *UserRepository) ExistsByUserID(ctx context.Context, userID uuid.UUID) (bool, error) {
 	var eUser eauth.User
 	return r.existsByFieldName(ctx, eUser.FieldName(&eUser.UserID), userID)
@@ -353,6 +458,50 @@ func (r *UserRepository) existsByFieldName(ctx context.Context, fieldName string
 	}
 
 	return true, nil
+}
+
+func (r *UserRepository) WithFilters(filters map[string]any) persistence.UserRepository {
+	if len(filters) == 0 {
+		return r
+	}
+
+	var (
+		eUser eauth.User
+
+		fieldNamesAllowed = map[string]string{
+			"login":    eUser.FieldName(&eUser.Login),
+			"isActive": eUser.FieldName(&eUser.IsActive),
+		}
+	)
+
+	rep := r.Copy()
+	for name, value := range filters {
+		fieldName := fieldNamesAllowed[name]
+		if fieldName != "" {
+			rep.filtersByName[fieldName] = value
+		}
+
+	}
+
+	return rep
+}
+
+func (r *UserRepository) WithoutDeleted() persistence.UserRepository {
+	rep := r.Copy()
+
+	var eUser eauth.User
+
+	rep.filtersByName[eUser.FieldName(&eUser.DeletedAt)] = nil
+
+	return rep
+}
+
+func (r *UserRepository) WithoutGuest() persistence.UserRepository {
+	rep := r.Copy()
+
+	rep.queryOptions.withoutGuest = new(true)
+
+	return rep
 }
 
 func (r *UserRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {

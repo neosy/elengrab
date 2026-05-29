@@ -5,6 +5,24 @@ import (
 )
 
 var (
+	AuthPageJsPaths = jsScripts{
+		{
+			Path:  "htmx.min.js",
+			Type:  "",
+			Defer: false,
+		},
+		{
+			Path:  "theme-switcher.js",
+			Type:  "",
+			Defer: true,
+		},
+		{
+			Path:  "auth.page.js",
+			Type:  "module",
+			Defer: false,
+		},
+	}.withPath
+
 	IndexPageJsPaths = jsScripts{
 		{
 			Path:  "htmx.min.js",
@@ -23,7 +41,7 @@ var (
 		},
 	}.withPath
 
-	AuthPageJsPaths = jsScripts{
+	AdminPageJsPaths = jsScripts{
 		{
 			Path:  "htmx.min.js",
 			Type:  "",
@@ -35,7 +53,7 @@ var (
 			Defer: true,
 		},
 		{
-			Path:  "auth.page.js",
+			Path:  "admin.page.js",
 			Type:  "module",
 			Defer: false,
 		},
@@ -56,7 +74,6 @@ var (
 
 	IndexPageJsImportJSON = jsImportFileNames{
 		"utils.js",
-		"constants.js",
 		"cookie.js",
 		"browser.js",
 		"storage-state.js",
@@ -66,10 +83,18 @@ var (
 		"share.js",
 		"action-buttons.js",
 		"player.js",
+		"index-constants.js",
 		"index.dom.js",
 		"index.sse.events.js",
 		"index.view.js",
 		"index.menu-configs.js",
+	}.jsonForTemplate
+
+	AdminPageJsImportJSON = jsImportFileNames{
+		"utils.js",
+		"browser.js",
+		"notifications.js",
+		"admin.dom.js",
 	}.jsonForTemplate
 
 	WatchPageJsImportJSON = jsImportFileNames{

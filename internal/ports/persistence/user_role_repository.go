@@ -10,6 +10,8 @@ import (
 type UserRoleRepository interface {
 	Transactional
 	Insert(ctx context.Context, userRole *dauth.UserRole) error
+	Delete(ctx context.Context, userID uuid.UUID, roleID string) error
+
 	Find(ctx context.Context, userID uuid.UUID, roleID string) (*dauth.UserRole, error)
 	Exists(ctx context.Context, userID uuid.UUID, roleID string) (bool, error)
 }

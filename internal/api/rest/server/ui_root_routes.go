@@ -2,13 +2,13 @@ package httpsrv
 
 import (
 	"github.com/fasthttp/router"
-	uih "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui"
+	handlers "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader_handlers"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
 )
 
 // setupUIRootRoutes setup root routes.
-func (s *httpServer) setupUIRootRoutes(r *router.Router, handlers *uih.UIHandlers) {
+func (s *httpServer) setupUIRootRoutes(r *router.Router, handlers *handlers.DownloaderHandlers) {
 	middlewareError := s.errorMiddleware.ErrorHandler
 
 	// With middleware (error, auth or anonym)
@@ -16,15 +16,15 @@ func (s *httpServer) setupUIRootRoutes(r *router.Router, handlers *uih.UIHandler
 	g.Use(middlewareError, s.authMiddleware.AuthOrAnonym)
 	{
 		// Index
-		g.GET(httppaths.PathIndex, handlers.Downloader.IndexPageHandler)
-		r.HEAD(httppaths.PathIndex, handlers.Downloader.IndexPageHandler)
+		g.GET(httppaths.PathIndex, handlers.IndexPageHandler)
+		r.HEAD(httppaths.PathIndex, handlers.IndexPageHandler)
 
 		// /favicon.ico
-		g.GET(httppaths.PathRootFaviconICO, handlers.Downloader.AssetFabiconHandler)
-		r.HEAD(httppaths.PathRootFaviconICO, handlers.Downloader.AssetFabiconHandler)
+		g.GET(httppaths.PathRootFaviconICO, handlers.AssetFabiconHandler)
+		r.HEAD(httppaths.PathRootFaviconICO, handlers.AssetFabiconHandler)
 
 		// /robots.txt
-		g.GET(httppaths.PathRootRobotsTxt, handlers.Downloader.AssetRobotsHandler)
-		g.HEAD(httppaths.PathRootRobotsTxt, handlers.Downloader.AssetRobotsHandler)
+		g.GET(httppaths.PathRootRobotsTxt, handlers.AssetRobotsHandler)
+		g.HEAD(httppaths.PathRootRobotsTxt, handlers.AssetRobotsHandler)
 	}
 }

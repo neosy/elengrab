@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
+	"github.com/neosy/elengrab/internal/app/usecases/auth/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/usecases/auth/internal/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -23,7 +24,7 @@ func (a *Auth) RegisterUser(
 		user         *dauth.User
 		session      *dauth.UserSession
 		passwordHash *string
-		roles        []dtypes.UserRole
+		roles        []string
 	)
 
 	login := strings.TrimSpace(req.Login)
@@ -39,7 +40,7 @@ func (a *Auth) RegisterUser(
 	}
 
 	if len(roles) == 0 {
-		roles = append(roles, dtypes.UserRoleUser)
+		roles = append(roles, consts.UserRole)
 	}
 
 	createUser := func(ctx context.Context) error {

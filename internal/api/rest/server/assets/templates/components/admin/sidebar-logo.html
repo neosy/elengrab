@@ -1,0 +1,15 @@
+{{- define "admin-sidebar-logo" }}
+            <div class="sidebar__logo">
+                <a class="sidebar__logo-link" href="/">
+                    <img class="sidebar__logo-image" src="{{ .BasePaths.StaticImages }}/logo-512.png">
+                </a>
+                    <div class="sidebar__logo-text">
+                        <a class="sidebar__logo-link" href="/">
+                            <h1 class="sidebar__logo-title">{{ .BaseValues.Header }}</h1>
+                        </a>
+                        <a class="sidebar__logo-link" href="/admin">
+                            <h4 class="sidebar__logo-description">Admin Panel</h3>
+                        </a>
+                    </div>
+            </div>
+{{- end }}

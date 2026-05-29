@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/neosy/elengrab/internal/app/services"
+	"github.com/neosy/elengrab/internal/app/usecases/admin"
 	"github.com/neosy/elengrab/internal/app/usecases/auth"
 	authweb "github.com/neosy/elengrab/internal/app/usecases/auth_web"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader"
@@ -89,6 +90,7 @@ type DepStorages struct {
 type Usecases struct {
 	Auth        *auth.Auth
 	AuthWeb     *authweb.AuthWeb
+	Admin       *admin.Admin
 	Downloader  *downloader.Downloader
 	Maintenance *maintenance.Maintenance
 	Link        *link.Link
@@ -130,6 +132,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.DefaultAdminLogin,
 			deps.DefaultAdminPassword,
 		),
+		Admin: admin.NewAdmin(logger, auth),
 		Downloader: downloader.NewDownloader(
 			ctx,
 			logger,

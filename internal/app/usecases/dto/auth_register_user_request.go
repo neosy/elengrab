@@ -6,5 +6,5 @@ type RegisterUserRequest struct {
 	Login    string
 	Email    string
 	Password string
-	Roles    []dtypes.UserRole
+	RoleIDs  dtypes.UserRoleIDs
 }

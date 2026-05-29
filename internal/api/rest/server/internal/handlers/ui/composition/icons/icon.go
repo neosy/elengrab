@@ -21,6 +21,10 @@ func newIcon(key, fileName string) Icon {
 	}
 }
 
+func (icon Icon) IsZero() bool {
+	return icon.key == "" && icon.fileName == ""
+}
+
 func (icon Icon) Key() string {
 	return icon.key
 }

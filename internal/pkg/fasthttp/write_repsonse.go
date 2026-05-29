@@ -7,6 +7,11 @@ import (
 )
 
 func WriteResponse(ctx *fasthttp.RequestCtx, t any) error {
+	if isNil(t) {
+		ctx.SetStatusCode(fasthttp.StatusNoContent)
+		return nil
+	}
+
 	response, err := json.Marshal(t)
 	if err != nil {
 		WriteErrorx(ctx, err)

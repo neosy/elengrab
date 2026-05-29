@@ -90,6 +90,35 @@ func (a *AuthMiddleware) RequireAuth(next fasthttp.RequestHandler) fasthttp.Requ
 	}
 }
 
+// RequireAdmin is a middleware that allows access only to authenticated
+// users with administrator privileges. It returns 401 if the user is not
+// authenticated and 403 if the user is not an administrator.
+func (a *AuthMiddleware) RequireAdmin(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return a.RequireAuth(func(ctx *fasthttp.RequestCtx) {
+		user := a.resolveUser(ctx)
+		if user == nil {
+			nfasthttp.WriteErrorx(
+				ctx,
+				apierrors.ErrUnauthorized,
+			)
+			return
+		}
+
+		if user.UserType() != dtypes.UserTypeAdmin {
+			nfasthttp.WriteErrorx(
+				ctx,
+				errorx.Errorf(
+					"admin privileges required",
+					errorx.WithHttpStatus(fasthttp.StatusForbidden),
+				),
+			)
+			return
+		}
+
+		next(ctx)
+	})
+}
+
 // AuthOrAnonym authenticates the user if a valid token is present.
 // It updates the token if needed, but does not create a new user.
 // Requests without a valid token continue as anonymous.
@@ -251,11 +280,15 @@ func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool)
 	}
 
 	if session != nil {
+		roleIDs, err := dtypes.ParseUserRoleIDs(session.RoleIDs)
+		if err != nil {
+			return nil, err
+		}
 		userCtx := &dauth.UserContext{
 			UserID:       session.UserID,
 			Login:        session.Login,
 			Email:        session.Email,
-			Roles:        session.Roles,
+			RoleIDs:      roleIDs,
 			GuestCreated: guestCreated,
 		}
 		return userCtx, nil

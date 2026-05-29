@@ -36,5 +36,12 @@ type User struct {
 	DeletedAt *time.Time
 
 	// Roles
-	Roles []dtypes.UserRole
+	RoleIDs []string
+}
+
+func (u *User) Status() dtypes.UserStatus {
+	if u == nil || !u.IsActive {
+		return dtypes.UserStatusInactive
+	}
+	return dtypes.UserStatusActive
 }

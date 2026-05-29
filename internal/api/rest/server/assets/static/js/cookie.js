@@ -1,5 +1,5 @@
 import * as utils from './utils.js';
-import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
+import { SELECT_NAMES, COOKIE_NAMES } from './index-constants.js';
 
 // -------------------------------------------------------------
 // Cookie Helper Module

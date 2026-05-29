@@ -1,8 +1,8 @@
 {{- define "index-page" }}
     {{- template "base" . }}
-{{- end -}}
+{{- end }}
 
-{{- define "user-menu" -}}
+{{- define "user-menu" }}
       <div class="user-menu">
         <div class="user-menu__button-wrapper user-menu__search"><button class="user-menu__search-button" id="userMenuSearchButton" type="button">{{ .Values.UserMenuSearchButtonIcon }}</button></div>
         {{- template "theme-switcher" . }}
@@ -12,9 +12,10 @@
           {{- if eq .Extra.UserAvatarActionMode "login" }}</a>{{- end }}
         </div>
       </div>
-{{- end -}}
+{{- end }}
 
-{{- define "header" -}}
+{{- define "header" }}
+  <header class="header" id="header">
     <div class="header__container" id="headerContainer">
       <div class="header__left"></div>
       <div class="header__content">
@@ -26,18 +27,22 @@
       <div class="header__search">{{ template "history-search" . }}</div>
       {{- block "user-menu" . }}{{- end }}
     </div>
-{{- end -}}
+  </header>
+{{- end }}
 
-{{- define "content" -}}
+{{- define "main" }}
+  <main class="main">
     {{- template "grab-form" . }}
     {{- template "media-result" . }}
     <div id="media-player-overlay">
         <div id="media-player__wrapper"></div>
     </div>
     <div id="audio-bar"></div>
-{{- end -}}
+  </main>
+{{- end }}
 
-{{- define "footer" -}}
+{{- define "footer" }}
+  <footer class="footer">
     <div class="footer__app-version">
       <span id="server-status-dot" class="server-status-dot"></span>
       <a class="app-version__link" href="https://github.com/neosy/elengrab" target="_blank" title="View source code on GitHub">
@@ -51,12 +56,13 @@
     <div class="footer__right">
       <a class="footer__settings-link" id="footerSettingsLink" data-action="menu">Settings</a>
     </div>
-{{- end -}}
+  </footer>
+{{- end }}
 
-{{- define "overlays"  -}}
+{{- define "overlays" }}
     {{- template "account-menu" . }}
     {{- template "settings-menu" . }}
     {{- template "row-menu" . }}
     {{- template "menu-overlay" . }}
-    {{- template "notification-area" .}}
-{{- end -}}
+    {{- template "notification-area" . }}
+{{- end }}

@@ -25,9 +25,6 @@ type baseValues struct {
 	Header     string
 	AppVersion string
 
-	ShowHeader bool
-	ShowFooter bool
-
 	AuthRegisterTitle string
 	AuthLoginTitle    string
 }
@@ -42,9 +39,6 @@ var (
 
 		Header:     Header,
 		AppVersion: iconfig.AppVersion,
-
-		ShowHeader: true,
-		ShowFooter: true,
 	}
 )
 

@@ -6,5 +6,5 @@ type CreateUserRequest struct {
 	Login        dtypes.Login
 	Email        string
 	PasswordHash *string
-	Roles        []dtypes.UserRole
+	Roles        []string
 }

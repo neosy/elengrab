@@ -1,0 +1,123 @@
+package handlers
+
+import (
+	"os"
+
+	"github.com/google/uuid"
+	apierrors "github.com/neosy/elengrab/internal/api/errors"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/policy"
+	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
+	"github.com/valyala/fasthttp"
+)
+
+func (h *DownloaderHandlers) MediaItemStreamHandler(ctx *fasthttp.RequestCtx) {
+	// Get user ID from context
+	ctxUser := policy.ResolveUserOrAnonym(ctx)
+
+	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
+	if !ok || downloadIDStr == "" {
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
+		return
+	}
+
+	downloadID, err := uuid.Parse(downloadIDStr)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
+		return
+	}
+
+	h.stream(ctx, *ctxUser, downloadID, false)
+}
+
+func (h *DownloaderHandlers) StreamShortCodeHandler(ctx *fasthttp.RequestCtx) {
+	shortCode, ok := ctx.UserValue(shortCodeKey).(string)
+	if !ok || shortCode == "" {
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("shortCode is required", fasthttp.StatusBadRequest))
+		return
+	}
+
+	link, err := h.linkWeb.GetLastByShortCode(ctx, shortCode)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
+	if link == nil {
+		nfasthttp.WriteErrorx(
+			ctx,
+			errorx.New(
+				"link not found",
+				exceptionx.NOT_FOUND,
+				exceptionx.NOT_FOUND.ErrorMessage(),
+			))
+		return
+	}
+
+	downloadID := stripUUIDFromPath(link.OriginalURL)
+	if downloadID == uuid.Nil {
+		nfasthttp.WriteErrorx(
+			ctx,
+			errorx.New(
+				"downloadID is incorrect",
+				exceptionx.WRONG_DATA,
+				exceptionx.WRONG_DATA.ErrorMessage(),
+			))
+	}
+
+	h.stream(ctx, dauth.UserContext{}, downloadID, true)
+}
+
+func (h *DownloaderHandlers) stream(
+	ctx *fasthttp.RequestCtx,
+	ctxUser dauth.UserContext,
+	downloadID uuid.UUID,
+	unrestricted bool,
+) {
+	var (
+		downloadInfo *dto.GetMediaDownloadInfoResponse
+		err          error
+	)
+	// Retrieve file info
+	if unrestricted {
+		downloadInfo, err = h.downloader.GetDownloadInfoUnrestricted(ctx, downloadID)
+	} else {
+		downloadInfo, err = h.downloader.GetDownloadInfo(ctx, ctxUser, downloadID)
+	}
+
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
+	// Build the full path to the file
+	var filePath string
+	if downloadInfo.FileFullName != "" {
+		filePath = h.downloadsStorage.Path(downloadInfo.FileFullName)
+	}
+
+	// Check if the file exists
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		nfasthttp.WriteErrorx(
+			ctx,
+			apierrors.ErrFileNotFound,
+		)
+		return
+	}
+
+	// Detect content type by extension
+	contentType := httpx.ContentTypeByExt(downloadInfo.FileExt)
+
+	// Set headers for streaming in browser
+	ctx.Response.Header.Set("Content-Type", contentType)
+	ctx.Response.Header.Set("Content-Disposition", "inline") // Play in browser
+	ctx.Response.Header.Set("Accept-Ranges", "bytes")        // Allow seeking
+	ctx.Response.Header.Set("Cache-Control", "public, max-age=3600")
+
+	// Stream the file directly (memory-efficient, supports Range)
+	nfasthttp.SendFileDirect(ctx, filePath, downloadInfo.SafeReadableFullName, contentType)
+}

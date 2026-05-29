@@ -3,6 +3,8 @@
     const btn = document.getElementById('theme-toggle-btn');
     const themeColorMeta = document.getElementById('theme-color-meta');
 
+    if (!btn || !themeColorMeta) return;
+
     // Apply theme, persist to localStorage and update mobile status bar color
     const setTheme = (theme) => {
         html.classList.toggle('dark', theme === 'dark');

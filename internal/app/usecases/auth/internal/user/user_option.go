@@ -1,19 +1,21 @@
 package authuser
 
-import dtypes "github.com/neosy/elengrab/internal/domain/types"
+import (
+	"github.com/neosy/elengrab/internal/app/usecases/auth/internal/consts"
+)
 
-type UserOption func(*[]dtypes.UserRole)
+type UserOption func(*[]string)
 
 func GuestRoleOption() UserOption {
-	return RolesOption(dtypes.UserRoleGuest)
+	return RolesOption(consts.GuestRole)
 }
 
 func AdminRoleOption() UserOption {
-	return RolesOption(dtypes.UserRoleAdmin)
+	return RolesOption(consts.AdminRole)
 }
 
-func RolesOption(roles ...dtypes.UserRole) UserOption {
-	return func(rs *[]dtypes.UserRole) {
+func RolesOption(roles ...string) UserOption {
+	return func(rs *[]string) {
 		*rs = append(*rs, roles...)
 	}
 }
