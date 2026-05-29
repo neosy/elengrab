@@ -4,6 +4,7 @@
 
 ### ✨ Features
 - Added instagram cookie support [L029]
+- Added user management page. Closes #252
 
 ---
 

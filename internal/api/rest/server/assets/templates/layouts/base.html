@@ -36,7 +36,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="{{.BasePaths.StaticImages}}/apple-touch-icon.png">
   {{- if .Paths.JsImportMapJSON }}
   <script type="importmap">
-  {{- .Paths.JsImportMapJSON }}
+  {{ .Paths.JsImportMapJSON }}
   </script>
   {{- end }}
   {{- /* <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
@@ -50,20 +50,10 @@
   {{- end }}
 </head>
 <body>
-  {{- if .BaseValues.ShowHeader }}
-  <header class="header" id="header">
-    {{- block "header" . }}{{ end }}
-  </header>
-  {{- end }}
-  <main class="main">
-    {{- template "content" . }}
-  </main>
-  {{- if .BaseValues.ShowFooter }}
-  <footer class="footer">
-    {{- block "footer" . }}{{ end }}
-  </footer>
-  {{- end }}
-  {{- template "overlays" . }}
+  {{- block "header" . }}{{ end }}
+  {{- block "main" . }}{{ end }}
+  {{- block "footer" . }}{{ end }}
+  {{- block "overlays" . }}{{ end }}
 </body>
 </html>
 {{- end }}

@@ -74,8 +74,6 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 			debugText = errx.Error()
 		}
 	} else if err != nil {
-		message = err.Error()
-
 		if isDebugMode {
 			debugText = err.Error()
 		}

@@ -61,7 +61,7 @@ func (uc *Downloader) ScheduleDownload(
 	}
 
 	var accessByUserID *uuid.UUID
-	if uc.authz.RestrictDownloadsByUser(userCtx.Roles) {
+	if uc.authz.RestrictDownloadsByUser(userCtx.RoleIDs) {
 		accessByUserID = &userCtx.UserID
 	}
 

@@ -18,6 +18,10 @@ var (
 		key:      "watch-page",
 		fileName: "watch.html",
 	}
+	AdminPage = page{
+		key:      "admin-page",
+		fileName: "admin.html",
+	}
 	ErrorPage = page{
 		key:      "error-page",
 		fileName: "error.html",

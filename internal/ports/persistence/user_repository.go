@@ -22,4 +22,10 @@ type UserRepository interface {
 
 	ExistsByUserID(ctx context.Context, userID uuid.UUID) (bool, error)
 	ExistsByLogin(ctx context.Context, login dtypes.Login) (bool, error)
+
+	IterateGetAll(ctx context.Context, fn func(*dauth.User) error) error
+
+	WithFilters(filtersByName map[string]any) UserRepository
+	WithoutDeleted() UserRepository
+	WithoutGuest() UserRepository
 }

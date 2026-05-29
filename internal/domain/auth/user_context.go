@@ -13,7 +13,7 @@ type UserContext struct {
 
 	Login        string
 	Email        string
-	Roles        []dtypes.UserRole
+	RoleIDs      dtypes.UserRoleIDs
 	GuestCreated bool
 }
 
@@ -21,18 +21,18 @@ func UserContextAnonymous(anonSessionID uuid.UUID) *UserContext {
 	return &UserContext{
 		UserID:        AnonymousUserID(),
 		AnonSessionID: anonSessionID,
-		Roles:         []dtypes.UserRole{dtypes.UserRoleGuest},
+		RoleIDs:       []dtypes.UserRoleID{dtypes.UserRoleGuest},
 	}
 }
 
 func (u *UserContext) UserType() dtypes.UserType {
-	if u.UserID == AnonymousUserID() {
+	if u == nil || u.UserID == AnonymousUserID() {
 		return dtypes.UserTypeAnonymous
 	}
 
 	var uType dtypes.UserType = dtypes.UserTypeAnonymous
 
-	for _, r := range u.Roles {
+	for _, r := range u.RoleIDs {
 		switch r {
 		case dtypes.UserRoleAdmin:
 			return dtypes.UserTypeAdmin

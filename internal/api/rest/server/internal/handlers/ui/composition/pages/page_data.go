@@ -73,7 +73,12 @@ type (
 		BasePaths  paths.Paths
 		BaseValues baseValues
 		Paths      PagePaths
+		Values     AuthLoginPageValues
 		Extra      map[string]any
+	}
+
+	AuthLoginPageValues struct {
+		Redirect string
 	}
 )
 
@@ -120,7 +125,7 @@ type (
 		JsImportMapJSON template.HTML
 
 		PwaManifest string
-		Stream      string
+		StreamURL   string
 	}
 )
 

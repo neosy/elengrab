@@ -1,5 +1,5 @@
 import { DOM_ELEMENTS, initDomElements } from "./index.dom.js";
-import * as helper from './utils.js';
+import * as utils from './utils.js';
 import * as cookie from './cookie.js';
 import * as browser from './browser.js';
 import * as actionButton from './action-buttons.js';
@@ -7,7 +7,7 @@ import * as rowEventHandlers from './index.sse.events.js';
 import { initPlayer } from './player.js';
 import * as tooltip from './tooltip.js';
 import { initIndexMenus as initMenu } from './index.menu-configs.js';
-import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
+import { SELECT_NAMES, COOKIE_NAMES } from './index-constants.js';
 import * as notify from './notifications.js';
 import * as view from './index.view.js';
 
@@ -19,9 +19,9 @@ let globalEventSource = null;
 // Handles enabling/disabling format options based on quality
 // -------------------------------------------------------------
 function setupQualityFormatLogic() {
-    const qualityCodecSelect = helper.getSelectByName(SELECT_NAMES.qualityCodec);
-    const qualityResolutionSelect = helper.getSelectByName(SELECT_NAMES.qualityResolution);
-    const formatSelect = helper.getSelectByName(SELECT_NAMES.format);
+    const qualityCodecSelect = utils.getSelectByName(SELECT_NAMES.qualityCodec);
+    const qualityResolutionSelect = utils.getSelectByName(SELECT_NAMES.qualityResolution);
+    const formatSelect = utils.getSelectByName(SELECT_NAMES.format);
 
     if (!qualityCodecSelect || !qualityResolutionSelect || !formatSelect) return;
 
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // ignore non-JSON
                 }
 
-                helper.showErrorMessage(
+                utils.showErrorMessage(
                     text,
                     DOM_ELEMENTS.resultInfo,
                     DOM_ELEMENTS.resultInfoFailed
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Guest session created
     htmx.on("guestCreated", (event) => {
         if (event.detail.value === true) {
-        // Reload to apply new session (cookie)
+            // Reload to apply new session (cookie)
             window.location.reload();
         }
     });

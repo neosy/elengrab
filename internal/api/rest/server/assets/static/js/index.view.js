@@ -1,4 +1,4 @@
-import * as constants from './constants.js';
+import * as constants from './index-constants.js';
 import storageState from './storage-state.js';
 
 export function applyGridView(isGridView) {

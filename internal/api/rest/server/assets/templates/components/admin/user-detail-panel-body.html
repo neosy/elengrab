@@ -1,0 +1,33 @@
+{{- define "admin-user-detail-panel-body" }}
+                    <div class="user-panel__info-section" id="userInfoSection">
+                        <div class="info-block user__info">
+                            <p><strong>Email:</strong> {{ .User.Email }}</p>
+                            <p><strong>Status:</strong> {{ .User.Status }}</p>
+                            <p><strong>Current Roles:</strong> {{ .User.Roles }}</p>
+                        </div>
+                    </div>
+                    <div class="panel__container panel__container--list user-panel__roles-section">
+                        <h4>Assign Roles</h4>
+                        <div class="user__roles-list" id="userRolesList" data-user-id="{{ .User.UserID }}" data-update-roles-path="{{ .UpdateRolesPath }}">
+                            {{- range .RolesWithAssign }}
+                            {{- $assignedClass := "" }}
+                            {{- $checked := "" }}
+                            {{- if .Assigned }}
+                                {{- $assignedClass = " assigned" }}
+                                {{- $checked = "checked" }}
+                            {{- end }}
+                            <div class="info-block user__role-item{{ $assignedClass }}">
+                                <div>
+                                    <strong class="user__role-item-title">{{ .RoleID }}</strong>
+                                    <small class="user__role-item-descripion">{{ .Name }}</small>
+                                </div>
+                                {{- if .Assigned }}
+                                <input class="user__role-item-checkbox" type="checkbox" checked data-role-id="{{ .RoleID }}">
+                                {{- else }}
+                                <input class="user__role-item-checkbox" type="checkbox" data-role-id="{{ .RoleID }}">
+                                {{- end }}
+                            </div>
+                            {{- end }}
+                        </div>
+                    </div>
+{{- end }}

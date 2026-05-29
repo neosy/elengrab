@@ -20,7 +20,7 @@ func (uc *Downloader) GetDownloadInfo(
 	downloadID uuid.UUID,
 ) (*dto.GetMediaDownloadInfoResponse, error) {
 	var accessByUserID *uuid.UUID
-	if uc.authz.RestrictDownloadsByUser(ctxUser.Roles) {
+	if uc.authz.RestrictDownloadsByUser(ctxUser.RoleIDs) {
 		accessByUserID = &ctxUser.UserID
 	}
 
@@ -137,7 +137,7 @@ func (uc *Downloader) LoadHistory(
 	filterByTitle string,
 ) ([]*dto.GetMediaDownloadInfoResponse, error) {
 	filters := make(map[string]any)
-	if uc.authz.RestrictDownloadsByUser(userCtx.Roles) {
+	if uc.authz.RestrictDownloadsByUser(userCtx.RoleIDs) {
 		filters["userID"] = userCtx.UserID
 	}
 
@@ -198,7 +198,7 @@ func (uc *Downloader) GetDownloadFileName(
 	downloadID uuid.UUID,
 ) (string, string, error) {
 	var accessByUserID *uuid.UUID
-	if uc.authz.RestrictDownloadsByUser(userCtx.Roles) {
+	if uc.authz.RestrictDownloadsByUser(userCtx.RoleIDs) {
 		accessByUserID = &userCtx.UserID
 	}
 

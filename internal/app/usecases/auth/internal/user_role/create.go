@@ -2,6 +2,7 @@ package authuserrole
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/uuid"
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
@@ -15,6 +16,8 @@ func (uc *UserRole) Create(ctx context.Context, userRole *dauth.UserRole) error 
 		uc.logger.Warn("Nil pointer in function")
 		return apperrors.ErrFuncParamNullPointer
 	}
+
+	userRole.RoleID = strings.TrimSpace(userRole.RoleID)
 
 	if userRole.UserID == uuid.Nil || userRole.RoleID == "" {
 		return errorx.New("empty userID or roleID fields", exceptionx.ERROR)
