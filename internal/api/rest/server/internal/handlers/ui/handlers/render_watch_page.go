@@ -125,18 +125,18 @@ func (h *DownloaderHandlers) renderWatchPage(
 
 	metaOgItems := make(pages.MetaOgItems, 0, 20)
 	metaOgItems.Add("site_name", iconfig.AppName)
-	metaOgItems.Add("type", fnx.Ternary(isVideoPlayer, "video.other", "music.song"))
+	metaOgItems.Add("url", req.pageURL)
 	metaOgItems.Add("title", downloadInfo.MediaTitle)
 	metaOgItems.Add("description", description)
-	metaOgItems.Add("url", req.pageURL)
 	metaOgItems.Add("image", imageData.URL)
 	metaOgItems.Add("image:secure_url", imageData.URL)
 	metaOgItems.Add("image:type", httpx.ContentTypeByExt(imageData.Format.String()))
+	metaOgItems.Add("image:alt", "Elengrab logo")
 	if imageData.Width != 0 && imageData.Height != 0 {
 		metaOgItems.Add("image:width", strconv.Itoa(imageData.Width))
 		metaOgItems.Add("image:height", strconv.Itoa(imageData.Height))
 	}
-	metaOgItems.Add("image:alt", "Elengrab logo")
+	metaOgItems.Add("type", fnx.Ternary(isVideoPlayer, "video.other", "music.song"))
 
 	metaOgItems.Add(fmt.Sprintf("%s:url", prefixType), mediaURL)
 	metaOgItems.Add(fmt.Sprintf("%s:secure_url", prefixType), mediaURL)
@@ -149,10 +149,14 @@ func (h *DownloaderHandlers) renderWatchPage(
 	}
 
 	metaNameItems := make(pages.MetaNameItems, 0, 4)
+	metaNameItems.Add("title", downloadInfo.MediaTitle)
+	metaNameItems.Add("description", description)
 	metaNameItems.Add("twitter:card", "summary_large_image")
+	metaNameItems.Add("twitter:url", req.pageURL)
 	metaNameItems.Add("twitter:title", downloadInfo.MediaTitle)
 	metaNameItems.Add("twitter:description", description)
 	metaNameItems.Add("twitter:image", imageData.URL)
+	metaNameItems.Add("application-title", iconfig.AppName)
 
 	baseValues := pages.NewBaseValues()
 	baseValues.Title = downloadInfo.MediaTitle
