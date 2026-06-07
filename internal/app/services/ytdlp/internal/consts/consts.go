@@ -18,6 +18,9 @@ const (
 	FetchImageLimit   = 4096 << 10 // 4096 KB
 	FetchImageTimeout = 10 * time.Second
 
+	MediaInfoExtractionTimeout = 5 * time.Second
+	ThumbnailExtractionTimeout = 8 * time.Second
+
 	FormatCacheTTL = 2 * time.Hour
 
 	ConcurrentFragmentsDefault = 5
