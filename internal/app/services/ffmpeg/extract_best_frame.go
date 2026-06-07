@@ -12,17 +12,9 @@ func (srv *FFmpegService) ExtractBestFrame(
 	filePath string,
 	opts ...FrameOption,
 ) (*dtypes.ImageData, error) {
-	options := FrameOptions{}
+	options := newFrameOptionsDefault()
 	for _, opt := range opts {
 		opt(&options)
-	}
-
-	if options.Strategy == nil {
-		options.Strategy = FrameStrategyThumbnail{}
-	}
-
-	if options.Format == nil {
-		options.Format = FrameFormatJPEG{}
 	}
 
 	args := options.Strategy.Args()

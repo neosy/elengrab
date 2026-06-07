@@ -7,6 +7,13 @@ type FrameOptions struct {
 
 type FrameOption func(opts *FrameOptions)
 
+func newFrameOptionsDefault() FrameOptions {
+	return FrameOptions{
+		Strategy: FrameStrategyThumbnail{},
+		Format:   FrameFormatJPEG{},
+	}
+}
+
 // WithFrameStrategy sets the frame extraction strategy for GetBestFrame.
 func WithFrameStrategy(strategy FrameStrategy) FrameOption {
 	return func(opts *FrameOptions) {
