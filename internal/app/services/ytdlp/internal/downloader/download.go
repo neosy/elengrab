@@ -8,6 +8,7 @@ import (
 	"time"
 
 	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	"github.com/neosy/elengrab/internal/app/utils/hash"
@@ -192,7 +193,7 @@ func (d *Downloader) Download(
 
 	// Start asynchronous reading metadata from the given file.
 	wg.Go(func() {
-		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		ctx, cancel := context.WithTimeout(ctx, consts.MediaInfoExtractionTimeout)
 		defer cancel()
 		mediaInfo := d.extractMediaInfoFromFile(ctx, meta.Meta.FileFullName, meta.Meta.MediaInfo)
 		if mediaInfo != nil {
@@ -214,7 +215,7 @@ func (d *Downloader) Download(
 	// Start asynchronous extracting a thumbnail frame from the video file.
 	if meta.Meta.MediaInfo.HasVideo() {
 		wg.Go(func() {
-			ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+			ctx, cancel := context.WithTimeout(ctx, consts.ThumbnailExtractionTimeout)
 			defer cancel()
 			imgData := d.extractThumbnailFromFile(ctx, meta.Meta.FileFullName)
 			if imgData != nil {
