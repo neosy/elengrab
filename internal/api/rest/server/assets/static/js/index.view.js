@@ -42,7 +42,7 @@ export function initSearching(clear) {
     });    
 
     backBtn.addEventListener('click', () => {
-        closeSearching(header);
+        closeSearching(header, clear);
     });
 }
 
@@ -51,7 +51,7 @@ function openSearching(header, input) {
     input.focus();
 }
 
-function closeSearching(header) {
+function closeSearching(header, clear) {
     header.classList.toggle(constants.CLASS_NAMES.isSearch, false);
     clear();
 }

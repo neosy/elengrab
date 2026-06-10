@@ -24,8 +24,10 @@
             <h1 class="header__title">{{ .BaseValues.Header }}</h1>
         </a>
       </div>
-      <div class="header__search">{{ template "history-search" . }}</div>
-      {{- block "user-menu" . }}{{- end }}
+      <div class="header__right">
+        <div class="header__search">{{ template "history-search" . }}</div>
+        {{- block "user-menu" . }}{{- end }}
+      </div>
     </div>
   </header>
 {{- end }}
