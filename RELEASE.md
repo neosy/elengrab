@@ -6,6 +6,9 @@
 - Added instagram cookie support [L029]
 - Added user management page. Closes #252
 
+### 🎨 Style
+- Updated header layout and element positioning [L032]
+
 ### 🧩 Refactor
 - Renamed access mode values in `ELENGRAB_MODE`: `per_user` → `guest`, `auth_only` → `authenticated`
 
