@@ -180,7 +180,7 @@ func (a *AuthMiddleware) AuthOptional(next fasthttp.RequestHandler) fasthttp.Req
 		}
 
 		if userCtx == nil {
-			if a.appMode == dtypes.AppModeAuthOnly {
+			if a.appMode == dtypes.AppModeAuthenticated {
 				nfasthttp.WriteErrorx(ctx, apierrors.ErrUnauthorized)
 				return
 			}

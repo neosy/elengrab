@@ -1,10 +1,13 @@
 # Releases
 
-## v0.21.0 — 2026-05-31
+## v0.21.0 — 2026-06-12
 
 ### ✨ Features
 - Added instagram cookie support [L029]
 - Added user management page. Closes #252
+
+### 🧩 Refactor
+- Renamed access mode values in `ELENGRAB_MODE`: `per_user` → `guest`, `auth_only` → `authenticated`
 
 ---
 
