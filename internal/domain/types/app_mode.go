@@ -11,12 +11,14 @@ import (
 type AppMode uint8
 
 const (
-	// Public: guests allowed, data visible to everyone
+	// Public: anonymous access allowed, downloads visible to everyone.
 	AppModePublic AppMode = iota
-	// PerUser: guests allowed, data visible only to the owner
-	AppModePerUser
-	// AuthOnly: guests forbidden, login required
-	AppModeAuthOnly
+
+	// Guest: anonymous access allowed, downloads visible only to their owner.
+	AppModeGuest
+
+	// Authenticated: login required, access controlled by user permissions.
+	AppModeAuthenticated
 
 	AppModeDefault = AppModePublic
 )
@@ -24,21 +26,21 @@ const (
 var (
 	// appModeMap implementation of a set for AppMode
 	appModeMap = map[AppMode]string{
-		AppModePublic:   "public",
-		AppModePerUser:  "per_user",
-		AppModeAuthOnly: "auth_only",
+		AppModePublic:        "public",
+		AppModeGuest:         "guest",
+		AppModeAuthenticated: "authenticated",
 	}
 
 	parseAppModeMap = map[string]AppMode{
-		"public":    AppModePublic,
-		"per_user":  AppModePerUser,
-		"auth_only": AppModeAuthOnly,
+		"public":        AppModePublic,
+		"guest":         AppModeGuest,
+		"authenticated": AppModeAuthenticated,
 	}
 
 	appModeToUniquenessScopeMap = map[AppMode]UniquenessScope{
-		AppModePublic:   UniquenessScopeGlobal,
-		AppModePerUser:  UniquenessScopePerUser,
-		AppModeAuthOnly: UniquenessScopePerUser,
+		AppModePublic:        UniquenessScopeGlobal,
+		AppModeGuest:         UniquenessScopePerUser,
+		AppModeAuthenticated: UniquenessScopePerUser,
 	}
 )
 
@@ -60,12 +62,12 @@ func (v AppMode) UniquenessScope() UniquenessScope {
 
 // IsGuestAllowed returns true if guests are allowed for this app mode.
 func (v AppMode) IsGuestAllowed() bool {
-	return v != AppModeAuthOnly
+	return v != AppModeAuthenticated
 }
 
 // IsUserRequired returns true if user is required for this app mode.
 func (v AppMode) IsUserRequired() bool {
-	return v == AppModeAuthOnly || v == AppModePerUser
+	return v == AppModeAuthenticated || v == AppModeGuest
 }
 
 // ParseAppMode converting string to AppMode

@@ -63,7 +63,7 @@ func capitalize1(s string) string {
 }
 
 func (h *DownloaderHandlers) redirectGuestIfAuthRequired(ctx *fasthttp.RequestCtx) bool {
-	if h.appMode == dtypes.AppModeAuthOnly {
+	if h.appMode == dtypes.AppModeAuthenticated {
 		ctxUser := policy.ResolveUser(ctx)
 		if ctxUser == nil || ctxUser.UserType() < dtypes.UserTypeUser {
 			ctx.Redirect(httppaths.GroupAccount+httppaths.PathLogin, fasthttp.StatusFound)
