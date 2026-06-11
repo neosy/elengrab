@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"html/template"
 	"mime"
+	"strconv"
 	"time"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
@@ -63,7 +64,12 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 		}
 	}
 
-	imageURL := h.baseURL + paths.ImagePath(images.Elengrab1280ImageJpgFileName)
+	imageData := &dtypes.ImageData{
+		URL:    h.baseURL + paths.ImagePath(images.Elengrab1280ImageJpgFileName),
+		Format: dtypes.ImageFormatJPEG,
+		Width:  1280,
+		Height: 720,
+	}
 
 	metaOgItems := make(pages.MetaOgItems, 0, 15)
 	metaOgItems.Add("site_name", iconfig.AppName)
@@ -71,11 +77,11 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 	metaOgItems.Add("title", pages.PageTitle)
 	metaOgItems.Add("description", pages.PageDescription)
 	metaOgItems.Add("url", h.baseURL)
-	metaOgItems.Add("image", imageURL)
-	metaOgItems.Add("image:secure_url", imageURL)
-	metaOgItems.Add("image:type", httpx.ContentTypeFromPath(imageURL))
-	metaOgItems.Add("image:width", "1280")
-	metaOgItems.Add("image:height", "720")
+	metaOgItems.Add("image", imageData.URL)
+	metaOgItems.Add("image:secure_url", imageData.URL)
+	metaOgItems.Add("image:type", httpx.ContentTypeByExt(imageData.Format.String()))
+	metaOgItems.Add("image:width", strconv.Itoa(imageData.Width))
+	metaOgItems.Add("image:height", strconv.Itoa(imageData.Height))
 	metaOgItems.Add("image:alt", "Elengrab logo")
 
 	baseValues := pages.NewBaseValues()

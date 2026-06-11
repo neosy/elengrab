@@ -27,3 +27,7 @@ func (d *ImageData) Copy() *ImageData {
 
 	return &data
 }
+
+func (d *ImageData) FullURL(baseURL string) string {
+	return baseURL + d.URL
+}

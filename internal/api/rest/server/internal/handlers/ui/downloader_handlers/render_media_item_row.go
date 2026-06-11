@@ -106,7 +106,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 
 		ThumbnailID:         thumbnailID,
 		ThumbnailIsPortrait: downloadInfo.ThumbnalIsPortrait,
-		ThumbnailURL:        h.thumbnailURL(downloadInfo.MediaInfo),
+		ThumbnailURL:        h.thumbnailURLWithFallback(downloadInfo.MediaInfo),
 
 		MediaTitle: downloadInfo.MediaTitle,
 		MediaURL:   downloadInfo.MediaURL,

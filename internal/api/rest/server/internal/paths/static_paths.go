@@ -34,3 +34,7 @@ const (
 func BuildThumbnailPath(thumbID uuid.UUID) string {
 	return GroupStatic + strings.Replace(PathThumbnail, "{thumbnailId}", thumbID.String(), 1)
 }
+
+func BuildImagePath(fileName string) string {
+	return GroupStatic + strings.Replace(PathImageFiles, "{filepath:*}", fileName, 1)
+}

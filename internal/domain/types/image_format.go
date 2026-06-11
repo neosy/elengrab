@@ -2,6 +2,7 @@ package dtypes
 
 import (
 	"errors"
+	"path/filepath"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -60,6 +61,16 @@ func ParseImageFormat(s string) (ImageFormat, error) {
 		return ImageFormatUnknown, errors.New("invalid value for ImageFormat")
 	}
 	return imageFormat, nil
+}
+
+// ImageFormatFromFileName converting ext from fileName to ImageFormat
+func ImageFormatFromFileName(fileName string) ImageFormat {
+	ext := filepath.Ext(fileName)
+	ext = strings.TrimPrefix(ext, ".")
+
+	imageFormat, _ := ParseImageFormat(ext)
+
+	return imageFormat
 }
 
 // ValidateImageFormat checks if the field value is a valid ImageFormat enum.
