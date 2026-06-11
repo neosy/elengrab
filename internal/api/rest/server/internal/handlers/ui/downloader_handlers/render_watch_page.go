@@ -15,7 +15,6 @@ import (
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
-	"github.com/neosy/elengrab/internal/pkg/fnx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/valyala/fasthttp"
@@ -51,8 +50,6 @@ func (h *DownloaderHandlers) renderWatchPage(
 		fileSize      = "-"
 		isVideoPlayer = true
 		contentType   = "text/html"
-		videoWidth    = 0
-		videoHeight   = 0
 	)
 	if downloadInfo.MediaInfo != nil {
 		ext := downloadInfo.MediaInfo.Format.Ext()
@@ -69,8 +66,6 @@ func (h *DownloaderHandlers) renderWatchPage(
 
 			videoQuality = strings.Join(values, " • ")
 
-			videoWidth = videoInfo.Width
-			videoHeight = videoInfo.Height
 		}
 		if audioInfo := downloadInfo.MediaInfo.AudioInfo; audioInfo != nil {
 			values := make([]string, 0, 3)
@@ -91,20 +86,9 @@ func (h *DownloaderHandlers) renderWatchPage(
 		fileSize = humanize.Bytes(*downloadInfo.FileSize)
 	}
 
-	mediaURL := h.baseURL + req.streamURLPath
-	prefixType := fnx.Ternary(isVideoPlayer, "video", "audio")
-	description := downloadInfo.MediaTitle + fmt.Sprintf(" [%s]", downloadInfo.MediaInfoText)
+	description := downloadInfo.MediaDescriptionUI()
 
-	var imageData *dtypes.ImageData
-	if downloadInfo.MediaInfo != nil && downloadInfo.MediaInfo.PreferredThumbnailID() != uuid.Nil {
-		thumbnail, _ := h.thumbnail.GetByThumbID(ctx, downloadInfo.MediaInfo.PreferredThumbnailID())
-		if thumbnail != nil {
-			imageData = thumbnail.ImageData()
-		}
-		if imageData != nil {
-			imageData.URL = h.baseURL + paths.ThumbnailPath(thumbnail.ThumbID.String())
-		}
-	}
+	imageData := h.thumbnailImageData(ctx, downloadInfo.MediaInfo)
 
 	if imageData == nil && downloadInfo.ChannelID != nil && downloadInfo.IsYouTube() {
 		channel, _ := h.downloader.FindYoutubeChannelInfo(ctx, *downloadInfo.ChannelID)
@@ -112,13 +96,18 @@ func (h *DownloaderHandlers) renderWatchPage(
 			imageData = channel.ImageData()
 		}
 		if imageData != nil {
-			imageData.URL = h.baseURL + paths.YoutubeChannelPath(channel.ChannelID)
+			imageData.URL = paths.YoutubeChannelPath(channel.ChannelID)
 		}
 	}
 
 	if imageData == nil || imageData.Width < 120 {
+		imageData = h.thumbnailImageDataWithFallback(ctx, downloadInfo.MediaInfo)
+	}
+
+	if imageData == nil {
 		imageData = &dtypes.ImageData{
-			URL:    h.baseURL + paths.ImagePath(images.Elengrab1280ImageJpgFileName),
+			URL:    paths.ImagePath(images.Elengrab1280ImageJpgFileName),
+			Format: dtypes.ImageFormatJPEG,
 			Width:  1280,
 			Height: 720,
 		}
@@ -129,25 +118,15 @@ func (h *DownloaderHandlers) renderWatchPage(
 	metaOgItems.Add("url", req.pageURL)
 	metaOgItems.Add("title", downloadInfo.MediaTitle)
 	metaOgItems.Add("description", description)
-	metaOgItems.Add("image", imageData.URL)
-	metaOgItems.Add("image:secure_url", imageData.URL)
+	metaOgItems.Add("image", imageData.FullURL(h.baseURL))
+	metaOgItems.Add("image:secure_url", imageData.FullURL(h.baseURL))
 	metaOgItems.Add("image:type", httpx.ContentTypeByExt(imageData.Format.String()))
 	metaOgItems.Add("image:alt", "Elengrab logo")
 	if imageData.Width != 0 && imageData.Height != 0 {
 		metaOgItems.Add("image:width", strconv.Itoa(imageData.Width))
 		metaOgItems.Add("image:height", strconv.Itoa(imageData.Height))
 	}
-	metaOgItems.Add("type", fnx.Ternary(isVideoPlayer, "video.other", "music.song"))
-
-	metaOgItems.Add(fmt.Sprintf("%s:url", prefixType), mediaURL)
-	metaOgItems.Add(fmt.Sprintf("%s:secure_url", prefixType), mediaURL)
-	if contentType != "" {
-		metaOgItems.Add(fmt.Sprintf("%s:type", prefixType), contentType)
-	}
-	if isVideoPlayer && videoWidth != 0 {
-		metaOgItems.Add("video:width", strconv.Itoa(videoWidth))
-		metaOgItems.Add("video:height", strconv.Itoa(videoHeight))
-	}
+	metaOgItems.Add("type", "article")
 
 	metaNameItems := make(pages.MetaNameItems, 0, 4)
 	metaNameItems.Add("title", downloadInfo.MediaTitle)
@@ -156,7 +135,7 @@ func (h *DownloaderHandlers) renderWatchPage(
 	metaNameItems.Add("twitter:url", req.pageURL)
 	metaNameItems.Add("twitter:title", downloadInfo.MediaTitle)
 	metaNameItems.Add("twitter:description", description)
-	metaNameItems.Add("twitter:image", imageData.URL)
+	metaNameItems.Add("twitter:image", imageData.FullURL(h.baseURL))
 	metaNameItems.Add("application-title", iconfig.AppName)
 
 	baseValues := pages.NewBaseValues()

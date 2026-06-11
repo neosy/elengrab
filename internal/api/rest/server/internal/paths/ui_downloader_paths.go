@@ -35,6 +35,7 @@ const (
 	PathMediaItemStream         = "/items/{itemId}/stream"
 	PathMediaItemWatch          = "/items/{itemId}/watch"
 
+	// Paths channels in Downloader
 	PathChannelAvatar = "/channels/{channelId}/avatar"
 
 	// Paths Account
@@ -42,7 +43,7 @@ const (
 	PathLogin    = "/login"
 	PathLogout   = "/logout"
 
-	// Short link
+	// Paths short links, e.g. /s/{shortCode}
 	PathShortLink       = "/{shortCode}"
 	PathStreamShortCode = "/stream/{shortCode}"
 )

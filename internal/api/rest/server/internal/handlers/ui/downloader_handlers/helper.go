@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"net/url"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/images"
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/policy"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
@@ -171,9 +171,9 @@ func mediaSourceFromURL(mediaURL string) string {
 	return mediaURL
 }
 
-func (h *DownloaderHandlers) thumbnailURL(mediaInfo *dtypes.MediaInfo) string {
+func (h *DownloaderHandlers) thumbnailURLWithFallback(mediaInfo *dtypes.MediaInfo) string {
 	if mediaInfo == nil || mediaInfo.FormatType == dtypes.FormatTypeNone {
-		return paths.ImagePath(images.ThumbnailDefaultFileName)
+		return images.ThumbnailDefault().URL
 	}
 
 	if thumbID := mediaInfo.PreferredThumbnailID(); thumbID != uuid.Nil {
@@ -181,8 +181,41 @@ func (h *DownloaderHandlers) thumbnailURL(mediaInfo *dtypes.MediaInfo) string {
 	}
 
 	if mediaInfo.FormatType == dtypes.FormatTypeAudioOnly {
-		return paths.ImagePath(images.ThumbnailMusicDefaultFileName)
+		return images.ThumbnailMusicDefault().URL
 	}
 
-	return paths.ImagePath(images.ThumbnailVideoDefaultFileName)
+	return images.ThumbnailVideoDefault().URL
+}
+
+func (h *DownloaderHandlers) thumbnailImageData(ctx context.Context, mediaInfo *dtypes.MediaInfo) *dtypes.ImageData {
+	var imageData *dtypes.ImageData
+
+	if mediaInfo == nil || mediaInfo.PreferredThumbnailID() == uuid.Nil {
+		return nil
+	}
+
+	thumbnail, _ := h.thumbnail.GetByThumbID(ctx, mediaInfo.PreferredThumbnailID())
+	if thumbnail != nil {
+		imageData = thumbnail.ImageData(httppaths.BuildThumbnailPath(thumbnail.ThumbID))
+
+	}
+
+	return imageData
+}
+
+func (h *DownloaderHandlers) thumbnailImageDataWithFallback(ctx context.Context, mediaInfo *dtypes.MediaInfo) *dtypes.ImageData {
+	imageData := h.thumbnailImageData(ctx, mediaInfo)
+	if imageData != nil {
+		return imageData
+	}
+
+	if mediaInfo == nil || mediaInfo.FormatType == dtypes.FormatTypeNone {
+		return images.ThumbnailDefault().ImageData()
+	}
+
+	if mediaInfo.FormatType == dtypes.FormatTypeAudioOnly {
+		return images.ThumbnailMusicDefault().ImageData()
+	}
+
+	return images.ThumbnailVideoDefault().ImageData()
 }

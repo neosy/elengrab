@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -8,6 +9,7 @@ import (
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/stringx"
 )
 
 type GetMediaDownloadInfoResponse struct {
@@ -68,4 +70,14 @@ func (downloadInfo *GetMediaDownloadInfoResponse) ImageMetaHash(withValues ...an
 	}
 
 	return hash.MetaHashHex32(values)
+}
+
+func (info *GetMediaDownloadInfoResponse) MediaDescriptionUI() string {
+	description := stringx.SanitizeForMetaPreview(info.MediaDescription, 160, "...")
+
+	if len(description) == 0 {
+		description = info.MediaTitle + fmt.Sprintf(" [%s]", info.MediaInfoText)
+	}
+
+	return description
 }
