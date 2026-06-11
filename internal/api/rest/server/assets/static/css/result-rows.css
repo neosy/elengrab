@@ -4,7 +4,7 @@
     --thumbnail-frame-border-radius: 12px;
     --thumbnail-image-border-radius: 0;
     --thumbnail-image-width: 100%;
-    --thumbnail-image-max-height: calc(var(--vh, 1vh) * 60);
+    --thumbnail-image-max-height: calc(var(--vh-stable, 1vh) * 60);
 
     --media-result-rows-display: grid;
     --media-result-rows-grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
