@@ -113,18 +113,13 @@ func (t *Thumbnail) Validate() error {
 }
 
 // ImageData returns the thumbnail's image data as a structured object, or nil if no image data is available
-func (t *Thumbnail) ImageData() *dtypes.ImageData {
+func (t *Thumbnail) ImageData(url string) *dtypes.ImageData {
 	var width, height int
 	if t.Width != nil {
 		width = int(*t.Width)
 	}
 	if t.Height != nil {
 		height = int(*t.Height)
-	}
-
-	var url string
-	if t.SourceURL != nil {
-		url = *t.SourceURL
 	}
 
 	return &dtypes.ImageData{
@@ -134,6 +129,16 @@ func (t *Thumbnail) ImageData() *dtypes.ImageData {
 		Height: height,
 		Raw:    t.ImageRaw,
 	}
+}
+
+// ImageDataWithSourceURL returns the thumbnail's image data as a structured object, or nil if no image data is available
+func (t *Thumbnail) ImageDataWithSourceURL() *dtypes.ImageData {
+	var url string
+	if t.SourceURL != nil {
+		url = *t.SourceURL
+	}
+
+	return t.ImageData(url)
 }
 
 func (t *Thumbnail) Copy() *Thumbnail {

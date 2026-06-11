@@ -9,6 +9,9 @@
 ### 🎨 Style
 - Updated header layout and element positioning [L032]
 
+### 🐛 Fix
+- Fixed Open Graph metadata for Telegram link previews [L033]
+
 ### 🧩 Refactor
 - Renamed access mode values in `ELENGRAB_MODE`: `per_user` → `guest`, `auth_only` → `authenticated`
 
