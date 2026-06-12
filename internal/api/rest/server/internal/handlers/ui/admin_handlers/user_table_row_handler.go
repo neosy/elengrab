@@ -9,7 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/admin/dto"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 

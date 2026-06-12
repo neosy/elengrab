@@ -10,7 +10,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
 	iconfig "github.com/neosy/elengrab/internal/config"
-	nfile "github.com/neosy/elengrab/internal/pkg/file"
+	nfile "github.com/neosy/elengrab/internal/pkg/filex"
 )
 
 const versionFileName = "version"

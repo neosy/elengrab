@@ -12,7 +12,7 @@ import (
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 

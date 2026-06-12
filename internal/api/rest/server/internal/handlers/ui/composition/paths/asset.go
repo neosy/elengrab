@@ -1,5 +1,11 @@
 package paths
 
+import (
+	"path/filepath"
+
+	"github.com/neosy/elengrab/internal/api/rest/server/assets"
+)
+
 var (
 	assetCssPaths = newAssetPaths(CssPath)
 
@@ -17,11 +23,12 @@ type (
 
 func newAssetPath(httpPath func(fileName string) string) assetPath {
 	return func(fileName, dir string) (string, error) {
-		path, err := fileNameWithHash(dir, fileName)
+		filePath := filepath.Join(dir, fileName)
+		file, err := assets.ReadAssetFileWithHash(filePath)
 		if err != nil {
 			return "", err
 		}
-		return httpPath(path), nil
+		return httpPath(file.FileNameWithHash()), nil
 	}
 }
 

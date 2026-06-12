@@ -22,6 +22,7 @@ const (
 	cleanSiteLogoCacheIntervalDefault       = 2 * time.Hour
 	cleanThumbnailCacheIntervalDefault      = 2 * time.Hour
 	cleanThumbnailFileCacheIntervalDefault  = 1 * time.Hour
+	cleanAssetFileCacheIntervalDefault      = 24 * time.Hour
 
 	backupDatabaseIntervalDefault = 1 * 24 * time.Hour
 	flushWALIntervalDefault       = 1 * time.Hour
@@ -37,6 +38,7 @@ type Dependencies struct {
 	SiteLogoCache       persistence.SiteLogoCacheRepository
 	ThumbnailCache      persistence.ThumbnailCacheRepository
 	ThumbnailFileCache  persistence.ThumbnailFileCacheRepository
+	AssetFileCache      persistence.AssetFileCacheRepository
 
 	// runners
 	DownloaderMaintenance pworkers.DownloadMaintenanceRunner
@@ -60,6 +62,7 @@ type Dependencies struct {
 	CleanSiteLogoCacheInterval       time.Duration
 	CleanThumbnailCacheInterval      time.Duration
 	CleanThumbnailFileCacheInterval  time.Duration
+	CleanAssetFileCacheInterval      time.Duration
 
 	// db
 	BackupDatabaseInterval time.Duration
@@ -143,6 +146,11 @@ func Initialize(logger *slog.Logger, deps *Dependencies, ws *nworkers.Workers) {
 	ws.Add(nworkers.NewWorker(
 		cachejobs.NewCleanCacheJob(logger, deps.ThumbnailFileCache),
 		nworkers.WithIntervalDefault(deps.CleanThumbnailFileCacheInterval, cleanThumbnailFileCacheIntervalDefault),
+	))
+
+	ws.Add(nworkers.NewWorker(
+		cachejobs.NewCleanCacheJob(logger, deps.AssetFileCache),
+		nworkers.WithIntervalDefault(deps.CleanAssetFileCacheInterval, cleanAssetFileCacheIntervalDefault),
 	))
 
 	ws.Add(nworkers.NewWorker(

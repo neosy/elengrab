@@ -72,7 +72,8 @@ var (
 		},
 	}.withPath
 
-	IndexPageJsImportJSON = jsImportFileNames{
+	// TODO - Delete
+	DEL_IndexPageJsImportJSON = jsImportFileNames{
 		"utils.js",
 		"cookie.js",
 		"browser.js",
@@ -90,14 +91,16 @@ var (
 		"index.menu-configs.js",
 	}.jsonForTemplate
 
-	AdminPageJsImportJSON = jsImportFileNames{
+	// TODO - Delete
+	DEL_AdminPageJsImportJSON = jsImportFileNames{
 		"utils.js",
 		"browser.js",
 		"notifications.js",
 		"admin.dom.js",
 	}.jsonForTemplate
 
-	WatchPageJsImportJSON = jsImportFileNames{
+	// TODO - Delete
+	DEL_WatchPageJsImportJSON = jsImportFileNames{
 		"watch.dom.js",
 	}.jsonForTemplate
 )

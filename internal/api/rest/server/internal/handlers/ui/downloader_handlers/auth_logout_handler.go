@@ -4,7 +4,7 @@ import (
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/policy"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 

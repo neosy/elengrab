@@ -15,7 +15,8 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/infrastructure/observability/metrics"
 	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 	"github.com/valyala/fasthttp"
 )
@@ -23,6 +24,9 @@ import (
 type Dependencies struct {
 	// Storages
 	DownloadsStorage pstorage.DownloadsStorage
+
+	// caches
+	AssetFileCacheRepository persistence.AssetFileCacheRepository
 
 	Usecases  *usecases.Usecases
 	Templates *template.Template
@@ -63,13 +67,14 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *h
 	handlers := handlers.New(
 		logger,
 		&handlers.Dependencies{
-			DownloadsStorage: deps.DownloadsStorage,
-			Usecases:         deps.Usecases,
-			Templates:        deps.Templates,
-			AppMode:          deps.AppMode,
-			BaseURL:          deps.BaseURL,
-			ShortLinkPrefix:  deps.ShortLinkPrefix,
-			AssetsDir:        deps.AssetsDir,
+			DownloadsStorage:         deps.DownloadsStorage,
+			AssetFileCacheRepository: deps.AssetFileCacheRepository,
+			Usecases:                 deps.Usecases,
+			Templates:                deps.Templates,
+			AppMode:                  deps.AppMode,
+			BaseURL:                  deps.BaseURL,
+			ShortLinkPrefix:          deps.ShortLinkPrefix,
+			AssetsDir:                deps.AssetsDir,
 		},
 	)
 

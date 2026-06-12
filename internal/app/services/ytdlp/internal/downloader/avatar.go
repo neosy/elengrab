@@ -9,7 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 

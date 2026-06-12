@@ -13,6 +13,7 @@ type Repositories struct {
 	SiteLogo       persistence.SiteLogoCacheRepository
 	Thumbnail      persistence.ThumbnailCacheRepository
 	ThumbnailFile  persistence.ThumbnailFileCacheRepository
+	AssetFile      persistence.AssetFileCacheRepository
 }
 
 type Dependencies struct {
@@ -21,6 +22,7 @@ type Dependencies struct {
 	SiteLogoCacheTTL       time.Duration
 	ThumbnailCacheTTL      time.Duration
 	ThumbnailFileCacheTTL  time.Duration
+	AssetFileCacheTTL      time.Duration
 }
 
 // New returns a new Repositories struct.
@@ -31,5 +33,6 @@ func New(deps Dependencies) *Repositories {
 		SiteLogo:       newSiteLogoRepository(deps.SiteLogoCacheTTL),
 		Thumbnail:      newThumbnailRepository(deps.ThumbnailCacheTTL),
 		ThumbnailFile:  newThumbnailFileRepository(deps.ThumbnailFileCacheTTL),
+		AssetFile:      newAssetFileRepository(deps.AssetFileCacheTTL),
 	}
 }
