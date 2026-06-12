@@ -9,12 +9,16 @@ import (
 	uih "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
 type Dependencies struct {
 	// Storages
 	DownloadsStorage pstorage.DownloadsStorage
+
+	// Caches
+	AssetFileCacheRepository persistence.AssetFileCacheRepository
 
 	Usecases  *usecases.Usecases
 	Templates *template.Template
@@ -36,6 +40,7 @@ func New(logger *slog.Logger, deps *Dependencies) *Handlers {
 	return &Handlers{
 		Static: statich.NewStaticHandlers(
 			deps.AssetsDir,
+			deps.AssetFileCacheRepository,
 			deps.Usecases.Thumbnail,
 			deps.Usecases.Downloader,
 		),

@@ -6,7 +6,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/menu"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 

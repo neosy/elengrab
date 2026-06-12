@@ -13,7 +13,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
@@ -30,12 +30,6 @@ func (h *AdminHandlers) renderPage(ctx *fasthttp.RequestCtx, ctxUser *dauth.User
 		return
 	}
 
-	jsImportJSON, err := paths.AdminPageJsImportJSON(h.assetFolders.Js())
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
-		return
-	}
-
 	baseValues := pages.NewBaseValues()
 
 	extraData := make(map[string]any)
@@ -47,9 +41,8 @@ func (h *AdminHandlers) renderPage(ctx *fasthttp.RequestCtx, ctxUser *dauth.User
 		BasePaths:  paths.NewPaths(),
 		BaseValues: baseValues,
 		Paths: pages.PagePaths{
-			Css:             cssPaths,
-			JsScripts:       jsScripts,
-			JsImportMapJSON: template.HTML(jsImportJSON),
+			Css:       cssPaths,
+			JsScripts: jsScripts,
 		},
 		Values: pages.AdminPageValues{
 			PageName:            page.Name.String(),

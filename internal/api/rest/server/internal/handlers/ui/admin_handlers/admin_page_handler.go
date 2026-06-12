@@ -4,7 +4,7 @@ import (
 	"mime"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/policy"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 

@@ -8,7 +8,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
-	nfile "github.com/neosy/elengrab/internal/pkg/file"
+	nfile "github.com/neosy/elengrab/internal/pkg/filex"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 

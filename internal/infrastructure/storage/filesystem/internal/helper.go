@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	nfile "github.com/neosy/elengrab/internal/pkg/file"
+	nfile "github.com/neosy/elengrab/internal/pkg/filex"
 )
 
 func validateDirPath(path string) error {

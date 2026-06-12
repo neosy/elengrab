@@ -19,7 +19,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases"
 	"github.com/neosy/elengrab/internal/app/workers"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	nfile "github.com/neosy/elengrab/internal/pkg/file"
+	nfile "github.com/neosy/elengrab/internal/pkg/filex"
 	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
 	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
 	"github.com/neosy/elengrab/internal/ports/persistence"
@@ -40,6 +40,8 @@ const (
 	thumbnailCacheTTL = 1 * 24 * time.Hour
 	// for thumbnail file cache
 	thumbnailFileCacheTTL = 60 * time.Minute
+	// for static file cache
+	assetFileCacheTTL = 60 * time.Hour
 
 	// Update interval for site logo information
 	logoUpdateInterval = 24 * time.Hour
@@ -52,6 +54,7 @@ const (
 	cleanSiteLogoCacheInterval       = 2 * time.Hour
 	cleanThumbnailCacheInterval      = 2 * time.Hour
 	cleanThumbnailFileCacheInterval  = 30 * time.Minute
+	cleanAssetFileCacheInterval      = 30 * time.Minute
 
 	// Intervals for updating metrics
 	updateSystemInfoInterval = 15 * time.Minute
@@ -78,6 +81,9 @@ type Application struct {
 
 	// Storages
 	DownloadsStorage pstorage.DownloadsStorage
+
+	// Caches
+	AssetFileCacheRepository persistence.AssetFileCacheRepository
 
 	Usecases *usecases.Usecases
 	Services *services.Services
@@ -124,6 +130,7 @@ func (a *Application) initialize() error {
 
 	// Initialize in memory repositories
 	inMemoryRepositories := a.initInMemoryRepositories()
+	a.AssetFileCacheRepository = inMemoryRepositories.AssetFile
 
 	// Initialize storages
 	storages, err := a.initStorages()
@@ -223,6 +230,7 @@ func (a *Application) initialize() error {
 		SiteLogoCache:       inMemoryRepositories.SiteLogo,
 		ThumbnailCache:      inMemoryRepositories.Thumbnail,
 		ThumbnailFileCache:  inMemoryRepositories.ThumbnailFile,
+		AssetFileCache:      inMemoryRepositories.AssetFile,
 
 		// runners
 		DownloaderMaintenance: a.Usecases.Downloader,
@@ -245,6 +253,7 @@ func (a *Application) initialize() error {
 		CleanSiteLogoCacheInterval:       cleanSiteLogoCacheInterval,
 		CleanThumbnailCacheInterval:      cleanThumbnailCacheInterval,
 		CleanThumbnailFileCacheInterval:  cleanThumbnailFileCacheInterval,
+		CleanAssetFileCacheInterval:      cleanAssetFileCacheInterval,
 
 		// metrics
 		UpdateSystemInfoInterval: updateSystemInfoInterval,
@@ -405,6 +414,7 @@ func (a *Application) initInMemoryRepositories() *inmemoryrep.Repositories {
 		SiteLogoCacheTTL:       siteLogoCacheTTL,
 		ThumbnailCacheTTL:      thumbnailCacheTTL,
 		ThumbnailFileCacheTTL:  thumbnailFileCacheTTL,
+		AssetFileCacheTTL:      assetFileCacheTTL,
 	}
 	return inmemoryrep.New(inMemoryDeps)
 }

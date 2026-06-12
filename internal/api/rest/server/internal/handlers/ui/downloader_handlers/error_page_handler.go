@@ -7,7 +7,7 @@ import (
 
 	errormw "github.com/neosy/elengrab/internal/api/rest/server/internal/error_middleware"
 	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 

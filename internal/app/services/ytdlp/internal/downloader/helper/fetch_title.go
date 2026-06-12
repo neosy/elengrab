@@ -17,7 +17,7 @@ func FetchTitleFast(ctx context.Context, url string) (string, error) {
 		return info.Title, nil
 	}
 
-	return httpx.GetTitle(
+	return httpx.FetchTitle(
 		ctx,
 		url,
 		httpx.ClientOptionWithDefaultCookieJar(),

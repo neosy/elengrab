@@ -9,6 +9,7 @@ import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/valyala/fasthttp"
 )
 
@@ -16,6 +17,9 @@ type StaticHandlers struct {
 	assetsDir string
 
 	assetFolders assets.FolderPaths
+
+	// caches
+	assetFileCacheRep persistence.AssetFileCacheRepository
 
 	cssHandler   fasthttp.RequestHandler
 	fontsHandler fasthttp.RequestHandler
@@ -32,6 +36,9 @@ type StaticHandlers struct {
 func NewStaticHandlers(
 	assetsDir string,
 
+	// caches
+	assetFileCacheRep persistence.AssetFileCacheRepository,
+
 	// usecases
 	thumbnail *thumbnail.Thumbnail,
 	downloader *downloader.Downloader,
@@ -40,6 +47,9 @@ func NewStaticHandlers(
 	h := &StaticHandlers{
 		assetsDir:    assetsDir,
 		assetFolders: assets.NewFolderPaths(assetsDir),
+
+		// caches
+		assetFileCacheRep: assetFileCacheRep,
 
 		// usecases
 		thumbnail:  thumbnail,
@@ -56,30 +66,45 @@ func NewStaticHandlers(
 	return h
 }
 
-func (h *StaticHandlers) newFSHandler(name string, htmlPathName string) fasthttp.RequestHandler {
+func (h *StaticHandlers) newFSHandler(name string, httpPath string) fasthttp.RequestHandler {
 	fs := &fasthttp.FS{
 		Root:               filepath.Join(h.assetsDir, "static", name),
 		GenerateIndexPages: false,
 	}
 
-	handler := fs.NewRequestHandler()
+	var handler fasthttp.RequestHandler
+
+	switch name {
+	case "js":
+		handler = h.newAssetHandler(fs.Root)
+	case "css":
+		handler = h.newAssetHandler(fs.Root)
+	default:
+		handler = fs.NewRequestHandler()
+	}
 
 	re := regexp.MustCompile(`^(.*?)(\.[0-9a-f]{6,})?(\.css|\.js|\.json)$`)
 
 	return func(ctx *fasthttp.RequestCtx) {
-		path := httppaths.GroupStatic + "/" + htmlPathName
+		path := httppaths.GroupStatic + "/" + httpPath
 
 		pathSuffix := string(ctx.Path()[len(path):])
 		fileName, _ := strings.CutPrefix(pathSuffix, "/")
 
 		matches := re.FindStringSubmatch(fileName)
+		var hash string
 		if len(matches) == 4 {
 			fileName = matches[1] + matches[3]
+			hash = strings.TrimPrefix(matches[2], ".")
 		}
 
-		pathSuffix = "/" + fileName
+		filePath := "/" + fileName
 
-		ctx.Request.SetRequestURIBytes([]byte(pathSuffix))
+		ctx.Request.SetRequestURIBytes([]byte(filePath))
+		if hash != "" {
+			ctx.SetUserValue(hashKey, hash)
+		}
+
 		handler(ctx)
 	}
 }

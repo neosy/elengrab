@@ -4,7 +4,7 @@ import (
 	"github.com/fasthttp/router"
 	statich "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/static"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 )
 
 // setupStaticRoutes setup Static routes.

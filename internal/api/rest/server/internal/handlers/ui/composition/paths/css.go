@@ -1,7 +1,10 @@
 package paths
 
 import (
-	"github.com/neosy/elengrab/internal/pkg/httpx"
+	"os"
+	"path/filepath"
+
+	"github.com/neosy/elengrab/internal/pkg/assetx"
 )
 
 var (
@@ -71,9 +74,12 @@ func (names cssFileNames) paths(dir string) ([]string, error) {
 }
 
 func (name cssFileName) Raw(dir string) ([]byte, error) {
-	data, err := fileRaw(string(name), dir)
+	filePath := filepath.Join(dir, string(name))
+
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
-	return httpx.MinifyCSS(data), nil
+
+	return assetx.MinifyCSS(data), nil
 }

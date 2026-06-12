@@ -1,49 +1,22 @@
 package paths
 
 import (
-	"fmt"
-	"os"
 	"path/filepath"
-	"strings"
 
-	"github.com/neosy/elengrab/internal/pkg/httpx"
+	"github.com/neosy/elengrab/internal/api/rest/server/assets"
 )
-
-func fileNameWithHash(dir string, fileName string) (string, error) {
-	filePath := filepath.Join(dir, fileName)
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		return "", err
-	}
-
-	hash := httpx.AssetFingerprintHex32(data)
-	ext := filepath.Ext(fileName)
-	name := strings.TrimSuffix(fileName, ext)
-
-	return fmt.Sprintf("%s.%s%s", name, hash, ext), nil
-}
 
 func fileNamesWithHash(dir string, fileNames []string) ([]string, error) {
 	var result = make([]string, len(fileNames))
 
 	for i, f := range fileNames {
 		var err error
-		result[i], err = fileNameWithHash(dir, f)
+		file, err := assets.ReadAssetFileWithHash(filepath.Join(dir, f))
 		if err != nil {
 			return nil, err
 		}
+		result[i] = file.FileNameWithHash()
 	}
 
 	return result, nil
-}
-
-func fileRaw(fileName, dir string) ([]byte, error) {
-	filePath := filepath.Join(dir, string(fileName))
-
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
 }

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"html/template"
 	"mime"
 	"strconv"
 	"strings"
@@ -14,7 +13,7 @@ import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/valyala/fasthttp"
@@ -155,12 +154,6 @@ func (h *DownloaderHandlers) renderWatchPage(
 		return
 	}
 
-	jsImportJSON, err := paths.WatchPageJsImportJSON(h.assetFolders.Js())
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
-		return
-	}
-
 	pwaManifestPath, err := paths.PwaManifestPath(h.assetFolders.Pwa())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
@@ -200,11 +193,10 @@ func (h *DownloaderHandlers) renderWatchPage(
 		BaseValues: baseValues,
 		BasePaths:  paths.NewPaths(),
 		Paths: pages.PagePaths{
-			Css:             cssPaths,
-			JsScripts:       jsScripts,
-			JsImportMapJSON: template.HTML(jsImportJSON),
-			PwaManifest:     pwaManifestPath,
-			StreamURL:       req.streamURLPath,
+			Css:         cssPaths,
+			JsScripts:   jsScripts,
+			PwaManifest: pwaManifestPath,
+			StreamURL:   req.streamURLPath,
 		},
 		Values: pages.WatchPageValues{
 			ShowBackButton:     req.showBackButton,

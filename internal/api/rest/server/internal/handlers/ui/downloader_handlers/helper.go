@@ -14,7 +14,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/stringx"
 	"github.com/valyala/fasthttp"
@@ -82,7 +82,7 @@ func errInternal(err error) error {
 
 func (h *DownloaderHandlers) getScheme(ctx *fasthttp.RequestCtx) string {
 	if h.baseURL != "" {
-		if s := httpx.GetSchemeFromURL(h.baseURL); s != "" {
+		if s := httpx.SchemeFromURL(h.baseURL); s != "" {
 			return s
 		}
 	}
