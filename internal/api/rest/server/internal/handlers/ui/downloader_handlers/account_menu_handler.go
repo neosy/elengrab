@@ -8,7 +8,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/policy"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/stringx"
 	"github.com/valyala/fasthttp"
 )

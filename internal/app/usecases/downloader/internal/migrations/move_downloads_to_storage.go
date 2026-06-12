@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	nfile "github.com/neosy/elengrab/internal/pkg/file"
+	nfile "github.com/neosy/elengrab/internal/pkg/filex"
 )
 
 func (m *migrations) moveDownloadsToStorage(ctx context.Context) (bool, error) {

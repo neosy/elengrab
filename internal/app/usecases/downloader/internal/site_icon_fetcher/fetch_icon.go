@@ -56,7 +56,7 @@ func (lf *SiteIconFetcher) FetchIcons(ctx context.Context, siteURL string) ([]*d
 // fetchCandidatesFromURL retrieves icon candidates from the site's HTML head,
 // applies a fallback to /favicon.ico, and sorts candidates by priority.
 func (lf *SiteIconFetcher) fetchCandidatesFromURL(ctx context.Context, siteURL string) ([]iconCandidate, error) {
-	links, err := httpx.GetLinksInHead(
+	links, err := httpx.FetchLinksInHead(
 		ctx,
 		siteURL,
 		httpx.MethodGetOptions{

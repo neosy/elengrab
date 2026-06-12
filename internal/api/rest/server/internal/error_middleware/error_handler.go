@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"mime"
 
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 

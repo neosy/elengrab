@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/neosy/elengrab/internal/pkg/httpx"
+	"github.com/neosy/elengrab/internal/pkg/assetx"
 )
 
 func isPointer(v any) bool {
@@ -70,5 +70,5 @@ func MetaHashHex32(values []any) string {
 	}
 
 	hashDataRaw := []byte(strings.Join(hashValues, ""))
-	return httpx.AssetFingerprintHex32(hashDataRaw)
+	return assetx.AssetFingerprintHex32(hashDataRaw)
 }

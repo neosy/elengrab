@@ -5,7 +5,7 @@ import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 

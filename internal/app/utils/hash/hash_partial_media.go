@@ -3,7 +3,7 @@ package hash
 import (
 	"path/filepath"
 
-	nfile "github.com/neosy/elengrab/internal/pkg/file"
+	nfile "github.com/neosy/elengrab/internal/pkg/filex"
 )
 
 const (

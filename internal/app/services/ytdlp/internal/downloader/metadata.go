@@ -9,7 +9,7 @@ import (
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 )
 
 func (d *Downloader) prepareDownload(

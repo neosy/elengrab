@@ -19,9 +19,10 @@ func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Applicat
 	}
 
 	deps := &httpsrv.Dependencies{
-		DownloadsStorage: app.DownloadsStorage,
-		Usecases:         app.Usecases,
-		Templates:        tmpl,
+		DownloadsStorage:         app.DownloadsStorage,
+		AssetFileCacheRepository: app.AssetFileCacheRepository,
+		Usecases:                 app.Usecases,
+		Templates:                tmpl,
 
 		// Options
 		AppMode:         dtypes.MustParseAppMode(cfg.Elengrab.Mode),

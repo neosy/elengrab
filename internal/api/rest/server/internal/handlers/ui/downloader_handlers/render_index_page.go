@@ -15,7 +15,7 @@ import (
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/valyala/fasthttp"
@@ -38,12 +38,6 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 	}
 
 	jsScripts, err := paths.IndexPageJsPaths(h.assetFolders.Js())
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
-		return
-	}
-
-	jsImportJSON, err := paths.IndexPageJsImportJSON(h.assetFolders.Js())
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -97,10 +91,9 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 		BasePaths:  paths.NewPaths(),
 		BaseValues: baseValues,
 		Paths: pages.PagePaths{
-			Css:             cssPaths,
-			JsScripts:       jsScripts,
-			PwaManifest:     pwaManifestPath,
-			JsImportMapJSON: template.HTML(jsImportJSON),
+			Css:         cssPaths,
+			JsScripts:   jsScripts,
+			PwaManifest: pwaManifestPath,
 		},
 		Values: pages.IndexPageValues{
 			UserMenuSearchButtonIcon: icons.UserMenuSearchIcon.FileRaw(),

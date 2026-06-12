@@ -5,6 +5,7 @@
 ### ✨ Features
 - Added instagram cookie support [L029]
 - Added user management page. Closes #252
+- Added automatic rewriting of JavaScript module imports to use hashed filenames for reliable cache busting [L037]
 
 ### 🎨 Style
 - Updated header layout and element positioning [L032]

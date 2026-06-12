@@ -23,7 +23,7 @@ func (uc *Downloader) fetchIcon(ctx context.Context, url string) error {
 
 	// Fetch the site title.
 	startTime := time.Now()
-	title, err := httpx.GetTitle(
+	title, err := httpx.FetchTitle(
 		ctx,
 		baseURL,
 		httpx.ClientOptionWithTimeout(getHTMLTimeout),

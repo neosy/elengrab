@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttp"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 

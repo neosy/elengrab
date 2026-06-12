@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	nfile "github.com/neosy/elengrab/internal/pkg/file"
+	nfile "github.com/neosy/elengrab/internal/pkg/filex"
 )
 
 func (m *Maintenance) BackupDatabase(ctx context.Context) error {
