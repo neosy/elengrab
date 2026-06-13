@@ -15,6 +15,7 @@
 
 ### 🧩 Refactor
 - Renamed access mode values in `ELENGRAB_MODE`: `per_user` → `guest`, `auth_only` → `authenticated`
+- Reorganized API folder structure: assets, handlers, routes
 
 ---
 

@@ -1,4 +1,4 @@
-package handlers
+package apiv1
 
 import (
 	"github.com/neosy/elengrab/internal/pkg/errorx"

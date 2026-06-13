@@ -9,10 +9,8 @@ import (
 
 type AssetFileCacheRepository interface {
 	Save(file *dtypes.AssetFile) error
-	SaveNegative(hash, filePath string) error
-	Find(hash string) (*dtypes.AssetFile, memsimple.CacheStatus, error)
-	FindByFilePath(filePath string) (*dtypes.AssetFile, memsimple.CacheStatus, error)
-	Exists(hash string) (bool, error)
-	ExistsByFilePath(filePath string) (bool, error)
+	SaveNegative(filePath string) error
+	FindByPath(filePath string) (*dtypes.AssetFile, memsimple.CacheStatus, error)
+	ExistsByPath(filePath string) (bool, error)
 	CleanExpired(context.Context) error
 }

@@ -1,0 +1,210 @@
+package pages
+
+import (
+	"html/template"
+
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+)
+
+// Index page
+type (
+	IndexPageData struct {
+		BasePaths  paths.HttpPaths
+		BaseValues baseValues
+		Paths      PagePaths
+		Values     IndexPageValues
+		Extra      map[string]any
+	}
+
+	IndexPageValues struct {
+		UserMenuSearchButtonIcon template.HTML
+		SearchBackArrowIcon      template.HTML
+		ShowHistorySearch        bool
+
+		DiskFree string
+		DiskUsed string
+
+		GrabForm IndexGrabForm
+	}
+
+	IndexGrabForm struct {
+		InputPlaceholder   string
+		GetButtonTitle     string
+		SettingsButtonIcon template.HTML
+		GetButtonIcon      template.HTML
+	}
+)
+
+// Watch page
+type (
+	WatchPageData struct {
+		BasePaths  paths.HttpPaths
+		BaseValues baseValues
+		Paths      PagePaths
+		Values     WatchPageValues
+		Extra      map[string]any
+	}
+
+	WatchPageValues struct {
+		IsVideoPlayer bool
+
+		ShowBackButton bool
+		ShowControls   bool
+		ShowPlaylist   bool
+
+		ContentType string `json:"ContentType,omitempty"`
+
+		MediaTitle         string
+		MediaTitleImageURL string
+		MediaDescription   string
+		MediaParameters    []MediaParameter
+	}
+
+	MediaParameter struct {
+		Name  string
+		Value string
+		URL   string
+	}
+)
+
+// Auth login page
+type (
+	AuthLoginPageData struct {
+		BasePaths  paths.HttpPaths
+		BaseValues baseValues
+		Paths      PagePaths
+		Values     AuthLoginPageValues
+		Extra      map[string]any
+	}
+
+	AuthLoginPageValues struct {
+		Redirect string
+	}
+)
+
+// Auth register page
+type (
+	AuthRegisterPageData struct {
+		BasePaths  paths.HttpPaths
+		BaseValues baseValues
+		Paths      PagePaths
+		Extra      map[string]any
+	}
+)
+
+// Error page
+type (
+	ErrorPageData struct {
+		BasePaths  paths.HttpPaths
+		BaseValues baseValues
+		Values     ErrorPageValues
+		Extra      map[string]any
+	}
+
+	ErrorPageValues struct {
+		Title   string
+		Header  string
+		BaseURL string
+
+		CssStyle template.HTML
+
+		ErrorCode  int
+		ErrorTitle string
+		ErrorText  string
+
+		DebugErrorText any
+		DebugData      template.HTML
+	}
+)
+
+type (
+	PagePaths struct {
+		Css []string
+
+		JsScripts       []paths.JsScript
+		JsImportMapJSON template.HTML
+
+		PwaManifest string
+		StreamURL   string
+	}
+)
+
+// Page fragment
+type (
+	PageFragmentData struct {
+		BasePaths  paths.HttpPaths
+		BaseValues baseValues
+		Extra      map[string]any
+	}
+)
+
+// Row fragment
+type (
+	RowFragmentData struct {
+		BasePaths     paths.HttpPaths
+		BaseValues    baseValues
+		Values        *RowFragmentValues
+		IconFileNames map[string]string
+		Extra         map[string]any
+	}
+
+	RowFragmentValues struct {
+		DownloadID     string
+		DownloadStatus string
+		WorkingStatus  string
+
+		DownloadRowPath    string
+		DownloadRepeatPath string
+
+		YoutubeChannelID string
+		AvatarTitle      string
+
+		ThumbnailID         string
+		ThumbnailIsPortrait bool
+		ThumbnailURL        string
+
+		ImageURL       string
+		ImageAvatarURL string
+		ImageSiteURL   string
+
+		MediaTitle string
+		MediaURL   string
+
+		ContentTimeAgo string
+
+		FilePath string
+		FileSize string
+
+		Duration string
+
+		Format        string
+		DataFormat    string
+		FormatTitle   string
+		FormatTooltip string
+
+		IsAudio      string
+		VideoIsShort bool
+
+		DownloadURL string
+		StreamURL   string
+		WatchURL    string
+		DeleteURL   string
+
+		RowID      string
+		ProgressID string
+
+		DownloaderResultItemSourceLinkIcon   template.HTML
+		DownloaderResultItemStatusIcon       template.HTML
+		DownloaderResultItemDeleteIcon       template.HTML
+		DownloaderResultItemStatusFailedIcon template.HTML
+		IsItemHTMXOptionRepeat               bool
+		PageHasDivItems                      bool
+		ResultRowFade                        string
+		ResultRowStatusTitle                 string
+		ResultMediaUrlFade                   string
+		ResultSizeFade                       string
+		ResultFormatFade                     string
+		IsDownloadEvent                      bool
+		IsItemSpiner                         bool
+	}
+)
