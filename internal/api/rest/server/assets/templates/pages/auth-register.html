@@ -18,6 +18,7 @@
         </div>
         <h2>Registration</h2>
         <form id="authForm"
+              method="post"
               hx-post="{{.BasePaths.AuthRegister}}"
               hx-target="#error"
               hx-swap="innerHTML">
