@@ -1,15 +1,11 @@
 package static
 
 import (
-	"errors"
 	"mime"
-	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
-	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
@@ -38,17 +34,13 @@ func (h *StaticHandlers) newAssetHandler(subdirPath string) func(*fasthttp.Reque
 		cleanPath := path.Clean("/" + uri)
 		filePath := filepath.Join(subdirPath, filepath.FromSlash(cleanPath))
 
-		staticFile, err := h.assets.ReadAssetFile(filePath)
+		assetFile, err := h.assets.ReadAssetFile(filePath)
 		if err != nil {
-			if errors.Is(err, os.ErrNotExist) {
-				nfasthttp.WriteErrorx(ctx, errorx.New("file not found", exceptionx.NOT_FOUND))
-				return
-			}
 			nfasthttp.WriteErrorx(ctx, err)
 			return
 		}
 
-		writeResponse(ctx, staticFile.FileName, staticFile.Raw)
+		writeResponse(ctx, assetFile.FileName, assetFile.Raw)
 	}
 
 	return handler
