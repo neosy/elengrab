@@ -30,7 +30,7 @@ func (a *Assets) readOriginalFile(filePath string) (*dtypes.AssetFile, error) {
 	}
 
 	if status == memsimple.CacheStatusNegativeHit {
-		return nil, errorx.New("file not found", exceptionx.NOT_FOUND)
+		return nil, errorx.New("file not found", exceptionx.NOT_FOUND, os.ErrNotExist)
 	}
 
 	if file != nil {
@@ -41,7 +41,7 @@ func (a *Assets) readOriginalFile(filePath string) (*dtypes.AssetFile, error) {
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			a.fileCache.SaveNegative(filePath)
-			return nil, errorx.New("file not found", exceptionx.NOT_FOUND)
+			return nil, errorx.New("file not found", exceptionx.NOT_FOUND, err)
 		}
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (a *Assets) readJsFileHashedImports(filePath string) (*dtypes.AssetFile, er
 	}
 
 	if status == memsimple.CacheStatusNegativeHit {
-		return nil, errorx.New("file not found", exceptionx.NOT_FOUND)
+		return nil, errorx.New("file not found", exceptionx.NOT_FOUND, os.ErrNotExist)
 	}
 
 	if file != nil {
@@ -92,7 +92,7 @@ func (a *Assets) readJsFileHashedImports(filePath string) (*dtypes.AssetFile, er
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			a.fileCache.SaveNegative(filePath)
-			return nil, errorx.New("file not found", exceptionx.NOT_FOUND)
+			return nil, errorx.New("file not found", exceptionx.NOT_FOUND, err)
 		}
 		return nil, err
 	}
