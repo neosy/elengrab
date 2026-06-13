@@ -18,6 +18,7 @@
         </div>
         <h2>Enter login and password</h2>
         <form id="authForm"
+              method="post"
               hx-post="{{.BasePaths.AuthLogin}}"
               hx-target="#error"
               hx-swap="innerHTML">

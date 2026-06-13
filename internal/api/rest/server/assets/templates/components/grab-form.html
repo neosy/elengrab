@@ -1,5 +1,6 @@
 {{- define "grab-form" }}
       <form id="grabForm"
+            method="post"
             hx-post="{{.BasePaths.DownloaderGrab}}"
             hx-include="#mediaURLInput, [name='formatType']"
             hx-swap="none">
