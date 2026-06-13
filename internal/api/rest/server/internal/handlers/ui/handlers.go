@@ -1,28 +1,31 @@
-package uih
+package ui
 
 import (
 	"html/template"
 	"log/slog"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
-	adminhandlers "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/admin_handlers"
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/composition/icons"
-	dlhandlers "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader_handlers"
+	adminhandlers "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/admin"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+	dlhandlers "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
-type UIHandlers struct {
+type Handlers struct {
 	Admin      *adminhandlers.AdminHandlers
 	Downloader *dlhandlers.DownloaderHandlers
 }
 
-func NewUIHandlers(
+func NewHandlers(
 	logger *slog.Logger,
 
 	// Storages
 	downloadsStorage pstorage.DownloadsStorage,
+
+	assets *assets.Assets,
 
 	usecases *usecases.Usecases,
 	templates *template.Template,
@@ -31,18 +34,17 @@ func NewUIHandlers(
 	appMode dtypes.AppMode,
 	baseURL string,
 	shortLinkPrefix string,
-	assetsDir string,
-) *UIHandlers {
-	assetFolders := assets.NewFolderPaths(assetsDir)
+) *Handlers {
+	icons.InitDir(assets.FolderPaths().Icons())
+	assetPaths := paths.NewAssetPaths(assets)
 
-	icons.InitDir(assetFolders.Icons())
-
-	return &UIHandlers{
+	return &Handlers{
 		Admin: adminhandlers.NewAdminHandlers(
 			logger,
 
 			templates,
-			assetFolders,
+			assets,
+			assetPaths,
 
 			// usecases
 			usecases,
@@ -55,7 +57,8 @@ func NewUIHandlers(
 			logger,
 
 			templates,
-			assetFolders,
+			assets,
+			assetPaths,
 
 			// Storages
 			downloadsStorage,

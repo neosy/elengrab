@@ -8,9 +8,10 @@ import (
 	"log/slog"
 	"time"
 
-	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/auth_middleware"
-	errormw "github.com/neosy/elengrab/internal/api/rest/server/internal/error_middleware"
+	"github.com/neosy/elengrab/internal/api/rest/server/assets"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/middleware"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/routes"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/infrastructure/observability/metrics"
@@ -44,8 +45,7 @@ type httpServer struct {
 	appEnv appenv.AppEnv
 
 	// middleware
-	authMiddleware  *authmw.AuthMiddleware
-	errorMiddleware *errormw.ErrorMiddleware
+	middlewares *middleware.Middlewares
 
 	handlers *handlers.Handlers
 
@@ -67,14 +67,13 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *h
 	handlers := handlers.New(
 		logger,
 		&handlers.Dependencies{
-			DownloadsStorage:         deps.DownloadsStorage,
-			AssetFileCacheRepository: deps.AssetFileCacheRepository,
-			Usecases:                 deps.Usecases,
-			Templates:                deps.Templates,
-			AppMode:                  deps.AppMode,
-			BaseURL:                  deps.BaseURL,
-			ShortLinkPrefix:          deps.ShortLinkPrefix,
-			AssetsDir:                deps.AssetsDir,
+			DownloadsStorage: deps.DownloadsStorage,
+			Assets:           assets.NewAssets(deps.AssetsDir, deps.AssetFileCacheRepository),
+			Usecases:         deps.Usecases,
+			Templates:        deps.Templates,
+			AppMode:          deps.AppMode,
+			BaseURL:          deps.BaseURL,
+			ShortLinkPrefix:  deps.ShortLinkPrefix,
 		},
 	)
 
@@ -82,8 +81,12 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *h
 		logger: logger,
 		appEnv: appEnv,
 
-		authMiddleware:  authmw.NewAuthMiddleware(logger, deps.Usecases.Auth, deps.AppMode),
-		errorMiddleware: errormw.NewErrorMiddleware(logger, handlers.UI.Downloader.ErrorPageHandler),
+		middlewares: middleware.NewMiddlewares(
+			logger,
+			deps.Usecases,
+			handlers,
+			deps.AppMode,
+		),
 
 		handlers: handlers,
 
@@ -102,7 +105,8 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *h
 func (s *httpServer) ListenAndServe(ctx context.Context, port string) error {
 	addr := fmt.Sprintf(":%s", port)
 
-	router := s.newRouter()
+	routes := routes.NewRoutes(s.middlewares, s.handlers, s.shortLinkPrefix)
+	router := routes.Router()
 	handler := nfasthttp.NewHandler(ctx, s.logger, s.appEnv, router.Handler)
 
 	if s.metricsEnabled {
