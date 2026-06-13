@@ -2,6 +2,7 @@ package paths
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
 )
@@ -9,9 +10,16 @@ import (
 var (
 	authPageJsPaths = jsScripts{
 		{
-			Path:  "htmx.min.js",
-			Type:  "",
-			Defer: false,
+			Path:   "htmx.min.js",
+			Type:   "",
+			Defer:  false,
+			Legacy: LegacyNo,
+		},
+		{
+			Path:   "htmx-1.9.12.min.js",
+			Type:   "",
+			Defer:  false,
+			Legacy: LegacyYes,
 		},
 		{
 			Path:  "theme-switcher.js",
@@ -27,9 +35,16 @@ var (
 
 	indexPageJsPaths = jsScripts{
 		{
-			Path:  "htmx.min.js",
-			Type:  "",
-			Defer: false,
+			Path:   "htmx.min.js",
+			Type:   "",
+			Defer:  false,
+			Legacy: LegacyNo,
+		},
+		{
+			Path:   "htmx-1.9.12.min.js",
+			Type:   "",
+			Defer:  false,
+			Legacy: LegacyYes,
 		},
 		{
 			Path:  "theme-switcher.js",
@@ -45,9 +60,16 @@ var (
 
 	adminPageJsPaths = jsScripts{
 		{
-			Path:  "htmx.min.js",
-			Type:  "",
-			Defer: false,
+			Path:   "htmx.min.js",
+			Type:   "",
+			Defer:  false,
+			Legacy: LegacyNo,
+		},
+		{
+			Path:   "htmx-1.9.12.min.js",
+			Type:   "",
+			Defer:  false,
+			Legacy: LegacyYes,
 		},
 		{
 			Path:  "theme-switcher.js",
@@ -75,11 +97,20 @@ var (
 	}
 )
 
+const (
+	LegacyUnknown LegacyState = iota
+	LegacyYes
+	LegacyNo
+)
+
 type (
+	LegacyState uint8
+
 	JsScript struct {
-		Path  string
-		Type  string
-		Defer bool
+		Path   string
+		Type   string
+		Defer  bool
+		Legacy LegacyState
 	}
 
 	jsScripts         []JsScript
@@ -95,18 +126,28 @@ func (scripts jsScripts) fileNames() []string {
 	return names
 }
 
-func (scripts jsScripts) newLoader(assets *assets.Assets) func() ([]JsScript, error) {
-	return func() ([]JsScript, error) {
-		paths, err := loadFileNamesWithHash(scripts.fileNames(), assetJsDir, assets)
+func (scripts jsScripts) newLoader(assets *assets.Assets) func(legacy bool) ([]JsScript, error) {
+	return func(legacy bool) ([]JsScript, error) {
+		names, err := loadFileNamesWithHash(scripts.fileNames(), assetJsDir, assets)
 		if err != nil {
 			return nil, err
 		}
 
-		newScripts := make([]JsScript, len(scripts))
-		copy(newScripts, scripts)
+		if len(names) != len(scripts) {
+			return nil, errors.New("names and scripts length mismatch")
+		}
 
-		for i, name := range paths {
-			newScripts[i].Path = JsPath(name)
+		newScripts := make([]JsScript, 0, len(scripts))
+		for i, script := range scripts {
+			if legacy && script.Legacy == LegacyNo {
+				continue
+			}
+			if !legacy && script.Legacy == LegacyYes {
+				continue
+			}
+
+			script.Path = JsPath(names[i])
+			newScripts = append(newScripts, script)
 		}
 
 		return newScripts, nil

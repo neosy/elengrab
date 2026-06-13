@@ -6,7 +6,11 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
 )
 
-func loadFileNamesWithHash(fileNames []string, dirSelector assetDirSelector, assets *assets.Assets) ([]string, error) {
+func loadFileNamesWithHash(
+	fileNames []string,
+	dirSelector assetDirSelector,
+	assets *assets.Assets,
+) ([]string, error) {
 	var result = make([]string, len(fileNames))
 
 	for i, f := range fileNames {

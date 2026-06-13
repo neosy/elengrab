@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/clientcap"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
@@ -40,7 +41,9 @@ func (h *DownloaderHandlers) AuthRegisterPageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	jsScripts, err := h.assetPaths.AuthPageJsPaths()
+	caps := clientcap.Detect(string(ctx.UserAgent()))
+
+	jsScripts, err := h.assetPaths.AuthPageJsPaths(caps.IsLegacyWebKit)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

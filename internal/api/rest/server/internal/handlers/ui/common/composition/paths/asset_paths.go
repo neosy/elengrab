@@ -10,10 +10,10 @@ type AssetPaths struct {
 	AdminPageCssPaths func() ([]string, error)
 	WatchPageCssPaths func() ([]string, error)
 
-	AuthPageJsPaths  func() ([]JsScript, error)
-	IndexPageJsPaths func() ([]JsScript, error)
-	AdminPageJsPaths func() ([]JsScript, error)
-	WatchPageJsPaths func() ([]JsScript, error)
+	AuthPageJsPaths  func(legacy bool) ([]JsScript, error)
+	IndexPageJsPaths func(legacy bool) ([]JsScript, error)
+	AdminPageJsPaths func(legacy bool) ([]JsScript, error)
+	WatchPageJsPaths func(legacy bool) ([]JsScript, error)
 
 	PwaManifestPath func() (string, error)
 	PwaPaths        func() ([]string, error)
