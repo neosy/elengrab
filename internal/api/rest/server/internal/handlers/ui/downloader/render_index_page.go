@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/clientcap"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/images"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/items"
@@ -37,7 +38,9 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 		return
 	}
 
-	jsScripts, err := h.assetPaths.IndexPageJsPaths()
+	caps := clientcap.Detect(string(ctx.UserAgent()))
+
+	jsScripts, err := h.assetPaths.IndexPageJsPaths(caps.IsLegacyWebKit)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
