@@ -5,6 +5,7 @@ import (
 	"mime"
 	"strings"
 
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/clientcap"
 	navmenu "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/admin/nav_menu"
 	adminpages "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/admin/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
@@ -24,7 +25,9 @@ func (h *AdminHandlers) renderPage(ctx *fasthttp.RequestCtx, ctxUser *dauth.User
 		return
 	}
 
-	jsScripts, err := h.assetPaths.AdminPageJsPaths()
+	caps := clientcap.Detect(string(ctx.UserAgent()))
+
+	jsScripts, err := h.assetPaths.AdminPageJsPaths(caps.IsLegacyWebKit)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
