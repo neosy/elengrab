@@ -18,21 +18,21 @@ var (
 	pages     = filepath.Join(templates, "pages")
 )
 
-func NewFolderPaths(assetsDir string) FolderPaths {
+func newFolderPaths(assetsDirPath string) FolderPaths {
 	return FolderPaths{
-		Assets: makeFolderPath(assetsDir),
+		Assets: makeFolderPath(assetsDirPath),
 
-		Static: makeFolderPath(filepath.Join(assetsDir, static)),
-		Css:    makeFolderPath(filepath.Join(assetsDir, staticCss)),
-		Fonts:  makeFolderPath(filepath.Join(assetsDir, staticFonts)),
-		Js:     makeFolderPath(filepath.Join(assetsDir, staticJs)),
-		Img:    makeFolderPath(filepath.Join(assetsDir, staticImages)),
-		Icons:  makeFolderPath(filepath.Join(assetsDir, staticIcons)),
-		Pwa:    makeFolderPath(filepath.Join(assetsDir, staticPwa)),
+		Static: makeFolderPath(filepath.Join(assetsDirPath, static)),
+		Css:    makeFolderPath(filepath.Join(assetsDirPath, staticCss)),
+		Fonts:  makeFolderPath(filepath.Join(assetsDirPath, staticFonts)),
+		Js:     makeFolderPath(filepath.Join(assetsDirPath, staticJs)),
+		Img:    makeFolderPath(filepath.Join(assetsDirPath, staticImages)),
+		Icons:  makeFolderPath(filepath.Join(assetsDirPath, staticIcons)),
+		Pwa:    makeFolderPath(filepath.Join(assetsDirPath, staticPwa)),
 
-		Templates: makeFolderPath(filepath.Join(assetsDir, templates)),
-		Layouts:   makeFolderPath(filepath.Join(assetsDir, layouts)),
-		Pages:     makeFolderPath(filepath.Join(assetsDir, pages)),
+		Templates: makeFolderPath(filepath.Join(assetsDirPath, templates)),
+		Layouts:   makeFolderPath(filepath.Join(assetsDirPath, layouts)),
+		Pages:     makeFolderPath(filepath.Join(assetsDirPath, pages)),
 	}
 }
 
