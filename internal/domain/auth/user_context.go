@@ -17,11 +17,11 @@ type UserContext struct {
 	GuestCreated bool
 }
 
-func UserContextAnonymous(anonSessionID uuid.UUID) *UserContext {
-	return &UserContext{
+func UserContextAnonymous(anonSessionID uuid.UUID) UserContext {
+	return UserContext{
 		UserID:        AnonymousUserID(),
 		AnonSessionID: anonSessionID,
-		RoleIDs:       []dtypes.UserRoleID{dtypes.UserRoleGuest},
+		RoleIDs:       nil,
 	}
 }
 

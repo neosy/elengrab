@@ -12,7 +12,9 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
+	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	iconfig "github.com/neosy/elengrab/internal/config"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
@@ -25,6 +27,9 @@ type renderWatchPageRequest struct {
 	streamURLPath  string
 	downloadID     uuid.UUID
 	showBackButton bool
+
+	allowAnonymous bool
+	authCtx        dauth.UserContext
 }
 
 func (h *DownloaderHandlers) renderWatchPage(
@@ -37,7 +42,15 @@ func (h *DownloaderHandlers) renderWatchPage(
 		return
 	}
 
-	downloadInfo, err := h.downloader.GetDownloadInfoUnrestricted(ctx, req.downloadID)
+	var (
+		downloadInfo *dto.GetMediaDownloadInfoResponse
+		err          error
+	)
+	if req.allowAnonymous {
+		downloadInfo, err = h.downloader.GetDownloadInfoUnrestricted(ctx, req.downloadID)
+	} else {
+		downloadInfo, err = h.downloader.GetDownloadInfo(ctx, req.authCtx, req.downloadID)
+	}
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

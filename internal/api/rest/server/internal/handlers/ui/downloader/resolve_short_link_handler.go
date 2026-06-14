@@ -25,7 +25,7 @@ func (h *DownloaderHandlers) ResolveShortLinkHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	if link == nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewWithMessage("short link not found.", exceptionx.NOT_FOUND))
+		nfasthttp.WriteErrorx(ctx, errorx.NewMessage("short link not found.", exceptionx.NOT_FOUND))
 		return
 	}
 
@@ -47,6 +47,7 @@ func (h *DownloaderHandlers) ResolveShortLinkHandler(ctx *fasthttp.RequestCtx) {
 				streamURLPath:  streamPath,
 				downloadID:     downloadID,
 				showBackButton: false,
+				allowAnonymous: true,
 			},
 		)
 		return

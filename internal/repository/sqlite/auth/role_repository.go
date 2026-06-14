@@ -270,21 +270,22 @@ func (r *RoleRepository) WithFilters(filters map[string]any) persistence.RoleRep
 	var (
 		eRole eauth.Role
 
-		fieldNamesAllowed = map[string]string{
+		fieldNameByAllowedFilter = map[string]string{
 			"roleId": eRole.FieldName(&eRole.RoleID),
 		}
 	)
 
-	rep := r.Copy()
+	cloneRepo := r.Copy()
+
 	for name, value := range filters {
-		fieldName := fieldNamesAllowed[name]
-		if fieldName != "" {
-			rep.filtersByName[fieldName] = value
+		fieldName, exists := fieldNameByAllowedFilter[name]
+		if exists {
+			cloneRepo.filtersByName[fieldName] = value
 		}
 
 	}
 
-	return rep
+	return cloneRepo
 }
 
 func (r *RoleRepository) WithoutGuest() persistence.RoleRepository {

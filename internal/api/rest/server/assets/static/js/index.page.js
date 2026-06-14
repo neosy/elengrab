@@ -216,68 +216,71 @@ document.addEventListener('DOMContentLoaded', () => {
     // });
 
     // Submit on Enter
-    grabURLInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            buttonGrab.click();
-        }
-    });
+    if (grabURLInput) {
+        grabURLInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                buttonGrab.click();
+            }
+        });
+    }
 
     // Clear before HTMX request
-    htmx.on(grabForm, 'htmx:beforeRequest', () => {
-        if (grabURLInput) {
-            grabURLInput.value = '';
-            // update action button after clearing
-            actionButton.updateInputPasteClearButton(grabURLInput, grabInputActionBtn);
-        }
-        if (DOM_ELEMENTS.resultInfo) DOM_ELEMENTS.resultInfo.classList.remove("show");
-    });
+    if (grabForm) {
+        htmx.on(grabForm, 'htmx:beforeRequest', () => {
+            if (grabURLInput) {
+                grabURLInput.value = '';
+                // update action button after clearing
+                actionButton.updateInputPasteClearButton(grabURLInput, grabInputActionBtn);
+            }
+            if (DOM_ELEMENTS.resultInfo) DOM_ELEMENTS.resultInfo.classList.remove("show");
+        });
 
-    // Handle HTMX response for grab form
-    htmx.on(grabForm, 'htmx:afterOnLoad', (event) => {
-        const xhr = event.detail.xhr;
+        // Handle HTMX response for grab form
+        htmx.on(grabForm, 'htmx:afterOnLoad', (event) => {
+            const xhr = event.detail.xhr;
 
-        // --- Error handling (HTTP >= 400, except 503) ---
-        if (xhr.status >= 400 && xhr.status !== 503) {
-            if (grabURLInput) grabURLInput.value = '';
+            // --- Error handling (HTTP >= 400, except 503) ---
+            if (xhr.status >= 400 && xhr.status !== 503) {
+                if (grabURLInput) grabURLInput.value = '';
 
-            if (DOM_ELEMENTS.resultInfo && DOM_ELEMENTS.resultInfoFailed) {
-                let text = xhr.responseText;
+                if (DOM_ELEMENTS.resultInfo && DOM_ELEMENTS.resultInfoFailed) {
+                    let text = xhr.responseText;
 
-                try {
-                    const data = JSON.parse(text);
-                    if (data && typeof data === "object" && "message" in data) {
-                        text = data.message;
-                        notify.show(data.message, notify.notifyType.ERROR);
+                    try {
+                        const data = JSON.parse(text);
+                        if (data && typeof data === "object" && "message" in data) {
+                            text = data.message;
+                        }
+                    } catch (e) {
+                        // ignore non-JSON
                     }
-                } catch (e) {
-                    // ignore non-JSON
+
+                    notify.showErrorMessage(
+                        text,
+                        DOM_ELEMENTS.resultInfo,
+                        DOM_ELEMENTS.resultInfoFailed
+                    );
                 }
 
-                utils.showErrorMessage(
-                    text,
-                    DOM_ELEMENTS.resultInfo,
-                    DOM_ELEMENTS.resultInfoFailed
-                );
+                return;
             }
 
-            return;
-        }
+            // --- Success: guest session created ---
+            let data;
+            try {
+                data = JSON.parse(xhr.responseText);
+            } catch (e) {
+                console.error('Invalid JSON response');
+                return;
+            }
 
-        // --- Success: guest session created ---
-        let data;
-        try {
-            data = JSON.parse(xhr.responseText);
-        } catch (e) {
-            console.error('Invalid JSON response');
-            return;
-        }
-
-        if (data.guestCreated === true) {
-            // Reload to apply new session (cookie)
-            window.location.reload();
-        }
-    });
+            if (data.guestCreated === true) {
+                // Reload to apply new session (cookie)
+                window.location.reload();
+            }
+        });
+    }
     
 
     // Guest session created
@@ -285,6 +288,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.detail.value === true) {
             // Reload to apply new session (cookie)
             window.location.reload();
+        }
+    });
+
+    document.body.addEventListener('htmx:responseError', function (event) {
+        const xhr = event.detail.xhr;
+
+        // --- Error handling (HTTP >= 400, except 503) ---
+        if (xhr.status >= 400 && xhr.status !== 503) {
+            try {
+                const data = JSON.parse(xhr.responseText);
+                if (data && typeof data === "object" && "message" in data) {
+                    notify.show(data.message, notify.notifyType.ERROR);
+                }
+            } catch (e) {
+                // ignore non-JSON
+            }
         }
     });
 

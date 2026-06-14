@@ -12,7 +12,7 @@ import (
 )
 
 func (h *DownloaderHandlers) MediaItemDeleteHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser, err := policy.ResolveUserOrFallback(ctx, h.appMode)
+	authCtx, err := policy.ResolveUserOrFallback(ctx, h.appMode)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -30,14 +30,14 @@ func (h *DownloaderHandlers) MediaItemDeleteHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	err = h.downloader.DeleteDownload(ctx, *ctxUser, downloadID)
+	err = h.downloader.DeleteDownload(ctx, authCtx, downloadID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
 	dataResp := dto.GrabResponse{
-		GuestCreated: ctxUser.GuestCreated,
+		GuestCreated: authCtx.GuestCreated,
 	}
 
 	dataJSON, _ := json.Marshal(dataResp)

@@ -26,6 +26,7 @@ type MediaDownload struct {
 	SafeReadableFullName string     `db:"safe_readable_full_name"`
 	MediaInfo            *string    `db:"media_info"`
 	ErrorMessage         *string    `db:"error_message"`
+	Visibility           string     `db:"visibility"`
 	DownloadedAt         *string    `db:"downloaded_at"`
 	CreatedAt            time.Time  `db:"created_at" insert:"false"`
 	UpdatedAt            time.Time  `db:"updated_at" sqlexpr:"CURRENT_TIMESTAMP"`
@@ -62,4 +63,10 @@ func (e *MediaDownload) Values() []any {
 func (e *MediaDownload) FieldPointers() []any {
 	ptrs, _ := e.BaseEntity.FieldPointers(e)
 	return ptrs
+}
+
+// FieldPointer returns a pointer to the field of the given struct specified by tag.
+func (e *MediaDownload) FieldPointer(fieldName string) any {
+	ptr, _ := e.BaseEntity.FieldPointer(e, fieldName)
+	return ptr
 }

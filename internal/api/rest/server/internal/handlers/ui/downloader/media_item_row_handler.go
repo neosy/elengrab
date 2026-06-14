@@ -12,7 +12,7 @@ import (
 )
 
 func (h *DownloaderHandlers) MediaItemRowHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser := policy.ResolveUserOrAnonym(ctx)
+	authCtx := policy.ResolveUserOrAnonym(ctx)
 
 	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
 	if !ok || downloadIDStr == "" {
@@ -26,7 +26,7 @@ func (h *DownloaderHandlers) MediaItemRowHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	downloadInfo, err := h.downloader.GetDownloadInfo(ctx, *ctxUser, downloadID)
+	downloadInfo, err := h.downloader.GetDownloadInfo(ctx, authCtx, downloadID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

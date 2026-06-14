@@ -55,6 +55,9 @@ type MediaDownload struct {
 	// Error message
 	ErrorMessage *string
 
+	// Visibility access level for media (public or private)
+	Visibility dtypes.MediaVisibility
+
 	// Downloaded timestamp
 	DownloadedAt *time.Time
 

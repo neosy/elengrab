@@ -4,7 +4,7 @@ import (
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
+	"github.com/valyala/fasthttp"
 )
 
 var (
@@ -16,22 +16,22 @@ var (
 		errorx.WithErrorMessage("Something went wrong"),
 	).(errorx.Errorx)
 
-	ErrUnauthorized = exceptionx.UNAUTHORIZED.NewErrorx().(errorx.Errorx)
+	ErrHTTPSRequired = errorx.NewHTTPMessage("HTTPS is required", fasthttp.StatusUpgradeRequired)
 
 	ErrFileNotFound          = ierrors.ErrFileNotFound
-	ErrDownloadIDIsRequired  = errorx.NewWithMessage("downloadId is required", exceptions.INVALID_REQUEST)
-	ErrDownloadIDIsIncorrect = errorx.NewWithMessage("downloadId is incorrect", exceptions.INVALID_REQUEST)
+	ErrDownloadIDIsRequired  = errorx.NewMessage("downloadId is required", exceptions.INVALID_REQUEST)
+	ErrDownloadIDIsIncorrect = errorx.NewMessage("downloadId is incorrect", exceptions.INVALID_REQUEST)
 
 	ErrThumbnailNotFound      = ierrors.ErrThumbnailNotFound
-	ErrThumbnailIdIsRequired  = errorx.NewWithMessage("thumbnailId is required", exceptions.INVALID_REQUEST)
-	ErrThumbnailIdIsIncorrect = errorx.NewWithMessage("thumbnailId is incorrect", exceptions.INVALID_REQUEST)
+	ErrThumbnailIdIsRequired  = errorx.NewMessage("thumbnailId is required", exceptions.INVALID_REQUEST)
+	ErrThumbnailIdIsIncorrect = errorx.NewMessage("thumbnailId is incorrect", exceptions.INVALID_REQUEST)
 
-	ErrChannelIsRequired  = errorx.NewWithMessage("channelId is required", exceptions.INVALID_REQUEST)
-	ErrChannelIsIncorrect = errorx.NewWithMessage("channelId is incorrect", exceptions.INVALID_REQUEST)
+	ErrChannelIsRequired  = errorx.NewMessage("channelId is required", exceptions.INVALID_REQUEST)
+	ErrChannelIsIncorrect = errorx.NewMessage("channelId is incorrect", exceptions.INVALID_REQUEST)
 
-	ErrURLIsRequired = errorx.NewWithMessage("URL is required", exceptions.INVALID_REQUEST)
-	ErrInvalidURL    = errorx.NewWithMessage("invalid URL", exceptions.INVALID_REQUEST)
+	ErrURLIsRequired = errorx.New("url is required", exceptions.INVALID_REQUEST, errorx.WithErrorMessage("URL is required"))
+	ErrInvalidURL    = errorx.NewMessage("invalid URL", exceptions.INVALID_REQUEST)
 
-	ErrUserIDIsRequired  = errorx.NewWithMessage("userId is required", exceptions.INVALID_REQUEST)
-	ErrUserIDIsIncorrect = errorx.NewWithMessage("uerId is incorrect", exceptions.INVALID_REQUEST)
+	ErrUserIDIsRequired  = errorx.NewMessage("userId is required", exceptions.INVALID_REQUEST)
+	ErrUserIDIsIncorrect = errorx.NewMessage("uerId is incorrect", exceptions.INVALID_REQUEST)
 )

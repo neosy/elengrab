@@ -61,6 +61,21 @@ func (v UserRoleID) Exists() bool {
 	return exists
 }
 
+// HasRoleID checks if role exist in the roles slice
+func (ids UserRoleIDs) HasRoleID(roleID UserRoleID) bool {
+	return HasAnyRoleID(ids, roleID)
+}
+
+// HasAnyRoleID checks if any of the checkRoles exist in the roles slice
+func (ids UserRoleIDs) HasAnyRoleID(checkRoleIDs ...UserRoleID) bool {
+	return HasAnyRoleID(ids, checkRoleIDs...)
+}
+
+// HasAllRoleIDs checks if all of the checkRoles exist in the roles slice
+func (ids UserRoleIDs) HasAllRoleIDs(checkRoleIDs ...UserRoleID) bool {
+	return HasAllRoleIDs(ids, checkRoleIDs...)
+}
+
 // ParseUserRole converting string to UserRoleID
 func ParseUserRole(s string) (UserRoleID, error) {
 	userRole, exists := parseUserRoleMap[strings.ToLower(s)]

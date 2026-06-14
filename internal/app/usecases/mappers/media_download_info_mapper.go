@@ -68,8 +68,12 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 		MediaInfoTooltip:     mediaInfoTooltip(mediaInfoText),
 		Progress:             progress,
 		UserID:               download.UserID,
-		CreatedAt:            download.CreatedAt,
-		UpdatedAt:            download.UpdatedAt,
+		Visibility:           download.Visibility,
+
+		CreatedAt: download.CreatedAt,
+		UpdatedAt: download.UpdatedAt,
+
+		MediaDownload: download,
 	}
 }
 

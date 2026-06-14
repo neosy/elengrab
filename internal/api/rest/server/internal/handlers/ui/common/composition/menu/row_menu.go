@@ -14,8 +14,9 @@ const (
 
 type rowMenuAction struct {
 	menuAction
-	icon           icons.Icon
-	onlyStatusDone bool
+	icon               icons.Icon
+	onlyStatusDone     bool
+	requireWriteAccess bool
 }
 
 var rowMenuActions = []rowMenuAction{
@@ -30,8 +31,9 @@ var rowMenuActions = []rowMenuAction{
 				replaceInURL: RowMenuActionItemIDKey,
 			},
 		},
-		icon:           icons.DownloaderRowMenuPlayIcon,
-		onlyStatusDone: true,
+		icon:               icons.DownloaderRowMenuPlayIcon,
+		onlyStatusDone:     true,
+		requireWriteAccess: false,
 	},
 
 	{
@@ -45,7 +47,8 @@ var rowMenuActions = []rowMenuAction{
 				replaceInURL: RowMenuActionURLKey,
 			},
 		},
-		icon: icons.DownloaderRowMenuExternalLinkIcon,
+		icon:               icons.DownloaderRowMenuExternalLinkIcon,
+		requireWriteAccess: false,
 	},
 
 	{
@@ -64,8 +67,9 @@ var rowMenuActions = []rowMenuAction{
 				replaceInURL: RowMenuActionItemIDKey,
 			},
 		},
-		icon:           icons.DownloaderRowMenuShareLinkIcon,
-		onlyStatusDone: true,
+		icon:               icons.DownloaderRowMenuShareLinkIcon,
+		onlyStatusDone:     true,
+		requireWriteAccess: true,
 	},
 
 	{
@@ -78,8 +82,9 @@ var rowMenuActions = []rowMenuAction{
 				replaceInURL: RowMenuActionItemIDKey,
 			},
 		},
-		icon:           icons.DownloaderRowMenuCopyLinkIcon,
-		onlyStatusDone: true,
+		icon:               icons.DownloaderRowMenuCopyLinkIcon,
+		onlyStatusDone:     true,
+		requireWriteAccess: true,
 	},
 
 	{
@@ -98,16 +103,34 @@ var rowMenuActions = []rowMenuAction{
 				replaceInURL: RowMenuActionItemIDKey,
 			},
 		},
-		icon: icons.DownloaderRowMenuDeleteIcon,
+		icon:               icons.DownloaderRowMenuDeleteIcon,
+		requireWriteAccess: true,
 	},
 }
 
-func RowMenuActions(mapReplaceUrl map[string]string, isStatusDone bool) []rowMenuAction {
+func RowMenuActions(mapReplaceUrl map[string]string, isStatusDone bool, hasWriteAccess bool) []rowMenuAction {
 	actions := make([]rowMenuAction, 0, len(rowMenuActions))
+	var lastRenderType renderType
+
 	for _, a := range rowMenuActions {
 		if !isStatusDone && a.onlyStatusDone {
 			continue
 		}
+
+		if a.requireWriteAccess && !hasWriteAccess {
+			continue
+		}
+
+		if a.RenderType == renderTypeDivider {
+			if len(actions) == 0 {
+				continue
+			}
+			if lastRenderType == renderTypeDivider {
+				continue
+			}
+		}
+
+		lastRenderType = a.RenderType
 
 		actions = append(actions, a)
 		action := &actions[len(actions)-1]
@@ -123,5 +146,10 @@ func RowMenuActions(mapReplaceUrl map[string]string, isStatusDone bool) []rowMen
 			}
 		}
 	}
+
+	if len(actions) > 0 && actions[len(actions)-1].RenderType == renderTypeDivider {
+		actions = actions[:len(actions)-1]
+	}
+
 	return actions
 }

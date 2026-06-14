@@ -17,6 +17,10 @@ const (
 	// Guest: anonymous access allowed, downloads visible only to their owner.
 	AppModeGuest
 
+	// AppModePublicReadonly: anonymous access allowed, but only read-only for public media.
+	// Uploading/adding new content requires authentication.
+	AppModePublicReadonly
+
 	// Authenticated: login required, access controlled by user permissions.
 	AppModeAuthenticated
 
@@ -24,55 +28,64 @@ const (
 )
 
 var (
-	// appModeMap implementation of a set for AppMode
-	appModeMap = map[AppMode]string{
-		AppModePublic:        "public",
-		AppModeGuest:         "guest",
-		AppModeAuthenticated: "authenticated",
+	// nameByAppMode maps an AppMode to its string representation
+	nameByAppMode = map[AppMode]string{
+		AppModePublic:         "public",
+		AppModeGuest:          "guest",
+		AppModePublicReadonly: "public_readonly",
+		AppModeAuthenticated:  "authenticated",
 	}
 
-	parseAppModeMap = map[string]AppMode{
-		"public":        AppModePublic,
-		"guest":         AppModeGuest,
-		"authenticated": AppModeAuthenticated,
+	appModeByName = map[string]AppMode{
+		"public":          AppModePublic,
+		"guest":           AppModeGuest,
+		"public_readonly": AppModePublicReadonly,
+		"authenticated":   AppModeAuthenticated,
 	}
 
-	appModeToUniquenessScopeMap = map[AppMode]UniquenessScope{
-		AppModePublic:        UniquenessScopeGlobal,
-		AppModeGuest:         UniquenessScopePerUser,
-		AppModeAuthenticated: UniquenessScopePerUser,
+	// uniquenessScopeByAppMode maps each AppMode to its corresponding uniqueness scope.
+	uniquenessScopeByAppMode = map[AppMode]UniquenessScope{
+		AppModePublic:         UniquenessScopeGlobal,
+		AppModeGuest:          UniquenessScopePerUser,
+		AppModePublicReadonly: UniquenessScopePerUser,
+		AppModeAuthenticated:  UniquenessScopePerUser,
 	}
 )
 
 // String returns the value as a string.
 func (v AppMode) String() string {
-	return appModeMap[v]
+	return nameByAppMode[v]
 }
 
 // Exists returns true if the AppMode is valid.
 func (v AppMode) Exists() bool {
-	_, exists := appModeMap[v]
+	_, exists := nameByAppMode[v]
 	return exists
 }
 
 // UniquenessScope returns the corresponding UniquenessScope for the AppMode.
 func (v AppMode) UniquenessScope() UniquenessScope {
-	return appModeToUniquenessScopeMap[v]
+	return uniquenessScopeByAppMode[v]
 }
 
 // IsGuestAllowed returns true if guests are allowed for this app mode.
 func (v AppMode) IsGuestAllowed() bool {
-	return v != AppModeAuthenticated
+	return v == AppModePublic || v == AppModeGuest
 }
 
-// IsUserRequired returns true if user is required for this app mode.
-func (v AppMode) IsUserRequired() bool {
-	return v == AppModeAuthenticated || v == AppModeGuest
+// IsUserRequiredForWrite1 returns true if user is required for this app mode.
+func (v AppMode) IsUserRequiredForWrite() bool {
+	return v == AppModeAuthenticated || v == AppModeGuest || v == AppModePublicReadonly
+}
+
+// IsUserRequiredForRead returns true if user is required for this app mode.
+func (v AppMode) IsUserRequiredForRead() bool {
+	return v == AppModeAuthenticated
 }
 
 // ParseAppMode converting string to AppMode
 func ParseAppMode(s string) (AppMode, error) {
-	mode, exists := parseAppModeMap[strings.ToLower(s)]
+	mode, exists := appModeByName[strings.ToLower(s)]
 	if !exists {
 		return AppModeDefault, errors.New("invalid value for AppMode")
 	}
@@ -90,6 +103,6 @@ func MustParseAppMode(s string) AppMode {
 
 // ValidateAppMode checks if the field value is a valid AppMode enum.
 func ValidateAppMode(fl validator.FieldLevel) bool {
-	_, exist := parseAppModeMap[fl.Field().String()]
+	_, exist := appModeByName[fl.Field().String()]
 	return exist
 }

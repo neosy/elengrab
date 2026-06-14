@@ -1,21 +1,27 @@
 package authmw
 
 import (
-	"fmt"
-
+	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
-func (m *AuthMiddleware) checkHTTPSRequired(ctx *fasthttp.RequestCtx) error {
-	if !nfasthttp.IsForwardedHTTPS(ctx) && m.appMode > dtypes.AppModePublic {
-		return errorx.NewHTTPMessage(
-			fmt.Sprintf("HTTPS is required for mode '%v'", m.appMode),
-			fasthttp.StatusUpgradeRequired,
-		)
+func (m *AuthMiddleware) validateHTTPSPolicy() bool {
+	return m.appMode > dtypes.AppModePublic
+}
+
+func (m *AuthMiddleware) requireHTTPS(ctx *fasthttp.RequestCtx) error {
+	if !nfasthttp.IsForwardedHTTPS(ctx) {
+		return apierrors.ErrHTTPSRequired
+	}
+	return nil
+}
+
+func (m *AuthMiddleware) checkHTTPS(ctx *fasthttp.RequestCtx) error {
+	if m.validateHTTPSPolicy() {
+		return m.requireHTTPS(ctx)
 	}
 	return nil
 }

@@ -15,7 +15,7 @@ import (
 )
 
 func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser := policy.ResolveUserOrAnonym(ctx)
+	authCtx := policy.ResolveUserOrAnonym(ctx)
 
 	filters := make(requestFilters)
 
@@ -25,7 +25,7 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	var rowsBuf bytes.Buffer
-	err := h.getDownloadsHistory(ctx, &rowsBuf, *ctxUser, time.Now().UTC(), filters)
+	err := h.getDownloadsHistory(ctx, &rowsBuf, authCtx, time.Now().UTC(), filters)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

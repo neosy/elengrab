@@ -34,7 +34,7 @@ func (h *DownloaderHandlers) MediaHistoryHandler(ctx *fasthttp.RequestCtx) {
 	filters := parseFilters(ctx)
 
 	var bodyBuffer bytes.Buffer
-	err := h.getDownloadsHistory(ctx, &bodyBuffer, *ctxUser, before, filters)
+	err := h.getDownloadsHistory(ctx, &bodyBuffer, ctxUser, before, filters)
 	if err != nil {
 		ctx.SetStatusCode(fasthttp.StatusOK)
 		ctx.SetBodyString("")
@@ -48,7 +48,7 @@ func (h *DownloaderHandlers) MediaHistoryHandler(ctx *fasthttp.RequestCtx) {
 func (h *DownloaderHandlers) getDownloadsHistory(
 	ctx context.Context,
 	buf *bytes.Buffer,
-	userCtx dauth.UserContext,
+	authCtx dauth.UserContext,
 	before time.Time,
 	filters requestFilters,
 ) error {
@@ -58,7 +58,7 @@ func (h *DownloaderHandlers) getDownloadsHistory(
 	}
 
 	// We upload one more line to see if we need to show "Upload more"
-	resps, err := h.downloader.LoadHistory(ctx, userCtx, before, loadHistoryLimit+1, filterByTitle)
+	resps, err := h.downloader.LoadHistory(ctx, authCtx, before, loadHistoryLimit+1, filterByTitle)
 	if err != nil {
 		return err
 	}

@@ -8,17 +8,15 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	"github.com/neosy/elengrab/internal/exceptions"
 )
 
 // DeleteDownload deletes a download from the system.
 func (uc *Downloader) DeleteDownload(
 	ctx context.Context,
-	userCtx dauth.UserContext,
+	authCtx dauth.UserContext,
 	downloadID uuid.UUID,
 ) error {
 	var (
@@ -26,22 +24,17 @@ func (uc *Downloader) DeleteDownload(
 		fileFullName            string
 	)
 
-	if uc.demoMode {
-		uc.broadcastNotification(
-			userCtx.EventKey(),
-			dto.BroadcastNotificationModuleResultRow,
-			dto.BroadcastNotificationTypeError,
-			"Operation not allowed in demo mode",
-		)
-		return exceptions.DEMO_MODE_RESTRICTION.NewErrorx()
+	err := uc.validateWriteOperation(authCtx)
+	if err != nil {
+		return err
 	}
 
-	var accessByUserID *uuid.UUID
-	if uc.authz.RestrictDownloadsByUser(userCtx.RoleIDs) {
-		accessByUserID = &userCtx.UserID
+	download, err := uc.download.GetByDownloadID(ctx, nil, downloadID)
+	if err != nil {
+		return err
 	}
 
-	download, err := uc.download.GetByDownloadID(ctx, accessByUserID, downloadID)
+	err = uc.validateDownloadWriteAccess(authCtx, download)
 	if err != nil {
 		return err
 	}

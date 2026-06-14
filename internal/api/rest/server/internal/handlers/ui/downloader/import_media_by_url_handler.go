@@ -12,7 +12,7 @@ import (
 )
 
 func (h *DownloaderHandlers) ImportMediaByURLHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser, err := policy.ResolveUserOrFallback(ctx, h.appMode)
+	authCtx, err := policy.ResolveUserOrFallback(ctx, h.appMode)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -37,7 +37,7 @@ func (h *DownloaderHandlers) ImportMediaByURLHandler(ctx *fasthttp.RequestCtx) {
 
 	resp, err := h.downloader.ScheduleDownload(
 		ctx,
-		*ctxUser,
+		authCtx,
 		url,
 		&ddownload.DownloadOptions{
 			FormatType:      h.mappers.MapFormatType(formSelectQualityCodec, formSelectFormat),
@@ -58,7 +58,7 @@ func (h *DownloaderHandlers) ImportMediaByURLHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	dataResp := dto.GrabResponse{
-		GuestCreated: ctxUser.GuestCreated,
+		GuestCreated: authCtx.GuestCreated,
 	}
 
 	ctx.SetStatusCode(fasthttp.StatusCreated)
