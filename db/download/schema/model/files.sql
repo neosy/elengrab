@@ -46,6 +46,9 @@ CREATE TABLE IF NOT EXISTS files (
     -- Media metadata as JSON (codecs, resolution, etc.)
     media_info TEXT NULL,
 
+    -- Visibility access level for media (public, authenticated or private)
+    visibility TEXT NOT NULL DEFAULT 'private',
+
     -- Error message
     error_message TEXT NULL,
 

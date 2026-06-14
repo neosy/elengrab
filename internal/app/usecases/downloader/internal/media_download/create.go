@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
+	iconfig "github.com/neosy/elengrab/internal/config"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -20,6 +21,9 @@ func (uc *MediaDownload) Create(ctx context.Context, download *ddownload.MediaDo
 	if download.DownloadID == uuid.Nil {
 		download.DownloadID = uuid.New()
 	}
+
+	download.Visibility = iconfig.InitialMediaVisibility()
+
 	download.Status = dtypes.MediaDownloadStatusNew
 
 	err := uc.downloadRep.Insert(ctx, download)

@@ -34,7 +34,9 @@
 
 {{- define "main" }}
   <main class="main">
+    {{- if .Values.HasCreateAccess  }}
     {{- template "grab-form" . }}
+    {{- end }}
     {{- template "media-result" . }}
     <div id="media-player-overlay">
         <div id="media-player__wrapper"></div>
@@ -52,8 +54,10 @@
       </a>
     </div>
     <div class="footer__disk-volume">
+      {{- if .Values.HasWriteAccess  }}
       Free: <span id="disk-free">{{ .Values.DiskFree }}</span> |
       Used: <span id="disk-used">{{ .Values.DiskUsed }}</span>
+      {{- end }}
     </div>
     <div class="footer__right">
       <a class="footer__settings-link" id="footerSettingsLink" data-action="menu">Settings</a>

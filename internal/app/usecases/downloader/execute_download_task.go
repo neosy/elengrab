@@ -99,12 +99,19 @@ func (uc *Downloader) ExecuteDownloadTask(
 	}
 
 	for r := range resultCh {
+		if r == nil {
+			uc.logger.Error("Received nil result from result channel")
+			uc.downloadStatus.Failed(uc.appCtx, task.DownloadID, nil, new(apperrors.ErrDownloaderEmptyResponse.Error()))
+			uc.dlStateCache.Delete(uc.appCtx, task.DownloadID)
+			return apperrors.ErrDownloaderEmptyResponse
+		}
+
 		if r.Error != nil {
 			// The context was canceled
 			if ctx.Err() != nil {
 				download, e := uc.download.FindByDownloadID(uc.appCtx, nil, task.DownloadID)
 				if e == nil && download != nil {
-					uc.downloadStatus.Failed(uc.appCtx, task.DownloadID, nil, uptr.String(r.Error.Error()))
+					uc.downloadStatus.Failed(uc.appCtx, task.DownloadID, nil, new(r.Error.Error()))
 				}
 				uc.dlStateCache.Delete(uc.appCtx, task.DownloadID)
 				return ctx.Err()
@@ -117,6 +124,10 @@ func (uc *Downloader) ExecuteDownloadTask(
 			)
 
 			patch := func(download *ddownload.MediaDownload) {
+				if download == nil || lastResult == nil {
+					return
+				}
+
 				download.ChannelID = lastResult.ChannelID
 				if lastResult.MediaTitle != "" {
 					download.MediaTitle = lastResult.MediaTitle
@@ -128,7 +139,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 					download.FileSize = lastResult.Filesize
 				}
 			}
-			uc.downloadStatus.Failed(ctx, task.DownloadID, patch, uptr.String(r.Error.Error()))
+			uc.downloadStatus.Failed(ctx, task.DownloadID, patch, new(r.Error.Error()))
 			return r.Error
 		}
 
@@ -139,14 +150,14 @@ func (uc *Downloader) ExecuteDownloadTask(
 				"action", "Find by downloadID",
 				"error", err,
 			)
-			uc.downloadStatus.Failed(ctx, task.DownloadID, nil, uptr.String(err.Error()))
+			uc.downloadStatus.Failed(ctx, task.DownloadID, nil, new(err.Error()))
 			return err
 		}
 
 		lastResult = r
 
 		// Adding a record to the YouTube Channel table
-		if lastResult != nil && lastResult.ChannelID != nil && lastResult.Channel != nil {
+		if lastResult.ChannelID != nil && lastResult.Channel != nil {
 			channelProcess.Do(func() {
 				channel, _ := uc.ytChannel.FindByChannelID(ctx, *lastResult.ChannelID)
 				if channel != nil {
@@ -164,7 +175,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 			})
 		}
 
-		if lastResult != nil && lastResult.Thumbnail != nil {
+		if lastResult.Thumbnail != nil {
 			thumbnailProcess.Do(func() {
 				req := &dto.CreateThumbnailRequest{
 					SourceType: dtypes.ThumbnailSourceTypeExternal,
@@ -195,10 +206,6 @@ func (uc *Downloader) ExecuteDownloadTask(
 			uc.broadcastDownloadProgressUpdate(ctx, task.DownloadID)
 			resultProgressBeforeBroadcast = lastResult
 		}
-	}
-
-	if lastResult == nil {
-		return apperrors.ErrDownloaderEmptyResponse
 	}
 
 	if mediaInfo != nil && lastResult.ThumbnailVideoFrame != nil {

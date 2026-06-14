@@ -4,11 +4,11 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
@@ -21,7 +21,7 @@ import (
 // Finally, it stores the user information (authenticated or guest) in the request context and calls the next handler.
 func (a *AuthMiddleware) AuthOrGuest(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
-		if err := a.checkHTTPSRequired(ctx); err != nil {
+		if err := a.checkHTTPS(ctx); err != nil {
 			nfasthttp.WriteErrorx(ctx, err)
 			return
 		}
@@ -40,13 +40,13 @@ func (a *AuthMiddleware) AuthOrGuest(next fasthttp.RequestHandler) fasthttp.Requ
 
 		// If no valid session exists and guest sessions are not allowed,
 		// return an unauthorized response.
-		if userCtx == nil && !a.appMode.IsUserRequired() {
+		if userCtx == nil && !a.appMode.IsUserRequiredForWrite() {
 			next(ctx)
 			return
 		}
 
 		if userCtx == nil {
-			nfasthttp.WriteErrorx(ctx, apierrors.ErrUnauthorized)
+			nfasthttp.WriteErrorx(ctx, ierrors.ErrUnauthorized)
 			return
 		}
 
@@ -63,7 +63,7 @@ func (a *AuthMiddleware) AuthOrGuest(next fasthttp.RequestHandler) fasthttp.Requ
 // and calls the next handler.
 func (a *AuthMiddleware) RequireAuth(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
-		if err := a.checkHTTPSRequired(ctx); err != nil {
+		if err := a.checkHTTPS(ctx); err != nil {
 			nfasthttp.WriteErrorx(ctx, err)
 			return
 		}
@@ -81,7 +81,7 @@ func (a *AuthMiddleware) RequireAuth(next fasthttp.RequestHandler) fasthttp.Requ
 		}
 
 		if userCtx == nil {
-			nfasthttp.WriteErrorx(ctx, apierrors.ErrUnauthorized)
+			nfasthttp.WriteErrorx(ctx, ierrors.ErrUnauthorized)
 			return
 		}
 
@@ -99,7 +99,7 @@ func (a *AuthMiddleware) RequireAdmin(next fasthttp.RequestHandler) fasthttp.Req
 		if user == nil {
 			nfasthttp.WriteErrorx(
 				ctx,
-				apierrors.ErrUnauthorized,
+				ierrors.ErrUnauthorized,
 			)
 			return
 		}
@@ -124,11 +124,6 @@ func (a *AuthMiddleware) RequireAdmin(next fasthttp.RequestHandler) fasthttp.Req
 // Requests without a valid token continue as anonymous.
 func (a *AuthMiddleware) AuthOrAnonym(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
-		if err := a.checkHTTPSRequired(ctx); err != nil {
-			nfasthttp.WriteErrorx(ctx, err)
-			return
-		}
-
 		userCtx, err := a.processAuth(ctx, false)
 		if err != nil {
 			nfasthttp.WriteErrorx(
@@ -162,11 +157,6 @@ func (a *AuthMiddleware) AuthOrAnonym(next fasthttp.RequestHandler) fasthttp.Req
 // in the request context before calling the next handler.
 func (a *AuthMiddleware) AuthOptional(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
-		if err := a.checkHTTPSRequired(ctx); err != nil {
-			nfasthttp.WriteErrorx(ctx, err)
-			return
-		}
-
 		userCtx, err := a.processAuth(ctx, false)
 		if err != nil {
 			nfasthttp.WriteErrorx(
@@ -181,7 +171,7 @@ func (a *AuthMiddleware) AuthOptional(next fasthttp.RequestHandler) fasthttp.Req
 
 		if userCtx == nil {
 			if a.appMode == dtypes.AppModeAuthenticated {
-				nfasthttp.WriteErrorx(ctx, apierrors.ErrUnauthorized)
+				nfasthttp.WriteErrorx(ctx, ierrors.ErrUnauthorized)
 				return
 			}
 
@@ -200,7 +190,7 @@ func (a *AuthMiddleware) AuthOptional(next fasthttp.RequestHandler) fasthttp.Req
 // - If no valid session exists but the app mode does not require a user, it calls the next handler with nil (anonymous) user.
 func (a *AuthMiddleware) RequireAuthMode(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
-		if err := a.checkHTTPSRequired(ctx); err != nil {
+		if err := a.checkHTTPS(ctx); err != nil {
 			nfasthttp.WriteErrorx(ctx, err)
 			return
 		}
@@ -218,8 +208,8 @@ func (a *AuthMiddleware) RequireAuthMode(next fasthttp.RequestHandler) fasthttp.
 		}
 
 		if userCtx == nil {
-			if a.appMode.IsUserRequired() {
-				nfasthttp.WriteErrorx(ctx, apierrors.ErrUnauthorized)
+			if a.appMode.IsUserRequiredForWrite() {
+				nfasthttp.WriteErrorx(ctx, ierrors.ErrUnauthorized)
 				return
 			}
 

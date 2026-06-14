@@ -12,7 +12,7 @@ import (
 
 func (a *Auth) SetUserRoles(ctx context.Context, userID uuid.UUID, roleIDs []string) error {
 	if len(roleIDs) == 0 {
-		return errorx.NewWithMessage("roles are not defined", exceptionx.WRONG_DATA)
+		return errorx.NewMessage("roles are not defined", exceptionx.WRONG_DATA)
 	}
 
 	user, err := a.user.GetByUserID(ctx, userID)
@@ -30,7 +30,7 @@ func (a *Auth) SetUserRoles(ctx context.Context, userID uuid.UUID, roleIDs []str
 		slices.Sort(b)
 
 		if slices.Equal(a, b) {
-			return errorx.NewWithMessage("user roles are unchanged", exceptionx.WRONG_DATA)
+			return errorx.NewMessage("user roles are unchanged", exceptionx.WRONG_DATA)
 		}
 	}
 

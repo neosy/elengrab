@@ -3,9 +3,13 @@ package ierrors
 import (
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
 var (
+	ErrUnauthorized = errorx.NewMessage("Authentication required", exceptionx.UNAUTHORIZED)
+	ErrAccessDenied = errorx.NewMessage("Access denied", exceptionx.FORBIDDEN)
+
 	ErrFuncParamNullPointer = exceptions.FUNCTION_PARAMETER_NULL_POINTER.NewErrorx(
 		errorx.WithErrorMessage("Something went wrong"),
 	).(errorx.Errorx)

@@ -28,7 +28,7 @@ func (h *DownloaderHandlers) DownloadFileHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Build the full path to the download
-	downloadInfo, err := h.downloader.GetDownloadInfo(ctx, *ctxUser, downloadID)
+	downloadInfo, err := h.downloader.GetDownloadInfo(ctx, ctxUser, downloadID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

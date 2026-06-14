@@ -40,10 +40,29 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		g = nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r.router)
 		g.Use(middlewareError, r.middlewares.Auth.AuthOptional)
 		{
-			g.GET(httppaths.PathHistory, handlers.MediaHistoryHandler)
 			g.HEAD(httppaths.PathHistory, handlers.MediaHistoryHandler)
+			g.GET(httppaths.PathHistory, handlers.MediaHistoryHandler)
+
 			g.GET(httppaths.PathEvents, handlers.EventsStreamHandler)
+
 			g.POST(httppaths.PathSearch, handlers.SearchHandler)
+
+			g.HEAD(httppaths.PathMediaItemRow, handlers.MediaItemRowHandler)
+			g.GET(httppaths.PathMediaItemRow, handlers.MediaItemRowHandler)
+
+			g.HEAD(httppaths.PathMediaItemImage, handlers.MediaItemImageHandler)
+			g.GET(httppaths.PathMediaItemImage, handlers.MediaItemImageHandler)
+
+			g.GET(httppaths.PathMediaItemMenu, handlers.MediaItemRowMenuHandler)
+
+			g.HEAD(httppaths.PathMediaItemStream, handlers.MediaItemStreamHandler)
+			g.GET(httppaths.PathMediaItemStream, handlers.MediaItemStreamHandler)
+
+			g.HEAD(httppaths.PathMediaItemWatch, handlers.WatchPageByDownloadIDHandler)
+			g.GET(httppaths.PathMediaItemWatch, handlers.WatchPageByDownloadIDHandler)
+
+			g.HEAD(httppaths.PathDownloadFile, handlers.DownloadFileHandler)
+			g.GET(httppaths.PathDownloadFile, handlers.DownloadFileHandler)
 		}
 
 		// With middleware (error, auth or guest)
@@ -60,19 +79,7 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		g = nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r.router)
 		g.Use(middlewareError, r.middlewares.Auth.RequireAuthMode)
 		{
-			g.GET(httppaths.PathMediaItemRow, handlers.MediaItemRowHandler)
-			g.HEAD(httppaths.PathMediaItemRow, handlers.MediaItemRowHandler)
-			g.GET(httppaths.PathMediaItemImage, handlers.MediaItemImageHandler)
-			g.HEAD(httppaths.PathMediaItemImage, handlers.MediaItemImageHandler)
-			g.GET(httppaths.PathMediaItemMenu, handlers.MediaItemRowMenuHandler)
 			g.POST(httppaths.PathMediaItemShortLink, handlers.CreateMediaShareLinkHandler)
-			g.GET(httppaths.PathMediaItemStream, handlers.MediaItemStreamHandler)
-			g.HEAD(httppaths.PathMediaItemStream, handlers.MediaItemStreamHandler)
-			g.GET(httppaths.PathMediaItemWatch, handlers.WatchPageByDownloadIDHandler)
-			g.HEAD(httppaths.PathMediaItemWatch, handlers.WatchPageByDownloadIDHandler)
-
-			g.GET(httppaths.PathDownloadFile, handlers.DownloadFileHandler)
-			g.HEAD(httppaths.PathDownloadFile, handlers.DownloadFileHandler)
 		}
 
 		// With middleware (error, auth or anonym)

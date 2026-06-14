@@ -6,51 +6,44 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	"github.com/neosy/elengrab/internal/exceptions"
 )
 
 // RetryDownload repeats the download process for a specific download.
 func (uc *Downloader) RetryDownload(
 	ctx context.Context,
-	userCtx dauth.UserContext,
+	authCtx dauth.UserContext,
 	downloadID uuid.UUID,
 ) (*dto.GetMediaDownloadInfoResponse, error) {
-	var accessByUserID *uuid.UUID
-	if uc.authz.RestrictDownloadsByUser(userCtx.RoleIDs) {
-		accessByUserID = &userCtx.UserID
-	}
-
-	if uc.demoMode {
-		uc.broadcastNotification(
-			userCtx.EventKey(),
-			dto.BroadcastNotificationModuleResultRow,
-			dto.BroadcastNotificationTypeError,
-			"Operation not allowed in demo mode",
-		)
-		return nil, exceptions.DEMO_MODE_RESTRICTION.NewErrorx()
-	}
-
-	err := uc.download.Tx(
-		ctx,
-		func(ctx context.Context) error {
-			download, err := uc.download.GetByDownloadID(ctx, accessByUserID, downloadID)
-			if err != nil {
-				return err
-			}
-
-			err = uc.downloadStatus.New(ctx, download.DownloadID)
-			if err != nil {
-				uc.logger.Error("Failed to set download status to new", "error", err)
-				return err
-			}
-			return nil
-		},
-	)
+	err := uc.validateWriteOperation(authCtx)
 	if err != nil {
 		return nil, err
 	}
 
-	download, err := uc.download.GetByDownloadID(ctx, accessByUserID, downloadID)
+	resetStatusToNew := func(ctx context.Context) error {
+		download, err := uc.download.GetByDownloadID(ctx, nil, downloadID)
+		if err != nil {
+			return err
+		}
+
+		err = uc.validateDownloadWriteAccess(authCtx, download)
+		if err != nil {
+			return err
+		}
+
+		err = uc.downloadStatus.New(ctx, download.DownloadID)
+		if err != nil {
+			uc.logger.Error("Failed to set download status to new", "error", err)
+			return err
+		}
+		return nil
+	}
+
+	err = uc.download.Tx(ctx, resetStatusToNew)
+	if err != nil {
+		return nil, err
+	}
+
+	download, err := uc.download.GetByDownloadID(ctx, nil, downloadID)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +54,7 @@ func (uc *Downloader) RetryDownload(
 		return nil, err
 	}
 
-	download, err = uc.download.GetByDownloadID(ctx, accessByUserID, downloadID)
+	download, err = uc.download.GetByDownloadID(ctx, nil, downloadID)
 	if err != nil {
 		return nil, err
 	}

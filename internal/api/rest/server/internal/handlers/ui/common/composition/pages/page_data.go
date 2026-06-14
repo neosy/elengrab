@@ -21,6 +21,9 @@ type (
 		SearchBackArrowIcon      template.HTML
 		ShowHistorySearch        bool
 
+		HasCreateAccess bool
+		HasWriteAccess  bool
+
 		DiskFree string
 		DiskUsed string
 

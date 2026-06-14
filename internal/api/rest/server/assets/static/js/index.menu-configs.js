@@ -110,20 +110,29 @@ const rowMenuConfig = {
         case 'manual':
           notify.show('Copy this link: ' + result.url, notify.notifyType.INFO, 8000);
           console.log('Copy this link:', result.url);
-          //alert('Copy this link: ' + result.url);
           break;
 
         case 'error':
-          notify.show("Failed to share link", notify.notifyType.ERROR);
+          if (result.error !== "") {
+            notify.show(result.error.message, notify.notifyType.ERROR);  
+          } else {
+            notify.show("Failed to share link", notify.notifyType.ERROR);  
+          }
           console.error('Share error:', result.error);
-          //alert('Failed to share link');
           break;
       }
     },
 
     async copyLink(item) {
       const res = await fetch(item.dataset.url, { method: 'POST' });
-      if (!res.ok) throw new Error('Request failed');
+      if (!res.ok) {
+        const data = await res.json();
+        console.info(data);
+        if (data && typeof data === "object" && "message" in data) {
+            notify.show(data.message, notify.notifyType.ERROR);
+        }
+        throw new Error('Request failed');
+      }
 
       const data = await res.json();
 
@@ -141,7 +150,13 @@ const rowMenuConfig = {
         
     async delete(item) {
       const res = await fetch(item.dataset.url, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Request failed');
+      if (!res.ok) {
+        const data = await res.json();
+        if (data && typeof data === "object" && "message" in data) {
+            notify.show(data.message, notify.notifyType.ERROR);
+        }
+        throw new Error('Request failed');
+      }
     }
   },
 

@@ -127,6 +127,8 @@ func New() (*Config, error) {
 		}
 	}
 
+	startupInfo = newStartupInfo(c)
+
 	return c, nil
 }
 

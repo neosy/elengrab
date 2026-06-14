@@ -25,11 +25,11 @@ func (h *AdminHandlers) AdminPageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	ctxUser, err := policy.EnsureUser(ctx)
+	authCtx, err := policy.EnsureUser(ctx)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
-	h.renderPage(ctx, ctxUser)
+	h.renderPage(ctx, authCtx)
 }

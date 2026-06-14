@@ -39,7 +39,7 @@ func (h *DownloaderHandlers) ImportFromShareHandler(ctx *fasthttp.RequestCtx) {
 
 	resp, err := h.downloader.ScheduleDownload(
 		ctx,
-		*ctxUser,
+		ctxUser,
 		url,
 		&ddownload.DownloadOptions{
 			FormatType:      dtypes.FormatTypeVideoAudio,

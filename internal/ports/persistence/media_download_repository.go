@@ -25,7 +25,7 @@ type MediaDownloadRepository interface {
 	IterateGetAll(ctx context.Context, includeDeleted bool, fn func(*ddownload.MediaDownload) error) error
 	GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error)
 	IterateFullNames(ctx context.Context, includeDeleted bool, fn func(string) error) error
-	GetBeforeTime(ctx context.Context, before time.Time, limit uint64) ([]*ddownload.MediaDownload, error)
+	GetBeforeTime(ctx context.Context) ([]*ddownload.MediaDownload, error)
 	GetByStatus(ctx context.Context, status dtypes.MediaDownloadStatus) ([]*ddownload.MediaDownload, error)
 	GetByStatuses(ctx context.Context, statuses []dtypes.MediaDownloadStatus) ([]*ddownload.MediaDownload, error)
 	GetByPartialHash(ctx context.Context, hash string) ([]*ddownload.MediaDownload, error)
@@ -33,6 +33,7 @@ type MediaDownloadRepository interface {
 	GetDuplicateHashes(ctx context.Context, scope dtypes.UniquenessScope) ([]ddownload.DuplicateHashRow, error)
 	GetDeleted(ctx context.Context, from, to *time.Time) ([]*ddownload.MediaDownload, error)
 
+	WithOptions(options dtypes.QueryOptions) MediaDownloadRepository
 	WithUser(userID uuid.UUID) MediaDownloadRepository
 	WithFilters(filters map[string]any) MediaDownloadRepository
 }

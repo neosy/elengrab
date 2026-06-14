@@ -672,10 +672,6 @@ header.is-search .header__container {
         border-radius: 0;
         box-shadow: none;
     }
-
-    .footer {
-        justify-content: center;
-    }
 }
 
 /* On touch devices for better UX */

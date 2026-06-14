@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/utils/hash"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
+	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/stringx"
@@ -43,8 +44,14 @@ type GetMediaDownloadInfoResponse struct {
 
 	UserID *uuid.UUID
 
+	Visibility dtypes.MediaVisibility
+
 	CreatedAt time.Time
 	UpdatedAt time.Time
+
+	HasWriteAccess bool
+
+	MediaDownload *ddownload.MediaDownload
 }
 
 func (downloadInfo *GetMediaDownloadInfoResponse) IsYouTube() bool {

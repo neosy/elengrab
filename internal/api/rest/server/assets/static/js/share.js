@@ -23,7 +23,12 @@ export async function shareLink({
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+      let text = `HTTP ${response.status}`;
+      const data = await response.json();
+      if (data && typeof data === "object" && "message" in data) {
+        text = data.message;
+      }
+      throw new Error(text);
     }
 
     const { url } = await response.json();
@@ -47,7 +52,8 @@ export async function shareLink({
     // 4. Last fallback
     return { status: 'manual', url };
 
-  } catch (error) {
+  } 
+  catch (error) {
     if (error.name === 'AbortError') {
       return { status: 'cancelled', url };
     }
