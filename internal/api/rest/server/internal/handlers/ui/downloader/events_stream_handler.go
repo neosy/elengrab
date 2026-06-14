@@ -12,20 +12,20 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) EventsStreamHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser := policy.ResolveUserOrAnonym(ctx)
+	authCtx := policy.ResolveUserOrAnonym(ctx)
 	connectionID := uuid.New()
 
 	// SSE headers
 	h.setupSSEHeaders(ctx)
 
 	ctx.SetBodyStreamWriter(func(w *bufio.Writer) {
-		h.streamEvents(ctx, w, connectionID, ctxUser.EventKey())
+		h.streamEvents(ctx, w, connectionID, authCtx)
 	})
 }
 
@@ -39,8 +39,9 @@ func (h *DownloaderHandlers) streamEvents(
 	ctx *fasthttp.RequestCtx,
 	w *bufio.Writer,
 	connectionID uuid.UUID,
-	eventKey dtypes.EventKey,
+	authCtx dauth.UserContext,
 ) {
+	eventKey := authCtx.EventKey()
 	chEvent := h.downloader.Broadcaster().Subscribe(eventKey)
 	defer h.downloader.Broadcaster().Unsubscribe(eventKey, chEvent)
 
@@ -58,7 +59,7 @@ func (h *DownloaderHandlers) streamEvents(
 			h.sendPing(w)
 
 		case event := <-chEvent:
-			h.handleEvent(w, event)
+			h.handleEvent(w, authCtx, event)
 		}
 	}
 }
@@ -83,7 +84,7 @@ func (h *DownloaderHandlers) sendPing(w *bufio.Writer) {
 	w.Flush()
 }
 
-func (h *DownloaderHandlers) handleEvent(w *bufio.Writer, event ucdto.BroadcastEvent) {
+func (h *DownloaderHandlers) handleEvent(w *bufio.Writer, authCtx dauth.UserContext, event ucdto.BroadcastEvent) {
 	switch event.Type {
 	case ucdto.BroadcastEventTypeDownloadAdd:
 		h.handleDownloadAdd(w, event)
@@ -94,7 +95,9 @@ func (h *DownloaderHandlers) handleEvent(w *bufio.Writer, event ucdto.BroadcastE
 	case ucdto.BroadcastEventTypeProgressUpdate:
 		h.handleProgressUpdate(w, event)
 	case ucdto.BroadcastEventTypeSystemInfoUpdate:
-		h.handleSystemInfoUpdate(w, event)
+		if h.downloader.HasWriteOperation(authCtx) {
+			h.handleSystemInfoUpdate(w, event)
+		}
 	case ucdto.BroadcastEventTypeNotification:
 		h.handleNotification(w, event)
 	}

@@ -34,7 +34,7 @@ var accountMenuActions = []accountMenuAction{
 	},
 }
 
-func NewAccountMenuActions(user *dauth.UserContext) []accountMenuAction {
+func NewAccountMenuActions(user dauth.UserContext) []accountMenuAction {
 	actions := make([]accountMenuAction, 0, len(accountMenuActions))
 	for _, action := range accountMenuActions {
 		if action.accessUserType > user.UserType() {

@@ -1,18 +1,16 @@
 package download
 
-import (
-	"github.com/google/uuid"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
-)
+import "maps"
 
-type downloadRepositoryFilters struct {
-	userID *uuid.UUID
-	title  *string
-}
+type filtersByName map[string]any
 
-func (f *downloadRepositoryFilters) copy() downloadRepositoryFilters {
-	return downloadRepositoryFilters{
-		userID: uptr.Copy(f.userID),
-		title:  uptr.Copy(f.title),
+func (filters *filtersByName) copy() filtersByName {
+	if filters == nil {
+		return nil
 	}
+
+	newFilters := make(filtersByName)
+	maps.Copy(newFilters, *filters)
+
+	return newFilters
 }

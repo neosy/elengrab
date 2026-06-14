@@ -20,7 +20,7 @@ func (uc *Downloader) broadcastDownloadAdd(download *ddownload.MediaDownload) {
 	}
 
 	var accessByUserID uuid.UUID
-	if uc.authz.RestrictDownloadsByUser(nil) && download.UserID != nil {
+	if uc.authz.ShouldRestrictDownloads(nil) && download.UserID != nil {
 		accessByUserID = *download.UserID
 	}
 
@@ -54,7 +54,7 @@ func (uc *Downloader) broadcastDownloadUpdate(
 	}
 
 	var accessByUserID uuid.UUID
-	if uc.authz.RestrictDownloadsByUser(nil) && downloadInfo.UserID != nil {
+	if uc.authz.ShouldRestrictDownloads(nil) && downloadInfo.UserID != nil {
 		accessByUserID = *downloadInfo.UserID
 	}
 
@@ -70,7 +70,7 @@ func (uc *Downloader) broadcastDownloadDelete(
 	downloadID uuid.UUID,
 ) {
 	var accessByUserID uuid.UUID
-	if uc.authz.RestrictDownloadsByUser(nil) && userID != nil {
+	if uc.authz.ShouldRestrictDownloads(nil) && userID != nil {
 		accessByUserID = *userID
 	}
 
@@ -110,7 +110,7 @@ func (uc *Downloader) broadcastDownloadProgressUpdate(
 	}
 
 	var accessByUserID uuid.UUID
-	if uc.authz.RestrictDownloadsByUser(nil) && downloadInfo.UserID != nil {
+	if uc.authz.ShouldRestrictDownloads(nil) && downloadInfo.UserID != nil {
 		accessByUserID = *downloadInfo.UserID
 	}
 

@@ -49,8 +49,4 @@ export function initDomElements() {
     DOM_ELEMENTS.sysInfoServerStatusDot = document.getElementById("server-status-dot");
     DOM_ELEMENTS.sysInfoDiskFree = document.getElementById("disk-free");
     DOM_ELEMENTS.sysInfoDiskUsed = document.getElementById("disk-used");
-
-    if (!DOM_ELEMENTS.sysInfoServerStatusDot || !DOM_ELEMENTS.sysInfoDiskFree || !DOM_ELEMENTS.sysInfoDiskUsed) {
-        console.warn("System info elements not found in DOM");
-    }
 }

@@ -99,7 +99,7 @@ func (h *DownloaderHandlers) AuthRegisterSubmitHandler(ctx *fasthttp.RequestCtx)
 
 	// Check if passwords match
 	if formPassword != formConfirmPassword {
-		nfasthttp.WriteErrorx(ctx, errorx.NewWithMessage(
+		nfasthttp.WriteErrorx(ctx, errorx.NewMessage(
 			"Passwords do not match. Please try again.", exceptions.INVALID_REQUEST))
 		return
 	}

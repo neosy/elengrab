@@ -17,7 +17,7 @@ import (
 
 func (h *DownloaderHandlers) MediaItemStreamHandler(ctx *fasthttp.RequestCtx) {
 	// Get user ID from context
-	ctxUser := policy.ResolveUserOrAnonym(ctx)
+	authCtx := policy.ResolveUserOrAnonym(ctx)
 
 	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
 	if !ok || downloadIDStr == "" {
@@ -31,7 +31,7 @@ func (h *DownloaderHandlers) MediaItemStreamHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	h.stream(ctx, *ctxUser, downloadID, false)
+	h.stream(ctx, authCtx, downloadID, false)
 }
 
 func (h *DownloaderHandlers) StreamShortCodeHandler(ctx *fasthttp.RequestCtx) {
@@ -74,7 +74,7 @@ func (h *DownloaderHandlers) StreamShortCodeHandler(ctx *fasthttp.RequestCtx) {
 
 func (h *DownloaderHandlers) stream(
 	ctx *fasthttp.RequestCtx,
-	ctxUser dauth.UserContext,
+	authCtx dauth.UserContext,
 	downloadID uuid.UUID,
 	unrestricted bool,
 ) {
@@ -86,7 +86,7 @@ func (h *DownloaderHandlers) stream(
 	if unrestricted {
 		downloadInfo, err = h.downloader.GetDownloadInfoUnrestricted(ctx, downloadID)
 	} else {
-		downloadInfo, err = h.downloader.GetDownloadInfo(ctx, ctxUser, downloadID)
+		downloadInfo, err = h.downloader.GetDownloadInfo(ctx, authCtx, downloadID)
 	}
 
 	if err != nil {

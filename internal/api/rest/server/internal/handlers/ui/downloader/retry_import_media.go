@@ -14,7 +14,7 @@ import (
 )
 
 func (h *DownloaderHandlers) RetryImportMediaHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser, err := policy.ResolveUserOrFallback(ctx, h.appMode)
+	authCtx, err := policy.ResolveUserOrFallback(ctx, h.appMode)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -32,7 +32,7 @@ func (h *DownloaderHandlers) RetryImportMediaHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	downloadInfo, err := h.downloader.RetryDownload(ctx, *ctxUser, downloadID)
+	downloadInfo, err := h.downloader.RetryDownload(ctx, authCtx, downloadID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -63,7 +63,7 @@ func (h *DownloaderHandlers) RetryImportMediaHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	dataResp := dto.RepeatDownloadResponse{
-		GuestCreated: ctxUser.GuestCreated,
+		GuestCreated: authCtx.GuestCreated,
 	}
 
 	dataJSON, _ := json.Marshal(dataResp)

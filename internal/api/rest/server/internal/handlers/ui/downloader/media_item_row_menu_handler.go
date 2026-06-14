@@ -15,7 +15,7 @@ import (
 )
 
 func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser := policy.ResolveUserOrAnonym(ctx)
+	authCtx := policy.ResolveUserOrAnonym(ctx)
 
 	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
 	if !ok || downloadIDStr == "" {
@@ -29,7 +29,7 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	downloadResp, err := h.downloader.GetDownloadInfo(ctx, *ctxUser, downloadID)
+	downloadResp, err := h.downloader.GetDownloadInfo(ctx, authCtx, downloadID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -42,6 +42,7 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 			menu.RowMenuActionURLKey:    downloadResp.MediaURL,
 		},
 		downloadResp.Status == dtypes.MediaDownloadStatusDone,
+		downloadResp.HasWriteAccess,
 	)
 
 	pageData := pages.PageFragmentData{

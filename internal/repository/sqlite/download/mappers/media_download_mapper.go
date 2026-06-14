@@ -45,6 +45,7 @@ func (m *Mappers) MapDownloadDomainToEntity(download *ddownload.MediaDownload) (
 		SafeReadableFullName: download.SafeReadableFullName,
 		MediaInfo:            &mediaInfoJson,
 		ErrorMessage:         download.ErrorMessage,
+		Visibility:           download.Visibility.String(),
 		DownloadedAt:         downloadedAt,
 	}, nil
 }
@@ -86,6 +87,11 @@ func (m *Mappers) MapDownloadEntityToDomain(eDownload *edownload.MediaDownload, 
 		downloadedAt = &t
 	}
 
+	visibility, err := dtypes.ParseMediaVisibility(eDownload.Visibility)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ddownload.MediaDownload{
 		DownloadID:           eDownload.DownloadID,
 		UserID:               eDownload.UserID,
@@ -102,6 +108,7 @@ func (m *Mappers) MapDownloadEntityToDomain(eDownload *edownload.MediaDownload, 
 		SafeReadableFullName: eDownload.SafeReadableFullName,
 		MediaInfo:            mediaInfo,
 		ErrorMessage:         eDownload.ErrorMessage,
+		Visibility:           visibility,
 		DownloadedAt:         downloadedAt,
 		CreatedAt:            eDownload.CreatedAt,
 		UpdatedAt:            eDownload.UpdatedAt,

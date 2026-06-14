@@ -108,7 +108,7 @@ func New(text string, args ...any) Errorx {
 	return errx.normalizeToInnerType()
 }
 
-// NewWithMessage creates a new Errorx instance with the provided text and an explicit message.
+// NewMessage creates a new Errorx instance with the provided text and an explicit message.
 // The message is set using the WithErrorMessage argument, which takes precedence over the default message.
 // Additional optional arguments can be passed to further configure the error.
 // Supported argument types and their effects:
@@ -117,8 +117,8 @@ func New(text string, args ...any) Errorx {
 //   - error: will be combined with the current error using CombineErrors
 //
 // The provided text is used to create the base error, while the message argument allows for a custom message to be set explicitly.
-func NewWithMessage(text string, args ...any) Errorx {
-	return New(text, append([]any{WithErrorMessage(text)}, args...)...)
+func NewMessage(text string, args ...any) Errorx {
+	return New(stringx.LowerFirst(text), append([]any{WithErrorMessage(text)}, args...)...)
 }
 
 // NewHTTP creates a new Errorx instance with the provided text error and HTTP status.
@@ -168,7 +168,7 @@ func NewHTTPStatus(status int, args ...any) Errorx {
 //   - exceptionx.Exception: sets the underlying exception
 //   - HttpStatusProvider: extracts and sets the HTTP status (overrides default status derived from text)
 func NewHTTPMessage(text string, httpStatus int, args ...any) Errorx {
-	return NewHTTP(text, httpStatus, append([]any{WithErrorMessage(text)}, args...)...)
+	return NewHTTP(stringx.LowerFirst(text), httpStatus, append([]any{WithErrorMessage(text)}, args...)...)
 }
 
 // NewFromError creating errorx from error and arguments

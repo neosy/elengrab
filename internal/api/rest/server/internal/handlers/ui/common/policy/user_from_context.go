@@ -2,10 +2,10 @@ package policy
 
 import (
 	"github.com/google/uuid"
-	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/middleware/auth"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
@@ -34,11 +34,11 @@ func ResolveUser(ctx *fasthttp.RequestCtx) *dauth.UserContext {
 
 // ResolveUserOrAnonym returns authenticated user from context if present,
 // otherwise returns anonymous user context.
-func ResolveUserOrAnonym(ctx *fasthttp.RequestCtx) *dauth.UserContext {
+func ResolveUserOrAnonym(ctx *fasthttp.RequestCtx) dauth.UserContext {
 	userCtx := ResolveUser(ctx)
 
 	if userCtx != nil {
-		return userCtx
+		return *userCtx
 	}
 
 	var anonSessionID uuid.UUID
@@ -51,24 +51,24 @@ func ResolveUserOrAnonym(ctx *fasthttp.RequestCtx) *dauth.UserContext {
 
 // EnsureUser returns authenticated user from fasthttp request context.
 // If no user is present (or user is invalid), it returns HTTP unauthorized error.
-func EnsureUser(ctx *fasthttp.RequestCtx) (*dauth.UserContext, error) {
+func EnsureUser(ctx *fasthttp.RequestCtx) (dauth.UserContext, error) {
 	userCtx := ResolveUser(ctx)
 
 	if userCtx == nil && !nfasthttp.IsForwardedHTTPS(ctx) {
-		return nil, errorx.NewHTTPMessage("HTTPS is required for authentication", fasthttp.StatusBadRequest)
+		return dauth.UserContext{}, errorx.NewHTTPMessage("HTTPS is required for authentication", fasthttp.StatusBadRequest)
 	}
 
 	if userCtx == nil {
-		return nil, apierrors.ErrUnauthorized
+		return dauth.UserContext{}, ierrors.ErrUnauthorized
 	}
 
-	return userCtx, nil
+	return *userCtx, nil
 }
 
 // ResolveUserOrFallback resolves user from request context applying access policy:
 // in public app mode over non-HTTPS requests it returns anonymous user,
 // otherwise it requires authenticated user and returns error if absent.
-func ResolveUserOrFallback(ctx *fasthttp.RequestCtx, appMode dtypes.AppMode) (*dauth.UserContext, error) {
+func ResolveUserOrFallback(ctx *fasthttp.RequestCtx, appMode dtypes.AppMode) (dauth.UserContext, error) {
 	if IsAnonymousFallbackAllowed(ctx, appMode) {
 		return ResolveUserOrAnonym(ctx), nil
 	}
@@ -78,5 +78,5 @@ func ResolveUserOrFallback(ctx *fasthttp.RequestCtx, appMode dtypes.AppMode) (*d
 // IsAnonymousFallbackAllowed returns true if anonymous fallback is allowed for current request.
 // It's used in public app mode over non-HTTPS requests.
 func IsAnonymousFallbackAllowed(ctx *fasthttp.RequestCtx, appMode dtypes.AppMode) bool {
-	return !nfasthttp.IsForwardedHTTPS(ctx) && !appMode.IsUserRequired()
+	return !nfasthttp.IsForwardedHTTPS(ctx) && !appMode.IsUserRequiredForRead()
 }

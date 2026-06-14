@@ -4,10 +4,12 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
@@ -16,23 +18,33 @@ import (
 
 func (uc *Downloader) ScheduleDownload(
 	ctx context.Context,
-	userCtx dauth.UserContext,
+	authCtx dauth.UserContext,
 	url string,
 	options *ddownload.DownloadOptions,
 ) (*dto.ScheduleDownloadResponse, error) {
 	if uc.demoMode {
 		uc.broadcastNotification(
-			userCtx.EventKey(),
+			authCtx.EventKey(),
 			dto.BroadcastNotificationModuleGrabForm,
 			dto.BroadcastNotificationTypeError,
-			"Demo mode",
+			"Operation not allowed in demo mode",
 		)
 		return nil, exceptions.DEMO_MODE_RESTRICTION.NewErrorx()
 	}
 
+	if uc.appMode == dtypes.AppModePublicReadonly && authz.IsAnonymous(authCtx.RoleIDs) {
+		uc.broadcastNotification(
+			authCtx.EventKey(),
+			dto.BroadcastNotificationModuleGrabForm,
+			dto.BroadcastNotificationTypeError,
+			"You must be authenticated to perform this action",
+		)
+		return nil, exceptions.UNAUTHORIZED.NewErrorx()
+	}
+
 	returnErr := func(err error) error {
 		uc.broadcastNotification(
-			userCtx.EventKey(),
+			authCtx.EventKey(),
 			dto.BroadcastNotificationModuleGrabForm,
 			dto.BroadcastNotificationTypeError,
 			err.Error(),
@@ -45,13 +57,19 @@ func (uc *Downloader) ScheduleDownload(
 
 	options.Filename = &filename
 
+	var mediaVisibility dtypes.MediaVisibility
+	if authCtx.UserID != uuid.Nil {
+		mediaVisibility = dtypes.MediaVisibilityAuthenticated
+	}
+
 	err := uc.download.Create(
 		ctx,
 		&ddownload.MediaDownload{
 			DownloadID: downloadID,
-			UserID:     &userCtx.UserID,
+			UserID:     &authCtx.UserID,
 			FileName:   filename,
 			MediaURL:   url,
+			Visibility: mediaVisibility,
 		},
 		options,
 	)
@@ -61,8 +79,8 @@ func (uc *Downloader) ScheduleDownload(
 	}
 
 	var accessByUserID *uuid.UUID
-	if uc.authz.RestrictDownloadsByUser(userCtx.RoleIDs) {
-		accessByUserID = &userCtx.UserID
+	if uc.authz.ShouldRestrictDownloads(authCtx.RoleIDs) {
+		accessByUserID = &authCtx.UserID
 	}
 
 	download, err := uc.download.GetByDownloadID(ctx, accessByUserID, downloadID)

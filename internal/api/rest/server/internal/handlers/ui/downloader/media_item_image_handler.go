@@ -16,7 +16,7 @@ import (
 )
 
 func (h *DownloaderHandlers) MediaItemImageHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser := policy.ResolveUserOrAnonym(ctx)
+	authCtx := policy.ResolveUserOrAnonym(ctx)
 
 	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
 	if !ok || downloadIDStr == "" {
@@ -54,7 +54,7 @@ func (h *DownloaderHandlers) MediaItemImageHandler(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	imageData, err := h.downloader.GetDownloadImage(ctx, *ctxUser, downloadID, imageSources)
+	imageData, err := h.downloader.GetDownloadImage(ctx, authCtx, downloadID, imageSources)
 	if err == nil && imageData != nil && len(imageData.Raw) > 0 {
 		ctx.SetContentType(httpx.ContentTypeByExt(imageData.Format.String()))
 		ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")

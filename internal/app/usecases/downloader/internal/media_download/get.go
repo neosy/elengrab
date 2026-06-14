@@ -70,13 +70,20 @@ func (uc *MediaDownload) GetAllFullNames(ctx context.Context, includeDeleted boo
 	return names, nil
 }
 
-func (uc *MediaDownload) GetBeforeTime(ctx context.Context, before time.Time, limit uint64, filters map[string]any) ([]*ddownload.MediaDownload, error) {
-	downloadRep := uc.downloadRep
+func (uc *MediaDownload) GetBeforeTime(
+	ctx context.Context,
+	queryOptions dtypes.QueryOptions,
+	filters map[string]any,
+) ([]*ddownload.MediaDownload, error) {
+	repo := uc.downloadRep
+
+	repo = repo.WithOptions(queryOptions)
+
 	if filters != nil {
-		downloadRep = uc.downloadRep.WithFilters(filters)
+		repo = repo.WithFilters(filters)
 	}
 
-	download, err := downloadRep.GetBeforeTime(ctx, before, limit)
+	download, err := repo.GetBeforeTime(ctx)
 	if err != nil {
 		uc.logger.Warn("Failed to get downloads", "error", err)
 		return nil, err

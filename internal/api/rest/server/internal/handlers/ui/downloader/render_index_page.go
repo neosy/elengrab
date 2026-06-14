@@ -22,9 +22,9 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *dauth.UserContext) {
+func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, authCtx dauth.UserContext) {
 	var rowsBuf bytes.Buffer
-	err := h.getDownloadsHistory(ctx, &rowsBuf, *ctxUser, time.Now().UTC(), nil)
+	err := h.getDownloadsHistory(ctx, &rowsBuf, authCtx, time.Now().UTC(), nil)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -54,7 +54,7 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 
 	var userAvatarActionMode = "none"
 	if !h.downloader.DemoMode() {
-		if ctxUser.UserType() < dtypes.UserTypeUser {
+		if authCtx.UserType() < dtypes.UserTypeUser {
 			userAvatarActionMode = "login"
 		} else {
 			userAvatarActionMode = "menu"
@@ -85,7 +85,7 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 	baseValues.MetaOgItems = metaOgItems
 
 	extraData := make(map[string]any)
-	extraData[items.UserAvatarIconKey] = icons.UserAvatarIconByType(ctxUser.UserType()).FileRaw()
+	extraData[items.UserAvatarIconKey] = icons.UserAvatarIconByType(authCtx.UserType()).FileRaw()
 	extraData[items.UserAvatarActionModeKey] = userAvatarActionMode
 	extraData[items.ResultNoRowsKey] = rowsBuf.Len() == 0
 	extraData[items.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
@@ -102,6 +102,8 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, ctxUser *
 			UserMenuSearchButtonIcon: icons.UserMenuSearchIcon.FileRaw(),
 			SearchBackArrowIcon:      icons.SearchBackArrowIcon.FileRaw(),
 			ShowHistorySearch:        true,
+			HasCreateAccess:          h.downloader.CanAddMediaDownload(authCtx),
+			HasWriteAccess:           h.downloader.HasWriteOperation(authCtx),
 			DiskFree:                 humanize.Bytes(int64(systemInfo.DiskFree)),
 			DiskUsed:                 humanize.Bytes(int64(systemInfo.DiskUsed)),
 			GrabForm: pages.IndexGrabForm{
