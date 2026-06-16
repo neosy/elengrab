@@ -17,9 +17,11 @@ type (
 	}
 
 	IndexPageValues struct {
-		UserMenuSearchButtonIcon template.HTML
-		SearchBackArrowIcon      template.HTML
-		ShowHistorySearch        bool
+		UserMenuSearchButtonIcon   template.HTML
+		UserMenuDownloadButtonIcon template.HTML
+		SearchBackArrowIcon        template.HTML
+		ShowHistorySearch          bool
+		UserMenuAvatarTitle        string
 
 		HasCreateAccess bool
 		HasWriteAccess  bool
