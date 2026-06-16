@@ -32,7 +32,7 @@
 
     --user-menu-search-display: none;
 
-    --search-margin-right: calc(90px + var(--user-menu-right));
+    --search-margin-right: calc(3*45px + 10px + var(--user-menu-right));
 
     --footer-max-width: var(--main-content-max);
 }
@@ -76,7 +76,7 @@
         --user-menu-height: 30px;
         --user-menu-svg-size: 27px;
 
-        --search-margin-right: calc(70px + var(--user-menu-right));
+        --search-margin-right: calc(3*35px + 8px + var(--user-menu-right));
     }
 }
 
@@ -245,13 +245,7 @@ body.ui-blocking-active {
     height: var(--user-menu-svg-size);
 }
 
-@media (hover: hover) {
-    .user-menu__button-wrapper:hover {
-        background-color: var(--bg-button-hover);
-    }
-}
-
-.user-menu__search-button {
+.user-menu__button {
     border: none;
     align-items: center;
     justify-content: center;
@@ -261,6 +255,24 @@ body.ui-blocking-active {
     outline: none;
     cursor: pointer;
     transition: border-color 0.5s ease, background-color 0.5s ease, color 0.5s ease, transform 0.3s ease;
+}
+
+.user-menu__download-button svg {
+    transition: color 0.4s ease;
+}
+
+@media (hover: hover) {
+    .user-menu__button-wrapper:hover {
+        background-color: var(--bg-button-hover);
+    }
+
+    .user-menu__download:hover {
+        background-color: inherit;
+    }
+
+    .user-menu__download-button:hover svg {
+        color: var(--download);
+    }
 }
 
 .user-avatar a {

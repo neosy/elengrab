@@ -5,8 +5,9 @@ import (
 )
 
 var (
-	UserMenuSearchIcon  = newIcon("UserMenuSearchIcon", "search-icon.svg")
-	SearchBackArrowIcon = newIcon("SearchBackArrowIcon", "back-arrow-icon.svg")
+	UserMenuSearchIcon   = newIcon("UserMenuSearchIcon", "search-icon.svg")
+	UserMenuDownloadIcon = newIcon("UserMenuDownloadIcon", "add-media-icon.svg")
+	SearchBackArrowIcon  = newIcon("SearchBackArrowIcon", "back-arrow-icon.svg")
 
 	UserAvatarAdminIcon  = newIcon("UserAvatarAdminIconName", "user-admin-2.svg")
 	UserAvatarUserIcon   = newIcon("UserAvatarUserIconName", "user-default.svg")

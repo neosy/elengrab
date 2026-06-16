@@ -1,32 +1,33 @@
 import * as constants from './index-constants.js';
 import storageState from './storage-state.js';
+import * as notify from './notifications.js';
 
 export function applyGridView(isGridView) {
-  document.body.classList.toggle(constants.CLASS_NAMES.gridView, isGridView);
-  document.body.classList.toggle(constants.CLASS_NAMES.listView, !isGridView);
+    document.body.classList.toggle(constants.CLASS_NAMES.gridView, isGridView);
+    document.body.classList.toggle(constants.CLASS_NAMES.listView, !isGridView);
 }
 
 export function toggleGridView() {
-  const current = storageState.get(constants.STORAGE_KEYS.settingsGridView, true);
-  const next = !current;
+    const current = storageState.get(constants.STORAGE_KEYS.settingsGridView, true);
+    const next = !current;
 
-  storageState.set(constants.STORAGE_KEYS.settingsGridView, next);
+    storageState.set(constants.STORAGE_KEYS.settingsGridView, next);
 
-  applyGridView(next);
+    applyGridView(next);
 
-  return next;
+    return next;
 }
 
 export function initGridView() {
-  const isGridView = storageState.get(constants.STORAGE_KEYS.settingsGridView, true);
+    const isGridView = storageState.get(constants.STORAGE_KEYS.settingsGridView, true);
 
-  applyGridView(isGridView);
+    applyGridView(isGridView);
 
-  return isGridView;
+    return isGridView;
 }
 
 export function getGridView() {
-  return storageState.get(constants.STORAGE_KEYS.settingsGridView, true);
+    return storageState.get(constants.STORAGE_KEYS.settingsGridView, true);
 }
 
 export function initSearching(clear) {
@@ -46,6 +47,17 @@ export function initSearching(clear) {
     });
 }
 
+export function initHeaderUserMenu() {
+    const btn = document.getElementById("userMenudownloadButton");
+    const grabInput = document.getElementById("mediaURLInput");
+
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+        selectGrabInput(grabInput);
+    });    
+}
+
 function openSearching(header, input) {
     header.classList.toggle(constants.CLASS_NAMES.isSearch, true);
     input.focus();
@@ -54,4 +66,18 @@ function openSearching(header, input) {
 function closeSearching(header, clear) {
     header.classList.toggle(constants.CLASS_NAMES.isSearch, false);
     clear();
+}
+
+function selectGrabInput(grabInput) {
+    if (!grabInput) {
+        notify.show("You do not have permission to add downloads", notify.notifyType.ERROR);
+        return;
+    }
+
+    grabInput.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+    });
+
+    grabInput.focus();
 }

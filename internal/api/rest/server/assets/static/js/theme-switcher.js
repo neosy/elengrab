@@ -7,13 +7,19 @@
 
     // Apply theme, persist to localStorage and update mobile status bar color
     const setTheme = (theme) => {
-        html.classList.toggle('dark', theme === 'dark');
+        const isDarkTheme = theme === 'dark';
+        
+        html.classList.toggle('dark', isDarkTheme);
         localStorage.setItem('theme', theme);
 
         // Update <meta name="theme-color"> for mobile browsers (removes white bar)
         if (themeColorMeta) {
-            const color = theme === 'dark' ? '#171717' : '#f0f0f0'; // adjust to your exact colors
+            const color = isDarkTheme ? '#171717' : '#f0f0f0'; // adjust to your exact colors
             themeColorMeta.setAttribute('content', color);
+        }
+
+        if (btn) {
+            btn.title = isDarkTheme ? "Switch to light mode" : "Switch to dark mode";
         }
     };
 

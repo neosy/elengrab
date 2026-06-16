@@ -7,6 +7,7 @@
 - Added user management page. Closes #252
 - Added automatic rewriting of JavaScript module imports to use hashed filenames for reliable cache busting [L037]
 - Added `public_readonly` access mode allowing anonymous users to view only public media while restricting uploads to authenticated users [L040]
+- Added download button to top menu [L041]
 
 ### 🎨 Style
 - Updated header layout and element positioning [L032]
