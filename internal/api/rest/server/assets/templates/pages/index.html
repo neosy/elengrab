@@ -4,9 +4,10 @@
 
 {{- define "user-menu" }}
       <div class="user-menu">
-        <div class="user-menu__button-wrapper user-menu__search"><button class="user-menu__search-button" id="userMenuSearchButton" type="button">{{ .Values.UserMenuSearchButtonIcon }}</button></div>
+        <div class="user-menu__button-wrapper user-menu__search"><button class="user-menu__button user-menu__search-button" id="userMenuSearchButton" type="button" title="Open search">{{ .Values.UserMenuSearchButtonIcon }}</button></div>
+        <div class="user-menu__button-wrapper user-menu__download"><button class="user-menu__button user-menu__download-button" id="userMenudownloadButton" type="button" title="Add download">{{ .Values.UserMenuDownloadButtonIcon }}</button></div>
         {{- template "theme-switcher" . }}
-        <div class="user-menu__button-wrapper user-avatar no-select" id="user-avatar" data-action="{{ .Extra.UserAvatarActionMode }}">
+        <div class="user-menu__button-wrapper user-avatar no-select" id="user-avatar" data-action="{{ .Extra.UserAvatarActionMode }}" title="{{ .Values.UserMenuAvatarTitle }}">
           {{- if eq .Extra.UserAvatarActionMode "login" }}<a href="{{ .BasePaths.AuthLogin }}">{{- end }}
           {{- .Extra.UserAvatarIcon }}
           {{- if eq .Extra.UserAvatarActionMode "login" }}</a>{{- end }}

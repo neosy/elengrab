@@ -52,12 +52,17 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, authCtx d
 		return
 	}
 
-	var userAvatarActionMode = "none"
+	var (
+		userAvatarActionMode = "none"
+		userMenuAvatarTitle  = ""
+	)
 	if !h.downloader.DemoMode() {
 		if authCtx.UserType() < dtypes.UserTypeUser {
 			userAvatarActionMode = "login"
+			userMenuAvatarTitle = "Login"
 		} else {
 			userAvatarActionMode = "menu"
+			userMenuAvatarTitle = "Account menu"
 		}
 	}
 
@@ -99,13 +104,15 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, authCtx d
 			PwaManifest: pwaManifestPath,
 		},
 		Values: pages.IndexPageValues{
-			UserMenuSearchButtonIcon: icons.UserMenuSearchIcon.FileRaw(),
-			SearchBackArrowIcon:      icons.SearchBackArrowIcon.FileRaw(),
-			ShowHistorySearch:        true,
-			HasCreateAccess:          h.downloader.CanAddMediaDownload(authCtx),
-			HasWriteAccess:           h.downloader.HasWriteOperation(authCtx),
-			DiskFree:                 humanize.Bytes(int64(systemInfo.DiskFree)),
-			DiskUsed:                 humanize.Bytes(int64(systemInfo.DiskUsed)),
+			UserMenuSearchButtonIcon:   icons.UserMenuSearchIcon.FileRaw(),
+			SearchBackArrowIcon:        icons.SearchBackArrowIcon.FileRaw(),
+			UserMenuDownloadButtonIcon: icons.UserMenuDownloadIcon.FileRaw(),
+			ShowHistorySearch:          true,
+			UserMenuAvatarTitle:        userMenuAvatarTitle,
+			HasCreateAccess:            h.downloader.CanAddMediaDownload(authCtx),
+			HasWriteAccess:             h.downloader.HasWriteOperation(authCtx),
+			DiskFree:                   humanize.Bytes(int64(systemInfo.DiskFree)),
+			DiskUsed:                   humanize.Bytes(int64(systemInfo.DiskUsed)),
 			GrabForm: pages.IndexGrabForm{
 				InputPlaceholder:   pages.IndexGrabFormInputPlaceholder,
 				SettingsButtonIcon: icons.IndexGrabSettingsButtonIcon.FileRaw(),

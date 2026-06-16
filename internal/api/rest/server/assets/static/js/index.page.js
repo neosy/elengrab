@@ -256,11 +256,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         // ignore non-JSON
                     }
 
-                    notify.showErrorMessage(
-                        text,
-                        DOM_ELEMENTS.resultInfo,
-                        DOM_ELEMENTS.resultInfoFailed
-                    );
+                    /// TODO Duplicate message output has been disabled.
+                    // notify.showErrorMessage(
+                    //     text,
+                    //     DOM_ELEMENTS.resultInfo,
+                    //     DOM_ELEMENTS.resultInfoFailed
+                    // );
                 }
 
                 return;
@@ -336,6 +337,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Init search elements
     view.initSearching(searchInputClearButton.clear);
+
+    // Init header user menu elements
+    view.initHeaderUserMenu()
 
     // Create SSE connection
     var sse = null;
