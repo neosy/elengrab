@@ -28,7 +28,7 @@ func (uc *Downloader) UpdateHash(ctx context.Context) error {
 		}
 
 		download.PartialHash = &h
-		err = uc.download.Update(ctx, download)
+		err = uc.download.Update(ctx, nil, download)
 		if err != nil {
 			continue
 		}

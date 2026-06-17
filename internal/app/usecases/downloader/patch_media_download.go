@@ -67,5 +67,5 @@ func (uc *Downloader) PatchMediaDownload(
 		return errorx.NewHTTPMessage("No changes to update", http.StatusBadRequest)
 	}
 
-	return uc.download.Update(ctx, download)
+	return uc.download.Update(ctx, &authCtx.UserID, download)
 }
