@@ -18,6 +18,10 @@ var (
 		key:      "watch-page",
 		fileName: "watch.html",
 	}
+	EditMediaPage = page{
+		key:      "edit-media-page",
+		fileName: "edit-media.html",
+	}
 	AdminPage = page{
 		key:      "admin-page",
 		fileName: "admin.html",

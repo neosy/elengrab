@@ -1,0 +1,71 @@
+package downloader
+
+import (
+	"context"
+	"net/http"
+
+	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+)
+
+func (uc *Downloader) PatchMediaDownload(
+	ctx context.Context,
+	authCtx dauth.UserContext,
+	req dto.PatchMediaDownloadRequest,
+) error {
+	err := uc.validateWriteOperation(authCtx)
+	if err != nil {
+		return err
+	}
+
+	req.Normalize()
+
+	if err := req.Validate(); err != nil {
+		return err
+	}
+
+	download, err := uc.download.GetByDownloadID(ctx, nil, req.DownloadID)
+	if err != nil {
+		return err
+	}
+
+	err = uc.validateDownloadWriteAccess(authCtx, download)
+	if err != nil {
+		return err
+	}
+
+	var needUpdate bool
+
+	if req.MediaTitle != nil && *req.MediaTitle != download.MediaTitle {
+		download.MediaTitle = *req.MediaTitle
+		needUpdate = true
+	}
+
+	if req.MediaDescription != nil {
+		var (
+			description     = *req.MediaDescription
+			origDescription string
+		)
+
+		if download.MediaDescription != nil {
+			origDescription = *download.MediaDescription
+		}
+
+		if description != origDescription {
+			download.MediaDescription = &description
+			needUpdate = true
+		}
+	}
+
+	if req.Visibility != nil && *req.Visibility != download.Visibility {
+		download.Visibility = *req.Visibility
+		needUpdate = true
+	}
+
+	if !needUpdate {
+		return errorx.NewHTTPMessage("No changes to update", http.StatusBadRequest)
+	}
+
+	return uc.download.Update(ctx, download)
+}

@@ -1,0 +1,69 @@
+{{- define "edit-media-page" }}
+    {{- template "base" . }}
+{{- end }}
+
+{{- define "header" }}
+    <header class="header" id="header">
+        <div class="header__left">
+            <a class="header__logo-link" href="/">
+                <img class="header__logo-image" src="{{.BasePaths.StaticImages}}/logo-512.png">
+                <div class="header__logo-text">
+                    <h1 class="header__logo-title">{{ .BaseValues.Header }}</h1>
+                    <h5 class="header__logo-description">Studio</h5>
+                </div>
+            </a>
+        </div>
+        <div class="header__right">
+            <div class="user-menu">
+                {{- template "theme-switcher" . }}
+            </div>
+        </div>
+  </header>
+{{- end }}
+
+{{- define "main" }}
+    <main class="main">
+        <div class="main__content">
+            <div class="page-header">
+                <div class="page-header__inner">
+                    <h1 class="page-header__title">Media Information</h1>
+                    <div class="page-header__buttons">
+                        <button class="page-header__button page-header__button--save" id="saveButton" type="button" title="Save" data-patch-url="{{ .Values.PatchURL }}">Save</button>
+                    </div>
+                </div>
+            </div>
+            <div class="page-content">
+                <div class="page-content__media-editor">
+                    <div class="media-editor__field media-editor__field--input media-editor__field--title">
+                        <label class="media-editor__label" for="mediaTitleInput">Name (required field)</label>
+                        <textarea class="media-editor__textarea" id="mediaTitleInput" rows="1" data-max-length="100">{{ .Values.MediaTitle }}</textarea>
+                        <div class="media-editor__char-counter">97/100</div>
+                    </div>
+                    <div class="media-editor__field media-editor__field--input media-editor__field--description">
+                        <label class="media-editor__label" for="mediaDescriptionInput">Description</label>
+                        <textarea class="media-editor__textarea" id="mediaDescriptionInput" rows="1" data-max-length="5000">{{ .Values.MediaDescription }}</textarea>
+                        <div class="media-editor__char-counter">97/5000</div>
+                    </div>
+                    <div class="media-editor__field media-editor__field--visibility">
+                        <div class="media-editor__option">
+                            <div class="media-editor__option-label"><span>Visibility</span></div>
+                            <select name="visibility" id="mediaVisibilitySelect" title="Select visibility">
+                            {{- range .Values.VisibilityList }}
+                                {{- if eq .Value $.Values.Visibility }}
+                                <option value="{{ .Value }}" selected>{{ .Label }}</option>
+                                {{- else }}
+                                <option value="{{ .Value }}">{{ .Label }}</option>
+                                {{- end }}
+                            {{- end }}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{{- end }}
+
+{{- define "overlays" }}
+    {{- template "notification-area" . }}
+{{- end }}

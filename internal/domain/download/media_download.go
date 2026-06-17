@@ -1,11 +1,16 @@
 package ddownload
 
 import (
+	"net/http"
+	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
@@ -96,4 +101,39 @@ func (src *MediaDownload) Copy() *MediaDownload {
 	copy.DownloadTask = src.DownloadTask.Copy()
 
 	return copy
+}
+
+func (d *MediaDownload) Normalize() {
+	d.MediaTitle = strings.TrimSpace(d.MediaTitle)
+
+	if d.MediaDescription != nil {
+		*d.MediaDescription = strings.TrimSpace(*d.MediaDescription)
+		if *d.MediaDescription == "" {
+			d.MediaDescription = nil
+		}
+	}
+}
+
+func (d *MediaDownload) Validate() error {
+	if utf8.RuneCountInString(d.MediaTitle) > 100 {
+		return errorx.NewHTTPMessage("Title must not exceed 100 characters", http.StatusBadRequest)
+	}
+
+	if strings.IndexFunc(d.MediaTitle, unicode.IsControl) >= 0 {
+		return errorx.NewHTTPMessage("Title contains invalid characters", http.StatusBadRequest)
+	}
+
+	if d.MediaDescription != nil {
+		description := *d.MediaDescription
+
+		if utf8.RuneCountInString(description) > 5000 {
+			return errorx.NewHTTPMessage(
+				"Description must not exceed 5000 characters",
+				http.StatusBadRequest,
+			)
+		}
+
+	}
+
+	return nil
 }

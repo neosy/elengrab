@@ -33,6 +33,7 @@ var (
 	DownloaderRowMenuShareLinkIcon    = newIcon("DownloaderRowMenuShareLinkIconName", "menu-share-link-icon.svg")
 	DownloaderRowMenuCopyLinkIcon     = newIcon("DownloaderRowMenuCopyLinkIconName", "menu-copy-link-icon.svg")
 	DownloaderRowMenuDeleteIcon       = newIcon("DownloaderRowMenuDeleteIconName", "download-delete-icon.svg")
+	DownloaderRowMenuEditIcon         = newIcon("DownloaderRowMenuEditIconName", "edit-icon.svg")
 
 	AdminUsersIcon    = newIcon("AdminUsersIconName", "users.svg")
 	AdminUserEditIcon = newIcon("AdminUserEditIconName", "user-edit.svg")

@@ -28,7 +28,7 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 	data := pages.RowFragmentValues{
 		MediaURL:       downloadInfo.URL,
 		DownloadStatus: downloadInfo.Status.String(),
-		DeleteURL:      httppaths.BuildPathMediaItem(httppaths.PathMediaItem, downloadInfo.DownloadID),
+		DeleteURL:      httppaths.BuildMediaItemPath(downloadInfo.DownloadID),
 		ImageURL:       downloadImageURL,
 		DownloadID:     downloadInfo.DownloadID.String(),
 		RowID:          "row-" + downloadInfo.DownloadID.String(),
