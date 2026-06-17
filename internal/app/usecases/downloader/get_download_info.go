@@ -53,6 +53,24 @@ func (uc *Downloader) GetDownloadInfoUnrestricted(
 	return resp, nil
 }
 
+func (uc *Downloader) GetDownloadInfoForEdit(
+	ctx context.Context,
+	authCtx dauth.UserContext,
+	downloadID uuid.UUID,
+) (*dto.GetMediaDownloadInfoResponse, error) {
+	resp, err := uc.GetDownloadInfo(ctx, authCtx, downloadID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.validateDownloadWriteAccess(authCtx, resp.MediaDownload)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
 // findActualDownloadInfo retrieves the actual download information based on user ID and download ID.
 func (uc *Downloader) findActualDownloadInfo(
 	ctx context.Context,

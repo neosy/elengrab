@@ -1,0 +1,46 @@
+:root {
+    --page-main-bg: #fff;
+    --page-text-primary: #333;
+    --page-text-secondary: #555;
+    --page-text-header: #333;
+    --page-text-title: #333;
+    --page-text-title-secondary: #aaaaaa;
+
+    --page-control-border: #aaaaaa;
+    --page-control-border-hover: #7eb980;
+    --page-control-border-focus: #4caf50;
+    --page-field-error: #ff8983;
+    --page-option-border: #EBEBEB;
+    --page-option-label-bg: #EBEBEB;
+    --page-option-select-bg: #fff;
+
+    --page-button-bg: #f2f2f2;
+    --page-button-bg-hover-filter: brightness(0.95);
+    --page-button-enable: #333;
+    --page-button-disable: #aaaaaa;
+}
+
+.dark {
+    --page-main-bg: #282828;
+    --page-text-primary: #fff;
+    --page-text-secondary: #cfd8e3;
+    --page-text-header: #fff;
+    --page-text-title: #fff;
+    --page-text-title-secondary: #aaaaaa;
+
+    --page-control-border: #aaaaaa;
+    --page-control-border-hover: #7eb980;
+    --page-control-border-focus: #4caf50;
+    --page-option-border: #3e3e3e;
+    --page-option-label-bg: #1f1f1f;
+    --page-option-select-bg: #3e3e3e;
+
+    --page-button-bg: #3e3e3e;
+    --page-button-bg-hover-filter: brightness(1.5);
+    --page-button-enable: #fff;
+    --page-button-disable: #aaaaaa;
+
+    --page-scrollbar-track-bg: #3e3e3e;
+    --page-scrollbar-thumb-bg: #606060;
+    --page-scrollbar-thumb-hover-bg: #707070;
+}

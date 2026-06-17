@@ -95,6 +95,19 @@ var (
 			Defer: false,
 		},
 	}
+
+	editMediaPageJsPaths = jsScripts{
+		{
+			Path:  "theme-switcher.js",
+			Type:  "",
+			Defer: true,
+		},
+		{
+			Path:  "edit-media.page.js",
+			Type:  "module",
+			Defer: false,
+		},
+	}
 )
 
 const (

@@ -34,6 +34,7 @@ const (
 	PathMediaItemShortLink      = "/items/{itemId}/short-link"
 	PathMediaItemStream         = "/items/{itemId}/stream"
 	PathMediaItemWatch          = "/items/{itemId}/watch"
+	PathMediaItemEdit           = "/items/{itemId}/edit"
 
 	// Paths channels in Downloader
 	PathChannelAvatar = "/channels/{channelId}/avatar"
@@ -48,24 +49,32 @@ const (
 	PathStreamShortCode = "/stream/{shortCode}"
 )
 
-func BuildPathMediaItem(path string, downloadID uuid.UUID) string {
+func buildMediaItemPath(path string, downloadID uuid.UUID) string {
 	return GroupDownloader + strings.Replace(path, "{itemId}", downloadID.String(), 1)
 }
 
+func BuildMediaItemPath(downloadID uuid.UUID) string {
+	return GroupDownloader + strings.Replace(PathMediaItem, "{itemId}", downloadID.String(), 1)
+}
+
 func BuildPathMediaItemRow(downloadID uuid.UUID) string {
-	return BuildPathMediaItem(PathMediaItemRow, downloadID)
+	return buildMediaItemPath(PathMediaItemRow, downloadID)
 }
 
 func BuildPathMediaItemDownloadRepeat(downloadID uuid.UUID) string {
-	return BuildPathMediaItem(PathMediaItemDownloadRepeat, downloadID)
+	return buildMediaItemPath(PathMediaItemDownloadRepeat, downloadID)
 }
 
 func BuildPathMediaItemStream(downloadID uuid.UUID) string {
-	return BuildPathMediaItem(PathMediaItemStream, downloadID)
+	return buildMediaItemPath(PathMediaItemStream, downloadID)
 }
 
 func BuildPathMediaItemWatch(downloadID uuid.UUID) string {
-	return BuildPathMediaItem(PathMediaItemWatch, downloadID)
+	return buildMediaItemPath(PathMediaItemWatch, downloadID)
+}
+
+func BuildPathMediaItemEdit(downloadID uuid.UUID) string {
+	return buildMediaItemPath(PathMediaItemEdit, downloadID)
 }
 
 func BuildPathStreamShortCode(shortCode string) string {
@@ -99,5 +108,5 @@ func BuildPathMediaItemImage(downloadID uuid.UUID, verHash string, sources []dty
 		urlSufix = "?" + urlValues.Encode()
 	}
 
-	return BuildPathMediaItem(PathMediaItemImage, downloadID) + urlSufix
+	return buildMediaItemPath(PathMediaItemImage, downloadID) + urlSufix
 }

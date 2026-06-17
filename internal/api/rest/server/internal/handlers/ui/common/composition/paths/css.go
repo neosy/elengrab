@@ -62,6 +62,20 @@ var (
 		"page-watch.css",
 		"theme-switcher.css",
 	}
+
+	editMediaPageCssPaths = cssFileNames{
+		"font-inter.css",
+		"base.css",
+		"interactions.css",
+		"utilities.css",
+		"variables.css",
+		"variables-page.css",
+
+		"page-edit-media.css",
+		"theme-switcher.css",
+
+		"notifications.css",
+	}
 )
 
 type (
