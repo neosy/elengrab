@@ -73,6 +73,11 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 			g.GET(httppaths.PathShareTarget, handlers.ImportFromShareHandler)
 			g.DELETE(httppaths.PathMediaItem, handlers.MediaItemDeleteHandler)
 			g.POST(httppaths.PathMediaItemDownloadRepeat, handlers.RetryImportMediaHandler)
+
+			g.HEAD(httppaths.PathMediaItemEdit, handlers.EditMediaPageByDownloadIDHandler)
+			g.GET(httppaths.PathMediaItemEdit, handlers.EditMediaPageByDownloadIDHandler)
+
+			g.PATCH(httppaths.PathMediaItem, handlers.PatchMediaByDownloadIDHandler)
 		}
 
 		// With middleware (error, require auth mode)

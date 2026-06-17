@@ -26,6 +26,12 @@ func (uc *MediaDownload) Create(ctx context.Context, download *ddownload.MediaDo
 
 	download.Status = dtypes.MediaDownloadStatusNew
 
+	download.Normalize()
+
+	if err := download.Validate(); err != nil {
+		return err
+	}
+
 	err := uc.downloadRep.Insert(ctx, download)
 	if err != nil {
 		uc.logger.Warn(

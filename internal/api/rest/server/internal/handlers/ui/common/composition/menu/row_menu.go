@@ -53,6 +53,22 @@ var rowMenuActions = []rowMenuAction{
 
 	{
 		menuAction: menuAction{
+			RenderType: renderTypeLink,
+			Action:     "edit",
+			Title:      "Edit",
+			Link: linkOptions{
+				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemEdit,
+				NewTab:       false,
+				replaceInURL: RowMenuActionItemIDKey,
+			},
+		},
+		icon:               icons.DownloaderRowMenuEditIcon,
+		onlyStatusDone:     true,
+		requireWriteAccess: true,
+	},
+
+	{
+		menuAction: menuAction{
 			RenderType: renderTypeDivider,
 		},
 	},

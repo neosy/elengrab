@@ -130,7 +130,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		DownloadURL: downloadURL,
 		WatchURL:    watchURL,
 		StreamURL:   streamURL,
-		DeleteURL:   httppaths.BuildPathMediaItem(httppaths.PathMediaItem, downloadInfo.DownloadID),
+		DeleteURL:   httppaths.BuildMediaItemPath(downloadInfo.DownloadID),
 
 		RowID:      "row-" + downloadInfo.DownloadID.String(),
 		ProgressID: "progress-" + downloadInfo.DownloadID.String(),

@@ -2,9 +2,11 @@ package dtypes
 
 import (
 	"errors"
+	"slices"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/neosy/elengrab/internal/pkg/stringx"
 )
 
 // Visibility access level for media
@@ -39,6 +41,12 @@ var (
 		"public":        MediaVisibilityPublic,
 	}
 
+	mediaVisibilityList = []MediaVisibility{
+		MediaVisibilityPrivate,
+		MediaVisibilityAuthenticated,
+		MediaVisibilityPublic,
+	}
+
 	mediaVisibilityByAppMode = map[AppMode]MediaVisibility{
 		AppModePublic: MediaVisibilityPublic,
 	}
@@ -47,6 +55,11 @@ var (
 // String returns the value as a string.
 func (v MediaVisibility) String() string {
 	return nameByMediaVisibility[v]
+}
+
+// Label returns the value as a label.
+func (v MediaVisibility) Label() string {
+	return stringx.Capitalize(v.String())
 }
 
 // Exists returns true if the MediaVisibility is valid.
@@ -71,6 +84,11 @@ func MustParseMediaVisibility(s string) MediaVisibility {
 		return MediaVisibilityDefault
 	}
 	return mode
+}
+
+// List
+func MediaVisibilityList() []MediaVisibility {
+	return slices.Clone(mediaVisibilityList)
 }
 
 func MediaVisibilityByAppMode(appMode AppMode) MediaVisibility {

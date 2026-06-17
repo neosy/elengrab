@@ -81,6 +81,10 @@
     color: var(--menu-action-icon-green);
 }
 
+.menu-action--edit .menu-action__content-icon {
+    color: var(--menu-action-icon-orange);
+}
+
 @media (max-width: 768px) {
     .menu-account {
         top: 0; right: 0;
