@@ -21,7 +21,7 @@ func (uc *MediaDownload) Patch(
 
 	mutate(download)
 
-	err = uc.Update(ctx, download)
+	err = uc.Update(ctx, userID, download)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func (uc *MediaDownload) PatchMediaInfo(
 
 	mutate(download.MediaInfo)
 
-	err = uc.Update(ctx, download)
+	err = uc.Update(ctx, nil, download)
 	if err != nil {
 		return err
 	}

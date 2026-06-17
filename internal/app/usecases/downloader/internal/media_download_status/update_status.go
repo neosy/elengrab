@@ -36,7 +36,7 @@ func (uc *MediaDownloadStatus) updateStatus(
 	}
 
 	// Update in the repository
-	err = uc.download.Update(ctx, download)
+	err = uc.download.Update(ctx, nil, download)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to update download in the repository",
