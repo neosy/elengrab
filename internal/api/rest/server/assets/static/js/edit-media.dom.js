@@ -10,6 +10,7 @@ export const DOM_CLASSES = {
 
 export const DOM_ELEMENTS = {
     saveButton: null,
+    cancelButton: null,
     mediaTitleInput: null,
     mediaDescriptionInput: null,
     mediaVisibilitySelect: null,
@@ -17,6 +18,7 @@ export const DOM_ELEMENTS = {
 
 export function initDomElements() {
     DOM_ELEMENTS.saveButton = document.getElementById("saveButton");
+    DOM_ELEMENTS.cancelButton = document.getElementById("cancelButton");
     DOM_ELEMENTS.mediaTitleInput = document.getElementById("mediaTitleInput");
     DOM_ELEMENTS.mediaDescriptionInput = document.getElementById("mediaDescriptionInput");
     DOM_ELEMENTS.mediaVisibilitySelect = document.getElementById("mediaVisibilitySelect");

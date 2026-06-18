@@ -1,6 +1,6 @@
 # Releases
 
-## v0.21.0 — 2026-06-12
+## v0.21.0 — 2026-06-19
 
 ### ✨ Features
 - Added instagram cookie support [L029]
