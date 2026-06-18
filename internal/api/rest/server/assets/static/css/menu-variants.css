@@ -1,9 +1,15 @@
+@media (min-width: 480px) {
+    .menu-account {
+        --menu-width: 200px;
+    }
+}
+
 /* Account menu*/
 .menu-account {
+    position: fixed;
+
     top: calc(40px + 8px + 6px);
     right: calc(40px + 8px);
-
-    width: 200px;
 }
 
 .avatar {
@@ -87,7 +93,8 @@
 
 @media (max-width: 768px) {
     .menu-account {
-        top: 0; right: 0;
+        top: 0;
+        right: 0;
 
         border-top-left-radius: 0;
         border-top-right-radius: 0;
@@ -96,7 +103,9 @@
     }
 
     .menu.menu-row {
-        bottom: 0; left: 0;
+        bottom: 0;
+        left: auto;
+        right: 0;
 
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;

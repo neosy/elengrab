@@ -1,6 +1,6 @@
 import * as constants from './index-constants.js';
 import * as share from './share.js';
-import { initMenu } from './menu.js';
+import { initMenu, DOM_CLASSES as MENU_CLASSES } from './menu.js';
 import * as notify from './notifications.js';
 import * as view from './index.view.js';
 
@@ -161,11 +161,29 @@ const rowMenuConfig = {
   },
 
   position(menu, btn) {
-    const rect = btn.getBoundingClientRect();
+      const rect = btn.getBoundingClientRect();
+      const gap = 6;
 
-    menu.style.top = `${rect.bottom + 6}px`;
-    menu.style.left = 'auto';
-    menu.style.right = `${window.innerWidth - rect.right}px`;
+      const menuHeight = 250;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const openDown = spaceBelow >= menuHeight + gap;
+
+      menu.classList.remove(MENU_CLASSES.menuUp, MENU_CLASSES.menuDown);
+
+      if (openDown) {
+          menu.style.top = `${rect.bottom + gap}px`;
+          menu.style.bottom = 'auto';
+
+          menu.classList.add(MENU_CLASSES.menuDown);
+      } else {
+          menu.style.bottom = `${window.innerHeight - rect.top + gap}px`;
+          menu.style.top = 'auto';
+
+          menu.classList.add(MENU_CLASSES.menuUp);
+      }
+
+      menu.style.left = 'auto';
+      menu.style.right = `${window.innerWidth - rect.right}px`;
   },
 
   buildUrl(menu, btn) {

@@ -61,11 +61,12 @@ function initInputElements() {
 
 function initSaveButton() {
     const saveButton = DOM_ELEMENTS.saveButton;
+    const cancelButton = DOM_ELEMENTS.cancelButton;
     const titleEl = DOM_ELEMENTS.mediaTitleInput;
     const descriptionEl = DOM_ELEMENTS.mediaDescriptionInput;
     const visibilityEl = DOM_ELEMENTS.mediaVisibilitySelect;
 
-    if (!saveButton || !titleEl || !descriptionEl || !visibilityEl) return;
+    if (!titleEl || !descriptionEl || !visibilityEl) return;
 
     async function save() {
         const response = await fetch(saveButton.dataset.patchUrl, {
@@ -101,5 +102,13 @@ function initSaveButton() {
         notify.show("Changes saved successfully", notify.notifyType.INFO);
     }
 
-    saveButton.addEventListener('click', save);
+    if (saveButton) {
+        saveButton.addEventListener('click', save);
+    }
+
+    if (cancelButton) {
+        cancelButton.addEventListener('click', () => {
+            history.back();
+        });
+    }
 }

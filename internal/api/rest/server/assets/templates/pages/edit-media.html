@@ -26,8 +26,9 @@
         <div class="main__content">
             <div class="page-header">
                 <div class="page-header__inner">
-                    <h1 class="page-header__title">Media Information</h1>
+                    <h2 class="page-header__title">Media Information</h2>
                     <div class="page-header__buttons">
+                        <button class="page-header__button page-header__button--cancel" id="cancelButton" type="button" title="Cancel">Cancel</button>
                         <button class="page-header__button page-header__button--save" id="saveButton" type="button" title="Save" data-patch-url="{{ .Values.PatchURL }}">Save</button>
                     </div>
                 </div>
@@ -45,6 +46,7 @@
                         <div class="media-editor__char-counter">97/5000</div>
                     </div>
                     <div class="media-editor__field media-editor__field--visibility">
+                        <div class="media-editor__field-title">Access Parameters</div>
                         <div class="media-editor__option">
                             <div class="media-editor__option-label"><span>Visibility</span></div>
                             <select name="visibility" id="mediaVisibilitySelect" title="Select visibility">
