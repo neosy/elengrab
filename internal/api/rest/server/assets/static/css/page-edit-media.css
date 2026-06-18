@@ -1,6 +1,6 @@
 :root {
     --h1: 1.5rem;
-    --h2: 1.65rem;
+    --h2: 1.40rem;
     --h3: 1.25rem;
     --h4: 1.0rem;
     --h5: 0.85rem;
@@ -17,8 +17,8 @@
 @media (max-width: 768px) {
     :root {
         --h1: 1.35rem;
-        --h2: 1.25rem;
-        --h3: 1.125rem;
+        --h2: 1.20rem;
+        --h3: 1.12rem;
         --h4: 0.95rem;
         --h5: 0.8rem;
     }
@@ -28,7 +28,7 @@
     :root {
         --h1: 1.5rem;
 
-        --header-margin: 10px 0px 5px 5px;
+        --header-margin: 10px 15px 5px 5px;
         --main-margin: 10px 0px 10px 10px;
         --main-padding: 0px 5px;
         --main-horizontal-padding: 10px; 
@@ -333,6 +333,12 @@ body {
     transition: opacity 0.2s ease;
 }
 
+.page-header__buttons {
+    display: flex;
+
+    gap: 10px;
+}
+
 .page-header__button:hover {
     --header-button-filter: var(--page-button-bg-hover-filter);
 }
@@ -370,6 +376,8 @@ body {
 }
 .media-editor__option-label {
     padding: 0 20px;
+
+    color: var(--page-text-secondary);
 }
 
 .media-editor__option select {
@@ -413,4 +421,15 @@ body {
 .media-editor__option select:focus {
     border: 1px solid transparent;
     border-color: var(--page-control-border-focus);
+}
+
+.media-editor__field-title {
+    margin-bottom: 8px;
+}
+
+.media-editor__field--visibility {
+    display: flex;
+    flex-direction: column;
+
+    align-items: flex-start;
 }

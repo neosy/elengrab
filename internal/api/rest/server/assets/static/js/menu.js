@@ -9,6 +9,11 @@ const MENU_MOBILE_LAYOUT_CLASS = 'menu--mobile-layout';
 const MENU_ACTION_CLASS = 'menu-action';
 const MENU_HASH = "#menu"
 
+export const DOM_CLASSES = {
+  menuUp: 'menu--up',
+  menuDown: 'menu--down',
+}
+
 const menuOverlay = document.getElementById("menu-overlay");
 
 let activeMenus = new Set();
@@ -161,13 +166,15 @@ export function initMenu(config) {
           beforeRenderElement?.(el, id);
         });
 
-        menu.classList.add(MENU_SHOW_CLASS);
-
         if (isMobile ? isMobile() : isMobileDefault()) {
           applyMobile(menu);
         } else {
           position?.(menu, trigger);
         }
+
+        requestAnimationFrame(() => {
+          menu.classList.add(MENU_SHOW_CLASS);
+        });
       },
       { once: true }
     );        
