@@ -7,10 +7,10 @@ import (
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 )
 
-func (d *Downloader) GetTitle(ctx context.Context, url string, useCookies bool) (string, error) {
+func (d *Downloader) FetchTitle(ctx context.Context, url string, options idto.RequestOptions) (string, error) {
 	var cookieFileName string
-	if useCookies {
+	if options.AllowCookies {
 		cookieFileName, _ = helper.CookieFilePathFromURL(url, d.serviceOptions.CookiesDir)
 	}
-	return d.executor.GetTitle(ctx, url, idto.WithUseCookies(cookieFileName))
+	return d.executor.FetchTitle(ctx, url, idto.WithUseCookies(cookieFileName))
 }

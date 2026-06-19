@@ -73,6 +73,7 @@ type ElengrabConfig struct {
 	CookiesDir string `env:"COOKIES_DIR" envDefault:"cookies"`
 
 	DownloadWorkers       uint32 `env:"DOWNLOAD_WORKERS" envDefault:"3"`
+	OperationWorkers      uint32 `env:"OPERATION_WORKERS" envDefault:"5"`
 	DeleteDuplicatesScope string `env:"DELETE_DUPLICATES_SCOPE" envDefault:"per_user"`
 	// AllowCookies allow cookies when downloading media.
 	// Default is false (disabled).

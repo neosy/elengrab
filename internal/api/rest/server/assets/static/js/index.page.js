@@ -121,6 +121,7 @@ function createSSEConnection() {
         globalEventSource.addEventListener("row-update", rowEventHandlers.handleRowUpdate);
         globalEventSource.addEventListener("row-delete", rowEventHandlers.handleRowDelete);
         globalEventSource.addEventListener("row-patch-field", rowEventHandlers.handleRowPatchField);
+        globalEventSource.addEventListener("row-start-refreshing", rowEventHandlers.handleRowStartRefreshing);
         globalEventSource.addEventListener("system-info-update", rowEventHandlers.handleSystemInfoUpdate);
         globalEventSource.addEventListener("notification", rowEventHandlers.handleNotification);
 

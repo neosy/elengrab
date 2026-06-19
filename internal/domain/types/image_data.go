@@ -1,5 +1,7 @@
 package dtypes
 
+import "bytes"
+
 type ImageData struct {
 	// URL of the image
 	URL string
@@ -26,6 +28,22 @@ func (d *ImageData) Copy() *ImageData {
 	copy(raw, d.Raw)
 
 	return &data
+}
+
+func (d *ImageData) Equal(other *ImageData) bool {
+	if d == nil && other == nil {
+		return true
+	}
+
+	if d == nil || other == nil {
+		return false
+	}
+
+	return d.URL == other.URL &&
+		d.Format == other.Format &&
+		d.Width == other.Width &&
+		d.Height == other.Height &&
+		bytes.Equal(d.Raw, other.Raw)
 }
 
 func (d *ImageData) FullURL(baseURL string) string {

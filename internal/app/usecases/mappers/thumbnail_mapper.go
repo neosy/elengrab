@@ -5,7 +5,7 @@ import (
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 func (m *Mappers) MapCreateThumbnailRequestToThumbnailDomain(
@@ -26,6 +26,12 @@ func (m *Mappers) MapCreateThumbnailRequestToThumbnailDomain(
 		thumbnail.MediaID = uuid.New()
 	}
 
+	variant := dtypes.ThumbnailVariantOriginal
+	if req.Variant != dtypes.ThumbnailVariantNone {
+		variant = req.Variant
+	}
+
+	thumbnail.Variant = variant
 	thumbnail.Format = req.ImageData.Format
 	thumbnail.SourceType = req.SourceType
 	thumbnail.SourceURL = req.SourceURL
@@ -36,11 +42,11 @@ func (m *Mappers) MapCreateThumbnailRequestToThumbnailDomain(
 	}
 
 	if req.ImageData.Width > 0 {
-		thumbnail.Width = uptr.Any(uint16(req.ImageData.Width))
+		thumbnail.Width = new(uint16(req.ImageData.Width))
 	}
 
 	if req.ImageData.Height > 0 {
-		thumbnail.Height = uptr.Any(uint16(req.ImageData.Height))
+		thumbnail.Height = new(uint16(req.ImageData.Height))
 	}
 
 	return thumbnail, nil

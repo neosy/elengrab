@@ -26,7 +26,8 @@ type Dependencies struct {
 	Services     *services.Services
 
 	// dispetchers
-	DownloadDispetcher nworkerpool.JobDispatcher
+	DownloadDispetcher  nworkerpool.JobDispatcher
+	OperationDispatcher nworkerpool.JobDispatcher
 
 	// Options
 	AppName  string
@@ -155,6 +156,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 
 			// dispetchers
 			deps.DownloadDispetcher,
+			deps.OperationDispatcher,
 
 			// usecases
 			thumbnail,

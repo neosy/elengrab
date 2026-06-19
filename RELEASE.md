@@ -1,5 +1,12 @@
 # Releases
 
+## v0.22.0 — 2026-06-30
+
+### ✨ Features
+- Added an "Refresh Media Information" function to the menu. [#327]
+
+---
+
 ## v0.21.0 — 2026-06-19
 
 ### ✨ Features
@@ -8,7 +15,7 @@
 - Added automatic rewriting of JavaScript module imports to use hashed filenames for reliable cache busting [L037]
 - Added `public_readonly` access mode allowing anonymous users to view only public media while restricting uploads to authenticated users [L040]
 - Added download button to top menu [L041]
-- Added ability to edit media title and visibility settings. Closes #260
+- Added ability to edit media title and visibility settings. [#260]
 
 ### 🎨 Style
 - Updated header layout and element positioning [L032]

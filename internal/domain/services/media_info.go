@@ -14,8 +14,20 @@ type MediaInfo struct {
 
 	Duration time.Duration
 
+	// Bitrate, kbps
+	Bitrate int
+
 	VideoInfo *dtypes.VideoInfo
 	AudioInfo *dtypes.AudioInfo
+}
+
+func NewMediaInfo(ext string) *MediaInfo {
+	fileFormat := dtypes.MapFileExtToFileFormat(ext)
+
+	return &MediaInfo{
+		FormatType: fileFormat.FormatType(),
+		Format:     fileFormat,
+	}
 }
 
 func NewMediaInfoFromDomain(dMediaInfo *dtypes.MediaInfo) *MediaInfo {
@@ -77,4 +89,12 @@ func (m *MediaInfo) Copy() *MediaInfo {
 // HasVideo
 func (m *MediaInfo) HasVideo() bool {
 	return m.VideoInfo != nil
+}
+
+// DurationSecondsString
+func (m *MediaInfo) DurationSecondsString() string {
+	if m == nil {
+		return ""
+	}
+	return strconv.FormatFloat(m.Duration.Seconds(), 'f', 6, 64)
 }

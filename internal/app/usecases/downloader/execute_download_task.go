@@ -2,7 +2,6 @@ package downloader
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
@@ -12,7 +11,6 @@ import (
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
@@ -59,7 +57,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 				"Failed to download: The context was canceled",
 				"error", err,
 			)
-			download, e := uc.download.FindByDownloadID(uc.appCtx, nil, task.DownloadID)
+			download, e := uc.download.FindByDownloadID(uc.appCtx, task.DownloadID)
 			if e == nil && download != nil {
 				uc.downloadStatus.Failed(uc.appCtx, task.DownloadID, nil, uptr.String(err.Error()))
 			}
@@ -109,7 +107,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 		if r.Error != nil {
 			// The context was canceled
 			if ctx.Err() != nil {
-				download, e := uc.download.FindByDownloadID(uc.appCtx, nil, task.DownloadID)
+				download, e := uc.download.FindByDownloadID(uc.appCtx, task.DownloadID)
 				if e == nil && download != nil {
 					uc.downloadStatus.Failed(uc.appCtx, task.DownloadID, nil, new(r.Error.Error()))
 				}
@@ -143,7 +141,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 			return r.Error
 		}
 
-		state, err := uc.dlStateCache.FindByDownloadID(ctx, nil, task.DownloadID)
+		state, err := uc.dlStateCache.FindByDownloadID(ctx, task.DownloadID)
 		if err != nil {
 			uc.logger.Error(
 				"Failed to download",
@@ -226,9 +224,9 @@ func (uc *Downloader) ExecuteDownloadTask(
 		download.FileName = lastResult.Filename
 		download.Ext = lastResult.FileExt
 		download.FileFullName = lastResult.FileFullName
+		download.SafeReadableFileFullName = download.NormalizeFileFullName()
 		download.FileSize = lastResult.Filesize
 		download.PartialHash = lastResult.PartialHash
-		download.SafeReadableFullName = fmt.Sprintf("%s.%s", nfasthttp.SanitizeFileName(lastResult.MediaTitle), lastResult.FileExt)
 		download.MediaInfo = mediaInfo(lastResult.MediaInfo)
 	}
 

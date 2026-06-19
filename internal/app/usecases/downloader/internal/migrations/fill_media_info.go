@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
+	ytdlpsrv "github.com/neosy/elengrab/internal/app/services/ytdlp"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
@@ -24,7 +25,7 @@ func (m *migrations) fillMediaInfo(ctx context.Context) (bool, error) {
 			m.logger,
 			retryCountDefault, retryDelayDefault,
 			func(ctx context.Context, path string) (*dtypes.ImageData, error) {
-				return m.services.downloader.FetchThumbnail(ctx, path, true)
+				return m.services.downloader.FetchThumbnail(ctx, path, ytdlpsrv.WithRequestCookies())
 			},
 		)
 
@@ -79,31 +80,20 @@ func (m *migrations) fillMediaInfo(ctx context.Context) (bool, error) {
 		default:
 		}
 
-		var formatType dtypes.FormatType
-		fileFormat := dtypes.MapFileExtToFileFormat(media.Ext)
-		if fileFormat != dtypes.FileFormatNone {
-			if fileFormat.IsAudio() {
-				formatType = dtypes.FormatTypeAudioOnly
-			} else {
-				formatType = dtypes.FormatTypeVideoAudio
-			}
-		}
-
-		srvMediaInfo := &dservices.MediaInfo{
-			FormatType: formatType,
-			Format:     fileFormat,
-		}
-
 		mediaInfoResp, _ := m.services.ffmpeg.ExtractVideoAudioInfoFromFile(
 			ctx,
 			m.dlStorage.Path(media.FileFullName),
-			srvMediaInfo,
+			dservices.NewMediaInfo(media.Ext),
 		)
 
 		var (
+			fileFormat = dtypes.MapFileExtToFileFormat(media.Ext)
+			formatType = fileFormat.FormatType()
+
 			videoInfo *dtypes.VideoInfo
 			audioInfo *dtypes.AudioInfo
 		)
+
 		if mediaInfoResp != nil {
 			formatType = mediaInfoResp.FormatType
 			videoInfo = mediaInfoResp.VideoInfo
@@ -151,8 +141,9 @@ func (m *migrations) fillMediaInfo(ctx context.Context) (bool, error) {
 
 		err = m.usecases.download.Patch(
 			ctx, nil, media.DownloadID,
-			func(download *ddownload.MediaDownload) {
+			func(download *ddownload.MediaDownload) bool {
 				download.MediaInfo = mediaInfo
+				return true
 			},
 		)
 		if err != nil {

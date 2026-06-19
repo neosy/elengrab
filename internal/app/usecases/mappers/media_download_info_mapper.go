@@ -61,7 +61,7 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 		FileExt:              download.Ext,
 		FileFullName:         download.FileFullName,
 		FileSize:             download.FileSize,
-		SafeReadableFullName: download.SafeReadableFullName,
+		SafeReadableFullName: download.SafeReadableFileFullName,
 		StatusText:           uptr.Deref(download.ErrorMessage),
 		MediaInfo:            download.MediaInfo,
 		MediaInfoText:        mediaInfoText,

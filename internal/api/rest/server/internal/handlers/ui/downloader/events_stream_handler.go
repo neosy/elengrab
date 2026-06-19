@@ -94,6 +94,8 @@ func (h *DownloaderHandlers) handleEvent(w *bufio.Writer, authCtx dauth.UserCont
 		h.handleDownloadDelete(w, event)
 	case ucdto.BroadcastEventTypeProgressUpdate:
 		h.handleProgressUpdate(w, event)
+	case ucdto.BroadcastEventTypeDownloadStartRefreshing:
+		h.handleStartRefreshing(w, event)
 	case ucdto.BroadcastEventTypeSystemInfoUpdate:
 		if h.downloader.HasWriteOperation(authCtx) {
 			h.handleSystemInfoUpdate(w, event)
@@ -126,7 +128,7 @@ func (h *DownloaderHandlers) handleDownloadAdd(w *bufio.Writer, event ucdto.Broa
 		return
 	}
 
-	fmt.Fprint(w, "event: row-add\n")
+	fmt.Fprintf(w, "event: %s\n", event.Type.SSEEventName())
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
@@ -172,7 +174,7 @@ func (h *DownloaderHandlers) handleDownloadUpdate(w *bufio.Writer, event ucdto.B
 		return
 	}
 
-	fmt.Fprint(w, "event: row-update\n")
+	fmt.Fprintf(w, "event: %s\n", event.Type.SSEEventName())
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
@@ -194,7 +196,7 @@ func (h *DownloaderHandlers) handleDownloadDelete(w *bufio.Writer, event ucdto.B
 		return
 	}
 
-	fmt.Fprint(w, "event: row-delete\n")
+	fmt.Fprintf(w, "event: %s\n", event.Type.SSEEventName())
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
@@ -226,7 +228,29 @@ func (h *DownloaderHandlers) handleProgressUpdate(w *bufio.Writer, event ucdto.B
 		return
 	}
 
-	fmt.Fprint(w, "event: row-patch-field\n")
+	fmt.Fprintf(w, "event: %s\n", event.Type.SSEEventName())
+	fmt.Fprintf(w, "data: %s\n\n", jsonData)
+	w.Flush()
+}
+
+func (h *DownloaderHandlers) handleStartRefreshing(w *bufio.Writer, event ucdto.BroadcastEvent) {
+	downloadInfo, ok := event.Data.(*ucdto.GetMediaDownloadInfoResponse)
+	if !ok {
+		return
+	}
+
+	data := struct {
+		DownloadID string `json:"itemId"`
+	}{
+		DownloadID: downloadInfo.DownloadID.String(),
+	}
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return
+	}
+
+	fmt.Fprintf(w, "event: %s\n", event.Type.SSEEventName())
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
@@ -250,7 +274,7 @@ func (h *DownloaderHandlers) handleSystemInfoUpdate(w *bufio.Writer, event ucdto
 		return
 	}
 
-	fmt.Fprint(w, "event: system-info-update\n")
+	fmt.Fprintf(w, "event: %s\n", event.Type.SSEEventName())
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
@@ -276,7 +300,7 @@ func (h *DownloaderHandlers) handleNotification(w *bufio.Writer, event ucdto.Bro
 		return
 	}
 
-	fmt.Fprint(w, "event: notification\n")
+	fmt.Fprintf(w, "event: %s\n", event.Type.SSEEventName())
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }

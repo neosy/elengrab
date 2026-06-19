@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
@@ -13,12 +12,12 @@ import (
 // return dlOptions, downloadDir, fileName, includeTitleInFilename
 func PrepareDownloadOptions(
 	url string,
-	serviceOptions dto.Options,
+	serviceOptions idto.ServiceOptions,
 	options *dservices.DownloadOptions,
 ) idto.DLOptions {
 	// Set default values
 	dlOptions := idto.DLOptions{
-		FormatType:             formatTypeDefault,
+		FormatType:             defaultFormatType,
 		VideoFormat:            videoFormatDefault,
 		VideoCodec:             videoCodecDefault,
 		VideoResolution:        videoResolutionDefault,

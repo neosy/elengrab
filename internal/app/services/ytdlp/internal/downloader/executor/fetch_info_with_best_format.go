@@ -12,7 +12,7 @@ import (
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
-func (e *Executor) GetInfoWithBestFormat(
+func (e *Executor) FetchInfoWithBestFormat(
 	ctx context.Context,
 	url string,
 	format string,
@@ -20,7 +20,7 @@ func (e *Executor) GetInfoWithBestFormat(
 ) (*idto.MediaInfo, error) {
 	var opt = idto.NewExecutorOptions(opts...)
 	for _, o := range opts {
-		o(opt)
+		o(&opt)
 	}
 
 	if opt.EnsureCache {
@@ -71,7 +71,7 @@ func (e *Executor) GetInfoWithBestFormat(
 		bestFormatIds = append(bestFormatIds, parts[0])
 	}
 
-	info, err := e.GetInfo(ctx, url, opts...)
+	info, err := e.FetchInfo(ctx, url, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("get formats error: %w", err)
 	}

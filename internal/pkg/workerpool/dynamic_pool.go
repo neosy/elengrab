@@ -28,7 +28,7 @@ type dynamicWorkerPool struct {
 //   - IdleTime: duration a worker stays alive when idle (defaults to defaultIdleTime)
 //
 // Returns an initialized *dynamicWorkerPool ready to Start().
-func NewDynamicWorkerPool(opts ...WorkerPoolOption) WorkerPool {
+func NewDynamicWorkerPool(name string, opts ...WorkerPoolOption) WorkerPool {
 	options := DefaultDynamicWorkerPoolOptions()
 
 	for _, opt := range opts {
@@ -45,6 +45,7 @@ func NewDynamicWorkerPool(opts ...WorkerPoolOption) WorkerPool {
 
 	wp := &dynamicWorkerPool{
 		baseWorkerPool: baseWorkerPool{
+			name:         name,
 			options:      options,
 			workers:      make(map[uint64]Worker, options.MaxWorkers),
 			semaphore:    make(chan struct{}, options.MaxWorkers),
@@ -159,6 +160,7 @@ func (wp *dynamicWorkerPool) Start(ctx context.Context) error {
 	if wp.options.logger != nil {
 		wp.options.logger.Info(
 			"Worker pool manager running...",
+			"name", wp.Name(),
 			"type", "dynamic",
 			"count", wp.ActiveWorkers(),
 			"max", wp.options.MaxWorkers,

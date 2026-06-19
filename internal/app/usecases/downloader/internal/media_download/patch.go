@@ -12,14 +12,16 @@ func (uc *MediaDownload) Patch(
 	ctx context.Context,
 	userID *uuid.UUID,
 	downloadID uuid.UUID,
-	mutate func(*ddownload.MediaDownload),
+	mutate func(*ddownload.MediaDownload) bool,
 ) error {
-	download, err := uc.GetByDownloadID(ctx, userID, downloadID)
+	download, err := uc.GetByDownloadID(ctx, downloadID)
 	if err != nil {
 		return err
 	}
 
-	mutate(download)
+	if !mutate(download) {
+		return nil
+	}
 
 	err = uc.Update(ctx, userID, download)
 	if err != nil {
@@ -34,14 +36,14 @@ func (uc *MediaDownload) PatchMediaInfo(
 	userID *uuid.UUID, downloadID uuid.UUID,
 	mutate func(mediaInfo *dtypes.MediaInfo),
 ) error {
-	download, err := uc.GetByDownloadID(ctx, userID, downloadID)
+	download, err := uc.GetByDownloadID(ctx, downloadID)
 	if err != nil {
 		return err
 	}
 
 	mutate(download.MediaInfo)
 
-	err = uc.Update(ctx, nil, download)
+	err = uc.Update(ctx, userID, download)
 	if err != nil {
 		return err
 	}

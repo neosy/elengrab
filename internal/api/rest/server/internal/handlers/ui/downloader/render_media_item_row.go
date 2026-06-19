@@ -100,6 +100,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		DownloadID:     downloadInfo.DownloadID.String(),
 		DownloadStatus: downloadInfo.Status.String(),
 		WorkingStatus:  dltypes.MapUsecaseWorkingStatusToUI(downloadInfo.WorkingStatus).String(),
+		IsReady:        downloadInfo.Status.IsReady(),
 
 		YoutubeChannelID: youtubeChannelID,
 		AvatarTitle:      downloadInfo.AvatarTitle,
@@ -135,16 +136,20 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		RowID:      "row-" + downloadInfo.DownloadID.String(),
 		ProgressID: "progress-" + downloadInfo.DownloadID.String(),
 
-		IsItemHTMXOptionRepeat:             isGrabResultItemHTMXOptionRepeat,
-		IsDownloadEvent:                    isDownloadEvent,
-		ResultRowStatusTitle:               downloadInfo.StatusText,
+		IsItemHTMXOptionRepeat: isGrabResultItemHTMXOptionRepeat,
+		IsDownloadEvent:        isDownloadEvent,
+		ResultRowStatusTitle:   downloadInfo.StatusText,
+
+		RefreshingIcon: icons.DownloadRefreshingIcon.FileRaw(),
+
 		DownloaderResultItemSourceLinkIcon: icons.DownloadSourceLinkIcon.FileRaw(),
 		DownloaderResultItemStatusIcon:     icons.DownloaderIconByStatus(downloadInfo.Status).FileRaw(),
 		DownloaderResultItemDeleteIcon:     icons.DownloadDeleteIcon.FileRaw(),
-		ResultMediaUrlFade:                 "",
-		ResultSizeFade:                     "",
-		ResultFormatFade:                   "",
-		IsItemSpiner:                       downloadInfo.Status == dtypes.MediaDownloadStatusWorking,
+
+		ResultMediaUrlFade: "",
+		ResultSizeFade:     "",
+		ResultFormatFade:   "",
+		IsItemSpiner:       downloadInfo.Status == dtypes.MediaDownloadStatusWorking,
 	}
 
 	if downloadInfo.Status == dtypes.MediaDownloadStatusFailed {

@@ -21,7 +21,7 @@ func (h *StaticHandlers) ThumbnailHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	thumbnail, err := h.thumbnail.GetByThumbID(ctx, thumbnailID)
+	thumbnail, err := h.thumbnail.LoadByThumbID(ctx, thumbnailID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

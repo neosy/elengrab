@@ -3,15 +3,16 @@ const isPWA =
       window.matchMedia('(display-mode: fullscreen)').matches ||
       window.navigator.standalone === true;
 
-const MENU_SHOW_CLASS = 'menu--show';
 const MENU_OVERLAY_SHOW_CLASS = 'menu-overlay--show';
 const MENU_MOBILE_LAYOUT_CLASS = 'menu--mobile-layout';
 const MENU_ACTION_CLASS = 'menu-action';
 const MENU_HASH = "#menu"
 
 export const DOM_CLASSES = {
+  menuShow: 'menu--show',
   menuUp: 'menu--up',
   menuDown: 'menu--down',
+  menuScroll: 'menu--scroll',
 }
 
 const menuOverlay = document.getElementById("menu-overlay");
@@ -21,7 +22,7 @@ const menuState = new Map();
 
 // Close all opened menus except the provided one
 export function closeAllMenus(except = null, fnAfterClose) {
-  document.querySelectorAll('.'+MENU_SHOW_CLASS).forEach(menu => {
+  document.querySelectorAll('.'+DOM_CLASSES.menuShow).forEach(menu => {
     if (menu !== except) {
       closeMenu(menu, fnAfterClose);
     }
@@ -124,7 +125,7 @@ export function initMenu(config) {
 
     closeAllMenus(menu, afterClose);
 
-    if (isSameTrigger && menu.classList.contains(MENU_SHOW_CLASS)) {
+    if (isSameTrigger && menu.classList.contains(DOM_CLASSES.menuShow)) {
       closeMenu(menu, afterClose);
       return;
     }
@@ -173,7 +174,7 @@ export function initMenu(config) {
         }
 
         requestAnimationFrame(() => {
-          menu.classList.add(MENU_SHOW_CLASS);
+          menu.classList.add(DOM_CLASSES.menuShow);
         });
       },
       { once: true }
@@ -228,9 +229,18 @@ function closeMenu(menu, fnAfterClose) {
   
   history.replaceState(null, "", location.pathname + location.search);
 
-  menu.classList.remove(MENU_SHOW_CLASS);
-  menuOverlay && (menuOverlay.classList.remove(MENU_OVERLAY_SHOW_CLASS));
-
+  menu.classList.remove(
+    DOM_CLASSES.menuShow,
+    DOM_CLASSES.menuUp,
+    DOM_CLASSES.menuDown,
+    DOM_CLASSES.menuScroll
+  );
+  if (menuOverlay) {
+    menuOverlay.classList.remove(MENU_OVERLAY_SHOW_CLASS)
+  }
+  
+  menu.style.removeProperty('max-height');
+  
   menu._activeTrigger = null;
 
   activeMenus.delete(menu);
@@ -240,4 +250,53 @@ function closeMenu(menu, fnAfterClose) {
 function kebabToCamel(str) {
   if (!str) {return}
   return str.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+}
+
+
+export function positionFloatingMenu(menu, btn) {
+  if (!menu || !btn) return;
+
+  const rect = btn.getBoundingClientRect();
+  const gap = 6;
+
+  menu.style.maxHeight = '500px';
+  const menuHeight = menu.scrollHeight;
+  menu.style.removeProperty('max-height');
+
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const spaceAbove = rect.top - gap;
+
+  if (spaceBelow >= menuHeight + gap) {
+      // open down
+      menu.style.top = `${rect.bottom + gap}px`;
+      menu.style.bottom = 'auto';
+
+      menu.classList.add(DOM_CLASSES.menuDown);
+  } else if (spaceAbove >= menuHeight) {
+      // open up
+      menu.style.bottom = `${window.innerHeight - rect.top + gap}px`;
+      menu.style.top = 'auto';
+
+      menu.classList.add(DOM_CLASSES.menuUp);
+  } else {
+    // doesn't fit either side
+    if (spaceBelow >= spaceAbove) {
+        menu.style.top = `${rect.bottom + gap}px`;
+        menu.style.bottom = 'auto';
+        menu.style.maxHeight = `${spaceBelow}px`;
+
+        menu.classList.add(DOM_CLASSES.menuDown);
+    } else {
+        menu.style.bottom = `${window.innerHeight - rect.top + gap}px`;
+        menu.style.top = 'auto';
+        menu.style.maxHeight = `${spaceAbove}px`;
+
+        menu.classList.add(DOM_CLASSES.menuUp);
+    }
+
+    menu.classList.add(DOM_CLASSES.menuScroll);
+  }
+
+  menu.style.left = 'auto';
+  menu.style.right = `${window.innerWidth - rect.right}px`;
 }

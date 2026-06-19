@@ -88,3 +88,8 @@ func (info *GetMediaDownloadInfoResponse) MediaDescriptionUI() string {
 
 	return description
 }
+
+func (info *GetMediaDownloadInfoResponse) IsReady() bool {
+	return info.Status == dtypes.MediaDownloadStatusDone ||
+		info.Status == dtypes.MediaDownloadStatusRefreshing
+}

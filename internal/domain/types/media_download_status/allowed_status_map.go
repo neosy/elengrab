@@ -23,6 +23,12 @@ var (
 		dtypes.MediaDownloadStatusFailed: {
 			dtypes.MediaDownloadStatusNew: {},
 		},
+		dtypes.MediaDownloadStatusDone: {
+			dtypes.MediaDownloadStatusRefreshing: {},
+		},
+		dtypes.MediaDownloadStatusRefreshing: {
+			dtypes.MediaDownloadStatusDone: {},
+		},
 	}
 )
 

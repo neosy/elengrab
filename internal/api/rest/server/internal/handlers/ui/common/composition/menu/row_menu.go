@@ -5,6 +5,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 const (
@@ -15,7 +16,8 @@ const (
 type rowMenuAction struct {
 	menuAction
 	icon               icons.Icon
-	onlyStatusDone     bool
+	onlyWhenReady      bool
+	disallowRefreshing bool
 	requireWriteAccess bool
 }
 
@@ -32,7 +34,7 @@ var rowMenuActions = []rowMenuAction{
 			},
 		},
 		icon:               icons.DownloaderRowMenuPlayIcon,
-		onlyStatusDone:     true,
+		onlyWhenReady:      true,
 		requireWriteAccess: false,
 	},
 
@@ -53,22 +55,6 @@ var rowMenuActions = []rowMenuAction{
 
 	{
 		menuAction: menuAction{
-			RenderType: renderTypeLink,
-			Action:     "edit",
-			Title:      "Edit",
-			Link: linkOptions{
-				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemEdit,
-				NewTab:       false,
-				replaceInURL: RowMenuActionItemIDKey,
-			},
-		},
-		icon:               icons.DownloaderRowMenuEditIcon,
-		onlyStatusDone:     true,
-		requireWriteAccess: true,
-	},
-
-	{
-		menuAction: menuAction{
 			RenderType: renderTypeDivider,
 		},
 	},
@@ -84,7 +70,7 @@ var rowMenuActions = []rowMenuAction{
 			},
 		},
 		icon:               icons.DownloaderRowMenuShareLinkIcon,
-		onlyStatusDone:     true,
+		onlyWhenReady:      true,
 		requireWriteAccess: true,
 	},
 
@@ -99,7 +85,46 @@ var rowMenuActions = []rowMenuAction{
 			},
 		},
 		icon:               icons.DownloaderRowMenuCopyLinkIcon,
-		onlyStatusDone:     true,
+		onlyWhenReady:      true,
+		requireWriteAccess: true,
+	},
+
+	{
+		menuAction: menuAction{
+			RenderType: renderTypeDivider,
+		},
+	},
+
+	{
+		menuAction: menuAction{
+			RenderType: renderTypeAction,
+			Action:     "refresh",
+			Title:      "Refresh Media Information",
+			Link: linkOptions{
+				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemRefresh,
+				NewTab:       false,
+				replaceInURL: RowMenuActionItemIDKey,
+			},
+		},
+		icon:               icons.DownloaderRowMenuUpdateMetadataIcon,
+		onlyWhenReady:      true,
+		disallowRefreshing: true,
+		requireWriteAccess: true,
+	},
+
+	{
+		menuAction: menuAction{
+			RenderType: renderTypeLink,
+			Action:     "edit",
+			Title:      "Edit",
+			Link: linkOptions{
+				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemEdit,
+				NewTab:       false,
+				replaceInURL: RowMenuActionItemIDKey,
+			},
+		},
+		icon:               icons.DownloaderRowMenuEditIcon,
+		onlyWhenReady:      true,
 		requireWriteAccess: true,
 	},
 
@@ -124,12 +149,16 @@ var rowMenuActions = []rowMenuAction{
 	},
 }
 
-func RowMenuActions(mapReplaceUrl map[string]string, isStatusDone bool, hasWriteAccess bool) []rowMenuAction {
+func RowMenuActions(mapReplaceUrl map[string]string, status dtypes.MediaDownloadStatus, hasWriteAccess bool) []rowMenuAction {
 	actions := make([]rowMenuAction, 0, len(rowMenuActions))
 	var lastRenderType renderType
 
 	for _, a := range rowMenuActions {
-		if !isStatusDone && a.onlyStatusDone {
+		if !status.IsReady() && a.onlyWhenReady {
+			continue
+		}
+
+		if status == dtypes.MediaDownloadStatusRefreshing && a.disallowRefreshing {
 			continue
 		}
 
