@@ -17,10 +17,11 @@ var (
 	IndexGrabSettingsButtonIcon = newIcon("IndexGrabSettingsButtonIconName", "settings-icon.svg")
 	IndexGrabGetButtonIcon      = newIcon("IndexGrabGetButtonIconName", "download-cloud-icon.svg")
 
-	DownloadIcon        = newIcon("DownloadIconName", "download-light-icon.svg")
-	DownloadFailedIcon  = newIcon("DownloadFailedIconName", "download-warning-icon.svg")
-	DownloadPendingIcon = newIcon("DownloadPendingIconName", "download-wait-icon.svg")
-	DownloadDeleteIcon  = newIcon("DownloadDeleteIconName", "download-delete-icon.svg")
+	DownloadIcon           = newIcon("DownloadIconName", "download-light-icon.svg")
+	DownloadFailedIcon     = newIcon("DownloadFailedIconName", "download-warning-icon.svg")
+	DownloadPendingIcon    = newIcon("DownloadPendingIconName", "download-wait-icon.svg")
+	DownloadDeleteIcon     = newIcon("DownloadDeleteIconName", "download-delete-icon.svg")
+	DownloadRefreshingIcon = newIcon("DownloadRefreshingIconName", "refresh-icon.svg")
 
 	MediaDefaultIcon       = newIcon("MediaDefaultIconName", "media-default-icon.svg")
 	DownloadRepeatIcon     = newIcon("DownloadRepeatIconName", "download-repeat-icon.svg")
@@ -28,12 +29,13 @@ var (
 
 	AccountMenuLogoutIcon = newIcon("AccountMenuLogoutIconName", "menu-logout-icon.svg")
 
-	DownloaderRowMenuPlayIcon         = newIcon("DownloaderRowMenuPlayIconName", "menu-play-icon.svg")
-	DownloaderRowMenuExternalLinkIcon = newIcon("DownloaderRowMenuExternalLinkIconName", "menu-external-link-icon.svg")
-	DownloaderRowMenuShareLinkIcon    = newIcon("DownloaderRowMenuShareLinkIconName", "menu-share-link-icon.svg")
-	DownloaderRowMenuCopyLinkIcon     = newIcon("DownloaderRowMenuCopyLinkIconName", "menu-copy-link-icon.svg")
-	DownloaderRowMenuDeleteIcon       = newIcon("DownloaderRowMenuDeleteIconName", "download-delete-icon.svg")
-	DownloaderRowMenuEditIcon         = newIcon("DownloaderRowMenuEditIconName", "edit-icon.svg")
+	DownloaderRowMenuPlayIcon           = newIcon("DownloaderRowMenuPlayIconName", "menu-play-icon.svg")
+	DownloaderRowMenuExternalLinkIcon   = newIcon("DownloaderRowMenuExternalLinkIconName", "menu-external-link-icon.svg")
+	DownloaderRowMenuShareLinkIcon      = newIcon("DownloaderRowMenuShareLinkIconName", "menu-share-link-icon.svg")
+	DownloaderRowMenuCopyLinkIcon       = newIcon("DownloaderRowMenuCopyLinkIconName", "menu-copy-link-icon.svg")
+	DownloaderRowMenuDeleteIcon         = newIcon("DownloaderRowMenuDeleteIconName", "download-delete-icon.svg")
+	DownloaderRowMenuEditIcon           = newIcon("DownloaderRowMenuEditIconName", "edit-icon.svg")
+	DownloaderRowMenuUpdateMetadataIcon = newIcon("DownloaderRowMenuUpdateMetadataIconName", "update-icon.svg")
 
 	AdminUsersIcon    = newIcon("AdminUsersIconName", "users.svg")
 	AdminUserEditIcon = newIcon("AdminUserEditIconName", "user-edit.svg")

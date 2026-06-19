@@ -36,6 +36,7 @@ type WorkerPool interface {
 }
 
 type baseWorkerPool struct {
+	name    string
 	options WorkerPoolOptions
 
 	workers map[uint64]Worker
@@ -55,6 +56,11 @@ type baseWorkerPool struct {
 	taskStream   chan *task
 	jobQueue     *jobQueue
 	runningTasks map[string]*task
+}
+
+// Name returns the name of the worker pool.
+func (wp *baseWorkerPool) Name() string {
+	return wp.name
 }
 
 // Stop gracefully shuts down the manager and all workers.
@@ -90,7 +96,10 @@ func (wp *baseWorkerPool) Stop() {
 	wp.wg.Wait()
 
 	if wp.options.logger != nil {
-		wp.options.logger.Debug("Worker pool manager stopped")
+		wp.options.logger.Debug(
+			"Worker pool manager stopped",
+			"name", wp.Name(),
+		)
 	}
 }
 

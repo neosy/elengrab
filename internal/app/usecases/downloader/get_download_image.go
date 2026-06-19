@@ -63,7 +63,7 @@ func (uc *Downloader) getDownloadImageThumbnail(
 	mediaInfo *dtypes.MediaInfo,
 ) (*dtypes.ImageData, error) {
 	if mediaInfo != nil && mediaInfo.PreferredThumbnailID() != uuid.Nil {
-		thumbnail, _ := uc.thumbnail.GetByThumbID(ctx, mediaInfo.PreferredThumbnailID())
+		thumbnail, _ := uc.thumbnail.LoadByThumbID(ctx, mediaInfo.PreferredThumbnailID())
 		if thumbnail != nil {
 			if imageData := thumbnail.ImageData(""); imageData != nil {
 				return imageData, nil

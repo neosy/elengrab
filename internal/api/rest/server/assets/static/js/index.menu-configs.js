@@ -1,6 +1,6 @@
 import * as constants from './index-constants.js';
 import * as share from './share.js';
-import { initMenu, DOM_CLASSES as MENU_CLASSES } from './menu.js';
+import { initMenu, DOM_CLASSES as MENU_CLASSES, positionFloatingMenu} from './menu.js';
 import * as notify from './notifications.js';
 import * as view from './index.view.js';
 
@@ -147,7 +147,19 @@ const rowMenuConfig = {
         //alert('Clipboard API not supported');
       }
     },
-        
+
+    async refresh(item) {
+      const res = await fetch(item.dataset.url, { method: 'POST' });
+      if (!res.ok) {
+        const data = await res.json();
+        if (data && typeof data === "object" && "message" in data) {
+            notify.show(data.message, notify.notifyType.ERROR);
+        }
+        notify.show('Request failed', notify.notifyType.ERROR);
+        throw new Error('Request failed');
+      }
+    },
+
     async delete(item) {
       const res = await fetch(item.dataset.url, { method: 'DELETE' });
       if (!res.ok) {
@@ -155,35 +167,14 @@ const rowMenuConfig = {
         if (data && typeof data === "object" && "message" in data) {
             notify.show(data.message, notify.notifyType.ERROR);
         }
+        notify.show('Request failed', notify.notifyType.ERROR);
         throw new Error('Request failed');
       }
     }
   },
 
   position(menu, btn) {
-      const rect = btn.getBoundingClientRect();
-      const gap = 6;
-
-      const menuHeight = 250;
-      const spaceBelow = window.innerHeight - rect.bottom;
-      const openDown = spaceBelow >= menuHeight + gap;
-
-      menu.classList.remove(MENU_CLASSES.menuUp, MENU_CLASSES.menuDown);
-
-      if (openDown) {
-          menu.style.top = `${rect.bottom + gap}px`;
-          menu.style.bottom = 'auto';
-
-          menu.classList.add(MENU_CLASSES.menuDown);
-      } else {
-          menu.style.bottom = `${window.innerHeight - rect.top + gap}px`;
-          menu.style.top = 'auto';
-
-          menu.classList.add(MENU_CLASSES.menuUp);
-      }
-
-      menu.style.left = 'auto';
-      menu.style.right = `${window.innerWidth - rect.right}px`;
+    positionFloatingMenu(menu, btn);
   },
 
   buildUrl(menu, btn) {

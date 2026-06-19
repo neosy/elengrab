@@ -90,6 +90,32 @@ body.ui-blocking-active .menu-overlay--show {
     transform: var(--menu-show-transform);
 }
 
+.menu--scroll {
+    overflow-y: auto;
+
+    border-radius: 15px;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb-bg, initial) var(--scrollbar-track-bg, initial);
+}
+
+.menu--scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.menu--scroll::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb-bg, initial);
+    border-radius: 4px;
+}
+
+.menu--scroll::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover-bg, initial);
+}
+
+.menu--scroll::-webkit-scrollbar-track {
+    background-color: var(--scrollbar-track-bg, initial);
+}
+
 .menu-header {
     display: flex;
     flex-direction: column;

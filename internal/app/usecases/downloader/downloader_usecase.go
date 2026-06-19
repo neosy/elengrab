@@ -38,7 +38,8 @@ type Downloader struct {
 	systemInfoStore systemInfoStore
 
 	// dispetchers
-	dlDispetcher nworkerpool.JobDispatcher
+	downloadDispatcher  nworkerpool.JobDispatcher
+	operationDispatcher nworkerpool.JobDispatcher
 
 	// internal
 	download          *mediadownload.MediaDownload
@@ -91,7 +92,8 @@ func NewDownloader(
 	downloadsStorage pstorage.DownloadsStorage,
 
 	// dispetchers
-	dlDispetcher nworkerpool.JobDispatcher,
+	downloadDispatcher nworkerpool.JobDispatcher,
+	operationDispatcher nworkerpool.JobDispatcher,
 
 	// usecases
 	thumbnail *thumbnail.Thumbnail,
@@ -132,7 +134,8 @@ func NewDownloader(
 		dlStateCache: dlStateCache,
 
 		// dispetchers
-		dlDispetcher: dlDispetcher,
+		downloadDispatcher:  downloadDispatcher,
+		operationDispatcher: operationDispatcher,
 
 		// internal
 		download:          download,

@@ -5,7 +5,6 @@ import (
 
 	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
 	ytdlpsrv "github.com/neosy/elengrab/internal/app/services/ytdlp"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
@@ -13,7 +12,7 @@ import (
 type Dependencies struct {
 	DownloaderBinDir string
 	Storage          pstorage.DownloadsStorage
-	YtDlpOptions     []dto.Option
+	YtDlpOptions     []ytdlpsrv.ServiceOption
 }
 
 type Services struct {

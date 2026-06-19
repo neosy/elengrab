@@ -5,6 +5,11 @@ export const DOM_IDS = {
     progressRow: (id) => `progress-${id}`,
 };
 
+export const DOM_CLASSES = {
+    rowRefreshing: "row--refreshing",
+    rowRemoving: "row--removing",
+};
+
 export const DOM_ELEMENTS = {
     resultRows: null,
     rowNoItems: null,

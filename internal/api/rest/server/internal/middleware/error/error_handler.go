@@ -27,12 +27,12 @@ func (m *ErrorMiddleware) ErrorMethodNotAllowedHandler(ctx *fasthttp.RequestCtx)
 		uri = string(ctx.Request.URI().RequestURI())
 	}
 
-	ctx.SetStatusCode(fasthttp.StatusNotFound)
+	ctx.SetStatusCode(fasthttp.StatusMethodNotAllowed)
 	ctx.SetUserValue(ErrorxResponseKey, nfasthttp.WriteErrorxResponse{
 		HTTPStatus: fasthttp.StatusMethodNotAllowed,
 		Message:    fasthttp.StatusMessage(fasthttp.StatusMethodNotAllowed),
 	})
-	m.writeError(ctx, fmt.Sprintf("The requested URL %s was not found on this server.", uri))
+	m.writeError(ctx, fmt.Sprintf("The requested method %s is not allowed for URL %s.", ctx.Method(), uri))
 }
 
 // ErrorHandler is a middleware that handles errors and writes error responses.

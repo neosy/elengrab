@@ -1,6 +1,10 @@
 {{- define "result-row-status" }}
-                {{- if eq .Values.DownloadStatus "done" }}
-                <div class="media-result__row success" id="{{ .Values.RowID }}" data-media="{{ .Values.StreamURL }}" data-is-audio="{{ .Values.IsAudio }}">
+                {{- if .Values.IsReady }}
+                    {{- $cssClass := "" }}
+                    {{- if eq .Values.DownloadStatus "refreshing" }}
+                        {{- $cssClass = "row--refreshing" }}
+                    {{- end }}
+                <div class="media-result__row success {{ $cssClass }}" id="{{ .Values.RowID }}" data-media="{{ .Values.StreamURL }}" data-is-audio="{{ .Values.IsAudio }}">
                 {{- else }}
                 <div class="media-result__row inprogress {{ .Values.ResultRowFade }}" id="{{ .Values.RowID }}">
                 {{- end }}

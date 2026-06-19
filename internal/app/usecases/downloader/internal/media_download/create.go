@@ -26,11 +26,7 @@ func (uc *MediaDownload) Create(ctx context.Context, download *ddownload.MediaDo
 
 	download.Status = dtypes.MediaDownloadStatusNew
 
-	download.Normalize()
-
-	if err := download.Validate(); err != nil {
-		return err
-	}
+	download.NormalizeForSave()
 
 	err := uc.downloadRep.Insert(ctx, download)
 	if err != nil {

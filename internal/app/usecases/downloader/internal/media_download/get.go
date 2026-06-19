@@ -13,15 +13,9 @@ import (
 
 func (uc *MediaDownload) FindByDownloadID(
 	ctx context.Context,
-	userID *uuid.UUID,
 	downloadID uuid.UUID,
 ) (*ddownload.MediaDownload, error) {
-	downloadRep := uc.downloadRep
-	if userID != nil {
-		downloadRep = uc.downloadRep.WithUser(*userID)
-	}
-
-	download, err := downloadRep.FindByDownloadID(ctx, downloadID)
+	download, err := uc.downloadRep.FindByDownloadID(ctx, downloadID)
 	if err != nil {
 		uc.logger.Warn("Failed to find record", "error", err)
 		return nil, err
@@ -34,10 +28,9 @@ func (uc *MediaDownload) FindByDownloadID(
 // MediaDownload MUST exist — otherwise NOT_FOUND
 func (uc *MediaDownload) GetByDownloadID(
 	ctx context.Context,
-	userID *uuid.UUID,
 	downloadID uuid.UUID,
 ) (*ddownload.MediaDownload, error) {
-	download, err := uc.FindByDownloadID(ctx, userID, downloadID)
+	download, err := uc.FindByDownloadID(ctx, downloadID)
 	if err != nil {
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}

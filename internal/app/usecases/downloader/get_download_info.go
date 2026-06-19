@@ -20,7 +20,7 @@ func (uc *Downloader) GetDownloadInfo(
 	authCtx dauth.UserContext,
 	downloadID uuid.UUID,
 ) (*dto.GetMediaDownloadInfoResponse, error) {
-	resp, err := uc.findActualDownloadInfo(ctx, nil, downloadID)
+	resp, err := uc.findActualDownloadInfo(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed get download info", "error", err)
 		return nil, err
@@ -42,7 +42,7 @@ func (uc *Downloader) GetDownloadInfoUnrestricted(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) (*dto.GetMediaDownloadInfoResponse, error) {
-	resp, err := uc.findActualDownloadInfo(ctx, nil, downloadID)
+	resp, err := uc.findActualDownloadInfo(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed get media download info", "error", err)
 		return nil, err
@@ -74,7 +74,6 @@ func (uc *Downloader) GetDownloadInfoForEdit(
 // findActualDownloadInfo retrieves the actual download information based on user ID and download ID.
 func (uc *Downloader) findActualDownloadInfo(
 	ctx context.Context,
-	userID *uuid.UUID,
 	downloadID uuid.UUID,
 ) (*dto.GetMediaDownloadInfoResponse, error) {
 	var download *ddownload.MediaDownload
@@ -84,14 +83,14 @@ func (uc *Downloader) findActualDownloadInfo(
 		return nil, apperrors.ErrDownloadIDIsNil
 	}
 
-	state, _ := uc.dlStateCache.FindByDownloadID(ctx, userID, downloadID)
+	state, _ := uc.dlStateCache.FindByDownloadID(ctx, downloadID)
 	if state != nil && state.Download != nil {
 		download = state.Download.Copy()
 	}
 
 	if download == nil {
 		var err error
-		download, err = uc.download.FindByDownloadID(ctx, userID, downloadID)
+		download, err = uc.download.FindByDownloadID(ctx, downloadID)
 		if err != nil {
 			return nil, err
 		}
@@ -117,7 +116,7 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 		return nil, nil
 	}
 
-	state, _ := uc.dlStateCache.FindByDownloadID(ctx, download.UserID, download.DownloadID)
+	state, _ := uc.dlStateCache.FindByDownloadID(ctx, download.DownloadID)
 	if state != nil && state.Download != nil {
 		download = state.Download.Copy()
 		dlProgress = state.Progress.Copy()
@@ -141,7 +140,7 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 	}
 
 	var isPortrait bool
-	thumbnail, _ := uc.thumbnail.FindInfoByThumbID(ctx, download.MediaInfo.PreferredThumbnailID())
+	thumbnail, _ := uc.thumbnail.FindByThumbID(ctx, download.MediaInfo.PreferredThumbnailID())
 	if thumbnail != nil {
 		isPortrait = thumbnail.IsPortrait()
 	}
@@ -177,7 +176,7 @@ func (uc *Downloader) getDownloadsInfo(
 }
 
 func (uc *Downloader) GetDownloadFilePath(ctx context.Context, downloadID uuid.UUID) (string, error) {
-	download, err := uc.download.GetByDownloadID(ctx, nil, downloadID)
+	download, err := uc.download.GetByDownloadID(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed find download", "error", err)
 		return "", err
@@ -192,23 +191,21 @@ func (uc *Downloader) GetDownloadFilePath(ctx context.Context, downloadID uuid.U
 // Returns:
 //
 //	filename - the human-readable name of the file
-//	ext      - the file extension (without dot)
 //	err      - an error if the record is not found or a query fails
 func (uc *Downloader) GetDownloadFileName(
 	ctx context.Context,
-	userCtx dauth.UserContext,
+	authCtx dauth.UserContext,
 	downloadID uuid.UUID,
-) (string, string, error) {
-	var accessByUserID *uuid.UUID
-	if uc.authz.ShouldRestrictDownloads(userCtx.RoleIDs) {
-		accessByUserID = &userCtx.UserID
-	}
-
-	download, err := uc.download.GetByDownloadID(ctx, accessByUserID, downloadID)
+) (string, error) {
+	download, err := uc.download.GetByDownloadID(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed find download", "error", err)
-		return "", "", err
+		return "", err
 	}
 
-	return download.SafeReadableFullName, download.Ext, nil
+	if !uc.authz.HasMediaViewAccess(authCtx, download) {
+		return "", ierrors.ErrAccessDenied
+	}
+
+	return download.SafeReadableFileFullName, nil
 }

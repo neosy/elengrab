@@ -15,7 +15,7 @@ import (
 	_ "modernc.org/sqlite"
 
 	"github.com/neosy/elengrab/internal/app/services"
-	ytdlpdto "github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
+	ytdlpsrv "github.com/neosy/elengrab/internal/app/services/ytdlp"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	"github.com/neosy/elengrab/internal/app/workers"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -60,8 +60,9 @@ const (
 	updateSystemInfoInterval = 15 * time.Minute
 	updateDBMetricsInterval  = 5 * time.Minute
 
-	// defaultWorkerIdleTime is the default idle duration before a dynamic pool worker can exit.
-	workerIdleTimeDefault = 15 * time.Minute
+	// downloadWorkerIdleTimeDefault is the default idle duration before a dynamic pool worker can exit.
+	downloadWorkerIdleTimeDefault  = 15 * time.Minute
+	operationWorkerIdleTimeDefault = 5 * time.Minute
 
 	// Auth session TTL and refresh interval defaults
 	authSessionTTL             = 90 * 24 * time.Hour
@@ -88,8 +89,9 @@ type Application struct {
 	Usecases *usecases.Usecases
 	Services *services.Services
 
-	WorkerPool nworkerpool.WorkerPool
-	Workers    *nworkers.Workers
+	DownloadWorkerPool  nworkerpool.WorkerPool
+	OperationWorkerPool nworkerpool.WorkerPool
+	Workers             *nworkers.Workers
 
 	dbAuth  *sql.DB
 	dbMain  *sql.DB
@@ -143,9 +145,9 @@ func (a *Application) initialize() error {
 	srvDeps := &services.Dependencies{
 		DownloaderBinDir: a.cfg.Elengrab.DownloaderBinDir,
 		Storage:          storages.Download,
-		YtDlpOptions: []ytdlpdto.Option{
-			ytdlpdto.WithCookiesDir(cookiesDir),
-			ytdlpdto.WithAllowCookies(a.cfg.Elengrab.AllowCookies),
+		YtDlpOptions: []ytdlpsrv.ServiceOption{
+			ytdlpsrv.WithCookiesDir(cookiesDir),
+			ytdlpsrv.WithCookies(a.cfg.Elengrab.AllowCookies),
 		},
 	}
 	services, err := services.New(a.logger, srvDeps)
@@ -155,9 +157,9 @@ func (a *Application) initialize() error {
 	}
 	a.Services = services
 
-	// Initialize worker pool
-	workerPool := a.initWorkerPool()
-	a.WorkerPool = workerPool
+	// Initialize workers pool
+	a.DownloadWorkerPool = a.newDownloadWorkerPool()
+	a.OperationWorkerPool = a.newOperationWorkerPool()
 
 	// Initialize usecases
 	ucDeps := &usecases.Dependencies{
@@ -193,8 +195,9 @@ func (a *Application) initialize() error {
 			Downloads:  storages.Download,
 		},
 
-		DownloadDispetcher: workerPool,
-		Services:           services,
+		DownloadDispetcher:  a.DownloadWorkerPool,
+		OperationDispatcher: a.OperationWorkerPool,
+		Services:            services,
 
 		// Options
 		AppName:  iconfig.AppName,
@@ -291,8 +294,13 @@ func (a *Application) RunRequiredMigrations() error {
 }
 
 func (a *Application) StartBackground() error {
-	if err := a.WorkerPool.Start(a.ctx); err != nil {
-		a.logger.Error("Failed to start worker pool", "err", err)
+	if err := a.DownloadWorkerPool.Start(a.ctx); err != nil {
+		a.logger.Error("Failed to start download worker pool", "err", err)
+		return err
+	}
+
+	if err := a.OperationWorkerPool.Start(a.ctx); err != nil {
+		a.logger.Error("Failed to start operation worker pool", "err", err)
 		return err
 	}
 
@@ -310,15 +318,22 @@ func (a *Application) StartBackground() error {
 	return nil
 }
 
+func (a *Application) StopWorkerPools() {
+	if a.DownloadWorkerPool != nil {
+		a.DownloadWorkerPool.Stop()
+	}
+	if a.OperationWorkerPool != nil {
+		a.OperationWorkerPool.Stop()
+	}
+}
+
 func (a *Application) Shutdown() error {
 	if a.Workers != nil {
 		a.Workers.StopWorkers()
 	}
 
-	// Stop workers poll on exit
-	if a.WorkerPool != nil {
-		a.WorkerPool.Stop()
-	}
+	// Stop worker pools on exit
+	a.StopWorkerPools()
 
 	// Close the database on exit
 	if a.dbMedia != nil {
@@ -419,19 +434,29 @@ func (a *Application) initInMemoryRepositories() *inmemoryrep.Repositories {
 	return inmemoryrep.New(inMemoryDeps)
 }
 
-func (a *Application) initWorkerPool() nworkerpool.WorkerPool {
-	downloadWorkers := func() uint32 {
+func (a *Application) newDownloadWorkerPool() nworkerpool.WorkerPool {
+	workers := func() uint32 {
 		if a.cfg.Elengrab.DemoMode {
 			return 1
 		}
 		return a.cfg.Elengrab.DownloadWorkers
 	}
 	return nworkerpool.NewDynamicWorkerPool(
+		"Download",
 		nworkerpool.WithLogger(a.logger),
-		nworkerpool.WithMaxWorkers(downloadWorkers()),
-		nworkerpool.WithIdleTime(workerIdleTimeDefault),
+		nworkerpool.WithMaxWorkers(workers()),
+		nworkerpool.WithIdleTime(downloadWorkerIdleTimeDefault),
 	)
 
+}
+
+func (a *Application) newOperationWorkerPool() nworkerpool.WorkerPool {
+	return nworkerpool.NewDynamicWorkerPool(
+		"Operation",
+		nworkerpool.WithLogger(a.logger),
+		nworkerpool.WithMaxWorkers(a.cfg.Elengrab.OperationWorkers),
+		nworkerpool.WithIdleTime(operationWorkerIdleTimeDefault),
+	)
 }
 
 func (a *Application) initStorages() (*fsstorage.Storages, error) {

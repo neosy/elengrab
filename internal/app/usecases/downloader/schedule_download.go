@@ -78,12 +78,7 @@ func (uc *Downloader) ScheduleDownload(
 		return nil, returnErr(err)
 	}
 
-	var accessByUserID *uuid.UUID
-	if uc.authz.ShouldRestrictDownloads(authCtx.RoleIDs) {
-		accessByUserID = &authCtx.UserID
-	}
-
-	download, err := uc.download.GetByDownloadID(ctx, accessByUserID, downloadID)
+	download, err := uc.download.GetByDownloadID(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed find download", "error", err)
 		return nil, returnErr(err)
@@ -102,7 +97,7 @@ func (uc *Downloader) ScheduleDownload(
 		return nil, returnErr(err)
 	}
 
-	tmpDownload, _ := uc.download.GetByDownloadID(ctx, accessByUserID, downloadID)
+	tmpDownload, _ := uc.download.GetByDownloadID(ctx, downloadID)
 	if tmpDownload != nil {
 		download = tmpDownload
 	}
@@ -132,7 +127,7 @@ func (uc *Downloader) addDownloadToQueueDownload(ctx context.Context, downloadID
 			return err
 		}
 
-		download, err = uc.download.GetByDownloadID(ctx, nil, downloadID)
+		download, err = uc.download.GetByDownloadID(ctx, downloadID)
 		if err != nil {
 			uc.dlStateCache.Delete(ctx, downloadID)
 			return err
@@ -153,6 +148,7 @@ func (uc *Downloader) addDownloadToQueueDownload(ctx context.Context, downloadID
 		if e != nil {
 			uc.logger.Warn("Failed update status", "downloadID", download.DownloadID, "error", e)
 			uc.dlStateCache.Delete(ctx, downloadID)
+
 			return errorx.Errorf(
 				"task has not been added to the queue: %w", e,
 				exceptions.QUEUE_PUBLISH_FAILED,
@@ -160,7 +156,11 @@ func (uc *Downloader) addDownloadToQueueDownload(ctx context.Context, downloadID
 			)
 		}
 
-		return err
+		return errorx.Errorf(
+			"task has not been added to the queue",
+			exceptions.QUEUE_PUBLISH_FAILED,
+			errorx.WithErrorMessage("We couldn’t process your request"),
+		)
 	}
 
 	return nil
@@ -169,7 +169,7 @@ func (uc *Downloader) addDownloadToQueueDownload(ctx context.Context, downloadID
 func (uc *Downloader) enqueueDownloadTask(task *ddownload.DownloadTask) nworkerpool.Job {
 	job := wjobs.NewDownloadJob(uc, task)
 
-	if !uc.dlDispetcher.AddJob(job) {
+	if !uc.downloadDispatcher.AddJob(job) {
 		return nil
 	}
 

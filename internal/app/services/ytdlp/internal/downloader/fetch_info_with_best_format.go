@@ -8,17 +8,17 @@ import (
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 )
 
-func (d *Downloader) GetInfoWithBestFormat(
+func (d *Downloader) FetchInfoWithBestFormat(
 	ctx context.Context,
 	url string,
 	format string,
-	useCookies bool,
+	options idto.RequestOptions,
 ) (*dservices.DownloaderMediaInfo, error) {
 	var cookieFileName string
-	if useCookies {
+	if options.AllowCookies {
 		cookieFileName, _ = helper.CookieFilePathFromURL(url, d.serviceOptions.CookiesDir)
 	}
-	info, err := d.executor.GetInfoWithBestFormat(
+	info, err := d.executor.FetchInfoWithBestFormat(
 		ctx,
 		url,
 		format,

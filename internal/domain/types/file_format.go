@@ -116,6 +116,19 @@ func (v FileFormat) AudioFormat() AudioFormat {
 	return audioFormat
 }
 
+// FormatType
+func (v FileFormat) FormatType() FormatType {
+	if v == FileFormatNone {
+		return FormatTypeNone
+	}
+
+	if v.IsAudio() {
+		return FormatTypeAudioOnly
+	}
+
+	return FormatTypeVideoAudio
+}
+
 // ParseFileFormat converting string to FileFormat
 func ParseFileFormat(format string) (FileFormat, error) {
 	fileFormat := FileFormat(strings.ToLower(format))

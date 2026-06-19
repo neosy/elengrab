@@ -14,9 +14,9 @@ import (
 func (d *Downloader) extractThumbnailFromURL(
 	ctx context.Context,
 	mediaURL string,
-	useCookies bool,
+	options idto.RequestOptions,
 ) *dtypes.ImageData {
-	imageData, err := d.FetchThumbnail(ctx, mediaURL, useCookies)
+	imageData, err := d.FetchThumbnail(ctx, mediaURL, options)
 	if err != nil {
 		return nil
 	}
@@ -24,13 +24,17 @@ func (d *Downloader) extractThumbnailFromURL(
 	return imageData
 }
 
-func (d *Downloader) ExtractThumbnailURL(ctx context.Context, mediaURL string, useCookies bool) (string, error) {
+func (d *Downloader) ExtractThumbnailURL(
+	ctx context.Context,
+	mediaURL string,
+	options idto.RequestOptions,
+) (string, error) {
 	if mediaURL == "" {
 		return "", nil
 	}
 
 	var cookieFileName string
-	if useCookies {
+	if options.AllowCookies {
 		cookieFileName, _ = helper.CookieFilePathFromURL(mediaURL, d.serviceOptions.CookiesDir)
 	}
 
@@ -57,14 +61,14 @@ func (d *Downloader) ExtractThumbnailURL(ctx context.Context, mediaURL string, u
 	return imageURL, nil
 }
 
-func (d *Downloader) fetchYouTubeShortThumbnail(ctx context.Context, mediaURL string) (*dtypes.ImageData, error) {
+func (d *Downloader) fetchYouTubeShortThumbnail(ctx context.Context, mediaURL string, options idto.RequestOptions) (*dtypes.ImageData, error) {
 	youtubeShortID, err := helper.ExtractYouTubeShortID(mediaURL)
 	if err != nil {
 		return nil, err
 	}
 
 	imageURL := fmt.Sprintf("https://i.ytimg.com/vi/%s/oar2.jpg", youtubeShortID)
-	imageData, err := helper.FetchImage(ctx, imageURL)
+	imageData, err := helper.FetchImage(ctx, imageURL, options)
 	if err != nil {
 		return nil, err
 	}
@@ -72,13 +76,17 @@ func (d *Downloader) fetchYouTubeShortThumbnail(ctx context.Context, mediaURL st
 	return imageData, nil
 }
 
-func (d *Downloader) FetchThumbnail(ctx context.Context, mediaURL string, useCookies bool) (*dtypes.ImageData, error) {
-	imageData, _ := d.fetchYouTubeShortThumbnail(ctx, mediaURL)
+func (d *Downloader) FetchThumbnail(
+	ctx context.Context,
+	mediaURL string,
+	options idto.RequestOptions,
+) (*dtypes.ImageData, error) {
+	imageData, _ := d.fetchYouTubeShortThumbnail(ctx, mediaURL, options)
 	if imageData != nil {
 		return imageData, nil
 	}
 
-	imageURL, err := d.ExtractThumbnailURL(ctx, mediaURL, useCookies)
+	imageURL, err := d.ExtractThumbnailURL(ctx, mediaURL, options)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +95,7 @@ func (d *Downloader) FetchThumbnail(ctx context.Context, mediaURL string, useCoo
 		return nil, nil
 	}
 
-	imageData, err = helper.FetchImage(ctx, imageURL)
+	imageData, err = helper.FetchImage(ctx, imageURL, options)
 	if err != nil {
 		d.logger.Debug("Failed to fetch thumbnail from URL", "mediaUrl", mediaURL, "thumbnailURL", imageURL, "error", err)
 		return nil, err

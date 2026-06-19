@@ -55,7 +55,10 @@ func (c *FFmpegCore) ExtractVideoAudioInfoWithFFprobe(
 	// ---- ffprobe response model ----
 
 	type ffprobeFormat struct {
-		Duration string `json:"duration"`
+		FormatName string `json:"format_name"`
+		Duration   string `json:"duration"`
+		Size       string `json:"size"`
+		BitRate    string `json:"bit_rate"`
 	}
 
 	type ffprobeResult struct {
@@ -69,12 +72,20 @@ func (c *FFmpegCore) ExtractVideoAudioInfoWithFFprobe(
 	}
 
 	var (
-		duration time.Duration
+		duration     time.Duration
+		totalBitrate int
 	)
 	if probe.Format.Duration != "" {
 		seconds, err := strconv.ParseFloat(probe.Format.Duration, 64)
 		if err == nil && seconds > 0 {
 			duration = time.Duration(float64(time.Second) * math.Round(seconds*1e6) / 1e6)
+		}
+	}
+
+	if probe.Format.BitRate != "" {
+		bitrate, err := strconv.Atoi(probe.Format.BitRate)
+		if err == nil && bitrate != 0 {
+			totalBitrate = int(bitrate / 1000)
 		}
 	}
 
@@ -114,6 +125,7 @@ func (c *FFmpegCore) ExtractVideoAudioInfoWithFFprobe(
 		FormatType: formatType,
 		Format:     dtypes.MapFileExtToFileFormat(filepath.Ext(filePath)),
 		Duration:   duration,
+		Bitrate:    totalBitrate,
 		VideoInfo:  videoInfo,
 		AudioInfo:  audioInfo,
 	}, nil

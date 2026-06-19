@@ -1,4 +1,4 @@
-package store
+package repository
 
 import (
 	"context"
@@ -8,15 +8,15 @@ import (
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
-func (c *ThumbnailStore) Insert(ctx context.Context, thumbnail *dmedia.Thumbnail) error {
+func (r *ThumbnailRepository) Insert(ctx context.Context, thumbnail *dmedia.Thumbnail) error {
 	if thumbnail == nil {
-		c.logger.Warn("Nil pointer in function")
+		r.logger.Warn("Nil pointer in function")
 		return apperrors.ErrFuncParamNullPointer
 	}
 
-	err := c.thumbnailRep.Insert(ctx, thumbnail)
+	err := r.repo.Insert(ctx, thumbnail)
 	if err != nil {
-		c.logger.Warn(
+		r.logger.Warn(
 			"Failed to insert record into repository",
 			"thumbnailID", thumbnail.ThumbID,
 			"storageKey", thumbnail.StorageKey,
@@ -29,9 +29,9 @@ func (c *ThumbnailStore) Insert(ctx context.Context, thumbnail *dmedia.Thumbnail
 		return err
 	}
 
-	thumbnail, _ = c.thumbnailRep.FindByThumbID(ctx, thumbnail.ThumbID)
+	thumbnail, _ = r.repo.FindByThumbID(ctx, thumbnail.ThumbID)
 	if thumbnail != nil {
-		c.thumbnailCacheRep.Save(ctx, thumbnail)
+		r.cacheRepo.Save(ctx, thumbnail)
 	}
 
 	return nil

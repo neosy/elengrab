@@ -7,17 +7,17 @@ type ExecutorOptions struct {
 	CookieFilePath string
 }
 
-func NewExecutorOptionsDefault() *ExecutorOptions {
-	return &ExecutorOptions{
+func ExecutorOptionsDefault() ExecutorOptions {
+	return ExecutorOptions{
 		EnsureCache:    true,
 		CookieFilePath: "",
 	}
 }
 
-func NewExecutorOptions(opts ...ExecutorOption) *ExecutorOptions {
-	options := NewExecutorOptionsDefault()
+func NewExecutorOptions(opts ...ExecutorOption) ExecutorOptions {
+	options := ExecutorOptionsDefault()
 	for _, opt := range opts {
-		opt(options)
+		opt(&options)
 	}
 	return options
 }

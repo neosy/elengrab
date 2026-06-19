@@ -35,6 +35,7 @@ const (
 	PathMediaItemStream         = "/items/{itemId}/stream"
 	PathMediaItemWatch          = "/items/{itemId}/watch"
 	PathMediaItemEdit           = "/items/{itemId}/edit"
+	PathMediaItemRefresh        = "/items/{itemId}/refresh"
 
 	// Paths channels in Downloader
 	PathChannelAvatar = "/channels/{channelId}/avatar"

@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	formatTypeDefault = dtypes.FormatTypeVideoAudio
+	defaultFormatType = dtypes.FormatTypeVideoAudio
 
 	videoFormatDefault     = dtypes.VideoFormatMP4
 	videoCodecDefault      = dtypes.VideoCodecBest

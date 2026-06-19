@@ -14,7 +14,7 @@ type workerPool struct {
 // logger: used for logging events and errors.
 // options: optional configuration; nil uses defaults.
 // Returns initialized worker pool ready for Start().
-func NewWorkerPool(opts ...WorkerPoolOption) WorkerPool {
+func NewWorkerPool(name string, opts ...WorkerPoolOption) WorkerPool {
 	options := DefaultWorkerPoolOptions()
 
 	for _, opt := range opts {
@@ -27,6 +27,7 @@ func NewWorkerPool(opts ...WorkerPoolOption) WorkerPool {
 
 	wp := &workerPool{
 		baseWorkerPool: baseWorkerPool{
+			name:         name,
 			options:      options,
 			workers:      make(map[uint64]Worker, options.MaxWorkers),
 			semaphore:    make(chan struct{}, options.MaxWorkers),
@@ -143,6 +144,7 @@ func (wp *workerPool) Start(ctx context.Context) error {
 	if wp.options.logger != nil {
 		wp.options.logger.Info(
 			"Worker pool manager running...",
+			"name", wp.Name(),
 			"type", "fixed",
 			"count", wp.options.MaxWorkers,
 		)

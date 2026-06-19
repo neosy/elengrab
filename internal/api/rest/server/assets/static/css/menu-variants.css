@@ -64,7 +64,12 @@
 
 .menu-action--logout:hover,
 .menu-action--delete:hover {
-    background: var(--menu-action-text-red);
+    background: var(--menu-action-hover-bg-red);
+}
+
+.menu-action--refresh:hover,
+.menu-action--edit:hover {
+    background: var(--menu-action-hover-bg-orange);
 }
 
 .menu-action--share-link .menu-action__content-icon {
@@ -89,6 +94,10 @@
 
 .menu-action--edit .menu-action__content-icon {
     color: var(--menu-action-icon-orange);
+}
+
+.menu-action--refresh .menu-action__content-icon {
+    color: var(--menu-action-icon-cyan-green);
 }
 
 @media (max-width: 768px) {

@@ -32,7 +32,7 @@ func (h *DownloaderHandlers) thumbnailImageData(ctx context.Context, mediaInfo *
 		return nil
 	}
 
-	thumbnail, _ := h.thumbnail.GetByThumbID(ctx, mediaInfo.PreferredThumbnailID())
+	thumbnail, _ := h.thumbnail.LoadByThumbID(ctx, mediaInfo.PreferredThumbnailID())
 	if thumbnail != nil {
 		imageData = thumbnail.ImageData(httppaths.BuildThumbnailPath(thumbnail.ThumbID))
 

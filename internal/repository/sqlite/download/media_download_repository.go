@@ -117,6 +117,18 @@ func (r *MediaDownloadRepository) WithOptions(options dtypes.QueryOptions) persi
 	return cloneRepo
 }
 
+func (r *MediaDownloadRepository) WithStatus(statuses ...dtypes.MediaDownloadStatus) persistence.MediaDownloadRepository {
+	if len(statuses) == 0 {
+		return r
+	}
+
+	cloneRepo := r.Copy()
+
+	cloneRepo.queryOptions.statuses = statuses
+
+	return cloneRepo
+}
+
 func (r *MediaDownloadRepository) WithUser(userID uuid.UUID) persistence.MediaDownloadRepository {
 	var eDownload edownload.MediaDownload
 
@@ -218,12 +230,26 @@ func (r *MediaDownloadRepository) save(ctx context.Context, download *ddownload.
 	return nil
 }
 
-func (r *MediaDownloadRepository) UpdateStatusToNew(ctx context.Context, statuses []dtypes.MediaDownloadStatus) error {
-	if len(statuses) == 0 {
+// UpdateStatus updates all jobs with status [Working or Pending to New], [Refreshing to Donw].
+func (r *MediaDownloadRepository) UpdateStatus(
+	ctx context.Context,
+	fromStatuses []dtypes.MediaDownloadStatus,
+	newStatus dtypes.MediaDownloadStatus,
+) error {
+	if len(fromStatuses) == 0 {
 		return nil
 	}
 
-	statusStrings := r.downloadStatusesToStrings(statuses)
+	allowNewStatuses := []dtypes.MediaDownloadStatus{
+		dtypes.MediaDownloadStatusNew,
+		dtypes.MediaDownloadStatusDone,
+	}
+
+	if !slices.Contains(allowNewStatuses, newStatus) {
+		return fmt.Errorf("cannot change status to %q: status is not allowed", newStatus)
+	}
+
+	statusStrings := r.downloadStatusesToStrings(fromStatuses)
 
 	var ent edownload.MediaDownload
 
@@ -234,7 +260,7 @@ func (r *MediaDownloadRepository) UpdateStatusToNew(ctx context.Context, statuse
 
 	// Build query
 	sqlBuilder := squirrel.Update(ent.TableName()).
-		Set(ent.FieldName(&ent.Status), dtypes.MediaDownloadStatusNew.String()).
+		Set(ent.FieldName(&ent.Status), newStatus.String()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar)
 

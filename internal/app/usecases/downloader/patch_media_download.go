@@ -25,7 +25,7 @@ func (uc *Downloader) PatchMediaDownload(
 		return err
 	}
 
-	download, err := uc.download.GetByDownloadID(ctx, nil, req.DownloadID)
+	download, err := uc.download.GetByDownloadID(ctx, req.DownloadID)
 	if err != nil {
 		return err
 	}
@@ -65,6 +65,10 @@ func (uc *Downloader) PatchMediaDownload(
 
 	if !needUpdate {
 		return errorx.NewHTTPMessage("No changes to update", http.StatusBadRequest)
+	}
+
+	if err := download.Validate(); err != nil {
+		return err
 	}
 
 	return uc.download.Update(ctx, &authCtx.UserID, download)

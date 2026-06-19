@@ -29,6 +29,7 @@ type (
 		DownloadID     string
 		DownloadStatus string
 		WorkingStatus  string
+		IsReady        bool
 
 		DownloadRowPath    string
 		DownloadRepeatPath string
@@ -74,14 +75,17 @@ type (
 		DownloaderResultItemStatusIcon       template.HTML
 		DownloaderResultItemDeleteIcon       template.HTML
 		DownloaderResultItemStatusFailedIcon template.HTML
-		IsItemHTMXOptionRepeat               bool
-		PageHasDivItems                      bool
-		ResultRowFade                        string
-		ResultRowStatusTitle                 string
-		ResultMediaUrlFade                   string
-		ResultSizeFade                       string
-		ResultFormatFade                     string
-		IsDownloadEvent                      bool
-		IsItemSpiner                         bool
+
+		RefreshingIcon template.HTML
+
+		IsItemHTMXOptionRepeat bool
+		PageHasDivItems        bool
+		ResultRowFade          string
+		ResultRowStatusTitle   string
+		ResultMediaUrlFade     string
+		ResultSizeFade         string
+		ResultFormatFade       string
+		IsDownloadEvent        bool
+		IsItemSpiner           bool
 	}
 )

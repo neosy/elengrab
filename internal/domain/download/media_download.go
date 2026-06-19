@@ -4,14 +4,20 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"unicode"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/stringx"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+)
+
+const (
+	MediaTitleMaxLength       = 100
+	MediaDescriptionMaxLength = 5000
 )
 
 type MediaDownload struct {
@@ -52,7 +58,7 @@ type MediaDownload struct {
 	PartialHash *string
 
 	// Human-readable safe full name
-	SafeReadableFullName string
+	SafeReadableFileFullName string
 
 	// MediaInfo holds media metadata.
 	MediaInfo *dtypes.MediaInfo
@@ -106,6 +112,9 @@ func (src *MediaDownload) Copy() *MediaDownload {
 func (d *MediaDownload) Normalize() {
 	d.MediaTitle = strings.TrimSpace(d.MediaTitle)
 
+	// TODO: Normalize title hashtags after deciding how to handle platform-specific tags.
+	// d.MediaTitle = stringx.RemoveTrailingHashtags(d.MediaTitle)
+
 	if d.MediaDescription != nil {
 		*d.MediaDescription = strings.TrimSpace(*d.MediaDescription)
 		if *d.MediaDescription == "" {
@@ -114,19 +123,37 @@ func (d *MediaDownload) Normalize() {
 	}
 }
 
+func (d *MediaDownload) NormalizeFileFullName() string {
+	name := strings.TrimSpace(d.MediaTitle)
+	name = fasthttpx.SanitizeFileName(name)
+	name = stringx.TruncateBytesWords(name, MediaTitleMaxLength)
+	return name + "." + d.Ext
+}
+
+func (d *MediaDownload) NormalizeForSave() {
+	d.Normalize()
+
+	d.MediaTitle = stringx.TruncateWords(d.MediaTitle, MediaTitleMaxLength)
+	if d.MediaDescription != nil {
+		*d.MediaDescription = stringx.Truncate(*d.MediaDescription, MediaDescriptionMaxLength)
+	}
+}
+
 func (d *MediaDownload) Validate() error {
-	if utf8.RuneCountInString(d.MediaTitle) > 100 {
+	if utf8.RuneCountInString(d.MediaTitle) > MediaTitleMaxLength {
 		return errorx.NewHTTPMessage("Title must not exceed 100 characters", http.StatusBadRequest)
 	}
 
-	if strings.IndexFunc(d.MediaTitle, unicode.IsControl) >= 0 {
-		return errorx.NewHTTPMessage("Title contains invalid characters", http.StatusBadRequest)
-	}
+	// TODO: Determine the proper validation rules for media title.
+	// 		 Current control character check may be too restrictive.
+	// if strings.IndexFunc(d.MediaTitle, unicode.IsControl) >= 0 {
+	// 	return errorx.NewHTTPMessage("Title contains invalid characters", http.StatusBadRequest)
+	// }
 
 	if d.MediaDescription != nil {
 		description := *d.MediaDescription
 
-		if utf8.RuneCountInString(description) > 5000 {
+		if utf8.RuneCountInString(description) > MediaDescriptionMaxLength {
 			return errorx.NewHTTPMessage(
 				"Description must not exceed 5000 characters",
 				http.StatusBadRequest,

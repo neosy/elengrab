@@ -3,7 +3,6 @@ package migrations
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
@@ -52,9 +51,9 @@ func (m *migrations) fillMediaDuration(ctx context.Context) (bool, error) {
 		err = m.usecases.download.Patch(
 			ctx, nil,
 			media.DownloadID,
-			func(download *ddownload.MediaDownload) {
-				download.MediaInfo.Duration = strconv.FormatFloat(duration.Seconds(), 'f', 6, 64)
-				download.MediaInfo.DurationMs = int64(duration.Milliseconds())
+			func(download *ddownload.MediaDownload) bool {
+				download.MediaInfo.SetDuration(duration)
+				return true
 			},
 		)
 		if err != nil {

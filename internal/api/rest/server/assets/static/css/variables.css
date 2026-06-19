@@ -28,6 +28,7 @@
     --text-gray: #8b949e;
     --text-light-gray: #cfd8e3;
     --text-blue: #2563eb;
+    --text-orange: #f59e0b;
 
     --back-button-bg: rgba(0, 0, 0, 0.08);
 
@@ -89,12 +90,14 @@
     --text-menu: #333;
     --menu-separator: #9e9e9e;
     --menu-action-hover: rgba(0, 0, 0, 0.08);
+    --menu-action-hover-bg-red: rgba(231, 76, 60, 0.2);
+    --menu-action-hover-bg-orange: rgba(245, 158, 11, 0.2);
     --menu-action-icon-red: #c44b4b;
     --menu-action-icon-blue: #3b82f6;
-    --menu-action-text-red: rgba(231, 76, 60, 0.2);
     --menu-action-icon-green: #4caf50;
     --menu-action-icon-violet: #7c3aed;
     --menu-action-icon-orange: #f59e0b;
+    --menu-action-icon-cyan-green: #14b8a6
 }
 
 .dark {
@@ -184,9 +187,13 @@
     --text-menu: #cfd8e3;
     --menu-separator: #6e7681;
     --menu-action-hover: rgba(255, 255, 255, 0.1);
+    --menu-action-hover-bg-red: rgba(231, 76, 60, 0.2);
     --menu-action-icon-red: #c44b4b;
     --menu-action-icon-blue: #3b82f6;
-    --menu-action-text-red: rgba(231, 76, 60, 0.2);
     --menu-action-icon-green: #4caf50;
     --menu-action-icon-violet: #7c3aed;
+
+    --scrollbar-track-bg: #3e3e3e;
+    --scrollbar-thumb-bg: #606060;
+    --scrollbar-thumb-hover-bg: #707070;
 }

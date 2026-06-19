@@ -20,7 +20,7 @@ func (uc *Downloader) UpdateVisibility(
 		return err
 	}
 
-	download, err := uc.download.GetByDownloadID(ctx, nil, downloadID)
+	download, err := uc.download.GetByDownloadID(ctx, downloadID)
 	if err != nil {
 		return err
 	}
@@ -30,8 +30,9 @@ func (uc *Downloader) UpdateVisibility(
 		return err
 	}
 
-	patch := func(d *ddownload.MediaDownload) {
+	patch := func(d *ddownload.MediaDownload) bool {
 		d.Visibility = visibility
+		return true
 	}
 
 	return uc.download.Patch(ctx, &authCtx.UserID, downloadID, patch)

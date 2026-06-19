@@ -10,9 +10,9 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-// GetInfoByThumbID retrieves thumbnail information by its ID.
-func (t *Thumbnail) GetByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, error) {
-	thumbnail, err := t.store.GetByThumbID(ctx, thumbID)
+// LoadByThumbID retrieves thumbnail metadata by ID and loads its file data from storage.
+func (t *Thumbnail) LoadByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, error) {
+	thumbnail, err := t.repo.GetByThumbID(ctx, thumbID)
 	if err != nil {
 		return nil, err
 	}
@@ -66,9 +66,9 @@ func (t *Thumbnail) GetByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedi
 	return thumbnail, nil
 }
 
-// GetInfoByThumbID retrieves thumbnail information by its ID without fetching the raw image data.
-func (t *Thumbnail) GetInfoByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, error) {
-	thumbnail, err := t.store.GetByThumbID(ctx, thumbID)
+// GetByThumbID retrieves thumbnail information by its ID without loading the raw image data.
+func (t *Thumbnail) GetByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, error) {
+	thumbnail, err := t.repo.GetByThumbID(ctx, thumbID)
 	if err != nil {
 		return nil, err
 	}
@@ -76,8 +76,10 @@ func (t *Thumbnail) GetInfoByThumbID(ctx context.Context, thumbID uuid.UUID) (*d
 	return thumbnail, nil
 }
 
-func (t *Thumbnail) FindInfoByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, error) {
-	thumbnail, err := t.store.FindByThumbID(ctx, thumbID)
+// FindByThumbID retrieves thumbnail information by its ID without loading the raw image data.
+// Returns nil if the thumbnail does not exist.
+func (t *Thumbnail) FindByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, error) {
+	thumbnail, err := t.repo.FindByThumbID(ctx, thumbID)
 	if err != nil {
 		return nil, err
 	}
