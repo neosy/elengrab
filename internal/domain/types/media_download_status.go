@@ -17,39 +17,48 @@ const (
 	MediaDownloadStatusWorking
 	MediaDownloadStatusDone
 	MediaDownloadStatusFailed
+	MediaDownloadStatusRefreshing
 
 	MediaDownloadStatusDefault = MediaDownloadStatusNone
 )
 
 var (
-	// mediaDownloadStatusMap implementation of a set for MediaDownloadStatus
-	mediaDownloadStatusMap = map[MediaDownloadStatus]string{
-		MediaDownloadStatusNone:    "none",
-		MediaDownloadStatusNew:     "new",
-		MediaDownloadStatusPending: "pending",
-		MediaDownloadStatusWorking: "working",
-		MediaDownloadStatusDone:    "done",
-		MediaDownloadStatusFailed:  "failed",
+	// mediaDownloadStatusNameByStatus implementation of a set for MediaDownloadStatus
+	mediaDownloadStatusNameByStatus = map[MediaDownloadStatus]string{
+		MediaDownloadStatusNone:       "none",
+		MediaDownloadStatusNew:        "new",
+		MediaDownloadStatusPending:    "pending",
+		MediaDownloadStatusWorking:    "working",
+		MediaDownloadStatusDone:       "done",
+		MediaDownloadStatusFailed:     "failed",
+		MediaDownloadStatusRefreshing: "refreshing",
 	}
 
 	parseMediaDownloadStatusMap = map[string]MediaDownloadStatus{
-		"none":    MediaDownloadStatusNone,
-		"new":     MediaDownloadStatusNew,
-		"pending": MediaDownloadStatusPending,
-		"working": MediaDownloadStatusWorking,
-		"done":    MediaDownloadStatusDone,
-		"failed":  MediaDownloadStatusFailed,
+		"none":       MediaDownloadStatusNone,
+		"new":        MediaDownloadStatusNew,
+		"pending":    MediaDownloadStatusPending,
+		"working":    MediaDownloadStatusWorking,
+		"done":       MediaDownloadStatusDone,
+		"failed":     MediaDownloadStatusFailed,
+		"refreshing": MediaDownloadStatusRefreshing,
 	}
 )
 
 // String returns the value as a string.
 func (v MediaDownloadStatus) String() string {
-	return mediaDownloadStatusMap[v]
+	return mediaDownloadStatusNameByStatus[v]
+}
+
+// IsReady returns true when the download status indicates that the media is ready for use.
+func (v MediaDownloadStatus) IsReady() bool {
+	return v == MediaDownloadStatusDone ||
+		v == MediaDownloadStatusRefreshing
 }
 
 // Exists returns true if the MediaDownloadStatus is valid.
 func (v MediaDownloadStatus) Exists() bool {
-	_, exists := mediaDownloadStatusMap[v]
+	_, exists := mediaDownloadStatusNameByStatus[v]
 	return exists
 }
 

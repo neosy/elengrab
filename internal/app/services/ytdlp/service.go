@@ -4,7 +4,6 @@ import (
 	"log/slog"
 
 	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
@@ -17,7 +16,7 @@ type YtDlpService struct {
 	logger *slog.Logger
 
 	// options
-	options dto.Options
+	options ServiceOptions
 
 	// internal
 	downloader *downloader.Downloader
@@ -29,14 +28,14 @@ func NewYtDlpService(
 	binDir string,
 	storage pstorage.DownloadsStorage,
 	ffmpeg *ffmpegsrv.FFmpegService,
-	opts ...dto.Option,
+	opts ...ServiceOption,
 ) (*YtDlpService, error) {
 	cmdPath, err := utils.ResolveCmdPath(consts.YtDlpName, binDir)
 	if err != nil {
 		return nil, err
 	}
 
-	options := dto.NewOptions()
+	options := NewServiceOptions()
 
 	for _, opt := range opts {
 		opt(&options)
@@ -89,6 +88,6 @@ func NewYtDlpService(
 		options: options,
 
 		// internal
-		downloader: downloader.NewDownloader(logger, cmdPath, storage, ffmpeg, options),
+		downloader: downloader.NewDownloader(logger, cmdPath, storage, ffmpeg, options.toInternalOptions()),
 	}, nil
 }

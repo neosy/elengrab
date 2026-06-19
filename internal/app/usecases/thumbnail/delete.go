@@ -9,13 +9,13 @@ import (
 )
 
 func (t *Thumbnail) Delete(ctx context.Context, thumbID uuid.UUID) error {
-	thumbnail, err := t.store.GetByThumbID(ctx, thumbID)
+	thumbnail, err := t.repo.GetByThumbID(ctx, thumbID)
 	if err != nil {
 		return err
 	}
 
 	delete := func(ctx context.Context) error {
-		err := t.store.Delete(ctx, thumbnail.ThumbID)
+		err := t.repo.Delete(ctx, thumbnail.ThumbID)
 		if err != nil {
 			return err
 		}
@@ -38,7 +38,7 @@ func (t *Thumbnail) Delete(ctx context.Context, thumbID uuid.UUID) error {
 		return nil
 	}
 
-	err = t.store.Tx(ctx, delete)
+	err = t.repo.Tx(ctx, delete)
 	if err != nil {
 		return err
 	}

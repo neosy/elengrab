@@ -32,7 +32,7 @@ func (m *migrations) fillTitleForInstagram(ctx context.Context) (bool, error) {
 	for i, media := range medias {
 		m.logger.Debug("Extract media info", "index", i+1, "total", len(medias))
 
-		info, err := m.services.downloader.GetInfo(ctx, media.MediaURL, false)
+		info, err := m.services.downloader.FetchInfo(ctx, media.MediaURL)
 		if err != nil {
 			continue
 		}
@@ -44,11 +44,12 @@ func (m *migrations) fillTitleForInstagram(ctx context.Context) (bool, error) {
 		err = m.usecases.download.Patch(
 			ctx, nil,
 			media.DownloadID,
-			func(download *ddownload.MediaDownload) {
+			func(download *ddownload.MediaDownload) bool {
 				download.MediaTitle = info.Title
 				if info.Description != "" && (download.MediaDescription == nil || *download.MediaDescription != info.Description) {
 					download.MediaDescription = &info.Description
 				}
+				return true
 			},
 		)
 		if err != nil {

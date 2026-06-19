@@ -29,7 +29,7 @@ func (uc *Downloader) DeleteDownload(
 		return err
 	}
 
-	download, err := uc.download.GetByDownloadID(ctx, nil, downloadID)
+	download, err := uc.download.GetByDownloadID(ctx, downloadID)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func (uc *Downloader) DeleteDownload(
 	}
 
 	fn := func(ctx context.Context) error {
-		download, err := uc.download.FindByDownloadID(ctx, nil, downloadID)
+		download, err := uc.download.FindByDownloadID(ctx, downloadID)
 		if err != nil {
 			return err
 		}
@@ -70,7 +70,7 @@ func (uc *Downloader) DeleteDownload(
 			if task == nil || task.JobID == nil {
 				return errors.New("jobID is missing")
 			}
-			if !uc.dlDispetcher.CancelJob(task.JobID.String()) {
+			if !uc.downloadDispatcher.CancelJob(task.JobID.String()) {
 				return errors.New("job cannot be cancelled")
 			}
 			if err := fnDelete(ctx, download.DownloadID); err != nil {

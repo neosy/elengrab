@@ -25,7 +25,7 @@ func (t *Thumbnail) Create(ctx context.Context, req *dto.CreateThumbnailRequest)
 
 	create := func(ctx context.Context) error {
 		var err error
-		err = t.store.Insert(ctx, thumbnail)
+		err = t.repo.Insert(ctx, thumbnail)
 		if err != nil {
 			return err
 		}
@@ -48,7 +48,7 @@ func (t *Thumbnail) Create(ctx context.Context, req *dto.CreateThumbnailRequest)
 		return nil
 	}
 
-	err = t.store.Tx(ctx, create)
+	err = t.repo.Tx(ctx, create)
 	if err != nil {
 		return uuid.Nil, err
 	}

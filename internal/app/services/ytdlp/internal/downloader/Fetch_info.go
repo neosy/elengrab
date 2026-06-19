@@ -9,17 +9,17 @@ import (
 )
 
 // GetInfo retrieves and parses video formats for the given URL.
-func (d *Downloader) GetInfo(
+func (d *Downloader) FetchInfo(
 	ctx context.Context,
 	url string,
-	useCookies bool,
+	options idto.RequestOptions,
 ) (*dservices.DownloaderMediaInfo, error) {
 	var cookieFileName string
-	if useCookies {
+	if options.AllowCookies {
 		cookieFileName, _ = helper.CookieFilePathFromURL(url, d.serviceOptions.CookiesDir)
 	}
 
-	info, err := d.executor.GetInfo(ctx, url, idto.WithUseCookies(cookieFileName))
+	info, err := d.executor.FetchInfo(ctx, url, idto.WithUseCookies(cookieFileName))
 	if err != nil {
 		return nil, err
 	}

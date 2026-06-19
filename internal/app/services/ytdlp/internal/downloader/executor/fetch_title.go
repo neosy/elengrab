@@ -11,7 +11,7 @@ import (
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 )
 
-func (e *Executor) GetTitle(
+func (e *Executor) FetchTitle(
 	ctx context.Context,
 	url string,
 	opts ...idto.ExecutorOption,
@@ -22,7 +22,7 @@ func (e *Executor) GetTitle(
 	)
 
 	for _, o := range opts {
-		o(opt)
+		o(&opt)
 	}
 
 	if opt.EnsureCache {

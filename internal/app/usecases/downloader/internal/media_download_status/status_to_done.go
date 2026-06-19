@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 // Failed set status to done
@@ -16,7 +15,7 @@ func (s *MediaDownloadStatus) Done(
 	downloadID uuid.UUID,
 	patch func(*ddownload.MediaDownload),
 ) error {
-	tx := func(ctx context.Context) error {
+	update := func(ctx context.Context) error {
 		err := s.dlTask.DeleteByDownloadID(ctx, downloadID)
 		if err != nil {
 			return err
@@ -27,8 +26,12 @@ func (s *MediaDownloadStatus) Done(
 			downloadID,
 			dtypes.MediaDownloadStatusDone,
 			func(download *ddownload.MediaDownload) {
-				patch(download)
-				download.DownloadedAt = uptr.Any(time.Now().UTC())
+				if patch != nil {
+					patch(download)
+				}
+				if download.DownloadedAt == nil {
+					download.DownloadedAt = new(time.Now().UTC())
+				}
 			},
 		)
 		if err != nil {
@@ -38,5 +41,5 @@ func (s *MediaDownloadStatus) Done(
 		return nil
 	}
 
-	return s.download.Tx(ctx, tx)
+	return s.download.Tx(ctx, update)
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
+	ytdlpsrv "github.com/neosy/elengrab/internal/app/services/ytdlp"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -23,7 +24,7 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 			m.logger,
 			retryCountDefault, retryDelayDefault,
 			func(ctx context.Context, path string) (*dtypes.ImageData, error) {
-				return m.services.downloader.FetchThumbnail(ctx, path, true)
+				return m.services.downloader.FetchThumbnail(ctx, path, ytdlpsrv.WithRequestCookies())
 			},
 		)
 

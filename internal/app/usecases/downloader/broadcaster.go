@@ -43,7 +43,7 @@ func (uc *Downloader) broadcastDownloadUpdate(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) {
-	downloadInfo, err := uc.findActualDownloadInfo(ctx, nil, downloadID)
+	downloadInfo, err := uc.findActualDownloadInfo(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed find download info", "error", err)
 		return
@@ -62,6 +62,32 @@ func (uc *Downloader) broadcastDownloadUpdate(
 		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadUpdate, downloadInfo)
 	} else {
 		uc.broadcaster.BroadcastToUser(accessByUserID, dto.BroadcastEventTypeDownloadUpdate, downloadInfo)
+	}
+}
+
+func (uc *Downloader) broadcastDownloadStartRefreshing(
+	ctx context.Context,
+	downloadID uuid.UUID,
+) {
+	downloadInfo, err := uc.findActualDownloadInfo(ctx, downloadID)
+	if err != nil {
+		uc.logger.Error("Failed find download info", "error", err)
+		return
+	}
+
+	if downloadInfo == nil {
+		return
+	}
+
+	var accessByUserID uuid.UUID
+	if uc.authz.ShouldRestrictDownloads(nil) && downloadInfo.UserID != nil {
+		accessByUserID = *downloadInfo.UserID
+	}
+
+	if accessByUserID == uuid.Nil {
+		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadStartRefreshing, downloadInfo)
+	} else {
+		uc.broadcaster.BroadcastToUser(accessByUserID, dto.BroadcastEventTypeDownloadStartRefreshing, downloadInfo)
 	}
 }
 
@@ -85,7 +111,7 @@ func (uc *Downloader) broadcastDownloadProgressUpdate(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) {
-	downloadInfo, err := uc.findActualDownloadInfo(ctx, nil, downloadID)
+	downloadInfo, err := uc.findActualDownloadInfo(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed find download info", "error", err)
 		return

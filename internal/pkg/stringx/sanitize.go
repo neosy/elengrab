@@ -49,5 +49,5 @@ func SanitizeForMetaPreview(s string, max int, suffix string) string {
 	result := strings.Join(cleaned, " ")
 	result = strings.Trim(result, sanitizeForMetaTrimSymbols)
 
-	return Truncate(result, max, suffix)
+	return TruncateWithSuffix(result, max, suffix)
 }

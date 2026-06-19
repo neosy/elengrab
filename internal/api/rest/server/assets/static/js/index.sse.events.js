@@ -1,4 +1,4 @@
-import { DOM_IDS, DOM_ELEMENTS } from "./index.dom.js";
+import { DOM_IDS, DOM_CLASSES, DOM_ELEMENTS } from "./index.dom.js";
 import * as notify from './notifications.js';
 
 // -------------------------------------------------------------
@@ -46,7 +46,7 @@ export function handleRowAdd(event) {
             });
         }
     } catch (err) {
-        console.error(`SSE ${event.type} handler error:`, err);
+        console.error(`SSE "${event.type}" handler error:`, err);
     }
 }
 
@@ -65,10 +65,25 @@ export function handleRowUpdate(event) {
         if (!newEl) return;
 
         el.replaceWith(newEl);
+
         //HTMX will scan this element and activate all hx-* attributes
         htmx.process(newEl);
     } catch (err) {
-        console.error(`SSE ${event.type} handler error:`, err);
+        console.error(`SSE "${event.type}" handler error:`, err);
+    }
+}
+
+export function handleRowStartRefreshing(event) {
+    try {
+        const data = JSON.parse(event.data);
+        if (!data.itemId) return
+
+        const el = document.getElementById(DOM_IDS.row(data.itemId));
+        if (!el) return;
+
+        el.classList.add(DOM_CLASSES.rowRefreshing);
+    } catch (err) {
+        console.error(`SSE "${event.type}" handler error:`, err);
     }
 }
 
@@ -83,29 +98,22 @@ export function handleRowDelete(event) {
         const el = document.getElementById(DOM_IDS.row(data.itemId));
         if (!el) return;
 
-        // initial styles for animation
-        el.style.transition = "opacity 0.4s ease, transform 0.4s ease, height 0.4s ease, margin 0.4s ease";
-        el.style.opacity = "1";
-        el.style.transform = "translateY(0)";
-        el.style.height = el.offsetHeight + "px";
+        // Fix current height to enable smooth animation
+        el.style.height = `${el.offsetHeight}px`;
 
-        // forcing layout so that the browser applies height
-        el.offsetHeight;
+        // Force layout recalculation
+        void el.offsetHeight;
 
-        // final state
-        el.style.opacity = "0";
-        el.style.transform = "translateY(-10px)";
-        el.style.height = "0";
-        el.style.marginTop = "0";
-        el.style.marginBottom = "0";
-        el.style.paddingTop = "0";
-        el.style.paddingBottom = "0";
+        // Start animation by adding CSS class
+        el.classList.add(DOM_CLASSES.rowRemoving);
 
-        el.addEventListener("transitionend", () => {
+        // Remove element after transition completes
+        el.addEventListener('transitionend', () => {
             el.remove();
         }, { once: true });
+
     } catch (err) {
-        console.error(`SSE ${event.type} handler error:`, err);
+        console.error(`SSE "${event.type}" handler error:`, err);
     }
 }
 

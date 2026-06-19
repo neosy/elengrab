@@ -16,8 +16,12 @@ type MediaDownloadRepository interface {
 	Delete(ctx context.Context, DownloadID uuid.UUID, soft bool) error
 	Restore(ctx context.Context, DownloadID uuid.UUID) error
 
-	// UpdateStatusToNew updates all jobs with status Working or Pending to New.
-	UpdateStatusToNew(ctx context.Context, statuses []dtypes.MediaDownloadStatus) error
+	// UpdateStatus updates all jobs with status [Working or Pending to New], [Refreshing to Donw].
+	UpdateStatus(
+		ctx context.Context,
+		fromStatuses []dtypes.MediaDownloadStatus,
+		newStatus dtypes.MediaDownloadStatus,
+	) error
 	FillEmptyMediaTitleLower(ctx context.Context) error
 	UpdateOwner(ctx context.Context, fromID, toID uuid.UUID) error
 
@@ -34,6 +38,7 @@ type MediaDownloadRepository interface {
 	GetDeleted(ctx context.Context, from, to *time.Time) ([]*ddownload.MediaDownload, error)
 
 	WithOptions(options dtypes.QueryOptions) MediaDownloadRepository
+	WithStatus(statuses ...dtypes.MediaDownloadStatus) MediaDownloadRepository
 	WithUser(userID uuid.UUID) MediaDownloadRepository
 	WithFilters(filters map[string]any) MediaDownloadRepository
 }

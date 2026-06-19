@@ -7,7 +7,7 @@ import (
 )
 
 func (uc *MediaDownload) saveToDownloadStateCache(ctx context.Context, downloadID uuid.UUID) {
-	download, _ := uc.GetByDownloadID(ctx, nil, downloadID)
+	download, _ := uc.GetByDownloadID(ctx, downloadID)
 	if download != nil {
 		err := uc.dlStateCache.SaveByDownload(ctx, download)
 		if err != nil {

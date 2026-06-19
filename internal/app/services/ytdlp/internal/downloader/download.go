@@ -148,7 +148,7 @@ func (d *Downloader) Download(
 		defer cancel()
 		imgData := d.extractThumbnailFromURL(
 			ctx, url,
-			false, // Not needed, loading from cache.
+			idto.DefaultRequestOptions(), // Not needed, loading from cache.
 		)
 		if imgData != nil {
 			meta.Lock()

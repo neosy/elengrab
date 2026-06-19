@@ -15,7 +15,7 @@ import (
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
-func (e *Executor) GetInfo(
+func (e *Executor) FetchInfo(
 	ctx context.Context,
 	url string,
 	opts ...idto.ExecutorOption,

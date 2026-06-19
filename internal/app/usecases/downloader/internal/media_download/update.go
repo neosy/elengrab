@@ -8,13 +8,9 @@ import (
 )
 
 func (uc *MediaDownload) Update(ctx context.Context, userID *uuid.UUID, download *ddownload.MediaDownload) error {
-	download.Normalize()
+	download.NormalizeForSave()
 
-	if err := download.Validate(); err != nil {
-		return err
-	}
-
-	if (download.UserID == nil || *download.UserID == uuid.Nil) && userID != nil && *userID != uuid.Nil {
+	if userID != nil && *userID != uuid.Nil && (download.UserID == nil || *download.UserID == uuid.Nil) {
 		download.UserID = userID
 	}
 
