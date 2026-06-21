@@ -154,7 +154,7 @@ func (uc *Downloader) ExecuteRefreshMetadataTask(
 		}
 		if mediaInfo.Description != "" && mediaInfo.Description != description {
 			needPatch = true
-			metadataPatch.description = &description
+			metadataPatch.description = &mediaInfo.Description
 		}
 	}
 
