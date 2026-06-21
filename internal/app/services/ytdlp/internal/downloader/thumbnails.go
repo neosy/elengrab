@@ -7,6 +7,7 @@ import (
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
+	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
@@ -76,14 +77,41 @@ func (d *Downloader) fetchYouTubeShortThumbnail(ctx context.Context, mediaURL st
 	return imageData, nil
 }
 
+func (d *Downloader) fetchYouTubeThumbnail(ctx context.Context, mediaURL string, options idto.RequestOptions) (*dtypes.ImageData, error) {
+	youtubeID, err := helper.ExtractYouTubeID(mediaURL)
+	if err != nil {
+		return nil, err
+	}
+
+	// https://img.youtube.com/vi/<id>/maxresdefault.jpg		- Maximum Resolution / Max Resolution
+	// https://img.youtube.com/vi/<id>/hqdefault.jpg			- High Quality
+	// https://img.youtube.com/vi/<id>/mqdefault.jpg			- Medium Quality
+	// https://img.youtube.com/vi/<id>/default.jpg				- Default Quality / Standard Thumbnail
+	// https://img.youtube.com/vi/<id>/sddefault.jpg			- Standard Definition
+	imageURL := fmt.Sprintf("https://img.youtube.com/vi/%s/hqdefault.jpg", youtubeID)
+	imageData, err := helper.FetchImage(ctx, imageURL, options)
+	if err != nil {
+		return nil, err
+	}
+
+	return imageData, nil
+}
+
 func (d *Downloader) FetchThumbnail(
 	ctx context.Context,
 	mediaURL string,
 	options idto.RequestOptions,
 ) (*dtypes.ImageData, error) {
-	imageData, _ := d.fetchYouTubeShortThumbnail(ctx, mediaURL, options)
-	if imageData != nil {
-		return imageData, nil
+	if hostdetect.YouTube(mediaURL) {
+		imageData, _ := d.fetchYouTubeThumbnail(ctx, mediaURL, options)
+		if imageData != nil {
+			return imageData, nil
+		}
+
+		imageData, _ = d.fetchYouTubeShortThumbnail(ctx, mediaURL, options)
+		if imageData != nil {
+			return imageData, nil
+		}
 	}
 
 	imageURL, err := d.ExtractThumbnailURL(ctx, mediaURL, options)
@@ -95,7 +123,7 @@ func (d *Downloader) FetchThumbnail(
 		return nil, nil
 	}
 
-	imageData, err = helper.FetchImage(ctx, imageURL, options)
+	imageData, err := helper.FetchImage(ctx, imageURL, options)
 	if err != nil {
 		d.logger.Debug("Failed to fetch thumbnail from URL", "mediaUrl", mediaURL, "thumbnailURL", imageURL, "error", err)
 		return nil, err
