@@ -18,17 +18,22 @@ func ExtractYouTubeShortID(rawURL string) (string, error) {
 		return "", err
 	}
 
-	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
-
 	// the link should look like:
 	// /shorts/<id>
-	if len(parts) < 2 || parts[0] != "shorts" {
+
+	path := strings.Trim(u.Path, "/")
+
+	prefix, shortID, ok := strings.Cut(path, "/")
+	if !ok || prefix != "shorts" {
 		return "", fmt.Errorf("not a youtube short url")
 	}
 
-	shortID := parts[1]
 	if shortID == "" {
-		return "", fmt.Errorf("short id is emprty")
+		return "", fmt.Errorf("youtube short id not found")
+	}
+
+	if !youtubeIDRegex.MatchString(shortID) {
+		return "", fmt.Errorf("invalid short id")
 	}
 
 	return shortID, nil
