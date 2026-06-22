@@ -6,6 +6,9 @@
 - Added an "Refresh Media Information" function to the menu. [#327]
 - Added direct YouTube thumbnail loading by URL as an additional source. [L043]
 
+### 🧩 Refactor
+- Refined the SSE Events algorithm. [L044]
+
 ---
 
 ## v0.21.0 — 2026-06-19

@@ -116,6 +116,8 @@ func NewDownloader(
 	download := mediadownload.NewMediaDownload(logger, downloadRep, dlTask, dlStateCache)
 	dlTaskStatus := dltasktatus.NewDownloadTaskStatus(logger, dlTask)
 
+	authz := authz.NewAuthorization(logger, appMode)
+
 	return &Downloader{
 		appCtx:  ctx,
 		logger:  logger,
@@ -145,11 +147,11 @@ func NewDownloader(
 		ytChannel:         ytchannel.NewYoutubeChannel(logger, ytChannelRep, ytChannelCacheRep),
 		siteIcon:          siteicon.NewSiteIcon(logger, siteLogoRep, siteLogoCacheRep),
 		siteIconFetcher:   iconfetcher.NewSiteIconFetcher(logger),
-		authz:             authz.NewAuthorization(logger, appMode),
+		authz:             authz,
 		downloadMigration: dlmigration.NewDownloadMigration(logger, downloadMigrationRep),
 
 		// broadcasters
-		broadcaster: broadcaster.NewBroadcaster(),
+		broadcaster: broadcaster.NewBroadcaster(authz),
 
 		// usecases
 		thumbnail: thumbnail,

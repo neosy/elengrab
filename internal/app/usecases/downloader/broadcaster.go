@@ -19,11 +19,6 @@ func (uc *Downloader) broadcastDownloadAdd(download *ddownload.MediaDownload) {
 		return
 	}
 
-	var accessByUserID uuid.UUID
-	if uc.authz.ShouldRestrictDownloads(nil) && download.UserID != nil {
-		accessByUserID = *download.UserID
-	}
-
 	resp := &dto.ScheduleDownloadResponse{
 		URL:        download.MediaURL,
 		DownloadID: download.DownloadID,
@@ -32,11 +27,21 @@ func (uc *Downloader) broadcastDownloadAdd(download *ddownload.MediaDownload) {
 		Format:     download.Ext,
 	}
 
-	if accessByUserID == uuid.Nil {
+	if download.UserID == nil || *download.UserID == uuid.Nil {
 		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadAdd, resp)
-	} else {
-		uc.broadcaster.BroadcastToUser(accessByUserID, dto.BroadcastEventTypeDownloadAdd, resp)
+		return
 	}
+
+	if download.Visibility == dtypes.MediaVisibilityPublic {
+		uc.broadcaster.BroadcastPublic(
+			dtypes.NewEventKeyUserID(*download.UserID),
+			dto.BroadcastEventTypeDownloadAdd,
+			resp,
+		)
+		return
+	}
+
+	uc.broadcaster.BroadcastToUsersWithAccess(*download.UserID, dto.BroadcastEventTypeDownloadAdd, resp)
 }
 
 func (uc *Downloader) broadcastDownloadUpdate(
@@ -53,16 +58,21 @@ func (uc *Downloader) broadcastDownloadUpdate(
 		return
 	}
 
-	var accessByUserID uuid.UUID
-	if uc.authz.ShouldRestrictDownloads(nil) && downloadInfo.UserID != nil {
-		accessByUserID = *downloadInfo.UserID
+	if downloadInfo.UserID == nil || *downloadInfo.UserID == uuid.Nil {
+		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadUpdate, downloadInfo)
+		return
 	}
 
-	if accessByUserID == uuid.Nil {
-		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadUpdate, downloadInfo)
-	} else {
-		uc.broadcaster.BroadcastToUser(accessByUserID, dto.BroadcastEventTypeDownloadUpdate, downloadInfo)
+	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
+		uc.broadcaster.BroadcastPublic(
+			dtypes.NewEventKeyUserID(*downloadInfo.UserID),
+			dto.BroadcastEventTypeDownloadUpdate,
+			downloadInfo,
+		)
+		return
 	}
+
+	uc.broadcaster.BroadcastToUsersWithAccess(*downloadInfo.UserID, dto.BroadcastEventTypeDownloadUpdate, downloadInfo)
 }
 
 func (uc *Downloader) broadcastDownloadStartRefreshing(
@@ -79,32 +89,47 @@ func (uc *Downloader) broadcastDownloadStartRefreshing(
 		return
 	}
 
-	var accessByUserID uuid.UUID
-	if uc.authz.ShouldRestrictDownloads(nil) && downloadInfo.UserID != nil {
-		accessByUserID = *downloadInfo.UserID
+	if downloadInfo.UserID == nil || *downloadInfo.UserID == uuid.Nil {
+		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadStartRefreshing, downloadInfo)
+		return
 	}
 
-	if accessByUserID == uuid.Nil {
-		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadStartRefreshing, downloadInfo)
-	} else {
-		uc.broadcaster.BroadcastToUser(accessByUserID, dto.BroadcastEventTypeDownloadStartRefreshing, downloadInfo)
+	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
+		uc.broadcaster.BroadcastPublic(
+			dtypes.NewEventKeyUserID(*downloadInfo.UserID),
+			dto.BroadcastEventTypeDownloadStartRefreshing,
+			downloadInfo,
+		)
+		return
 	}
+
+	uc.broadcaster.BroadcastToUsersWithAccess(*downloadInfo.UserID, dto.BroadcastEventTypeDownloadStartRefreshing, downloadInfo)
 }
 
 func (uc *Downloader) broadcastDownloadDelete(
-	userID *uuid.UUID,
-	downloadID uuid.UUID,
+	ctx context.Context,
+	download *ddownload.MediaDownload,
 ) {
-	var accessByUserID uuid.UUID
-	if uc.authz.ShouldRestrictDownloads(nil) && userID != nil {
-		accessByUserID = *userID
+	if download == nil {
+		return
 	}
 
-	if accessByUserID == uuid.Nil {
-		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadDelete, downloadID)
-	} else {
-		uc.broadcaster.BroadcastToUser(accessByUserID, dto.BroadcastEventTypeDownloadDelete, downloadID)
+	if download.UserID == nil || *download.UserID == uuid.Nil {
+		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadDelete, download.DownloadID)
+		return
 	}
+
+	if download.Visibility == dtypes.MediaVisibilityPublic {
+		uc.broadcaster.BroadcastPublic(
+			dtypes.NewEventKeyUserID(*download.UserID),
+			dto.BroadcastEventTypeDownloadDelete,
+			download.DownloadID,
+		)
+		return
+	}
+
+	uc.broadcaster.BroadcastToUsersWithAccess(*download.UserID, dto.BroadcastEventTypeDownloadDelete, download.DownloadID)
+
 }
 
 func (uc *Downloader) broadcastDownloadProgressUpdate(
@@ -135,16 +160,21 @@ func (uc *Downloader) broadcastDownloadProgressUpdate(
 		Percent:    percent,
 	}
 
-	var accessByUserID uuid.UUID
-	if uc.authz.ShouldRestrictDownloads(nil) && downloadInfo.UserID != nil {
-		accessByUserID = *downloadInfo.UserID
+	if downloadInfo.UserID == nil || *downloadInfo.UserID == uuid.Nil {
+		uc.broadcaster.Broadcast(dto.BroadcastEventTypeProgressUpdate, resp)
+		return
 	}
 
-	if accessByUserID == uuid.Nil {
-		uc.broadcaster.Broadcast(dto.BroadcastEventTypeProgressUpdate, resp)
-	} else {
-		uc.broadcaster.BroadcastToUser(accessByUserID, dto.BroadcastEventTypeProgressUpdate, resp)
+	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
+		uc.broadcaster.BroadcastPublic(
+			dtypes.NewEventKeyUserID(*downloadInfo.UserID),
+			dto.BroadcastEventTypeProgressUpdate,
+			resp,
+		)
+		return
 	}
+
+	uc.broadcaster.BroadcastToUsersWithAccess(*downloadInfo.UserID, dto.BroadcastEventTypeProgressUpdate, resp)
 }
 
 func (uc *Downloader) broadcastSystemInfoUpdate() {
@@ -162,5 +192,5 @@ func (uc *Downloader) broadcastNotification(
 		Type:    notificationType,
 		Message: message,
 	}
-	uc.broadcaster.BroadcastTo(eventKey, dto.BroadcastEventTypeNotification, notification)
+	uc.broadcaster.BroadcastByKey(eventKey, dto.BroadcastEventTypeNotification, notification)
 }
