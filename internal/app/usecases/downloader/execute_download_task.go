@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -204,6 +205,16 @@ func (uc *Downloader) ExecuteDownloadTask(
 			uc.broadcastDownloadProgressUpdate(ctx, task.DownloadID)
 			resultProgressBeforeBroadcast = lastResult
 		}
+	}
+
+	if lastResult == nil {
+		err := fmt.Errorf("failed to download: no result returned")
+		uc.logger.Error(
+			"Failed to download",
+			"error", err,
+		)
+		uc.downloadStatus.Failed(ctx, task.DownloadID, nil, new(err.Error()))
+		return err
 	}
 
 	if mediaInfo != nil && lastResult.ThumbnailVideoFrame != nil {

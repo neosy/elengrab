@@ -32,7 +32,7 @@ func (uc *Downloader) DeleteFailedDownloads(ctx context.Context) error {
 			}
 			uc.deleteThumbnails(ctx, download)
 			uc.logger.Debug("Hard deleted download download", "downloadID", download.DownloadID)
-			uc.broadcastDownloadDelete(download.UserID, download.DownloadID)
+			uc.broadcastDownloadDelete(ctx, download)
 		}
 	}
 

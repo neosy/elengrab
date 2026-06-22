@@ -19,13 +19,12 @@ import (
 
 func (h *DownloaderHandlers) EventsStreamHandler(ctx *fasthttp.RequestCtx) {
 	authCtx := policy.ResolveUserOrAnonym(ctx)
-	connectionID := uuid.New()
 
 	// SSE headers
 	h.setupSSEHeaders(ctx)
 
 	ctx.SetBodyStreamWriter(func(w *bufio.Writer) {
-		h.streamEvents(ctx, w, connectionID, authCtx)
+		h.streamEvents(ctx, w, authCtx)
 	})
 }
 
@@ -38,27 +37,26 @@ func (h *DownloaderHandlers) setupSSEHeaders(ctx *fasthttp.RequestCtx) {
 func (h *DownloaderHandlers) streamEvents(
 	ctx *fasthttp.RequestCtx,
 	w *bufio.Writer,
-	connectionID uuid.UUID,
 	authCtx dauth.UserContext,
 ) {
 	eventKey := authCtx.EventKey()
-	chEvent := h.downloader.Broadcaster().Subscribe(eventKey)
-	defer h.downloader.Broadcaster().Unsubscribe(eventKey, chEvent)
+	subscription := h.downloader.Broadcaster().Subscribe(eventKey, authCtx.RoleIDs)
+	defer h.downloader.Broadcaster().Unsubscribe(eventKey)
 
-	h.sendConnected(w, connectionID)
+	h.sendConnected(w, subscription.ConnectionID())
 
-	ticker := time.NewTicker(15 * time.Second)
-	defer ticker.Stop()
+	pingTicker := time.NewTicker(15 * time.Second)
+	defer pingTicker.Stop()
 
 	for {
 		select {
 		case <-ctx.Done():
 			return
 
-		case <-ticker.C:
+		case <-pingTicker.C:
 			h.sendPing(w)
 
-		case event := <-chEvent:
+		case event := <-subscription.EventCh():
 			h.handleEvent(w, authCtx, event)
 		}
 	}

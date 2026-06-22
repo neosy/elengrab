@@ -1,13 +1,28 @@
 package dtypes
 
-import "github.com/google/uuid"
+import (
+	"fmt"
+
+	"github.com/google/uuid"
+)
 
 type EventKeyType uint8
 
 const (
 	EventKeyTypeUser EventKeyType = iota
-	EventKeyTypeAnonSession
+	EventKeyTypeSession
 )
+
+var (
+	enentKeyNameByType = map[EventKeyType]string{
+		EventKeyTypeUser:    "user",
+		EventKeyTypeSession: "session",
+	}
+)
+
+func (v EventKeyType) String() string {
+	return enentKeyNameByType[v]
+}
 
 type EventKey struct {
 	Type EventKeyType
@@ -21,24 +36,15 @@ func NewEventKey(t EventKeyType, id string) EventKey {
 	}
 }
 
-func NewEventKeyUserID(id uuid.UUID) EventKey {
-	return NewEventKeyUser(id.String())
+func NewEventKeyUserID(userID uuid.UUID) EventKey {
+	return NewEventKey(EventKeyTypeUser, userID.String())
 }
 
-func NewEventKeyUser(id string) EventKey {
-	return EventKey{
-		Type: EventKeyTypeUser,
-		ID:   id,
-	}
+func NewEventKeySessionID(sessionID uuid.UUID) EventKey {
+	return NewEventKey(EventKeyTypeSession, sessionID.String())
 }
 
-func NewEventKeyAnonSessionID(id uuid.UUID) EventKey {
-	return NewEventKeyAnonSession(id.String())
-}
-
-func NewEventKeyAnonSession(id string) EventKey {
-	return EventKey{
-		Type: EventKeyTypeAnonSession,
-		ID:   id,
-	}
+func (e EventKey) UUID() uuid.UUID {
+	data := fmt.Sprintf("%s:%s", e.Type.String(), e.ID)
+	return uuid.NewSHA1(uuid.NameSpaceOID, []byte(data))
 }
