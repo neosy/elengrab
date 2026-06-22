@@ -39,13 +39,13 @@ func (uc *Downloader) DeleteDownload(
 		return err
 	}
 
-	fnDelete := func(ctx context.Context, downloadID uuid.UUID) error {
-		err := uc.download.HardDelete(ctx, downloadID)
+	fnDelete := func(ctx context.Context, download *ddownload.MediaDownload) error {
+		err := uc.download.HardDelete(ctx, download.DownloadID)
 		if err != nil {
-			uc.logger.Error("Failed to delete download", "downloadID", downloadID, "error", err)
+			uc.logger.Error("Failed to delete download", "downloadID", download.DownloadID, "error", err)
 			return err
 		}
-		uc.broadcastDownloadDelete(download.UserID, downloadID)
+		uc.broadcastDownloadDelete(ctx, download)
 		return nil
 	}
 
@@ -62,7 +62,7 @@ func (uc *Downloader) DeleteDownload(
 
 		switch download.Status {
 		case dtypes.MediaDownloadStatusNew:
-			if err := fnDelete(ctx, download.DownloadID); err != nil {
+			if err := fnDelete(ctx, download); err != nil {
 				return err
 			}
 		case dtypes.MediaDownloadStatusPending, dtypes.MediaDownloadStatusWorking:
@@ -73,11 +73,11 @@ func (uc *Downloader) DeleteDownload(
 			if !uc.downloadDispatcher.CancelJob(task.JobID.String()) {
 				return errors.New("job cannot be cancelled")
 			}
-			if err := fnDelete(ctx, download.DownloadID); err != nil {
+			if err := fnDelete(ctx, download); err != nil {
 				return err
 			}
 		case dtypes.MediaDownloadStatusDone, dtypes.MediaDownloadStatusFailed:
-			if err := fnDelete(ctx, download.DownloadID); err != nil {
+			if err := fnDelete(ctx, download); err != nil {
 				return err
 			}
 			needDeleteFileOnStorage = true

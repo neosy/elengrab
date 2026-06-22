@@ -52,7 +52,7 @@ func (u *UserContext) EventKey() dtypes.EventKey {
 	if u.UserID != uuid.Nil {
 		return dtypes.NewEventKeyUserID(u.UserID)
 	}
-	return dtypes.NewEventKeyAnonSessionID(u.AnonSessionID)
+	return dtypes.NewEventKeySessionID(u.AnonSessionID)
 }
 
 func (u *UserContext) IsGuest() bool {
