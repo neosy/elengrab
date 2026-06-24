@@ -122,6 +122,14 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 		dlProgress = state.Progress.Copy()
 	}
 
+	var login string
+	if download.UserID != nil {
+		user, _ := uc.authSrv.FindByUserID(ctx, *download.UserID)
+		if user != nil {
+			login = user.Login.String()
+		}
+	}
+
 	var avatarTitle string
 	if download.ChannelID != nil && download.IsYouTube() {
 		channel, _ := uc.ytChannel.FindByChannelID(ctx, *download.ChannelID)
@@ -145,7 +153,7 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 		isPortrait = thumbnail.IsPortrait()
 	}
 
-	return uc.mappers.MapDownloadDomainToDownloadInfoResponse(download, avatarTitle, dlProgress, hasSiteIcon, isPortrait), nil
+	return uc.mappers.MapDownloadDomainToDownloadInfoResponse(download, login, avatarTitle, dlProgress, hasSiteIcon, isPortrait), nil
 }
 
 func (uc *Downloader) getDownloadsInfo(

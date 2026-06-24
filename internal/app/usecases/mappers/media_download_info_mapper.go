@@ -14,6 +14,7 @@ import (
 
 func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 	download *ddownload.MediaDownload,
+	login string,
 	avatarTitle string,
 	progress *dservices.DownloaderProgress,
 	hasSiteIcon bool,
@@ -67,8 +68,10 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 		MediaInfoText:        mediaInfoText,
 		MediaInfoTooltip:     mediaInfoTooltip(mediaInfoText),
 		Progress:             progress,
-		UserID:               download.UserID,
 		Visibility:           download.Visibility,
+
+		UserID:    download.UserID,
+		UserLogin: strings.ToLower(login),
 
 		CreatedAt: download.CreatedAt,
 		UpdatedAt: download.UpdatedAt,
