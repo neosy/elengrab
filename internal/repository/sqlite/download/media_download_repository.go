@@ -499,9 +499,17 @@ func (r *MediaDownloadRepository) iterateGetAll(
 		case "":
 			continue
 		case eDownload.FieldName(&eDownload.MediaTitleLower):
-			conditions = append(conditions, sqlutil.Like(eDownload.FieldNameWithAlias(&eDownload.MediaTitleLower, aliasDownloads), value.(string)))
+			filter, ok := value.(string)
+			if !ok {
+				return fmt.Errorf("expected string, got %T (%v)", value, value)
+			}
+			conditions = append(conditions, sqlutil.Like(eDownload.FieldNameWithAlias(&eDownload.MediaTitleLower, aliasDownloads), filter))
 		case eDownload.FieldName(&eDownload.UserID):
-			filterUserID = value.(string)
+			userID, ok := value.(uuid.UUID)
+			if !ok {
+				return fmt.Errorf("expected uuid.UUID, got %T", value)
+			}
+			filterUserID = userID.String()
 		default:
 			conditions = append(conditions, squirrel.Eq{eDownload.FieldNameWithAlias(eDownload.FieldPointer(name), aliasDownloads): value})
 		}
@@ -620,7 +628,11 @@ func (r *MediaDownloadRepository) IterateFullNames(ctx context.Context, includeD
 		case "":
 			continue
 		case eDownload.FieldName(&eDownload.MediaTitleLower):
-			sqlWhere = append(sqlWhere, sqlutil.Like(eDownload.FieldName(&eDownload.MediaTitleLower), value.(string)))
+			filter, ok := value.(string)
+			if !ok {
+				return fmt.Errorf("expected string, got %T (%v)", value, value)
+			}
+			sqlWhere = append(sqlWhere, sqlutil.Like(eDownload.FieldName(&eDownload.MediaTitleLower), filter))
 		default:
 			sqlWhere = append(sqlWhere, squirrel.Eq{eDownload.FieldName(eDownload.FieldPointer(name)): value})
 		}
