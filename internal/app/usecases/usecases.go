@@ -164,6 +164,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			// services
 			deps.Services.Downloader,
 			deps.Services.FFMpeg,
+			auth,
 
 			// options
 			deps.DemoMode,

@@ -23,9 +23,10 @@ var (
 	DownloadDeleteIcon     = newIcon("DownloadDeleteIconName", "download-delete-icon.svg")
 	DownloadRefreshingIcon = newIcon("DownloadRefreshingIconName", "refresh-icon.svg")
 
-	MediaDefaultIcon       = newIcon("MediaDefaultIconName", "media-default-icon.svg")
-	DownloadRepeatIcon     = newIcon("DownloadRepeatIconName", "download-repeat-icon.svg")
-	DownloadSourceLinkIcon = newIcon("DownloadSourceLinkIconName", "external-link-icon.svg")
+	MediaDefaultIcon                  = newIcon("MediaDefaultIconName", "media-default-icon.svg")
+	DownloadRepeatIcon                = newIcon("DownloadRepeatIconName", "download-repeat-icon.svg")
+	DownloadSourceLinkIcon            = newIcon("DownloadSourceLinkIconName", "external-link-icon.svg")
+	DownloadMetaUserNameSeparatorIcon = newIcon("DownloadMetaUserNameSeparatorIconName", "play-icon.svg")
 
 	AccountMenuLogoutIcon = newIcon("AccountMenuLogoutIconName", "menu-logout-icon.svg")
 

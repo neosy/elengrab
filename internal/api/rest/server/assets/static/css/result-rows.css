@@ -15,6 +15,7 @@
 
     --media-result-toolbar-margin-top: 10px;
 
+    --media-result-row-max-width: 500px;
     --media-result-row-flex-direction: column;
     --media-result-row-align-items: normal;
     --media-result-row-justify-content: center;
@@ -80,6 +81,7 @@
         --media-result-rows-padding: 0 12px;
         --media-result-rows-align-items: center;
 
+        --media-result-row-max-width: 100%;
         --media-result-row-flex-direction: row;
         --media-result-row-align-items: center;
         --media-result-row-justify-content: space-between;
@@ -324,7 +326,7 @@
 
     height: auto;
     width: 100%;
-    max-width: 500px;
+    max-width: var(--media-result-row-max-width);
 
     margin-top: 0px;
     padding-left: 3px;

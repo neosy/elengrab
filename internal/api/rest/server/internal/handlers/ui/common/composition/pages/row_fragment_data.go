@@ -6,15 +6,6 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 )
 
-// Page fragment
-type (
-	PageFragmentData struct {
-		BasePaths  paths.HttpPaths
-		BaseValues baseValues
-		Extra      map[string]any
-	}
-)
-
 // Row fragment
 type (
 	RowFragmentData struct {
@@ -50,6 +41,8 @@ type (
 
 		ContentTimeAgo string
 
+		UserName string
+
 		FilePath string
 		FileSize string
 
@@ -75,8 +68,8 @@ type (
 		DownloaderResultItemStatusIcon       template.HTML
 		DownloaderResultItemDeleteIcon       template.HTML
 		DownloaderResultItemStatusFailedIcon template.HTML
-
-		RefreshingIcon template.HTML
+		RefreshingIcon                       template.HTML
+		MetaUserNameSeparatorIcon            template.HTML
 
 		IsItemHTMXOptionRepeat bool
 		PageHasDivItems        bool

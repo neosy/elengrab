@@ -42,7 +42,8 @@ type GetMediaDownloadInfoResponse struct {
 	MediaInfoText    string
 	MediaInfoTooltip string
 
-	UserID *uuid.UUID
+	UserID    *uuid.UUID
+	UserLogin string
 
 	Visibility dtypes.MediaVisibility
 

@@ -62,6 +62,7 @@ type Downloader struct {
 	// services
 	downloaderSrv pservices.Downloader
 	ffmpegSrv     pservices.FFMpeg
+	authSrv       pservices.AuthService
 
 	// Options
 	demoMode              bool
@@ -101,6 +102,7 @@ func NewDownloader(
 	// services
 	downloaderSrv pservices.Downloader,
 	ffmpegSrv pservices.FFMpeg,
+	authSrv pservices.AuthService,
 
 	// options
 	demoMode bool,
@@ -159,6 +161,7 @@ func NewDownloader(
 		// services
 		downloaderSrv: downloaderSrv,
 		ffmpegSrv:     ffmpegSrv,
+		authSrv:       authSrv,
 
 		// Options
 		demoMode:              demoMode,
