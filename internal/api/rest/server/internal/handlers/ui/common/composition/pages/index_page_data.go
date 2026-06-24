@@ -20,8 +20,9 @@ type (
 		UserMenuSearchButtonIcon   template.HTML
 		UserMenuDownloadButtonIcon template.HTML
 		SearchBackArrowIcon        template.HTML
-		ShowHistorySearch          bool
-		UserMenuAvatarTitle        string
+
+		ShowHistorySearch   bool
+		UserMenuAvatarTitle string
 
 		HasCreateAccess bool
 		HasWriteAccess  bool

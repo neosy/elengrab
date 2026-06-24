@@ -140,7 +140,10 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		IsDownloadEvent:        isDownloadEvent,
 		ResultRowStatusTitle:   downloadInfo.StatusText,
 
-		RefreshingIcon: icons.DownloadRefreshingIcon.FileRaw(),
+		UserName: downloadInfo.UserLogin,
+
+		RefreshingIcon:            icons.DownloadRefreshingIcon.FileRaw(),
+		MetaUserNameSeparatorIcon: icons.DownloadMetaUserNameSeparatorIcon.FileRaw(),
 
 		DownloaderResultItemSourceLinkIcon: icons.DownloadSourceLinkIcon.FileRaw(),
 		DownloaderResultItemStatusIcon:     icons.DownloaderIconByStatus(downloadInfo.Status).FileRaw(),
