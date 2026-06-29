@@ -23,6 +23,7 @@ var (
 	DownloadDeleteIcon     = newIcon("DownloadDeleteIconName", "download-delete-icon.svg")
 	DownloadRefreshingIcon = newIcon("DownloadRefreshingIconName", "refresh-icon.svg")
 	DownloadPublicIcon     = newIcon("DownloadPublicIconName", "public-people.svg")
+	DownloadPrivateIcon    = newIcon("DownloadPrivateIconName", "private-lock.svg")
 
 	MediaDefaultIcon                  = newIcon("MediaDefaultIconName", "media-default-icon.svg")
 	DownloadRepeatIcon                = newIcon("DownloadRepeatIconName", "download-repeat-icon.svg")

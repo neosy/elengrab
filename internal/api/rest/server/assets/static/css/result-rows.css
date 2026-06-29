@@ -760,12 +760,18 @@
     opacity: 0.6;
 }
 
-.media-result__content-public {
+.visibility--public {
+    --icon-visibility-font-size: 1.4em;
+}
+
+.media-result__content-visibility {
     display: inline-flex;
 
     align-items: center;
 
-    color: var(--icon-public-color);
+    font-size: var(--icon-visibility-font-size, 1em);
+
+    color: var(--icon-visibility-color);
 }
 
 .media-result__row-meta {
