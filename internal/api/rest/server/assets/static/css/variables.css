@@ -30,7 +30,7 @@
     --text-blue: #2563eb;
     --text-orange: #f59e0b;
     
-    --icon-public-color: #6B7280;
+    --icon-visibility-color: #6B7280;
 
     --back-button-bg: rgba(0, 0, 0, 0.08);
 
@@ -133,7 +133,7 @@
     --text-light: #cfd8e3;
     --text-blue: #60a5fa;
 
-    --icon-public-color: #94A3B8;
+    --icon-visibility-color: #94A3B8;
 
     --result-bg: #1F1F1F;
     --bg-input: #2c2c2c;

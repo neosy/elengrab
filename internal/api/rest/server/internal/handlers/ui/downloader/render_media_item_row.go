@@ -147,6 +147,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		RefreshingIcon:            icons.DownloadRefreshingIcon.FileRaw(),
 		MetaUserNameSeparatorIcon: icons.DownloadMetaUserNameSeparatorIcon.FileRaw(),
 		PublicIcon:                icons.DownloadPublicIcon.FileRaw(),
+		PrivateIcon:               icons.DownloadPrivateIcon.FileRaw(),
 
 		DownloaderResultItemSourceLinkIcon: icons.DownloadSourceLinkIcon.FileRaw(),
 		DownloaderResultItemStatusIcon:     icons.DownloaderIconByStatus(downloadInfo.Status).FileRaw(),
