@@ -100,6 +100,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		DownloadID:     downloadInfo.DownloadID.String(),
 		DownloadStatus: downloadInfo.Status.String(),
 		WorkingStatus:  dltypes.MapUsecaseWorkingStatusToUI(downloadInfo.WorkingStatus).String(),
+		Visibility:     downloadInfo.Visibility.String(),
 		IsReady:        downloadInfo.Status.IsReady(),
 
 		YoutubeChannelID: youtubeChannelID,
@@ -144,6 +145,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 
 		RefreshingIcon:            icons.DownloadRefreshingIcon.FileRaw(),
 		MetaUserNameSeparatorIcon: icons.DownloadMetaUserNameSeparatorIcon.FileRaw(),
+		PublicIcon:                icons.DownloadPublicIcon.FileRaw(),
 
 		DownloaderResultItemSourceLinkIcon: icons.DownloadSourceLinkIcon.FileRaw(),
 		DownloaderResultItemStatusIcon:     icons.DownloaderIconByStatus(downloadInfo.Status).FileRaw(),

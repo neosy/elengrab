@@ -6,9 +6,13 @@
 - Added an "Refresh Media Information" function to the menu. [#327]
 - Added direct YouTube thumbnail loading by URL as an additional source. [L043]
 - Added user information to media metadata. [L046]
+- Added a public access icon for media resources available to all users. [L048]
 
 ### 🧩 Refactor
 - Refined the SSE Events algorithm. [L044]
+
+### 🐛 Fix
+- Prevent panic when converting an invalid UUID type [L047]
 
 ---
 
