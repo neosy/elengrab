@@ -34,7 +34,7 @@ func (h *DownloaderHandlers) CreateMediaShareLinkHandler(ctx *fasthttp.RequestCt
 	}
 
 	resp := dto.GetDownloadShareLinkResponse{
-		DownloadID: downloadID.String(),
+		DownloadID: idcodec.EncodeUUIDBase64URL(downloadID),
 		URL:        url,
 	}
 
