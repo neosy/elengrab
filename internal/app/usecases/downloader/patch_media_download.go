@@ -42,20 +42,22 @@ func (uc *Downloader) PatchMediaDownload(
 		needUpdate = true
 	}
 
+	var (
+		description     string
+		origDescription string
+	)
+
 	if req.MediaDescription != nil {
-		var (
-			description     = *req.MediaDescription
-			origDescription string
-		)
+		description = *req.MediaDescription
+	}
 
-		if download.MediaDescription != nil {
-			origDescription = *download.MediaDescription
-		}
+	if download.MediaDescription != nil {
+		origDescription = *download.MediaDescription
+	}
 
-		if description != origDescription {
-			download.MediaDescription = &description
-			needUpdate = true
-		}
+	if description != origDescription {
+		download.MediaDescription = &description
+		needUpdate = true
 	}
 
 	if req.Visibility != nil && *req.Visibility != download.Visibility {
