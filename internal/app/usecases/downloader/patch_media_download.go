@@ -73,5 +73,12 @@ func (uc *Downloader) PatchMediaDownload(
 		return err
 	}
 
-	return uc.download.Update(ctx, &authCtx.UserID, download)
+	err = uc.download.Update(ctx, &authCtx.UserID, download)
+	if err != nil {
+		return err
+	}
+
+	uc.broadcastDownloadUpdate(ctx, download.DownloadID)
+
+	return nil
 }
