@@ -16,6 +16,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/neosy/elengrab/internal/pkg/stringx"
 	"github.com/valyala/fasthttp"
 )
@@ -121,7 +122,7 @@ func (h *DownloaderHandlers) extractRequestMeta(ctx *fasthttp.RequestCtx) (url s
 	return
 }
 
-func stripUUIDFromPath(path string) uuid.UUID {
+func stripUUIDFromIDPath(path string) uuid.UUID {
 	parts := strings.Split(path, "/")
 
 	for _, p := range parts {
@@ -129,7 +130,7 @@ func stripUUIDFromPath(path string) uuid.UUID {
 			continue
 		}
 
-		u, err := uuid.Parse(p)
+		u, err := idcodec.DecodeUUIDBase64URL(p)
 		if err == nil {
 			return u
 		}

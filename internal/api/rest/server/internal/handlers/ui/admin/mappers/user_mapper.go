@@ -6,6 +6,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 )
 
 func (m *Mappers) UserToUserOnPage(user *dauth.User, icons *pages.AdminUserIcons) pages.AdminUser {
@@ -15,7 +16,7 @@ func (m *Mappers) UserToUserOnPage(user *dauth.User, icons *pages.AdminUserIcons
 	}
 
 	return pages.AdminUser{
-		UserID: user.UserID.String(),
+		UserID: idcodec.EncodeUUIDBase64URL(user.UserID),
 		Login:  user.Login.String(),
 		Name:   user.Login.String(),
 		Email:  email,

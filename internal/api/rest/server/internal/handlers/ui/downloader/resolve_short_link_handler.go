@@ -39,7 +39,7 @@ func (h *DownloaderHandlers) ResolveShortLinkHandler(ctx *fasthttp.RequestCtx) {
 			))
 	}
 
-	if downloadID := stripUUIDFromPath(link.OriginalURL); downloadID != uuid.Nil {
+	if downloadID := stripUUIDFromIDPath(link.OriginalURL); downloadID != uuid.Nil {
 		streamPath := httppaths.BuildPathStreamShortCode(shortCode)
 		h.renderWatchPage(ctx,
 			renderWatchPageRequest{

@@ -1,10 +1,10 @@
 package downloader
 
 import (
-	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
@@ -21,7 +21,7 @@ func (h *DownloaderHandlers) RefreshMetadataByDownloadIDHandler(ctx *fasthttp.Re
 		return
 	}
 
-	downloadID, err := uuid.Parse(downloadIDStr)
+	downloadID, err := idcodec.DecodeUUIDBase64URL(downloadIDStr)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
 		return
