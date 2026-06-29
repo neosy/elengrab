@@ -27,7 +27,9 @@
                                     <!-- <span class="media-result__content-separator">{{ .Values.MetaUserNameSeparatorIcon }}</span> -->
                                     <span class="media-result__content-time-ago" aria-label="Published">{{ .Values.ContentTimeAgo }}</span>
                                     {{- if eq .Values.Visibility "public" }}
-                                    <span class="media-result__content-public" title="Public resource" aria-label="Public resource">{{ .Values.PublicIcon }}</span>
+                                    <span class="media-result__content-visibility visibility--public" title="Public" aria-label="Public">{{ .Values.PublicIcon }}</span>
+                                    {{- else if eq .Values.Visibility "private" }}
+                                    <span class="media-result__content-visibility visibility--private" title="Private" aria-label="Private">{{ .Values.PrivateIcon }}</span>
                                     {{- end }}
                                 </div>
                             </span>
