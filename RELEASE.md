@@ -7,6 +7,7 @@
 - Added direct YouTube thumbnail loading by URL as an additional source. [L043]
 - Added user information to media metadata. [L046]
 - Added a public access icon for media resources available to all users. [L048]
+- Added dynamic Cancel/Close button label based on resource changes during editing. [L050]
 
 ### 🧩 Refactor
 - Refined the SSE Events algorithm. [L044]
