@@ -144,7 +144,7 @@ function initSaveButton() {
         setOriginalValues();
         syncButtonsState();
 
-        notify.show("Changes saved successfully", notify.notifyType.INFO);
+        notify.show("Changes saved successfully", notify.notifyType.SUCCESS);
     }
 
     if (saveButton) {
