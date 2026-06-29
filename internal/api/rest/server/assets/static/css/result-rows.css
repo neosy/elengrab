@@ -746,14 +746,26 @@
 .media-result__title-meta > * + *::before {
     display: inline-block;
 
-    width: 20px;
-    text-align: center;
+    width: 4px;
+    height: 4px;
 
-    line-height: 1;
-    vertical-align: middle; 
+    margin: 0 8px;
 
-    content: "•";
-    opacity: 0.5;
+    vertical-align: middle;
+
+    border-radius: 50%;
+    background: var(--text-secondary);
+
+    content: "";
+    opacity: 0.6;
+}
+
+.media-result__content-public {
+    display: inline-flex;
+
+    align-items: center;
+
+    color: var(--icon-public-color);
 }
 
 .media-result__row-meta {

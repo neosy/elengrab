@@ -20,6 +20,7 @@ type (
 		DownloadID     string
 		DownloadStatus string
 		WorkingStatus  string
+		Visibility     string
 		IsReady        bool
 
 		DownloadRowPath    string
@@ -70,6 +71,7 @@ type (
 		DownloaderResultItemStatusFailedIcon template.HTML
 		RefreshingIcon                       template.HTML
 		MetaUserNameSeparatorIcon            template.HTML
+		PublicIcon                           template.HTML
 
 		IsItemHTMXOptionRepeat bool
 		PageHasDivItems        bool
