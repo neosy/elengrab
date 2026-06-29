@@ -15,9 +15,12 @@
     --page-option-select-bg: #fff;
 
     --page-button-bg: #f2f2f2;
-    --page-button-bg-hover-filter: brightness(0.95);
+    --page-button-disabled-bg: #e5e7eb;
+    --page-button-hover-filter: brightness(0.95);
+    --page-button-save-active-bg: #91c995;
+    --page-button-save-hover-filter: brightness(0.95);
     --page-button-enable: #333;
-    --page-button-disable: #aaaaaa;
+    --page-button-disabled: #aaaaaa;
 }
 
 .dark {
@@ -36,9 +39,12 @@
     --page-option-select-bg: #3e3e3e;
 
     --page-button-bg: #3e3e3e;
-    --page-button-bg-hover-filter: brightness(1.5);
+    --page-button-disabled-bg: #353535;
+    --page-button-hover-filter: brightness(1.5);
+    --page-button-save-active-bg: #15803d;
+    --page-button-save-hover-filter: brightness(1.2);
     --page-button-enable: #fff;
-    --page-button-disable: #aaaaaa;
+    --page-button-disabled: #aaaaaa;
 
     --page-scrollbar-track-bg: #3e3e3e;
     --page-scrollbar-thumb-bg: #606060;

@@ -1,11 +1,49 @@
 import { DOM_IDS, DOM_CLASSES, DOM_ELEMENTS, initDomElements } from "./edit-media.dom.js";
 import * as notify from './notifications.js';
 
+class OriginalValues {
+    constructor() {
+        this.fields = [];
+    }
+
+    clear() {
+        this.fields = [];
+    }
+
+    add(element) {
+        if (!element) {
+            return;
+        }
+
+        this.fields.push({
+            element,
+            value: element.value
+        });
+    }
+
+    hasChanges() {
+        return this.fields.some(({ element, value }) => {
+            return element.value !== value;
+        });
+    }
+}
+
+const originalValues = new OriginalValues();
+
 document.addEventListener('DOMContentLoaded', () => {
     initDomElements();
-    initInputElements();
+    initElements();
     initSaveButton();
 });
+
+function initElements() {
+    initInputElements();
+
+    DOM_ELEMENTS.mediaVisibilitySelect?.addEventListener(
+        "change",
+        syncButtonsState
+    );
+}
 
 function initInputElements() {
     const fields = document.querySelectorAll(`.${DOM_CLASSES.mediaEditorFieldInput}`);
@@ -50,6 +88,7 @@ function initInputElements() {
         textArea.addEventListener('input', () => {
             updateCounterAndStyle(field, textArea, charCounter, maxLength);
             autoResize(textArea);
+            syncButtonsState();
         });
 
         textArea.addEventListener('focus', () => {
@@ -57,6 +96,9 @@ function initInputElements() {
             autoResize(textArea);
         });
     });
+
+    setOriginalValues();
+    syncButtonsState();
 }
 
 function initSaveButton() {
@@ -99,6 +141,9 @@ function initSaveButton() {
             return;
         }        
 
+        setOriginalValues();
+        syncButtonsState();
+
         notify.show("Changes saved successfully", notify.notifyType.INFO);
     }
 
@@ -110,5 +155,23 @@ function initSaveButton() {
         cancelButton.addEventListener('click', () => {
             history.back();
         });
+    }
+}
+
+function setOriginalValues() {
+    originalValues.clear();
+
+    originalValues.add(DOM_ELEMENTS.mediaTitleInput);
+    originalValues.add(DOM_ELEMENTS.mediaDescriptionInput);
+    originalValues.add(DOM_ELEMENTS.mediaVisibilitySelect);
+}   
+
+function syncButtonsState() {
+    if (DOM_ELEMENTS.cancelButton) {
+        DOM_ELEMENTS.cancelButton.textContent = originalValues.hasChanges() ? 'Cancel' : 'Close';
+    }
+
+    if (DOM_ELEMENTS.saveButton) {
+        DOM_ELEMENTS.saveButton.disabled = !originalValues.hasChanges();
     }
 }

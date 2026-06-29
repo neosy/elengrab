@@ -339,8 +339,12 @@ body {
     gap: 10px;
 }
 
-.page-header__button:hover {
-    --header-button-filter: var(--page-button-bg-hover-filter);
+.page-header__button:not(:disabled):hover {
+    --header-button-filter: var(--page-button-hover-filter);
+}
+
+.page-header__button--save:not(:disabled):hover {
+    --header-button-filter: var(--page-button-save-hover-filter);
 }
 
 .page-header__button {
@@ -357,6 +361,18 @@ body {
 
     cursor: pointer;
     transition: all 0.2s;
+}
+
+.page-header__button:disabled {
+    background-color: var(--page-button-disabled-bg);
+    color: var(--page-button-disabled);
+    cursor: auto;
+
+    filter: none;
+}
+
+.page-header__button--save:not(:disabled) {
+    background-color: var(--page-button-save-active-bg);
 }
 
 .media-editor__option {
