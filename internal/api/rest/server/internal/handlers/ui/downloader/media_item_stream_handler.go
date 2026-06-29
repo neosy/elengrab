@@ -12,6 +12,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
@@ -25,7 +26,7 @@ func (h *DownloaderHandlers) MediaItemStreamHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	downloadID, err := uuid.Parse(downloadIDStr)
+	downloadID, err := idcodec.DecodeUUIDBase64URL(downloadIDStr)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
 		return
@@ -58,7 +59,7 @@ func (h *DownloaderHandlers) StreamShortCodeHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	downloadID := stripUUIDFromPath(link.OriginalURL)
+	downloadID := stripUUIDFromIDPath(link.OriginalURL)
 	if downloadID == uuid.Nil {
 		nfasthttp.WriteErrorx(
 			ctx,

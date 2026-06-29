@@ -15,6 +15,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
@@ -97,7 +98,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	}
 
 	data := pages.RowFragmentValues{
-		DownloadID:     downloadInfo.DownloadID.String(),
+		DownloadID:     idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
 		DownloadStatus: downloadInfo.Status.String(),
 		WorkingStatus:  dltypes.MapUsecaseWorkingStatusToUI(downloadInfo.WorkingStatus).String(),
 		Visibility:     downloadInfo.Visibility.String(),
@@ -134,8 +135,8 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		StreamURL:   streamURL,
 		DeleteURL:   httppaths.BuildMediaItemPath(downloadInfo.DownloadID),
 
-		RowID:      "row-" + downloadInfo.DownloadID.String(),
-		ProgressID: "progress-" + downloadInfo.DownloadID.String(),
+		RowID:      "row-" + idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
+		ProgressID: "progress-" + idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
 
 		IsItemHTMXOptionRepeat: isGrabResultItemHTMXOptionRepeat,
 		IsDownloadEvent:        isDownloadEvent,

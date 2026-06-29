@@ -14,6 +14,7 @@ import (
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
@@ -117,7 +118,7 @@ func (h *DownloaderHandlers) handleDownloadAdd(w *bufio.Writer, event ucdto.Broa
 		DownloadID string `json:"itemId"`
 		HTML       string `json:"html"`
 	}{
-		DownloadID: downloadInfo.DownloadID.String(),
+		DownloadID: idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
 		HTML:       html,
 	}
 
@@ -163,7 +164,7 @@ func (h *DownloaderHandlers) handleDownloadUpdate(w *bufio.Writer, event ucdto.B
 		DownloadID string `json:"itemId"`
 		HTML       string `json:"html"`
 	}{
-		DownloadID: downloadInfo.DownloadID.String(),
+		DownloadID: idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
 		HTML:       html,
 	}
 
@@ -186,7 +187,7 @@ func (h *DownloaderHandlers) handleDownloadDelete(w *bufio.Writer, event ucdto.B
 	data := struct {
 		DownloadID string `json:"itemId"`
 	}{
-		DownloadID: downloadID.String(),
+		DownloadID: idcodec.EncodeUUIDBase64URL(downloadID),
 	}
 
 	jsonData, err := json.Marshal(data)
@@ -217,7 +218,7 @@ func (h *DownloaderHandlers) handleProgressUpdate(w *bufio.Writer, event ucdto.B
 		Value      any    `json:"value"`
 	}{
 		Field:      "progress",
-		DownloadID: progress.DownloadID.String(),
+		DownloadID: idcodec.EncodeUUIDBase64URL(progress.DownloadID),
 		Value:      progress.Percent,
 	}
 
@@ -240,7 +241,7 @@ func (h *DownloaderHandlers) handleStartRefreshing(w *bufio.Writer, event ucdto.
 	data := struct {
 		DownloadID string `json:"itemId"`
 	}{
-		DownloadID: downloadInfo.DownloadID.String(),
+		DownloadID: idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
 	}
 
 	jsonData, err := json.Marshal(data)

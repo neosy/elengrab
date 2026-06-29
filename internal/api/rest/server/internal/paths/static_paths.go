@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 )
 
 const (
@@ -32,7 +33,8 @@ const (
 )
 
 func BuildThumbnailPath(thumbID uuid.UUID) string {
-	return GroupStatic + strings.Replace(PathThumbnail, "{thumbnailId}", thumbID.String(), 1)
+	id := idcodec.EncodeUUIDBase64URL(thumbID)
+	return GroupStatic + strings.Replace(PathThumbnail, "{thumbnailId}", id, 1)
 }
 
 func BuildImagePath(fileName string) string {

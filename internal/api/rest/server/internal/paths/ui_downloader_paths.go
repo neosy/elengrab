@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 )
 
 // UI
@@ -51,11 +52,12 @@ const (
 )
 
 func buildMediaItemPath(path string, downloadID uuid.UUID) string {
-	return GroupDownloader + strings.Replace(path, "{itemId}", downloadID.String(), 1)
+	id := idcodec.EncodeUUIDBase64URL(downloadID)
+	return GroupDownloader + strings.Replace(path, "{itemId}", id, 1)
 }
 
 func BuildMediaItemPath(downloadID uuid.UUID) string {
-	return GroupDownloader + strings.Replace(PathMediaItem, "{itemId}", downloadID.String(), 1)
+	return buildMediaItemPath(PathMediaItem, downloadID)
 }
 
 func BuildPathMediaItemRow(downloadID uuid.UUID) string {
@@ -83,7 +85,8 @@ func BuildPathStreamShortCode(shortCode string) string {
 }
 
 func BuildPathMediaItemDownload(downloadID uuid.UUID) string {
-	return fmt.Sprintf("%s?itemId=%s", GroupDownloader+PathDownloadFile, downloadID)
+	id := idcodec.EncodeUUIDBase64URL(downloadID)
+	return fmt.Sprintf("%s?itemId=%s", GroupDownloader+PathDownloadFile, id)
 }
 
 func BuildPathMediaItemImage(downloadID uuid.UUID, verHash string, sources []dtypes.ImageSource) string {
