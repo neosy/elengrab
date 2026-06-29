@@ -19,13 +19,16 @@
                                     {{ $linkURL = .Values.MediaURL }} 
                                     {{- $linkTarget = "_blank" }}
                                 {{- end }}
-                                <a class="media-result__title-link" href="{{ $linkURL }}" target="{{ $linkTarget }}">{{ .Values.MediaTitle }}</a>
+                                <a class="media-result__title-link" href="{{ $linkURL }}" target="{{ $linkTarget }}" title="{{ .Values.MediaTitle }}">{{ .Values.MediaTitle }}</a>
                                 <div class="media-result__title-meta">
                                     {{- if .Values.UserName }}
-                                    <span class="media-result__content-user">{{ .Values.UserName }}</span>
+                                    <span class="media-result__content-user" aria-label="Author">{{ .Values.UserName }}</span>
                                     {{- end }}
                                     <!-- <span class="media-result__content-separator">{{ .Values.MetaUserNameSeparatorIcon }}</span> -->
-                                    <span class="media-result__content-time-ago">{{ .Values.ContentTimeAgo }}</span>
+                                    <span class="media-result__content-time-ago" aria-label="Published">{{ .Values.ContentTimeAgo }}</span>
+                                    {{- if eq .Values.Visibility "public" }}
+                                    <span class="media-result__content-public" title="Public resource" aria-label="Public resource">{{ .Values.PublicIcon }}</span>
+                                    {{- end }}
                                 </div>
                             </span>
                         </div>
