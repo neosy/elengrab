@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
@@ -26,7 +26,7 @@ func (h *DownloaderHandlers) PatchMediaByDownloadIDHandler(ctx *fasthttp.Request
 		return
 	}
 
-	downloadID, err := uuid.Parse(downloadIDStr)
+	downloadID, err := idcodec.DecodeUUIDBase64URL(downloadIDStr)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
 		return

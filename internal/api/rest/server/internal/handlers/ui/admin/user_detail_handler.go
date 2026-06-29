@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"mime"
 
-	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/admin/dto"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
@@ -21,7 +21,7 @@ func (h *AdminHandlers) UserDetailHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	userID, err := uuid.Parse(userIDStr)
+	userID, err := idcodec.DecodeUUIDBase64URL(userIDStr)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrUserIDIsIncorrect.Wrap(err))
 		return

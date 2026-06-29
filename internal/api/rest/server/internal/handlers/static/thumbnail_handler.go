@@ -1,10 +1,10 @@
 package static
 
 import (
-	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
@@ -15,7 +15,7 @@ func (h *StaticHandlers) ThumbnailHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	thumbnailID, err := uuid.Parse(thumbnailIdStr)
+	thumbnailID, err := idcodec.DecodeUUIDBase64URL(thumbnailIdStr)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrThumbnailIdIsIncorrect.Wrap(err))
 		return

@@ -8,6 +8,7 @@
 - Added user information to media metadata. [L046]
 - Added a public access icon for media resources available to all users. [L048]
 - Added dynamic Cancel/Close button label based on resource changes during editing. [L050]
+- Use ID instead of UUID in URLs [L053]
 
 ### 🧩 Refactor
 - Refined the SSE Events algorithm. [L044]

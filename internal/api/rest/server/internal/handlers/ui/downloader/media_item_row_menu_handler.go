@@ -1,7 +1,6 @@
 package downloader
 
 import (
-	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/items"
@@ -10,6 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
@@ -22,7 +22,7 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	downloadID, err := uuid.Parse(downloadIDStr)
+	downloadID, err := idcodec.DecodeUUIDBase64URL(downloadIDStr)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
 		return
@@ -37,7 +37,7 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 	extraData := make(map[string]any)
 	extraData[items.MenuActionsKey] = menu.RowMenuActions(
 		map[string]string{
-			menu.RowMenuActionItemIDKey: downloadID.String(),
+			menu.RowMenuActionItemIDKey: idcodec.EncodeUUIDBase64URL(downloadID),
 			menu.RowMenuActionURLKey:    downloadResp.MediaURL,
 		},
 		downloadResp.Status,

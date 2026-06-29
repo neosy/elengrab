@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 )
 
 const (
@@ -26,10 +27,15 @@ func BuildAdminUserDetailTemplatePath() string {
 	return AdminGroup + AdminUserDetailPath
 }
 
+func buildAdminUserPath(path string, userID uuid.UUID) string {
+	id := idcodec.EncodeUUIDBase64URL(userID)
+	return AdminGroup + strings.Replace(path, "{userId}", id, 1)
+}
+
 func BuildAdminUserRolesPath(userID uuid.UUID) string {
-	return AdminGroup + strings.Replace(AdminUserRolesPath, "{userId}", userID.String(), 1)
+	return buildAdminUserPath(AdminUserRolesPath, userID)
 }
 
 func BuildAdminUserTableRowPath(userID uuid.UUID) string {
-	return AdminGroup + strings.Replace(AdminUserTableRowPath, "{userId}", userID.String(), 1)
+	return buildAdminUserPath(AdminUserTableRowPath, userID)
 }
