@@ -1,6 +1,6 @@
 # Releases
 
-## v0.22.0 — 2026-06-30
+## v0.22.0 — 2026-07-02
 
 ### ✨ Features
 - Added an "Refresh Media Information" function to the menu. [#327]
