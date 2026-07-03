@@ -88,6 +88,15 @@ const rowMenuConfig = {
   menuId: 'rowMenu',
 
   actions: {
+    async errorInfo(item) {
+      const errorText = item.dataset.text;
+      if (errorText) {
+        notify.show(errorText, notify.notifyType.ERROR, 7*1000);
+      } else {
+        notify.show('Error information is not available', notify.notifyType.ERROR);
+      }
+    },
+
     async shareLink(item) {
       const result = await share.shareLink({
         endpoint: item.dataset.url,

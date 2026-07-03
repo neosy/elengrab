@@ -32,13 +32,14 @@ var (
 
 	AccountMenuLogoutIcon = newIcon("AccountMenuLogoutIconName", "menu-logout-icon.svg")
 
-	DownloaderRowMenuPlayIcon           = newIcon("DownloaderRowMenuPlayIconName", "menu-play-icon.svg")
-	DownloaderRowMenuExternalLinkIcon   = newIcon("DownloaderRowMenuExternalLinkIconName", "menu-external-link-icon.svg")
-	DownloaderRowMenuShareLinkIcon      = newIcon("DownloaderRowMenuShareLinkIconName", "menu-share-link-icon.svg")
-	DownloaderRowMenuCopyLinkIcon       = newIcon("DownloaderRowMenuCopyLinkIconName", "menu-copy-link-icon.svg")
-	DownloaderRowMenuDeleteIcon         = newIcon("DownloaderRowMenuDeleteIconName", "download-delete-icon.svg")
-	DownloaderRowMenuEditIcon           = newIcon("DownloaderRowMenuEditIconName", "edit-icon.svg")
-	DownloaderRowMenuUpdateMetadataIcon = newIcon("DownloaderRowMenuUpdateMetadataIconName", "update-icon.svg")
+	DownloaderRowMenuPlayIcon            = newIcon("DownloaderRowMenuPlayIconName", "menu-play-icon.svg")
+	DownloaderRowMenuExternalLinkIcon    = newIcon("DownloaderRowMenuExternalLinkIconName", "menu-external-link-icon.svg")
+	DownloaderRowMenuShareLinkIcon       = newIcon("DownloaderRowMenuShareLinkIconName", "menu-share-link-icon.svg")
+	DownloaderRowMenuCopyLinkIcon        = newIcon("DownloaderRowMenuCopyLinkIconName", "menu-copy-link-icon.svg")
+	DownloaderRowMenuDeleteIcon          = newIcon("DownloaderRowMenuDeleteIconName", "download-delete-icon.svg")
+	DownloaderRowMenuEditIcon            = newIcon("DownloaderRowMenuEditIconName", "edit-icon.svg")
+	DownloaderRowMenuUpdateMetadataIcon  = newIcon("DownloaderRowMenuUpdateMetadataIconName", "update-icon.svg")
+	DownloaderRowMenuUpdateErrorInfoIcon = newIcon("DownloaderRowMenuUpdateErrorInfoIconName", "download-warning-icon.svg")
 
 	AdminUsersIcon    = newIcon("AdminUsersIconName", "users.svg")
 	AdminUserEditIcon = newIcon("AdminUserEditIconName", "user-edit.svg")

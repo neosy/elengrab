@@ -16,10 +16,14 @@ const (
 type rowMenuAction struct {
 	menuAction
 	icon               icons.Icon
-	onlyWhenReady      bool
+	visibleStatuses    []dtypes.MediaDownloadStatus
 	disallowRefreshing bool
 	requireWriteAccess bool
 }
+
+const (
+	rowMenuActionErrorInfo = "error-info"
+)
 
 var rowMenuActions = []rowMenuAction{
 	{
@@ -34,7 +38,7 @@ var rowMenuActions = []rowMenuAction{
 			},
 		},
 		icon:               icons.DownloaderRowMenuPlayIcon,
-		onlyWhenReady:      true,
+		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
 		requireWriteAccess: false,
 	},
 
@@ -55,6 +59,17 @@ var rowMenuActions = []rowMenuAction{
 
 	{
 		menuAction: menuAction{
+			RenderType: renderTypeAction,
+			Action:     rowMenuActionErrorInfo,
+			Title:      "Error Information",
+		},
+		icon:               icons.DownloaderRowMenuUpdateErrorInfoIcon,
+		visibleStatuses:    []dtypes.MediaDownloadStatus{dtypes.MediaDownloadStatusFailed},
+		requireWriteAccess: true,
+	},
+
+	{
+		menuAction: menuAction{
 			RenderType: renderTypeDivider,
 		},
 	},
@@ -70,7 +85,7 @@ var rowMenuActions = []rowMenuAction{
 			},
 		},
 		icon:               icons.DownloaderRowMenuShareLinkIcon,
-		onlyWhenReady:      true,
+		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
 		requireWriteAccess: true,
 	},
 
@@ -85,7 +100,7 @@ var rowMenuActions = []rowMenuAction{
 			},
 		},
 		icon:               icons.DownloaderRowMenuCopyLinkIcon,
-		onlyWhenReady:      true,
+		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
 		requireWriteAccess: true,
 	},
 
@@ -107,7 +122,7 @@ var rowMenuActions = []rowMenuAction{
 			},
 		},
 		icon:               icons.DownloaderRowMenuUpdateMetadataIcon,
-		onlyWhenReady:      true,
+		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
 		disallowRefreshing: true,
 		requireWriteAccess: true,
 	},
@@ -124,7 +139,7 @@ var rowMenuActions = []rowMenuAction{
 			},
 		},
 		icon:               icons.DownloaderRowMenuEditIcon,
-		onlyWhenReady:      true,
+		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
 		requireWriteAccess: true,
 	},
 
@@ -149,12 +164,24 @@ var rowMenuActions = []rowMenuAction{
 	},
 }
 
-func RowMenuActions(mapReplaceUrl map[string]string, status dtypes.MediaDownloadStatus, hasWriteAccess bool) []rowMenuAction {
+func RowMenuActions(
+	mapReplaceUrl map[string]string,
+	status dtypes.MediaDownloadStatus,
+	hasWriteAccess bool,
+	opts ...MenuActionOption,
+) []rowMenuAction {
 	actions := make([]rowMenuAction, 0, len(rowMenuActions))
-	var lastRenderType renderType
+	var (
+		lastRenderType renderType
+		options        MenuActionOptions
+	)
+
+	for _, opt := range opts {
+		opt(&options)
+	}
 
 	for _, a := range rowMenuActions {
-		if !status.IsReady() && a.onlyWhenReady {
+		if len(a.visibleStatuses) > 0 && !status.Contains(a.visibleStatuses) {
 			continue
 		}
 
@@ -189,6 +216,10 @@ func RowMenuActions(mapReplaceUrl map[string]string, status dtypes.MediaDownload
 			if ok {
 				action.Link.URL = strings.Replace(action.Link.URL, key, value, 1)
 			}
+		}
+
+		if action.Action == rowMenuActionErrorInfo && options.ErrorText != "" {
+			action.Text = options.ErrorText
 		}
 	}
 

@@ -34,6 +34,11 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	var errorMessage string
+	if downloadResp.MediaDownload != nil && downloadResp.MediaDownload.ErrorMessage != nil {
+		errorMessage = *downloadResp.MediaDownload.ErrorMessage
+	}
+
 	extraData := make(map[string]any)
 	extraData[items.MenuActionsKey] = menu.RowMenuActions(
 		map[string]string{
@@ -42,6 +47,7 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 		},
 		downloadResp.Status,
 		downloadResp.HasWriteAccess,
+		menu.WithErrorText(errorMessage),
 	)
 
 	pageData := pages.PageFragmentData{

@@ -84,6 +84,10 @@
     color: var(--menu-action-icon-blue);
 }
 
+.menu-action--error-info .menu-action__content-icon {
+    color: var(--menu-action-icon-red);
+}
+
 .menu-action--delete .menu-action__content-icon {
     color: var(--menu-action-icon-red);
 }
