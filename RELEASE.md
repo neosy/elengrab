@@ -1,5 +1,12 @@
 # Releases
 
+## v0.22.1 — 2026-07-03
+
+### ✨ Features
+- Added Error Information menu item. [L056]
+
+---
+
 ## v0.22.0 — 2026-07-02
 
 ### ✨ Features

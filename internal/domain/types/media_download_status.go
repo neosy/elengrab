@@ -2,6 +2,7 @@ package dtypes
 
 import (
 	"errors"
+	"slices"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -43,6 +44,16 @@ var (
 		"failed":     MediaDownloadStatusFailed,
 		"refreshing": MediaDownloadStatusRefreshing,
 	}
+
+	completedStatusesByStatus = map[MediaDownloadStatus]struct{}{
+		MediaDownloadStatusDone:       {},
+		MediaDownloadStatusRefreshing: {},
+	}
+
+	completedStatuses = []MediaDownloadStatus{
+		MediaDownloadStatusDone,
+		MediaDownloadStatusRefreshing,
+	}
 )
 
 // String returns the value as a string.
@@ -52,14 +63,26 @@ func (v MediaDownloadStatus) String() string {
 
 // IsReady returns true when the download status indicates that the media is ready for use.
 func (v MediaDownloadStatus) IsReady() bool {
-	return v == MediaDownloadStatusDone ||
-		v == MediaDownloadStatusRefreshing
+	_, exists := completedStatusesByStatus[v]
+	return exists
 }
 
 // Exists returns true if the MediaDownloadStatus is valid.
 func (v MediaDownloadStatus) Exists() bool {
 	_, exists := mediaDownloadStatusNameByStatus[v]
 	return exists
+}
+
+// Contains reports whether the MediaDownloadStatus value is present in the provided list of statuses.
+func (v MediaDownloadStatus) Contains(statuses []MediaDownloadStatus) bool {
+	return slices.Contains(statuses, v)
+}
+
+// MediaDownloadCompletedStatuses returns a copy of the completed download statuses.
+func MediaDownloadCompletedStatuses() []MediaDownloadStatus {
+	statuses := make([]MediaDownloadStatus, len(completedStatuses))
+	copy(statuses, completedStatuses)
+	return statuses
 }
 
 // ParseMediaDownloadStatus converting string to MediaDownloadStatus
