@@ -887,9 +887,18 @@
     transform: scale(1.2);
 }
 
+.grid-view {
+    --result-delete-display: none;
+}
+
+@media (max-width: 580px) {
+    :root {
+        --result-delete-display: none;
+    }
+}
 
 .media-result__delete {
-    display: inline-flex;
+    display: var(--result-delete-display, inline-flex);
     width: calc(20px + var(--media-result-separator-width));
     height: 25px;
     min-height: 25px;
