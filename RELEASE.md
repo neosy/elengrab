@@ -1,5 +1,12 @@
 # Releases
 
+## v0.23.0 — 2026-07-16
+
+### 🎨 Style
+- Hide the Delete button in grid-view mode. [L057]
+
+---
+
 ## v0.22.1 — 2026-07-03
 
 ### ✨ Features
