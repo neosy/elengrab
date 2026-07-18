@@ -194,3 +194,10 @@ func (uc *Downloader) broadcastNotification(
 	}
 	uc.broadcaster.BroadcastByKey(eventKey, dto.BroadcastEventTypeNotification, notification)
 }
+
+func (uc *Downloader) NotifyDownloadUpdated(
+	ctx context.Context,
+	downloadID uuid.UUID,
+) {
+	uc.broadcastDownloadUpdate(ctx, downloadID)
+}

@@ -23,6 +23,7 @@ type rowMenuAction struct {
 
 const (
 	rowMenuActionErrorInfo = "error-info"
+	rowMenuActionCopyLink  = "copy-link"
 )
 
 var rowMenuActions = []rowMenuAction{
@@ -92,7 +93,7 @@ var rowMenuActions = []rowMenuAction{
 	{
 		menuAction: menuAction{
 			RenderType: renderTypeAction,
-			Action:     "copy-link",
+			Action:     rowMenuActionCopyLink,
 			Title:      "Copy short link",
 			Link: linkOptions{
 				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
@@ -216,6 +217,10 @@ func RowMenuActions(
 			if ok {
 				action.Link.URL = strings.Replace(action.Link.URL, key, value, 1)
 			}
+		}
+
+		if action.Action == rowMenuActionCopyLink && !options.HasShareLink {
+			action.Title = "Create short link"
 		}
 
 		if action.Action == rowMenuActionErrorInfo && options.ErrorText != "" {

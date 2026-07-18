@@ -1,11 +1,8 @@
 package downloader
 
 import (
-	"strings"
-
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
-	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
@@ -26,12 +23,14 @@ func (h *DownloaderHandlers) CreateMediaShareLinkHandler(ctx *fasthttp.RequestCt
 
 	url, err := h.linkWeb.CreateShortLink(
 		ctx,
-		strings.TrimSuffix(h.baseURL, "/")+httppaths.BuildPathMediaItemWatch(downloadID),
+		h.buildMediaWatchURL(downloadID),
 	)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
+
+	h.downloader.NotifyDownloadUpdated(ctx, downloadID)
 
 	resp := dto.GetDownloadShareLinkResponse{
 		DownloadID: idcodec.EncodeUUIDBase64URL(downloadID),

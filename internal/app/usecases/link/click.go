@@ -70,8 +70,10 @@ func (u *Link) validateClick(
 		return errorx.NewHTTPMessage("this link has expired", fasthttp.StatusGone)
 	}
 
+	now := time.Now().UTC()
+
 	// Check if the link has expired
-	if link.ExpiresAt != nil && link.ExpiresAt.Before(time.Now()) {
+	if link.IsExpired(now) {
 		return errorx.NewHTTPMessage("the link has expired and is no longer valid", fasthttp.StatusGone)
 	}
 

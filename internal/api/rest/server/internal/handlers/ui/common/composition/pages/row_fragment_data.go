@@ -73,6 +73,7 @@ type (
 		MetaUserNameSeparatorIcon            template.HTML
 		PublicIcon                           template.HTML
 		PrivateIcon                          template.HTML
+		ShareLinkIcon                        template.HTML
 
 		IsItemHTMXOptionRepeat bool
 		PageHasDivItems        bool

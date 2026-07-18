@@ -157,3 +157,8 @@ func mediaSourceFromURL(mediaURL string) string {
 
 	return mediaURL
 }
+
+func (h *DownloaderHandlers) buildMediaWatchURL(downloadID uuid.UUID) string {
+	return strings.TrimSuffix(h.baseURL, "/") +
+		httppaths.BuildPathMediaItemWatch(downloadID)
+}

@@ -15,7 +15,7 @@ const (
 func (u *LinkWeb) CreateShortLink(ctx context.Context, url string) (string, error) {
 	shortCode := u.link.GenerateShortCodeByURL(url, u.options.ShortCodeLength, true)
 
-	link, err := u.link.GetLastByShortCode(ctx, shortCode)
+	link, err := u.link.FindLastByShortCode(ctx, shortCode)
 	if err != nil {
 		return "", errorx.Errorf(
 			"failed to get short link: %w", err,
@@ -38,7 +38,7 @@ func (u *LinkWeb) CreateShortLink(ctx context.Context, url string) (string, erro
 		}
 
 		// if link has more than shortCodeRefreshThreshold remaining, reuse existing short URL
-		if link.ExpiresAt != nil && link.ExpiresAt.After(now.Add(refreshThreshold)) {
+		if !link.IsExpired(now.Add(refreshThreshold)) {
 			return link.ShortURL, nil
 		}
 	}
