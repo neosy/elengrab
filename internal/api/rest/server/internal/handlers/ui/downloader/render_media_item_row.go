@@ -1,6 +1,7 @@
 package downloader
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 
@@ -25,9 +26,14 @@ type renderMediaItemRowResponse struct {
 	err        error
 }
 
+type renderMediaItemRowParams struct {
+	downloadInfo    *dto.GetMediaDownloadInfoResponse
+	isDownloadEvent bool
+}
+
 func (h *DownloaderHandlers) renderMediaItemRow(
-	downloadInfo *dto.GetMediaDownloadInfoResponse,
-	isDownloadEvent bool,
+	ctx context.Context,
+	params renderMediaItemRowParams,
 ) renderMediaItemRowResponse {
 	var (
 		cacheChanged = struct {
@@ -40,7 +46,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		}{}
 	)
 
-	if downloadInfo == nil {
+	if params.downloadInfo == nil {
 		return renderMediaItemRowResponse{
 			httpStatus: fasthttp.StatusInternalServerError,
 			err:        errorx.New("the request returned an empty"),
@@ -48,18 +54,18 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	}
 
 	var youtubeChannelID string
-	if downloadInfo.ChannelID != nil && downloadInfo.IsYouTube() {
-		youtubeChannelID = *downloadInfo.ChannelID
+	if params.downloadInfo.ChannelID != nil && params.downloadInfo.IsYouTube() {
+		youtubeChannelID = *params.downloadInfo.ChannelID
 	}
 
 	var thumbnailID string
-	if downloadInfo.MediaInfo != nil && downloadInfo.MediaInfo.PreferredThumbnailID() != uuid.Nil {
-		thumbnailID = downloadInfo.MediaInfo.PreferredThumbnailID().String()
+	if params.downloadInfo.MediaInfo != nil && params.downloadInfo.MediaInfo.PreferredThumbnailID() != uuid.Nil {
+		thumbnailID = params.downloadInfo.MediaInfo.PreferredThumbnailID().String()
 	}
 
 	downloadItemImageURL := httppaths.BuildPathMediaItemImage(
-		downloadInfo.DownloadID,
-		downloadInfo.ImageMetaHash(),
+		params.downloadInfo.DownloadID,
+		params.downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
 			dtypes.ImageSourceThumbnail,
 			dtypes.ImageSourceAvatar,
@@ -68,8 +74,8 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	)
 
 	downloadItemImageAvatarURL := httppaths.BuildPathMediaItemImage(
-		downloadInfo.DownloadID,
-		downloadInfo.ImageMetaHash(),
+		params.downloadInfo.DownloadID,
+		params.downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
 			dtypes.ImageSourceAvatar,
 			dtypes.ImageSourceSite,
@@ -77,105 +83,114 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	)
 
 	downloadItemImageSiteURL := httppaths.BuildPathMediaItemImage(
-		downloadInfo.DownloadID,
-		downloadInfo.ImageMetaHash(),
+		params.downloadInfo.DownloadID,
+		params.downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
 			dtypes.ImageSourceSite,
 		},
 	)
 
 	var isGrabResultItemHTMXOptionRepeat = false
-	switch downloadInfo.Status {
+	switch params.downloadInfo.Status {
 	case dtypes.MediaDownloadStatusNew, dtypes.MediaDownloadStatusPending, dtypes.MediaDownloadStatusWorking:
 		isGrabResultItemHTMXOptionRepeat = true
 	}
 
 	var watchURL, downloadURL, streamURL string
-	if downloadInfo.Status == dtypes.MediaDownloadStatusDone {
-		watchURL = httppaths.BuildPathMediaItemWatch(downloadInfo.DownloadID)
-		downloadURL = httppaths.BuildPathMediaItemDownload(downloadInfo.DownloadID)
-		streamURL = httppaths.BuildPathMediaItemStream(downloadInfo.DownloadID)
+	if params.downloadInfo.Status == dtypes.MediaDownloadStatusDone {
+		watchURL = httppaths.BuildPathMediaItemWatch(params.downloadInfo.DownloadID)
+		downloadURL = httppaths.BuildPathMediaItemDownload(params.downloadInfo.DownloadID)
+		streamURL = httppaths.BuildPathMediaItemStream(params.downloadInfo.DownloadID)
+	}
+
+	link, _ := h.linkWeb.ResolveURL(ctx, h.buildMediaWatchURL(params.downloadInfo.DownloadID))
+
+	var shareLinkIcon template.HTML
+	if link != nil {
+		shareLinkIcon = icons.DownloadShareLinkIcon.FileRaw()
 	}
 
 	data := pages.RowFragmentValues{
-		DownloadID:     idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
-		DownloadStatus: downloadInfo.Status.String(),
-		WorkingStatus:  dltypes.MapUsecaseWorkingStatusToUI(downloadInfo.WorkingStatus).String(),
-		Visibility:     downloadInfo.Visibility.String(),
-		IsReady:        downloadInfo.Status.IsReady(),
+		DownloadID:     idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID),
+		DownloadStatus: params.downloadInfo.Status.String(),
+		WorkingStatus:  dltypes.MapUsecaseWorkingStatusToUI(params.downloadInfo.WorkingStatus).String(),
+		Visibility:     params.downloadInfo.Visibility.String(),
+		IsReady:        params.downloadInfo.Status.IsReady(),
 
 		YoutubeChannelID: youtubeChannelID,
-		AvatarTitle:      downloadInfo.AvatarTitle,
+		AvatarTitle:      params.downloadInfo.AvatarTitle,
 
 		ThumbnailID:         thumbnailID,
-		ThumbnailIsPortrait: downloadInfo.ThumbnalIsPortrait,
-		ThumbnailURL:        h.thumbnailURLWithFallback(downloadInfo.MediaInfo),
+		ThumbnailIsPortrait: params.downloadInfo.ThumbnalIsPortrait,
+		ThumbnailURL:        h.thumbnailURLWithFallback(params.downloadInfo.MediaInfo),
 
-		MediaTitle: downloadInfo.MediaTitle,
-		MediaURL:   downloadInfo.MediaURL,
+		MediaTitle: params.downloadInfo.MediaTitle,
+		MediaURL:   params.downloadInfo.MediaURL,
 
-		ContentTimeAgo: downloadInfo.CreatedTimeAgo,
+		ContentTimeAgo: params.downloadInfo.CreatedTimeAgo,
 
 		ImageURL:       downloadItemImageURL,
 		ImageAvatarURL: downloadItemImageAvatarURL,
 		ImageSiteURL:   downloadItemImageSiteURL,
 
-		DownloadRowPath:    httppaths.BuildPathMediaItemRow(downloadInfo.DownloadID),
-		DownloadRepeatPath: httppaths.BuildPathMediaItemDownloadRepeat(downloadInfo.DownloadID),
+		DownloadRowPath:    httppaths.BuildPathMediaItemRow(params.downloadInfo.DownloadID),
+		DownloadRepeatPath: httppaths.BuildPathMediaItemDownloadRepeat(params.downloadInfo.DownloadID),
 
 		FileSize:   "-",
 		Format:     "-",
 		DataFormat: "-",
 
-		FormatTitle:   downloadInfo.MediaInfoText,
-		FormatTooltip: downloadInfo.MediaInfoTooltip,
+		FormatTitle:   params.downloadInfo.MediaInfoText,
+		FormatTooltip: params.downloadInfo.MediaInfoTooltip,
 
 		DownloadURL: downloadURL,
 		WatchURL:    watchURL,
 		StreamURL:   streamURL,
-		DeleteURL:   httppaths.BuildMediaItemPath(downloadInfo.DownloadID),
+		DeleteURL:   httppaths.BuildMediaItemPath(params.downloadInfo.DownloadID),
 
-		RowID:      "row-" + idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
-		ProgressID: "progress-" + idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
+		RowID:      "row-" + idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID),
+		ProgressID: "progress-" + idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID),
 
 		IsItemHTMXOptionRepeat: isGrabResultItemHTMXOptionRepeat,
-		IsDownloadEvent:        isDownloadEvent,
-		ResultRowStatusTitle:   downloadInfo.StatusText,
+		IsDownloadEvent:        params.isDownloadEvent,
+		ResultRowStatusTitle:   params.downloadInfo.StatusText,
 
-		UserName: downloadInfo.UserLogin,
+		UserName: params.downloadInfo.UserLogin,
 
 		RefreshingIcon:            icons.DownloadRefreshingIcon.FileRaw(),
 		MetaUserNameSeparatorIcon: icons.DownloadMetaUserNameSeparatorIcon.FileRaw(),
 		PublicIcon:                icons.DownloadPublicIcon.FileRaw(),
 		PrivateIcon:               icons.DownloadPrivateIcon.FileRaw(),
 
+		ShareLinkIcon: shareLinkIcon,
+
 		DownloaderResultItemSourceLinkIcon: icons.DownloadSourceLinkIcon.FileRaw(),
-		DownloaderResultItemStatusIcon:     icons.DownloaderIconByStatus(downloadInfo.Status).FileRaw(),
+		DownloaderResultItemStatusIcon:     icons.DownloaderIconByStatus(params.downloadInfo.Status).FileRaw(),
 		DownloaderResultItemDeleteIcon:     icons.DownloadDeleteIcon.FileRaw(),
 
 		ResultMediaUrlFade: "",
 		ResultSizeFade:     "",
 		ResultFormatFade:   "",
-		IsItemSpiner:       downloadInfo.Status == dtypes.MediaDownloadStatusWorking,
+		IsItemSpiner:       params.downloadInfo.Status == dtypes.MediaDownloadStatusWorking,
 	}
 
-	if downloadInfo.Status == dtypes.MediaDownloadStatusFailed {
+	if params.downloadInfo.Status == dtypes.MediaDownloadStatusFailed {
 		data.DownloaderResultItemStatusFailedIcon = template.HTML(
 			icons.DownloadRepeatIcon.FileRaw(),
 		)
 	}
 
-	if downloadInfo.FileSize != nil && *downloadInfo.FileSize > 0 {
-		data.FileSize = humanize.Bytes(*downloadInfo.FileSize)
+	if params.downloadInfo.FileSize != nil && *params.downloadInfo.FileSize > 0 {
+		data.FileSize = humanize.Bytes(*params.downloadInfo.FileSize)
 	}
-	if downloadInfo.FileExt != "" {
-		data.Format = downloadInfo.FileExt
-		data.DataFormat = downloadInfo.FileExt
+	if params.downloadInfo.FileExt != "" {
+		data.Format = params.downloadInfo.FileExt
+		data.DataFormat = params.downloadInfo.FileExt
 	}
-	if downloadInfo.MediaInfo != nil {
-		data.Duration = downloadInfo.MediaInfo.FormatDuration()
-		data.VideoIsShort = downloadInfo.MediaInfo.IsPortrait()
-		data.IsAudio = fmt.Sprint(downloadInfo.MediaInfo.FormatType == dtypes.FormatTypeAudioOnly)
+	if params.downloadInfo.MediaInfo != nil {
+		data.Duration = params.downloadInfo.MediaInfo.FormatDuration()
+		data.VideoIsShort = params.downloadInfo.MediaInfo.IsPortrait()
+		data.IsAudio = fmt.Sprint(params.downloadInfo.MediaInfo.FormatType == dtypes.FormatTypeAudioOnly)
 	}
 
 	if cacheChanged.mediaTitle {
@@ -190,8 +205,8 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 
 	extraData := make(map[string]any)
 
-	if downloadInfo.Progress != nil {
-		extraData[items.DownloadingProgressPercentKey] = int(downloadInfo.Progress.Percent())
+	if params.downloadInfo.Progress != nil {
+		extraData[items.DownloadingProgressPercentKey] = int(params.downloadInfo.Progress.Percent())
 	}
 
 	pageData := pages.RowFragmentData{

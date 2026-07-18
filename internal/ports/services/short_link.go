@@ -10,6 +10,8 @@ import (
 type ShortLinkService interface {
 	Create(ctx context.Context, req *dto.LinkCreateRequest) (*dlink.Link, error)
 	Click(ctx context.Context, req *dto.ShortLinkClickRequest) (*dlink.Link, error)
+	FindLastByShortCode(ctx context.Context, shortCode string) (*dlink.Link, error)
 	GetLastByShortCode(ctx context.Context, shortCode string) (*dlink.Link, error)
 	GenerateShortCodeByURL(url string, length uint8, deterministic bool) string
+	ResolveShortCode(ctx context.Context, url string) (*dlink.Link, error)
 }

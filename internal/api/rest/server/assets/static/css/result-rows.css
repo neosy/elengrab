@@ -774,6 +774,16 @@
     color: var(--icon-visibility-color);
 }
 
+.media-result__content-share-link {
+    display: inline-flex;
+
+    align-items: center;
+
+    font-size: 1em;
+
+    color: var(--text-secondary);
+}
+
 .media-result__row-meta {
     display: var(--media-result-row-meta-display);
     justify-content: var(--media-result-row-meta-justify-content);
