@@ -78,7 +78,12 @@ func (h *DownloaderHandlers) getDownloadsHistory(
 	before = lines[len(lines)-1].CreatedAt
 
 	for i, downloadInfo := range lines {
-		row := h.renderMediaItemRow(downloadInfo, false)
+		row := h.renderMediaItemRow(
+			ctx,
+			renderMediaItemRowParams{
+				downloadInfo: downloadInfo,
+			},
+		)
 		if row.err != nil {
 			h.logger.Warn(
 				"Failed to generate row",

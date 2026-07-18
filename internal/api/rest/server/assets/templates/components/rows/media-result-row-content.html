@@ -31,6 +31,9 @@
                                     {{- else if eq .Values.Visibility "private" }}
                                     <span class="media-result__content-visibility visibility--private" title="Private" aria-label="Private">{{ .Values.PrivateIcon }}</span>
                                     {{- end }}
+                                    {{- if .Values.ShareLinkIcon }}
+                                    <span class="media-result__content-share-link" title="Share link available" aria-label="Share link available">{{ .Values.ShareLinkIcon }}</span>
+                                    {{- end }}
                                 </div>
                             </span>
                         </div>

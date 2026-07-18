@@ -54,6 +54,11 @@ const (
 	linkShortCodeLengthDefault uint8 = 8
 )
 
+// IsExpired reports whether the link has expired at the specified time.
+func (l *Link) IsExpired(now time.Time) bool {
+	return l.ExpiresAt != nil && !l.ExpiresAt.After(now)
+}
+
 // GenerateShortCode generates a short code for a link based on the link ID, URL, and current timestamp.
 //   - deterministic - determines whether the generated code is deterministic;
 //     when true, the same key always produces the same code

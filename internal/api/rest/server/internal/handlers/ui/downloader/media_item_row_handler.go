@@ -32,7 +32,12 @@ func (h *DownloaderHandlers) MediaItemRowHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	row := h.renderMediaItemRow(downloadInfo, false)
+	row := h.renderMediaItemRow(
+		ctx,
+		renderMediaItemRowParams{
+			downloadInfo: downloadInfo,
+		},
+	)
 	if row.err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

@@ -3,6 +3,7 @@ package downloader
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -58,7 +59,7 @@ func (h *DownloaderHandlers) streamEvents(
 			h.sendPing(w)
 
 		case event := <-subscription.EventCh():
-			h.handleEvent(w, authCtx, event)
+			h.handleEvent(ctx, w, authCtx, event)
 		}
 	}
 }
@@ -83,12 +84,17 @@ func (h *DownloaderHandlers) sendPing(w *bufio.Writer) {
 	w.Flush()
 }
 
-func (h *DownloaderHandlers) handleEvent(w *bufio.Writer, authCtx dauth.UserContext, event ucdto.BroadcastEvent) {
+func (h *DownloaderHandlers) handleEvent(
+	ctx context.Context,
+	w *bufio.Writer,
+	authCtx dauth.UserContext,
+	event ucdto.BroadcastEvent,
+) {
 	switch event.Type {
 	case ucdto.BroadcastEventTypeDownloadAdd:
 		h.handleDownloadAdd(w, event)
 	case ucdto.BroadcastEventTypeDownloadUpdate:
-		h.handleDownloadUpdate(w, event)
+		h.handleDownloadUpdate(ctx, w, event)
 	case ucdto.BroadcastEventTypeDownloadDelete:
 		h.handleDownloadDelete(w, event)
 	case ucdto.BroadcastEventTypeProgressUpdate:
@@ -132,13 +138,19 @@ func (h *DownloaderHandlers) handleDownloadAdd(w *bufio.Writer, event ucdto.Broa
 	w.Flush()
 }
 
-func (h *DownloaderHandlers) handleDownloadUpdate(w *bufio.Writer, event ucdto.BroadcastEvent) {
+func (h *DownloaderHandlers) handleDownloadUpdate(ctx context.Context, w *bufio.Writer, event ucdto.BroadcastEvent) {
 	downloadInfo, ok := event.Data.(*ucdto.GetMediaDownloadInfoResponse)
 	if !ok {
 		return
 	}
 
-	row := h.renderMediaItemRow(downloadInfo, true)
+	row := h.renderMediaItemRow(
+		ctx,
+		renderMediaItemRowParams{
+			downloadInfo:    downloadInfo,
+			isDownloadEvent: true,
+		},
+	)
 	if row.err != nil {
 		return
 	}
