@@ -1,9 +1,12 @@
 package downloader
 
 import (
+	"fmt"
 	"mime"
+	"time"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	"github.com/neosy/elengrab/internal/pkg/debugx"
 	"github.com/valyala/fasthttp"
 )
 
@@ -14,6 +17,11 @@ func (h *DownloaderHandlers) IndexPageHandler(ctx *fasthttp.RequestCtx) {
 		ctx.SetStatusCode(fasthttp.StatusOK)
 		return
 	}
+
+	defer debugx.DumpGoroutinesIfTimeout(
+		fmt.Sprintf("IndexPageHandler [%s %s]", ctx.Method(), ctx.Path()),
+		5*time.Second,
+	)()
 
 	if h.redirectGuestIfAuthRequired(ctx) {
 		return
