@@ -37,6 +37,7 @@ var (
 	DownloaderRowMenuExternalLinkIcon    = newIcon("DownloaderRowMenuExternalLinkIconName", "menu-external-link-icon.svg")
 	DownloaderRowMenuShareLinkIcon       = newIcon("DownloaderRowMenuShareLinkIconName", "menu-share-link-icon.svg")
 	DownloaderRowMenuCopyLinkIcon        = newIcon("DownloaderRowMenuCopyLinkIconName", "menu-copy-link-icon.svg")
+	DownloaderRowMenuDeleteLinkIcon      = newIcon("DownloaderRowMenuDeleteLinkIconName", "remove-link-icon.svg")
 	DownloaderRowMenuDeleteIcon          = newIcon("DownloaderRowMenuDeleteIconName", "download-delete-icon.svg")
 	DownloaderRowMenuEditIcon            = newIcon("DownloaderRowMenuEditIconName", "edit-icon.svg")
 	DownloaderRowMenuUpdateMetadataIcon  = newIcon("DownloaderRowMenuUpdateMetadataIconName", "update-icon.svg")

@@ -63,7 +63,8 @@
 }
 
 .menu-action--logout:hover,
-.menu-action--delete:hover {
+.menu-action--delete:hover,
+.menu-action--delete-link:hover {
     background: var(--menu-action-hover-bg-red);
 }
 
@@ -76,8 +77,16 @@
     color: var(--menu-action-icon-blue);
 }
 
+.menu-action--create-link .menu-action__content-icon {
+    color: var(--menu-action-icon-violet);
+}
+
 .menu-action--copy-link .menu-action__content-icon {
     color: var(--menu-action-icon-violet);
+}
+
+.menu-action--delete-link .menu-action__content-icon {
+    color: var(--menu-action-icon-red);
 }
 
 .menu-action--open-original .menu-action__content-icon {

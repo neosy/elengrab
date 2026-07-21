@@ -63,6 +63,9 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 
 			g.HEAD(httppaths.PathDownloadFile, handlers.DownloadFileHandler)
 			g.GET(httppaths.PathDownloadFile, handlers.DownloadFileHandler)
+
+			g.HEAD(httppaths.PathMediaItemShortLink, handlers.GetMediaShareLinkHandler)
+			g.GET(httppaths.PathMediaItemShortLink, handlers.GetMediaShareLinkHandler)
 		}
 
 		// With middleware (error, auth or guest)
@@ -87,6 +90,7 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		g.Use(middlewareError, r.middlewares.Auth.RequireAuthMode)
 		{
 			g.POST(httppaths.PathMediaItemShortLink, handlers.CreateMediaShareLinkHandler)
+			g.DELETE(httppaths.PathMediaItemShortLink, handlers.DeleteMediaShareLinkHandler)
 		}
 
 		// With middleware (error, auth or anonym)
