@@ -1,4 +1,4 @@
-package linklink
+package link
 
 import (
 	"context"
@@ -14,7 +14,9 @@ func (u *Link) FindByLinkID(ctx context.Context, linkID uuid.UUID) (*dlink.Link,
 		return nil, nil
 	}
 
-	link, err := u.linkRep.Find(ctx, linkID)
+	repo := u.linkRep.WithoutDeleted()
+
+	link, err := repo.Find(ctx, linkID)
 	if err != nil {
 		u.logger.Warn("Failed get link", "error", err)
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
@@ -42,7 +44,9 @@ func (u *Link) FindLastByShortCode(ctx context.Context, shortCode string) (*dlin
 		return nil, nil
 	}
 
-	link, err := u.linkRep.FindLastByShortCode(ctx, shortCode)
+	repo := u.linkRep.WithoutDeleted()
+
+	link, err := repo.FindLastByShortCode(ctx, shortCode)
 	if err != nil {
 		u.logger.Warn("Failed get link", "shortCode", shortCode, "error", err)
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)

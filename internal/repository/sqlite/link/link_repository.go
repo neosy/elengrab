@@ -11,6 +11,8 @@ import (
 	dlink "github.com/neosy/elengrab/internal/domain/link"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	elink "github.com/neosy/elengrab/internal/repository/sqlite/link/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/link/mappers"
@@ -20,6 +22,8 @@ type LinkRepository struct {
 	mappers *mappers.Mappers
 	db      *sql.DB
 	lock    dbexec.WriteLocker
+
+	filtersByName filtersByName
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -32,12 +36,26 @@ func NewLinkRepository(db *sql.DB, lock dbexec.WriteLocker) *LinkRepository {
 		db:      db,
 		lock:    lock,
 
+		filtersByName: make(map[string]any),
+
 		// options
 		retryOptions: dbexec.RetryOptions{
 			MaxRetries: maxRetriesDefault,
 			Delay:      retryDelayDefault,
 		},
 	}
+}
+
+func (r *LinkRepository) Copy() *LinkRepository {
+	rep := uptr.Copy(r)
+
+	rep.mappers = r.mappers
+	rep.db = r.db
+	rep.lock = r.lock
+
+	rep.filtersByName = rep.filtersByName.copy()
+
+	return rep
 }
 
 func (r *LinkRepository) Insert(ctx context.Context, link *dlink.Link) error {
@@ -139,9 +157,18 @@ func (r *LinkRepository) HardDelete(ctx context.Context, linkID uuid.UUID) error
 func (r *LinkRepository) Find(ctx context.Context, linkID uuid.UUID) (*dlink.Link, error) {
 	var eLink elink.Link
 
+	sqlWhere := squirrel.And{}
+	sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(&eLink.LinkID): linkID})
+
+	for name, value := range r.filtersByName {
+		if name != "" {
+			sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(eLink.FieldPointer(name)): value})
+		}
+	}
+
 	sqlQuery, args, err := squirrel.Select(eLink.FieldsAll()...).
 		From(eLink.TableName()).
-		Where(squirrel.Eq{eLink.FieldName(&eLink.LinkID): linkID}).
+		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()
@@ -183,10 +210,19 @@ func (r *LinkRepository) Find(ctx context.Context, linkID uuid.UUID) (*dlink.Lin
 func (r *LinkRepository) Exists(ctx context.Context, linkID uuid.UUID) (bool, error) {
 	var eLink elink.Link
 
+	sqlWhere := squirrel.And{}
+	sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(&eLink.LinkID): linkID})
+
+	for name, value := range r.filtersByName {
+		if name != "" {
+			sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(eLink.FieldPointer(name)): value})
+		}
+	}
+
 	// Build SQL query: SELECT 1 FROM table WHERE <id> = $1 LIMIT 1
 	query, args, err := squirrel.Select("1").
 		From(eLink.TableName()).
-		Where(squirrel.Eq{eLink.FieldName(&eLink.LinkID): linkID}).
+		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()
@@ -214,9 +250,18 @@ func (r *LinkRepository) Exists(ctx context.Context, linkID uuid.UUID) (bool, er
 func (r *LinkRepository) FindLastByShortCode(ctx context.Context, shortCode string) (*dlink.Link, error) {
 	var eLink elink.Link
 
+	sqlWhere := squirrel.And{}
+	sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(&eLink.ShortCode): shortCode})
+
+	for name, value := range r.filtersByName {
+		if name != "" {
+			sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(eLink.FieldPointer(name)): value})
+		}
+	}
+
 	sqlQuery, args, err := squirrel.Select(eLink.FieldsAll()...).
 		From(eLink.TableName()).
-		Where(squirrel.Eq{eLink.FieldName(&eLink.ShortCode): shortCode}).
+		Where(sqlWhere).
 		OrderBy(dbutils.OrderBy(dbutils.Flds{eLink.FieldName(&eLink.CreatedAt): dbutils.OrderDesc})).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
@@ -268,6 +313,12 @@ func (r *LinkRepository) ExistsActiveShortCode(ctx context.Context, shortCode st
 		},
 	}
 
+	for name, value := range r.filtersByName {
+		if name != "" {
+			sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(eLink.FieldPointer(name)): value})
+		}
+	}
+
 	query, args, err := squirrel.Select("1").
 		From(eLink.TableName()).
 		Where(sqlWhere).
@@ -293,6 +344,16 @@ func (r *LinkRepository) ExistsActiveShortCode(ctx context.Context, shortCode st
 	}
 
 	return true, nil
+}
+
+func (r *LinkRepository) WithoutDeleted() persistence.LinkRepository {
+	rep := r.Copy()
+
+	var eLink elink.Link
+
+	rep.filtersByName[eLink.FieldName(&eLink.DeletedAt)] = nil
+
+	return rep
 }
 
 func (r *LinkRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {

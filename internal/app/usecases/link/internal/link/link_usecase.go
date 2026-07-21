@@ -1,4 +1,4 @@
-package linklink
+package link
 
 import (
 	"log/slog"
