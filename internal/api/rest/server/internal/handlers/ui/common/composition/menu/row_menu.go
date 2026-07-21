@@ -22,8 +22,10 @@ type rowMenuAction struct {
 }
 
 const (
-	rowMenuActionErrorInfo = "error-info"
-	rowMenuActionCopyLink  = "copy-link"
+	rowMenuActionErrorInfo  = "error-info"
+	rowMenuActionCopyLink   = "copy-link"
+	rowMenuActionCreateLink = "create-link"
+	rowMenuActionDeleteLink = "delete-link"
 )
 
 var rowMenuActions = []rowMenuAction{
@@ -93,6 +95,21 @@ var rowMenuActions = []rowMenuAction{
 	{
 		menuAction: menuAction{
 			RenderType: renderTypeAction,
+			Action:     rowMenuActionCreateLink,
+			Title:      "Create short link",
+			Link: linkOptions{
+				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
+				replaceInURL: RowMenuActionItemIDKey,
+			},
+		},
+		icon:               icons.DownloaderRowMenuCopyLinkIcon,
+		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
+		requireWriteAccess: true,
+	},
+
+	{
+		menuAction: menuAction{
+			RenderType: renderTypeAction,
 			Action:     rowMenuActionCopyLink,
 			Title:      "Copy short link",
 			Link: linkOptions{
@@ -101,6 +118,21 @@ var rowMenuActions = []rowMenuAction{
 			},
 		},
 		icon:               icons.DownloaderRowMenuCopyLinkIcon,
+		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
+		requireWriteAccess: false,
+	},
+
+	{
+		menuAction: menuAction{
+			RenderType: renderTypeAction,
+			Action:     rowMenuActionDeleteLink,
+			Title:      "Delete short link",
+			Link: linkOptions{
+				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
+				replaceInURL: RowMenuActionItemIDKey,
+			},
+		},
+		icon:               icons.DownloaderRowMenuDeleteLinkIcon,
 		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
 		requireWriteAccess: true,
 	},
@@ -194,6 +226,18 @@ func RowMenuActions(
 			continue
 		}
 
+		if a.Action == rowMenuActionCreateLink && options.HasShareLink {
+			continue
+		}
+
+		if a.Action == rowMenuActionCopyLink && !options.HasShareLink {
+			continue
+		}
+
+		if a.Action == rowMenuActionDeleteLink && !options.HasShareLink {
+			continue
+		}
+
 		if a.RenderType == renderTypeDivider {
 			if len(actions) == 0 {
 				continue
@@ -217,10 +261,6 @@ func RowMenuActions(
 			if ok {
 				action.Link.URL = strings.Replace(action.Link.URL, key, value, 1)
 			}
-		}
-
-		if action.Action == rowMenuActionCopyLink && !options.HasShareLink {
-			action.Title = "Create short link"
 		}
 
 		if action.Action == rowMenuActionErrorInfo && options.ErrorText != "" {

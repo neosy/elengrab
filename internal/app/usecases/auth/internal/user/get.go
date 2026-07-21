@@ -16,7 +16,9 @@ func (u *User) FindByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User,
 		return nil, nil
 	}
 
-	user, err := u.userRep.FindByUserID(ctx, userID)
+	repo := u.userRep.WithoutDeleted()
+
+	user, err := repo.FindByUserID(ctx, userID)
 	if err != nil {
 		u.logger.Warn("Failed get user", "error", err)
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
@@ -30,7 +32,9 @@ func (u *User) FindByLogin(ctx context.Context, login dtypes.Login) (*dauth.User
 		return nil, nil
 	}
 
-	user, err := u.userRep.FindByLogin(ctx, login)
+	repo := u.userRep.WithoutDeleted()
+
+	user, err := repo.FindByLogin(ctx, login)
 	if err != nil {
 		u.logger.Warn("Failed get user", "error", err)
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
@@ -44,7 +48,9 @@ func (u *User) FindByEmail(ctx context.Context, email string) (*dauth.User, erro
 		return nil, nil
 	}
 
-	user, err := u.userRep.FindByEmail(ctx, email)
+	repo := u.userRep.WithoutDeleted()
+
+	user, err := repo.FindByEmail(ctx, email)
 	if err != nil {
 		u.logger.Warn("Failed get user", "error", err)
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
@@ -98,7 +104,9 @@ func (u *User) GetByEmail(ctx context.Context, email string) (*dauth.User, error
 }
 
 func (u *User) ExistsByUserID(ctx context.Context, userID uuid.UUID) (bool, error) {
-	exists, err := u.userRep.ExistsByUserID(ctx, userID)
+	repo := u.userRep.WithoutDeleted()
+
+	exists, err := repo.ExistsByUserID(ctx, userID)
 	if err != nil {
 		u.logger.Warn("Failed to check if user exists", "userID", userID, "error", err)
 	}
@@ -107,7 +115,9 @@ func (u *User) ExistsByUserID(ctx context.Context, userID uuid.UUID) (bool, erro
 }
 
 func (u *User) ExistsByLogin(ctx context.Context, login dtypes.Login) (bool, error) {
-	exists, err := u.userRep.ExistsByLogin(ctx, login)
+	repo := u.userRep.WithoutDeleted()
+
+	exists, err := repo.ExistsByLogin(ctx, login)
 	if err != nil {
 		u.logger.Warn("Failed to check if user exists", "login", login, "error", err)
 	}

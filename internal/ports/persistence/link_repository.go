@@ -25,4 +25,6 @@ type LinkRepository interface {
 	FindLastByShortCode(ctx context.Context, shortCode string) (*dlink.Link, error)
 	// ExistsActiveShortCode exists link by active shortCode
 	ExistsActiveShortCode(ctx context.Context, shortCode string) (bool, error)
+
+	WithoutDeleted() LinkRepository
 }

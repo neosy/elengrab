@@ -132,7 +132,7 @@ const rowMenuConfig = {
       }
     },
 
-    async copyLink(item) {
+    async createLink(item) {
       const res = await fetch(item.dataset.url, { method: 'POST' });
       if (!res.ok) {
         const data = await res.json();
@@ -155,6 +155,44 @@ const rowMenuConfig = {
         console.log('Link not copied (Clipboard API not supported):', data.url);
         //alert('Clipboard API not supported');
       }
+    },
+
+    async copyLink(item) {
+      const res = await fetch(item.dataset.url, { method: 'GET' });
+      if (!res.ok) {
+        const data = await res.json();
+        console.info(data);
+        if (data && typeof data === "object" && "message" in data) {
+            notify.show(data.message, notify.notifyType.ERROR);
+        }
+        throw new Error('Request failed');
+      }
+
+      const data = await res.json();
+
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(data.url);
+        notify.show("Link copied.", notify.notifyType.SUCCESS);
+        console.log('Link copied:', data.url);
+      } else {
+        notify.show("Clipboard API not supported", notify.notifyType.ERROR);
+        notify.show('Copy this link: ' + data.url, notify.notifyType.INFO, 8000);
+        console.log('Link not copied (Clipboard API not supported):', data.url);
+      }
+    },
+
+    async deleteLink(item) {
+      const res = await fetch(item.dataset.url, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json();
+        console.info(data);
+        if (data && typeof data === "object" && "message" in data) {
+            notify.show(data.message, notify.notifyType.ERROR);
+        }
+        throw new Error('Request failed');
+      }
+
+      notify.show("Link deleted.", notify.notifyType.SUCCESS);
     },
 
     async refresh(item) {
