@@ -71,6 +71,7 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *h
 			Assets:           assets.NewAssets(deps.AssetsDir, deps.AssetFileCacheRepository),
 			Usecases:         deps.Usecases,
 			Templates:        deps.Templates,
+			AppEnv:           appEnv,
 			AppMode:          deps.AppMode,
 			BaseURL:          deps.BaseURL,
 			ShortLinkPrefix:  deps.ShortLinkPrefix,
