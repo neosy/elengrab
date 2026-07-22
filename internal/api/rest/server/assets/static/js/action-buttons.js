@@ -207,3 +207,45 @@ export function initInputSettingsButton(btn, collapse, options) {
         btn.classList.toggle('is-dirty', isDirty());
     }
 }
+
+export function initCopyUrlButtons(onCopied, onError) {
+    if (!navigator.clipboard?.writeText) {
+        console.info("Clipboard API is not supported. Copy buttons are hidden.");
+
+        const buttons = document.querySelectorAll('[data-action="copy-url"]');
+
+        buttons.forEach(button => {
+            button.style.display = "none";
+            button.dataset.state = "none";
+        });
+
+        return;
+    }
+        
+    document.addEventListener("click", async (event) => {
+        const button = event.target.closest('[data-action="copy-url"]');
+
+        if (!button) {
+            return;
+        }
+
+        const container = button.closest(".copy-target");
+        const link = container?.querySelector("a");
+
+        if (!link) {
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(link.href);
+            if (onCopied) {
+                onCopied(link.href);
+            }
+        } catch (error) {
+            if (onError) {
+                onError(link.href);
+            }
+            console.error("Failed to copy URL:", error);
+        }
+    });
+}

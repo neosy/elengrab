@@ -61,6 +61,8 @@ var (
 
 		"page-watch.css",
 		"theme-switcher.css",
+
+		"notifications.css",
 	}
 
 	editMediaPageCssPaths = cssFileNames{

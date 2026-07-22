@@ -1,4 +1,7 @@
 import { DOM_ELEMENTS, initDomElements } from "./watch.dom.js";
+import * as browser from './browser.js';
+import * as actionButton from './action-buttons.js';
+import * as notify from './notifications.js';
 
 const isPWA =
       window.matchMedia('(display-mode: standalone)').matches ||
@@ -16,6 +19,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.code === "ArrowRight") skipForward();
         if (e.code === "ArrowLeft") skipBackward();
     });
+
+    // Initialize viewport height sync (fixes mobile PWA viewport issues)
+    browser.initViewportHeightVar();
+
+    actionButton.initCopyUrlButtons(
+        (url) => {
+            notify.show(`Link copied: ${url}`, notify.notifyType.SUCCESS);
+        },
+        (url) => {
+            notify.show(`Failed to copy link: ${url}`, notify.notifyType.ERROR);
+        }
+    );
 
     initPlayer();
 });

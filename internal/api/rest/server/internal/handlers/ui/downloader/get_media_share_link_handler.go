@@ -21,7 +21,7 @@ func (h *DownloaderHandlers) GetMediaShareLinkHandler(ctx *fasthttp.RequestCtx) 
 		return
 	}
 
-	url, err := h.linkWeb.GetShortLink(
+	url, err := h.linkWeb.GetLastShortURL(
 		ctx,
 		h.buildMediaWatchURL(downloadID),
 	)

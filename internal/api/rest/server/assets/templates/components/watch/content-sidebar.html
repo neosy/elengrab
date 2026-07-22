@@ -1,0 +1,38 @@
+{{- define "watch-content-sidebar" }}
+        <div class="main_content__sidebar">
+            <div class="sidebar-card">
+                <h3 class="sidebar-card_title">Media Info</h3>
+                <div class="sidebar-card__parameters">
+                    {{- range .Values.MediaParameters -}} 
+                    <div class="sidebar-card__parameters_item">
+                        <span class="parameters-item__name">{{ .Name }}</span>
+                        {{- if not .URL -}}
+                        <span class="parameters-item__value">{{ .Value }}</span>
+                        {{- else -}}
+                        <span class="parameters-item__value value--link copy-target">
+                            <a class="parameters-item__value-link" href="{{ .URL }}" target="_blank">{{ .Value }}</a>
+                            {{- if .CopyIcon -}}
+                                <button class="item-value__action-button action-button--copy no-select" type="button" data-action="copy-url" aria-label="Copy to clipboard" title="Copy to clipboard">{{ .CopyIcon }}</button>
+                            {{- end -}}    
+                        </span>
+                        {{- end -}}
+                    </div>
+                    {{- end -}}
+                </div>
+            </div>
+            {{- if .Values.ShowPlaylist -}}
+            <div class="sidebar-card">
+                <h3 style="font-weight: 600; margin-bottom: 20px; color: #e4e4e7;">Next in the playlist</h3>
+                <div id="playlistContainer" style="display: flex; flex-direction: column; gap: 12px;">
+                    <div class="playlist-item" onclick="alert('Следующее видео 1')">
+                        <img src="https://picsum.photos/id/1015/80/80" style="width:80px; height:80px; border-radius:12px; object-fit:cover;">
+                        <div style="flex:1;">
+                            <p style="font-weight:500; font-size:15px; line-height:1.3;">Закат в горах</p>
+                            <p style="color:#71717a; font-size:13px; margin-top:4px;">9:48 • Nature Visuals</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{- end -}}
+        </div>
+{{- end }}

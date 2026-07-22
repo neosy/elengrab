@@ -15,7 +15,7 @@ func (u *LinkWeb) GetLastByShortCode(ctx context.Context, shortCode string) (*dl
 	return u.link.GetLastByShortCode(ctx, shortCode)
 }
 
-func (u *LinkWeb) GetShortLink(ctx context.Context, url string) (string, error) {
+func (u *LinkWeb) GetLastShortURL(ctx context.Context, url string) (string, error) {
 	shortCode := u.link.GenerateShortCodeByURL(url, u.options.ShortCodeLength, true)
 
 	link, err := u.link.GetLastByShortCode(ctx, shortCode)
