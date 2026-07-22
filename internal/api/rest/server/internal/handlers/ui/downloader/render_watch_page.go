@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/clientcap"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/images"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
@@ -189,9 +190,26 @@ func (h *DownloaderHandlers) renderWatchPage(
 	if downloadInfo.MediaURL != "" {
 		mediaParameters = append(mediaParameters,
 			pages.MediaParameter{
-				Name:  "Original Source",
-				Value: mediaSourceFromURL(downloadInfo.MediaURL),
-				URL:   downloadInfo.MediaURL,
+				Name:     "Original Source",
+				Value:    mediaSourceFromURL(downloadInfo.MediaURL),
+				URL:      downloadInfo.MediaURL,
+				CopyIcon: icons.CopyURLIcon.FileRaw(),
+			},
+		)
+	}
+
+	shortURL, _ := h.linkWeb.GetLastShortURL(
+		ctx,
+		h.buildMediaWatchURL(downloadInfo.DownloadID),
+	)
+	if shortURL != "" {
+		mediaParameters = append(mediaParameters,
+			pages.MediaParameter{
+				Type:     pages.MediaParameterTypeShareLink,
+				Name:     "Share",
+				Value:    "Short link",
+				URL:      shortURL,
+				CopyIcon: icons.CopyURLIcon.FileRaw(),
 			},
 		)
 	}
