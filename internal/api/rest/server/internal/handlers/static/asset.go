@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
@@ -34,7 +36,16 @@ func (h *StaticHandlers) newAssetHandler(subdirPath string) func(*fasthttp.Reque
 		cleanPath := path.Clean("/" + uri)
 		filePath := filepath.Join(subdirPath, filepath.FromSlash(cleanPath))
 
-		assetFile, err := h.assets.ReadAssetFile(filePath)
+		var (
+			assetFile *dtypes.AssetFile
+			err       error
+		)
+
+		if h.appEnv == appenv.AppEnvDevelop {
+			assetFile, err = h.assets.ReadAssetFileNoCache(filePath)
+		} else {
+			assetFile, err = h.assets.ReadAssetFile(filePath)
+		}
 		if err != nil {
 			nfasthttp.WriteErrorx(ctx, err)
 			return
