@@ -1,14 +1,14 @@
 package assetx
 
 import (
-	"strconv"
-
 	"github.com/cespare/xxhash/v2"
 )
 
 const (
 	// 4MB: maximum amount of data used for hashing to avoid excessive CPU/memory usage
 	maxAssetHashSizeDefault = 4 << 20
+
+	hexDigits = "0123456789abcdef"
 )
 
 // AssetFingerprint64 computes a 64-bit xxhash fingerprint of the asset.
@@ -38,7 +38,14 @@ func AssetFingerprint32(data []byte) uint32 {
 // This is the standard representation for use in URLs, cache keys, and ETag-like headers.
 func AssetFingerprintHex(data []byte) string {
 	h := AssetFingerprint64(data)
-	return strconv.FormatUint(h, 16)
+
+	var b [16]byte
+	for i := 15; i >= 0; i-- {
+		b[i] = hexDigits[h&0xf]
+		h >>= 4
+	}
+
+	return string(b[:])
 }
 
 // AssetFingerprintHex32 returns a 32-bit fingerprint (derived from 64-bit hash)
@@ -48,5 +55,12 @@ func AssetFingerprintHex(data []byte) string {
 // Intended only for non-critical caching or compact URL representations.
 func AssetFingerprintHex32(data []byte) string {
 	h := AssetFingerprint32(data)
-	return strconv.FormatUint(uint64(h), 16)
+
+	var b [8]byte
+	for i := 7; i >= 0; i-- {
+		b[i] = hexDigits[h&0xf]
+		h >>= 4
+	}
+
+	return string(b[:])
 }

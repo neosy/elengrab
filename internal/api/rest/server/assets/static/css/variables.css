@@ -88,6 +88,8 @@
     --notification-text: #1f1f1f;
     --notification-border: #e5e5e5;
 
+    --action-copy-icon-color: #2563eb;
+
     --bg-menu: rgba(255, 255, 255, 0.92);
     --text-menu: #333;
     --menu-separator: #9e9e9e;
@@ -186,6 +188,8 @@
     --notification-bg: rgba(12, 12, 16, 0.90);
     --notification-text: #cfd8e3;
     --notification-border: rgba(255, 255, 255, 0.35);
+
+    --action-copy-icon-color: #8ab4f8;
 
     --bg-menu: rgba(12, 12, 16, 0.80);
     --text-menu: #cfd8e3;
