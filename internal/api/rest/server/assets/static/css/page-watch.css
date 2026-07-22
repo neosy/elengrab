@@ -415,8 +415,11 @@ button {
 
 .item-value__action-button svg {
     display: block;
+
     width: 18px;
     height: 18px;
+
+    color: var(--action-copy-icon-color);
 }
 
 .playlist-item {
