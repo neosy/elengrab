@@ -1,6 +1,18 @@
 package pages
 
-import "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+import (
+	"html/template"
+
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+)
+
+type (
+	mediaParameterType string
+)
+
+const (
+	MediaParameterTypeShareLink mediaParameterType = "share-link"
+)
 
 // Watch page
 type (
@@ -28,8 +40,16 @@ type (
 	}
 
 	MediaParameter struct {
+		Type mediaParameterType
+
 		Name  string
 		Value string
-		URL   string
+
+		URL      string
+		CopyIcon template.HTML
 	}
 )
+
+func (t mediaParameterType) String() string {
+	return string(t)
+}

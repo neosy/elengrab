@@ -1,0 +1,62 @@
+{{- define "watch-content-player" }}
+        <div class="main_content__player">
+            <div class="media__container" id="mediaContainer">
+                <div class="media_wrapper" id="videoWrapper">
+                    {{- if .Values.IsVideoPlayer -}}
+                    <video id="videoElement" controls="false" autoplay playsinline disablePictureInPicture>
+                        {{- if .Values.ContentType -}}
+                        <source src="{{ .Paths.StreamURL }}" type="{{ .Values.ContentType }}">
+                        {{- end -}}
+                        <source src="{{ .Paths.StreamURL }}">
+                        Your browser does not support the video tag.
+                    </video>
+                    {{- else -}}
+                    <audio id="audioElement" controls="false" autoplay playsinline>
+                        {{- if .Values.ContentType -}}
+                        <source src="{{ .Paths.StreamURL }}" type="{{ .Values.ContentType }}">
+                        {{- end -}}
+                        <source src="{{ .Paths.StreamURL }}">
+                        Your browser does not support the video tag.
+                    </audio>
+                    {{- end -}}
+                </div>
+                {{- if .Values.ShowControls -}}
+                <div class="controls" id="customControls">
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress" id="progress"></div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <button id="playButton" 
+                                    style="width: 56px; height: 56px; background: white; color: black; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                                >
+                            </button>
+                            <button id="skipBackwardButton" style="font-size: 28px; color: #a1a1aa;">⤆</button>
+                            <button id="skipForwardButton" style="font-size: 28px; color: #a1a1aa;">⤇</button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; color: #cbd5e1;">
+                            <span id="currentTime" class="time">0:00</span>
+                            <span style="color: #52525b;">/</span>
+                            <span id="totalDuration" class="time">0:00</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="color: #a1a1aa;">">>"</span>
+                                <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="1"
+                                        style="width: 120px; accent-color: #3b82f6;">
+                            </div>
+                            <button if="toggleFullscreenButton" style="font-size: 22px; color: #a1a1aa;">⛶</button>
+                        </div>
+                    </div>
+                </div>
+                {{- end }}
+            </div>
+            <div class="main_content__media-info" id="mainContentMediaInfo">
+                <div class="media-info__title">                
+                    <img class="media-info__title-image" src="{{ .Values.MediaTitleImageURL }}" alt="Channel avatar">
+                    <h2 class="media-info__title-text" id="mediaTitle">{{ .Values.MediaTitle }}</h2>
+                </div>
+                <p class="media-info-description" id="mediaDescription">{{ .Values.MediaDescription }}</p>
+            </div>
+        </div>
+{{- end }}
