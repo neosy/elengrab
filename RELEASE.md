@@ -10,6 +10,9 @@
 ### 🎨 Style
 - Hide the Delete button in grid-view mode. [L057]
 
+### 🐛 Fix
+- Fix paste button behavior in Firefox by using native input insertion. [L064]
+
 ### 📦 Chore
 - Increase the default short link TTL to 180 days. [L061]
 

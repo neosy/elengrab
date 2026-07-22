@@ -63,9 +63,9 @@ export async function updateInputPasteClearButton(input, btn) {
 
         btn.onclick = async () => {
             try {
+                input.focus();
                 const text = await navigator.clipboard.readText();
                 input.value = text;
-                input.focus();
                 updateInputPasteClearButton(input, btn);
             } catch (e) {
                 console.error('Clipboard read failed', e);
