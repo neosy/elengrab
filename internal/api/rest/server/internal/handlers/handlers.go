@@ -10,6 +10,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
@@ -24,6 +25,7 @@ type Dependencies struct {
 	Templates *template.Template
 
 	// Options
+	AppEnv          appenv.AppEnv
 	AppMode         dtypes.AppMode
 	BaseURL         string
 	ShortLinkPrefix string
@@ -41,6 +43,7 @@ func New(logger *slog.Logger, deps *Dependencies) *Handlers {
 			deps.Assets,
 			deps.Usecases.Thumbnail,
 			deps.Usecases.Downloader,
+			deps.AppEnv,
 		),
 		UI: ui.NewHandlers(
 			logger,

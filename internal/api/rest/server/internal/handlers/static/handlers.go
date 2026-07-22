@@ -9,6 +9,7 @@ import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
+	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
 	"github.com/valyala/fasthttp"
 )
 
@@ -25,6 +26,9 @@ type StaticHandlers struct {
 	// usecases
 	thumbnail  *thumbnail.Thumbnail
 	downloader *downloader.Downloader
+
+	// options
+	appEnv appenv.AppEnv
 }
 
 func NewStaticHandlers(
@@ -34,6 +38,9 @@ func NewStaticHandlers(
 	// usecases
 	thumbnail *thumbnail.Thumbnail,
 	downloader *downloader.Downloader,
+
+	// options
+	appEnv appenv.AppEnv,
 ) *StaticHandlers {
 
 	h := &StaticHandlers{
@@ -42,6 +49,9 @@ func NewStaticHandlers(
 		// usecases
 		thumbnail:  thumbnail,
 		downloader: downloader,
+
+		// options
+		appEnv: appEnv,
 	}
 
 	h.cssHandler = h.newFSHandler("css", "css")
