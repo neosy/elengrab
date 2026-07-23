@@ -17,6 +17,6 @@ type ShortLinkService interface {
 
 	Click(ctx context.Context, req *dto.ShortLinkClickRequest) (*dlink.Link, error)
 
-	GenerateShortCodeByURL(url string, length uint8, deterministic bool) string
-	ResolveShortCode(ctx context.Context, url string) (*dlink.Link, error)
+	GenerateShortCode(url string, length uint8, deterministic bool) string
+	ResolveShortCode(ctx context.Context, shortCode string) (*dlink.Link, error)
 }

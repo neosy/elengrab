@@ -13,7 +13,7 @@ const (
 )
 
 func (u *LinkWeb) CreateShortLink(ctx context.Context, url string) (string, error) {
-	shortCode := u.link.GenerateShortCodeByURL(url, u.options.ShortCodeLength, true)
+	shortCode := u.link.GenerateShortCode(url, u.options.ShortCodeLength, true)
 
 	link, err := u.link.FindLastByShortCode(ctx, shortCode)
 	if err != nil {
