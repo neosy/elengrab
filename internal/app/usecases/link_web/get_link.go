@@ -15,8 +15,26 @@ func (u *LinkWeb) GetLastByShortCode(ctx context.Context, shortCode string) (*dl
 	return u.link.GetLastByShortCode(ctx, shortCode)
 }
 
+func (u *LinkWeb) FindLastShortURL(ctx context.Context, url string) (string, error) {
+	shortCode := u.link.GenerateShortCode(url, u.options.ShortCodeLength, true)
+
+	link, err := u.link.FindLastByShortCode(ctx, shortCode)
+	if err != nil {
+		return "", errorx.Errorf(
+			"failed to get short link: %w", err,
+			errorx.WithErrorMessage("Failed to get short link"),
+		)
+	}
+
+	if link == nil {
+		return "", nil
+	}
+
+	return link.ShortURL, nil
+}
+
 func (u *LinkWeb) GetLastShortURL(ctx context.Context, url string) (string, error) {
-	shortCode := u.link.GenerateShortCodeByURL(url, u.options.ShortCodeLength, true)
+	shortCode := u.link.GenerateShortCode(url, u.options.ShortCodeLength, true)
 
 	link, err := u.link.GetLastByShortCode(ctx, shortCode)
 	if err != nil {

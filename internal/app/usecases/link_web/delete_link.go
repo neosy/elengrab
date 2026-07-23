@@ -5,7 +5,7 @@ import (
 )
 
 func (u *LinkWeb) DeleteShortLink(ctx context.Context, url string) error {
-	shortCode := u.link.GenerateShortCodeByURL(url, u.options.ShortCodeLength, true)
+	shortCode := u.link.GenerateShortCode(url, u.options.ShortCodeLength, true)
 
 	link, err := u.link.GetLastByShortCode(ctx, shortCode)
 	if err != nil {

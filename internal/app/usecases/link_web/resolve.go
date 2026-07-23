@@ -7,6 +7,6 @@ import (
 )
 
 func (u *LinkWeb) ResolveURL(ctx context.Context, url string) (*dlink.Link, error) {
-	shortCode := u.link.GenerateShortCodeByURL(url, u.options.ShortCodeLength, true)
+	shortCode := u.link.GenerateShortCode(url, u.options.ShortCodeLength, true)
 	return u.link.ResolveShortCode(ctx, shortCode)
 }
