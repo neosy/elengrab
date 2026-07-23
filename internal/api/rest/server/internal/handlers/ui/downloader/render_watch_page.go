@@ -198,7 +198,7 @@ func (h *DownloaderHandlers) renderWatchPage(
 		)
 	}
 
-	shortURL, _ := h.linkWeb.GetLastShortURL(
+	shortURL, _ := h.linkWeb.FindLastShortURL(
 		ctx,
 		h.buildMediaWatchURL(downloadInfo.DownloadID),
 	)
