@@ -10,15 +10,15 @@ type DownloadStateCache struct {
 	logger *slog.Logger
 
 	// repositories
-	stateRep persistence.DownloadStateRepository
+	stateCacheRep persistence.DownloadStateCacheRepository
 }
 
 func NewDownloadStateCache(
 	logger *slog.Logger,
-	stateRep persistence.DownloadStateRepository,
+	stateCacheRep persistence.DownloadStateCacheRepository,
 ) *DownloadStateCache {
 	return &DownloadStateCache{
-		logger:   logger,
-		stateRep: stateRep,
+		logger:        logger,
+		stateCacheRep: stateCacheRep,
 	}
 }

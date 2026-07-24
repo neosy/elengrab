@@ -29,7 +29,7 @@ func (uc *Downloader) DeleteDownload(
 		return err
 	}
 
-	download, err := uc.download.GetByDownloadID(ctx, downloadID)
+	download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func (uc *Downloader) DeleteDownload(
 	}
 
 	fn := func(ctx context.Context) error {
-		download, err := uc.download.FindByDownloadID(ctx, downloadID)
+		download, err := uc.download.FindByDownloadIDNoCache(ctx, downloadID)
 		if err != nil {
 			return err
 		}
@@ -97,10 +97,6 @@ func (uc *Downloader) DeleteDownload(
 		return err
 	}
 
-	go func() {
-		uc.deleteThumbnails(ctx, download)
-	}()
-
 	if needDeleteFileOnStorage && fileFullName != "" {
 		go func() {
 			err := uc.deleteFileWithRetry(ctx, fileFullName, 10, 5*time.Second)
@@ -133,18 +129,4 @@ func (uc *Downloader) deleteFileWithRetry(ctx context.Context, fileName string, 
 
 	}
 	return err
-}
-
-func (uc *Downloader) deleteThumbnails(ctx context.Context, download *ddownload.MediaDownload) {
-	if download == nil || download.MediaInfo == nil {
-		return
-	}
-
-	if download.MediaInfo.ThumbnailID != nil {
-		uc.thumbnail.Delete(ctx, *download.MediaInfo.ThumbnailID)
-	}
-
-	if download.MediaInfo.FrameThumbnailID != nil {
-		uc.thumbnail.Delete(ctx, *download.MediaInfo.FrameThumbnailID)
-	}
 }

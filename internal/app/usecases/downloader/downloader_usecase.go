@@ -13,6 +13,7 @@ import (
 	dltasktatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task_status"
 	mediadownload "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download"
 	downloadstatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download_status"
+	mediawatch "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch"
 	siteicon "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon"
 	iconfetcher "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon_fetcher"
 	ytchannel "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/youtube_channel"
@@ -52,6 +53,7 @@ type Downloader struct {
 	siteIconFetcher   *iconfetcher.SiteIconFetcher
 	authz             *authz.Authorization
 	downloadMigration *dlmigration.DownloadMigration
+	mediaWatch        *mediawatch.MediaWatch
 
 	// broadcasters
 	broadcaster *broadcaster.Broadcaster
@@ -80,12 +82,16 @@ func NewDownloader(
 	downloadRep persistence.MediaDownloadRepository,
 	dlTaskRep persistence.DownloadTaskRepository,
 	downloadMigrationRep persistence.DownloadDataMigrationRepository,
+	watchEventRep persistence.MediaWatchEventRepository,
+	watchChunkRep persistence.MediaWatchChunkRepository,
+	watchStatRep persistence.MediaWatchStatRepository,
 	ytChannelRep persistence.YoutubeChannelRepository,
 	siteLogoRep persistence.SiteLogoRepository,
-	thumbnailRep persistence.ThumbnailRepository,
 
 	// in memory
+	mediaDownloadCacheRep persistence.MediaDownloadCacheRepository,
 	downloadStateCacheRep persistence.DownloadStateCacheRepository,
+	mediaWatchStatCacheRep persistence.MediaWatchStatCacheRepository,
 	ytChannelCacheRep persistence.YoutubeChannelCacheRepository,
 	siteLogoCacheRep persistence.SiteLogoCacheRepository,
 
@@ -95,6 +101,7 @@ func NewDownloader(
 	// dispetchers
 	downloadDispatcher nworkerpool.JobDispatcher,
 	operationDispatcher nworkerpool.JobDispatcher,
+	watchEventDispatcher nworkerpool.JobDispatcher,
 
 	// usecases
 	thumbnail *thumbnail.Thumbnail,
@@ -114,8 +121,26 @@ func NewDownloader(
 ) *Downloader {
 	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRep)
 
+	mediawatch := mediawatch.NewMediaWatch(
+		logger,
+		watchEventRep, watchChunkRep, watchStatRep,
+		mediaWatchStatCacheRep,
+		watchEventDispatcher,
+	)
+
 	dlTask := dltask.NewDownloadTask(logger, dlTaskRep, dlStateCache)
-	download := mediadownload.NewMediaDownload(logger, downloadRep, dlTask, dlStateCache)
+	download := mediadownload.NewMediaDownload(
+		logger,
+
+		downloadRep,
+		mediaDownloadCacheRep,
+
+		dlTask,
+		dlStateCache,
+		mediawatch,
+
+		thumbnail,
+	)
 	dlTaskStatus := dltasktatus.NewDownloadTaskStatus(logger, dlTask)
 
 	authz := authz.NewAuthorization(logger, appMode)
@@ -151,6 +176,7 @@ func NewDownloader(
 		siteIconFetcher:   iconfetcher.NewSiteIconFetcher(logger),
 		authz:             authz,
 		downloadMigration: dlmigration.NewDownloadMigration(logger, downloadMigrationRep),
+		mediaWatch:        mediawatch,
 
 		// broadcasters
 		broadcaster: broadcaster.NewBroadcaster(authz),

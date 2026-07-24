@@ -7,5 +7,5 @@ import (
 )
 
 func (uc *DownloadStateCache) Delete(ctx context.Context, downloadID uuid.UUID) error {
-	return uc.stateRep.Delete(ctx, downloadID)
+	return uc.stateCacheRep.Delete(ctx, downloadID)
 }

@@ -1,0 +1,253 @@
+package watchevent
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+
+	"github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
+	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	ierrors "github.com/neosy/elengrab/internal/errors"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+	"github.com/neosy/elengrab/internal/ports/persistence"
+	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
+	ewatchevent "github.com/neosy/elengrab/internal/repository/sqlite/watch_event/entity"
+	"github.com/neosy/elengrab/internal/repository/sqlite/watch_event/mappers"
+)
+
+type MediaWatchChunkRepository struct {
+	mappers *mappers.Mappers
+	db      *sql.DB
+	lock    dbexec.WriteLocker
+
+	filtersByName filtersByName
+
+	// options
+	retryOptions dbexec.RetryOptions
+}
+
+// NewMediaWatchChunkRepository returns a new object for the repository
+func NewMediaWatchChunkRepository(db *sql.DB, lock dbexec.WriteLocker) *MediaWatchChunkRepository {
+	return &MediaWatchChunkRepository{
+		mappers: mappers.NewMappers(),
+		db:      db,
+		lock:    lock,
+
+		filtersByName: make(map[string]any),
+
+		// options
+		retryOptions: dbexec.RetryOptions{
+			MaxRetries: maxRetriesDefault,
+			Delay:      retryDelayDefault,
+		},
+	}
+}
+
+func (r *MediaWatchChunkRepository) Copy() *MediaWatchChunkRepository {
+	rep := uptr.Copy(r)
+
+	rep.mappers = r.mappers
+	rep.db = r.db
+	rep.lock = r.lock
+
+	rep.filtersByName = rep.filtersByName.copy()
+
+	return rep
+}
+
+func (r *MediaWatchChunkRepository) AddChunkQty(ctx context.Context, chunk *ddownload.MediaWatchChunk) error {
+	if chunk == nil {
+		return ierrors.ErrFuncParamNullPointer
+	}
+
+	// Convert the domain model to a database entity
+	eChunk, err := r.mappers.MapMediaWatchChunkDomainToEntity(chunk)
+	if err != nil {
+		return err
+	}
+
+	// Get the list of fields and values for insertion
+	fields := eChunk.Fields()
+	values := eChunk.Values()
+
+	qtyFieldName := eChunk.FieldName(&eChunk.Qty)
+
+	// Build INSERT query
+	sqlBuilder := squirrel.
+		Insert(eChunk.TableName()).
+		Columns(fields...).
+		Values(values...).
+		Suffix("ON CONFLICT (" + eChunk.ConflictColumns() + ") DO UPDATE SET " + qtyFieldName + " = " + qtyFieldName + " + EXCLUDED." + qtyFieldName).
+		PlaceholderFormat(squirrel.Dollar)
+
+	// Generate SQL query with upsert logic
+	sqlQuery, args, err := sqlBuilder.ToSql()
+	// If SQL generation failed — return an error
+	if err != nil {
+		return fmt.Errorf("failed to build SQL: %w", err)
+	}
+
+	// Execute the query
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to save record: %w", err)
+	}
+
+	return nil
+}
+
+func (r *MediaWatchChunkRepository) AddChunkQtyBatch(ctx context.Context, chunks []*ddownload.MediaWatchChunk) error {
+	if chunks == nil {
+		return ierrors.ErrFuncParamNullPointer
+	}
+
+	if len(chunks) == 0 {
+		return nil
+	}
+
+	var eChunkTmpl ewatchevent.MediaWatchChunk
+
+	fields := eChunkTmpl.Fields()
+
+	// Build INSERT query
+	sqlBuilder := squirrel.
+		Insert(eChunkTmpl.TableName()).
+		Columns(fields...)
+
+	for _, chunk := range chunks {
+		if chunk == nil {
+			return ierrors.ErrFuncParamNullPointer
+		}
+
+		// Convert the domain model to a database entity
+		eChunk, err := r.mappers.MapMediaWatchChunkDomainToEntity(chunk)
+		if err != nil {
+			return err
+		}
+
+		sqlBuilder = sqlBuilder.Values(eChunk.Values()...)
+	}
+
+	qtyFieldName := eChunkTmpl.FieldName(&eChunkTmpl.Qty)
+
+	sqlBuilder = sqlBuilder.
+		Suffix("ON CONFLICT (" + eChunkTmpl.ConflictColumns() + ") DO UPDATE SET " + qtyFieldName + " = " + qtyFieldName + " + EXCLUDED." + qtyFieldName).
+		PlaceholderFormat(squirrel.Dollar)
+
+	// Generate SQL query with upsert logic
+	sqlQuery, args, err := sqlBuilder.ToSql()
+	// If SQL generation failed — return an error
+	if err != nil {
+		return fmt.Errorf("failed to build SQL: %w", err)
+	}
+
+	// Execute the query
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to save records: %w", err)
+	}
+
+	return nil
+}
+
+func (r *MediaWatchChunkRepository) Delete(ctx context.Context, downloadID uuid.UUID) error {
+	var eChunk ewatchevent.MediaWatchChunk
+
+	// Build DELETE query
+	sqlBuilder := squirrel.
+		Delete(eChunk.TableName()).
+		Where(squirrel.Eq{eChunk.FieldName(&eChunk.DownloadID): downloadID}).
+		PlaceholderFormat(squirrel.Dollar)
+
+	// Generate SQL and args
+	sqlStr, args, err := sqlBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to delete record: %v", err)
+	}
+
+	return nil
+}
+
+const countViewsSQL = `
+WITH ranked AS (
+    SELECT
+        user_id,
+        qty,
+        ROW_NUMBER() OVER (
+            PARTITION BY user_id
+            ORDER BY qty DESC
+        ) AS rn
+    FROM media_watch_chunks
+    WHERE download_id = ?
+)
+SELECT COALESCE(SUM(views), 0)
+FROM (
+    SELECT MIN(qty) AS views
+    FROM ranked
+    WHERE rn <= ?
+    GROUP BY user_id
+    HAVING COUNT(*) = ?
+);
+`
+
+func (r *MediaWatchChunkRepository) CountViews(
+	ctx context.Context,
+	downloadID uuid.UUID,
+	requiredChunks uint32,
+) (uint32, error) {
+	var (
+		views    uint32
+		notFound bool
+	)
+
+	// Execute the query
+	db := dbexec.Resolve(ctx, r.db)
+	execQuery := func() error {
+		row := db.QueryRowContext(
+			ctx, countViewsSQL,
+			downloadID,
+			requiredChunks, requiredChunks,
+		)
+		// Scan result into entity
+		err := row.Scan(&views)
+		if err == sql.ErrNoRows {
+			notFound = true
+			return nil
+		}
+		return err
+	}
+	err := dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
+	if err != nil {
+		return 0, err
+	}
+	if notFound {
+		return 0, nil
+	}
+
+	return views, nil
+}
+
+func (r *MediaWatchChunkRepository) WithUserID() persistence.MediaWatchChunkRepository {
+	rep := r.Copy()
+
+	var eChunk ewatchevent.MediaWatchChunk
+
+	rep.filtersByName[eChunk.FieldName(&eChunk.UserID)] = nil
+
+	return rep
+}
+
+func (r *MediaWatchChunkRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
+	return dbexec.Tx(ctx, r.db, r.lock, fn)
+}
+
+func (r *MediaWatchChunkRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
+	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+}

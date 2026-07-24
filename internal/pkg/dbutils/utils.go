@@ -5,16 +5,22 @@ import (
 	"strings"
 )
 
-func UpsertSuffix(columns []string, fields ...string) string {
-	conflictFields := strings.Join(fields, ", ")
-
-	strC := ""
-	for _, c := range columns {
-		strC = fmt.Sprintf("%s%s=%s,", strC, c, "EXCLUDED."+c)
+// UpsertSuffix builds an `ON CONFLICT ... DO UPDATE SET ...` SQL clause.
+// If no conflict columns are provided, it returns an empty string.
+// Each column in updateColumns is assigned from its corresponding EXCLUDED value.
+func UpsertSuffix(updateColumns []string, conflictColumns ...string) string {
+	if len(conflictColumns) == 0 {
+		return ""
 	}
+
+	setParts := make([]string, 0, len(updateColumns))
+	for _, col := range updateColumns {
+		setParts = append(setParts, col+" = EXCLUDED."+col)
+	}
+
 	return fmt.Sprintf(
 		"ON CONFLICT (%s) DO UPDATE SET %s",
-		conflictFields,
-		strings.TrimSuffix(strC, string(strC[len(strC)-1])),
+		strings.Join(conflictColumns, ", "),
+		strings.Join(setParts, ", "),
 	)
 }

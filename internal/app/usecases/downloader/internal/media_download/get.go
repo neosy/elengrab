@@ -7,11 +7,12 @@ import (
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-func (uc *MediaDownload) FindByDownloadID(
+func (uc *MediaDownload) FindByDownloadIDNoCache(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) (*ddownload.MediaDownload, error) {
@@ -24,15 +25,62 @@ func (uc *MediaDownload) FindByDownloadID(
 	return download, err
 }
 
-// GetByDownloadID
+// GetByDownloadIDNoCache
 // MediaDownload MUST exist — otherwise NOT_FOUND
+func (uc *MediaDownload) GetByDownloadIDNoCache(
+	ctx context.Context,
+	downloadID uuid.UUID,
+) (*ddownload.MediaDownload, error) {
+	download, err := uc.FindByDownloadIDNoCache(ctx, downloadID)
+	if err != nil {
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
+	}
+
+	if download == nil {
+		uc.logger.Warn("MediaDownload not found", "downloadID", downloadID)
+		return nil, errorx.New("download not found", exceptionx.NOT_FOUND)
+	}
+
+	return download, nil
+}
+
+func (uc *MediaDownload) FindByDownloadID(
+	ctx context.Context,
+	downloadID uuid.UUID,
+) (*ddownload.MediaDownload, error) {
+	if downloadID == uuid.Nil {
+		return nil, nil
+	}
+
+	mediaDownload, cacheStatus, _ := uc.downloadCacheRep.FindByDownloadID(downloadID)
+	if mediaDownload != nil {
+		return mediaDownload, nil
+	}
+	if cacheStatus == memsimple.CacheStatusNegativeHit {
+		return nil, nil
+	}
+
+	mediaDownload, err := uc.FindByDownloadIDNoCache(ctx, downloadID)
+	if err != nil {
+		return nil, err
+	}
+
+	if mediaDownload != nil {
+		uc.downloadCacheRep.Save(mediaDownload)
+	} else {
+		uc.downloadCacheRep.SaveNegative(downloadID)
+	}
+
+	return mediaDownload, nil
+}
+
 func (uc *MediaDownload) GetByDownloadID(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) (*ddownload.MediaDownload, error) {
 	download, err := uc.FindByDownloadID(ctx, downloadID)
 	if err != nil {
-		return nil, errorx.NewFromError(err, exceptionx.ERROR)
+		return nil, err
 	}
 
 	if download == nil {

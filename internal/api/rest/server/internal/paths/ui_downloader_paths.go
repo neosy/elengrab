@@ -27,16 +27,17 @@ const (
 	PathEvents       = "/events"
 
 	// Paths items Downloader
-	PathMediaItem               = "/items/{itemId}"
-	PathMediaItemRow            = "/items/{itemId}/row"
-	PathMediaItemDownloadRepeat = "/items/{itemId}/repeat"
-	PathMediaItemImage          = "/items/{itemId}/image"
-	PathMediaItemMenu           = "/items/{itemId}/menu"
-	PathMediaItemShortLink      = "/items/{itemId}/short-link"
-	PathMediaItemStream         = "/items/{itemId}/stream"
-	PathMediaItemWatch          = "/items/{itemId}/watch"
-	PathMediaItemEdit           = "/items/{itemId}/edit"
-	PathMediaItemRefresh        = "/items/{itemId}/refresh"
+	PathMediaItem                = "/items/{itemId}"
+	PathMediaItemRow             = "/items/{itemId}/row"
+	PathMediaItemDownloadRepeat  = "/items/{itemId}/repeat"
+	PathMediaItemImage           = "/items/{itemId}/image"
+	PathMediaItemMenu            = "/items/{itemId}/menu"
+	PathMediaItemShortLink       = "/items/{itemId}/short-link"
+	PathMediaItemStream          = "/items/{itemId}/stream"
+	PathMediaItemWatch           = "/items/{itemId}/watch"
+	PathMediaItemEdit            = "/items/{itemId}/edit"
+	PathMediaItemRefresh         = "/items/{itemId}/refresh"
+	PathMediaItemReWatchTracking = "/items/{itemId}/watch-tracking"
 
 	// Paths channels in Downloader
 	PathChannelAvatar = "/channels/{channelId}/avatar"

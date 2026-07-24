@@ -12,5 +12,8 @@ func (uc *MediaDownload) Restore(ctx context.Context, downloadID uuid.UUID) erro
 		uc.logger.Warn("Failed restore file", "error", err)
 		return err
 	}
+
+	uc.downloadCacheRep.Delete(downloadID)
+
 	return nil
 }

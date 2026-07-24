@@ -8,7 +8,7 @@ import (
 )
 
 func (uc *DownloadStateCache) Save(ctx context.Context, state *ddownload.DownloadState) error {
-	return uc.stateRep.Save(ctx, state)
+	return uc.stateCacheRep.Save(ctx, state)
 }
 
 func (uc *DownloadStateCache) SaveByDownload(ctx context.Context, download *ddownload.MediaDownload) error {
@@ -27,5 +27,5 @@ func (uc *DownloadStateCache) SaveByDownload(ctx context.Context, download *ddow
 		Download:   download,
 	}
 
-	return uc.stateRep.Save(ctx, state)
+	return uc.stateCacheRep.Save(ctx, state)
 }

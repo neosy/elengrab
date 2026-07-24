@@ -40,7 +40,8 @@ type (
 		MediaTitle string
 		MediaURL   string
 
-		ContentTimeAgo string
+		ContentViewCount string
+		ContentTimeAgo   string
 
 		UserName string
 
@@ -62,6 +63,7 @@ type (
 		WatchURL    string
 		DeleteURL   string
 
+		ItemID     string
 		RowID      string
 		ProgressID string
 

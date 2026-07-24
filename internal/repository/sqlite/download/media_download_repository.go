@@ -346,7 +346,8 @@ func (r *MediaDownloadRepository) hardDelete(ctx context.Context, downloadID uui
 	var ent edownload.MediaDownload
 
 	// Build DELETE query
-	sqlBuilder := squirrel.Delete(ent.TableName()).
+	sqlBuilder := squirrel.
+		Delete(ent.TableName()).
 		Where(squirrel.Eq{ent.FieldName(&ent.DownloadID): downloadID.String()}).
 		PlaceholderFormat(squirrel.Dollar)
 
@@ -983,4 +984,8 @@ func (r *MediaDownloadRepository) FillEmptyMediaTitleLower(ctx context.Context) 
 
 func (r *MediaDownloadRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
 	return dbexec.Tx(ctx, r.db, r.lock, fn)
+}
+
+func (r *MediaDownloadRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
+	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
 }

@@ -17,12 +17,14 @@ const (
 	deleteMissingDownloadsIntervalDefault = 30 * time.Minute
 	deleteFailedDownloadsIntervalDefault  = 1 * time.Hour
 
-	cleanYoutubeChannelCacheIntervalDefault = 5 * time.Minute
+	cleanMediaDownloadCacheIntervalDefault  = 30 * time.Minute
 	cleanDownloadStateCacheIntervalDefault  = 20 * time.Minute
-	cleanSiteLogoCacheIntervalDefault       = 2 * time.Hour
-	cleanThumbnailCacheIntervalDefault      = 2 * time.Hour
+	cleanMediaWatchStatCacheIntervalDefault = 1 * time.Hour
+	cleanYoutubeChannelCacheIntervalDefault = 6 * time.Hour
+	cleanSiteLogoCacheIntervalDefault       = 24 * time.Hour
+	cleanThumbnailCacheIntervalDefault      = 24 * time.Hour
 	cleanThumbnailFileCacheIntervalDefault  = 1 * time.Hour
-	cleanAssetFileCacheIntervalDefault      = 24 * time.Hour
+	cleanAssetFileCacheIntervalDefault      = 1 * time.Hour
 
 	backupDatabaseIntervalDefault = 1 * 24 * time.Hour
 	flushWALIntervalDefault       = 1 * time.Hour
@@ -33,7 +35,9 @@ const (
 
 type Dependencies struct {
 	// cache in memory
+	MediaDownloadCache  persistence.MediaDownloadCacheRepository
 	DownloadStateCache  persistence.DownloadStateCacheRepository
+	MediaWatchStatCache persistence.MediaWatchStatCacheRepository
 	YoutubeChannelCache persistence.YoutubeChannelCacheRepository
 	SiteLogoCache       persistence.SiteLogoCacheRepository
 	ThumbnailCache      persistence.ThumbnailCacheRepository
@@ -50,15 +54,17 @@ type Dependencies struct {
 
 	// options
 	MetricsEnabled                 bool
+	MoveUnmatchedFilesEnabled      bool
 	UpdateHashInterval             time.Duration
 	DeleteDuplicatesInterval       time.Duration
 	DeleteMissingDownloadsInterval time.Duration
 	DeleteFailedDownloadsInterval  time.Duration
-	MoveUnmatchedFilesEnabled      bool
 
 	// caches
 	CleanYoutubeChannelCacheInterval time.Duration
+	CleanMediaDownloadCacheInterval  time.Duration
 	CleanDownloadStateCacheInterval  time.Duration
+	CleanMediaWatchStatCacheInterval time.Duration
 	CleanSiteLogoCacheInterval       time.Duration
 	CleanThumbnailCacheInterval      time.Duration
 	CleanThumbnailFileCacheInterval  time.Duration
@@ -129,8 +135,18 @@ func Initialize(logger *slog.Logger, deps *Dependencies, ws *nworkers.Workers) {
 	))
 
 	ws.Add(nworkers.NewWorker(
+		cachejobs.NewCleanCacheJob(logger, deps.MediaDownloadCache),
+		nworkers.WithIntervalDefault(deps.CleanMediaDownloadCacheInterval, cleanMediaDownloadCacheIntervalDefault),
+	))
+
+	ws.Add(nworkers.NewWorker(
 		cachejobs.NewCleanCacheJob(logger, deps.DownloadStateCache),
 		nworkers.WithIntervalDefault(deps.CleanDownloadStateCacheInterval, cleanDownloadStateCacheIntervalDefault),
+	))
+
+	ws.Add(nworkers.NewWorker(
+		cachejobs.NewCleanCacheJob(logger, deps.MediaWatchStatCache),
+		nworkers.WithIntervalDefault(deps.CleanMediaWatchStatCacheInterval, cleanMediaWatchStatCacheIntervalDefault),
 	))
 
 	ws.Add(nworkers.NewWorker(

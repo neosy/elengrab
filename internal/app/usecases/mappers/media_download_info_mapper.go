@@ -19,6 +19,7 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 	progress *dservices.DownloaderProgress,
 	hasSiteIcon bool,
 	thumbnailIsPortrait bool,
+	viewCount uint32,
 ) *dto.GetMediaDownloadInfoResponse {
 	var mediaTitle = download.MediaTitle
 	if download.MediaTitle == "" {
@@ -54,6 +55,7 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 		MediaDescription: uptr.Deref(download.MediaDescription),
 
 		CreatedTimeAgo: humanize.TimeAgo(download.CreatedAt),
+		ViewCount:      viewCount,
 
 		HasSiteIcon:        hasSiteIcon,
 		ThumbnalIsPortrait: thumbnailIsPortrait,

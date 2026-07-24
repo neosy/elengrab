@@ -46,14 +46,20 @@ func newTask(ctx context.Context, job Job) *task {
 	}
 }
 
-// Len returns the number of items in the queue.
-func (q *jobQueue) Len() int {
+// len returns the number of items in the queue.
+//
+// This method is not thread-safe. The caller must hold the mutex
+// protecting the queue before calling Len.
+func (q *jobQueue) len() int {
 	return q.items.Len()
 }
 
-// Push adds a new item to the queue.
+// push adds a new item to the queue.
+//
+// This method is not thread-safe. The caller must hold the mutex
+// protecting the queue before calling Push.
 // If an item with the same ID already exists, it is not added and false is returned.
-func (q *jobQueue) Push(job Job) bool {
+func (q *jobQueue) push(job Job) bool {
 	id := job.ID()
 	if _, exists := q.index[id]; exists {
 		return false
@@ -64,9 +70,12 @@ func (q *jobQueue) Push(job Job) bool {
 	return true
 }
 
-// Pop removes and returns the first item in the queue.
+// pop removes and returns the first item in the queue.
+//
+// This method is not thread-safe. The caller must hold the mutex
+// protecting the queue before calling Pop.
 // If the queue is empty, it returns nil and false.
-func (q *jobQueue) Pop() (Job, bool) {
+func (q *jobQueue) pop() (Job, bool) {
 	el := q.items.Front()
 	if el == nil {
 		return nil, false
@@ -74,16 +83,19 @@ func (q *jobQueue) Pop() (Job, bool) {
 
 	job := el.Value.(Job)
 
-	if !q.Remove(job.ID()) {
+	if !q.remove(job.ID()) {
 		return nil, false
 	}
 
 	return job, true
 }
 
-// Remove removes an item from the queue by ID.
+// remove removes an item from the queue by ID.
+//
+// This method is not thread-safe. The caller must hold the mutex
+// protecting the queue before calling Remove.
 // If no such item exists, it returns false.
-func (q *jobQueue) Remove(id string) bool {
+func (q *jobQueue) remove(id string) bool {
 	el, exists := q.index[id]
 	if !exists {
 		return false

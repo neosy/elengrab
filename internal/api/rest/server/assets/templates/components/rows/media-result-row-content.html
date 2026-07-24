@@ -20,20 +20,25 @@
                                     {{- $linkTarget = "_blank" }}
                                 {{- end }}
                                 <a class="media-result__title-link" href="{{ $linkURL }}" target="{{ $linkTarget }}" title="{{ .Values.MediaTitle }}">{{ .Values.MediaTitle }}</a>
-                                <div class="media-result__title-meta">
+                                <div class="media-result__title-info">
                                     {{- if .Values.UserName }}
-                                    <span class="media-result__content-user" aria-label="Author">{{ .Values.UserName }}</span>
+                                    <div class="media-result__title-author">
+                                        <span class="media-result__content-user" title="Author" aria-label="Author" data-tooltip="Author">{{ .Values.UserName }}</span>
+                                    </div>
                                     {{- end }}
-                                    <!-- <span class="media-result__content-separator">{{ .Values.MetaUserNameSeparatorIcon }}</span> -->
-                                    <span class="media-result__content-time-ago" aria-label="Published">{{ .Values.ContentTimeAgo }}</span>
-                                    {{- if eq .Values.Visibility "public" }}
-                                    <span class="media-result__content-visibility visibility--public" title="Public" aria-label="Public">{{ .Values.PublicIcon }}</span>
-                                    {{- else if eq .Values.Visibility "private" }}
-                                    <span class="media-result__content-visibility visibility--private" title="Private" aria-label="Private">{{ .Values.PrivateIcon }}</span>
-                                    {{- end }}
-                                    {{- if .Values.ShareLinkIcon }}
-                                    <span class="media-result__content-share-link" title="Share link available" aria-label="Share link available">{{ .Values.ShareLinkIcon }}</span>
-                                    {{- end }}
+                                    <div class="media-result__title-meta">
+                                        <!-- <span class="media-result__content-separator">{{ .Values.MetaUserNameSeparatorIcon }}</span> -->
+                                        <span class="media-result__content-view-count" title="Views" aria-label="Views" data-tooltip="Views">{{ .Values.ContentViewCount }} views</span>
+                                        <span class="media-result__content-time-ago" title="Published" aria-label="Published" data-tooltip="Published">{{ .Values.ContentTimeAgo }}</span>
+                                        {{- if eq .Values.Visibility "public" }}
+                                        <span class="media-result__content-visibility visibility--public" title="Public" aria-label="Public" data-tooltip="Public">{{ .Values.PublicIcon }}</span>
+                                        {{- else if eq .Values.Visibility "private" }}
+                                        <span class="media-result__content-visibility visibility--private" title="Private" aria-label="Private" data-tooltip="Private">{{ .Values.PrivateIcon }}</span>
+                                        {{- end }}
+                                        {{- if .Values.ShareLinkIcon }}
+                                        <span class="media-result__content-share-link" title="Share link available" aria-label="Share link available" data-tooltip="Share link available">{{ .Values.ShareLinkIcon }}</span>
+                                        {{- end }}
+                                    </div>
                                 </div>
                             </span>
                         </div>

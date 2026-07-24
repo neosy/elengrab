@@ -1,4 +1,5 @@
 export const DOM_ELEMENTS = {
+    mainContentPlayer: null,
     player: null,
     video: null,
     videoWrapper: null,
@@ -22,6 +23,7 @@ export function initDomElements() {
     DOM_ELEMENTS.main = document.querySelector("main");
     DOM_ELEMENTS.backButton = document.getElementById("backButton");
 
+    DOM_ELEMENTS.mainContentPlayer = document.getElementById("mainContentPlayer");
     DOM_ELEMENTS.videoWrapper = document.getElementById("videoWrapper");
     DOM_ELEMENTS.video = document.getElementById("videoElement");
     DOM_ELEMENTS.mediaInfo = document.getElementById("mainContentMediaInfo")

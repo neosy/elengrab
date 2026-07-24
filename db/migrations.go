@@ -25,6 +25,9 @@ var migrationsMediaFS embed.FS
 //go:embed link/migrations/*
 var migrationsLinkFS embed.FS
 
+//go:embed watch_event/migrations/*
+var migrationsWatchEventFS embed.FS
+
 func migrationsMainRoot() (fs.FS, error) {
 	return fs.Sub(migrationsMainFS, "download/migrations")
 }
@@ -39,6 +42,10 @@ func migrationsMediaRoot() (fs.FS, error) {
 
 func migrationsLinkRoot() (fs.FS, error) {
 	return fs.Sub(migrationsLinkFS, "link/migrations")
+}
+
+func migrationsWatchEventRoot() (fs.FS, error) {
+	return fs.Sub(migrationsWatchEventFS, "watch_event/migrations")
 }
 
 type MigrationConfig struct {
@@ -80,6 +87,8 @@ func NewMigrations(logger *slog.Logger, dbEntry persistence.DBEntry, config *Mig
 		fs, _ = migrationsMediaRoot()
 	case sqliterep.LinkSchema.DBName():
 		fs, _ = migrationsLinkRoot()
+	case sqliterep.WatchEventSchema.DBName():
+		fs, _ = migrationsWatchEventRoot()
 	}
 
 	return &Migrations{

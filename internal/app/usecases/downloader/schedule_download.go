@@ -78,7 +78,7 @@ func (uc *Downloader) ScheduleDownload(
 		return nil, returnErr(err)
 	}
 
-	download, err := uc.download.GetByDownloadID(ctx, downloadID)
+	download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed find download", "error", err)
 		return nil, returnErr(err)
@@ -97,7 +97,7 @@ func (uc *Downloader) ScheduleDownload(
 		return nil, returnErr(err)
 	}
 
-	tmpDownload, _ := uc.download.GetByDownloadID(ctx, downloadID)
+	tmpDownload, _ := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 	if tmpDownload != nil {
 		download = tmpDownload
 	}
@@ -127,7 +127,7 @@ func (uc *Downloader) addDownloadToQueueDownload(ctx context.Context, downloadID
 			return err
 		}
 
-		download, err = uc.download.GetByDownloadID(ctx, downloadID)
+		download, err = uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 		if err != nil {
 			uc.dlStateCache.Delete(ctx, downloadID)
 			return err

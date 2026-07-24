@@ -3,6 +3,8 @@
 // Handles video/audio playback in modal overlay or bottom bar
 // -------------------------------------------------------------
 
+const WATCH_TRACKING_URL_TEMPLATE = "/downloader/items/{itemId}/watch-tracking";
+
 export function initPlayer() {
     const overlay           = document.getElementById("media-player-overlay");
     const videoWrapper      = document.getElementById("media-player__wrapper");
@@ -28,6 +30,8 @@ export function initPlayer() {
 
         const row = playBtn.closest(".media-result__row");
         if (!row) return;
+
+        const itemId = row.dataset.itemId;
 
         const mediaURL = row.dataset.media;
         if (!mediaURL) return;
@@ -93,6 +97,11 @@ export function initPlayer() {
             overlay.style.display = "flex";
             document.body.style.overflow = "hidden";
         }
+
+        if (itemId) {
+            const watchTracker = new MediaWatchTracker(element, itemId);
+            watchTracker.init();        
+        }
     });
 
     // Handle middle-click on play button to open in new tab (for videos only)
@@ -152,5 +161,99 @@ export function initPlayer() {
         overlay.style.display = "none";
         document.body.style.overflow = "";
         document.body.classList.remove("audio-playing");
+    }
+}
+
+export class MediaWatchTracker {
+    constructor(video, itemId) {
+        this.video = video;
+        this.itemId = itemId;
+
+        this.heartbeatInterval = 5000;
+        this.heartbeatTimer = null;
+        this.lastSentAt = null;
+    }
+
+    getWatchEventUrl() {
+        return WATCH_TRACKING_URL_TEMPLATE.replace(
+            "{itemId}",
+            this.itemId
+        );
+    }
+
+    async sendWatchEvent() {
+        if (!this.video || this.lastSentAt === null) {
+            return;
+        }
+
+        const now = Date.now();
+        const intervalMs = now - this.lastSentAt;
+
+        // Ignore empty or invalid intervals.
+        if (intervalMs <= 0) {
+            return;
+        }
+
+        const event = {
+            positionMs: Math.floor(this.video.currentTime * 1000),
+            intervalMs,
+        };
+
+        try {
+            await fetch(this.getWatchEventUrl(), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(event),
+            });
+
+            this.lastSentAt = now;
+        } catch (err) {
+            console.error("Failed to send media watch event", err);
+        }
+    }
+
+    startHeartbeat() {
+        if (this.heartbeatTimer !== null) {
+            return;
+        }
+
+        // Start measuring playback time.
+        this.lastSentAt = Date.now();
+
+        this.heartbeatTimer = setInterval(() => {
+            if (!this.video.paused && !this.video.ended) {
+                this.sendWatchEvent();
+            }
+        }, this.heartbeatInterval);
+    }
+
+    async stopHeartbeat() {
+        if (this.heartbeatTimer === null) {
+            return;
+        }
+
+        clearInterval(this.heartbeatTimer);
+        this.heartbeatTimer = null;
+
+        // Send the remaining playback time.
+        await this.sendWatchEvent();
+
+        this.lastSentAt = null;
+    }
+
+    init() {
+        this.video.addEventListener("play", () => {
+            this.startHeartbeat();
+        });
+
+        this.video.addEventListener("pause", () => {
+            this.stopHeartbeat();
+        });
+
+        this.video.addEventListener("ended", () => {
+            this.stopHeartbeat();
+        });
     }
 }

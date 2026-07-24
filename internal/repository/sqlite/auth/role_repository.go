@@ -299,3 +299,7 @@ func (r *RoleRepository) WithoutGuest() persistence.RoleRepository {
 func (r *RoleRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
 	return dbexec.Tx(ctx, r.db, r.lock, fn)
 }
+
+func (r *RoleRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
+	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+}

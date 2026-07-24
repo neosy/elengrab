@@ -58,7 +58,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 				"Failed to download: The context was canceled",
 				"error", err,
 			)
-			download, e := uc.download.FindByDownloadID(uc.appCtx, task.DownloadID)
+			download, e := uc.download.FindByDownloadIDNoCache(uc.appCtx, task.DownloadID)
 			if e == nil && download != nil {
 				uc.downloadStatus.Failed(uc.appCtx, task.DownloadID, nil, uptr.String(err.Error()))
 			}
@@ -108,7 +108,7 @@ func (uc *Downloader) ExecuteDownloadTask(
 		if r.Error != nil {
 			// The context was canceled
 			if ctx.Err() != nil {
-				download, e := uc.download.FindByDownloadID(uc.appCtx, task.DownloadID)
+				download, e := uc.download.FindByDownloadIDNoCache(uc.appCtx, task.DownloadID)
 				if e == nil && download != nil {
 					uc.downloadStatus.Failed(uc.appCtx, task.DownloadID, nil, new(r.Error.Error()))
 				}

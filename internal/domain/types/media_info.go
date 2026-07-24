@@ -14,8 +14,8 @@ type MediaInfo struct {
 	Format     FileFormat `json:"format"`
 	FormatType FormatType `json:"formatType"`
 
-	Duration   string `json:"duration,omitempty"`
-	DurationMs int64  `json:"durationMs,omitempty"`
+	DurationText string `json:"duration,omitempty"`
+	DurationMs   int64  `json:"durationMs,omitempty"`
 
 	Bitrate int `json:"bitrate,omitempty"`
 
@@ -40,7 +40,7 @@ func (info *MediaInfo) SetDuration(duration time.Duration) {
 		return
 	}
 
-	info.Duration = strconv.FormatFloat(duration.Seconds(), 'f', 6, 64)
+	info.DurationText = strconv.FormatFloat(duration.Seconds(), 'f', 6, 64)
 	info.DurationMs = int64(duration.Milliseconds())
 }
 
