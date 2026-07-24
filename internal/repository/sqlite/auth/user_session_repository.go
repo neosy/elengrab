@@ -177,3 +177,7 @@ func (r *UserSessionRepository) FindByToken(ctx context.Context, token string) (
 func (r *UserSessionRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
 	return dbexec.Tx(ctx, r.db, r.lock, fn)
 }
+
+func (r *UserSessionRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
+	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+}

@@ -110,7 +110,7 @@ func (wp *baseWorkerPool) AddJob(job Job) bool {
 	wp.mu.Lock()
 	defer wp.mu.Unlock()
 
-	if !wp.jobQueue.Push(job) {
+	if !wp.jobQueue.push(job) {
 		return false
 	}
 
@@ -127,7 +127,7 @@ func (wp *baseWorkerPool) CancelJob(jobID string) bool {
 	wp.mu.Lock()
 	defer wp.mu.Unlock()
 
-	if wp.jobQueue.Remove(jobID) {
+	if wp.jobQueue.remove(jobID) {
 		wp.cond.Signal()
 		return true
 	}

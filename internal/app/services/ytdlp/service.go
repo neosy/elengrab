@@ -53,7 +53,7 @@ func NewYtDlpService(
 			logger.Info("AllowCookies has been disabled")
 		}
 	} else {
-		logger.Debug("Deno executable found in PATH", "executable", consts.DenoName)
+		logger.Info("Deno executable found in PATH", "executable", consts.DenoName)
 	}
 
 	if options.AllowCookies && options.CookiesDir == "" {

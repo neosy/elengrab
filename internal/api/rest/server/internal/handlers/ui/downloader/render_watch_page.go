@@ -20,6 +20,7 @@ import (
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
@@ -233,6 +234,7 @@ func (h *DownloaderHandlers) renderWatchPage(
 			StreamURL:   req.streamURLPath,
 		},
 		Values: pages.WatchPageValues{
+			ItemID:             idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
 			ShowBackButton:     req.showBackButton,
 			IsVideoPlayer:      isVideoPlayer,
 			MediaTitle:         downloadInfo.MediaTitle,

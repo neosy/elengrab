@@ -103,7 +103,7 @@ func (wp *workerPool) Start(ctx context.Context) error {
 			wp.mu.Lock()
 
 			// Wait until there is at least one job AND a free worker slot
-			for wp.jobQueue.Len() == 0 || len(wp.semaphore) == cap(wp.semaphore) {
+			for wp.jobQueue.len() == 0 || len(wp.semaphore) == cap(wp.semaphore) {
 				select {
 				// Stop loop if quit signal is received during wait
 				case <-wp.quit:
@@ -116,7 +116,7 @@ func (wp *workerPool) Start(ctx context.Context) error {
 			}
 
 			// Extract next job from queue
-			job, _ := wp.jobQueue.Pop()
+			job, _ := wp.jobQueue.pop()
 			task := newTask(ctx, job)
 			wp.runningTasks[job.ID()] = task
 

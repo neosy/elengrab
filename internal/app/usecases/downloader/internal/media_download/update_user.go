@@ -12,5 +12,6 @@ func (uc *MediaDownload) UpdateUser(ctx context.Context, fromID, toID uuid.UUID)
 		uc.logger.Warn("Update owner error", "fromID", fromID, "toID", toID, "error", err)
 		return err
 	}
+
 	return nil
 }

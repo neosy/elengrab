@@ -38,7 +38,7 @@ func (t *Thumbnail) Delete(ctx context.Context, thumbID uuid.UUID) error {
 		return nil
 	}
 
-	err = t.repo.Tx(ctx, delete)
+	err = t.repo.TxIndependent(ctx, delete)
 	if err != nil {
 		return err
 	}
@@ -55,6 +55,17 @@ func (t *Thumbnail) Delete(ctx context.Context, thumbID uuid.UUID) error {
 		"variant", thumbnail.Variant,
 		"format", thumbnail.Format.String(),
 	)
+
+	return nil
+}
+
+func (t *Thumbnail) DeleteBatch(ctx context.Context, thumbIDs []uuid.UUID) error {
+	for _, thumbID := range thumbIDs {
+		err := t.Delete(ctx, thumbID)
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

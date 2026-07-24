@@ -507,3 +507,7 @@ func (r *UserRepository) WithoutGuest() persistence.UserRepository {
 func (r *UserRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
 	return dbexec.Tx(ctx, r.db, r.lock, fn)
 }
+
+func (r *UserRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
+	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+}

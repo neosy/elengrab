@@ -14,7 +14,7 @@ func (uc *MediaDownload) Patch(
 	downloadID uuid.UUID,
 	mutate func(*ddownload.MediaDownload) bool,
 ) error {
-	download, err := uc.GetByDownloadID(ctx, downloadID)
+	download, err := uc.GetByDownloadIDNoCache(ctx, downloadID)
 	if err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func (uc *MediaDownload) PatchMediaInfo(
 	userID *uuid.UUID, downloadID uuid.UUID,
 	mutate func(mediaInfo *dtypes.MediaInfo),
 ) error {
-	download, err := uc.GetByDownloadID(ctx, downloadID)
+	download, err := uc.GetByDownloadIDNoCache(ctx, downloadID)
 	if err != nil {
 		return err
 	}
@@ -47,6 +47,8 @@ func (uc *MediaDownload) PatchMediaInfo(
 	if err != nil {
 		return err
 	}
+
+	uc.downloadCacheRep.Delete(download.DownloadID)
 
 	return nil
 }

@@ -99,7 +99,6 @@ func (uc *Downloader) deleteMissingDownloads(ctx context.Context) error {
 				uc.logger.Warn("Failed to hard delete", "downloadID", download.DownloadID, "error", err)
 				continue
 			}
-			uc.deleteThumbnails(ctx, download)
 			uc.logger.Debug("Hard deleting media download from database", "downloadID", download.DownloadID, "fileName", download.FileFullName)
 			continue
 		}

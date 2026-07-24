@@ -25,6 +25,8 @@ type (
 	}
 
 	WatchPageValues struct {
+		ItemID string
+
 		IsVideoPlayer bool
 
 		ShowBackButton bool

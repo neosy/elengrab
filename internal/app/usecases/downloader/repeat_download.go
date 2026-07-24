@@ -20,7 +20,7 @@ func (uc *Downloader) RetryDownload(
 	}
 
 	resetStatusToNew := func(ctx context.Context) error {
-		download, err := uc.download.GetByDownloadID(ctx, downloadID)
+		download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 		if err != nil {
 			return err
 		}
@@ -43,7 +43,7 @@ func (uc *Downloader) RetryDownload(
 		return nil, err
 	}
 
-	download, err := uc.download.GetByDownloadID(ctx, downloadID)
+	download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (uc *Downloader) RetryDownload(
 		return nil, err
 	}
 
-	download, err = uc.download.GetByDownloadID(ctx, downloadID)
+	download, err = uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 	if err != nil {
 		return nil, err
 	}

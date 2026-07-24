@@ -30,7 +30,6 @@ func (uc *Downloader) DeleteFailedDownloads(ctx context.Context) error {
 				uc.logger.Warn("Failed to hard delete download", "downloadID", download.DownloadID, "error", err)
 				continue
 			}
-			uc.deleteThumbnails(ctx, download)
 			uc.logger.Debug("Hard deleted download download", "downloadID", download.DownloadID)
 			uc.broadcastDownloadDelete(ctx, download)
 		}

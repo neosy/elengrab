@@ -37,7 +37,7 @@ func (uc *Downloader) ExecuteRefreshMetadataTask(
 		)
 	}
 
-	media, err := uc.download.GetByDownloadID(ctx, task.DownloadID)
+	media, err := uc.download.GetByDownloadIDNoCache(ctx, task.DownloadID)
 	if err != nil {
 		fail()
 		return err
@@ -112,7 +112,7 @@ func (uc *Downloader) ExecuteRefreshMetadataTask(
 			metadataPatch.mediaInfo.FormatType = fileMediaInfo.FormatType
 		}
 
-		if metadataPatch.mediaInfo.Duration != fileMediaInfo.DurationSecondsString() && fileMediaInfo.Duration > 0 {
+		if metadataPatch.mediaInfo.DurationText != fileMediaInfo.DurationSecondsString() && fileMediaInfo.Duration > 0 {
 			needPatch = true
 			metadataPatch.mediaInfo.SetDuration(fileMediaInfo.Duration)
 		}

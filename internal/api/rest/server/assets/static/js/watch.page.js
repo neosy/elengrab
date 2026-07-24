@@ -1,6 +1,7 @@
 import { DOM_ELEMENTS, initDomElements } from "./watch.dom.js";
 import * as browser from './browser.js';
 import * as actionButton from './action-buttons.js';
+import * as player from './player.js';
 import * as notify from './notifications.js';
 
 const isPWA =
@@ -78,7 +79,14 @@ function initPlayer() {
         DOM_ELEMENTS.player.play().catch(err => {
             console.warn('Autorun failed', err);
         });
-    });    
+    });
+
+    const itemId = DOM_ELEMENTS.mainContentPlayer?.dataset.itemId;
+
+    if (itemId) {
+        const watchTracker = new player.MediaWatchTracker(DOM_ELEMENTS.player, itemId);
+        watchTracker.init();        
+    }
 }
 
 // Adjust video size to fit within max dimensions while maintaining aspect ratio

@@ -18,3 +18,14 @@ func (r *ThumbnailRepository) Delete(ctx context.Context, thumbID uuid.UUID) err
 
 	return nil
 }
+
+func (r *ThumbnailRepository) DeleteBatch(ctx context.Context, thumbIDs []uuid.UUID) error {
+	for _, thumbID := range thumbIDs {
+		err := r.Delete(ctx, thumbID)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

@@ -8,7 +8,9 @@ import (
 
 // Repositories groups all database repositories.
 type Repositories struct {
+	MediaDownload  persistence.MediaDownloadCacheRepository
 	DownloadState  persistence.DownloadStateCacheRepository
+	MediaWatchStat persistence.MediaWatchStatCacheRepository
 	YoutubeChannel persistence.YoutubeChannelCacheRepository
 	SiteLogo       persistence.SiteLogoCacheRepository
 	Thumbnail      persistence.ThumbnailCacheRepository
@@ -17,7 +19,9 @@ type Repositories struct {
 }
 
 type Dependencies struct {
+	MediaDownloadCacheTTL  time.Duration
 	DownloadStateCacheTTL  time.Duration
+	MediaWatchStatCacheTTL time.Duration
 	YoutubeChannelCacheTTL time.Duration
 	SiteLogoCacheTTL       time.Duration
 	ThumbnailCacheTTL      time.Duration
@@ -28,7 +32,9 @@ type Dependencies struct {
 // New returns a new Repositories struct.
 func New(deps Dependencies) *Repositories {
 	return &Repositories{
+		MediaDownload:  newMediaDownloadRepository(deps.MediaDownloadCacheTTL),
 		DownloadState:  newDownloadStateRepository(deps.DownloadStateCacheTTL),
+		MediaWatchStat: newMediaWatchStatRepository(deps.MediaWatchStatCacheTTL),
 		YoutubeChannel: newYoutubeChannelRepository(deps.YoutubeChannelCacheTTL),
 		SiteLogo:       newSiteLogoRepository(deps.SiteLogoCacheTTL),
 		Thumbnail:      newThumbnailRepository(deps.ThumbnailCacheTTL),

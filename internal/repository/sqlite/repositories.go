@@ -10,6 +10,7 @@ import (
 	"github.com/neosy/elengrab/internal/repository/sqlite/link"
 	"github.com/neosy/elengrab/internal/repository/sqlite/media"
 	sqlitetypes "github.com/neosy/elengrab/internal/repository/sqlite/types"
+	watchevent "github.com/neosy/elengrab/internal/repository/sqlite/watch_event"
 )
 
 // Repositories groups all database repositories.
@@ -24,6 +25,10 @@ type Repositories struct {
 	MediaDownload         persistence.MediaDownloadRepository
 	DownloadTask          persistence.DownloadTaskRepository
 	DownloadDataMigration persistence.DownloadDataMigrationRepository
+
+	MediaWatchEvent persistence.MediaWatchEventRepository
+	MediaWatchChunk persistence.MediaWatchChunkRepository
+	MediaWatchStat  persistence.MediaWatchStatRepository
 
 	YoutubeChannel persistence.YoutubeChannelRepository
 	SiteLogo       persistence.SiteLogoRepository
@@ -66,6 +71,11 @@ func New(dbEntries []persistence.DBEntry) *Repositories {
 		locker: dbexec.NewSQLiteLock(),
 	}
 
+	eWatchEvent := dbEntry{
+		db:     entriesByName[WatchEventSchema.DBName()].DB(),
+		locker: dbexec.NewSQLiteLock(),
+	}
+
 	return &Repositories{
 		dbRegistry: sqlitetypes.NewRegistry(entriesByName),
 
@@ -77,6 +87,10 @@ func New(dbEntries []persistence.DBEntry) *Repositories {
 		MediaDownload:         download.NewMediaDownloadRepository(eMain.db, eMain.locker),
 		DownloadTask:          download.NewDownloadTaskRepository(eMain.db, eMain.locker),
 		DownloadDataMigration: download.NewDataMigrationRepository(eMain.db, eMain.locker),
+
+		MediaWatchEvent: watchevent.NewMediaWatchEventRepository(eWatchEvent.db, eWatchEvent.locker),
+		MediaWatchChunk: watchevent.NewMediaWatchChunkRepository(eWatchEvent.db, eWatchEvent.locker),
+		MediaWatchStat:  watchevent.NewMediaWatchStatRepository(eWatchEvent.db, eWatchEvent.locker),
 
 		YoutubeChannel: media.NewYoutubeChannelRepository(eMedia.db, eMedia.locker),
 		SiteLogo:       media.NewSiteLogoRepository(eMedia.db, eMedia.locker),

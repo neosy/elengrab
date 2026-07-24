@@ -351,3 +351,7 @@ func (r *ThumbnailRepository) GetByMediaID(
 func (r *ThumbnailRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
 	return dbexec.Tx(ctx, r.db, r.lock, fn)
 }
+
+func (r *ThumbnailRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
+	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+}

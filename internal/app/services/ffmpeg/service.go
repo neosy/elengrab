@@ -34,14 +34,14 @@ func NewFFmpegService(
 	if err != nil {
 		return nil, err
 	} else {
-		logger.Debug("FFmpeg executable found in PATH", "executable", ffmpegName)
+		logger.Info("FFmpeg executable found in PATH", "executable", ffmpegName)
 	}
 
 	err = utils.CheckFFprobe(ffprobeName)
 	if err != nil {
 		return nil, err
 	} else {
-		logger.Debug("FFprobe executable found in PATH", "executable", ffprobeName)
+		logger.Info("FFprobe executable found in PATH", "executable", ffprobeName)
 	}
 
 	return &FFmpegService{
