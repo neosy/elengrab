@@ -127,7 +127,8 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		MediaTitle: params.downloadInfo.MediaTitle,
 		MediaURL:   params.downloadInfo.MediaURL,
 
-		ContentTimeAgo: params.downloadInfo.CreatedTimeAgo,
+		ContentTimeAgo:   params.downloadInfo.CreatedTimeAgo,
+		ContentViewCount: humanize.CompactNumber(params.downloadInfo.ViewCount),
 
 		ImageURL:       downloadItemImageURL,
 		ImageAvatarURL: downloadItemImageAvatarURL,
@@ -148,6 +149,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		StreamURL:   streamURL,
 		DeleteURL:   httppaths.BuildMediaItemPath(params.downloadInfo.DownloadID),
 
+		ItemID:     idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID),
 		RowID:      "row-" + idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID),
 		ProgressID: "progress-" + idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID),
 

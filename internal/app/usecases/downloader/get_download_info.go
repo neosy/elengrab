@@ -90,7 +90,7 @@ func (uc *Downloader) findActualDownloadInfo(
 
 	if download == nil {
 		var err error
-		download, err = uc.download.FindByDownloadID(ctx, downloadID)
+		download, err = uc.download.FindByDownloadIDNoCache(ctx, downloadID)
 		if err != nil {
 			return nil, err
 		}
@@ -153,7 +153,12 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 		isPortrait = thumbnail.IsPortrait()
 	}
 
-	return uc.mappers.MapDownloadDomainToDownloadInfoResponse(download, login, avatarTitle, dlProgress, hasSiteIcon, isPortrait), nil
+	viewCount, _ := uc.mediaWatch.GetViews(ctx, download.DownloadID)
+
+	return uc.mappers.MapDownloadDomainToDownloadInfoResponse(
+		download, login, avatarTitle, dlProgress, hasSiteIcon, isPortrait,
+		viewCount,
+	), nil
 }
 
 func (uc *Downloader) getDownloadsInfo(
@@ -184,7 +189,7 @@ func (uc *Downloader) getDownloadsInfo(
 }
 
 func (uc *Downloader) GetDownloadFilePath(ctx context.Context, downloadID uuid.UUID) (string, error) {
-	download, err := uc.download.GetByDownloadID(ctx, downloadID)
+	download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed find download", "error", err)
 		return "", err
@@ -205,7 +210,7 @@ func (uc *Downloader) GetDownloadFileName(
 	authCtx dauth.UserContext,
 	downloadID uuid.UUID,
 ) (string, error) {
-	download, err := uc.download.GetByDownloadID(ctx, downloadID)
+	download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed find download", "error", err)
 		return "", err

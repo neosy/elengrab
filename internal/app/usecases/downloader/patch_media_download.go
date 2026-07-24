@@ -25,7 +25,7 @@ func (uc *Downloader) PatchMediaDownload(
 		return err
 	}
 
-	download, err := uc.download.GetByDownloadID(ctx, req.DownloadID)
+	download, err := uc.download.GetByDownloadIDNoCache(ctx, req.DownloadID)
 	if err != nil {
 		return err
 	}

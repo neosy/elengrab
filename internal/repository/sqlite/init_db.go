@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
+	"path/filepath"
 
 	_ "modernc.org/sqlite"
 )
@@ -77,7 +78,10 @@ func InitDB(logger *slog.Logger, dbPath string) (*sql.DB, error) {
 	if err := row.Scan(&mode); err != nil {
 		logger.Warn("failed to read journal_mode:", "error", err)
 	}
-	logger.Debug(fmt.Sprintf("SQLite initialized: PRAGMA journal_mode=%s", mode))
+	logger.Debug(
+		fmt.Sprintf("SQLite initialized: PRAGMA journal_mode=%s", mode),
+		"Database file", filepath.Base(dbPath),
+	)
 
 	// Verify foreign_keys
 	row = db.QueryRow("PRAGMA foreign_keys;")

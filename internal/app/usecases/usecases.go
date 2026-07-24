@@ -26,8 +26,9 @@ type Dependencies struct {
 	Services     *services.Services
 
 	// dispetchers
-	DownloadDispetcher  nworkerpool.JobDispatcher
-	OperationDispatcher nworkerpool.JobDispatcher
+	DownloadDispetcher   nworkerpool.JobDispatcher
+	OperationDispatcher  nworkerpool.JobDispatcher
+	WatchEventDispatcher nworkerpool.JobDispatcher
 
 	// Options
 	AppName  string
@@ -68,6 +69,10 @@ type DepRepositories struct {
 	DownloadTask          persistence.DownloadTaskRepository
 	DownloadDataMigration persistence.DownloadDataMigrationRepository
 
+	MediaWatchEvent persistence.MediaWatchEventRepository
+	MediaWatchChunk persistence.MediaWatchChunkRepository
+	MediaWatchStat  persistence.MediaWatchStatRepository
+
 	YoutubeChannel persistence.YoutubeChannelRepository
 	SiteLogo       persistence.SiteLogoRepository
 	Thumbnail      persistence.ThumbnailRepository
@@ -76,7 +81,9 @@ type DepRepositories struct {
 	LinkClick persistence.LinkClickRepository
 
 	// in memory
+	MediaDownloadCache  persistence.MediaDownloadCacheRepository
 	DownloadStateCache  persistence.DownloadStateCacheRepository
+	MediaWatchStatCache persistence.MediaWatchStatCacheRepository
 	YoutubeChannelCache persistence.YoutubeChannelCacheRepository
 	SiteLogoCache       persistence.SiteLogoCacheRepository
 	ThumbnailCache      persistence.ThumbnailCacheRepository
@@ -142,12 +149,16 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.Repositories.MediaDownload,
 			deps.Repositories.DownloadTask,
 			deps.Repositories.DownloadDataMigration,
+			deps.Repositories.MediaWatchEvent,
+			deps.Repositories.MediaWatchChunk,
+			deps.Repositories.MediaWatchStat,
 			deps.Repositories.YoutubeChannel,
 			deps.Repositories.SiteLogo,
-			deps.Repositories.Thumbnail,
 
 			// in memory
+			deps.Repositories.MediaDownloadCache,
 			deps.Repositories.DownloadStateCache,
+			deps.Repositories.MediaWatchStatCache,
 			deps.Repositories.YoutubeChannelCache,
 			deps.Repositories.SiteLogoCache,
 
@@ -157,6 +168,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			// dispetchers
 			deps.DownloadDispetcher,
 			deps.OperationDispatcher,
+			deps.WatchEventDispatcher,
 
 			// usecases
 			thumbnail,

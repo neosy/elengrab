@@ -45,7 +45,7 @@ func (uc *Downloader) ScheduleRefreshMetadata(
 		return err
 	}
 
-	download, err := uc.download.GetByDownloadID(ctx, downloadID)
+	download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 	if err != nil {
 		return err
 	}

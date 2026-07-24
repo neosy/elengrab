@@ -1,11 +1,12 @@
 # Releases
 
-## v0.23.0 — 2026-07-25
+## v0.23.0 — 2026-07-30
 
 ### ✨ Features
 - Display a share link icon for media items with an existing share link. [L059]
 - Added Delete Short Link menu item. [L062]
 - Added share link to media info. [L063]
+- Added media watch event tracking. [L068]
 
 ### 🎨 Style
 - Hide the Delete button in grid-view mode. [L057]

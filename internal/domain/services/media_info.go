@@ -35,7 +35,7 @@ func NewMediaInfoFromDomain(dMediaInfo *dtypes.MediaInfo) *MediaInfo {
 		return nil
 	}
 
-	duration, _ := strconv.ParseFloat(dMediaInfo.Duration, 64)
+	duration, _ := strconv.ParseFloat(dMediaInfo.DurationText, 64)
 
 	return &MediaInfo{
 		FormatType: dMediaInfo.FormatType,
@@ -49,17 +49,17 @@ func NewMediaInfoFromDomain(dMediaInfo *dtypes.MediaInfo) *MediaInfo {
 }
 
 func (m MediaInfo) MediaInfoDomain() dtypes.MediaInfo {
-	var duration string
+	var durationText string
 	if m.Duration > 0 {
-		duration = strconv.FormatFloat(m.Duration.Seconds(), 'f', 6, 64)
+		durationText = strconv.FormatFloat(m.Duration.Seconds(), 'f', 6, 64)
 	}
 
 	return dtypes.MediaInfo{
 		FormatType: m.FormatType,
 		Format:     m.Format,
 
-		Duration:   duration,
-		DurationMs: m.Duration.Milliseconds(),
+		DurationText: durationText,
+		DurationMs:   m.Duration.Milliseconds(),
 
 		VideoInfo: uptr.Copy(m.VideoInfo),
 		AudioInfo: uptr.Copy(m.AudioInfo),

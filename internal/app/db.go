@@ -31,6 +31,7 @@ func applyMigrations(
 	mainEntry persistence.DBEntry,
 	mediaEntry persistence.DBEntry,
 	linkEntry persistence.DBEntry,
+	watchEventEntry persistence.DBEntry,
 ) error {
 	sqliteDir := absPath(cfg.Elengrab.RootDir, cfg.SQLite.DataDir)
 
@@ -63,6 +64,12 @@ func applyMigrations(
 	migration = database.NewMigrations(logger, linkEntry, nil)
 	if err := migration.ApplyMigrations(); err != nil {
 		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", linkEntry.DBName()), "error", err)
+		return err
+	}
+
+	migration = database.NewMigrations(logger, watchEventEntry, nil)
+	if err := migration.ApplyMigrations(); err != nil {
+		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", watchEventEntry.DBName()), "error", err)
 		return err
 	}
 

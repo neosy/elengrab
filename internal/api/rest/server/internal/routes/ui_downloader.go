@@ -66,6 +66,8 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 
 			g.HEAD(httppaths.PathMediaItemShortLink, handlers.GetMediaShareLinkHandler)
 			g.GET(httppaths.PathMediaItemShortLink, handlers.GetMediaShareLinkHandler)
+
+			g.POST(httppaths.PathMediaItemReWatchTracking, handlers.MediaItemWatchTrackingHandler)
 		}
 
 		// With middleware (error, auth or guest)

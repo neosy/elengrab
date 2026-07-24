@@ -28,6 +28,7 @@ type GetMediaDownloadInfoResponse struct {
 	MediaDescription string
 
 	CreatedTimeAgo string
+	ViewCount      uint32
 
 	HasSiteIcon          bool
 	FileName             string

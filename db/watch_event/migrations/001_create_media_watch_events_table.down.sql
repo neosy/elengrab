@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS media_watch_events;

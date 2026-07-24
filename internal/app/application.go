@@ -31,9 +31,13 @@ import (
 
 const (
 	// TTL for download state cache
-	downloadStateCacheTTL = 20 * time.Minute
+	mediaDownloadCacheTTL = 5 * time.Minute
+	// TTL for download state cache
+	downloadStateCacheTTL = 10 * time.Minute
+	// TTL for watch stat cache
+	mediaWatchStatCacheTTL = 30 * time.Minute
 	// TTL for channel information cache
-	youtubeChannelCacheTTL = 1 * 6 * time.Hour
+	youtubeChannelCacheTTL = 6 * time.Hour
 	// TTL for site logo information cache
 	siteLogoCacheTTL = 1 * 24 * time.Hour
 	// TTL for thumbnail information cache
@@ -49,12 +53,14 @@ const (
 	channelUpdateInterval = 30 * 24 * time.Hour
 
 	// Cache cleanup intervals
-	cleanYoutubeChannelCacheInterval = 5 * time.Minute
+	cleanMediaDownloadCacheInterval  = 30 * time.Minute
 	cleanDownloadStateCacheInterval  = 30 * time.Minute
-	cleanSiteLogoCacheInterval       = 2 * time.Hour
-	cleanThumbnailCacheInterval      = 2 * time.Hour
-	cleanThumbnailFileCacheInterval  = 30 * time.Minute
-	cleanAssetFileCacheInterval      = 30 * time.Minute
+	cleanMediaWatchStatCacheInterval = 1 * time.Hour
+	cleanYoutubeChannelCacheInterval = 5 * time.Hour
+	cleanSiteLogoCacheInterval       = 23 * time.Hour
+	cleanThumbnailCacheInterval      = 23 * time.Hour
+	cleanThumbnailFileCacheInterval  = 1 * time.Hour
+	cleanAssetFileCacheInterval      = 1 * time.Hour
 
 	// Intervals for updating metrics
 	updateSystemInfoInterval = 15 * time.Minute
@@ -71,6 +77,9 @@ const (
 	// Directory for storing
 	thumbnailsDir = "thumbnails"
 	mediaDir      = "media"
+
+	// Number of workers processing media watch events asynchronously.
+	watchEventWorkers = 1
 )
 
 type Application struct {
@@ -89,14 +98,17 @@ type Application struct {
 	Usecases *usecases.Usecases
 	Services *services.Services
 
-	DownloadWorkerPool  nworkerpool.WorkerPool
-	OperationWorkerPool nworkerpool.WorkerPool
-	Workers             *nworkers.Workers
+	DownloadWorkerPool   nworkerpool.WorkerPool
+	OperationWorkerPool  nworkerpool.WorkerPool
+	WatchEventWorkerPool nworkerpool.WorkerPool
 
-	dbAuth  *sql.DB
-	dbMain  *sql.DB
-	dbMedia *sql.DB
-	dbLink  *sql.DB
+	Workers *nworkers.Workers
+
+	dbAuth       *sql.DB
+	dbMain       *sql.DB
+	dbMedia      *sql.DB
+	dbLink       *sql.DB
+	dbWatchEvent *sql.DB
 }
 
 func NewApplication(logger *slog.Logger, cfg *iconfig.Config) (*Application, error) {
@@ -160,6 +172,7 @@ func (a *Application) initialize() error {
 	// Initialize workers pool
 	a.DownloadWorkerPool = a.newDownloadWorkerPool()
 	a.OperationWorkerPool = a.newOperationWorkerPool()
+	a.WatchEventWorkerPool = a.newWatchEventWorkerPool()
 
 	// Initialize usecases
 	ucDeps := &usecases.Dependencies{
@@ -169,6 +182,10 @@ func (a *Application) initialize() error {
 			MediaDownload:         slRepositories.MediaDownload,
 			DownloadTask:          slRepositories.DownloadTask,
 			DownloadDataMigration: slRepositories.DownloadDataMigration,
+
+			MediaWatchEvent: slRepositories.MediaWatchEvent,
+			MediaWatchChunk: slRepositories.MediaWatchChunk,
+			MediaWatchStat:  slRepositories.MediaWatchStat,
 
 			YoutubeChannel: slRepositories.YoutubeChannel,
 			SiteLogo:       slRepositories.SiteLogo,
@@ -183,7 +200,9 @@ func (a *Application) initialize() error {
 			LinkClick: slRepositories.LickClick,
 
 			// in memory
+			MediaDownloadCache:  inMemoryRepositories.MediaDownload,
 			DownloadStateCache:  inMemoryRepositories.DownloadState,
+			MediaWatchStatCache: inMemoryRepositories.MediaWatchStat,
 			YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
 			SiteLogoCache:       inMemoryRepositories.SiteLogo,
 			ThumbnailCache:      inMemoryRepositories.Thumbnail,
@@ -195,9 +214,10 @@ func (a *Application) initialize() error {
 			Downloads:  storages.Download,
 		},
 
-		DownloadDispetcher:  a.DownloadWorkerPool,
-		OperationDispatcher: a.OperationWorkerPool,
-		Services:            services,
+		DownloadDispetcher:   a.DownloadWorkerPool,
+		OperationDispatcher:  a.OperationWorkerPool,
+		WatchEventDispatcher: a.WatchEventWorkerPool,
+		Services:             services,
 
 		// Options
 		AppName:  iconfig.AppName,
@@ -226,9 +246,14 @@ func (a *Application) initialize() error {
 	}
 	a.Usecases = usecases.NewUsecases(a.ctx, a.logger, ucDeps)
 
+	// Start background use case workers.
+	a.Usecases.Start(a.ctx)
+
 	// Workers
 	wsDeps := &workers.Dependencies{
+		MediaDownloadCache:  inMemoryRepositories.MediaDownload,
 		DownloadStateCache:  inMemoryRepositories.DownloadState,
+		MediaWatchStatCache: inMemoryRepositories.MediaWatchStat,
 		YoutubeChannelCache: inMemoryRepositories.YoutubeChannel,
 		SiteLogoCache:       inMemoryRepositories.SiteLogo,
 		ThumbnailCache:      inMemoryRepositories.Thumbnail,
@@ -251,8 +276,10 @@ func (a *Application) initialize() error {
 		DeleteFailedDownloadsInterval:  a.cfg.Elengrab.Maintenance.DeleteFailedDownloadsInterval,
 		MoveUnmatchedFilesEnabled:      a.cfg.Elengrab.Maintenance.MoveUnmatchedFilesEnabled,
 
-		CleanYoutubeChannelCacheInterval: cleanYoutubeChannelCacheInterval,
+		CleanMediaDownloadCacheInterval:  cleanMediaDownloadCacheInterval,
 		CleanDownloadStateCacheInterval:  cleanDownloadStateCacheInterval,
+		CleanMediaWatchStatCacheInterval: cleanMediaWatchStatCacheInterval,
+		CleanYoutubeChannelCacheInterval: cleanYoutubeChannelCacheInterval,
 		CleanSiteLogoCacheInterval:       cleanSiteLogoCacheInterval,
 		CleanThumbnailCacheInterval:      cleanThumbnailCacheInterval,
 		CleanThumbnailFileCacheInterval:  cleanThumbnailFileCacheInterval,
@@ -304,6 +331,11 @@ func (a *Application) StartBackground() error {
 		return err
 	}
 
+	if err := a.WatchEventWorkerPool.Start(a.ctx); err != nil {
+		a.logger.Error("Failed to start watch event worker pool", "err", err)
+		return err
+	}
+
 	// Initialize stuck download jobs
 	if err := a.Usecases.Downloader.ResetStuckJobs(a.ctx); err != nil {
 		a.logger.Error("Failed to init downloader", "err", err)
@@ -324,6 +356,9 @@ func (a *Application) StopWorkerPools() {
 	}
 	if a.OperationWorkerPool != nil {
 		a.OperationWorkerPool.Stop()
+	}
+	if a.WatchEventWorkerPool != nil {
+		a.WatchEventWorkerPool.Stop()
 	}
 }
 
@@ -399,21 +434,36 @@ func (a *Application) initSQLiteRepositories() (*sqliterep.Repositories, error) 
 		return nil, err
 	}
 
+	a.dbWatchEvent, err = newDB(a.logger, sqliterep.WatchEventSchema.Path(sqliteDir))
+	if err != nil {
+		return nil, err
+	}
+
 	var (
-		authEntry  = sqlitetypes.NewDBEntry(sqliterep.AuthSchema, a.dbAuth)
-		mainEntry  = sqlitetypes.NewDBEntry(sqliterep.MainSchema, a.dbMain)
-		mediaEntry = sqlitetypes.NewDBEntry(sqliterep.MediaSchema, a.dbMedia)
-		linkEntry  = sqlitetypes.NewDBEntry(sqliterep.LinkSchema, a.dbLink)
-		entries    = []persistence.DBEntry{
+		authEntry       = sqlitetypes.NewDBEntry(sqliterep.AuthSchema, a.dbAuth)
+		mainEntry       = sqlitetypes.NewDBEntry(sqliterep.MainSchema, a.dbMain)
+		mediaEntry      = sqlitetypes.NewDBEntry(sqliterep.MediaSchema, a.dbMedia)
+		linkEntry       = sqlitetypes.NewDBEntry(sqliterep.LinkSchema, a.dbLink)
+		watchEventEntry = sqlitetypes.NewDBEntry(sqliterep.WatchEventSchema, a.dbWatchEvent)
+
+		entries = []persistence.DBEntry{
 			authEntry,
 			mainEntry,
 			mediaEntry,
 			linkEntry,
+			watchEventEntry,
 		}
 	)
 
 	// Apply all up migrations
-	err = applyMigrations(a.logger, a.cfg, authEntry, mainEntry, mediaEntry, linkEntry)
+	err = applyMigrations(
+		a.logger, a.cfg,
+		authEntry,
+		mainEntry,
+		mediaEntry,
+		linkEntry,
+		watchEventEntry,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -424,7 +474,9 @@ func (a *Application) initSQLiteRepositories() (*sqliterep.Repositories, error) 
 
 func (a *Application) initInMemoryRepositories() *inmemoryrep.Repositories {
 	inMemoryDeps := inmemoryrep.Dependencies{
+		MediaDownloadCacheTTL:  mediaDownloadCacheTTL,
 		DownloadStateCacheTTL:  downloadStateCacheTTL,
+		MediaWatchStatCacheTTL: mediaWatchStatCacheTTL,
 		YoutubeChannelCacheTTL: youtubeChannelCacheTTL,
 		SiteLogoCacheTTL:       siteLogoCacheTTL,
 		ThumbnailCacheTTL:      thumbnailCacheTTL,
@@ -456,6 +508,14 @@ func (a *Application) newOperationWorkerPool() nworkerpool.WorkerPool {
 		nworkerpool.WithLogger(a.logger),
 		nworkerpool.WithMaxWorkers(a.cfg.Elengrab.OperationWorkers),
 		nworkerpool.WithIdleTime(operationWorkerIdleTimeDefault),
+	)
+}
+
+func (a *Application) newWatchEventWorkerPool() nworkerpool.WorkerPool {
+	return nworkerpool.NewWorkerPool(
+		"WatchEvent",
+		nworkerpool.WithLogger(a.logger),
+		nworkerpool.WithMaxWorkers(watchEventWorkers),
 	)
 }
 

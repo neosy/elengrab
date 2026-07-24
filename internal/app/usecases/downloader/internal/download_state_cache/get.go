@@ -11,9 +11,9 @@ func (uc *DownloadStateCache) FindByDownloadID(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) (*ddownload.DownloadState, error) {
-	return uc.stateRep.FindByDownloadID(ctx, downloadID)
+	return uc.stateCacheRep.FindByDownloadID(ctx, downloadID)
 }
 
 func (uc *DownloadStateCache) FindByTaskID(ctx context.Context, taskId uuid.UUID) (*ddownload.DownloadState, error) {
-	return uc.stateRep.FindByTaskID(ctx, taskId)
+	return uc.stateCacheRep.FindByTaskID(ctx, taskId)
 }

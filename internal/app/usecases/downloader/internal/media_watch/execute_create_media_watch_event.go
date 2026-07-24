@@ -1,0 +1,48 @@
+package mediawatch
+
+import (
+	"context"
+	"net/http"
+
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
+	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+)
+
+func (uc *MediaWatch) ExecuteCreateMediaWatchEvent(
+	ctx context.Context,
+	workerID uint64,
+	req *dto.CreateMediaWatchEventRequest,
+) error {
+	if req == nil || req.Event == nil {
+		return apperrors.ErrFuncParamNullPointer
+	}
+
+	event := req.Event
+
+	create := func(ctx context.Context) error {
+		err := uc.event.Create(ctx, event)
+		if err != nil {
+			return err
+		}
+
+		chunks := uc.eventToChunks(event, req.MediaDuration)
+		if len(chunks) == 0 {
+			return errorx.NewHTTPMessage(
+				"No media watch chunks to process",
+				http.StatusConflict,
+			)
+		}
+
+		return uc.chunk.AddChunkQtyBatch(ctx, chunks)
+	}
+
+	err := uc.event.Tx(ctx, create)
+	if err != nil {
+		return err
+	}
+
+	uc.pendingStats.add(event.DownloadID, req.MediaDuration)
+
+	return nil
+}
