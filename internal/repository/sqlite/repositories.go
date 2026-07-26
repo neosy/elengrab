@@ -26,9 +26,10 @@ type Repositories struct {
 	DownloadTask          persistence.DownloadTaskRepository
 	DownloadDataMigration persistence.DownloadDataMigrationRepository
 
-	MediaWatchEvent persistence.MediaWatchEventRepository
-	MediaWatchChunk persistence.MediaWatchChunkRepository
-	MediaWatchStat  persistence.MediaWatchStatRepository
+	MediaWatchEvent    persistence.MediaWatchEventRepository
+	MediaWatchChunk    persistence.MediaWatchChunkRepository
+	MediaWatchStat     persistence.MediaWatchStatRepository
+	MediaWatchPosition persistence.MediaWatchPositionRepository
 
 	YoutubeChannel persistence.YoutubeChannelRepository
 	SiteLogo       persistence.SiteLogoRepository
@@ -88,9 +89,10 @@ func New(dbEntries []persistence.DBEntry) *Repositories {
 		DownloadTask:          download.NewDownloadTaskRepository(eMain.db, eMain.locker),
 		DownloadDataMigration: download.NewDataMigrationRepository(eMain.db, eMain.locker),
 
-		MediaWatchEvent: watchevent.NewMediaWatchEventRepository(eWatchEvent.db, eWatchEvent.locker),
-		MediaWatchChunk: watchevent.NewMediaWatchChunkRepository(eWatchEvent.db, eWatchEvent.locker),
-		MediaWatchStat:  watchevent.NewMediaWatchStatRepository(eWatchEvent.db, eWatchEvent.locker),
+		MediaWatchEvent:    watchevent.NewMediaWatchEventRepository(eWatchEvent.db, eWatchEvent.locker),
+		MediaWatchChunk:    watchevent.NewMediaWatchChunkRepository(eWatchEvent.db, eWatchEvent.locker),
+		MediaWatchStat:     watchevent.NewMediaWatchStatRepository(eWatchEvent.db, eWatchEvent.locker),
+		MediaWatchPosition: watchevent.NewMediaWatchPositionRepository(eWatchEvent.db, eWatchEvent.locker),
 
 		YoutubeChannel: media.NewYoutubeChannelRepository(eMedia.db, eMedia.locker),
 		SiteLogo:       media.NewSiteLogoRepository(eMedia.db, eMedia.locker),

@@ -14,6 +14,7 @@ func (d *Downloader) RunRequiredMigrations(ctx context.Context) error {
 		d.download,
 		d.downloadMigration,
 		d.thumbnail,
+		d.mediaWatch,
 		// services
 		d.downloaderSrv,
 		d.ffmpegSrv,
@@ -29,6 +30,7 @@ func (d *Downloader) RunDeferredMigrations(ctx context.Context) error {
 		d.download,
 		d.downloadMigration,
 		d.thumbnail,
+		d.mediaWatch,
 		// services
 		d.downloaderSrv,
 		d.ffmpegSrv,

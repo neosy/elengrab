@@ -4,6 +4,7 @@
 // -------------------------------------------------------------
 
 const WATCH_TRACKING_URL_TEMPLATE = "/downloader/items/{itemId}/watch-tracking";
+const WATCH_POSITION_URL_TEMPLATE = "/downloader/items/{itemId}/watch-position";
 
 export function initPlayer() {
     const overlay           = document.getElementById("media-player-overlay");
@@ -24,7 +25,7 @@ export function initPlayer() {
     // Force initial hidden state
     overlay.style.display = "none";
 
-    document.addEventListener("click", (event) => {
+    document.addEventListener("click", async (event) => {
         const playBtn = event.target.closest(".media-result__play-button");
         if (!playBtn) return;
 
@@ -42,19 +43,45 @@ export function initPlayer() {
         videoWrapper.innerHTML = "";
         audioBarContainer.innerHTML = "";
 
+        let positionMs = 0;
+
+        try {
+            const response = await fetch(getWatchPositionUrl(itemId), {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to get watch position: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            positionMs = data.position;
+        } catch (err) {
+            console.error("Failed to get watch position", err);
+        }        
+
         let element;
         if (isAudio) {
             element = document.createElement("audio");
-            element.controls = true;
-             element.autoplay = true;
         } else {
             element = document.createElement("video");
             element.style.background = "black";
-            element.controls = true;
-            element.autoplay = true;
             // Disable Picture-in-Picture
             element.disablePictureInPicture = true;
         }
+
+        element.controls = true;
+        element.autoplay = true;
+
+        element.addEventListener("loadedmetadata", () => {
+            if (positionMs > 0) {
+                element.currentTime = positionMs / 1000;
+            }
+        }, { once: true });        
 
         element.src = mediaURL;
 
@@ -162,6 +189,14 @@ export function initPlayer() {
         document.body.style.overflow = "";
         document.body.classList.remove("audio-playing");
     }
+
+    function getWatchPositionUrl(itemId) {
+        return WATCH_POSITION_URL_TEMPLATE.replace(
+            "{itemId}",
+            itemId
+        );
+    }
+
 }
 
 export class MediaWatchTracker {

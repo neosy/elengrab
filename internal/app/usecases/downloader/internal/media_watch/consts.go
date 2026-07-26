@@ -3,7 +3,7 @@ package mediawatch
 import "time"
 
 const (
-	chunkDuration = 100 * time.Millisecond
+	ChunkDuration = 500 * time.Millisecond
 
 	requiredWatchPercent = 90
 

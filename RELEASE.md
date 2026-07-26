@@ -7,6 +7,7 @@
 - Added Delete Short Link menu item. [L062]
 - Added share link to media info. [L063]
 - Added media watch event tracking. [L068]
+- Resume media playback from the last saved position. [L069]
 
 ### 🎨 Style
 - Hide the Delete button in grid-view mode. [L057]

@@ -37,6 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initPlayer() {
+    function setStartPosition(player) {
+        const startPositionMs = Number(
+            DOM_ELEMENTS.mainContentPlayer?.dataset.startPositionMs
+        );
+
+        if (startPositionMs > 0) {
+            player.currentTime = startPositionMs / 1000;
+        }
+    }
+
     if (DOM_ELEMENTS.backButton) {
         const display = DOM_ELEMENTS.backButton.style.display;
         DOM_ELEMENTS.backButton.style.display = isPWA ? display : 'none';
@@ -73,12 +83,21 @@ function initPlayer() {
         }
     }
 
+    if (DOM_ELEMENTS.player.readyState >= HTMLMediaElement.HAVE_METADATA) {
+        setStartPosition(DOM_ELEMENTS.player);
+    }
+
     // Auto play
     DOM_ELEMENTS.player.addEventListener('loadedmetadata', () => {
-        DOM_ELEMENTS.player.autoplay = true;
+        if (!DOM_ELEMENTS.player) return;
+
+        setStartPosition(DOM_ELEMENTS.player);
+        
+        player.autoplay = true;
+        
         DOM_ELEMENTS.player.play().catch(err => {
             console.warn('Autorun failed', err);
-        });
+        }, { once: true });
     });
 
     const itemId = DOM_ELEMENTS.mainContentPlayer?.dataset.itemId;

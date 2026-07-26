@@ -19,9 +19,15 @@ func (m *Mappers) MapMediaItemWatchTrackingRequestToUsecase(
 		userID = &authCtx.UserID
 	}
 
+	var sessionID *uuid.UUID
+	if userID == nil && authCtx.AnonSessionID != uuid.Nil {
+		sessionID = &authCtx.AnonSessionID
+	}
+
 	return ucdto.TrackMediaWatchEventRequest{
 		DownloadID: downloadID,
 		UserID:     userID,
+		SessionID:  sessionID,
 		Position:   time.Duration(req.PositionMs) * time.Millisecond,
 		Interval:   time.Duration(req.IntervalMs) * time.Millisecond,
 	}

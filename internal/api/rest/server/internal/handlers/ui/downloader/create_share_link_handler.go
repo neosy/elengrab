@@ -8,7 +8,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) CreateMediaShareLinkHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) CreateShareLinkHandler(ctx *fasthttp.RequestCtx) {
 	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
 	if !ok || downloadIDStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
@@ -32,7 +32,7 @@ func (h *DownloaderHandlers) CreateMediaShareLinkHandler(ctx *fasthttp.RequestCt
 
 	h.downloader.NotifyDownloadUpdated(ctx, downloadID)
 
-	resp := dto.GetDownloadShareLinkResponse{
+	resp := dto.GetShareLinkResponse{
 		DownloadID: idcodec.EncodeUUIDBase64URL(downloadID),
 		URL:        url,
 	}

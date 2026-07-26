@@ -14,7 +14,7 @@ type MediaWatchChunk struct {
 	// Associated user identifier (UUID)
 	UserID uuid.UUID
 
-	// Zero-based index of the 100ms media chunk
+	// Zero-based index of the 1000ms media chunk
 	ChunkIndex uint32
 
 	// How many times this chunk was watched

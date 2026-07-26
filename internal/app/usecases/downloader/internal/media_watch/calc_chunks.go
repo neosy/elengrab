@@ -7,7 +7,7 @@ func calcChunkCount(duration time.Duration) uint32 {
 		return 0
 	}
 
-	return uint32((duration + chunkDuration - 1) / chunkDuration)
+	return uint32((duration + ChunkDuration - 1) / ChunkDuration)
 }
 
 func calcRequiredChunkCount(duration time.Duration) uint32 {

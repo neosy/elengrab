@@ -85,6 +85,7 @@ func NewDownloader(
 	watchEventRep persistence.MediaWatchEventRepository,
 	watchChunkRep persistence.MediaWatchChunkRepository,
 	watchStatRep persistence.MediaWatchStatRepository,
+	watchPosition persistence.MediaWatchPositionRepository,
 	ytChannelRep persistence.YoutubeChannelRepository,
 	siteLogoRep persistence.SiteLogoRepository,
 
@@ -92,6 +93,7 @@ func NewDownloader(
 	mediaDownloadCacheRep persistence.MediaDownloadCacheRepository,
 	downloadStateCacheRep persistence.DownloadStateCacheRepository,
 	mediaWatchStatCacheRep persistence.MediaWatchStatCacheRepository,
+	mediaWatchPositionCacheRep persistence.MediaWatchPositionCacheRepository,
 	ytChannelCacheRep persistence.YoutubeChannelCacheRepository,
 	siteLogoCacheRep persistence.SiteLogoCacheRepository,
 
@@ -117,14 +119,14 @@ func NewDownloader(
 	deleteDuplicatesScope dtypes.UniquenessScope,
 	logoUpdateInterval time.Duration,
 	channelUpdateInterval time.Duration,
-
 ) *Downloader {
 	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRep)
 
 	mediawatch := mediawatch.NewMediaWatch(
 		logger,
-		watchEventRep, watchChunkRep, watchStatRep,
+		watchEventRep, watchChunkRep, watchStatRep, watchPosition,
 		mediaWatchStatCacheRep,
+		mediaWatchPositionCacheRep,
 		watchEventDispatcher,
 	)
 

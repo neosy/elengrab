@@ -6,7 +6,7 @@ CREATE TABLE media_watch_chunks (
     -- Use '00000000-0000-0000-0000-000000000000' for anonymous users.
     user_id       TEXT NOT NULL,
 
-    -- Zero-based index of the 100ms media chunk
+    -- Zero-based index of the 1000ms media chunk
     chunk_index   INTEGER NOT NULL,
 
     -- How many times this chunk was watched

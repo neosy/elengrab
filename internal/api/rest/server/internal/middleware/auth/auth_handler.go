@@ -41,6 +41,7 @@ func (a *AuthMiddleware) AuthOrGuest(next fasthttp.RequestHandler) fasthttp.Requ
 		// If no valid session exists and guest sessions are not allowed,
 		// return an unauthorized response.
 		if userCtx == nil && !a.appMode.IsUserRequiredForWrite() {
+			a.SetCookieAnonym(ctx)
 			next(ctx)
 			return
 		}
@@ -137,6 +138,7 @@ func (a *AuthMiddleware) AuthOrAnonym(next fasthttp.RequestHandler) fasthttp.Req
 		}
 
 		if userCtx == nil {
+			a.SetCookieAnonym(ctx)
 			next(ctx)
 			return
 		}
@@ -175,6 +177,7 @@ func (a *AuthMiddleware) AuthOptional(next fasthttp.RequestHandler) fasthttp.Req
 				return
 			}
 
+			a.SetCookieAnonym(ctx)
 			next(ctx)
 			return
 		}
@@ -213,6 +216,7 @@ func (a *AuthMiddleware) RequireAuthMode(next fasthttp.RequestHandler) fasthttp.
 				return
 			}
 
+			a.SetCookieAnonym(ctx)
 			next(ctx)
 			return
 		}
