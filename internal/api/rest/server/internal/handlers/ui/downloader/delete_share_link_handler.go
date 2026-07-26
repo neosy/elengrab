@@ -8,7 +8,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) GetMediaShareLinkHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) DeleteShareLinkHandler(ctx *fasthttp.RequestCtx) {
 	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
 	if !ok || downloadIDStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
@@ -21,7 +21,7 @@ func (h *DownloaderHandlers) GetMediaShareLinkHandler(ctx *fasthttp.RequestCtx) 
 		return
 	}
 
-	url, err := h.linkWeb.GetLastShortURL(
+	err = h.linkWeb.DeleteShortLink(
 		ctx,
 		h.buildMediaWatchURL(downloadID),
 	)
@@ -32,9 +32,8 @@ func (h *DownloaderHandlers) GetMediaShareLinkHandler(ctx *fasthttp.RequestCtx) 
 
 	h.downloader.NotifyDownloadUpdated(ctx, downloadID)
 
-	resp := dto.GetDownloadShareLinkResponse{
+	resp := dto.DeleteDownloadShareLinkResponse{
 		DownloadID: idcodec.EncodeUUIDBase64URL(downloadID),
-		URL:        url,
 	}
 
 	nfasthttp.WriteResponse(ctx, resp)

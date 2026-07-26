@@ -20,6 +20,11 @@ func (uc *MediaWatch) ExecuteCreateMediaWatchEvent(
 
 	event := req.Event
 
+	position := uc.mappers.MapWatchEventToWatchPosition(event, req.MediaDuration)
+	if position.Validate() == nil {
+		uc.position.Write(ctx, position)
+	}
+
 	create := func(ctx context.Context) error {
 		err := uc.event.Create(ctx, event)
 		if err != nil {

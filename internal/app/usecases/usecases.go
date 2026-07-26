@@ -69,9 +69,10 @@ type DepRepositories struct {
 	DownloadTask          persistence.DownloadTaskRepository
 	DownloadDataMigration persistence.DownloadDataMigrationRepository
 
-	MediaWatchEvent persistence.MediaWatchEventRepository
-	MediaWatchChunk persistence.MediaWatchChunkRepository
-	MediaWatchStat  persistence.MediaWatchStatRepository
+	MediaWatchEvent    persistence.MediaWatchEventRepository
+	MediaWatchChunk    persistence.MediaWatchChunkRepository
+	MediaWatchStat     persistence.MediaWatchStatRepository
+	MediaWatchPosition persistence.MediaWatchPositionRepository
 
 	YoutubeChannel persistence.YoutubeChannelRepository
 	SiteLogo       persistence.SiteLogoRepository
@@ -81,13 +82,14 @@ type DepRepositories struct {
 	LinkClick persistence.LinkClickRepository
 
 	// in memory
-	MediaDownloadCache  persistence.MediaDownloadCacheRepository
-	DownloadStateCache  persistence.DownloadStateCacheRepository
-	MediaWatchStatCache persistence.MediaWatchStatCacheRepository
-	YoutubeChannelCache persistence.YoutubeChannelCacheRepository
-	SiteLogoCache       persistence.SiteLogoCacheRepository
-	ThumbnailCache      persistence.ThumbnailCacheRepository
-	ThumbnailFileCache  persistence.ThumbnailFileCacheRepository
+	MediaDownloadCache      persistence.MediaDownloadCacheRepository
+	DownloadStateCache      persistence.DownloadStateCacheRepository
+	MediaWatchStatCache     persistence.MediaWatchStatCacheRepository
+	MediaWatchPositionCache persistence.MediaWatchPositionCacheRepository
+	YoutubeChannelCache     persistence.YoutubeChannelCacheRepository
+	SiteLogoCache           persistence.SiteLogoCacheRepository
+	ThumbnailCache          persistence.ThumbnailCacheRepository
+	ThumbnailFileCache      persistence.ThumbnailFileCacheRepository
 }
 
 type DepStorages struct {
@@ -152,6 +154,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.Repositories.MediaWatchEvent,
 			deps.Repositories.MediaWatchChunk,
 			deps.Repositories.MediaWatchStat,
+			deps.Repositories.MediaWatchPosition,
 			deps.Repositories.YoutubeChannel,
 			deps.Repositories.SiteLogo,
 
@@ -159,6 +162,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.Repositories.MediaDownloadCache,
 			deps.Repositories.DownloadStateCache,
 			deps.Repositories.MediaWatchStatCache,
+			deps.Repositories.MediaWatchPositionCache,
 			deps.Repositories.YoutubeChannelCache,
 			deps.Repositories.SiteLogoCache,
 

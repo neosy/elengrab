@@ -10,13 +10,13 @@ import (
 )
 
 var (
-	conflictFields [3]string
+	chunkConflictFields [3]string
 )
 
 func init() {
 	var eChunk MediaWatchChunk
 
-	conflictFields = [3]string{
+	chunkConflictFields = [3]string{
 		eChunk.FieldName(&eChunk.DownloadID),
 		eChunk.FieldName(&eChunk.UserID),
 		eChunk.FieldName(&eChunk.ChunkIndex),
@@ -32,7 +32,7 @@ type MediaWatchChunk struct {
 	// Associated user identifier (UUID)
 	UserID uuid.UUID `db:"user_id"`
 
-	// Zero-based index of the 100ms media chunk
+	// Zero-based index of the 1000ms media chunk
 	ChunkIndex int `db:"chunk_index"`
 
 	// How many times this chunk was watched
@@ -86,6 +86,6 @@ func (e *MediaWatchChunk) FieldsMap() map[string]any {
 	return e.BaseEntity.FieldsMap(e)
 }
 
-func (e *MediaWatchChunk) ConflictColumns() string {
-	return strings.Join(conflictFields[:], " ,")
+func (e *MediaWatchChunk) ConflictColumnsSQL() string {
+	return strings.Join(chunkConflictFields[:], " ,")
 }

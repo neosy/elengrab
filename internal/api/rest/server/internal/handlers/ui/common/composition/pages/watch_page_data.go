@@ -39,6 +39,8 @@ type (
 		MediaTitleImageURL string
 		MediaDescription   string
 		MediaParameters    []MediaParameter
+
+		MediaStartPositionMs uint32
 	}
 
 	MediaParameter struct {

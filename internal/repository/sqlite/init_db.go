@@ -100,12 +100,18 @@ func InitDB(logger *slog.Logger, dbPath string) (*sql.DB, error) {
 
 func CloseDB(db *sql.DB) {
 	// 1. Do a full checkpoint to flush WAL into main DB
-	if err := flushWAL(db); err != nil {
+	if err := flushAndTruncateWAL(db); err != nil {
 		log.Printf("Failed to checkpoint WAL: %v", err)
 	}
 
 	// 2. Close the database connection
 	if err := db.Close(); err != nil {
 		log.Printf("Failed to close SQLite database: %v", err)
+	}
+}
+
+func (r *Repositories) CloseAllDB() {
+	for _, entry := range r.EntriesByName() {
+		CloseDB(entry.DB())
 	}
 }

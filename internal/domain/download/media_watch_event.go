@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 type MediaWatchEvent struct {
@@ -48,4 +49,17 @@ func (e *MediaWatchEvent) Validate() error {
 	}
 
 	return nil
+}
+
+func (e *MediaWatchEvent) Copy() *MediaWatchEvent {
+	if e == nil {
+		return nil
+	}
+
+	copy := new(*e)
+
+	copy.UserID = uptr.Copy(e.UserID)
+	copy.SessionID = uptr.Copy(e.SessionID)
+
+	return copy
 }

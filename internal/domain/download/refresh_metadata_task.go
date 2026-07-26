@@ -29,5 +29,7 @@ func (src *RefreshMetadataTask) Copy() *RefreshMetadataTask {
 
 	copy := uptr.Copy(src)
 
+	copy.WorkerID = uptr.Copy(src.WorkerID)
+
 	return copy
 }
