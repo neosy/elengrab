@@ -20,7 +20,7 @@ func (uc *Downloader) GetDownloadInfo(
 	authCtx dauth.UserContext,
 	downloadID uuid.UUID,
 ) (*dto.GetMediaDownloadInfoResponse, error) {
-	resp, err := uc.findActualDownloadInfo(ctx, downloadID)
+	resp, err := uc.findActualDownloadInfo(ctx, downloadID, withAuth(authCtx))
 	if err != nil {
 		uc.logger.Error("Failed get download info", "error", err)
 		return nil, err
@@ -75,6 +75,7 @@ func (uc *Downloader) GetDownloadInfoForEdit(
 func (uc *Downloader) findActualDownloadInfo(
 	ctx context.Context,
 	downloadID uuid.UUID,
+	opts ...callOption,
 ) (*dto.GetMediaDownloadInfoResponse, error) {
 	var download *ddownload.MediaDownload
 
@@ -100,13 +101,14 @@ func (uc *Downloader) findActualDownloadInfo(
 		return nil, nil
 	}
 
-	return uc.findActualDownloadInfoByDownload(ctx, download)
+	return uc.findActualDownloadInfoByDownload(ctx, download, opts...)
 }
 
 // findActualDownloadInfoByDownload retrieves the actual download information based on the provided download.
 func (uc *Downloader) findActualDownloadInfoByDownload(
 	ctx context.Context,
 	download *ddownload.MediaDownload,
+	opts ...callOption,
 ) (*dto.GetMediaDownloadInfoResponse, error) {
 	var (
 		dlProgress *dservices.DownloaderProgress
@@ -166,6 +168,7 @@ func (uc *Downloader) getDownloadsInfo(
 	authCtx dauth.UserContext,
 	queryOptions dtypes.QueryOptions,
 	filters map[string]any,
+	opts ...callOption,
 ) ([]*dto.GetMediaDownloadInfoResponse, error) {
 	var resps []*dto.GetMediaDownloadInfoResponse
 
@@ -177,7 +180,7 @@ func (uc *Downloader) getDownloadsInfo(
 
 	resps = make([]*dto.GetMediaDownloadInfoResponse, 0, len(downloads))
 	for _, download := range downloads {
-		resp, err := uc.findActualDownloadInfoByDownload(ctx, download)
+		resp, err := uc.findActualDownloadInfoByDownload(ctx, download, opts...)
 		if err != nil {
 			continue
 		}

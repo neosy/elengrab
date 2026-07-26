@@ -28,7 +28,7 @@ func (uc *MediaWatchStat) Write(ctx context.Context, stat *ddownload.MediaWatchS
 		return errorx.Errorf("failed to insert record: %w", err, exceptionx.ERROR)
 	}
 
-	uc.statCacheRep.Delete(stat.DownloadID)
+	uc.statCacheRep.Save(stat)
 
 	return nil
 }

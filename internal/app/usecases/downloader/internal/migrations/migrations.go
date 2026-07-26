@@ -6,6 +6,7 @@ import (
 
 	dlmigration "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_data_migration"
 	fileuc "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download"
+	mediawatch "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
@@ -16,6 +17,7 @@ type usecases struct {
 	download          *fileuc.MediaDownload
 	downloadMigration *dlmigration.DownloadMigration
 	thumbnail         *thumbnail.Thumbnail
+	mediaWatch        *mediawatch.MediaWatch
 }
 
 type services struct {
@@ -42,6 +44,7 @@ func NewMigrations(
 	download *fileuc.MediaDownload,
 	downloadMigration *dlmigration.DownloadMigration,
 	thumbnail *thumbnail.Thumbnail,
+	mediaWatch *mediawatch.MediaWatch,
 	// services
 	downloader pservices.Downloader,
 	ffmpeg pservices.FFMpeg,
@@ -58,6 +61,7 @@ func NewMigrations(
 			download:          download,
 			downloadMigration: downloadMigration,
 			thumbnail:         thumbnail,
+			mediaWatch:        mediaWatch,
 		},
 
 		services: services{

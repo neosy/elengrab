@@ -17,14 +17,15 @@ const (
 	deleteMissingDownloadsIntervalDefault = 30 * time.Minute
 	deleteFailedDownloadsIntervalDefault  = 1 * time.Hour
 
-	cleanMediaDownloadCacheIntervalDefault  = 30 * time.Minute
-	cleanDownloadStateCacheIntervalDefault  = 20 * time.Minute
-	cleanMediaWatchStatCacheIntervalDefault = 1 * time.Hour
-	cleanYoutubeChannelCacheIntervalDefault = 6 * time.Hour
-	cleanSiteLogoCacheIntervalDefault       = 24 * time.Hour
-	cleanThumbnailCacheIntervalDefault      = 24 * time.Hour
-	cleanThumbnailFileCacheIntervalDefault  = 1 * time.Hour
-	cleanAssetFileCacheIntervalDefault      = 1 * time.Hour
+	cleanMediaDownloadCacheIntervalDefault      = 30 * time.Minute
+	cleanDownloadStateCacheIntervalDefault      = 20 * time.Minute
+	cleanMediaWatchStatCacheIntervalDefault     = 1 * time.Hour
+	cleanMediaWatchPositionCacheIntervalDefault = 1 * time.Hour
+	cleanYoutubeChannelCacheIntervalDefault     = 6 * time.Hour
+	cleanSiteLogoCacheIntervalDefault           = 24 * time.Hour
+	cleanThumbnailCacheIntervalDefault          = 24 * time.Hour
+	cleanThumbnailFileCacheIntervalDefault      = 1 * time.Hour
+	cleanAssetFileCacheIntervalDefault          = 1 * time.Hour
 
 	backupDatabaseIntervalDefault = 1 * 24 * time.Hour
 	flushWALIntervalDefault       = 1 * time.Hour
@@ -35,14 +36,15 @@ const (
 
 type Dependencies struct {
 	// cache in memory
-	MediaDownloadCache  persistence.MediaDownloadCacheRepository
-	DownloadStateCache  persistence.DownloadStateCacheRepository
-	MediaWatchStatCache persistence.MediaWatchStatCacheRepository
-	YoutubeChannelCache persistence.YoutubeChannelCacheRepository
-	SiteLogoCache       persistence.SiteLogoCacheRepository
-	ThumbnailCache      persistence.ThumbnailCacheRepository
-	ThumbnailFileCache  persistence.ThumbnailFileCacheRepository
-	AssetFileCache      persistence.AssetFileCacheRepository
+	MediaDownloadCache      persistence.MediaDownloadCacheRepository
+	DownloadStateCache      persistence.DownloadStateCacheRepository
+	MediaWatchStatCache     persistence.MediaWatchStatCacheRepository
+	MediaWatchPositionCache persistence.MediaWatchPositionCacheRepository
+	YoutubeChannelCache     persistence.YoutubeChannelCacheRepository
+	SiteLogoCache           persistence.SiteLogoCacheRepository
+	ThumbnailCache          persistence.ThumbnailCacheRepository
+	ThumbnailFileCache      persistence.ThumbnailFileCacheRepository
+	AssetFileCache          persistence.AssetFileCacheRepository
 
 	// runners
 	DownloaderMaintenance pworkers.DownloadMaintenanceRunner
@@ -61,14 +63,15 @@ type Dependencies struct {
 	DeleteFailedDownloadsInterval  time.Duration
 
 	// caches
-	CleanYoutubeChannelCacheInterval time.Duration
-	CleanMediaDownloadCacheInterval  time.Duration
-	CleanDownloadStateCacheInterval  time.Duration
-	CleanMediaWatchStatCacheInterval time.Duration
-	CleanSiteLogoCacheInterval       time.Duration
-	CleanThumbnailCacheInterval      time.Duration
-	CleanThumbnailFileCacheInterval  time.Duration
-	CleanAssetFileCacheInterval      time.Duration
+	CleanYoutubeChannelCacheInterval     time.Duration
+	CleanMediaDownloadCacheInterval      time.Duration
+	CleanDownloadStateCacheInterval      time.Duration
+	CleanMediaWatchStatCacheInterval     time.Duration
+	CleanMediaWatchPositionCacheInterval time.Duration
+	CleanSiteLogoCacheInterval           time.Duration
+	CleanThumbnailCacheInterval          time.Duration
+	CleanThumbnailFileCacheInterval      time.Duration
+	CleanAssetFileCacheInterval          time.Duration
 
 	// db
 	BackupDatabaseInterval time.Duration
@@ -147,6 +150,11 @@ func Initialize(logger *slog.Logger, deps *Dependencies, ws *nworkers.Workers) {
 	ws.Add(nworkers.NewWorker(
 		cachejobs.NewCleanCacheJob(logger, deps.MediaWatchStatCache),
 		nworkers.WithIntervalDefault(deps.CleanMediaWatchStatCacheInterval, cleanMediaWatchStatCacheIntervalDefault),
+	))
+
+	ws.Add(nworkers.NewWorker(
+		cachejobs.NewCleanCacheJob(logger, deps.MediaWatchPositionCache),
+		nworkers.WithIntervalDefault(deps.CleanMediaWatchPositionCacheInterval, cleanMediaWatchPositionCacheIntervalDefault),
 	))
 
 	ws.Add(nworkers.NewWorker(

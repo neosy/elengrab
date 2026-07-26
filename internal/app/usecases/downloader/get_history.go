@@ -34,5 +34,5 @@ func (uc *Downloader) LoadHistory(
 		filters[dtypes.QueryFilterNameTitle] = filterTitle
 	}
 
-	return uc.getDownloadsInfo(ctx, authCtx, options, filters)
+	return uc.getDownloadsInfo(ctx, authCtx, options, filters, withAuth(authCtx))
 }

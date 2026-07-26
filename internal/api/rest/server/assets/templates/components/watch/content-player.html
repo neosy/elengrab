@@ -1,5 +1,5 @@
 {{- define "watch-content-player" }}
-        <div class="main_content__player" id="mainContentPlayer" data-item-id="{{ .Values.ItemID }}">
+        <div class="main_content__player" id="mainContentPlayer" data-item-id="{{ .Values.ItemID }}" data-start-position-ms="{{ .Values.MediaStartPositionMs }}">
             <div class="media__container" id="mediaContainer">
                 <div class="media_wrapper" id="videoWrapper">
                     {{- if .Values.IsVideoPlayer -}}

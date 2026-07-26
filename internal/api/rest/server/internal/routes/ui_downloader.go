@@ -64,8 +64,11 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 			g.HEAD(httppaths.PathDownloadFile, handlers.DownloadFileHandler)
 			g.GET(httppaths.PathDownloadFile, handlers.DownloadFileHandler)
 
-			g.HEAD(httppaths.PathMediaItemShortLink, handlers.GetMediaShareLinkHandler)
-			g.GET(httppaths.PathMediaItemShortLink, handlers.GetMediaShareLinkHandler)
+			g.HEAD(httppaths.PathMediaItemShortLink, handlers.GetShareLinkHandler)
+			g.GET(httppaths.PathMediaItemShortLink, handlers.GetShareLinkHandler)
+
+			g.HEAD(httppaths.PathMediaItemWatchPosition, handlers.GetLastWatchPositionHandler)
+			g.GET(httppaths.PathMediaItemWatchPosition, handlers.GetLastWatchPositionHandler)
 
 			g.POST(httppaths.PathMediaItemReWatchTracking, handlers.MediaItemWatchTrackingHandler)
 		}
@@ -91,8 +94,8 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		g = nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r.router)
 		g.Use(middlewareError, r.middlewares.Auth.RequireAuthMode)
 		{
-			g.POST(httppaths.PathMediaItemShortLink, handlers.CreateMediaShareLinkHandler)
-			g.DELETE(httppaths.PathMediaItemShortLink, handlers.DeleteMediaShareLinkHandler)
+			g.POST(httppaths.PathMediaItemShortLink, handlers.CreateShareLinkHandler)
+			g.DELETE(httppaths.PathMediaItemShortLink, handlers.DeleteShareLinkHandler)
 		}
 
 		// With middleware (error, auth or anonym)

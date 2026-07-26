@@ -23,6 +23,11 @@ func (uc *MediaWatch) DeleteAllByDownloadID(ctx context.Context, downloadID uuid
 			return err
 		}
 
+		err = uc.position.DeleteByDownloadID(ctx, downloadID)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	}
 

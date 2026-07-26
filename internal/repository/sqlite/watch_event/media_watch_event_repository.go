@@ -23,6 +23,7 @@ type MediaWatchEventRepository struct {
 	lock    dbexec.WriteLocker
 
 	filtersByName filtersByName
+	queryOptions  queryOptions
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -53,6 +54,7 @@ func (r *MediaWatchEventRepository) Copy() *MediaWatchEventRepository {
 	rep.lock = r.lock
 
 	rep.filtersByName = rep.filtersByName.copy()
+	rep.queryOptions = rep.queryOptions.copy()
 
 	return rep
 }
@@ -125,6 +127,69 @@ func (r *MediaWatchEventRepository) Delete(ctx context.Context, downloadID uuid.
 	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete record: %v", err)
+	}
+
+	return nil
+}
+
+func (r *MediaWatchEventRepository) IterateGetAll(ctx context.Context, fn func(*ddownload.MediaWatchEvent) error) error {
+	return r.iterateGetAll(ctx, dbutils.OrderAsc, fn)
+}
+
+func (r *MediaWatchEventRepository) iterateGetAll(
+	ctx context.Context,
+	sortOrderBy string,
+	fn func(*ddownload.MediaWatchEvent) error,
+) error {
+	var eEvent ewatchevent.MediaWatchEvent
+
+	var sqlWhere = squirrel.And{}
+	for name, value := range r.filtersByName {
+		if name != "" {
+			sqlWhere = append(sqlWhere, squirrel.Eq{eEvent.FieldName(eEvent.FieldPointer(name)): value})
+		}
+	}
+
+	// Create an ORDER BY clause based on fieldы with the specified sort order.
+	orderBy := dbutils.OrderBy(
+		dbutils.Flds{
+			eEvent.FieldName(&eEvent.CreatedAt): sortOrderBy,
+		})
+
+	qb := squirrel.
+		Select(eEvent.FieldsAll()...).
+		From(eEvent.TableName()).
+		Where(sqlWhere).
+		OrderBy(orderBy).
+		PlaceholderFormat(squirrel.Dollar)
+
+	if r.queryOptions.limit != nil && *r.queryOptions.limit > 0 {
+		qb = qb.Limit(*r.queryOptions.limit)
+	}
+
+	sqlQuery, args, err := qb.ToSql()
+	if err != nil {
+		return fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	db := dbexec.Resolve(ctx, r.db)
+	rows, err := db.QueryContext(ctx, sqlQuery, args...)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	if rows != nil {
+		err = r.mappers.MapMediaWatchEventRowsToDomain(rows, func(f *ddownload.MediaWatchEvent) error {
+			if err := fn(f); err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

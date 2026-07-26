@@ -78,7 +78,7 @@ func (r *MediaWatchChunkRepository) AddChunkQty(ctx context.Context, chunk *ddow
 		Insert(eChunk.TableName()).
 		Columns(fields...).
 		Values(values...).
-		Suffix("ON CONFLICT (" + eChunk.ConflictColumns() + ") DO UPDATE SET " + qtyFieldName + " = " + qtyFieldName + " + EXCLUDED." + qtyFieldName).
+		Suffix("ON CONFLICT (" + eChunk.ConflictColumnsSQL() + ") DO UPDATE SET " + qtyFieldName + " = " + qtyFieldName + " + EXCLUDED." + qtyFieldName).
 		PlaceholderFormat(squirrel.Dollar)
 
 	// Generate SQL query with upsert logic
@@ -132,7 +132,7 @@ func (r *MediaWatchChunkRepository) AddChunkQtyBatch(ctx context.Context, chunks
 	qtyFieldName := eChunkTmpl.FieldName(&eChunkTmpl.Qty)
 
 	sqlBuilder = sqlBuilder.
-		Suffix("ON CONFLICT (" + eChunkTmpl.ConflictColumns() + ") DO UPDATE SET " + qtyFieldName + " = " + qtyFieldName + " + EXCLUDED." + qtyFieldName).
+		Suffix("ON CONFLICT (" + eChunkTmpl.ConflictColumnsSQL() + ") DO UPDATE SET " + qtyFieldName + " = " + qtyFieldName + " + EXCLUDED." + qtyFieldName).
 		PlaceholderFormat(squirrel.Dollar)
 
 	// Generate SQL query with upsert logic
@@ -163,13 +163,36 @@ func (r *MediaWatchChunkRepository) Delete(ctx context.Context, downloadID uuid.
 	// Generate SQL and args
 	sqlStr, args, err := sqlBuilder.ToSql()
 	if err != nil {
-		return fmt.Errorf("error generating SQL: %v", err)
+		return fmt.Errorf("error generating SQL: %w", err)
 	}
 
 	// Execute the query
 	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
 	if err != nil {
-		return fmt.Errorf("failed to delete record: %v", err)
+		return fmt.Errorf("failed to delete record: %w", err)
+	}
+
+	return nil
+}
+
+func (r *MediaWatchChunkRepository) DeleteAll(ctx context.Context) error {
+	var eChunk ewatchevent.MediaWatchChunk
+
+	// Build DELETE query
+	sqlBuilder := squirrel.
+		Delete(eChunk.TableName()).
+		PlaceholderFormat(squirrel.Dollar)
+
+	// Generate SQL and args
+	sqlStr, args, err := sqlBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("error generating SQL: %w", err)
+	}
+
+	// Execute the query
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to delete all records: %w", err)
 	}
 
 	return nil

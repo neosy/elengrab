@@ -108,6 +108,10 @@ func (m *MediaInfo) IsPortrait() bool {
 	return m.VideoInfo.IsPortrait()
 }
 
+func (m *MediaInfo) Duration() time.Duration {
+	return time.Duration(m.DurationMs) * time.Millisecond
+}
+
 // ResolutionString returns the video dimensions formatted as "widthxheight" (e.g., "1920x1080").
 func (v *VideoInfo) ResolutionString() string {
 	return fmt.Sprintf("%dx%d", v.Width, v.Height)

@@ -224,6 +224,8 @@ func (h *DownloaderHandlers) renderWatchPage(
 		},
 	)
 
+	mediaStartPosition, _ := h.downloader.GetLastWatchPosition(ctx, req.authCtx, req.downloadID)
+
 	pageData := pages.WatchPageData{
 		BaseValues: baseValues,
 		BasePaths:  paths.NewHttpPaths(),
@@ -234,14 +236,15 @@ func (h *DownloaderHandlers) renderWatchPage(
 			StreamURL:   req.streamURLPath,
 		},
 		Values: pages.WatchPageValues{
-			ItemID:             idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
-			ShowBackButton:     req.showBackButton,
-			IsVideoPlayer:      isVideoPlayer,
-			MediaTitle:         downloadInfo.MediaTitle,
-			MediaDescription:   downloadInfo.MediaDescription,
-			MediaParameters:    mediaParameters,
-			ContentType:        contentType,
-			MediaTitleImageURL: titleImageURL,
+			ItemID:               idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
+			ShowBackButton:       req.showBackButton,
+			IsVideoPlayer:        isVideoPlayer,
+			MediaTitle:           downloadInfo.MediaTitle,
+			MediaDescription:     downloadInfo.MediaDescription,
+			MediaParameters:      mediaParameters,
+			ContentType:          contentType,
+			MediaTitleImageURL:   titleImageURL,
+			MediaStartPositionMs: uint32(mediaStartPosition.Milliseconds()),
 		},
 	}
 
