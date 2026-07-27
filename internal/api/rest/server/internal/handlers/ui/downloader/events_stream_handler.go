@@ -14,6 +14,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	"github.com/neosy/elengrab/internal/domain/types/broadcast"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
@@ -42,8 +43,10 @@ func (h *DownloaderHandlers) streamEvents(
 	authCtx dauth.UserContext,
 ) {
 	eventKey := authCtx.EventKey()
-	subscription := h.downloader.Broadcaster().Subscribe(eventKey, authCtx.RoleIDs)
-	defer h.downloader.Broadcaster().Unsubscribe(eventKey)
+	clientKey := broadcast.BuildClientKey(eventKey)
+
+	subscription := h.downloader.Broadcaster().Subscribe(clientKey, authCtx.RoleIDs)
+	defer h.downloader.Broadcaster().Unsubscribe(clientKey)
 
 	h.sendConnected(w, subscription.ConnectionID())
 
@@ -56,9 +59,14 @@ func (h *DownloaderHandlers) streamEvents(
 			return
 
 		case <-pingTicker.C:
-			h.sendPing(w)
-
-		case event := <-subscription.EventCh():
+			err := h.sendPing(w)
+			if err != nil {
+				return
+			}
+		case event, ok := <-subscription.EventCh():
+			if !ok {
+				return
+			}
 			h.handleEvent(ctx, w, authCtx, event)
 		}
 	}
@@ -79,9 +87,12 @@ func (h *DownloaderHandlers) sendConnected(w *bufio.Writer, connectionID uuid.UU
 	w.Flush()
 }
 
-func (h *DownloaderHandlers) sendPing(w *bufio.Writer) {
-	fmt.Fprint(w, "event: ping\ndata: {}\n\n")
-	w.Flush()
+func (h *DownloaderHandlers) sendPing(w *bufio.Writer) error {
+	if _, err := fmt.Fprint(w, "event: ping\ndata: {}\n\n"); err != nil {
+		return err
+	}
+
+	return w.Flush()
 }
 
 func (h *DownloaderHandlers) handleEvent(
