@@ -14,6 +14,7 @@
 
 ### 🐛 Fix
 - Fix paste button behavior in Firefox by using native input insertion. [L064]
+- Fixed incorrect removal of broadcaster subscriptions. [L070]
 
 ### 📦 Chore
 - Increase the default short link TTL to 180 days. [L061]
