@@ -3,6 +3,7 @@ package dauth
 import (
 	"github.com/google/uuid"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	eventkey "github.com/neosy/elengrab/internal/domain/types/event_key"
 )
 
 var AnonymousUserID = func() uuid.UUID { return uuid.Nil }
@@ -48,11 +49,11 @@ func (u *UserContext) UserType() dtypes.UserType {
 	return uType
 }
 
-func (u *UserContext) EventKey() dtypes.EventKey {
+func (u *UserContext) EventKey() eventkey.EventKey {
 	if u.UserID != uuid.Nil {
-		return dtypes.NewEventKeyUserID(u.UserID)
+		return eventkey.NewEventKeyUserID(u.UserID)
 	}
-	return dtypes.NewEventKeySessionID(u.AnonSessionID)
+	return eventkey.NewEventKeySessionID(u.AnonSessionID)
 }
 
 func (u *UserContext) IsGuest() bool {

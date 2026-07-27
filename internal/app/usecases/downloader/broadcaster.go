@@ -8,6 +8,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	eventkey "github.com/neosy/elengrab/internal/domain/types/event_key"
 )
 
 func (uc *Downloader) Broadcaster() *broadcaster.Broadcaster {
@@ -34,7 +35,7 @@ func (uc *Downloader) broadcastDownloadAdd(download *ddownload.MediaDownload) {
 
 	if download.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
-			dtypes.NewEventKeyUserID(*download.UserID),
+			eventkey.NewEventKeyUserID(*download.UserID),
 			dto.BroadcastEventTypeDownloadAdd,
 			resp,
 		)
@@ -65,7 +66,7 @@ func (uc *Downloader) broadcastDownloadUpdate(
 
 	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
-			dtypes.NewEventKeyUserID(*downloadInfo.UserID),
+			eventkey.NewEventKeyUserID(*downloadInfo.UserID),
 			dto.BroadcastEventTypeDownloadUpdate,
 			downloadInfo,
 		)
@@ -96,7 +97,7 @@ func (uc *Downloader) broadcastDownloadStartRefreshing(
 
 	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
-			dtypes.NewEventKeyUserID(*downloadInfo.UserID),
+			eventkey.NewEventKeyUserID(*downloadInfo.UserID),
 			dto.BroadcastEventTypeDownloadStartRefreshing,
 			downloadInfo,
 		)
@@ -121,7 +122,7 @@ func (uc *Downloader) broadcastDownloadDelete(
 
 	if download.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
-			dtypes.NewEventKeyUserID(*download.UserID),
+			eventkey.NewEventKeyUserID(*download.UserID),
 			dto.BroadcastEventTypeDownloadDelete,
 			download.DownloadID,
 		)
@@ -167,7 +168,7 @@ func (uc *Downloader) broadcastDownloadProgressUpdate(
 
 	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
-			dtypes.NewEventKeyUserID(*downloadInfo.UserID),
+			eventkey.NewEventKeyUserID(*downloadInfo.UserID),
 			dto.BroadcastEventTypeProgressUpdate,
 			resp,
 		)
@@ -182,7 +183,7 @@ func (uc *Downloader) broadcastSystemInfoUpdate() {
 }
 
 func (uc *Downloader) broadcastNotification(
-	eventKey dtypes.EventKey,
+	eventKey eventkey.EventKey,
 	module dto.BroadcastNotificationModule,
 	notificationType dto.BroadcastNotificationType,
 	message string,
