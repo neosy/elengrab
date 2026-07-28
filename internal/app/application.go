@@ -192,6 +192,7 @@ func (a *Application) initialize() error {
 
 			MediaWatchEvent:    slRepositories.MediaWatchEvent,
 			MediaWatchChunk:    slRepositories.MediaWatchChunk,
+			MediaUserWatchStat: slRepositories.MediaUserWatchStat,
 			MediaWatchStat:     slRepositories.MediaWatchStat,
 			MediaWatchPosition: slRepositories.MediaWatchPosition,
 

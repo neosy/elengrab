@@ -132,7 +132,7 @@ func (r *MediaWatchEventRepository) Delete(ctx context.Context, downloadID uuid.
 	return nil
 }
 
-func (r *MediaWatchEventRepository) IterateGetAll(ctx context.Context, fn func(*ddownload.MediaWatchEvent) error) error {
+func (r *MediaWatchEventRepository) IterateAll(ctx context.Context, fn func(*ddownload.MediaWatchEvent) error) error {
 	return r.iterateGetAll(ctx, dbutils.OrderAsc, fn)
 }
 
@@ -181,12 +181,7 @@ func (r *MediaWatchEventRepository) iterateGetAll(
 	defer rows.Close()
 
 	if rows != nil {
-		err = r.mappers.MapMediaWatchEventRowsToDomain(rows, func(f *ddownload.MediaWatchEvent) error {
-			if err := fn(f); err != nil {
-				return err
-			}
-			return nil
-		})
+		err = r.mappers.MapMediaWatchEventRowsToDomain(rows, fn)
 		if err != nil {
 			return err
 		}

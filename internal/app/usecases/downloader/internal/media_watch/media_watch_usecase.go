@@ -4,6 +4,7 @@ import (
 	"log/slog"
 
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/mappers"
+	uwatchstat "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_user_watch_stat"
 	watchchunk "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_watch_chunk"
 	watchevent "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_watch_event"
 	watchposition "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_watch_position"
@@ -25,6 +26,7 @@ type MediaWatch struct {
 	// internal usecase
 	event    *watchevent.MediaWatchEvent
 	chunk    *watchchunk.MediaWatchChunk
+	userStat *uwatchstat.MediaUserWatchStat
 	stat     *watchstat.MediaWatchStat
 	position *watchposition.MediaWatchPosition
 }
@@ -35,6 +37,7 @@ func NewMediaWatch(
 	// repositories
 	eventRep persistence.MediaWatchEventRepository,
 	chunkRep persistence.MediaWatchChunkRepository,
+	userStatRep persistence.MediaUserWatchStatRepository,
 	statRep persistence.MediaWatchStatRepository,
 	positionRep persistence.MediaWatchPositionRepository,
 
@@ -57,6 +60,7 @@ func NewMediaWatch(
 
 		event:    watchevent.NewMediaWatchEvent(logger, eventRep),
 		chunk:    watchchunk.NewMediaWatchChunk(logger, chunkRep),
+		userStat: uwatchstat.NewMediaUserWatchStat(logger, userStatRep),
 		stat:     watchstat.NewMediaWatchStat(logger, statRep, statCacheRep),
 		position: watchposition.NewMediaWatchPosition(logger, positionRep, positionCacheRep),
 	}

@@ -22,6 +22,7 @@ type MediaWatchChunkRepository struct {
 	lock    dbexec.WriteLocker
 
 	filtersByName filtersByName
+	queryOptions  queryOptions
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -52,6 +53,7 @@ func (r *MediaWatchChunkRepository) Copy() *MediaWatchChunkRepository {
 	rep.lock = r.lock
 
 	rep.filtersByName = rep.filtersByName.copy()
+	rep.queryOptions = rep.queryOptions.copy()
 
 	return rep
 }
@@ -198,6 +200,60 @@ func (r *MediaWatchChunkRepository) DeleteAll(ctx context.Context) error {
 	return nil
 }
 
+func (r *MediaWatchChunkRepository) IterateDownloadUsers(
+	ctx context.Context,
+	fn func(downloadID, userID uuid.UUID,
+	) error) error {
+	var eChunk ewatchevent.MediaWatchChunk
+
+	var sqlWhere = squirrel.And{}
+	for name, value := range r.filtersByName {
+		if name != "" {
+			sqlWhere = append(sqlWhere, squirrel.Eq{
+				eChunk.FieldName(eChunk.FieldPointer(name)): value,
+			})
+		}
+	}
+
+	selectFields := []string{
+		eChunk.FieldName(&eChunk.DownloadID),
+		eChunk.FieldName(&eChunk.UserID),
+	}
+
+	qb := squirrel.
+		Select(selectFields...).
+		From(eChunk.TableName()).
+		Where(sqlWhere).
+		GroupBy(selectFields...).
+		PlaceholderFormat(squirrel.Dollar)
+
+	if r.queryOptions.limit != nil && *r.queryOptions.limit > 0 {
+		qb = qb.Limit(*r.queryOptions.limit)
+	}
+
+	sqlQuery, args, err := qb.ToSql()
+	if err != nil {
+		return fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	db := dbexec.Resolve(ctx, r.db)
+	rows, err := db.QueryContext(ctx, sqlQuery, args...)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	if rows != nil {
+		err = r.mappers.MapMediaWatchChunkGroupDownloadIDUserIDRowsToDomain(rows, fn)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 const countViewsSQL = `
 WITH ranked AS (
     SELECT
@@ -236,6 +292,65 @@ func (r *MediaWatchChunkRepository) CountViews(
 		row := db.QueryRowContext(
 			ctx, countViewsSQL,
 			downloadID,
+			requiredChunks, requiredChunks,
+		)
+		// Scan result into entity
+		err := row.Scan(&views)
+		if err == sql.ErrNoRows {
+			notFound = true
+			return nil
+		}
+		return err
+	}
+	err := dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
+	if err != nil {
+		return 0, err
+	}
+	if notFound {
+		return 0, nil
+	}
+
+	return views, nil
+}
+
+const countUserViewsSQL = `
+WITH ranked AS (
+    SELECT
+        user_id,
+        qty,
+        ROW_NUMBER() OVER (
+            PARTITION BY user_id
+            ORDER BY qty DESC
+        ) AS rn
+    FROM media_watch_chunks
+    WHERE download_id = ?
+		AND user_id = ?
+)
+SELECT COALESCE(SUM(views), 0)
+FROM (
+    SELECT MIN(qty) AS views
+    FROM ranked
+    WHERE rn <= ?
+    HAVING COUNT(*) = ?
+);
+`
+
+func (r *MediaWatchChunkRepository) CountUserViews(
+	ctx context.Context,
+	downloadID uuid.UUID, userID uuid.UUID,
+	requiredChunks uint32,
+) (uint32, error) {
+	var (
+		views    uint32
+		notFound bool
+	)
+
+	// Execute the query
+	db := dbexec.Resolve(ctx, r.db)
+	execQuery := func() error {
+		row := db.QueryRowContext(
+			ctx, countUserViewsSQL,
+			downloadID, userID,
 			requiredChunks, requiredChunks,
 		)
 		// Scan result into entity

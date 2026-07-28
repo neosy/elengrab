@@ -3,19 +3,29 @@ package migrations
 import (
 	"context"
 	"fmt"
-	"time"
-
-	mediawatch "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch"
+	"sync"
 )
 
-func (m *migrations) changeWatchChunkSizeTo500ms(ctx context.Context) (bool, error) {
-	newSize := 500 * time.Millisecond
+var (
+	changeWatchChunkSizeOnceSync sync.Once
+)
 
-	if newSize != mediawatch.ChunkDuration {
-		return true, nil
+func (m *migrations) changeWatchChunkSizeOnce(ctx context.Context) (bool, error) {
+	var (
+		ok, executed bool
+		err          error
+	)
+
+	changeWatchChunkSizeOnceSync.Do(func() {
+		ok, err = m.changeWatchChunkSize(ctx)
+		executed = true
+	})
+
+	if executed {
+		return ok, err
 	}
 
-	return m.changeWatchChunkSize(ctx)
+	return true, nil
 }
 
 func (m *migrations) changeWatchChunkSize(ctx context.Context) (bool, error) {

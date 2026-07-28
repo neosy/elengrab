@@ -16,7 +16,7 @@ type MediaWatchEventRepository interface {
 	Write(ctx context.Context, event *ddownload.MediaWatchEvent) error
 	Delete(ctx context.Context, downloadID uuid.UUID) error
 
-	IterateGetAll(ctx context.Context, fn func(*ddownload.MediaWatchEvent) error) error
+	IterateAll(ctx context.Context, fn func(*ddownload.MediaWatchEvent) error) error
 
 	WithUserID() MediaWatchEventRepository
 }
