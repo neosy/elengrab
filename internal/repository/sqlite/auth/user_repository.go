@@ -390,14 +390,23 @@ func (r *UserRepository) iterateGetAll(
 	defer rows.Close()
 
 	if rows != nil {
-		err = r.mappers.MapUserRowsToDomainUsers(rows, func(f *dauth.User) error {
-			if err := fn(f); err != nil {
+		var roles string
+
+		for rows.Next() {
+			err := rows.Scan(append(eUser.FieldPointers(), &roles)...)
+			if err != nil {
 				return err
 			}
-			return nil
-		})
-		if err != nil {
-			return err
+
+			user, err := r.mappers.MapUserEntityToDomain(&eUser, roles)
+			if err != nil {
+				return err
+			}
+
+			err = fn(user)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
