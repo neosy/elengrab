@@ -8,14 +8,14 @@ import (
 	ewatchevent "github.com/neosy/elengrab/internal/repository/sqlite/watch_event/entity"
 )
 
-func (m *Mappers) MapMediaWatchPositionDomainToEntity(position *ddownload.MediaWatchPosition) (*ewatchevent.MediaWatchPosition, error) {
+func (m *Mappers) MapMediaUserWatchPositionDomainToEntity(position *ddownload.MediaUserWatchPosition) (*ewatchevent.MediaUserWatchPosition, error) {
 	var sessionID string
 
 	if position.SessionID != nil {
 		sessionID = position.SessionID.String()
 	}
 
-	return &ewatchevent.MediaWatchPosition{
+	return &ewatchevent.MediaUserWatchPosition{
 		DownloadID: position.DownloadID,
 		UserID:     position.UserID,
 		SessionID:  sessionID,
@@ -23,7 +23,7 @@ func (m *Mappers) MapMediaWatchPositionDomainToEntity(position *ddownload.MediaW
 	}, nil
 }
 
-func (m *Mappers) MapMediaWatchPositionEntityToDomain(position *ewatchevent.MediaWatchPosition) (*ddownload.MediaWatchPosition, error) {
+func (m *Mappers) MapMediaUserWatchPositionEntityToDomain(position *ewatchevent.MediaUserWatchPosition) (*ddownload.MediaUserWatchPosition, error) {
 	var sessionID *uuid.UUID
 	if position.SessionID != "" {
 		id, _ := uuid.Parse(position.SessionID)
@@ -36,7 +36,7 @@ func (m *Mappers) MapMediaWatchPositionEntityToDomain(position *ewatchevent.Medi
 		sessionID = nil
 	}
 
-	return &ddownload.MediaWatchPosition{
+	return &ddownload.MediaUserWatchPosition{
 		DownloadID: position.DownloadID,
 		UserID:     position.UserID,
 		SessionID:  sessionID,

@@ -26,11 +26,11 @@ type Repositories struct {
 	DownloadTask          persistence.DownloadTaskRepository
 	DownloadDataMigration persistence.DownloadDataMigrationRepository
 
-	MediaWatchEvent    persistence.MediaWatchEventRepository
-	MediaWatchChunk    persistence.MediaWatchChunkRepository
-	MediaUserWatchStat persistence.MediaUserWatchStatRepository
-	MediaWatchStat     persistence.MediaWatchStatRepository
-	MediaWatchPosition persistence.MediaWatchPositionRepository
+	MediaWatchEvent        persistence.MediaWatchEventRepository
+	MediaUserWatchChunk    persistence.MediaUserWatchChunkRepository
+	MediaUserWatchStat     persistence.MediaUserWatchStatRepository
+	MediaWatchStat         persistence.MediaWatchStatRepository
+	MediaUserWatchPosition persistence.MediaUserWatchPositionRepository
 
 	YoutubeChannel persistence.YoutubeChannelRepository
 	SiteLogo       persistence.SiteLogoRepository
@@ -90,11 +90,11 @@ func New(dbEntries []persistence.DBEntry) *Repositories {
 		DownloadTask:          download.NewDownloadTaskRepository(eMain.db, eMain.locker),
 		DownloadDataMigration: download.NewDataMigrationRepository(eMain.db, eMain.locker),
 
-		MediaWatchEvent:    watchevent.NewMediaWatchEventRepository(eWatchEvent.db, eWatchEvent.locker),
-		MediaWatchChunk:    watchevent.NewMediaWatchChunkRepository(eWatchEvent.db, eWatchEvent.locker),
-		MediaUserWatchStat: watchevent.NewMediaUserWatchStatRepository(eWatchEvent.db, eWatchEvent.locker),
-		MediaWatchStat:     watchevent.NewMediaWatchStatRepository(eWatchEvent.db, eWatchEvent.locker),
-		MediaWatchPosition: watchevent.NewMediaWatchPositionRepository(eWatchEvent.db, eWatchEvent.locker),
+		MediaWatchEvent:        watchevent.NewMediaWatchEventRepository(eWatchEvent.db, eWatchEvent.locker),
+		MediaUserWatchChunk:    watchevent.NewMediaUserWatchChunkRepository(eWatchEvent.db, eWatchEvent.locker),
+		MediaUserWatchStat:     watchevent.NewMediaUserWatchStatRepository(eWatchEvent.db, eWatchEvent.locker),
+		MediaWatchStat:         watchevent.NewMediaWatchStatRepository(eWatchEvent.db, eWatchEvent.locker),
+		MediaUserWatchPosition: watchevent.NewMediaUserWatchPositionRepository(eWatchEvent.db, eWatchEvent.locker),
 
 		YoutubeChannel: media.NewYoutubeChannelRepository(eMedia.db, eMedia.locker),
 		SiteLogo:       media.NewSiteLogoRepository(eMedia.db, eMedia.locker),

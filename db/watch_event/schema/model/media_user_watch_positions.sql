@@ -1,4 +1,4 @@
-CREATE TABLE media_watch_positions (
+CREATE TABLE media_user_watch_positions (
     -- Identifier of the watched media (UUID)
     download_id TEXT NOT NULL,
 

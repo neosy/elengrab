@@ -16,7 +16,7 @@ import (
 	"github.com/neosy/elengrab/internal/repository/sqlite/watch_event/mappers"
 )
 
-type MediaWatchPositionRepository struct {
+type MediaUserWatchPositionRepository struct {
 	mappers *mappers.Mappers
 	db      *sql.DB
 	lock    dbexec.WriteLocker
@@ -27,9 +27,9 @@ type MediaWatchPositionRepository struct {
 	retryOptions dbexec.RetryOptions
 }
 
-// NewMediaWatchPositionRepository returns a new object for the repository
-func NewMediaWatchPositionRepository(db *sql.DB, lock dbexec.WriteLocker) *MediaWatchPositionRepository {
-	return &MediaWatchPositionRepository{
+// NewMediaUserWatchPositionRepository returns a new object for the repository
+func NewMediaUserWatchPositionRepository(db *sql.DB, lock dbexec.WriteLocker) *MediaUserWatchPositionRepository {
+	return &MediaUserWatchPositionRepository{
 		mappers: mappers.NewMappers(),
 		db:      db,
 		lock:    lock,
@@ -44,7 +44,7 @@ func NewMediaWatchPositionRepository(db *sql.DB, lock dbexec.WriteLocker) *Media
 	}
 }
 
-func (r *MediaWatchPositionRepository) Copy() *MediaWatchPositionRepository {
+func (r *MediaUserWatchPositionRepository) Copy() *MediaUserWatchPositionRepository {
 	rep := uptr.Copy(r)
 
 	rep.mappers = r.mappers
@@ -56,25 +56,25 @@ func (r *MediaWatchPositionRepository) Copy() *MediaWatchPositionRepository {
 	return rep
 }
 
-func (r *MediaWatchPositionRepository) Insert(ctx context.Context, position *ddownload.MediaWatchPosition) error {
+func (r *MediaUserWatchPositionRepository) Insert(ctx context.Context, position *ddownload.MediaUserWatchPosition) error {
 	return r.save(ctx, position)
 }
 
-func (r *MediaWatchPositionRepository) Update(ctx context.Context, position *ddownload.MediaWatchPosition) error {
+func (r *MediaUserWatchPositionRepository) Update(ctx context.Context, position *ddownload.MediaUserWatchPosition) error {
 	return r.save(ctx, position)
 }
 
-func (r *MediaWatchPositionRepository) Write(ctx context.Context, position *ddownload.MediaWatchPosition) error {
+func (r *MediaUserWatchPositionRepository) Write(ctx context.Context, position *ddownload.MediaUserWatchPosition) error {
 	return r.save(ctx, position)
 }
 
-func (r *MediaWatchPositionRepository) save(ctx context.Context, position *ddownload.MediaWatchPosition) error {
+func (r *MediaUserWatchPositionRepository) save(ctx context.Context, position *ddownload.MediaUserWatchPosition) error {
 	if position == nil {
 		return ierrors.ErrFuncParamNullPointer
 	}
 
 	// Convert the domain model to a database entity
-	ePosition, err := r.mappers.MapMediaWatchPositionDomainToEntity(position)
+	ePosition, err := r.mappers.MapMediaUserWatchPositionDomainToEntity(position)
 	if err != nil {
 		return err
 	}
@@ -107,8 +107,8 @@ func (r *MediaWatchPositionRepository) save(ctx context.Context, position *ddown
 	return nil
 }
 
-func (r *MediaWatchPositionRepository) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
-	var ePosition ewatchevent.MediaWatchPosition
+func (r *MediaUserWatchPositionRepository) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
+	var ePosition ewatchevent.MediaUserWatchPosition
 
 	// Build DELETE query
 	sqlBuilder := squirrel.
@@ -131,13 +131,13 @@ func (r *MediaWatchPositionRepository) DeleteByDownloadID(ctx context.Context, d
 	return nil
 }
 
-func (r *MediaWatchPositionRepository) Find(
+func (r *MediaUserWatchPositionRepository) Find(
 	ctx context.Context,
 	downloadID uuid.UUID,
 	userID uuid.UUID,
 	sessionID *uuid.UUID,
-) (*ddownload.MediaWatchPosition, error) {
-	var ePosition ewatchevent.MediaWatchPosition
+) (*ddownload.MediaUserWatchPosition, error) {
+	var ePosition ewatchevent.MediaUserWatchPosition
 
 	var sessionIDFilter string
 	if sessionID != nil {
@@ -190,7 +190,7 @@ func (r *MediaWatchPositionRepository) Find(
 	}
 
 	// Map entity to domain model
-	position, err := r.mappers.MapMediaWatchPositionEntityToDomain(&ePosition)
+	position, err := r.mappers.MapMediaUserWatchPositionEntityToDomain(&ePosition)
 	if err != nil {
 		return nil, err
 	}
@@ -198,10 +198,10 @@ func (r *MediaWatchPositionRepository) Find(
 	return position, nil
 }
 
-func (r *MediaWatchPositionRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
+func (r *MediaUserWatchPositionRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
 	return dbexec.Tx(ctx, r.db, r.lock, fn)
 }
 
-func (r *MediaWatchPositionRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
+func (r *MediaUserWatchPositionRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
 	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
 }

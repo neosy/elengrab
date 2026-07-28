@@ -7,11 +7,11 @@ import (
 	"github.com/google/uuid"
 )
 
-func (uc *MediaWatch) GetLastWatchPosition(
+func (uc *MediaWatch) GetLastUserWatchPosition(
 	ctx context.Context,
 	downloadID uuid.UUID, userID uuid.UUID, sessionID *uuid.UUID,
 ) (time.Duration, error) {
-	position, err := uc.position.Find(ctx, downloadID, userID, sessionID)
+	position, err := uc.userPosition.Find(ctx, downloadID, userID, sessionID)
 	if err != nil {
 		return 0, err
 	}

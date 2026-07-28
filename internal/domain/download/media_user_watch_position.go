@@ -8,7 +8,7 @@ import (
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
-type MediaWatchPosition struct {
+type MediaUserWatchPosition struct {
 	// Identifier of the watched media (UUID)
 	DownloadID uuid.UUID
 
@@ -28,7 +28,7 @@ type MediaWatchPosition struct {
 	UpdatedAt time.Time
 }
 
-func (p *MediaWatchPosition) Validate() error {
+func (p *MediaUserWatchPosition) Validate() error {
 	if p.DownloadID == uuid.Nil {
 		return errors.New("download ID is required")
 	}
@@ -40,7 +40,7 @@ func (p *MediaWatchPosition) Validate() error {
 	return nil
 }
 
-func (src *MediaWatchPosition) Copy() *MediaWatchPosition {
+func (src *MediaUserWatchPosition) Copy() *MediaUserWatchPosition {
 	if src == nil {
 		return nil
 	}
@@ -52,7 +52,7 @@ func (src *MediaWatchPosition) Copy() *MediaWatchPosition {
 	return copy
 }
 
-func (p *MediaWatchPosition) Normalize(mediaDuration time.Duration) {
+func (p *MediaUserWatchPosition) Normalize(mediaDuration time.Duration) {
 	if p.Position < 0 {
 		p.Position = 0
 		return

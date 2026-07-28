@@ -1,4 +1,4 @@
-CREATE TABLE media_watch_chunks (
+CREATE TABLE media_user_watch_chunks (
     -- Identifier of the watched media (UUID)
     download_id   TEXT NOT NULL,
 

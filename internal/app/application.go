@@ -37,7 +37,7 @@ const (
 	// TTL for watch stat cache
 	mediaWatchStatCacheTTL = 30 * time.Minute
 	// TTL for watch position cache
-	mediaWatchPositionCacheTTL = 30 * time.Minute
+	mediaUserWatchPositionCacheTTL = 30 * time.Minute
 	// TTL for channel information cache
 	youtubeChannelCacheTTL = 6 * time.Hour
 	// TTL for site logo information cache
@@ -55,15 +55,15 @@ const (
 	channelUpdateInterval = 30 * 24 * time.Hour
 
 	// Cache cleanup intervals
-	cleanMediaDownloadCacheInterval     = 30 * time.Minute
-	cleanDownloadStateCacheInterval     = 30 * time.Minute
-	cleanMediaWatchStatCacheInterval    = 1 * time.Hour
-	cleanMediaWatchPostionCacheInterval = 1 * time.Hour
-	cleanYoutubeChannelCacheInterval    = 5 * time.Hour
-	cleanSiteLogoCacheInterval          = 23 * time.Hour
-	cleanThumbnailCacheInterval         = 23 * time.Hour
-	cleanThumbnailFileCacheInterval     = 1 * time.Hour
-	cleanAssetFileCacheInterval         = 1 * time.Hour
+	cleanMediaDownloadCacheInterval         = 30 * time.Minute
+	cleanDownloadStateCacheInterval         = 30 * time.Minute
+	cleanMediaWatchStatCacheInterval        = 1 * time.Hour
+	cleanMediaUserWatchPostionCacheInterval = 1 * time.Hour
+	cleanYoutubeChannelCacheInterval        = 5 * time.Hour
+	cleanSiteLogoCacheInterval              = 23 * time.Hour
+	cleanThumbnailCacheInterval             = 23 * time.Hour
+	cleanThumbnailFileCacheInterval         = 1 * time.Hour
+	cleanAssetFileCacheInterval             = 1 * time.Hour
 
 	// Intervals for updating metrics
 	updateSystemInfoInterval = 15 * time.Minute
@@ -190,11 +190,11 @@ func (a *Application) initialize() error {
 			DownloadTask:          slRepositories.DownloadTask,
 			DownloadDataMigration: slRepositories.DownloadDataMigration,
 
-			MediaWatchEvent:    slRepositories.MediaWatchEvent,
-			MediaWatchChunk:    slRepositories.MediaWatchChunk,
-			MediaUserWatchStat: slRepositories.MediaUserWatchStat,
-			MediaWatchStat:     slRepositories.MediaWatchStat,
-			MediaWatchPosition: slRepositories.MediaWatchPosition,
+			MediaWatchEvent:        slRepositories.MediaWatchEvent,
+			MediaUserWatchChunk:    slRepositories.MediaUserWatchChunk,
+			MediaUserWatchStat:     slRepositories.MediaUserWatchStat,
+			MediaWatchStat:         slRepositories.MediaWatchStat,
+			MediaUserWatchPosition: slRepositories.MediaUserWatchPosition,
 
 			YoutubeChannel: slRepositories.YoutubeChannel,
 			SiteLogo:       slRepositories.SiteLogo,
@@ -209,14 +209,14 @@ func (a *Application) initialize() error {
 			LinkClick: slRepositories.LickClick,
 
 			// in memory
-			MediaDownloadCache:      inMemoryRepositories.MediaDownload,
-			DownloadStateCache:      inMemoryRepositories.DownloadState,
-			MediaWatchStatCache:     inMemoryRepositories.MediaWatchStat,
-			MediaWatchPositionCache: inMemoryRepositories.MediaWatchPosition,
-			YoutubeChannelCache:     inMemoryRepositories.YoutubeChannel,
-			SiteLogoCache:           inMemoryRepositories.SiteLogo,
-			ThumbnailCache:          inMemoryRepositories.Thumbnail,
-			ThumbnailFileCache:      inMemoryRepositories.ThumbnailFile,
+			MediaDownloadCache:          inMemoryRepositories.MediaDownload,
+			DownloadStateCache:          inMemoryRepositories.DownloadState,
+			MediaWatchStatCache:         inMemoryRepositories.MediaWatchStat,
+			MediaUserWatchPositionCache: inMemoryRepositories.MediaUserWatchPosition,
+			YoutubeChannelCache:         inMemoryRepositories.YoutubeChannel,
+			SiteLogoCache:               inMemoryRepositories.SiteLogo,
+			ThumbnailCache:              inMemoryRepositories.Thumbnail,
+			ThumbnailFileCache:          inMemoryRepositories.ThumbnailFile,
 		},
 
 		Storages: usecases.DepStorages{
@@ -261,15 +261,15 @@ func (a *Application) initialize() error {
 
 	// Workers
 	wsDeps := &workers.Dependencies{
-		MediaDownloadCache:      inMemoryRepositories.MediaDownload,
-		DownloadStateCache:      inMemoryRepositories.DownloadState,
-		MediaWatchStatCache:     inMemoryRepositories.MediaWatchStat,
-		MediaWatchPositionCache: inMemoryRepositories.MediaWatchPosition,
-		YoutubeChannelCache:     inMemoryRepositories.YoutubeChannel,
-		SiteLogoCache:           inMemoryRepositories.SiteLogo,
-		ThumbnailCache:          inMemoryRepositories.Thumbnail,
-		ThumbnailFileCache:      inMemoryRepositories.ThumbnailFile,
-		AssetFileCache:          inMemoryRepositories.AssetFile,
+		MediaDownloadCache:          inMemoryRepositories.MediaDownload,
+		DownloadStateCache:          inMemoryRepositories.DownloadState,
+		MediaWatchStatCache:         inMemoryRepositories.MediaWatchStat,
+		MediaUserWatchPositionCache: inMemoryRepositories.MediaUserWatchPosition,
+		YoutubeChannelCache:         inMemoryRepositories.YoutubeChannel,
+		SiteLogoCache:               inMemoryRepositories.SiteLogo,
+		ThumbnailCache:              inMemoryRepositories.Thumbnail,
+		ThumbnailFileCache:          inMemoryRepositories.ThumbnailFile,
+		AssetFileCache:              inMemoryRepositories.AssetFile,
 
 		// runners
 		DownloaderMaintenance: a.Usecases.Downloader,
@@ -287,15 +287,15 @@ func (a *Application) initialize() error {
 		DeleteFailedDownloadsInterval:  a.cfg.Elengrab.Maintenance.DeleteFailedDownloadsInterval,
 		MoveUnmatchedFilesEnabled:      a.cfg.Elengrab.Maintenance.MoveUnmatchedFilesEnabled,
 
-		CleanMediaDownloadCacheInterval:      cleanMediaDownloadCacheInterval,
-		CleanDownloadStateCacheInterval:      cleanDownloadStateCacheInterval,
-		CleanMediaWatchStatCacheInterval:     cleanMediaWatchStatCacheInterval,
-		CleanMediaWatchPositionCacheInterval: cleanMediaWatchPostionCacheInterval,
-		CleanYoutubeChannelCacheInterval:     cleanYoutubeChannelCacheInterval,
-		CleanSiteLogoCacheInterval:           cleanSiteLogoCacheInterval,
-		CleanThumbnailCacheInterval:          cleanThumbnailCacheInterval,
-		CleanThumbnailFileCacheInterval:      cleanThumbnailFileCacheInterval,
-		CleanAssetFileCacheInterval:          cleanAssetFileCacheInterval,
+		CleanMediaDownloadCacheInterval:          cleanMediaDownloadCacheInterval,
+		CleanDownloadStateCacheInterval:          cleanDownloadStateCacheInterval,
+		CleanMediaWatchStatCacheInterval:         cleanMediaWatchStatCacheInterval,
+		CleanMediaUserWatchPositionCacheInterval: cleanMediaUserWatchPostionCacheInterval,
+		CleanYoutubeChannelCacheInterval:         cleanYoutubeChannelCacheInterval,
+		CleanSiteLogoCacheInterval:               cleanSiteLogoCacheInterval,
+		CleanThumbnailCacheInterval:              cleanThumbnailCacheInterval,
+		CleanThumbnailFileCacheInterval:          cleanThumbnailFileCacheInterval,
+		CleanAssetFileCacheInterval:              cleanAssetFileCacheInterval,
 
 		// metrics
 		UpdateSystemInfoInterval: updateSystemInfoInterval,
@@ -480,15 +480,15 @@ func (a *Application) initSQLiteRepositories() (*sqliterep.Repositories, error) 
 
 func (a *Application) initInMemoryRepositories() *inmemoryrep.Repositories {
 	inMemoryDeps := inmemoryrep.Dependencies{
-		MediaDownloadCacheTTL:      mediaDownloadCacheTTL,
-		DownloadStateCacheTTL:      downloadStateCacheTTL,
-		MediaWatchStatCacheTTL:     mediaWatchStatCacheTTL,
-		MediaWatchPositionCacheTTL: mediaWatchPositionCacheTTL,
-		YoutubeChannelCacheTTL:     youtubeChannelCacheTTL,
-		SiteLogoCacheTTL:           siteLogoCacheTTL,
-		ThumbnailCacheTTL:          thumbnailCacheTTL,
-		ThumbnailFileCacheTTL:      thumbnailFileCacheTTL,
-		AssetFileCacheTTL:          assetFileCacheTTL,
+		MediaDownloadCacheTTL:          mediaDownloadCacheTTL,
+		DownloadStateCacheTTL:          downloadStateCacheTTL,
+		MediaWatchStatCacheTTL:         mediaWatchStatCacheTTL,
+		MediaUserWatchPositionCacheTTL: mediaUserWatchPositionCacheTTL,
+		YoutubeChannelCacheTTL:         youtubeChannelCacheTTL,
+		SiteLogoCacheTTL:               siteLogoCacheTTL,
+		ThumbnailCacheTTL:              thumbnailCacheTTL,
+		ThumbnailFileCacheTTL:          thumbnailFileCacheTTL,
+		AssetFileCacheTTL:              assetFileCacheTTL,
 	}
 	return inmemoryrep.New(inMemoryDeps)
 }
