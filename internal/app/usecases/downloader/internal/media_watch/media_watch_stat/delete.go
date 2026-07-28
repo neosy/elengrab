@@ -21,3 +21,16 @@ func (uc *MediaWatchStat) Delete(ctx context.Context, downloadID uuid.UUID) erro
 
 	return nil
 }
+
+func (uc *MediaWatchStat) DeleteAll(ctx context.Context) error {
+	err := uc.statRep.DeleteAll(ctx)
+	if err != nil {
+		uc.logger.Warn(
+			"Failed to delete all media watch statistics",
+			"error", err,
+		)
+		return err
+	}
+
+	return nil
+}

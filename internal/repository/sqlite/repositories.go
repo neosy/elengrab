@@ -28,6 +28,7 @@ type Repositories struct {
 
 	MediaWatchEvent    persistence.MediaWatchEventRepository
 	MediaWatchChunk    persistence.MediaWatchChunkRepository
+	MediaUserWatchStat persistence.MediaUserWatchStatRepository
 	MediaWatchStat     persistence.MediaWatchStatRepository
 	MediaWatchPosition persistence.MediaWatchPositionRepository
 
@@ -91,6 +92,7 @@ func New(dbEntries []persistence.DBEntry) *Repositories {
 
 		MediaWatchEvent:    watchevent.NewMediaWatchEventRepository(eWatchEvent.db, eWatchEvent.locker),
 		MediaWatchChunk:    watchevent.NewMediaWatchChunkRepository(eWatchEvent.db, eWatchEvent.locker),
+		MediaUserWatchStat: watchevent.NewMediaUserWatchStatRepository(eWatchEvent.db, eWatchEvent.locker),
 		MediaWatchStat:     watchevent.NewMediaWatchStatRepository(eWatchEvent.db, eWatchEvent.locker),
 		MediaWatchPosition: watchevent.NewMediaWatchPositionRepository(eWatchEvent.db, eWatchEvent.locker),
 
