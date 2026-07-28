@@ -1,19 +1,19 @@
 package tablenames
 
 const (
-	MediaWatchEvents    = "media_watch_events"
-	MediaWatchChunks    = "media_watch_chunks"
-	MediaUserWatchStats = "media_user_watch_stats"
-	MediaWatchStats     = "media_watch_stats"
-	MediaWatchPositions = "media_watch_positions"
+	MediaWatchEvents        = "media_watch_events"
+	MediaUserWatchChunks    = "media_user_watch_chunks"
+	MediaUserWatchStats     = "media_user_watch_stats"
+	MediaWatchStats         = "media_watch_stats"
+	MediaUserWatchPositions = "media_user_watch_positions"
 )
 
 var tableNames = []string{
 	MediaWatchEvents,
-	MediaWatchChunks,
+	MediaUserWatchChunks,
 	MediaUserWatchStats,
 	MediaWatchStats,
-	MediaWatchPositions,
+	MediaUserWatchPositions,
 }
 
 func TableNames() []string {

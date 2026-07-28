@@ -7,16 +7,16 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-func (uc *MediaWatch) RebuildChunks(
+func (uc *MediaWatch) RebuildUserChunks(
 	ctx context.Context,
 	findDownload func(ctx context.Context, downloadID uuid.UUID) (*ddownload.MediaDownload, error),
 ) error {
-	err := uc.chunk.DeleteAll(ctx)
+	err := uc.userChunk.DeleteAll(ctx)
 	if err != nil {
 		return err
 	}
 
-	chunkBatches := make([][]*ddownload.MediaWatchChunk, 0)
+	chunkBatches := make([][]*ddownload.MediaUserWatchChunk, 0)
 
 	err = uc.event.IterateGetAll(
 		ctx,
@@ -45,7 +45,7 @@ func (uc *MediaWatch) RebuildChunks(
 	}
 
 	for _, chunks := range chunkBatches {
-		err = uc.chunk.AddChunkQtyBatch(ctx, chunks)
+		err = uc.userChunk.AddChunkQtyBatch(ctx, chunks)
 		if err != nil {
 			return err
 		}

@@ -16,7 +16,7 @@ import (
 	"github.com/neosy/elengrab/internal/repository/sqlite/watch_event/mappers"
 )
 
-type MediaWatchChunkRepository struct {
+type MediaUserWatchChunkRepository struct {
 	mappers *mappers.Mappers
 	db      *sql.DB
 	lock    dbexec.WriteLocker
@@ -28,9 +28,9 @@ type MediaWatchChunkRepository struct {
 	retryOptions dbexec.RetryOptions
 }
 
-// NewMediaWatchChunkRepository returns a new object for the repository
-func NewMediaWatchChunkRepository(db *sql.DB, lock dbexec.WriteLocker) *MediaWatchChunkRepository {
-	return &MediaWatchChunkRepository{
+// NewMediaUserWatchChunkRepository returns a new object for the repository
+func NewMediaUserWatchChunkRepository(db *sql.DB, lock dbexec.WriteLocker) *MediaUserWatchChunkRepository {
+	return &MediaUserWatchChunkRepository{
 		mappers: mappers.NewMappers(),
 		db:      db,
 		lock:    lock,
@@ -45,7 +45,7 @@ func NewMediaWatchChunkRepository(db *sql.DB, lock dbexec.WriteLocker) *MediaWat
 	}
 }
 
-func (r *MediaWatchChunkRepository) Copy() *MediaWatchChunkRepository {
+func (r *MediaUserWatchChunkRepository) Copy() *MediaUserWatchChunkRepository {
 	rep := uptr.Copy(r)
 
 	rep.mappers = r.mappers
@@ -58,13 +58,13 @@ func (r *MediaWatchChunkRepository) Copy() *MediaWatchChunkRepository {
 	return rep
 }
 
-func (r *MediaWatchChunkRepository) AddChunkQty(ctx context.Context, chunk *ddownload.MediaWatchChunk) error {
+func (r *MediaUserWatchChunkRepository) AddChunkQty(ctx context.Context, chunk *ddownload.MediaUserWatchChunk) error {
 	if chunk == nil {
 		return ierrors.ErrFuncParamNullPointer
 	}
 
 	// Convert the domain model to a database entity
-	eChunk, err := r.mappers.MapMediaWatchChunkDomainToEntity(chunk)
+	eChunk, err := r.mappers.MapMediaUserWatchChunkDomainToEntity(chunk)
 	if err != nil {
 		return err
 	}
@@ -99,7 +99,7 @@ func (r *MediaWatchChunkRepository) AddChunkQty(ctx context.Context, chunk *ddow
 	return nil
 }
 
-func (r *MediaWatchChunkRepository) AddChunkQtyBatch(ctx context.Context, chunks []*ddownload.MediaWatchChunk) error {
+func (r *MediaUserWatchChunkRepository) AddChunkQtyBatch(ctx context.Context, chunks []*ddownload.MediaUserWatchChunk) error {
 	if chunks == nil {
 		return ierrors.ErrFuncParamNullPointer
 	}
@@ -108,7 +108,7 @@ func (r *MediaWatchChunkRepository) AddChunkQtyBatch(ctx context.Context, chunks
 		return nil
 	}
 
-	var eChunkTmpl ewatchevent.MediaWatchChunk
+	var eChunkTmpl ewatchevent.MediaUserWatchChunk
 
 	fields := eChunkTmpl.Fields()
 
@@ -123,7 +123,7 @@ func (r *MediaWatchChunkRepository) AddChunkQtyBatch(ctx context.Context, chunks
 		}
 
 		// Convert the domain model to a database entity
-		eChunk, err := r.mappers.MapMediaWatchChunkDomainToEntity(chunk)
+		eChunk, err := r.mappers.MapMediaUserWatchChunkDomainToEntity(chunk)
 		if err != nil {
 			return err
 		}
@@ -153,8 +153,8 @@ func (r *MediaWatchChunkRepository) AddChunkQtyBatch(ctx context.Context, chunks
 	return nil
 }
 
-func (r *MediaWatchChunkRepository) Delete(ctx context.Context, downloadID uuid.UUID) error {
-	var eChunk ewatchevent.MediaWatchChunk
+func (r *MediaUserWatchChunkRepository) Delete(ctx context.Context, downloadID uuid.UUID) error {
+	var eChunk ewatchevent.MediaUserWatchChunk
 
 	// Build DELETE query
 	sqlBuilder := squirrel.
@@ -177,8 +177,8 @@ func (r *MediaWatchChunkRepository) Delete(ctx context.Context, downloadID uuid.
 	return nil
 }
 
-func (r *MediaWatchChunkRepository) DeleteAll(ctx context.Context) error {
-	var eChunk ewatchevent.MediaWatchChunk
+func (r *MediaUserWatchChunkRepository) DeleteAll(ctx context.Context) error {
+	var eChunk ewatchevent.MediaUserWatchChunk
 
 	// Build DELETE query
 	sqlBuilder := squirrel.
@@ -200,11 +200,11 @@ func (r *MediaWatchChunkRepository) DeleteAll(ctx context.Context) error {
 	return nil
 }
 
-func (r *MediaWatchChunkRepository) IterateDownloadUsers(
+func (r *MediaUserWatchChunkRepository) IterateDownloadUsers(
 	ctx context.Context,
 	fn func(downloadID, userID uuid.UUID,
 	) error) error {
-	var eChunk ewatchevent.MediaWatchChunk
+	var eChunk ewatchevent.MediaUserWatchChunk
 
 	var sqlWhere = squirrel.And{}
 	for name, value := range r.filtersByName {
@@ -272,7 +272,7 @@ WITH ranked AS (
             PARTITION BY user_id
             ORDER BY qty DESC
         ) AS rn
-    FROM media_watch_chunks
+    FROM media_user_watch_chunks
     WHERE download_id = ?
 )
 SELECT COALESCE(SUM(views), 0)
@@ -285,7 +285,7 @@ FROM (
 );
 `
 
-func (r *MediaWatchChunkRepository) CountViews(
+func (r *MediaUserWatchChunkRepository) CountViews(
 	ctx context.Context,
 	downloadID uuid.UUID,
 	requiredChunks uint32,
@@ -331,7 +331,7 @@ WITH ranked AS (
             PARTITION BY user_id
             ORDER BY qty DESC
         ) AS rn
-    FROM media_watch_chunks
+    FROM media_user_watch_chunks
     WHERE download_id = ?
 		AND user_id = ?
 )
@@ -344,7 +344,7 @@ FROM (
 );
 `
 
-func (r *MediaWatchChunkRepository) CountUserViews(
+func (r *MediaUserWatchChunkRepository) CountUserViews(
 	ctx context.Context,
 	downloadID uuid.UUID, userID uuid.UUID,
 	requiredChunks uint32,
@@ -381,20 +381,20 @@ func (r *MediaWatchChunkRepository) CountUserViews(
 	return views, nil
 }
 
-func (r *MediaWatchChunkRepository) WithUserID() persistence.MediaWatchChunkRepository {
+func (r *MediaUserWatchChunkRepository) WithUserID() persistence.MediaUserWatchChunkRepository {
 	rep := r.Copy()
 
-	var eChunk ewatchevent.MediaWatchChunk
+	var eChunk ewatchevent.MediaUserWatchChunk
 
 	rep.filtersByName[eChunk.FieldName(&eChunk.UserID)] = nil
 
 	return rep
 }
 
-func (r *MediaWatchChunkRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
+func (r *MediaUserWatchChunkRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
 	return dbexec.Tx(ctx, r.db, r.lock, fn)
 }
 
-func (r *MediaWatchChunkRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
+func (r *MediaUserWatchChunkRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
 	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
 }

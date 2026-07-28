@@ -1,4 +1,4 @@
-package watchchunk
+package uwatchchunk
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-func (uc *MediaWatchChunk) AddChunkQty(ctx context.Context, chunk *ddownload.MediaWatchChunk) error {
+func (uc *MediaUserWatchChunk) AddChunkQty(ctx context.Context, chunk *ddownload.MediaUserWatchChunk) error {
 	if chunk == nil {
 		uc.logger.Warn("Nil pointer in function")
 		return apperrors.ErrFuncParamNullPointer
@@ -31,7 +31,7 @@ func (uc *MediaWatchChunk) AddChunkQty(ctx context.Context, chunk *ddownload.Med
 	return nil
 }
 
-func (uc *MediaWatchChunk) AddChunkQtyBatch(ctx context.Context, chunks []*ddownload.MediaWatchChunk) error {
+func (uc *MediaUserWatchChunk) AddChunkQtyBatch(ctx context.Context, chunks []*ddownload.MediaUserWatchChunk) error {
 	if chunks == nil {
 		uc.logger.Warn("Nil pointer in function")
 		return apperrors.ErrFuncParamNullPointer

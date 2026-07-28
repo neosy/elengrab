@@ -18,7 +18,7 @@ func (uc *MediaWatch) updateStats(
 ) error {
 	requiredChunkCount := calcRequiredChunkCount(mediaDuration)
 
-	views, err := uc.chunk.CountViews(ctx, downloadID, requiredChunkCount)
+	views, err := uc.userChunk.CountViews(ctx, downloadID, requiredChunkCount)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to count media views",
@@ -60,7 +60,7 @@ func (uc *MediaWatch) updateUserStats(
 ) error {
 	requiredChunkCount := calcRequiredChunkCount(mediaDuration)
 
-	views, err := uc.chunk.CountUserViews(ctx, downloadID, userID, requiredChunkCount)
+	views, err := uc.userChunk.CountUserViews(ctx, downloadID, userID, requiredChunkCount)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to count media views",

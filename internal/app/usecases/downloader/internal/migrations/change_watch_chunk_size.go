@@ -31,7 +31,7 @@ func (m *migrations) changeWatchChunkSizeOnce(ctx context.Context) (bool, error)
 func (m *migrations) changeWatchChunkSize(ctx context.Context) (bool, error) {
 	m.logger.Info("Changing media watch chunk size...")
 
-	err := m.usecases.mediaWatch.RebuildChunks(ctx, m.usecases.download.FindByDownloadID)
+	err := m.usecases.mediaWatch.RebuildUserChunks(ctx, m.usecases.download.FindByDownloadID)
 	if err != nil {
 		m.logger.Warn(
 			"Failed to rebuild media watch chunks",

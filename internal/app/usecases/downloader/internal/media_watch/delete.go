@@ -13,7 +13,7 @@ func (uc *MediaWatch) DeleteAllByDownloadID(ctx context.Context, downloadID uuid
 			return err
 		}
 
-		err = uc.chunk.Delete(ctx, downloadID)
+		err = uc.userChunk.Delete(ctx, downloadID)
 		if err != nil {
 			return err
 		}
@@ -23,7 +23,7 @@ func (uc *MediaWatch) DeleteAllByDownloadID(ctx context.Context, downloadID uuid
 			return err
 		}
 
-		err = uc.position.DeleteByDownloadID(ctx, downloadID)
+		err = uc.userPosition.DeleteByDownloadID(ctx, downloadID)
 		if err != nil {
 			return err
 		}

@@ -1,4 +1,4 @@
-package watchchunk
+package uwatchchunk
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (uc *MediaWatchChunk) IterateDownloadUsers(
+func (uc *MediaUserWatchChunk) IterateDownloadUsers(
 	ctx context.Context,
 	fn func(downloadID, userID uuid.UUID) error,
 ) error {

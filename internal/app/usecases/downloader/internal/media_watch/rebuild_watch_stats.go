@@ -31,7 +31,7 @@ func (uc *MediaWatch) RebuildWatchStats(
 	downloadUsers := make(map[uuid.UUID]map[uuid.UUID]struct{})
 
 	// Iterate through all download users and populate the maps
-	err = uc.chunk.IterateDownloadUsers(ctx,
+	err = uc.userChunk.IterateDownloadUsers(ctx,
 		func(downloadID, userID uuid.UUID) error {
 			var download *ddownload.MediaDownload
 

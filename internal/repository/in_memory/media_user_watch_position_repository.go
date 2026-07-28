@@ -9,10 +9,10 @@ import (
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
 
-type MediaWatchPositionRepository struct {
-	memsimple.Repository[ddownload.MediaWatchPosition]
+type MediaUserWatchPositionRepository struct {
+	memsimple.Repository[ddownload.MediaUserWatchPosition]
 
-	cache memsimple.Cache[string, ddownload.MediaWatchPosition]
+	cache memsimple.Cache[string, ddownload.MediaUserWatchPosition]
 }
 
 func buildKey(downloadID uuid.UUID, userID uuid.UUID, sessionID *uuid.UUID) string {
@@ -35,16 +35,16 @@ func buildKey(downloadID uuid.UUID, userID uuid.UUID, sessionID *uuid.UUID) stri
 	return key
 }
 
-// newMediaWatchPositionRepository returns a new object for the repository
-func newMediaWatchPositionRepository(ttl time.Duration) *MediaWatchPositionRepository {
-	r := &MediaWatchPositionRepository{
-		cache: memsimple.NewCacheWithDeaultCopier[string, ddownload.MediaWatchPosition, *ddownload.MediaWatchPosition](),
+// newMediaUserWatchPositionRepository returns a new object for the repository
+func newMediaUserWatchPositionRepository(ttl time.Duration) *MediaUserWatchPositionRepository {
+	r := &MediaUserWatchPositionRepository{
+		cache: memsimple.NewCacheWithDeaultCopier[string, ddownload.MediaUserWatchPosition, *ddownload.MediaUserWatchPosition](),
 	}
 	r.Repository.Init(ttl)
 	return r
 }
 
-func (r *MediaWatchPositionRepository) Save(position *ddownload.MediaWatchPosition) error {
+func (r *MediaUserWatchPositionRepository) Save(position *ddownload.MediaUserWatchPosition) error {
 	if position == nil {
 		return nil
 	}
@@ -66,7 +66,7 @@ func (r *MediaWatchPositionRepository) Save(position *ddownload.MediaWatchPositi
 	return r.Repository.Save(save)
 }
 
-func (r *MediaWatchPositionRepository) SaveNegative(downloadID uuid.UUID, userID uuid.UUID, sessionID *uuid.UUID) error {
+func (r *MediaUserWatchPositionRepository) SaveNegative(downloadID uuid.UUID, userID uuid.UUID, sessionID *uuid.UUID) error {
 	if downloadID == uuid.Nil {
 		return nil
 	}
@@ -89,7 +89,7 @@ func (r *MediaWatchPositionRepository) SaveNegative(downloadID uuid.UUID, userID
 }
 
 // Delete removes a mediaDownload from the in-memory repository using its ID.
-func (r *MediaWatchPositionRepository) Delete(downloadID uuid.UUID, userID uuid.UUID, sessionID *uuid.UUID) error {
+func (r *MediaUserWatchPositionRepository) Delete(downloadID uuid.UUID, userID uuid.UUID, sessionID *uuid.UUID) error {
 	fn := func() error {
 		if downloadID != uuid.Nil {
 			r.cache.Delete(buildKey(downloadID, userID, sessionID))
@@ -100,10 +100,10 @@ func (r *MediaWatchPositionRepository) Delete(downloadID uuid.UUID, userID uuid.
 }
 
 // FindByDownloadID retrieves a mediaDownload by its downloadID from the repository.
-func (r *MediaWatchPositionRepository) Find(
+func (r *MediaUserWatchPositionRepository) Find(
 	downloadID uuid.UUID, userID uuid.UUID, sessionID *uuid.UUID,
-) (*ddownload.MediaWatchPosition, memsimple.CacheStatus, error) {
-	find := func() (*ddownload.MediaWatchPosition, memsimple.CacheStatus, error) {
+) (*ddownload.MediaUserWatchPosition, memsimple.CacheStatus, error) {
+	find := func() (*ddownload.MediaUserWatchPosition, memsimple.CacheStatus, error) {
 		position, status := r.cache.FindWithStatus(buildKey(downloadID, userID, sessionID))
 		return position, status, nil
 	}
@@ -112,7 +112,7 @@ func (r *MediaWatchPositionRepository) Find(
 }
 
 // Checks if a mediaDownload exists by its downloadID.
-func (r *MediaWatchPositionRepository) Exists(
+func (r *MediaUserWatchPositionRepository) Exists(
 	downloadID uuid.UUID, userID uuid.UUID, sessionID *uuid.UUID,
 ) (bool, error) {
 	exists := func() (bool, error) {
@@ -122,7 +122,7 @@ func (r *MediaWatchPositionRepository) Exists(
 }
 
 // CleanExpired cleans expired entries from the repository.
-func (r *MediaWatchPositionRepository) CleanExpired(context.Context) error {
+func (r *MediaUserWatchPositionRepository) CleanExpired(context.Context) error {
 	// Define a clean function to remove expired entries from the cache.
 	clean := func() error {
 		r.cache.CleanExpired()
