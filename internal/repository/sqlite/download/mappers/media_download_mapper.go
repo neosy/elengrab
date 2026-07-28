@@ -139,29 +139,3 @@ func (m *Mappers) MapRowsToDownloads(rows *sql.Rows) ([]*ddownload.MediaDownload
 
 	return downloads, nil
 }
-
-func (m *Mappers) MapRowsToDownloadsTask(rows *sql.Rows, fn func(*ddownload.MediaDownload) error) error {
-	var (
-		eDownload edownload.MediaDownload
-		eTask     edownload.DownloadTask
-	)
-
-	for rows.Next() {
-		err := rows.Scan(append(eDownload.FieldPointers(), eTask.FieldPointers()...)...)
-		if err != nil {
-			return err
-		}
-
-		download, err := m.MapDownloadEntityToDomain(&eDownload, &eTask)
-		if err != nil {
-			return err
-		}
-
-		err = fn(download)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}

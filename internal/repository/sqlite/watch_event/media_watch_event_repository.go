@@ -181,9 +181,23 @@ func (r *MediaWatchEventRepository) iterateGetAll(
 	defer rows.Close()
 
 	if rows != nil {
-		err = r.mappers.MapMediaWatchEventRowsToDomain(rows, fn)
-		if err != nil {
-			return err
+		var eEvent ewatchevent.MediaWatchEvent
+
+		for rows.Next() {
+			err := rows.Scan(eEvent.FieldPointers()...)
+			if err != nil {
+				return err
+			}
+
+			event, err := r.mappers.MapMediaWatchEventEntityToDomain(&eEvent)
+			if err != nil {
+				return err
+			}
+
+			err = fn(event)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

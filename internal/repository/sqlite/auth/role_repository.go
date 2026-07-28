@@ -248,14 +248,21 @@ func (r *RoleRepository) iterateGetAll(
 	defer rows.Close()
 
 	if rows != nil {
-		err = r.mappers.MapRoleRowsToDomainRoles(rows, func(f *dauth.Role) error {
-			if err := fn(f); err != nil {
+		for rows.Next() {
+			err := rows.Scan(eRole.FieldPointers()...)
+			if err != nil {
 				return err
 			}
-			return nil
-		})
-		if err != nil {
-			return err
+
+			role, err := r.mappers.MapRoleEntityToDomain(&eRole)
+			if err != nil {
+				return err
+			}
+
+			err = fn(role)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
