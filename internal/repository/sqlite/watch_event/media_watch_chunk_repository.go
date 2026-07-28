@@ -245,9 +245,18 @@ func (r *MediaWatchChunkRepository) IterateDownloadUsers(
 	defer rows.Close()
 
 	if rows != nil {
-		err = r.mappers.MapMediaWatchChunkGroupDownloadIDUserIDRowsToDomain(rows, fn)
-		if err != nil {
-			return err
+		var dID, uID uuid.UUID
+
+		for rows.Next() {
+			err := rows.Scan(&dID, &uID)
+			if err != nil {
+				return err
+			}
+
+			err = fn(dID, uID)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

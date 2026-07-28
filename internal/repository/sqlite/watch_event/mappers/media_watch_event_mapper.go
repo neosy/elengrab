@@ -1,7 +1,6 @@
 package mappers
 
 import (
-	"database/sql"
 	"time"
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -29,27 +28,4 @@ func (m *Mappers) MapMediaWatchEventEntityToDomain(event *ewatchevent.MediaWatch
 		Interval:   time.Duration(event.IntervalMs) * time.Millisecond,
 		CreatedAt:  event.CreatedAt,
 	}, nil
-}
-
-func (m *Mappers) MapMediaWatchEventRowsToDomain(rows *sql.Rows, fn func(*ddownload.MediaWatchEvent) error) error {
-	var eEvent ewatchevent.MediaWatchEvent
-
-	for rows.Next() {
-		err := rows.Scan(eEvent.FieldPointers()...)
-		if err != nil {
-			return err
-		}
-
-		event, err := m.MapMediaWatchEventEntityToDomain(&eEvent)
-		if err != nil {
-			return err
-		}
-
-		err = fn(event)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

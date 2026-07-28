@@ -1,9 +1,6 @@
 package mappers
 
 import (
-	"database/sql"
-
-	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	ewatchevent "github.com/neosy/elengrab/internal/repository/sqlite/watch_event/entity"
 )
@@ -25,25 +22,4 @@ func (m *Mappers) MapMediaWatchChunkEntityToDomain(chunk *ewatchevent.MediaWatch
 		Qty:        uint32(chunk.Qty),
 		CreatedAt:  chunk.CreatedAt,
 	}, nil
-}
-
-func (m *Mappers) MapMediaWatchChunkGroupDownloadIDUserIDRowsToDomain(
-	rows *sql.Rows,
-	fn func(downloadID, userID uuid.UUID) error,
-) error {
-	var dID, uID uuid.UUID
-
-	for rows.Next() {
-		err := rows.Scan(&dID, &uID)
-		if err != nil {
-			return err
-		}
-
-		err = fn(dID, uID)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

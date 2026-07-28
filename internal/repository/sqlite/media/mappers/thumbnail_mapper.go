@@ -1,8 +1,6 @@
 package mappers
 
 import (
-	"database/sql"
-
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	emedia "github.com/neosy/elengrab/internal/repository/sqlite/media/entity"
@@ -57,27 +55,4 @@ func (m *Mappers) MapThumbnailEntityToDomain(eThumbnail *emedia.Thumbnail) (*dme
 		CreatedAt:  eThumbnail.CreatedAt,
 		UpdatedAt:  eThumbnail.UpdatedAt,
 	}, nil
-}
-
-func (m *Mappers) MapRowsToThumbnails(rows *sql.Rows) ([]*dmedia.Thumbnail, error) {
-	var (
-		eThumbnail emedia.Thumbnail
-		thumbnails []*dmedia.Thumbnail
-	)
-
-	for rows.Next() {
-		err := rows.Scan(eThumbnail.FieldPointers()...)
-		if err != nil {
-			return nil, err
-		}
-
-		thumbnail, err := m.MapThumbnailEntityToDomain(&eThumbnail)
-		if err != nil {
-			return nil, err
-		}
-
-		thumbnails = append(thumbnails, thumbnail)
-	}
-
-	return thumbnails, nil
 }

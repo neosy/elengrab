@@ -1,7 +1,6 @@
 package mappers
 
 import (
-	"database/sql"
 	"strings"
 
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -51,30 +50,4 @@ func (m *Mappers) MapUserEntityToDomain(user *eauth.User, rolesCSV string) (*dau
 		UpdatedAt:         user.UpdatedAt,
 		DeletedAt:         user.DeletedAt,
 	}, nil
-}
-
-func (m *Mappers) MapUserRowsToDomainUsers(rows *sql.Rows, fn func(*dauth.User) error) error {
-	var (
-		eUser eauth.User
-		roles string
-	)
-
-	for rows.Next() {
-		err := rows.Scan(append(eUser.FieldPointers(), &roles)...)
-		if err != nil {
-			return err
-		}
-
-		user, err := m.MapUserEntityToDomain(&eUser, roles)
-		if err != nil {
-			return err
-		}
-
-		err = fn(user)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

@@ -339,10 +339,25 @@ func (r *ThumbnailRepository) GetByMediaID(
 	defer rows.Close()
 
 	if rows != nil {
-		thumbnails, err = r.mappers.MapRowsToThumbnails(rows)
-		if err != nil {
-			return nil, err
+		var (
+			eThumbnail emedia.Thumbnail
+			thumbnails []*dmedia.Thumbnail
+		)
+
+		for rows.Next() {
+			err := rows.Scan(eThumbnail.FieldPointers()...)
+			if err != nil {
+				return nil, err
+			}
+
+			thumbnail, err := r.mappers.MapThumbnailEntityToDomain(&eThumbnail)
+			if err != nil {
+				return nil, err
+			}
+
+			thumbnails = append(thumbnails, thumbnail)
 		}
+
 	}
 
 	return thumbnails, nil

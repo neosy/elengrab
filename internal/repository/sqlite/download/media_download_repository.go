@@ -588,14 +588,21 @@ func (r *MediaDownloadRepository) iterateGetAll(
 	defer rows.Close()
 
 	if rows != nil {
-		err = r.mappers.MapRowsToDownloadsTask(rows, func(f *ddownload.MediaDownload) error {
-			if err := fn(f); err != nil {
+		for rows.Next() {
+			err := rows.Scan(append(eDownload.FieldPointers(), eTask.FieldPointers()...)...)
+			if err != nil {
 				return err
 			}
-			return nil
-		})
-		if err != nil {
-			return err
+
+			download, err := r.mappers.MapDownloadEntityToDomain(&eDownload, &eTask)
+			if err != nil {
+				return err
+			}
+
+			err = fn(download)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
