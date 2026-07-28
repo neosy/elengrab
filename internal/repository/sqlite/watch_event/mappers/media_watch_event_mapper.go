@@ -40,12 +40,12 @@ func (m *Mappers) MapMediaWatchEventRowsToDomain(rows *sql.Rows, fn func(*ddownl
 			return err
 		}
 
-		role, err := m.MapMediaWatchEventEntityToDomain(&eEvent)
+		event, err := m.MapMediaWatchEventEntityToDomain(&eEvent)
 		if err != nil {
 			return err
 		}
 
-		err = fn(role)
+		err = fn(event)
 		if err != nil {
 			return err
 		}

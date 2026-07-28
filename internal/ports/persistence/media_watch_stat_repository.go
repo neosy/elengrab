@@ -14,6 +14,7 @@ type MediaWatchStatRepository interface {
 	// Insert inserting a record
 	Write(ctx context.Context, stat *ddownload.MediaWatchStat) error
 	Delete(ctx context.Context, downloadID uuid.UUID) error
+	DeleteAll(ctx context.Context) error
 
 	Find(ctx context.Context, downloadID uuid.UUID) (*ddownload.MediaWatchStat, error)
 }

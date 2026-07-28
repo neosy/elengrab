@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/google/uuid"
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -47,7 +48,12 @@ func (uc *MediaWatch) ExecuteCreateMediaWatchEvent(
 		return err
 	}
 
-	uc.pendingStats.add(event.DownloadID, req.MediaDuration)
+	var userID uuid.UUID
+	if event.UserID != nil {
+		userID = *event.UserID
+	}
+
+	uc.pendingStats.add(event.DownloadID, userID, req.MediaDuration)
 
 	return nil
 }

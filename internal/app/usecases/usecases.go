@@ -71,6 +71,7 @@ type DepRepositories struct {
 
 	MediaWatchEvent    persistence.MediaWatchEventRepository
 	MediaWatchChunk    persistence.MediaWatchChunkRepository
+	MediaUserWatchStat persistence.MediaUserWatchStatRepository
 	MediaWatchStat     persistence.MediaWatchStatRepository
 	MediaWatchPosition persistence.MediaWatchPositionRepository
 
@@ -153,6 +154,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.Repositories.DownloadDataMigration,
 			deps.Repositories.MediaWatchEvent,
 			deps.Repositories.MediaWatchChunk,
+			deps.Repositories.MediaUserWatchStat,
 			deps.Repositories.MediaWatchStat,
 			deps.Repositories.MediaWatchPosition,
 			deps.Repositories.YoutubeChannel,

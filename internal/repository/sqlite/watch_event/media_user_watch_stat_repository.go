@@ -16,7 +16,7 @@ import (
 	"github.com/neosy/elengrab/internal/repository/sqlite/watch_event/mappers"
 )
 
-type MediaWatchStatRepository struct {
+type MediaUserWatchStatRepository struct {
 	mappers *mappers.Mappers
 	db      *sql.DB
 	lock    dbexec.WriteLocker
@@ -27,9 +27,9 @@ type MediaWatchStatRepository struct {
 	retryOptions dbexec.RetryOptions
 }
 
-// NewMediaWatchStatRepository returns a new object for the repository
-func NewMediaWatchStatRepository(db *sql.DB, lock dbexec.WriteLocker) *MediaWatchStatRepository {
-	return &MediaWatchStatRepository{
+// NewMediaUserWatchStatRepository returns a new object for the repository
+func NewMediaUserWatchStatRepository(db *sql.DB, lock dbexec.WriteLocker) *MediaUserWatchStatRepository {
+	return &MediaUserWatchStatRepository{
 		mappers: mappers.NewMappers(),
 		db:      db,
 		lock:    lock,
@@ -44,7 +44,7 @@ func NewMediaWatchStatRepository(db *sql.DB, lock dbexec.WriteLocker) *MediaWatc
 	}
 }
 
-func (r *MediaWatchStatRepository) Copy() *MediaWatchStatRepository {
+func (r *MediaUserWatchStatRepository) Copy() *MediaUserWatchStatRepository {
 	rep := uptr.Copy(r)
 
 	rep.mappers = r.mappers
@@ -56,25 +56,25 @@ func (r *MediaWatchStatRepository) Copy() *MediaWatchStatRepository {
 	return rep
 }
 
-func (r *MediaWatchStatRepository) Insert(ctx context.Context, stat *ddownload.MediaWatchStat) error {
+func (r *MediaUserWatchStatRepository) Insert(ctx context.Context, stat *ddownload.MediaUserWatchStat) error {
 	return r.save(ctx, stat)
 }
 
-func (r *MediaWatchStatRepository) Update(ctx context.Context, stat *ddownload.MediaWatchStat) error {
+func (r *MediaUserWatchStatRepository) Update(ctx context.Context, stat *ddownload.MediaUserWatchStat) error {
 	return r.save(ctx, stat)
 }
 
-func (r *MediaWatchStatRepository) Write(ctx context.Context, stat *ddownload.MediaWatchStat) error {
+func (r *MediaUserWatchStatRepository) Write(ctx context.Context, stat *ddownload.MediaUserWatchStat) error {
 	return r.save(ctx, stat)
 }
 
-func (r *MediaWatchStatRepository) save(ctx context.Context, stat *ddownload.MediaWatchStat) error {
+func (r *MediaUserWatchStatRepository) save(ctx context.Context, stat *ddownload.MediaUserWatchStat) error {
 	if stat == nil {
 		return ierrors.ErrFuncParamNullPointer
 	}
 
 	// Convert the domain model to a database entity
-	eStat, err := r.mappers.MapMediaWatchStatDomainToEntity(stat)
+	eStat, err := r.mappers.MapMediaUserWatchStatDomainToEntity(stat)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func (r *MediaWatchStatRepository) save(ctx context.Context, stat *ddownload.Med
 		Insert(eStat.TableName()).
 		Columns(fields...).
 		Values(values...).
-		Suffix(dbutils.UpsertSuffix(fields, eStat.FieldName(&eStat.DownloadID))).
+		Suffix(dbutils.UpsertSuffix(fields, eStat.ConflictFields()...)).
 		PlaceholderFormat(squirrel.Dollar)
 
 	// Generate SQL query with upsert logic
@@ -107,8 +107,35 @@ func (r *MediaWatchStatRepository) save(ctx context.Context, stat *ddownload.Med
 	return nil
 }
 
-func (r *MediaWatchStatRepository) Delete(ctx context.Context, downloadID uuid.UUID) error {
-	var eStat ewatchevent.MediaWatchStat
+func (r *MediaUserWatchStatRepository) Delete(ctx context.Context, downloadID uuid.UUID, userID uuid.UUID) error {
+	var eStat ewatchevent.MediaUserWatchStat
+
+	// Build DELETE query
+	sqlBuilder := squirrel.
+		Delete(eStat.TableName()).
+		Where(squirrel.Eq{
+			eStat.FieldName(&eStat.DownloadID): downloadID,
+			eStat.FieldName(&eStat.UserID):     userID,
+		}).
+		PlaceholderFormat(squirrel.Dollar)
+
+	// Generate SQL and args
+	sqlQuery, args, err := sqlBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to delete record: %v", err)
+	}
+
+	return nil
+}
+
+func (r *MediaUserWatchStatRepository) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
+	var eStat ewatchevent.MediaUserWatchStat
 
 	// Build DELETE query
 	sqlBuilder := squirrel.
@@ -131,8 +158,8 @@ func (r *MediaWatchStatRepository) Delete(ctx context.Context, downloadID uuid.U
 	return nil
 }
 
-func (r *MediaWatchStatRepository) DeleteAll(ctx context.Context) error {
-	var eStat ewatchevent.MediaWatchStat
+func (r *MediaUserWatchStatRepository) DeleteAll(ctx context.Context) error {
+	var eStat ewatchevent.MediaUserWatchStat
 
 	// Build DELETE query
 	sqlBuilder := squirrel.
@@ -154,14 +181,17 @@ func (r *MediaWatchStatRepository) DeleteAll(ctx context.Context) error {
 	return nil
 }
 
-func (r *MediaWatchStatRepository) Find(ctx context.Context, downloadID uuid.UUID) (*ddownload.MediaWatchStat, error) {
-	var eStat ewatchevent.MediaWatchStat
+func (r *MediaUserWatchStatRepository) Find(ctx context.Context, downloadID uuid.UUID, userID uuid.UUID) (*ddownload.MediaUserWatchStat, error) {
+	var eStat ewatchevent.MediaUserWatchStat
 
 	// Build SELECT query
 	sqlBuilder := squirrel.
 		Select(eStat.FieldsAll()...).
 		From(eStat.TableName()).
-		Where(squirrel.Eq{eStat.FieldName(&eStat.DownloadID): downloadID}).
+		Where(squirrel.Eq{
+			eStat.FieldName(&eStat.DownloadID): downloadID,
+			eStat.FieldName(&eStat.UserID):     userID,
+		}).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1)
 
@@ -193,7 +223,7 @@ func (r *MediaWatchStatRepository) Find(ctx context.Context, downloadID uuid.UUI
 	}
 
 	// Map entity to domain model
-	stat, err := r.mappers.MapMediaWatchStatEntityToDomain(&eStat)
+	stat, err := r.mappers.MapMediaUserWatchStatEntityToDomain(&eStat)
 	if err != nil {
 		return nil, err
 	}
@@ -201,10 +231,10 @@ func (r *MediaWatchStatRepository) Find(ctx context.Context, downloadID uuid.UUI
 	return stat, nil
 }
 
-func (r *MediaWatchStatRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
+func (r *MediaUserWatchStatRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
 	return dbexec.Tx(ctx, r.db, r.lock, fn)
 }
 
-func (r *MediaWatchStatRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
+func (r *MediaUserWatchStatRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
 	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
 }
