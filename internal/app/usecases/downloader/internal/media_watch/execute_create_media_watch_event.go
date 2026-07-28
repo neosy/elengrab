@@ -21,9 +21,9 @@ func (uc *MediaWatch) ExecuteCreateMediaWatchEvent(
 
 	event := req.Event
 
-	position := uc.mappers.MapWatchEventToWatchPosition(event, req.MediaDuration)
+	position := uc.mappers.MapUserWatchEventToWatchPosition(event, req.MediaDuration)
 	if position.Validate() == nil {
-		uc.position.Write(ctx, position)
+		uc.userPosition.Write(ctx, position)
 	}
 
 	create := func(ctx context.Context) error {
@@ -40,7 +40,7 @@ func (uc *MediaWatch) ExecuteCreateMediaWatchEvent(
 			)
 		}
 
-		return uc.chunk.AddChunkQtyBatch(ctx, chunks)
+		return uc.userChunk.AddChunkQtyBatch(ctx, chunks)
 	}
 
 	err := uc.event.Tx(ctx, create)

@@ -69,11 +69,11 @@ type DepRepositories struct {
 	DownloadTask          persistence.DownloadTaskRepository
 	DownloadDataMigration persistence.DownloadDataMigrationRepository
 
-	MediaWatchEvent    persistence.MediaWatchEventRepository
-	MediaWatchChunk    persistence.MediaWatchChunkRepository
-	MediaUserWatchStat persistence.MediaUserWatchStatRepository
-	MediaWatchStat     persistence.MediaWatchStatRepository
-	MediaWatchPosition persistence.MediaWatchPositionRepository
+	MediaWatchEvent        persistence.MediaWatchEventRepository
+	MediaUserWatchChunk    persistence.MediaUserWatchChunkRepository
+	MediaUserWatchStat     persistence.MediaUserWatchStatRepository
+	MediaWatchStat         persistence.MediaWatchStatRepository
+	MediaUserWatchPosition persistence.MediaUserWatchPositionRepository
 
 	YoutubeChannel persistence.YoutubeChannelRepository
 	SiteLogo       persistence.SiteLogoRepository
@@ -83,14 +83,14 @@ type DepRepositories struct {
 	LinkClick persistence.LinkClickRepository
 
 	// in memory
-	MediaDownloadCache      persistence.MediaDownloadCacheRepository
-	DownloadStateCache      persistence.DownloadStateCacheRepository
-	MediaWatchStatCache     persistence.MediaWatchStatCacheRepository
-	MediaWatchPositionCache persistence.MediaWatchPositionCacheRepository
-	YoutubeChannelCache     persistence.YoutubeChannelCacheRepository
-	SiteLogoCache           persistence.SiteLogoCacheRepository
-	ThumbnailCache          persistence.ThumbnailCacheRepository
-	ThumbnailFileCache      persistence.ThumbnailFileCacheRepository
+	MediaDownloadCache          persistence.MediaDownloadCacheRepository
+	DownloadStateCache          persistence.DownloadStateCacheRepository
+	MediaWatchStatCache         persistence.MediaWatchStatCacheRepository
+	MediaUserWatchPositionCache persistence.MediaUserWatchPositionCacheRepository
+	YoutubeChannelCache         persistence.YoutubeChannelCacheRepository
+	SiteLogoCache               persistence.SiteLogoCacheRepository
+	ThumbnailCache              persistence.ThumbnailCacheRepository
+	ThumbnailFileCache          persistence.ThumbnailFileCacheRepository
 }
 
 type DepStorages struct {
@@ -153,10 +153,10 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.Repositories.DownloadTask,
 			deps.Repositories.DownloadDataMigration,
 			deps.Repositories.MediaWatchEvent,
-			deps.Repositories.MediaWatchChunk,
+			deps.Repositories.MediaUserWatchChunk,
 			deps.Repositories.MediaUserWatchStat,
 			deps.Repositories.MediaWatchStat,
-			deps.Repositories.MediaWatchPosition,
+			deps.Repositories.MediaUserWatchPosition,
 			deps.Repositories.YoutubeChannel,
 			deps.Repositories.SiteLogo,
 
@@ -164,7 +164,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.Repositories.MediaDownloadCache,
 			deps.Repositories.DownloadStateCache,
 			deps.Repositories.MediaWatchStatCache,
-			deps.Repositories.MediaWatchPositionCache,
+			deps.Repositories.MediaUserWatchPositionCache,
 			deps.Repositories.YoutubeChannelCache,
 			deps.Repositories.SiteLogoCache,
 

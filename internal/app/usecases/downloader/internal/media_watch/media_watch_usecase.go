@@ -4,10 +4,10 @@ import (
 	"log/slog"
 
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/mappers"
+	uwatchchunk "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_user_watch_chunk"
+	uwatchposition "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_user_watch_position"
 	uwatchstat "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_user_watch_stat"
-	watchchunk "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_watch_chunk"
 	watchevent "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_watch_event"
-	watchposition "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_watch_position"
 	watchstat "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_watch_stat"
 	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
 	"github.com/neosy/elengrab/internal/ports/persistence"
@@ -24,11 +24,11 @@ type MediaWatch struct {
 	pendingStats statsUpdateQueue
 
 	// internal usecase
-	event    *watchevent.MediaWatchEvent
-	chunk    *watchchunk.MediaWatchChunk
-	userStat *uwatchstat.MediaUserWatchStat
-	stat     *watchstat.MediaWatchStat
-	position *watchposition.MediaWatchPosition
+	event        *watchevent.MediaWatchEvent
+	userChunk    *uwatchchunk.MediaUserWatchChunk
+	userStat     *uwatchstat.MediaUserWatchStat
+	stat         *watchstat.MediaWatchStat
+	userPosition *uwatchposition.MediaUserWatchPosition
 }
 
 func NewMediaWatch(
@@ -36,14 +36,14 @@ func NewMediaWatch(
 
 	// repositories
 	eventRep persistence.MediaWatchEventRepository,
-	chunkRep persistence.MediaWatchChunkRepository,
+	chunkRep persistence.MediaUserWatchChunkRepository,
 	userStatRep persistence.MediaUserWatchStatRepository,
 	statRep persistence.MediaWatchStatRepository,
-	positionRep persistence.MediaWatchPositionRepository,
+	positionRep persistence.MediaUserWatchPositionRepository,
 
 	// in memory
 	statCacheRep persistence.MediaWatchStatCacheRepository,
-	positionCacheRep persistence.MediaWatchPositionCacheRepository,
+	positionCacheRep persistence.MediaUserWatchPositionCacheRepository,
 
 	// dispetchers
 	watchEventDispatcher nworkerpool.JobDispatcher,
@@ -58,10 +58,10 @@ func NewMediaWatch(
 		// State
 		pendingStats: newStatsUpdateQueue(),
 
-		event:    watchevent.NewMediaWatchEvent(logger, eventRep),
-		chunk:    watchchunk.NewMediaWatchChunk(logger, chunkRep),
-		userStat: uwatchstat.NewMediaUserWatchStat(logger, userStatRep),
-		stat:     watchstat.NewMediaWatchStat(logger, statRep, statCacheRep),
-		position: watchposition.NewMediaWatchPosition(logger, positionRep, positionCacheRep),
+		event:        watchevent.NewMediaWatchEvent(logger, eventRep),
+		userChunk:    uwatchchunk.NewMediaUserWatchChunk(logger, chunkRep),
+		userStat:     uwatchstat.NewMediaUserWatchStat(logger, userStatRep),
+		stat:         watchstat.NewMediaWatchStat(logger, statRep, statCacheRep),
+		userPosition: uwatchposition.NewMediaUserWatchPosition(logger, positionRep, positionCacheRep),
 	}
 }

@@ -1,4 +1,4 @@
-package watchposition
+package uwatchposition
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-func (uc *MediaWatchPosition) Write(ctx context.Context, position *ddownload.MediaWatchPosition) error {
+func (uc *MediaUserWatchPosition) Write(ctx context.Context, position *ddownload.MediaUserWatchPosition) error {
 	if position == nil {
 		uc.logger.Warn("Nil pointer in function")
 		return apperrors.ErrFuncParamNullPointer

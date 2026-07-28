@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type MediaWatchChunk struct {
+type MediaUserWatchChunk struct {
 	// Identifier of the watched media (UUID)
 	DownloadID uuid.UUID
 
@@ -24,7 +24,7 @@ type MediaWatchChunk struct {
 	CreatedAt time.Time
 }
 
-func (c *MediaWatchChunk) Validate() error {
+func (c *MediaUserWatchChunk) Validate() error {
 	if c.DownloadID == uuid.Nil {
 		return errors.New("download ID is required")
 	}

@@ -1,4 +1,4 @@
-package watchposition
+package uwatchposition
 
 import (
 	"context"
@@ -10,10 +10,10 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-func (uc *MediaWatchPosition) Find(
+func (uc *MediaUserWatchPosition) Find(
 	ctx context.Context,
 	downloadID uuid.UUID, userID uuid.UUID, sessionID *uuid.UUID,
-) (*ddownload.MediaWatchPosition, error) {
+) (*ddownload.MediaUserWatchPosition, error) {
 	if downloadID == uuid.Nil {
 		return nil, nil
 	}

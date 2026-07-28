@@ -7,7 +7,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-func (uc *MediaWatch) eventToChunks(event *ddownload.MediaWatchEvent, mediaDuration time.Duration) []*ddownload.MediaWatchChunk {
+func (uc *MediaWatch) eventToChunks(event *ddownload.MediaWatchEvent, mediaDuration time.Duration) []*ddownload.MediaUserWatchChunk {
 	if event.Interval <= 0 || event.Position <= 0 {
 		return nil
 	}
@@ -36,9 +36,9 @@ func (uc *MediaWatch) eventToChunks(event *ddownload.MediaWatchEvent, mediaDurat
 		userID = *event.UserID
 	}
 
-	chunks := make([]*ddownload.MediaWatchChunk, 0, to-from+1)
+	chunks := make([]*ddownload.MediaUserWatchChunk, 0, to-from+1)
 	for i := from; i <= to; i++ {
-		chunks = append(chunks, &ddownload.MediaWatchChunk{
+		chunks = append(chunks, &ddownload.MediaUserWatchChunk{
 			DownloadID: event.DownloadID,
 			UserID:     userID,
 			ChunkIndex: uint32(i),

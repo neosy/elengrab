@@ -10,21 +10,21 @@ import (
 )
 
 var (
-	positionConflictFields [3]string
+	userChunkConflictFields [3]string
 )
 
 func init() {
-	var ePosition MediaWatchPosition
+	var eChunk MediaUserWatchChunk
 
-	positionConflictFields = [3]string{
-		ePosition.FieldName(&ePosition.DownloadID),
-		ePosition.FieldName(&ePosition.UserID),
-		ePosition.FieldName(&ePosition.SessionID),
+	userChunkConflictFields = [3]string{
+		eChunk.FieldName(&eChunk.DownloadID),
+		eChunk.FieldName(&eChunk.UserID),
+		eChunk.FieldName(&eChunk.ChunkIndex),
 	}
 }
 
-type MediaWatchPosition struct {
-	dbentity.BaseEntity[MediaWatchPosition]
+type MediaUserWatchChunk struct {
+	dbentity.BaseEntity[MediaUserWatchChunk]
 
 	// Identifier of the watched media (UUID)
 	DownloadID uuid.UUID `db:"download_id"`
@@ -32,29 +32,26 @@ type MediaWatchPosition struct {
 	// Associated user identifier (UUID)
 	UserID uuid.UUID `db:"user_id"`
 
-	// User session identifier (UUID)
-	SessionID string `db:"session_id"`
+	// Zero-based index of the 1000ms media chunk
+	ChunkIndex int `db:"chunk_index"`
 
-	// Last saved playback position in milliseconds
-	PositionMs int `db:"position_ms"`
+	// How many times this chunk was watched
+	Qty int `db:"qty"`
 
 	// Record creation timestamp, set automatically
 	CreatedAt time.Time `db:"created_at" insert:"false"`
-
-	// Record last update timestamp, set automatically
-	UpdatedAt time.Time `db:"updated_at" sqlexpr:"CURRENT_TIMESTAMP"`
 }
 
 // TableName returns the table name
-func (e *MediaWatchPosition) TableName() string {
-	return tablenames.MediaWatchPositions
+func (e *MediaUserWatchChunk) TableName() string {
+	return tablenames.MediaUserWatchChunks
 }
 
 // FieldName field name from sql tag by structure field name
 // Example:
 // var ent <TableEntity>
 // ent.FieldName(&ent.SalesId)
-func (e *MediaWatchPosition) FieldName(fieldPtr any) string {
+func (e *MediaUserWatchChunk) FieldName(fieldPtr any) string {
 	return e.BaseEntity.FieldName(e, fieldPtr)
 }
 
@@ -62,37 +59,33 @@ func (e *MediaWatchPosition) FieldName(fieldPtr any) string {
 // Example:
 // var ent <TableEntity>
 // ent.FieldName(ent, &ent.SalesId, "alias")
-func (e *MediaWatchPosition) FieldNameWithAlias(fieldPtr any, alias string) string {
+func (e *MediaUserWatchChunk) FieldNameWithAlias(fieldPtr any, alias string) string {
 	return e.BaseEntity.FieldNameWithAlias(e, fieldPtr, alias)
 }
 
 // FieldPointers returns a slice of pointers to all exported fields of the given struct.
-func (e *MediaWatchPosition) FieldPointers() []any {
+func (e *MediaUserWatchChunk) FieldPointers() []any {
 	ptrs, _ := e.BaseEntity.FieldPointers(e)
 	return ptrs
 }
 
 // FieldPointer returns a pointer to the field of the given struct specified by tag.
-func (e *MediaWatchPosition) FieldPointer(fieldName string) any {
+func (e *MediaUserWatchChunk) FieldPointer(fieldName string) any {
 	ptr, _ := e.BaseEntity.FieldPointer(e, fieldName)
 	return ptr
 }
 
 // Values returns a list of values for fields that will be used for updates
-func (e *MediaWatchPosition) Values() []any {
+func (e *MediaUserWatchChunk) Values() []any {
 	return e.BaseEntity.Values(e)
 }
 
 // FieldsMap returns a map of field names to their corresponding values
 // using the entity's Fields() and Values() methods, ready for UPDATE statements.
-func (e *MediaWatchPosition) FieldsMap() map[string]any {
+func (e *MediaUserWatchChunk) FieldsMap() map[string]any {
 	return e.BaseEntity.FieldsMap(e)
 }
 
-func (e *MediaWatchPosition) ConflictFields() []string {
-	return positionConflictFields[:]
-}
-
-func (e *MediaWatchPosition) ConflictColumnsSQL() string {
-	return strings.Join(positionConflictFields[:], " ,")
+func (e *MediaUserWatchChunk) ConflictColumnsSQL() string {
+	return strings.Join(userChunkConflictFields[:], " ,")
 }

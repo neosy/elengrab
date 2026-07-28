@@ -7,11 +7,11 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-type MediaWatchChunkRepository interface {
+type MediaUserWatchChunkRepository interface {
 	Transactional
 
-	AddChunkQty(ctx context.Context, chunk *ddownload.MediaWatchChunk) error
-	AddChunkQtyBatch(ctx context.Context, chunks []*ddownload.MediaWatchChunk) error
+	AddChunkQty(ctx context.Context, chunk *ddownload.MediaUserWatchChunk) error
+	AddChunkQtyBatch(ctx context.Context, chunks []*ddownload.MediaUserWatchChunk) error
 	Delete(ctx context.Context, downloadID uuid.UUID) error
 	DeleteAll(ctx context.Context) error
 
@@ -20,5 +20,5 @@ type MediaWatchChunkRepository interface {
 	CountViews(ctx context.Context, downloadID uuid.UUID, requiredChunks uint32) (uint32, error)
 	CountUserViews(ctx context.Context, downloadID uuid.UUID, userID uuid.UUID, requiredChunks uint32) (uint32, error)
 
-	WithUserID() MediaWatchChunkRepository
+	WithUserID() MediaUserWatchChunkRepository
 }
