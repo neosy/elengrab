@@ -92,17 +92,7 @@ func (h *DownloaderHandlers) getDownloadsHistory(
 			continue
 		}
 
-		// Load template
-		tmpl, err := h.templates.Clone()
-		if err != nil {
-			h.logger.Warn(
-				"Failed to clone templates",
-				"error", err,
-			)
-			continue
-		}
-
-		err = tmpl.ExecuteTemplate(buf, components.ResultRowStatusKey, row.data)
+		err = h.templates.Base.ExecuteTemplate(buf, components.ResultRowStatusKey, row.data)
 		if err != nil {
 			h.logger.Warn(
 				"Failed to execute template",
@@ -132,13 +122,7 @@ func (h *DownloaderHandlers) genRowLoadHistory(buf *bytes.Buffer) error {
 		Extra: extraData,
 	}
 
-	// Load template
-	tmpl, err := h.templates.Clone()
-	if err != nil {
-		return errInternal(err)
-	}
-
-	err = tmpl.ExecuteTemplate(buf, components.ResultLoadHistory, pageData)
+	err := h.templates.Base.ExecuteTemplate(buf, components.ResultLoadHistory, pageData)
 	if err != nil {
 		return errInternal(err)
 	}
@@ -173,13 +157,7 @@ func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 		Extra:     extraData,
 	}
 
-	// Load template
-	tmpl, err := h.templates.Clone()
-	if err != nil {
-		return errInternal(err)
-	}
-
-	err = tmpl.ExecuteTemplate(buf, components.ResultShouldLoadHistoryKey, pageData)
+	err := h.templates.Base.ExecuteTemplate(buf, components.ResultShouldLoadHistoryKey, pageData)
 	if err != nil {
 		return errInternal(err)
 	}

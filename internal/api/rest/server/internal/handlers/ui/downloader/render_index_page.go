@@ -126,15 +126,8 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, authCtx d
 	// Set content type so browser renders HTML properly
 	ctx.SetContentType(mime.TypeByExtension(".html"))
 
-	// Load template
-	tmpl, err := h.loadPageTemplate(pages.IndexPage.FileName())
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
-		return
-	}
-
 	// Execute template with PageTitle
-	if err := tmpl.ExecuteTemplate(ctx, pages.IndexPage.Key(), pageData); err != nil {
+	if err := h.templates.Pages[pages.IndexPage.Key()].ExecuteTemplate(ctx, pages.IndexPage.Key(), pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

@@ -38,15 +38,8 @@ func (h *AdminHandlers) UserTableRowHandler(ctx *fasthttp.RequestCtx) {
 func (h *AdminHandlers) renderUserTableRow(ctx *fasthttp.RequestCtx, userInfo *ucdto.UserInfoResponse) {
 	data := h.mappers.UserToUserOnPage(&userInfo.User, pages.NewAdminUserIcons())
 
-	// Load template
-	tmpl, err := h.templates.Clone()
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errTemplateInternal(err))
-		return
-	}
-
 	var buf bytes.Buffer
-	err = tmpl.ExecuteTemplate(&buf, components.AdminUsersPanelUserTableRowKey, data)
+	err := h.templates.Base.ExecuteTemplate(&buf, components.AdminUsersPanelUserTableRowKey, data)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errTemplateInternal(err))
 		return

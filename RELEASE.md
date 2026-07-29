@@ -12,6 +12,9 @@
 ### 🎨 Style
 - Hide the Delete button in grid-view mode. [L057]
 
+### 🧩 Refactor
+- Improved template loading architecture by separating base and page templates. [L076]
+
 ### 🐛 Fix
 - Fix paste button behavior in Firefox by using native input insertion. [L064]
 - Fixed incorrect removal of broadcaster subscriptions. [L070]
