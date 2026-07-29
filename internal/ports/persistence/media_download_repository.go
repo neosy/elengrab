@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/cache/memory"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
 
@@ -45,10 +46,14 @@ type MediaDownloadRepository interface {
 }
 
 type MediaDownloadCacheRepository interface {
+	memory.CacheRepository
+
 	Save(media *ddownload.MediaDownload) error
 	SaveNegative(downloadID uuid.UUID) error
 	Delete(downloadID uuid.UUID) error
+
 	FindByDownloadID(downloadID uuid.UUID) (*ddownload.MediaDownload, memsimple.CacheStatus, error)
 	ExistsByFileID(downloadID uuid.UUID) (bool, error)
+
 	CleanExpired(context.Context) error
 }

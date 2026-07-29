@@ -44,6 +44,10 @@ func newMediaUserWatchPositionRepository(ttl time.Duration) *MediaUserWatchPosit
 	return r
 }
 
+func (r *MediaUserWatchPositionRepository) Name() string {
+	return "media_usser_watch_position"
+}
+
 func (r *MediaUserWatchPositionRepository) Save(position *ddownload.MediaUserWatchPosition) error {
 	if position == nil {
 		return nil

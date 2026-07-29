@@ -27,6 +27,10 @@ func newThumbnailRepository(ttl time.Duration) *ThumbnailRepository {
 	return r
 }
 
+func (r *ThumbnailRepository) Name() string {
+	return "thumbnail"
+}
+
 func (r *ThumbnailRepository) Save(_ context.Context, thumbnail *dmedia.Thumbnail) error {
 	if thumbnail == nil || thumbnail.ThumbID == uuid.Nil {
 		return nil

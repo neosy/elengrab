@@ -26,6 +26,10 @@ func newYoutubeChannelRepository(ttl time.Duration) *YoutubeChannelRepository {
 	return r
 }
 
+func (r *YoutubeChannelRepository) Name() string {
+	return "youtube_channel"
+}
+
 func (r *YoutubeChannelRepository) Save(_ context.Context, channel *dmedia.YoutubeChannel) error {
 	if channel == nil || channel.ChannelID == "" {
 		return nil

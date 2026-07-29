@@ -6,7 +6,9 @@
 - Display a share link icon for media items with an existing share link. [L059]
 - Added Delete Short Link menu item. [L062]
 - Added share link to media info. [L063]
-- Added media watch event tracking. [L068]
+- Added media watch statistics. [L068]
+  - Added media watch event tracking.
+  - Added media view count display.
 - Resume media playback from the last saved position. [L069]
 
 ### 🎨 Style

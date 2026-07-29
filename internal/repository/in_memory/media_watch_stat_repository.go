@@ -24,6 +24,10 @@ func newMediaWatchStatRepository(ttl time.Duration) *MediaWatchStatRepository {
 	return r
 }
 
+func (r *MediaWatchStatRepository) Name() string {
+	return "media_watch_stat"
+}
+
 func (r *MediaWatchStatRepository) Save(stat *ddownload.MediaWatchStat) error {
 	if stat == nil {
 		return nil

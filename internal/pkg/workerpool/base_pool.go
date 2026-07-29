@@ -46,7 +46,7 @@ type baseWorkerPool struct {
 	quit chan struct{}
 	wg   sync.WaitGroup
 
-	mu   sync.Mutex
+	mu   sync.RWMutex
 	cond *sync.Cond
 
 	running    atomic.Bool
