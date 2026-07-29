@@ -6,8 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
-func (uc *MediaWatchStat) Delete(ctx context.Context, downloadID uuid.UUID) error {
-	err := uc.statRep.Delete(ctx, downloadID)
+func (uc *MediaWatchStat) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
+	err := uc.statRep.DeleteByDownloadID(ctx, downloadID)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to delete media watch statistics",

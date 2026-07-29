@@ -12,7 +12,7 @@ type MediaUserWatchChunkRepository interface {
 
 	AddChunkQty(ctx context.Context, chunk *ddownload.MediaUserWatchChunk) error
 	AddChunkQtyBatch(ctx context.Context, chunks []*ddownload.MediaUserWatchChunk) error
-	Delete(ctx context.Context, downloadID uuid.UUID) error
+	DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error
 	DeleteAll(ctx context.Context) error
 
 	IterateDownloadUsers(ctx context.Context, fn func(downloadID, userID uuid.UUID) error) error
