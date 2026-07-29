@@ -57,14 +57,8 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 		IconFileNames: icons.FileNamesByKey(),
 	}
 
-	// Load template
-	tmpl, err := h.templates.Clone()
-	if err != nil {
-		return nil
-	}
-
 	var buf bytes.Buffer
-	err = tmpl.ExecuteTemplate(&buf, components.ResultNewRowKey, pageData)
+	err := h.templates.Base.ExecuteTemplate(&buf, components.ResultNewRowKey, pageData)
 	if err != nil {
 		return nil
 	}

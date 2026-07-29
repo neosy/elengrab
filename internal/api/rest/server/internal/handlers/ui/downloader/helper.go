@@ -2,9 +2,7 @@ package downloader
 
 import (
 	"fmt"
-	"html/template"
 	"net/url"
-	"path/filepath"
 	"strings"
 
 	"github.com/google/uuid"
@@ -58,20 +56,6 @@ func (h *DownloaderHandlers) redirectGuestIfAuthRequired(ctx *fasthttp.RequestCt
 		}
 	}
 	return false
-}
-
-func (h *DownloaderHandlers) loadPageTemplate(fileName string) (*template.Template, error) {
-	t, err := h.templates.Clone()
-	if err != nil {
-		return nil, err
-	}
-
-	t, err = t.ParseFiles(filepath.Join(h.assets.FolderPaths().Pages(), fileName))
-	if err != nil {
-		return nil, err
-	}
-
-	return t, nil
 }
 
 func errInternal(err error) error {

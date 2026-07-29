@@ -61,18 +61,11 @@ func (h *DownloaderHandlers) AuthRegisterPageHandler(ctx *fasthttp.RequestCtx) {
 		},
 	}
 
-	// Load template
-	tmpl, err := h.loadPageTemplate(pages.AuthRegisterPage.FileName())
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
-		return
-	}
-
 	// Set content type so browser renders HTML properly
 	ctx.SetContentType(mime.TypeByExtension(".html"))
 
 	// Execute template
-	if err := tmpl.ExecuteTemplate(ctx, pages.AuthRegisterPage.Key(), pageData); err != nil {
+	if err := h.templates.Pages[pages.AuthRegisterPage.Key()].ExecuteTemplate(ctx, pages.AuthRegisterPage.Key(), pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

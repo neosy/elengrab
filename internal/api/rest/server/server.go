@@ -29,8 +29,8 @@ type Dependencies struct {
 	// caches
 	AssetFileCacheRepository persistence.AssetFileCacheRepository
 
-	Usecases  *usecases.Usecases
-	Templates *template.Template
+	Usecases *usecases.Usecases
+	Template *template.Template
 
 	// Options
 	AppMode         dtypes.AppMode
@@ -53,7 +53,7 @@ type httpServer struct {
 	usecases *usecases.Usecases
 
 	// templates
-	templates *template.Template
+	template *template.Template
 
 	// Options
 	appMode         dtypes.AppMode
@@ -63,20 +63,23 @@ type httpServer struct {
 	metricsEnabled  bool
 }
 
-func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *httpServer {
-	handlers := handlers.New(
+func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) (*httpServer, error) {
+	handlers, err := handlers.New(
 		logger,
 		&handlers.Dependencies{
 			DownloadsStorage: deps.DownloadsStorage,
 			Assets:           assets.NewAssets(deps.AssetsDir, deps.AssetFileCacheRepository),
 			Usecases:         deps.Usecases,
-			Templates:        deps.Templates,
+			Template:         deps.Template,
 			AppEnv:           appEnv,
 			AppMode:          deps.AppMode,
 			BaseURL:          deps.BaseURL,
 			ShortLinkPrefix:  deps.ShortLinkPrefix,
 		},
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	return &httpServer{
 		logger: logger,
@@ -91,8 +94,8 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *h
 
 		handlers: handlers,
 
-		usecases:  deps.Usecases,
-		templates: deps.Templates,
+		usecases: deps.Usecases,
+		template: deps.Template,
 
 		// Optons
 		appMode:         deps.AppMode,
@@ -100,7 +103,7 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) *h
 		shortLinkPrefix: deps.ShortLinkPrefix,
 		assetsDir:       deps.AssetsDir,
 		metricsEnabled:  deps.MetricsEnabled,
-	}
+	}, nil
 }
 
 func (s *httpServer) ListenAndServe(ctx context.Context, port string) error {
