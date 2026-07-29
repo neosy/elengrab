@@ -24,6 +24,10 @@ func newMediaDownloadRepository(ttl time.Duration) *MediaDownloadRepository {
 	return r
 }
 
+func (r *MediaDownloadRepository) Name() string {
+	return "media_download"
+}
+
 func (r *MediaDownloadRepository) Save(media *ddownload.MediaDownload) error {
 	if media == nil {
 		return nil

@@ -205,6 +205,7 @@ func (wp *dynamicWorkerPool) addWorker(ctx context.Context) {
 	if wp.options.logger != nil {
 		wp.options.logger.Debug(
 			"Worker started in pool",
+			"poolName", wp.Name(),
 			"workerID", id,
 			"count", wp.ActiveWorkers(),
 			"max", wp.options.MaxWorkers,

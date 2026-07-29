@@ -73,7 +73,7 @@ func NewYtDlpService(
 			logger.Warn("Directory cookies does not exist", "dir", options.CookiesDir)
 			logger.Info("AllowCookies has been disabled")
 		} else {
-			logger.Debug("Cookies directory exists", "dir", options.CookiesDir)
+			logger.Info("Cookies directory exists", "dir", options.CookiesDir)
 		}
 	}
 

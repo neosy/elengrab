@@ -26,6 +26,10 @@ func newAssetFileRepository(ttl time.Duration) *AssetFileRepository {
 	return r
 }
 
+func (r *AssetFileRepository) Name() string {
+	return "asset_file"
+}
+
 func (r *AssetFileRepository) Save(assetFile *dtypes.AssetFile) error {
 	if assetFile == nil {
 		return nil

@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	"github.com/neosy/elengrab/internal/pkg/cache/memory"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
 
@@ -19,6 +20,8 @@ type MediaUserWatchPositionRepository interface {
 }
 
 type MediaUserWatchPositionCacheRepository interface {
+	memory.CacheRepository
+
 	Save(position *ddownload.MediaUserWatchPosition) error
 	SaveNegative(downloadID uuid.UUID, userID uuid.UUID, sessionID *uuid.UUID) error
 	Delete(downloadID uuid.UUID, userID uuid.UUID, sessionID *uuid.UUID) error

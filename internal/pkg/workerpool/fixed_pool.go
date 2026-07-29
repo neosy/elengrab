@@ -172,6 +172,15 @@ func (wp *workerPool) addWorker(ctx context.Context) {
 		wp.notifyJobDone,
 		wp.notifyStopWorker,
 	)
+
+	if wp.options.logger != nil {
+		wp.options.logger.Debug(
+			"Worker started in pool",
+			"poolName", wp.Name(),
+			"workerID", id,
+			"count", wp.options.MaxWorkers,
+		)
+	}
 }
 
 // notifyStopWorker notifies the manager that a worker is stopping.
@@ -184,15 +193,15 @@ func (wp *workerPool) notifyStopWorker(workerID uint64) {
 
 // ActiveWorkers returns the current number of worker goroutines in the pool.
 func (wp *workerPool) ActiveWorkers() uint32 {
-	wp.mu.Lock()
-	defer wp.mu.Unlock()
+	wp.mu.RLock()
+	defer wp.mu.RUnlock()
 	return wp.options.MaxWorkers
 }
 
 // PoolSize returns the maximum number of workers in the pool.
 func (wp *workerPool) PoolSize() uint32 {
-	wp.mu.Lock()
-	defer wp.mu.Unlock()
+	wp.mu.RLock()
+	defer wp.mu.RUnlock()
 	return wp.options.MaxWorkers
 }
 
