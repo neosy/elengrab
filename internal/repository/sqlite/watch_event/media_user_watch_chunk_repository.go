@@ -153,7 +153,7 @@ func (r *MediaUserWatchChunkRepository) AddChunkQtyBatch(ctx context.Context, ch
 	return nil
 }
 
-func (r *MediaUserWatchChunkRepository) Delete(ctx context.Context, downloadID uuid.UUID) error {
+func (r *MediaUserWatchChunkRepository) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
 	var eChunk ewatchevent.MediaUserWatchChunk
 
 	// Build DELETE query
