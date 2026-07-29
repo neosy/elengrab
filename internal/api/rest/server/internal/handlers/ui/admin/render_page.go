@@ -69,15 +69,8 @@ func (h *AdminHandlers) renderPage(ctx *fasthttp.RequestCtx, ctxUser dauth.UserC
 	// Set content type so browser renders HTML properly
 	ctx.SetContentType(mime.TypeByExtension(".html"))
 
-	// Load template
-	tmpl, err := h.loadPageTemplate(pages.AdminPage.FileName())
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errTemplateInternal(err))
-		return
-	}
-
 	// Execute template with PageTitle
-	if err := tmpl.ExecuteTemplate(ctx, pages.AdminPage.Key(), pageData); err != nil {
+	if err := h.templates.Pages[pages.AdminPage.Key()].ExecuteTemplate(ctx, pages.AdminPage.Key(), pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errTemplateInternal(err))
 		return
 	}

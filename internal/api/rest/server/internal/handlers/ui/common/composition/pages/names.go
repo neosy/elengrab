@@ -30,7 +30,21 @@ var (
 		key:      "error-page",
 		fileName: "error.html",
 	}
+
+	pages = []page{
+		IndexPage,
+		AuthRegisterPage,
+		AuthLoginPage,
+		WatchPage,
+		EditMediaPage,
+		AdminPage,
+		ErrorPage,
+	}
 )
+
+func AllPages() []page {
+	return pages
+}
 
 type page struct {
 	key      string

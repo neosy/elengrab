@@ -22,7 +22,7 @@ func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Applicat
 		DownloadsStorage:         app.DownloadsStorage,
 		AssetFileCacheRepository: app.AssetFileCacheRepository,
 		Usecases:                 app.Usecases,
-		Templates:                tmpl,
+		Template:                 tmpl,
 
 		// Options
 		AppMode:         dtypes.MustParseAppMode(cfg.Elengrab.Mode),
@@ -32,7 +32,13 @@ func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Applicat
 		MetricsEnabled:  cfg.AdminServer.Enable && cfg.AdminServer.DebugConfig.EnableMetrics,
 	}
 
-	httpServer := httpsrv.NewServer(logger, cfg.AppConfig.AppEnv, deps)
+	httpServer, err := httpsrv.NewServer(logger, cfg.AppConfig.AppEnv, deps)
+	if err != nil {
+		logger.Error("Failed to create HTTP server", "error", err)
+		app.Cancel()
+		return
+	}
+
 	err = httpServer.ListenAndServe(app.Context(), cfg.HTTPServer.Port)
 	if err != nil {
 		app.Cancel()

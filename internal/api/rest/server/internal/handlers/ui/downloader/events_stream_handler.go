@@ -169,14 +169,8 @@ func (h *DownloaderHandlers) handleDownloadUpdate(ctx context.Context, w *bufio.
 		return
 	}
 
-	// Load template
-	tmpl, err := h.templates.Clone()
-	if err != nil {
-		return
-	}
-
 	var buf bytes.Buffer
-	err = tmpl.ExecuteTemplate(&buf, components.ResultRowStatusKey, row.data)
+	err := h.templates.Base.ExecuteTemplate(&buf, components.ResultRowStatusKey, row.data)
 	if err != nil {
 		return
 	}

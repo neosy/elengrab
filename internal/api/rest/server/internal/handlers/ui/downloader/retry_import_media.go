@@ -53,14 +53,8 @@ func (h *DownloaderHandlers) RetryImportMediaHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	tmpl, err := h.templates.Clone()
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
-		return
-	}
-
 	var buf bytes.Buffer
-	err = tmpl.ExecuteTemplate(&buf, components.ResultRowStatusKey, row.data)
+	err = h.templates.Base.ExecuteTemplate(&buf, components.ResultRowStatusKey, row.data)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return

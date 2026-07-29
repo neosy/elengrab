@@ -24,14 +24,8 @@ func (h *AdminHandlers) renderContent(ctx *fasthttp.RequestCtx, page page.Page) 
 		return nil, fmt.Errorf("buildContentData returned nil for pageTitle=%s", page.Title)
 	}
 
-	// Load template
-	tmpl, err := h.templates.Clone()
-	if err != nil {
-		return nil, err
-	}
-
 	var buf bytes.Buffer
-	err = tmpl.ExecuteTemplate(&buf, page.ContentTemplateName, contentData)
+	err = h.templates.Base.ExecuteTemplate(&buf, page.ContentTemplateName, contentData)
 	if err != nil {
 		return nil, err
 	}

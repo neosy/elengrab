@@ -58,15 +58,8 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 		Extra:     extraData,
 	}
 
-	// Load template
-	tmpl, err := h.templates.Clone()
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
-		return
-	}
-
 	// Execute template
-	if err := tmpl.ExecuteTemplate(ctx, components.MenuContentKey, pageData); err != nil {
+	if err := h.templates.Base.ExecuteTemplate(ctx, components.MenuContentKey, pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

@@ -43,15 +43,8 @@ func (h *AdminHandlers) renderUserDetail(ctx *fasthttp.RequestCtx, userInfo *ucd
 		return
 	}
 
-	// Load template
-	tmpl, err := h.templates.Clone()
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errTemplateInternal(err))
-		return
-	}
-
 	var buf bytes.Buffer
-	err = tmpl.ExecuteTemplate(&buf, components.AmdinUserDetailPanelKey, *data)
+	err = h.templates.Base.ExecuteTemplate(&buf, components.AmdinUserDetailPanelKey, *data)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, errTemplateInternal(err))
 		return

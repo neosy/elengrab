@@ -1,10 +1,8 @@
 package admin
 
 import (
-	"html/template"
 	"net/http"
 	"net/url"
-	"path/filepath"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
@@ -14,20 +12,6 @@ import (
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
-
-func (h *AdminHandlers) loadPageTemplate(fileName string) (*template.Template, error) {
-	t, err := h.templates.Clone()
-	if err != nil {
-		return nil, err
-	}
-
-	t, err = t.ParseFiles(filepath.Join(h.assets.FolderPaths().Pages(), fileName))
-	if err != nil {
-		return nil, err
-	}
-
-	return t, nil
-}
 
 func (h *AdminHandlers) redirectAuth(ctx *fasthttp.RequestCtx) bool {
 	ctxUser := policy.ResolveUser(ctx)

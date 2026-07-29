@@ -1,13 +1,13 @@
 package downloader
 
 import (
-	"html/template"
 	"log/slog"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/mappers"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/validators"
+	httptemplates "github.com/neosy/elengrab/internal/api/rest/server/templates"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	authweb "github.com/neosy/elengrab/internal/app/usecases/auth_web"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader"
@@ -22,7 +22,7 @@ type DownloaderHandlers struct {
 	mappers    *mappers.Mappers
 	validators *validators.Validators
 
-	templates  *template.Template
+	templates  *httptemplates.Templates
 	assets     *assets.Assets
 	assetPaths paths.AssetPaths
 
@@ -44,7 +44,7 @@ type DownloaderHandlers struct {
 func NewDownloaderHandlers(
 	logger *slog.Logger,
 
-	templates *template.Template,
+	templates *httptemplates.Templates,
 	assets *assets.Assets,
 	assetPaths paths.AssetPaths,
 

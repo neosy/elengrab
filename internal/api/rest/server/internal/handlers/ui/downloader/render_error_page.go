@@ -42,18 +42,11 @@ func (h *DownloaderHandlers) renderErrorPage(
 		},
 	}
 
-	// Load template
-	tmpl, err := h.loadPageTemplate(pages.ErrorPage.FileName())
-	if err != nil {
-		h.logger.Error("Failed to load template", "error", err)
-		return
-	}
-
 	body := ctx.Response.Body()
 	ctx.Response.SetBody(nil)
 
 	// Execute template with PageTitle
-	if err := tmpl.ExecuteTemplate(ctx, pages.ErrorPage.Key(), pageData); err != nil {
+	if err := h.templates.Pages[pages.ErrorPage.Key()].ExecuteTemplate(ctx, pages.ErrorPage.Key(), pageData); err != nil {
 		ctx.Response.SetBody(body)
 		h.logger.Error("Failed to execute template", "error", err)
 		return

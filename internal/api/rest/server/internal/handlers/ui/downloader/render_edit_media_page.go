@@ -79,15 +79,8 @@ func (h *DownloaderHandlers) renderEditMediaPage(
 	// Set content type so browser renders HTML properly
 	ctx.SetContentType(mime.TypeByExtension(".html"))
 
-	// Load template
-	tmpl, err := h.loadPageTemplate(pages.EditMediaPage.FileName())
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
-		return
-	}
-
 	// Execute template with PageTitle
-	if err := tmpl.ExecuteTemplate(ctx, pages.EditMediaPage.Key(), pageData); err != nil {
+	if err := h.templates.Base.ExecuteTemplate(ctx, pages.EditMediaPage.Key(), pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}

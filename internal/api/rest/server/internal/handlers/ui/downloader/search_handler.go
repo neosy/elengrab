@@ -41,15 +41,8 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 		Extra:     extraData,
 	}
 
-	// Load template
-	tmpl, err := h.templates.Clone()
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
-		return
-	}
-
 	var bodyBuffer bytes.Buffer
-	if err := tmpl.ExecuteTemplate(&bodyBuffer, components.ResultRowsKey, pageData); err != nil {
+	if err := h.templates.Base.ExecuteTemplate(&bodyBuffer, components.ResultRowsKey, pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
