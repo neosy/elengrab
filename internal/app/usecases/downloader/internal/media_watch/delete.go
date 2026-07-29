@@ -18,6 +18,11 @@ func (uc *MediaWatch) DeleteAllByDownloadID(ctx context.Context, downloadID uuid
 			return err
 		}
 
+		err = uc.userChunk.Delete(ctx, downloadID)
+		if err != nil {
+			return err
+		}
+
 		err = uc.event.Delete(ctx, downloadID)
 		if err != nil {
 			return err
