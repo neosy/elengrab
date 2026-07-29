@@ -120,5 +120,5 @@ func (h *DownloaderHandlers) stream(
 	ctx.Response.Header.Set("Cache-Control", "public, max-age=3600")
 
 	// Stream the file directly (memory-efficient, supports Range)
-	nfasthttp.SendFileDirect(ctx, filePath, downloadInfo.SafeReadableFullName, contentType)
+	nfasthttp.StreamFileDirect(ctx, filePath, contentType)
 }
