@@ -99,7 +99,7 @@ func SendFileBuffered(ctx *fasthttp.RequestCtx, path string, downloadName string
 	}
 }
 
-// SendFileDirect streams a file to the client over HTTP using fasthttp's built-in SendFile method.
+// SendFileDirect streams a file to the client as a downloadable attachment using fasthttp's built-in SendFile method.
 // This implementation is optimized for large files: it uses zero-copy where possible, minimizing
 // memory usage and avoiding buffering the entire file in Go.
 //
@@ -111,21 +111,55 @@ func SendFileBuffered(ctx *fasthttp.RequestCtx, path string, downloadName string
 //	contentType  - the MIME type of the file (e.g., "application/octet-stream", "image/png").
 //
 // Features:
-//   - Supports full file downloads.
-//   - Automatically supports HTTP Range requests (partial downloads).
+//   - Forces file download using Content-Disposition: attachment.
+//   - Supports HTTP Range requests (partial downloads).
 //   - Minimal RAM usage, even for gigabyte-scale files.
 //   - Uses fasthttp.SendFile, which leverages zero-copy sendfile on supported operating systems.
-//   - Simple and efficient implementation, suitable for production environments.
+//   - Suitable for production environments and large files.
 func SendFileDirect(ctx *fasthttp.RequestCtx, path string, downloadName string, contentType string) {
-	// Disable compression for this response
-	ctx.Response.Header.Del("Content-Encoding")
+	prepareFileResponse(ctx, contentType)
 
-	// Set headers before sending the file
-	ctx.Response.Header.Set("Content-Type", contentType)
-	ctx.Response.Header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, downloadName))
-	ctx.Response.Header.Set("Accept-Ranges", "bytes")
+	ctx.Response.Header.Set(
+		"Content-Disposition",
+		fmt.Sprintf(`attachment; filename="%s"`, downloadName),
+	)
 
 	// fasthttp.SendFile streams the file with zero-copy where possible
-	// Supports Range requests automatically
+	// and handles Range requests automatically.
 	ctx.SendFile(path)
+}
+
+// StreamFileDirect streams a file to the client for inline browser playback using fasthttp's built-in SendFile method.
+// This implementation is optimized for media streaming: it allows the browser to play the file directly
+// and supports seeking through HTTP Range requests.
+//
+// Parameters:
+//
+//	ctx         - the fasthttp request context used to write the response.
+//	path        - the path to the file on disk to be streamed.
+//	contentType - the MIME type of the file (e.g., "video/mp4", "audio/mpeg").
+//
+// Features:
+//   - Allows inline playback in browsers using Content-Disposition: inline.
+//   - Supports HTTP Range requests for seeking and partial loading.
+//   - Minimal RAM usage, even for large media files.
+//   - Uses fasthttp.SendFile, which leverages zero-copy sendfile on supported operating systems.
+//   - Suitable for video and audio streaming.
+func StreamFileDirect(ctx *fasthttp.RequestCtx, path string, contentType string) {
+	prepareFileResponse(ctx, contentType)
+
+	ctx.Response.Header.Set("Content-Disposition", "inline")
+
+	// fasthttp.SendFile streams the file with zero-copy where possible
+	// and handles Range requests automatically.
+	ctx.SendFile(path)
+}
+
+// prepareFileResponse configures common HTTP headers for file responses.
+func prepareFileResponse(ctx *fasthttp.RequestCtx, contentType string) {
+	// Disable compression for this response.
+	ctx.Response.Header.Del("Content-Encoding")
+
+	ctx.Response.Header.Set("Content-Type", contentType)
+	ctx.Response.Header.Set("Accept-Ranges", "bytes")
 }

@@ -16,8 +16,9 @@
 - Improved template loading architecture by separating base and page templates. [L076]
 
 ### 🐛 Fix
-- Fix paste button behavior in Firefox by using native input insertion. [L064]
+- Fixed paste button behavior in Firefox by using native input insertion. [L064]
 - Fixed incorrect removal of broadcaster subscriptions. [L070]
+- Fixed video streaming headers: separate inline playback and file download responses. [L077]
 
 ### 📦 Chore
 - Increase the default short link TTL to 180 days. [L061]
