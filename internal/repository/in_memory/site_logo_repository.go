@@ -26,6 +26,10 @@ func newSiteLogoRepository(ttl time.Duration) *SiteLogoRepository {
 	return r
 }
 
+func (r *SiteLogoRepository) Name() string {
+	return "site_logo"
+}
+
 // Save saves a new logo to the repository.
 func (r *SiteLogoRepository) Save(_ context.Context, logo *dmedia.SiteLogo) error {
 	if logo == nil || logo.LogoID == uuid.Nil || logo.SiteURL == "" {

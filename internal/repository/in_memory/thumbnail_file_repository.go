@@ -45,6 +45,10 @@ func newThumbnailFileRepository(ttl time.Duration) *ThumbnailFileRepository {
 	return r
 }
 
+func (r *ThumbnailFileRepository) Name() string {
+	return "thumbnail_file"
+}
+
 func (r *ThumbnailFileRepository) Save(fileID uuid.UUID, raw []byte) error {
 	if len(raw) == 0 || fileID == uuid.Nil {
 		return nil

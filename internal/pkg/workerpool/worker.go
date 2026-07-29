@@ -136,10 +136,6 @@ func (w *worker) Start(
 			}
 		}
 	}()
-
-	if w.logger != nil {
-		w.logger.Debug("Worker started", "workerID", w.workerID)
-	}
 }
 
 func (w *worker) StartWithIdleTimeout(

@@ -36,6 +36,10 @@ func newDownloadStateRepository(ttl time.Duration) *DownloadStateRepository {
 	return r
 }
 
+func (r *DownloadStateRepository) Name() string {
+	return "download_state"
+}
+
 func (r *DownloadStateRepository) WithUser(userID uuid.UUID) persistence.DownloadStateCacheRepository {
 	return &DownloadStateRepository{
 		Repository:              r.Repository,

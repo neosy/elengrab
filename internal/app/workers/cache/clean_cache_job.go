@@ -1,6 +1,7 @@
 package cachejobs
 
 import (
+	"fmt"
 	"log/slog"
 
 	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
@@ -9,7 +10,7 @@ import (
 
 func NewCleanCacheJob(logger *slog.Logger, runner pworkers.CacheRunner) nworkers.Job {
 	return nworkers.NewJob(
-		"CleanCacheExpired",
+		fmt.Sprintf("CleanCacheExpired[%s]", runner.Name()),
 		nworkers.MakeTimedJobExecute(logger, runner.CleanExpired),
 	)
 }

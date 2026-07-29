@@ -327,7 +327,7 @@ func (a *Application) RunRequiredMigrations() error {
 		return err
 	}
 
-	a.logger.Debug("Required migrations completed")
+	a.logger.Info("Required migrations completed")
 
 	return nil
 }
