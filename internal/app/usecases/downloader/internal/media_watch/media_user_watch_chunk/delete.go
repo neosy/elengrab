@@ -6,8 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
-func (uc *MediaUserWatchChunk) Delete(ctx context.Context, downloadID uuid.UUID) error {
-	return uc.chunkRep.Delete(ctx, downloadID)
+func (uc *MediaUserWatchChunk) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
+	return uc.chunkRep.DeleteByDownloadID(ctx, downloadID)
 }
 
 func (uc *MediaUserWatchChunk) DeleteAll(ctx context.Context) error {

@@ -108,7 +108,7 @@ func (r *MediaWatchEventRepository) save(ctx context.Context, event *ddownload.M
 	return nil
 }
 
-func (r *MediaWatchEventRepository) Delete(ctx context.Context, downloadID uuid.UUID) error {
+func (r *MediaWatchEventRepository) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
 	var eEvent ewatchevent.MediaWatchEvent
 
 	// Build DELETE query

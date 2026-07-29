@@ -6,6 +6,6 @@ import (
 	"github.com/google/uuid"
 )
 
-func (uc *MediaWatchEvent) Delete(ctx context.Context, downloadID uuid.UUID) error {
-	return uc.eventRep.Delete(ctx, downloadID)
+func (uc *MediaWatchEvent) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
+	return uc.eventRep.DeleteByDownloadID(ctx, downloadID)
 }
