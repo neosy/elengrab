@@ -80,7 +80,7 @@ func (h *DownloaderHandlers) renderEditMediaPage(
 	ctx.SetContentType(mime.TypeByExtension(".html"))
 
 	// Execute template with PageTitle
-	if err := h.templates.Base.ExecuteTemplate(ctx, pages.EditMediaPage.Key(), pageData); err != nil {
+	if err := h.templates.Pages[pages.EditMediaPage.Key()].ExecuteTemplate(ctx, pages.EditMediaPage.Key(), pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
