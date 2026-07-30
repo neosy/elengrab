@@ -21,6 +21,7 @@
 - Fixed paste button behavior in Firefox by using native input insertion. [L064]
 - Fixed incorrect removal of broadcaster subscriptions. [L070]
 - Fixed video streaming headers: separate inline playback and file download responses. [L077]
+- Fixed a race condition in the memory cache that could trigger `concurrent map writes` errors during concurrent requests. [L080]
 
 ### 📦 Chore
 - Increase the default short link TTL to 180 days. [L061]

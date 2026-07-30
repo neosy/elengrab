@@ -91,8 +91,8 @@ func (c *Cache[K, T]) Save(key K, value *T, ttl time.Duration) {
 }
 
 // SaveWithNow is the high-performance version of Save.
-// The caller provides the current time to eliminate the cost of time.Now().UTC()
-// in the hot path. Use this when doing batch inserts or under high load.
+// The caller provides a precomputed current time to avoid repeated time.Now()
+// calls in hot paths such as batch inserts or bulk cache updates.
 func (c *Cache[K, T]) SaveWithNow(key K, value *T, ttl time.Duration, now time.Time) {
 	var valueCopy *T
 	if value != nil {
@@ -125,30 +125,26 @@ func (c *Cache[K, T]) SaveWithNow(key K, value *T, ttl time.Duration, now time.T
 }
 
 // Delete removes the item with the given key from the cache
-func (c Cache[K, T]) Delete(key K) {
-	if _, exists := c.cache[key]; !exists {
-		return
-	}
+func (c *Cache[K, T]) Delete(key K) {
 	delete(c.cache, key)
 }
 
 // FindWithStatus returns the cached value for the given key, or nil if not found or expired.
 // An optional copy function can be used to return a copy of the value.
-func (c Cache[K, T]) FindWithStatus(key K) (*T, CacheStatus) {
+func (c *Cache[K, T]) FindWithStatus(key K) (*T, CacheStatus) {
 	return c.FindWithStatusNow(key, time.Now().UTC())
 }
 
-// FindWithStatusWithNow is the high-performance version of FindWithStatus.
-// The caller provides the current time to eliminate the cost of time.Now().UTC()
-// in the hot path. Use this when doing batch lookups or under high load.
-func (c Cache[K, T]) FindWithStatusNow(key K, now time.Time) (*T, CacheStatus) {
+// FindWithStatusNow is the high-performance version of FindWithStatus.
+// The caller provides the current time to avoid repeated time.Now() calls
+// in hot paths such as batch lookups or high-load cache access.
+func (c *Cache[K, T]) FindWithStatusNow(key K, now time.Time) (*T, CacheStatus) {
 	cacheData, exists := c.cache[key]
 	if !exists {
 		return nil, CacheStatusMiss
 	}
 
 	if cacheData.ExpiredWithNow(now) {
-		delete(c.cache, key)
 		return nil, CacheStatusMiss
 	}
 
@@ -162,20 +158,19 @@ func (c Cache[K, T]) FindWithStatusNow(key K, now time.Time) (*T, CacheStatus) {
 
 // Find returns the cached value for the given key, or nil if not found or expired.
 // This is a convenience method that calls FindWithStatus and ignores the status.
-func (c Cache[K, T]) Find(key K) *T {
+func (c *Cache[K, T]) Find(key K) *T {
 	return c.FindWithNow(key, time.Now().UTC())
 }
 
 // Find returns the cached value for the given key, or nil if not found or expired.
 // An optional copy function can be used to return a copy of the value.
-func (c Cache[K, T]) FindWithNow(key K, now time.Time) *T {
+func (c *Cache[K, T]) FindWithNow(key K, now time.Time) *T {
 	cacheData, exists := c.cache[key]
 	if !exists {
 		return nil
 	}
 
 	if cacheData.ExpiredWithNow(now) {
-		delete(c.cache, key)
 		return nil
 	}
 
@@ -188,7 +183,7 @@ func (c Cache[K, T]) FindWithNow(key K, now time.Time) *T {
 }
 
 // Exists checks if the cache contains a non-expired item for the given key.
-func (c Cache[K, T]) Exists(key K) bool {
+func (c *Cache[K, T]) Exists(key K) bool {
 	_, status := c.FindWithStatus(key)
 	if status == CacheStatusHit {
 		return true
@@ -197,14 +192,14 @@ func (c Cache[K, T]) Exists(key K) bool {
 }
 
 // CleanExpired removes all expired items from the cache.
-func (c Cache[K, T]) CleanExpired() {
+func (c *Cache[K, T]) CleanExpired() {
 	c.CleanExpiredWithNow(time.Now().UTC())
 }
 
 // CleanExpiredWithNow is the high-performance version of CleanExpired.
 // The caller provides the current time to eliminate the cost of time.Now().UTC()
 // in the hot path. Use this when doing batch cleanups or under high load.
-func (c Cache[K, T]) CleanExpiredWithNow(now time.Time) {
+func (c *Cache[K, T]) CleanExpiredWithNow(now time.Time) {
 	for key, cacheValue := range c.cache {
 		if cacheValue.ExpiredAt(now) {
 			delete(c.cache, key)
