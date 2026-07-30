@@ -156,26 +156,68 @@ func BenchmarkCache_CleanExpired(b *testing.B) {
 }
 
 // BenchmarkCache_MixedWorkload simulates a realistic mixed read/write workload.
-func BenchmarkCache_MixedWorkload(b *testing.B) {
-	cache := NewCacheWithDeaultCopier[uint64, benchUser, *benchUser]()
+type benchRepository struct {
+	Repository[benchUser]
 
-	// Pre-populate
+	cache Cache[uint64, benchUser]
+}
+
+func newBenchRepository() *benchRepository {
+	r := &benchRepository{
+		cache: NewCacheWithDeaultCopier[uint64, benchUser, *benchUser](),
+	}
+
+	r.Repository.Init(30 * time.Minute)
+
+	return r
+}
+
+func BenchmarkRepository_MixedWorkload(b *testing.B) {
+	repo := newBenchRepository()
+
 	for i := range 10000 {
-		cache.Save(uint64(i), &benchUser{ID: uint64(i)}, 30*time.Minute)
+		key := uint64(i)
+
+		_ = repo.Save(func() error {
+			repo.cache.Save(
+				key,
+				&benchUser{ID: key},
+				repo.TTL(),
+			)
+
+			return nil
+		})
 	}
 
 	b.ResetTimer()
+
 	b.RunParallel(func(pb *testing.PB) {
+
 		counter := uint64(0)
+
 		for pb.Next() {
+
 			key := counter % 10000
+
 			if counter%10 == 0 {
-				// 10% writes
-				cache.Save(key, &benchUser{ID: key}, 30*time.Minute)
+
+				_ = repo.Save(func() error {
+					repo.cache.Save(
+						key,
+						&benchUser{ID: key},
+						repo.TTL(),
+					)
+
+					return nil
+				})
+
 			} else {
-				// 90% reads
-				_ = cache.Find(key)
+
+				_, _ = repo.Find(func() (*benchUser, error) {
+					return repo.cache.Find(key), nil
+				})
 			}
+
 			counter++
 		}
 	})

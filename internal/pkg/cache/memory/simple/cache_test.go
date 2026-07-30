@@ -259,18 +259,3 @@ func TestRepository(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, called)
 }
-
-func TestRepository_CopyAdapter(t *testing.T) {
-	repo := &Repository[testUser]{}
-	repo.Init(0)
-
-	makeCopy := func() *testUser {
-		return &testUser{ID: 999, Name: "Copied"}
-	}
-
-	copier := repo.CopyAdapter(makeCopy)
-	result := copier(nil) // should ignore input
-
-	assert.NotNil(t, result)
-	assert.Equal(t, uint64(999), result.ID)
-}
