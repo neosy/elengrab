@@ -140,22 +140,17 @@ func (c *Cache[K, T]) SaveWithNow(key K, value *T, ttl time.Duration, now time.T
 		cacheStatus = CacheStatusNegativeHit
 	}
 
-	s.mu.Lock()
 	s.cache[key] = &Item[T]{
 		value:     valueCopy,
 		status:    cacheStatus,
 		expiresAt: expiresAt,
 	}
-	s.mu.Unlock()
 }
 
 // Delete removes the item with the given key from the cache
 func (c *Cache[K, T]) Delete(key K) {
 	s := c.getShard(key)
-
-	s.mu.Lock()
 	delete(s.cache, key)
-	s.mu.Unlock()
 }
 
 // FindWithStatus returns the cached value for the given key, or nil if not found or expired.
@@ -170,20 +165,13 @@ func (c *Cache[K, T]) FindWithStatus(key K) (*T, CacheStatus) {
 func (c *Cache[K, T]) FindWithStatusNow(key K, now time.Time) (*T, CacheStatus) {
 	s := c.getShard(key)
 
-	s.mu.RLock()
 	item, exists := s.cache[key]
-	s.mu.RUnlock()
 
 	if !exists {
 		return nil, CacheStatusMiss
 	}
 
 	if item.ExpiredWithNow(now) {
-		s.mu.Lock()
-		if current, stillExists := s.cache[key]; stillExists && current.Expired() {
-			delete(s.cache, key)
-		}
-		s.mu.Unlock()
 		return nil, CacheStatusMiss
 	}
 
@@ -197,7 +185,7 @@ func (c *Cache[K, T]) FindWithStatusNow(key K, now time.Time) (*T, CacheStatus) 
 
 // Find returns the cached value for the given key, or nil if not found or expired.
 // This is a convenience method that calls FindWithStatus and ignores the status.
-func (c Cache[K, T]) Find(key K) *T {
+func (c *Cache[K, T]) Find(key K) *T {
 	return c.FindWithNow(key, time.Now().UTC())
 }
 
@@ -220,13 +208,11 @@ func (c *Cache[K, T]) CleanExpired() {
 	now := time.Now().UTC()
 
 	for _, s := range c.shards {
-		s.mu.Lock()
 		for key, item := range s.cache {
 			if item.ExpiredAt(now) {
 				delete(s.cache, key)
 			}
 		}
-		s.mu.Unlock()
 	}
 }
 

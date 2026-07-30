@@ -24,7 +24,18 @@ func (r *Repository[T]) TTL() time.Duration {
 }
 
 // Save executes a write operation safely under a write lock.
+// Use this for standard cache write operations that do not require a precomputed time value.
 func (r *Repository[T]) Save(fnSave func() error) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	return fnSave()
+}
+
+// SaveWithNow executes a write operation safely under a write lock.
+// It is intended for high-performance write operations that use a precomputed
+// current time value to avoid repeated time.Now() calls in hot paths.
+func (r *Repository[T]) SaveWithNow(fnSave func() error) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -47,8 +58,28 @@ func (r *Repository[T]) Find(fnFind func() (*T, error)) (*T, error) {
 	return fnFind()
 }
 
+// FindWithNow executes a read operation safely under a read lock.
+// It is intended for high-performance cache lookups that provide a precomputed
+// current time value to avoid repeated time.Now() calls in hot paths.
+func (r *Repository[T]) FindWithNow(fnFind func() (*T, error)) (*T, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	return fnFind()
+}
+
 // FindWithStatus executes a read operation safely under a read lock, returning the cache status.
 func (r *Repository[T]) FindWithStatus(fnFind func() (*T, CacheStatus, error)) (*T, CacheStatus, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	return fnFind()
+}
+
+// FindWithStatusNow executes a read operation safely under a read lock.
+// It is intended for high-performance cache lookups that provide a precomputed
+// current time value to avoid repeated time.Now() calls in hot paths.
+func (r *Repository[T]) FindWithStatusNow(fnFind func() (*T, CacheStatus, error)) (*T, CacheStatus, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
