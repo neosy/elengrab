@@ -16,6 +16,7 @@
 
 ### 🧩 Refactor
 - Improved template loading architecture by separating base and page templates. [L076]
+- Unified environment variable prefixes under the `ELENGRAB_` namespace. [L083]
 
 ### 🐛 Fix
 - Fixed paste button behavior in Firefox by using native input insertion. [L064]

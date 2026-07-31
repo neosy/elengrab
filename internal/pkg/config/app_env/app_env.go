@@ -8,3 +8,8 @@ const (
 	AppEnvProduction AppEnv = "production"
 	AppEnvTest       AppEnv = "test"
 )
+
+// String returns the string representation of the AppEnv.
+func (e AppEnv) String() string {
+	return string(e)
+}

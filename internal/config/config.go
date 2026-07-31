@@ -13,20 +13,20 @@ import (
 // Basic Settings
 type Config struct {
 	// Global application settings, no ENV prefix.
-	AppConfig nconfig.AppConfig `envPrefix:""`
+	AppConfig nconfig.AppConfig `envPrefix:"ELENGRAB_"`
 
 	// Adming server
-	AdminServer AdminServerConfig `envPrefix:"ADMIN_SERVER_"`
+	AdminServer AdminServerConfig `envPrefix:"ELENGRAB_ADMIN_SERVER_"`
 
 	// Elengrab application configuration.
 	Elengrab ElengrabConfig `envPrefix:"ELENGRAB_"`
 
 	// HTTP server configuration
-	HTTPServer HTTPServerConfig `envPrefix:"HTTP_SERVER_"`
+	HTTPServer HTTPServerConfig `envPrefix:"ELENGRAB_HTTP_SERVER_"`
 	// SQLite storage configuration
-	SQLite SQLiteConfig `envPrefix:"SQLITE_"`
+	SQLite SQLiteConfig `envPrefix:"ELENGRAB_SQLITE_"`
 	// Redis configuration
-	Redis RedisConfig `envPrefix:"REDIS_"`
+	Redis RedisConfig `envPrefix:"ELENGRAB_REDIS_"`
 }
 
 type AdminServerConfig struct {

@@ -98,9 +98,9 @@ docker run -d \
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `LOG_LEVEL` | `warn` | Logging level. Options: `debug`, `info`, `warn`, `error`. |
-| `SQLITE_DATA_DIR` | `sqlite/data` | Directory where SQLite database files are stored. |
-| `SQLITE_BACKUPS_DIR` | `sqlite/backups` | Directory where SQLite backup files are stored. |
+| `ELENGRAB_LOG_LEVEL` | `warn` | Logging level. Options: `debug`, `info`, `warn`, `error`. |
+| `ELENGRAB_SQLITE_DATA_DIR` | `sqlite/data` | Directory where SQLite database files are stored. |
+| `ELENGRAB_SQLITE_BACKUPS_DIR` | `sqlite/backups` | Directory where SQLite backup files are stored. |
 | `ELENGRAB_ROOT_DIR` | *(not set)* | Application base directory. If empty, defaults to: `~/.elengrab` on Linux/macOS, `%LOCALAPPDATA%\Elengrab` on Windows. |
 | `ELENGRAB_DOWNLOADER_BIN_DIR` | `/usr/local/bin` | Directory containing yt-dlp binary. |
 | `ELENGRAB_ASSETS_DIR` | `assets` | Directory containing application assets. |
