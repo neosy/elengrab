@@ -11,6 +11,6 @@ import (
 func NewCleanCacheJob(logger *slog.Logger, runner pworkers.CacheRunner) nworkers.Job {
 	return nworkers.NewJob(
 		fmt.Sprintf("CleanCacheExpired[%s]", runner.Name()),
-		nworkers.MakeTimedJobExecute(logger, runner.CleanExpired),
+		nworkers.WrapJobExecute(logger, runner.CleanExpired),
 	)
 }

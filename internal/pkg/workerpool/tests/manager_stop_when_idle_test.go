@@ -12,8 +12,8 @@ import (
 func TestManagerStopWhenIdle(t *testing.T) {
 	logger := slog.Default()
 	m := nworkerpool.NewWorkerPool(
+		logger,
 		"Test 1",
-		nworkerpool.WithLogger(logger),
 		nworkerpool.WithMaxWorkers(1),
 	)
 	ctx := context.Background()

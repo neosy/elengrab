@@ -12,26 +12,26 @@ import (
 )
 
 const (
-	updateHashIntervalDefault             = 8 * time.Hour
-	deleteDuplicatesIntervalDefault       = 1 * time.Hour
-	deleteMissingDownloadsIntervalDefault = 30 * time.Minute
-	deleteFailedDownloadsIntervalDefault  = 1 * time.Hour
+	defaultUpdateHashInterval             = 8 * time.Hour
+	defaultDeleteDuplicatesInterval       = 1 * time.Hour
+	defaultDeleteMissingDownloadsInterval = 30 * time.Minute
+	defaultDeleteFailedDownloadsInterval  = 1 * time.Hour
 
-	cleanMediaDownloadCacheIntervalDefault          = 30 * time.Minute
-	cleanDownloadStateCacheIntervalDefault          = 20 * time.Minute
-	cleanMediaWatchStatCacheIntervalDefault         = 1 * time.Hour
-	cleanMediaUserWatchPositionCacheIntervalDefault = 1 * time.Hour
-	cleanYoutubeChannelCacheIntervalDefault         = 6 * time.Hour
-	cleanSiteLogoCacheIntervalDefault               = 24 * time.Hour
-	cleanThumbnailCacheIntervalDefault              = 24 * time.Hour
-	cleanThumbnailFileCacheIntervalDefault          = 1 * time.Hour
-	cleanAssetFileCacheIntervalDefault              = 1 * time.Hour
+	defaultCleanMediaDownloadCacheInterval          = 30 * time.Minute
+	defaultCleanDownloadStateCacheInterval          = 20 * time.Minute
+	defaultCleanMediaWatchStatCacheInterval         = 1 * time.Hour
+	defaultCleanMediaUserWatchPositionCacheInterval = 1 * time.Hour
+	defaultCleanYoutubeChannelCacheInterval         = 6 * time.Hour
+	defaultCleanSiteLogoCacheInterval               = 24 * time.Hour
+	defaultCleanThumbnailCacheInterval              = 24 * time.Hour
+	defaultCleanThumbnailFileCacheInterval          = 1 * time.Hour
+	defaultCleanAssetFileCacheInterval              = 1 * time.Hour
 
-	backupDatabaseIntervalDefault = 1 * 24 * time.Hour
-	flushWALIntervalDefault       = 1 * time.Hour
+	defaultBackupDatabaseInterval = 1 * 24 * time.Hour
+	defaultFlushWALInterval       = 1 * time.Hour
 
-	updateSystemInfoIntervalDefault = 30 * time.Minute
-	updateDBMetricsIntervalDefault  = 30 * time.Minute
+	defaultUpdateSystemInfoInterval = 30 * time.Minute
+	defaultUpdateDBMetricsInterval  = 30 * time.Minute
 )
 
 type Dependencies struct {
@@ -91,113 +91,113 @@ func Initialize(logger *slog.Logger, deps *Dependencies, ws *nworkers.Workers) {
 	).Add(1 * time.Hour)
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewStartupDatabaseJob(logger, deps.DBMaintenance),
+		wjobs.NewStartupDatabaseJob(ws.Logger(), deps.DBMaintenance),
 		nworkers.WithMaxRuns(1),
 		nworkers.WithInitialDelay(1*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewStartupAuthWebJob(logger, deps.AuthWebStartup),
+		wjobs.NewStartupAuthWebJob(ws.Logger(), deps.AuthWebStartup),
 		nworkers.WithMaxRuns(1),
 		nworkers.WithInitialDelay(3*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewDownloaderMigrationsJob(logger, deps.DownloaderMigrations),
+		wjobs.NewDownloaderMigrationsJob(ws.Logger(), deps.DownloaderMigrations),
 		nworkers.WithMaxRuns(1),
 		nworkers.WithInitialDelay(5*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewUpdateHashJob(logger, deps.DownloaderMaintenance),
-		nworkers.WithIntervalDefault(deps.UpdateHashInterval, updateHashIntervalDefault),
+		wjobs.NewUpdateHashJob(ws.Logger(), deps.DownloaderMaintenance),
+		nworkers.WithIntervalFallback(deps.UpdateHashInterval, defaultUpdateHashInterval),
 		nworkers.WithInitialDelay(7*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewDeleteDuplicatesJob(logger, deps.DownloaderMaintenance),
-		nworkers.WithIntervalDefault(deps.DeleteDuplicatesInterval, deleteDuplicatesIntervalDefault),
+		wjobs.NewDeleteDuplicatesJob(ws.Logger(), deps.DownloaderMaintenance),
+		nworkers.WithIntervalFallback(deps.DeleteDuplicatesInterval, defaultDeleteDuplicatesInterval),
 		nworkers.WithInitialDelay(10*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewDeleteMissingDownloadsJob(logger, deps.DownloaderMaintenance, deps.MoveUnmatchedFilesEnabled),
-		nworkers.WithIntervalDefault(deps.DeleteMissingDownloadsInterval, deleteMissingDownloadsIntervalDefault),
+		wjobs.NewDeleteMissingDownloadsJob(ws.Logger(), deps.DownloaderMaintenance, deps.MoveUnmatchedFilesEnabled),
+		nworkers.WithIntervalFallback(deps.DeleteMissingDownloadsInterval, defaultDeleteMissingDownloadsInterval),
 		nworkers.WithInitialDelay(15*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewDeleteFailedDownloadsJob(logger, deps.DownloaderMaintenance),
-		nworkers.WithIntervalDefault(deps.DeleteFailedDownloadsInterval, deleteFailedDownloadsIntervalDefault),
+		wjobs.NewDeleteFailedDownloadsJob(ws.Logger(), deps.DownloaderMaintenance),
+		nworkers.WithIntervalFallback(deps.DeleteFailedDownloadsInterval, defaultDeleteFailedDownloadsInterval),
 		nworkers.WithInitialDelay(20*time.Second),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		cachejobs.NewCleanCacheJob(logger, deps.YoutubeChannelCache),
-		nworkers.WithIntervalDefault(deps.CleanYoutubeChannelCacheInterval, cleanYoutubeChannelCacheIntervalDefault),
+		cachejobs.NewCleanCacheJob(ws.Logger(), deps.YoutubeChannelCache),
+		nworkers.WithIntervalFallback(deps.CleanYoutubeChannelCacheInterval, defaultCleanYoutubeChannelCacheInterval),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		cachejobs.NewCleanCacheJob(logger, deps.MediaDownloadCache),
-		nworkers.WithIntervalDefault(deps.CleanMediaDownloadCacheInterval, cleanMediaDownloadCacheIntervalDefault),
+		cachejobs.NewCleanCacheJob(ws.Logger(), deps.MediaDownloadCache),
+		nworkers.WithIntervalFallback(deps.CleanMediaDownloadCacheInterval, defaultCleanMediaDownloadCacheInterval),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		cachejobs.NewCleanCacheJob(logger, deps.DownloadStateCache),
-		nworkers.WithIntervalDefault(deps.CleanDownloadStateCacheInterval, cleanDownloadStateCacheIntervalDefault),
+		cachejobs.NewCleanCacheJob(ws.Logger(), deps.DownloadStateCache),
+		nworkers.WithIntervalFallback(deps.CleanDownloadStateCacheInterval, defaultCleanDownloadStateCacheInterval),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		cachejobs.NewCleanCacheJob(logger, deps.MediaWatchStatCache),
-		nworkers.WithIntervalDefault(deps.CleanMediaWatchStatCacheInterval, cleanMediaWatchStatCacheIntervalDefault),
+		cachejobs.NewCleanCacheJob(ws.Logger(), deps.MediaWatchStatCache),
+		nworkers.WithIntervalFallback(deps.CleanMediaWatchStatCacheInterval, defaultCleanMediaWatchStatCacheInterval),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		cachejobs.NewCleanCacheJob(logger, deps.MediaUserWatchPositionCache),
-		nworkers.WithIntervalDefault(deps.CleanMediaUserWatchPositionCacheInterval, cleanMediaUserWatchPositionCacheIntervalDefault),
+		cachejobs.NewCleanCacheJob(ws.Logger(), deps.MediaUserWatchPositionCache),
+		nworkers.WithIntervalFallback(deps.CleanMediaUserWatchPositionCacheInterval, defaultCleanMediaUserWatchPositionCacheInterval),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		cachejobs.NewCleanCacheJob(logger, deps.SiteLogoCache),
-		nworkers.WithIntervalDefault(deps.CleanSiteLogoCacheInterval, cleanSiteLogoCacheIntervalDefault),
+		cachejobs.NewCleanCacheJob(ws.Logger(), deps.SiteLogoCache),
+		nworkers.WithIntervalFallback(deps.CleanSiteLogoCacheInterval, defaultCleanSiteLogoCacheInterval),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		cachejobs.NewCleanCacheJob(logger, deps.ThumbnailCache),
-		nworkers.WithIntervalDefault(deps.CleanThumbnailCacheInterval, cleanThumbnailCacheIntervalDefault),
+		cachejobs.NewCleanCacheJob(ws.Logger(), deps.ThumbnailCache),
+		nworkers.WithIntervalFallback(deps.CleanThumbnailCacheInterval, defaultCleanThumbnailCacheInterval),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		cachejobs.NewCleanCacheJob(logger, deps.ThumbnailFileCache),
-		nworkers.WithIntervalDefault(deps.CleanThumbnailFileCacheInterval, cleanThumbnailFileCacheIntervalDefault),
+		cachejobs.NewCleanCacheJob(ws.Logger(), deps.ThumbnailFileCache),
+		nworkers.WithIntervalFallback(deps.CleanThumbnailFileCacheInterval, defaultCleanThumbnailFileCacheInterval),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		cachejobs.NewCleanCacheJob(logger, deps.AssetFileCache),
-		nworkers.WithIntervalDefault(deps.CleanAssetFileCacheInterval, cleanAssetFileCacheIntervalDefault),
+		cachejobs.NewCleanCacheJob(ws.Logger(), deps.AssetFileCache),
+		nworkers.WithIntervalFallback(deps.CleanAssetFileCacheInterval, defaultCleanAssetFileCacheInterval),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewbackupDatabaseJob(logger, deps.DBMaintenance),
+		wjobs.NewbackupDatabaseJob(ws.Logger(), deps.DBMaintenance),
 		nworkers.WithStartAt(backupDatabaseStartAt),
-		nworkers.WithIntervalDefault(deps.BackupDatabaseInterval, backupDatabaseIntervalDefault),
+		nworkers.WithIntervalFallback(deps.BackupDatabaseInterval, defaultBackupDatabaseInterval),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewFlushWALJob(logger, deps.DBMaintenance),
-		nworkers.WithIntervalDefault(deps.FlushWALInterval, flushWALIntervalDefault),
+		wjobs.NewFlushWALJob(ws.Logger(), deps.DBMaintenance),
+		nworkers.WithIntervalFallback(deps.FlushWALInterval, defaultFlushWALInterval),
 	))
 
 	ws.Add(nworkers.NewWorker(
-		wjobs.NewUpdateSystemInfoJob(logger, deps.DownloaderTask),
-		nworkers.WithIntervalDefault(deps.UpdateSystemInfoInterval, updateSystemInfoIntervalDefault),
+		wjobs.NewUpdateSystemInfoJob(ws.Logger(), deps.DownloaderTask),
+		nworkers.WithIntervalFallback(deps.UpdateSystemInfoInterval, defaultUpdateSystemInfoInterval),
 		nworkers.WithInitialDelay(1*time.Second),
 	))
 
 	if deps.MetricsEnabled {
 		ws.Add(nworkers.NewWorker(
-			wjobs.NewUpdateDBMetricsJob(logger, deps.DBMMetrics),
-			nworkers.WithIntervalDefault(deps.UpdateDBMetricsInterval, updateDBMetricsIntervalDefault),
+			wjobs.NewUpdateDBMetricsJob(ws.Logger(), deps.DBMMetrics),
+			nworkers.WithIntervalFallback(deps.UpdateDBMetricsInterval, defaultUpdateDBMetricsInterval),
 			nworkers.WithInitialDelay(10*time.Second),
 		))
 	}

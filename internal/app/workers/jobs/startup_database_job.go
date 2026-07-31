@@ -10,6 +10,6 @@ import (
 func NewStartupDatabaseJob(logger *slog.Logger, runner pworkers.DBMaintenanceRunner) nworkers.Job {
 	return nworkers.NewJob(
 		"StartupMaintenanceDatabase",
-		nworkers.MakeTimedJobExecute(logger, runner.StartupDatabase),
+		nworkers.WrapJobExecute(logger, runner.StartupDatabase),
 	)
 }

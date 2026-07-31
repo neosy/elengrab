@@ -20,6 +20,6 @@ func NewDeleteMissingDownloadsJob(
 	}
 	return nworkers.NewJob(
 		"DeleteMissingDownloads",
-		nworkers.MakeTimedJobExecute(logger, run),
+		nworkers.WrapJobExecute(logger, run),
 	)
 }

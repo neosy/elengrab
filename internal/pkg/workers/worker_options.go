@@ -7,9 +7,6 @@ import "time"
 type WorkerOption func(*WorkerOptions)
 
 type WorkerOptions struct {
-	// Worker name
-	Name string
-
 	// StartAt defines the absolute time when the worker should start.
 	// If zero == time.Time{}, the worker starts in interval.
 	StartAt time.Time
@@ -31,7 +28,6 @@ type WorkerOptions struct {
 // All fields are initialized to their zero values.
 func DefaultWorkerOptions() WorkerOptions {
 	return WorkerOptions{
-		Name:         "",
 		StartAt:      time.Time{},
 		Interval:     0,
 		OneShotDelay: nil,
@@ -39,12 +35,20 @@ func DefaultWorkerOptions() WorkerOptions {
 	}
 }
 
-// WithName returns a WorkerOption that sets the Name field
-// of WorkerOptions to the provided string.
-func WithName(name string) WorkerOption {
-	return func(o *WorkerOptions) {
-		o.Name = name
+// ApplyWorkerOptions applies the provided WorkerOption functions to the given WorkerOptions.
+func ApplyWorkerOptions(options *WorkerOptions, opts ...WorkerOption) {
+	for _, opt := range opts {
+		opt(options)
 	}
+}
+
+// NewJobWorkerOptions creates a new WorkerOptions instance with the provided options applied.
+func NewWorkerOptions(opts ...WorkerOption) WorkerOptions {
+	options := DefaultWorkerOptions()
+
+	ApplyWorkerOptions(&options, opts...)
+
+	return options
 }
 
 // WithStartAt returns a WorkerOption that sets the StartAt field
@@ -63,14 +67,15 @@ func WithInterval(interval time.Duration) WorkerOption {
 	}
 }
 
-// WithIntervalDefault sets Interval to interval,
-// or intervalDefault if interval is 0.
-func WithIntervalDefault(interval, intervalDefault time.Duration) WorkerOption {
+// WithIntervalFallback returns a WorkerOption that sets the Interval field
+// of WorkerOptions to the specified interval if it is greater than zero.
+// If the provided interval is zero, it sets the Interval to the fallback value.
+func WithIntervalFallback(interval, fallback time.Duration) WorkerOption {
 	return func(o *WorkerOptions) {
-		if interval == 0 {
-			o.Interval = intervalDefault
-		} else {
+		if interval > 0 {
 			o.Interval = interval
+		} else {
+			o.Interval = fallback
 		}
 	}
 }
