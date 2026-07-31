@@ -3,13 +3,13 @@ package wjobs
 import (
 	"log/slog"
 
-	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
+	"github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-func NewDeleteDuplicatesJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) nworkers.Job {
-	return nworkers.NewJob(
+func NewDeleteDuplicatesJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) workers.Job {
+	return workers.NewJob(
 		"DeleteDuplicates",
-		nworkers.WrapJobExecute(logger, runner.DeleteDuplicates),
+		workers.WrapJobExecute(logger, runner.DeleteDuplicates),
 	)
 }

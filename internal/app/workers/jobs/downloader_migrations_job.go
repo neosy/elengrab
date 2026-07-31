@@ -3,13 +3,13 @@ package wjobs
 import (
 	"log/slog"
 
-	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
+	"github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-func NewDownloaderMigrationsJob(logger *slog.Logger, runner pworkers.MigrationsRunner) nworkers.Job {
-	return nworkers.NewJob(
+func NewDownloaderMigrationsJob(logger *slog.Logger, runner pworkers.MigrationsRunner) workers.Job {
+	return workers.NewJob(
 		"DownloaderDeferredMigrations",
-		nworkers.WrapJobExecute(logger, runner.RunDeferredMigrations),
+		workers.WrapJobExecute(logger, runner.RunDeferredMigrations),
 	)
 }

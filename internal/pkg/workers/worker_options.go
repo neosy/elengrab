@@ -1,4 +1,4 @@
-package nworkers
+package workers
 
 import "time"
 

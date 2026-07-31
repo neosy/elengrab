@@ -15,7 +15,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/maintenance"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
+	"github.com/neosy/elengrab/internal/pkg/workerpool"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
@@ -26,9 +26,9 @@ type Dependencies struct {
 	Services     *services.Services
 
 	// dispetchers
-	DownloadDispetcher   nworkerpool.JobDispatcher
-	OperationDispatcher  nworkerpool.JobDispatcher
-	WatchEventDispatcher nworkerpool.JobDispatcher
+	DownloadDispetcher   workerpool.JobDispatcher
+	OperationDispatcher  workerpool.JobDispatcher
+	WatchEventDispatcher workerpool.JobDispatcher
 
 	// Options
 	AppName  string

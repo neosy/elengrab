@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
-	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
+	"github.com/neosy/elengrab/internal/pkg/workerpool"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
@@ -14,7 +14,7 @@ type createWatchMediaEventJob struct {
 	runner  pworkers.WatchEventRunner
 }
 
-func NewCreateWatchMediaEventJob(runner pworkers.WatchEventRunner, request *dto.CreateMediaWatchEventRequest) nworkerpool.Job {
+func NewCreateWatchMediaEventJob(runner pworkers.WatchEventRunner, request *dto.CreateMediaWatchEventRequest) workerpool.Job {
 	return &createWatchMediaEventJob{
 		request: request,
 		runner:  runner,

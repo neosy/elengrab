@@ -22,7 +22,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
+	"github.com/neosy/elengrab/internal/pkg/workerpool"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
@@ -39,8 +39,8 @@ type Downloader struct {
 	systemInfoStore systemInfoStore
 
 	// dispetchers
-	downloadDispatcher  nworkerpool.JobDispatcher
-	operationDispatcher nworkerpool.JobDispatcher
+	downloadDispatcher  workerpool.JobDispatcher
+	operationDispatcher workerpool.JobDispatcher
 
 	// internal
 	download          *mediadownload.MediaDownload
@@ -102,9 +102,9 @@ func NewDownloader(
 	downloadsStorage pstorage.DownloadsStorage,
 
 	// dispetchers
-	downloadDispatcher nworkerpool.JobDispatcher,
-	operationDispatcher nworkerpool.JobDispatcher,
-	watchEventDispatcher nworkerpool.JobDispatcher,
+	downloadDispatcher workerpool.JobDispatcher,
+	operationDispatcher workerpool.JobDispatcher,
+	watchEventDispatcher workerpool.JobDispatcher,
 
 	// usecases
 	thumbnail *thumbnail.Thumbnail,

@@ -9,7 +9,7 @@ import (
 	uwatchstat "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_user_watch_stat"
 	watchevent "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_watch_event"
 	watchstat "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_watch_stat"
-	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
+	"github.com/neosy/elengrab/internal/pkg/workerpool"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 )
 
@@ -18,7 +18,7 @@ type MediaWatch struct {
 	mappers *mappers.Mappers
 
 	// dispetchers
-	watchEventDispatcher nworkerpool.JobDispatcher
+	watchEventDispatcher workerpool.JobDispatcher
 
 	// State
 	pendingStats statsUpdateQueue
@@ -46,7 +46,7 @@ func NewMediaWatch(
 	positionCacheRep persistence.MediaUserWatchPositionCacheRepository,
 
 	// dispetchers
-	watchEventDispatcher nworkerpool.JobDispatcher,
+	watchEventDispatcher workerpool.JobDispatcher,
 ) *MediaWatch {
 	return &MediaWatch{
 		logger:  logger,
