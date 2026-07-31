@@ -59,14 +59,14 @@ func WrapJobExecute(
 
 		// Log the job completion
 		if logger != nil {
-			logger = logger.With("jobName", j.Name())
+			newLogger := logger.With("jobName", j.Name())
 
 			// Add elapsed time to the logger if requested
 			if options.measureElapsed {
-				logger = logger.With("elapsed", uformat.DurationFormat(time.Since(start)))
+				newLogger = newLogger.With("elapsed", uformat.DurationFormat(time.Since(start)))
 			}
 
-			logger.Debug("Job done")
+			newLogger.Debug("Job done")
 		}
 
 		return err
