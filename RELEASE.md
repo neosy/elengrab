@@ -1,6 +1,6 @@
 # Releases
 
-## v0.23.0 — 2026-07-30
+## v0.23.0 — 2026-07-31
 
 ### ✨ Features
 - Display a share link icon for media items with an existing share link. [L059]
