@@ -13,7 +13,7 @@ import (
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
-	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
+	"github.com/neosy/elengrab/internal/pkg/workerpool"
 )
 
 func (uc *Downloader) ScheduleDownload(
@@ -166,7 +166,7 @@ func (uc *Downloader) addDownloadToQueueDownload(ctx context.Context, downloadID
 	return nil
 }
 
-func (uc *Downloader) enqueueDownloadTask(task *ddownload.DownloadTask) nworkerpool.Job {
+func (uc *Downloader) enqueueDownloadTask(task *ddownload.DownloadTask) workerpool.Job {
 	job := wjobs.NewDownloadJob(uc, task)
 
 	if !uc.downloadDispatcher.AddJob(job) {

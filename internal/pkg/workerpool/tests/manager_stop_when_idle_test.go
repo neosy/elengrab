@@ -1,4 +1,4 @@
-package nworkerpool
+package tests
 
 import (
 	"context"
@@ -6,15 +6,15 @@ import (
 	"testing"
 	"time"
 
-	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
+	"github.com/neosy/elengrab/internal/pkg/workerpool"
 )
 
 func TestManagerStopWhenIdle(t *testing.T) {
 	logger := slog.Default()
-	m := nworkerpool.NewWorkerPool(
+	m := workerpool.NewWorkerPool(
 		logger,
 		"Test 1",
-		nworkerpool.WithMaxWorkers(1),
+		workerpool.WithMaxWorkers(1),
 	)
 	ctx := context.Background()
 

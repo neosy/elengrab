@@ -1,4 +1,4 @@
-package nworkerpool
+package workerpool
 
 import "time"
 

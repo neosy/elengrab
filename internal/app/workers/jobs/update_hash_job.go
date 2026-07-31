@@ -3,13 +3,13 @@ package wjobs
 import (
 	"log/slog"
 
-	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
+	"github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-func NewUpdateHashJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) nworkers.Job {
-	return nworkers.NewJob(
+func NewUpdateHashJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) workers.Job {
+	return workers.NewJob(
 		"UpdateHash",
-		nworkers.WrapJobExecute(logger, runner.UpdateHash),
+		workers.WrapJobExecute(logger, runner.UpdateHash),
 	)
 }

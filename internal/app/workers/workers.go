@@ -1,4 +1,4 @@
-package workers
+package appworkers
 
 import (
 	"log/slog"
@@ -6,7 +6,7 @@ import (
 
 	cachejobs "github.com/neosy/elengrab/internal/app/workers/cache"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
-	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
+	"github.com/neosy/elengrab/internal/pkg/workers"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
@@ -82,7 +82,7 @@ type Dependencies struct {
 	UpdateDBMetricsInterval  time.Duration
 }
 
-func Initialize(logger *slog.Logger, deps *Dependencies, ws *nworkers.Workers) {
+func Initialize(logger *slog.Logger, deps *Dependencies, ws *workers.Workers) {
 	now := time.Now().UTC()
 
 	backupDatabaseStartAt := time.Date(
@@ -90,115 +90,115 @@ func Initialize(logger *slog.Logger, deps *Dependencies, ws *nworkers.Workers) {
 		0, 0, 0, 0, now.Location(),
 	).Add(1 * time.Hour)
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		wjobs.NewStartupDatabaseJob(ws.Logger(), deps.DBMaintenance),
-		nworkers.WithMaxRuns(1),
-		nworkers.WithInitialDelay(1*time.Second),
+		workers.WithMaxRuns(1),
+		workers.WithInitialDelay(1*time.Second),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		wjobs.NewStartupAuthWebJob(ws.Logger(), deps.AuthWebStartup),
-		nworkers.WithMaxRuns(1),
-		nworkers.WithInitialDelay(3*time.Second),
+		workers.WithMaxRuns(1),
+		workers.WithInitialDelay(3*time.Second),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		wjobs.NewDownloaderMigrationsJob(ws.Logger(), deps.DownloaderMigrations),
-		nworkers.WithMaxRuns(1),
-		nworkers.WithInitialDelay(5*time.Second),
+		workers.WithMaxRuns(1),
+		workers.WithInitialDelay(5*time.Second),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		wjobs.NewUpdateHashJob(ws.Logger(), deps.DownloaderMaintenance),
-		nworkers.WithIntervalFallback(deps.UpdateHashInterval, defaultUpdateHashInterval),
-		nworkers.WithInitialDelay(7*time.Second),
+		workers.WithIntervalFallback(deps.UpdateHashInterval, defaultUpdateHashInterval),
+		workers.WithInitialDelay(7*time.Second),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		wjobs.NewDeleteDuplicatesJob(ws.Logger(), deps.DownloaderMaintenance),
-		nworkers.WithIntervalFallback(deps.DeleteDuplicatesInterval, defaultDeleteDuplicatesInterval),
-		nworkers.WithInitialDelay(10*time.Second),
+		workers.WithIntervalFallback(deps.DeleteDuplicatesInterval, defaultDeleteDuplicatesInterval),
+		workers.WithInitialDelay(10*time.Second),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		wjobs.NewDeleteMissingDownloadsJob(ws.Logger(), deps.DownloaderMaintenance, deps.MoveUnmatchedFilesEnabled),
-		nworkers.WithIntervalFallback(deps.DeleteMissingDownloadsInterval, defaultDeleteMissingDownloadsInterval),
-		nworkers.WithInitialDelay(15*time.Second),
+		workers.WithIntervalFallback(deps.DeleteMissingDownloadsInterval, defaultDeleteMissingDownloadsInterval),
+		workers.WithInitialDelay(15*time.Second),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		wjobs.NewDeleteFailedDownloadsJob(ws.Logger(), deps.DownloaderMaintenance),
-		nworkers.WithIntervalFallback(deps.DeleteFailedDownloadsInterval, defaultDeleteFailedDownloadsInterval),
-		nworkers.WithInitialDelay(20*time.Second),
+		workers.WithIntervalFallback(deps.DeleteFailedDownloadsInterval, defaultDeleteFailedDownloadsInterval),
+		workers.WithInitialDelay(20*time.Second),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		cachejobs.NewCleanCacheJob(ws.Logger(), deps.YoutubeChannelCache),
-		nworkers.WithIntervalFallback(deps.CleanYoutubeChannelCacheInterval, defaultCleanYoutubeChannelCacheInterval),
+		workers.WithIntervalFallback(deps.CleanYoutubeChannelCacheInterval, defaultCleanYoutubeChannelCacheInterval),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		cachejobs.NewCleanCacheJob(ws.Logger(), deps.MediaDownloadCache),
-		nworkers.WithIntervalFallback(deps.CleanMediaDownloadCacheInterval, defaultCleanMediaDownloadCacheInterval),
+		workers.WithIntervalFallback(deps.CleanMediaDownloadCacheInterval, defaultCleanMediaDownloadCacheInterval),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		cachejobs.NewCleanCacheJob(ws.Logger(), deps.DownloadStateCache),
-		nworkers.WithIntervalFallback(deps.CleanDownloadStateCacheInterval, defaultCleanDownloadStateCacheInterval),
+		workers.WithIntervalFallback(deps.CleanDownloadStateCacheInterval, defaultCleanDownloadStateCacheInterval),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		cachejobs.NewCleanCacheJob(ws.Logger(), deps.MediaWatchStatCache),
-		nworkers.WithIntervalFallback(deps.CleanMediaWatchStatCacheInterval, defaultCleanMediaWatchStatCacheInterval),
+		workers.WithIntervalFallback(deps.CleanMediaWatchStatCacheInterval, defaultCleanMediaWatchStatCacheInterval),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		cachejobs.NewCleanCacheJob(ws.Logger(), deps.MediaUserWatchPositionCache),
-		nworkers.WithIntervalFallback(deps.CleanMediaUserWatchPositionCacheInterval, defaultCleanMediaUserWatchPositionCacheInterval),
+		workers.WithIntervalFallback(deps.CleanMediaUserWatchPositionCacheInterval, defaultCleanMediaUserWatchPositionCacheInterval),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		cachejobs.NewCleanCacheJob(ws.Logger(), deps.SiteLogoCache),
-		nworkers.WithIntervalFallback(deps.CleanSiteLogoCacheInterval, defaultCleanSiteLogoCacheInterval),
+		workers.WithIntervalFallback(deps.CleanSiteLogoCacheInterval, defaultCleanSiteLogoCacheInterval),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		cachejobs.NewCleanCacheJob(ws.Logger(), deps.ThumbnailCache),
-		nworkers.WithIntervalFallback(deps.CleanThumbnailCacheInterval, defaultCleanThumbnailCacheInterval),
+		workers.WithIntervalFallback(deps.CleanThumbnailCacheInterval, defaultCleanThumbnailCacheInterval),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		cachejobs.NewCleanCacheJob(ws.Logger(), deps.ThumbnailFileCache),
-		nworkers.WithIntervalFallback(deps.CleanThumbnailFileCacheInterval, defaultCleanThumbnailFileCacheInterval),
+		workers.WithIntervalFallback(deps.CleanThumbnailFileCacheInterval, defaultCleanThumbnailFileCacheInterval),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		cachejobs.NewCleanCacheJob(ws.Logger(), deps.AssetFileCache),
-		nworkers.WithIntervalFallback(deps.CleanAssetFileCacheInterval, defaultCleanAssetFileCacheInterval),
+		workers.WithIntervalFallback(deps.CleanAssetFileCacheInterval, defaultCleanAssetFileCacheInterval),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		wjobs.NewbackupDatabaseJob(ws.Logger(), deps.DBMaintenance),
-		nworkers.WithStartAt(backupDatabaseStartAt),
-		nworkers.WithIntervalFallback(deps.BackupDatabaseInterval, defaultBackupDatabaseInterval),
+		workers.WithStartAt(backupDatabaseStartAt),
+		workers.WithIntervalFallback(deps.BackupDatabaseInterval, defaultBackupDatabaseInterval),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		wjobs.NewFlushWALJob(ws.Logger(), deps.DBMaintenance),
-		nworkers.WithIntervalFallback(deps.FlushWALInterval, defaultFlushWALInterval),
+		workers.WithIntervalFallback(deps.FlushWALInterval, defaultFlushWALInterval),
 	))
 
-	ws.Add(nworkers.NewWorker(
+	ws.Add(workers.NewWorker(
 		wjobs.NewUpdateSystemInfoJob(ws.Logger(), deps.DownloaderTask),
-		nworkers.WithIntervalFallback(deps.UpdateSystemInfoInterval, defaultUpdateSystemInfoInterval),
-		nworkers.WithInitialDelay(1*time.Second),
+		workers.WithIntervalFallback(deps.UpdateSystemInfoInterval, defaultUpdateSystemInfoInterval),
+		workers.WithInitialDelay(1*time.Second),
 	))
 
 	if deps.MetricsEnabled {
-		ws.Add(nworkers.NewWorker(
+		ws.Add(workers.NewWorker(
 			wjobs.NewUpdateDBMetricsJob(ws.Logger(), deps.DBMMetrics),
-			nworkers.WithIntervalFallback(deps.UpdateDBMetricsInterval, defaultUpdateDBMetricsInterval),
-			nworkers.WithInitialDelay(10*time.Second),
+			workers.WithIntervalFallback(deps.UpdateDBMetricsInterval, defaultUpdateDBMetricsInterval),
+			workers.WithInitialDelay(10*time.Second),
 		))
 	}
 }

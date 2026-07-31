@@ -4,17 +4,17 @@ import (
 	"context"
 	"log/slog"
 
-	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
+	"github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-func NewFlushWALJob(logger *slog.Logger, runner pworkers.DBMaintenanceRunner) nworkers.Job {
+func NewFlushWALJob(logger *slog.Logger, runner pworkers.DBMaintenanceRunner) workers.Job {
 	run := func(context.Context) error {
 		return runner.FlushWAL()
 	}
 
-	return nworkers.NewJob(
+	return workers.NewJob(
 		"FlushWAL",
-		nworkers.WrapJobExecute(logger, run),
+		workers.WrapJobExecute(logger, run),
 	)
 }

@@ -17,11 +17,11 @@ import (
 	"github.com/neosy/elengrab/internal/app/services"
 	ytdlpsrv "github.com/neosy/elengrab/internal/app/services/ytdlp"
 	"github.com/neosy/elengrab/internal/app/usecases"
-	"github.com/neosy/elengrab/internal/app/workers"
+	appworkers "github.com/neosy/elengrab/internal/app/workers"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfile "github.com/neosy/elengrab/internal/pkg/filex"
-	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
-	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
+	"github.com/neosy/elengrab/internal/pkg/workerpool"
+	"github.com/neosy/elengrab/internal/pkg/workers"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 	inmemoryrep "github.com/neosy/elengrab/internal/repository/in_memory"
@@ -104,11 +104,11 @@ type Application struct {
 	Usecases *usecases.Usecases
 	Services *services.Services
 
-	DownloadWorkerPool   nworkerpool.WorkerPool
-	OperationWorkerPool  nworkerpool.WorkerPool
-	WatchEventWorkerPool nworkerpool.WorkerPool
+	DownloadWorkerPool   workerpool.WorkerPool
+	OperationWorkerPool  workerpool.WorkerPool
+	WatchEventWorkerPool workerpool.WorkerPool
 
-	Workers *nworkers.Workers
+	Workers *workers.Workers
 
 	dbAuth       *sql.DB
 	dbMain       *sql.DB
@@ -260,7 +260,7 @@ func (a *Application) initialize() error {
 	a.Usecases.Start(a.ctx)
 
 	// Workers
-	wsDeps := &workers.Dependencies{
+	wsDeps := &appworkers.Dependencies{
 		MediaDownloadCache:          inMemoryRepositories.MediaDownload,
 		DownloadStateCache:          inMemoryRepositories.DownloadState,
 		MediaWatchStatCache:         inMemoryRepositories.MediaWatchStat,
@@ -301,8 +301,8 @@ func (a *Application) initialize() error {
 		UpdateSystemInfoInterval: updateSystemInfoInterval,
 		UpdateDBMetricsInterval:  updateDBMetricsInterval,
 	}
-	a.Workers = nworkers.NewWorkers(a.logger, "BackgroundTasks")
-	workers.Initialize(a.logger, wsDeps, a.Workers)
+	a.Workers = workers.NewWorkers(a.logger, "BackgroundTasks")
+	appworkers.Initialize(a.logger, wsDeps, a.Workers)
 
 	return nil
 }
@@ -493,36 +493,36 @@ func (a *Application) initInMemoryRepositories() *inmemoryrep.Repositories {
 	return inmemoryrep.New(inMemoryDeps)
 }
 
-func (a *Application) newDownloadWorkerPool() nworkerpool.WorkerPool {
+func (a *Application) newDownloadWorkerPool() workerpool.WorkerPool {
 	workers := func() uint32 {
 		if a.cfg.Elengrab.DemoMode {
 			return 1
 		}
 		return a.cfg.Elengrab.DownloadWorkers
 	}
-	return nworkerpool.NewDynamicWorkerPool(
+	return workerpool.NewDynamicWorkerPool(
 		a.logger,
 		"Download",
-		nworkerpool.WithMaxWorkers(workers()),
-		nworkerpool.WithIdleTime(downloadWorkerIdleTimeDefault),
+		workerpool.WithMaxWorkers(workers()),
+		workerpool.WithIdleTime(downloadWorkerIdleTimeDefault),
 	)
 
 }
 
-func (a *Application) newOperationWorkerPool() nworkerpool.WorkerPool {
-	return nworkerpool.NewDynamicWorkerPool(
+func (a *Application) newOperationWorkerPool() workerpool.WorkerPool {
+	return workerpool.NewDynamicWorkerPool(
 		a.logger,
 		"Operation",
-		nworkerpool.WithMaxWorkers(a.cfg.Elengrab.OperationWorkers),
-		nworkerpool.WithIdleTime(operationWorkerIdleTimeDefault),
+		workerpool.WithMaxWorkers(a.cfg.Elengrab.OperationWorkers),
+		workerpool.WithIdleTime(operationWorkerIdleTimeDefault),
 	)
 }
 
-func (a *Application) newWatchEventWorkerPool() nworkerpool.WorkerPool {
-	return nworkerpool.NewWorkerPool(
+func (a *Application) newWatchEventWorkerPool() workerpool.WorkerPool {
+	return workerpool.NewWorkerPool(
 		a.logger,
 		"WatchEvent",
-		nworkerpool.WithMaxWorkers(watchEventWorkers),
+		workerpool.WithMaxWorkers(watchEventWorkers),
 	)
 }
 

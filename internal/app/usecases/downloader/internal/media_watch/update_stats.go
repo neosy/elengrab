@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
+	"github.com/neosy/elengrab/internal/pkg/workerpool"
 )
 
 func (uc *MediaWatch) updateStats(
@@ -133,7 +133,7 @@ func (uc *MediaWatch) updateStatsFromQueue(ctx context.Context) error {
 	return nil
 }
 
-func (uc *MediaWatch) enqueueUpdateAllStats() nworkerpool.Job {
+func (uc *MediaWatch) enqueueUpdateAllStats() workerpool.Job {
 	job := wjobs.NewUpdateWatchStatsJob(uc)
 
 	if !uc.watchEventDispatcher.AddJob(job) {

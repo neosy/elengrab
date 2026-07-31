@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
+	"github.com/neosy/elengrab/internal/pkg/workerpool"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
@@ -16,7 +16,7 @@ type downloadJob struct {
 	runner pworkers.DownloadTaskRunner
 }
 
-func NewDownloadJob(runner pworkers.DownloadTaskRunner, task *ddownload.DownloadTask) nworkerpool.Job {
+func NewDownloadJob(runner pworkers.DownloadTaskRunner, task *ddownload.DownloadTask) workerpool.Job {
 	var jobID uuid.UUID
 	if task.JobID != nil {
 		jobID = *task.JobID
