@@ -1,16 +1,12 @@
 package nworkerpool
 
 import (
-	"log/slog"
 	"time"
 )
 
 type WorkerPoolOption func(*WorkerPoolOptions)
 
 type WorkerPoolOptions struct {
-	// logger to use for logging messages
-	logger *slog.Logger
-
 	// maximum number of workers in the pool
 	MaxWorkers uint32
 
@@ -21,7 +17,6 @@ type WorkerPoolOptions struct {
 // DefaultWorkerPoolOptions returns default options for a worker pool
 func DefaultWorkerPoolOptions() WorkerPoolOptions {
 	return WorkerPoolOptions{
-		logger:     nil,
 		MaxWorkers: defaultWorkerMaxWorkers,
 	}
 }
@@ -29,17 +24,34 @@ func DefaultWorkerPoolOptions() WorkerPoolOptions {
 // DefaultDynamicWorkerPoolOptions returns default options for a dynamic worker pool
 func DefaultDynamicWorkerPoolOptions() WorkerPoolOptions {
 	return WorkerPoolOptions{
-		logger:     nil,
 		MaxWorkers: defaultDynamicWorkerMaxWorkers,
 		IdleTime:   defaultIdleTime,
 	}
 }
 
-// WithLogger sets the logger for a worker pool.
-func WithLogger(logger *slog.Logger) WorkerPoolOption {
-	return func(o *WorkerPoolOptions) {
-		o.logger = logger
+// ApplyWorkerPoolOptions applies the provided WorkerPoolOption functions to the given WorkerPoolOptions.
+func ApplyWorkerPoolOptions(options *WorkerPoolOptions, opts ...WorkerPoolOption) {
+	for _, opt := range opts {
+		opt(options)
 	}
+}
+
+// NewWorkerPoolOptions creates a new WorkerPoolOptions instance with the provided options applied.
+func NewWorkerPoolOptions(opts ...WorkerPoolOption) WorkerPoolOptions {
+	options := DefaultWorkerPoolOptions()
+
+	ApplyWorkerPoolOptions(&options, opts...)
+
+	return options
+}
+
+// NewDynamicWorkerPoolOptions creates a new WorkerPoolOptions instance for a dynamic worker pool with the provided options applied.
+func NewDynamicWorkerPoolOptions(opts ...WorkerPoolOption) WorkerPoolOptions {
+	options := DefaultDynamicWorkerPoolOptions()
+
+	ApplyWorkerPoolOptions(&options, opts...)
+
+	return options
 }
 
 // WithMaxWorkers sets the maximum number of workers for a worker pool.

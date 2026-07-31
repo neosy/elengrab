@@ -47,6 +47,11 @@ func newWorker(
 	logger *slog.Logger,
 	workerID uint64,
 ) *worker {
+
+	if logger != nil {
+		logger = logger.With("workerID", workerID)
+	}
+
 	worker := &worker{
 		logger:   logger,
 		workerID: workerID,
@@ -66,7 +71,9 @@ func (w *worker) Start(
 ) {
 	if !w.running.CompareAndSwap(false, true) {
 		if w.logger != nil {
-			w.logger.Warn("Worker already running", "workerID", w.workerID)
+			w.logger.Warn(
+				"Worker already running",
+			)
 		}
 		return
 	}
@@ -79,7 +86,9 @@ func (w *worker) Start(
 	go func() {
 		defer func() {
 			if w.logger != nil {
-				w.logger.Debug("Worker stopped", "workerID", w.workerID)
+				w.logger.Debug(
+					"Worker stopped",
+				)
 			}
 			w.running.Store(false)
 			w.status.Store(WorkerStatusStopped)
@@ -95,14 +104,19 @@ func (w *worker) Start(
 			case task, ok := <-taskStream:
 				if !ok {
 					if w.logger != nil {
-						w.logger.Debug("taskStream closed, stopping worker", "workerID", w.workerID)
+						w.logger.Debug(
+							"taskStream closed, stopping worker",
+						)
 					}
 					return
 				}
 
 				jobRun := func() chan struct{} {
 					if w.logger != nil {
-						w.logger.Debug("Worker: running job", "workerID", w.workerID, "jobName", task.job.Name())
+						w.logger.Debug(
+							"Worker started job",
+							"jobName", task.job.Name(),
+						)
 					}
 
 					done := make(chan struct{})
@@ -115,8 +129,7 @@ func (w *worker) Start(
 
 						if w.logger != nil {
 							w.logger.Debug(
-								"Worker: job done",
-								"workerID", w.workerID,
+								"Worker finished job",
 								"jobName", task.job.Name(),
 								"elapsed", uformat.DurationFormat(elapsed),
 							)
@@ -136,6 +149,12 @@ func (w *worker) Start(
 			}
 		}
 	}()
+
+	if w.logger != nil {
+		w.logger.Debug(
+			"Worker started",
+		)
+	}
 }
 
 func (w *worker) StartWithIdleTimeout(
@@ -149,7 +168,9 @@ func (w *worker) StartWithIdleTimeout(
 ) {
 	if !w.running.CompareAndSwap(false, true) {
 		if w.logger != nil {
-			w.logger.Warn("Worker already running", "workerID", w.workerID)
+			w.logger.Warn(
+				"Worker already running",
+			)
 		}
 		return
 	}
@@ -174,6 +195,11 @@ func (w *worker) StartWithIdleTimeout(
 		}
 
 		defer func() {
+			if w.logger != nil {
+				w.logger.Debug(
+					"Worker stopped",
+				)
+			}
 			idleTimer.Stop()
 			w.running.Store(false)
 			w.status.Store(WorkerStatusStopped)
@@ -194,14 +220,17 @@ func (w *worker) StartWithIdleTimeout(
 			case task, ok := <-taskStream:
 				if !ok {
 					if w.logger != nil {
-						w.logger.Debug("taskStream closed, stopping worker", "workerID", w.workerID)
+						w.logger.Debug("taskStream closed, stopping worker")
 					}
 					return
 				}
 
 				jobRun := func() chan struct{} {
 					if w.logger != nil {
-						w.logger.Debug("Worker: running job", "workerID", w.workerID, "jobName", task.job.Name())
+						w.logger.Debug(
+							"Worker: running job",
+							"jobName", task.job.Name(),
+						)
 					}
 
 					done := make(chan struct{})
@@ -215,7 +244,6 @@ func (w *worker) StartWithIdleTimeout(
 						if w.logger != nil {
 							w.logger.Debug(
 								"Worker: job done",
-								"workerID", w.workerID,
 								"jobName", task.job.Name(),
 								"elapsed", uformat.DurationFormat(elapsed),
 							)

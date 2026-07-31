@@ -3,6 +3,7 @@ package nworkerpool
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"sync"
 	"sync/atomic"
 )
@@ -28,12 +29,8 @@ type dynamicWorkerPool struct {
 //   - IdleTime: duration a worker stays alive when idle (defaults to defaultIdleTime)
 //
 // Returns an initialized *dynamicWorkerPool ready to Start().
-func NewDynamicWorkerPool(name string, opts ...WorkerPoolOption) WorkerPool {
-	options := DefaultDynamicWorkerPoolOptions()
-
-	for _, opt := range opts {
-		opt(&options)
-	}
+func NewDynamicWorkerPool(logger *slog.Logger, name string, opts ...WorkerPoolOption) WorkerPool {
+	options := NewDynamicWorkerPoolOptions(opts...)
 
 	if options.MaxWorkers == 0 {
 		options.MaxWorkers = defaultDynamicWorkerMaxWorkers
@@ -41,6 +38,10 @@ func NewDynamicWorkerPool(name string, opts ...WorkerPoolOption) WorkerPool {
 
 	if options.IdleTime == 0 {
 		options.IdleTime = defaultIdleTime
+	}
+
+	if logger != nil {
+		logger = logger.With("poolName", name)
 	}
 
 	wp := &dynamicWorkerPool{
@@ -71,8 +72,8 @@ func (wp *dynamicWorkerPool) Start(ctx context.Context) error {
 	}
 
 	if !wp.running.CompareAndSwap(false, true) {
-		if wp.options.logger != nil {
-			wp.options.logger.Warn("Manager already running")
+		if wp.logger != nil {
+			wp.logger.Warn("Manager already running")
 		}
 		return errors.New("manager already running")
 	}
@@ -157,13 +158,12 @@ func (wp *dynamicWorkerPool) Start(ctx context.Context) error {
 		}
 	})
 
-	if wp.options.logger != nil {
-		wp.options.logger.Info(
+	if wp.logger != nil {
+		wp.logger.Info(
 			"Worker pool manager running...",
-			"name", wp.Name(),
 			"type", "dynamic",
-			"count", wp.ActiveWorkers(),
-			"max", wp.options.MaxWorkers,
+			"activeWorkers", wp.ActiveWorkers(),
+			"maxWorkers", wp.options.MaxWorkers,
 		)
 	}
 
@@ -175,10 +175,11 @@ func (wp *dynamicWorkerPool) Start(ctx context.Context) error {
 // Must be called with wp.mu held.
 func (wp *dynamicWorkerPool) addWorker(ctx context.Context) {
 	if wp.activeWorkers.Load() >= wp.options.MaxWorkers {
-		if wp.options.logger != nil {
-			wp.options.logger.Warn(
+		if wp.logger != nil {
+			wp.logger.Warn(
 				"Maximum number of workers reached",
-				"count", wp.ActiveWorkers(),
+				"activeWorkers", wp.ActiveWorkers(),
+				"maxWorkers", wp.options.MaxWorkers,
 			)
 		}
 	}
@@ -188,7 +189,7 @@ func (wp *dynamicWorkerPool) addWorker(ctx context.Context) {
 
 	wp.activeWorkers.Add(1)
 
-	worker := newWorker(wp.options.logger, id)
+	worker := newWorker(wp.logger, id)
 	wp.workers[id] = worker
 
 	wp.wg.Add(1)
@@ -202,15 +203,13 @@ func (wp *dynamicWorkerPool) addWorker(ctx context.Context) {
 		wp.removeWorker,
 	)
 
-	if wp.options.logger != nil {
-		wp.options.logger.Debug(
-			"Worker started in pool",
-			"poolName", wp.Name(),
-			"workerID", id,
-			"count", wp.ActiveWorkers(),
-			"max", wp.options.MaxWorkers,
-		)
-	}
+	wp.logger.Debug(
+		"Worker added to pool",
+		"workerID", id,
+		"workers", len(wp.workers),
+		"activeWorkers", wp.ActiveWorkers(),
+		"maxWorkers", wp.options.MaxWorkers,
+	)
 }
 
 // deleteWorker removes a stopped worker from the pool.
@@ -220,15 +219,18 @@ func (wp *dynamicWorkerPool) removeWorker(workerID uint64) {
 
 	worker, exists := wp.workers[workerID]
 	if !exists {
-		if wp.options.logger != nil {
-			wp.options.logger.Warn("Attempted to remove non-existent worker", "workerID", workerID)
+		if wp.logger != nil {
+			wp.logger.Warn(
+				"Attempted to remove non-existent worker",
+				"workerID", workerID,
+			)
 		}
 		return
 	}
 
 	if worker.Status() != WorkerStatusStopped {
-		if wp.options.logger != nil {
-			wp.options.logger.Warn(
+		if wp.logger != nil {
+			wp.logger.Warn(
 				"Attempted to remove non-stopped worker",
 				"workerID", workerID,
 				"status", worker.Status(),
@@ -242,12 +244,12 @@ func (wp *dynamicWorkerPool) removeWorker(workerID uint64) {
 	wp.activeWorkers.Add(^uint32(0))
 	wp.wg.Add(-1)
 
-	if wp.options.logger != nil {
-		wp.options.logger.Debug(
-			"Worker stopped in pool",
+	if wp.logger != nil {
+		wp.logger.Debug(
+			"Worker removed",
 			"workerID", workerID,
-			"count", wp.ActiveWorkers(),
-			"max", wp.options.MaxWorkers,
+			"activeWorkers", wp.ActiveWorkers(),
+			"maxWorkers", wp.options.MaxWorkers,
 		)
 	}
 }

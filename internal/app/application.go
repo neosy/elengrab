@@ -301,7 +301,7 @@ func (a *Application) initialize() error {
 		UpdateSystemInfoInterval: updateSystemInfoInterval,
 		UpdateDBMetricsInterval:  updateDBMetricsInterval,
 	}
-	a.Workers = nworkers.NewWorkers(a.logger)
+	a.Workers = nworkers.NewWorkers(a.logger, "BackgroundTasks")
 	workers.Initialize(a.logger, wsDeps, a.Workers)
 
 	return nil
@@ -501,8 +501,8 @@ func (a *Application) newDownloadWorkerPool() nworkerpool.WorkerPool {
 		return a.cfg.Elengrab.DownloadWorkers
 	}
 	return nworkerpool.NewDynamicWorkerPool(
+		a.logger,
 		"Download",
-		nworkerpool.WithLogger(a.logger),
 		nworkerpool.WithMaxWorkers(workers()),
 		nworkerpool.WithIdleTime(downloadWorkerIdleTimeDefault),
 	)
@@ -511,8 +511,8 @@ func (a *Application) newDownloadWorkerPool() nworkerpool.WorkerPool {
 
 func (a *Application) newOperationWorkerPool() nworkerpool.WorkerPool {
 	return nworkerpool.NewDynamicWorkerPool(
+		a.logger,
 		"Operation",
-		nworkerpool.WithLogger(a.logger),
 		nworkerpool.WithMaxWorkers(a.cfg.Elengrab.OperationWorkers),
 		nworkerpool.WithIdleTime(operationWorkerIdleTimeDefault),
 	)
@@ -520,8 +520,8 @@ func (a *Application) newOperationWorkerPool() nworkerpool.WorkerPool {
 
 func (a *Application) newWatchEventWorkerPool() nworkerpool.WorkerPool {
 	return nworkerpool.NewWorkerPool(
+		a.logger,
 		"WatchEvent",
-		nworkerpool.WithLogger(a.logger),
 		nworkerpool.WithMaxWorkers(watchEventWorkers),
 	)
 }

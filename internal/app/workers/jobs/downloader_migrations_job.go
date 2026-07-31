@@ -10,6 +10,6 @@ import (
 func NewDownloaderMigrationsJob(logger *slog.Logger, runner pworkers.MigrationsRunner) nworkers.Job {
 	return nworkers.NewJob(
 		"DownloaderDeferredMigrations",
-		nworkers.MakeTimedJobExecute(logger, runner.RunDeferredMigrations),
+		nworkers.WrapJobExecute(logger, runner.RunDeferredMigrations),
 	)
 }

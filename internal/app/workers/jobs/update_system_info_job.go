@@ -16,6 +16,6 @@ func NewUpdateSystemInfoJob(logger *slog.Logger, runner pworkers.DownloadTaskRun
 
 	return nworkers.NewJob(
 		"UpdateSystemInfo",
-		nworkers.MakeTimedJobExecute(logger, run),
+		nworkers.WrapJobExecute(logger, run),
 	)
 }

@@ -10,6 +10,6 @@ import (
 func NewDeleteDuplicatesJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) nworkers.Job {
 	return nworkers.NewJob(
 		"DeleteDuplicates",
-		nworkers.MakeTimedJobExecute(logger, runner.DeleteDuplicates),
+		nworkers.WrapJobExecute(logger, runner.DeleteDuplicates),
 	)
 }

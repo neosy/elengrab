@@ -10,6 +10,6 @@ import (
 func NewUpdateHashJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) nworkers.Job {
 	return nworkers.NewJob(
 		"UpdateHash",
-		nworkers.MakeTimedJobExecute(logger, runner.UpdateHash),
+		nworkers.WrapJobExecute(logger, runner.UpdateHash),
 	)
 }

@@ -2,6 +2,7 @@ package nworkerpool
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 	"sync/atomic"
 )
@@ -36,6 +37,9 @@ type WorkerPool interface {
 }
 
 type baseWorkerPool struct {
+	// logger to use for logging messages
+	logger *slog.Logger
+
 	name    string
 	options WorkerPoolOptions
 
@@ -95,8 +99,8 @@ func (wp *baseWorkerPool) Stop() {
 	// Wait for dispatcher and workers to finish
 	wp.wg.Wait()
 
-	if wp.options.logger != nil {
-		wp.options.logger.Debug(
+	if wp.logger != nil {
+		wp.logger.Debug(
 			"Worker pool manager stopped",
 			"name", wp.Name(),
 		)
