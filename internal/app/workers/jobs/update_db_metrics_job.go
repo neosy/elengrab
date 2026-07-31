@@ -15,6 +15,6 @@ func NewUpdateDBMetricsJob(logger *slog.Logger, runner pworkers.DBMMetricsRunner
 
 	return nworkers.NewJob(
 		"UpdateDBMetrics",
-		nworkers.MakeTimedJobExecute(logger, run),
+		nworkers.WrapJobExecute(logger, run),
 	)
 }

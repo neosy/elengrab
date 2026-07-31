@@ -10,6 +10,6 @@ import (
 func NewStartupAuthWebJob(logger *slog.Logger, runner pworkers.AuthWebStartupRunner) nworkers.Job {
 	return nworkers.NewJob(
 		"StartupAuthWeb",
-		nworkers.MakeTimedJobExecute(logger, runner.Startup),
+		nworkers.WrapJobExecute(logger, runner.Startup),
 	)
 }

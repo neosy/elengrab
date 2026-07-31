@@ -11,8 +11,8 @@ import (
 type Worker interface {
 	// Starts the worker loop
 	Run(ctx context.Context, stop <-chan struct{}) error
-	// Returns worker name
-	Name() string
+	// Returns the name of the job associated with the worker.
+	JobName() string
 }
 
 // worker is a concrete implementation of Worker.
@@ -28,15 +28,11 @@ type worker struct {
 
 // NewWorker creates a new Worker with the given job and options.
 func NewWorker(job Job, opts ...WorkerOption) Worker {
+	options := NewWorkerOptions(opts...)
+
 	w := &worker{
 		job:     job,
-		options: DefaultWorkerOptions(),
-	}
-
-	w.options.Name = job.Name()
-
-	for _, opt := range opts {
-		opt(&w.options)
+		options: options,
 	}
 
 	return w
@@ -166,7 +162,7 @@ func (w *worker) Run(ctx context.Context, stop <-chan struct{}) error {
 	}
 }
 
-// Name returns the worker's name.
-func (w *worker) Name() string {
-	return w.options.Name
+// JobName returns the name of the job associated with the worker.
+func (w *worker) JobName() string {
+	return w.job.Name()
 }

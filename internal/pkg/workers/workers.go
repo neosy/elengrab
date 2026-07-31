@@ -13,6 +13,9 @@ type Workers struct {
 	// optional logger
 	logger *slog.Logger
 
+	// name of the workers manager
+	name string
+
 	// registered workers
 	items []Worker
 
@@ -25,11 +28,19 @@ type Workers struct {
 }
 
 // NewWorkers creates a new Workers manager.
-func NewWorkers(logger *slog.Logger) *Workers {
+func NewWorkers(logger *slog.Logger, name string) *Workers {
+	logger = logger.With("workersManager", name)
+
 	return &Workers{
 		logger: logger,
+		name:   name,
 		stop:   make(chan struct{}),
 	}
+}
+
+// Logger returns the logger associated with the Workers manager.
+func (ws *Workers) Logger() *slog.Logger {
+	return ws.logger
 }
 
 // Add registers a Worker. Returns an error if workers are already running.
@@ -53,13 +64,13 @@ func (ws *Workers) startWorker(ctx context.Context, worker Worker) {
 	ws.wg.Go(func() {
 		defer func() {
 			if ws.logger != nil {
-				ws.logger.Debug("Worker stopped", "name", worker.Name())
+				ws.logger.Debug("Worker stopped", "jobName", worker.JobName())
 			}
 		}()
 		worker.Run(ctx, ws.stop)
 	})
 	if ws.logger != nil {
-		ws.logger.Debug("Worker started", "name", worker.Name())
+		ws.logger.Debug("Worker started", "jobName", worker.JobName())
 	}
 }
 

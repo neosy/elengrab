@@ -15,6 +15,6 @@ func NewFlushWALJob(logger *slog.Logger, runner pworkers.DBMaintenanceRunner) nw
 
 	return nworkers.NewJob(
 		"FlushWAL",
-		nworkers.MakeTimedJobExecute(logger, run),
+		nworkers.WrapJobExecute(logger, run),
 	)
 }

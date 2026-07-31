@@ -21,6 +21,7 @@ type Job interface {
 	Name() string
 }
 
+// NewJob creates a new Job with the given name and execution function.
 func NewJob(name string, execute JobExecute) Job {
 	return &baseJob{
 		name:    name,
@@ -28,26 +29,45 @@ func NewJob(name string, execute JobExecute) Job {
 	}
 }
 
+// Execute runs the job's execution function with the provided context.
 func (j *baseJob) Execute(ctx context.Context) error {
-	return j.execute(ctx, j)
+	err := j.execute(ctx, j)
+	return err
 }
 
+// Name returns the name of the job.
 func (j *baseJob) Name() string {
 	return j.name
 }
 
-// MakeTimedJobExecute wraps job execution with elapsed time measurement
-// and debug logging.
-func MakeTimedJobExecute(logger *slog.Logger, run func(ctx context.Context) error) JobExecute {
+// WrapJobExecute wraps a job execution function with logging and optional timing measurement.
+func WrapJobExecute(
+	logger *slog.Logger,
+	run func(ctx context.Context) error,
+	opts ...JobExecuteOption,
+) JobExecute {
+	options := NewJobExecuteOptions(opts...)
+
 	return func(ctx context.Context, j Job) error {
-		start := time.Now()
+		var start time.Time
+		if options.measureElapsed {
+			start = time.Now()
+		}
+
+		// Execute the job
 		err := run(ctx)
 
-		logger.Debug(
-			"Job done",
-			"name", j.Name(),
-			"elapsed", uformat.DurationFormat(time.Since(start)),
-		)
+		// Log the job completion
+		if logger != nil {
+			logger = logger.With("jobName", j.Name())
+
+			// Add elapsed time to the logger if requested
+			if options.measureElapsed {
+				logger = logger.With("elapsed", uformat.DurationFormat(time.Since(start)))
+			}
+
+			logger.Debug("Job done")
+		}
 
 		return err
 	}

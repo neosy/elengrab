@@ -10,6 +10,6 @@ import (
 func NewDeleteFailedDownloadsJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) nworkers.Job {
 	return nworkers.NewJob(
 		"DeleteFailedDownloads",
-		nworkers.MakeTimedJobExecute(logger, runner.DeleteFailedDownloads),
+		nworkers.WrapJobExecute(logger, runner.DeleteFailedDownloads),
 	)
 }

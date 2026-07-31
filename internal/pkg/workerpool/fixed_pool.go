@@ -3,6 +3,7 @@ package nworkerpool
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"sync"
 )
 
@@ -14,15 +15,15 @@ type workerPool struct {
 // logger: used for logging events and errors.
 // options: optional configuration; nil uses defaults.
 // Returns initialized worker pool ready for Start().
-func NewWorkerPool(name string, opts ...WorkerPoolOption) WorkerPool {
-	options := DefaultWorkerPoolOptions()
-
-	for _, opt := range opts {
-		opt(&options)
-	}
+func NewWorkerPool(logger *slog.Logger, name string, opts ...WorkerPoolOption) WorkerPool {
+	options := NewWorkerPoolOptions(opts...)
 
 	if options.MaxWorkers == 0 {
 		options.MaxWorkers = defaultWorkerMaxWorkers
+	}
+
+	if logger != nil {
+		logger = logger.With("poolName", name)
 	}
 
 	wp := &workerPool{
@@ -52,8 +53,8 @@ func (wp *workerPool) Start(ctx context.Context) error {
 	}
 
 	if !wp.running.CompareAndSwap(false, true) {
-		if wp.options.logger != nil {
-			wp.options.logger.Warn("Manager already running")
+		if wp.logger != nil {
+			wp.logger.Warn("Manager already running")
 		}
 		return errors.New("manager already running")
 	}
@@ -86,8 +87,8 @@ func (wp *workerPool) Start(ctx context.Context) error {
 		// Ensure running flag is cleared when dispatcher exits
 		defer func() {
 			wp.running.Store(false)
-			if wp.options.logger != nil {
-				wp.options.logger.Debug("Worker pool manager stopped")
+			if wp.logger != nil {
+				wp.logger.Debug("Worker pool manager stopped")
 			}
 		}()
 
@@ -141,14 +142,12 @@ func (wp *workerPool) Start(ctx context.Context) error {
 		}
 	})
 
-	if wp.options.logger != nil {
-		wp.options.logger.Info(
+	if wp.logger != nil {
+		wp.logger.Info(
 			"Worker pool manager running...",
-			"name", wp.Name(),
 			"type", "fixed",
-			"count", wp.options.MaxWorkers,
+			"workers", wp.options.MaxWorkers,
 		)
-
 	}
 
 	return nil
@@ -161,7 +160,7 @@ func (wp *workerPool) addWorker(ctx context.Context) {
 	id := wp.nextWorkerID.Load()
 	wp.nextWorkerID.Add(1)
 
-	worker := newWorker(wp.options.logger, id)
+	worker := newWorker(wp.logger, id)
 	wp.workers[id] = worker
 
 	wp.wg.Add(1)
@@ -173,12 +172,12 @@ func (wp *workerPool) addWorker(ctx context.Context) {
 		wp.notifyStopWorker,
 	)
 
-	if wp.options.logger != nil {
-		wp.options.logger.Debug(
-			"Worker started in pool",
-			"poolName", wp.Name(),
+	if wp.logger != nil {
+		wp.logger.Debug(
+			"Worker added to pool",
 			"workerID", id,
-			"count", wp.options.MaxWorkers,
+			"activeWorkers", len(wp.workers),
+			"maxWorkers", wp.options.MaxWorkers,
 		)
 	}
 }
@@ -187,7 +186,6 @@ func (wp *workerPool) addWorker(ctx context.Context) {
 func (wp *workerPool) notifyStopWorker(workerID uint64) {
 	wp.mu.Lock()
 	defer wp.mu.Unlock()
-
 	wp.wg.Add(-1)
 }
 
@@ -195,7 +193,7 @@ func (wp *workerPool) notifyStopWorker(workerID uint64) {
 func (wp *workerPool) ActiveWorkers() uint32 {
 	wp.mu.RLock()
 	defer wp.mu.RUnlock()
-	return wp.options.MaxWorkers
+	return uint32(len(wp.workers))
 }
 
 // PoolSize returns the maximum number of workers in the pool.
