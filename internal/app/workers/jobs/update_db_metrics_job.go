@@ -4,17 +4,17 @@ import (
 	"context"
 	"log/slog"
 
-	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
+	"github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-func NewUpdateDBMetricsJob(logger *slog.Logger, runner pworkers.DBMMetricsRunner) nworkers.Job {
+func NewUpdateDBMetricsJob(logger *slog.Logger, runner pworkers.DBMMetricsRunner) workers.Job {
 	run := func(context.Context) error {
 		return runner.UpdateMetrics()
 	}
 
-	return nworkers.NewJob(
+	return workers.NewJob(
 		"UpdateDBMetrics",
-		nworkers.WrapJobExecute(logger, run),
+		workers.WrapJobExecute(logger, run),
 	)
 }

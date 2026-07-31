@@ -12,7 +12,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
+	"github.com/neosy/elengrab/internal/pkg/workerpool"
 )
 
 func (uc *Downloader) ScheduleRefreshMetadata(
@@ -94,7 +94,7 @@ func (uc *Downloader) addTaskToQueueRefreshMetadata(userID uuid.UUID, download *
 	return nil
 }
 
-func (uc *Downloader) enqueueRefreshMetadataTask(task *ddownload.RefreshMetadataTask) nworkerpool.Job {
+func (uc *Downloader) enqueueRefreshMetadataTask(task *ddownload.RefreshMetadataTask) workerpool.Job {
 	job := wjobs.NewRefreshMetadataJob(uc, task)
 
 	if !uc.operationDispatcher.AddJob(job) {

@@ -1,4 +1,4 @@
-package nworkers
+package workers
 
 // JobExecuteOptions holds configuration options for executing a job.
 type JobExecuteOptions struct {

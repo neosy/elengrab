@@ -3,13 +3,13 @@ package wjobs
 import (
 	"log/slog"
 
-	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
+	"github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-func NewStartupAuthWebJob(logger *slog.Logger, runner pworkers.AuthWebStartupRunner) nworkers.Job {
-	return nworkers.NewJob(
+func NewStartupAuthWebJob(logger *slog.Logger, runner pworkers.AuthWebStartupRunner) workers.Job {
+	return workers.NewJob(
 		"StartupAuthWeb",
-		nworkers.WrapJobExecute(logger, runner.Startup),
+		workers.WrapJobExecute(logger, runner.Startup),
 	)
 }

@@ -4,18 +4,18 @@ import (
 	"context"
 	"log/slog"
 
-	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
+	"github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-func NewUpdateSystemInfoJob(logger *slog.Logger, runner pworkers.DownloadTaskRunner) nworkers.Job {
+func NewUpdateSystemInfoJob(logger *slog.Logger, runner pworkers.DownloadTaskRunner) workers.Job {
 	run := func(context.Context) error {
 		runner.UpdateSystemInfo()
 		return nil
 	}
 
-	return nworkers.NewJob(
+	return workers.NewJob(
 		"UpdateSystemInfo",
-		nworkers.WrapJobExecute(logger, run),
+		workers.WrapJobExecute(logger, run),
 	)
 }

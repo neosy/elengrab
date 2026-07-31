@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
+	"github.com/neosy/elengrab/internal/pkg/workerpool"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
@@ -16,7 +16,7 @@ type refreshMetadataJob struct {
 	runner pworkers.DownloadTaskRunner
 }
 
-func NewRefreshMetadataJob(runner pworkers.DownloadTaskRunner, task *ddownload.RefreshMetadataTask) nworkerpool.Job {
+func NewRefreshMetadataJob(runner pworkers.DownloadTaskRunner, task *ddownload.RefreshMetadataTask) workerpool.Job {
 	var jobID uuid.UUID
 	if task.JobID != nil {
 		jobID = *task.JobID

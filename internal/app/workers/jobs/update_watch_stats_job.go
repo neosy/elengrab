@@ -3,7 +3,7 @@ package wjobs
 import (
 	"context"
 
-	nworkerpool "github.com/neosy/elengrab/internal/pkg/workerpool"
+	"github.com/neosy/elengrab/internal/pkg/workerpool"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
@@ -11,7 +11,7 @@ type updateWatchStatsJob struct {
 	runner pworkers.WatchEventRunner
 }
 
-func NewUpdateWatchStatsJob(runner pworkers.WatchEventRunner) nworkerpool.Job {
+func NewUpdateWatchStatsJob(runner pworkers.WatchEventRunner) workerpool.Job {
 	return &updateWatchStatsJob{
 		runner: runner,
 	}

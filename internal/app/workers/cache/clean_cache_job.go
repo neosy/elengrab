@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"log/slog"
 
-	nworkers "github.com/neosy/elengrab/internal/pkg/workers"
+	"github.com/neosy/elengrab/internal/pkg/workers"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-func NewCleanCacheJob(logger *slog.Logger, runner pworkers.CacheRunner) nworkers.Job {
-	return nworkers.NewJob(
+func NewCleanCacheJob(logger *slog.Logger, runner pworkers.CacheRunner) workers.Job {
+	return workers.NewJob(
 		fmt.Sprintf("CleanCacheExpired[%s]", runner.Name()),
-		nworkers.WrapJobExecute(logger, runner.CleanExpired),
+		workers.WrapJobExecute(logger, runner.CleanExpired),
 	)
 }
