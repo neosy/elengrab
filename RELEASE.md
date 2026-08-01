@@ -1,5 +1,13 @@
 # Releases
 
+## v0.23.1 — 2026-08-01
+
+### Fixed
+- Fixed logger initialization in the dynamic worker pool. [L085]
+- Prevented a nil pointer panic when starting workers if the logger was not initialized. [L085]
+
+---
+
 ## v0.23.0 — 2026-07-31
 
 ### ✨ Features
