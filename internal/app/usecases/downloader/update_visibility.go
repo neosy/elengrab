@@ -11,7 +11,7 @@ import (
 
 func (uc *Downloader) UpdateVisibility(
 	ctx context.Context,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 	visibility dtypes.MediaVisibility,
 ) error {

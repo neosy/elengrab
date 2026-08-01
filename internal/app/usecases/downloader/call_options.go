@@ -3,7 +3,7 @@ package downloader
 import dauth "github.com/neosy/elengrab/internal/domain/auth"
 
 type callOptions struct {
-	authCtx *dauth.UserContext
+	authCtx *dauth.AuthContext
 }
 
 type callOption func(*callOptions)
@@ -22,7 +22,7 @@ func buildCallOptions(opts ...callOption) callOptions {
 	return callOptions
 }
 
-func withAuth(authCtx dauth.UserContext) callOption {
+func withAuth(authCtx dauth.AuthContext) callOption {
 	return func(co *callOptions) {
 		co.authCtx = &authCtx
 	}

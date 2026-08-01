@@ -1,8 +1,15 @@
 # Releases
 
+## v0.24.0 — 2026-08-10
+
+### ✨ Features
+- Added watch progress bar to thumbnails. [L086]
+
+---
+
 ## v0.23.1 — 2026-08-01
 
-### Fixed
+### 🐛 Fix
 - Fixed logger initialization in the dynamic worker pool. [L085]
 - Prevented a nil pointer panic when starting workers if the logger was not initialized. [L085]
 

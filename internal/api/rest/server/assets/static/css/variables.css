@@ -78,6 +78,9 @@
     --row-icon-hover-blue: #3b82f6;
     --row-icon-hover-red: #c44b4b;
 
+    --thumbnail-watch-progress-bg: #717171;
+    --thumbnail-watch-progress-value: #ff0033;
+    
     --bg-auth-button: #007bff;
     --bg-auth-button-hover: #0056b3;
     --text-auth-button: white;

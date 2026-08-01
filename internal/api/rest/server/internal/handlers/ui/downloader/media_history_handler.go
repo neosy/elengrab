@@ -48,7 +48,7 @@ func (h *DownloaderHandlers) MediaHistoryHandler(ctx *fasthttp.RequestCtx) {
 func (h *DownloaderHandlers) getDownloadsHistory(
 	ctx context.Context,
 	buf *bytes.Buffer,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	before time.Time,
 	filters requestFilters,
 ) error {

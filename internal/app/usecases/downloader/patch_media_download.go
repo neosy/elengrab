@@ -11,7 +11,7 @@ import (
 
 func (uc *Downloader) PatchMediaDownload(
 	ctx context.Context,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	req dto.PatchMediaDownloadRequest,
 ) error {
 	err := uc.validateWriteOperation(authCtx)

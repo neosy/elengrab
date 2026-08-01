@@ -43,12 +43,13 @@ type (
 		ContentViewCount string
 		ContentTimeAgo   string
 
+		Duration     string
+		WatchPercent float64
+
 		UserName string
 
 		FilePath string
 		FileSize string
-
-		Duration string
 
 		Format        string
 		DataFormat    string

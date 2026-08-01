@@ -12,9 +12,14 @@ import (
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
+	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-func (uc *MediaWatch) CreateMediaWatchEvent(req *dto.TrackMediaWatchEventRequest, mediaDuration time.Duration) error {
+func (uc *MediaWatch) CreateMediaWatchEvent(
+	req *dto.TrackMediaWatchEventRequest,
+	mediaDuration time.Duration,
+	runner pworkers.DownloadTaskRunner,
+) error {
 	if req == nil {
 		return apperrors.ErrFuncParamNullPointer
 	}
@@ -34,10 +39,11 @@ func (uc *MediaWatch) CreateMediaWatchEvent(req *dto.TrackMediaWatchEventRequest
 
 	newReq := &dto.CreateMediaWatchEventRequest{
 		Event:         event,
+		EventType:     req.EventType,
 		MediaDuration: mediaDuration,
 	}
 
-	job := uc.enqueueCreateMediaWatchEvent(newReq)
+	job := uc.enqueueCreateMediaWatchEvent(newReq, runner)
 	if job == nil {
 		uc.logger.Warn(
 			"Task has not been added to the queue",
@@ -54,8 +60,11 @@ func (uc *MediaWatch) CreateMediaWatchEvent(req *dto.TrackMediaWatchEventRequest
 	return nil
 }
 
-func (uc *MediaWatch) enqueueCreateMediaWatchEvent(req *dto.CreateMediaWatchEventRequest) workerpool.Job {
-	job := wjobs.NewCreateWatchMediaEventJob(uc, req)
+func (uc *MediaWatch) enqueueCreateMediaWatchEvent(
+	req *dto.CreateMediaWatchEventRequest,
+	runner pworkers.DownloadTaskRunner,
+) workerpool.Job {
+	job := wjobs.NewCreateWatchMediaEventJob(runner, req)
 
 	if !uc.watchEventDispatcher.AddJob(job) {
 		return nil

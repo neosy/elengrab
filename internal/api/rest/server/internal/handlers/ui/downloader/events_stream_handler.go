@@ -40,7 +40,7 @@ func (h *DownloaderHandlers) setupSSEHeaders(ctx *fasthttp.RequestCtx) {
 func (h *DownloaderHandlers) streamEvents(
 	ctx *fasthttp.RequestCtx,
 	w *bufio.Writer,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 ) {
 	eventKey := authCtx.EventKey()
 	clientKey := broadcast.BuildClientKey(eventKey)
@@ -98,7 +98,7 @@ func (h *DownloaderHandlers) sendPing(w *bufio.Writer) error {
 func (h *DownloaderHandlers) handleEvent(
 	ctx context.Context,
 	w *bufio.Writer,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	event ucdto.BroadcastEvent,
 ) {
 	switch event.Type {

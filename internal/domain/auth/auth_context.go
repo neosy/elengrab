@@ -8,7 +8,7 @@ import (
 
 var AnonymousUserID = func() uuid.UUID { return uuid.Nil }
 
-type UserContext struct {
+type AuthContext struct {
 	UserID        uuid.UUID
 	AnonSessionID uuid.UUID
 
@@ -18,15 +18,15 @@ type UserContext struct {
 	GuestCreated bool
 }
 
-func UserContextAnonymous(anonSessionID uuid.UUID) UserContext {
-	return UserContext{
+func AuthContextAnonymous(anonSessionID uuid.UUID) AuthContext {
+	return AuthContext{
 		UserID:        AnonymousUserID(),
 		AnonSessionID: anonSessionID,
 		RoleIDs:       nil,
 	}
 }
 
-func (u *UserContext) UserType() dtypes.UserType {
+func (u *AuthContext) UserType() dtypes.UserType {
 	if u == nil || u.UserID == AnonymousUserID() {
 		return dtypes.UserTypeAnonymous
 	}
@@ -49,25 +49,25 @@ func (u *UserContext) UserType() dtypes.UserType {
 	return uType
 }
 
-func (u *UserContext) EventKey() eventkey.EventKey {
+func (u *AuthContext) EventKey() eventkey.EventKey {
 	if u.UserID != uuid.Nil {
 		return eventkey.NewEventKeyUserID(u.UserID)
 	}
 	return eventkey.NewEventKeySessionID(u.AnonSessionID)
 }
 
-func (u *UserContext) IsGuest() bool {
+func (u *AuthContext) IsGuest() bool {
 	return u.UserType() == dtypes.UserTypeGuest
 }
 
-func (u *UserContext) IsAnonymous() bool {
+func (u *AuthContext) IsAnonymous() bool {
 	return u.UserType() == dtypes.UserTypeAnonymous
 }
 
-func (u *UserContext) IsUser() bool {
+func (u *AuthContext) IsUser() bool {
 	return u.UserType() == dtypes.UserTypeUser
 }
 
-func (u *UserContext) IsAdmin() bool {
+func (u *AuthContext) IsAdmin() bool {
 	return u.UserType() == dtypes.UserTypeAdmin
 }

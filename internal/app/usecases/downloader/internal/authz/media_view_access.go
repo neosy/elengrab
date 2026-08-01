@@ -16,7 +16,7 @@ func (a *Authorization) ShouldRestrictDownloads(roles dtypes.UserRoleIDs) bool {
 	return !a.HasDownloadsViewAll(roles)
 }
 
-func (a *Authorization) HasMediaViewAccess(authCtx dauth.UserContext, media *ddownload.MediaDownload) bool {
+func (a *Authorization) HasMediaViewAccess(authCtx dauth.AuthContext, media *ddownload.MediaDownload) bool {
 	if media == nil {
 		return false
 	}

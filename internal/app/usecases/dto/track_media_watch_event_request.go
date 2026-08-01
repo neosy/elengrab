@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 type TrackMediaWatchEventRequest struct {
@@ -14,4 +15,6 @@ type TrackMediaWatchEventRequest struct {
 
 	Position time.Duration
 	Interval time.Duration
+
+	EventType dtypes.MediaWatchEventType
 }

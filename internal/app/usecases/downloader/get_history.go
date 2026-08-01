@@ -12,7 +12,7 @@ import (
 // LoadHistory retrieves the download history for a user.
 func (uc *Downloader) LoadHistory(
 	ctx context.Context,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	before time.Time,
 	limit uint64,
 	filterTitle string,
