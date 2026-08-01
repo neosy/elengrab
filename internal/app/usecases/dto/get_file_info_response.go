@@ -2,6 +2,7 @@ package dto
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/google/uuid"
@@ -27,8 +28,9 @@ type GetMediaDownloadInfoResponse struct {
 	MediaTitle       string
 	MediaDescription string
 
-	CreatedTimeAgo string
-	ViewCount      uint32
+	CreatedTimeAgo    string
+	ViewCount         uint32
+	LastWatchPosition time.Duration
 
 	HasSiteIcon          bool
 	FileName             string
@@ -94,4 +96,11 @@ func (info *GetMediaDownloadInfoResponse) MediaDescriptionUI() string {
 func (info *GetMediaDownloadInfoResponse) IsReady() bool {
 	return info.Status == dtypes.MediaDownloadStatusDone ||
 		info.Status == dtypes.MediaDownloadStatusRefreshing
+}
+
+func (info *GetMediaDownloadInfoResponse) WatchPercent() float64 {
+	if info.MediaInfo == nil || info.MediaInfo.Duration() <= 0 {
+		return 0
+	}
+	return math.Round(float64(info.LastWatchPosition)/float64(info.MediaInfo.Duration())*100*100) / 100
 }

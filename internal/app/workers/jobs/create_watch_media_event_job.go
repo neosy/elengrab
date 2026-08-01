@@ -11,10 +11,10 @@ import (
 
 type createWatchMediaEventJob struct {
 	request *dto.CreateMediaWatchEventRequest
-	runner  pworkers.WatchEventRunner
+	runner  pworkers.DownloadTaskRunner
 }
 
-func NewCreateWatchMediaEventJob(runner pworkers.WatchEventRunner, request *dto.CreateMediaWatchEventRequest) workerpool.Job {
+func NewCreateWatchMediaEventJob(runner pworkers.DownloadTaskRunner, request *dto.CreateMediaWatchEventRequest) workerpool.Job {
 	return &createWatchMediaEventJob{
 		request: request,
 		runner:  runner,

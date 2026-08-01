@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/broadcaster"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	eventkey "github.com/neosy/elengrab/internal/domain/types/event_key"
@@ -74,6 +75,24 @@ func (uc *Downloader) broadcastDownloadUpdate(
 	}
 
 	uc.broadcaster.BroadcastToUsersWithAccess(*downloadInfo.UserID, dto.BroadcastEventTypeDownloadUpdate, downloadInfo)
+}
+
+func (uc *Downloader) broadcastDownloadUpdateToAuth(
+	ctx context.Context,
+	authCtx dauth.AuthContext,
+	downloadID uuid.UUID,
+) {
+	downloadInfo, err := uc.findActualDownloadInfo(ctx, downloadID, withAuth(authCtx))
+	if err != nil {
+		uc.logger.Error("Failed find download info", "error", err)
+		return
+	}
+
+	if downloadInfo == nil {
+		return
+	}
+
+	uc.broadcaster.BroadcastToAuth(authCtx, dto.BroadcastEventTypeDownloadUpdate, downloadInfo)
 }
 
 func (uc *Downloader) broadcastDownloadStartRefreshing(

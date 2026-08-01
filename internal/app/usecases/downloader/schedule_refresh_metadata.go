@@ -17,7 +17,7 @@ import (
 
 func (uc *Downloader) ScheduleRefreshMetadata(
 	ctx context.Context,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) error {
 	if uc.demoMode {

@@ -3,6 +3,7 @@ package mappers
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -20,6 +21,7 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 	hasSiteIcon bool,
 	thumbnailIsPortrait bool,
 	viewCount uint32,
+	lastWatchPosition time.Duration,
 ) *dto.GetMediaDownloadInfoResponse {
 	var mediaTitle = download.MediaTitle
 	if download.MediaTitle == "" {
@@ -54,8 +56,9 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 		MediaTitle:       mediaTitle,
 		MediaDescription: uptr.Deref(download.MediaDescription),
 
-		CreatedTimeAgo: humanize.TimeAgo(download.CreatedAt),
-		ViewCount:      viewCount,
+		CreatedTimeAgo:    humanize.TimeAgo(download.CreatedAt),
+		ViewCount:         viewCount,
+		LastWatchPosition: lastWatchPosition,
 
 		HasSiteIcon:        hasSiteIcon,
 		ThumbnalIsPortrait: thumbnailIsPortrait,

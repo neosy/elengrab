@@ -599,6 +599,22 @@
     user-select: none;
 }
 
+.media-result__thumbnail-watch-progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 4px;
+    background: var(--thumbnail-watch-progress-bg);
+}
+
+.media-result__thumbnail-watch-progress-value {
+    width: var(--watch-progress);
+    height: 100%;
+    background: var(--thumbnail-watch-progress-value);
+}
+
 .media-result__avatar {
     display: inline-block;
     position: relative;

@@ -18,7 +18,7 @@ import (
 
 func (uc *Downloader) ScheduleDownload(
 	ctx context.Context,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	url string,
 	options *ddownload.DownloadOptions,
 ) (*dto.ScheduleDownloadResponse, error) {

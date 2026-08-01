@@ -11,7 +11,7 @@ import (
 // RetryDownload repeats the download process for a specific download.
 func (uc *Downloader) RetryDownload(
 	ctx context.Context,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) (*dto.GetMediaDownloadInfoResponse, error) {
 	err := uc.validateWriteOperation(authCtx)

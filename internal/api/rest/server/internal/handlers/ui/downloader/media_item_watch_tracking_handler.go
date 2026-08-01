@@ -41,7 +41,11 @@ func (h *DownloaderHandlers) MediaItemWatchTrackingHandler(ctx *fasthttp.Request
 		return
 	}
 
-	req := h.mappers.MapMediaItemWatchTrackingRequestToUsecase(authCtx, downloadID, receivedReq)
+	req, err := h.mappers.MapMediaItemWatchTrackingRequestToUsecase(authCtx, downloadID, receivedReq)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
 
 	err = h.downloader.TrackMediaWatchEvent(ctx, authCtx, req)
 	if err != nil {
