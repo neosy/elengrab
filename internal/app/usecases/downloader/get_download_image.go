@@ -14,7 +14,7 @@ import (
 
 func (uc *Downloader) GetDownloadImage(
 	ctx context.Context,
-	userCtx dauth.UserContext,
+	userCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 	sources []dtypes.ImageSource,
 ) (*dtypes.ImageData, error) {

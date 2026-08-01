@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
@@ -17,7 +18,7 @@ import (
 // GetDownloadInfo retrieves download information by download ID for a specific user.
 func (uc *Downloader) GetDownloadInfo(
 	ctx context.Context,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) (*dto.GetMediaDownloadInfoResponse, error) {
 	resp, err := uc.findActualDownloadInfo(ctx, downloadID, withAuth(authCtx))
@@ -55,7 +56,7 @@ func (uc *Downloader) GetDownloadInfoUnrestricted(
 
 func (uc *Downloader) GetDownloadInfoForEdit(
 	ctx context.Context,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) (*dto.GetMediaDownloadInfoResponse, error) {
 	resp, err := uc.GetDownloadInfo(ctx, authCtx, downloadID)
@@ -157,15 +158,23 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 
 	viewCount, _ := uc.mediaWatch.GetViews(ctx, download.DownloadID)
 
+	options := buildCallOptions(opts...)
+
+	var lastWatchPosition time.Duration
+	if options.authCtx != nil {
+		userID := options.authCtx.UserID
+		lastWatchPosition, _ = uc.mediaWatch.GetLastUserWatchPosition(ctx, download.DownloadID, userID, &options.authCtx.AnonSessionID)
+	}
+
 	return uc.mappers.MapDownloadDomainToDownloadInfoResponse(
 		download, login, avatarTitle, dlProgress, hasSiteIcon, isPortrait,
-		viewCount,
+		viewCount, lastWatchPosition,
 	), nil
 }
 
 func (uc *Downloader) getDownloadsInfo(
 	ctx context.Context,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	queryOptions dtypes.QueryOptions,
 	filters map[string]any,
 	opts ...callOption,
@@ -210,7 +219,7 @@ func (uc *Downloader) GetDownloadFilePath(ctx context.Context, downloadID uuid.U
 //	err      - an error if the record is not found or a query fails
 func (uc *Downloader) GetDownloadFileName(
 	ctx context.Context,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) (string, error) {
 	download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)

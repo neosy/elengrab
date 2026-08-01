@@ -70,12 +70,12 @@ func (h *DownloaderHandlers) StreamShortCodeHandler(ctx *fasthttp.RequestCtx) {
 			))
 	}
 
-	h.stream(ctx, dauth.UserContext{}, downloadID, true)
+	h.stream(ctx, dauth.AuthContext{}, downloadID, true)
 }
 
 func (h *DownloaderHandlers) stream(
 	ctx *fasthttp.RequestCtx,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 	unrestricted bool,
 ) {

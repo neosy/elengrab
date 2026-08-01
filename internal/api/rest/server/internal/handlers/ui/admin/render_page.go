@@ -18,7 +18,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *AdminHandlers) renderPage(ctx *fasthttp.RequestCtx, ctxUser dauth.UserContext) {
+func (h *AdminHandlers) renderPage(ctx *fasthttp.RequestCtx, ctxUser dauth.AuthContext) {
 	cssPaths, err := h.assetPaths.AdminPageCssPaths()
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)

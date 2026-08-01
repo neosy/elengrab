@@ -31,7 +31,7 @@ type renderWatchPageRequest struct {
 	showBackButton bool
 
 	allowAnonymous bool
-	authCtx        dauth.UserContext
+	authCtx        dauth.AuthContext
 }
 
 func (h *DownloaderHandlers) renderWatchPage(

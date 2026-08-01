@@ -11,7 +11,7 @@ import (
 	"github.com/neosy/elengrab/internal/exceptions"
 )
 
-func (uc *Downloader) CanAddMediaDownload(authCtx dauth.UserContext) bool {
+func (uc *Downloader) CanAddMediaDownload(authCtx dauth.AuthContext) bool {
 	if iconfig.DemoMode() {
 		return false
 	}
@@ -27,7 +27,7 @@ func (uc *Downloader) CanAddMediaDownload(authCtx dauth.UserContext) bool {
 	return false
 }
 
-func (uc *Downloader) HasWriteOperation(authCtx dauth.UserContext) bool {
+func (uc *Downloader) HasWriteOperation(authCtx dauth.AuthContext) bool {
 	if iconfig.DemoMode() {
 		return false
 	}
@@ -39,7 +39,7 @@ func (uc *Downloader) HasWriteOperation(authCtx dauth.UserContext) bool {
 	return true
 }
 
-func (uc *Downloader) validateWriteOperation(authCtx dauth.UserContext) error {
+func (uc *Downloader) validateWriteOperation(authCtx dauth.AuthContext) error {
 	if uc.demoMode {
 		uc.broadcastNotification(
 			authCtx.EventKey(),
@@ -63,7 +63,7 @@ func (uc *Downloader) validateWriteOperation(authCtx dauth.UserContext) error {
 	return nil
 }
 
-func (uc *Downloader) validateDownloadWriteAccess(authCtx dauth.UserContext, download *ddownload.MediaDownload) error {
+func (uc *Downloader) validateDownloadWriteAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
 	if uc.authz.HasWriteAllAccess(authCtx.RoleIDs) {
 		return nil
 	}

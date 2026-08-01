@@ -16,7 +16,7 @@ import (
 // DeleteDownload deletes a download from the system.
 func (uc *Downloader) DeleteDownload(
 	ctx context.Context,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) error {
 	var (

@@ -17,7 +17,7 @@ type renderEditMediaPageRequest struct {
 	pageURL    string
 	downloadID uuid.UUID
 
-	authCtx dauth.UserContext
+	authCtx dauth.AuthContext
 }
 
 func (h *DownloaderHandlers) renderEditMediaPage(

@@ -22,7 +22,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, authCtx dauth.UserContext) {
+func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, authCtx dauth.AuthContext) {
 	var rowsBuf bytes.Buffer
 	err := h.getDownloadsHistory(ctx, &rowsBuf, authCtx, time.Now().UTC(), nil)
 	if err != nil {

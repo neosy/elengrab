@@ -26,13 +26,13 @@ func (m *AuthMiddleware) checkHTTPS(ctx *fasthttp.RequestCtx) error {
 	return nil
 }
 
-func (m *AuthMiddleware) resolveUser(ctx *fasthttp.RequestCtx) *dauth.UserContext {
+func (m *AuthMiddleware) resolveUser(ctx *fasthttp.RequestCtx) *dauth.AuthContext {
 	ctxUserIface := ctx.UserValue(UserKey)
 	if ctxUserIface == nil {
 		return nil
 	}
 
-	userCtx, ok := ctxUserIface.(dauth.UserContext)
+	userCtx, ok := ctxUserIface.(dauth.AuthContext)
 	if !ok {
 		return nil
 	}

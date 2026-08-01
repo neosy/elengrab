@@ -226,7 +226,7 @@ func (a *AuthMiddleware) RequireAuthMode(next fasthttp.RequestHandler) fasthttp.
 	}
 }
 
-func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool) (*dauth.UserContext, error) {
+func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool) (*dauth.AuthContext, error) {
 	var session *udto.AuthUserResponse
 
 	if !nfasthttp.IsForwardedHTTPS(ctx) {
@@ -278,7 +278,7 @@ func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool)
 		if err != nil {
 			return nil, err
 		}
-		userCtx := &dauth.UserContext{
+		userCtx := &dauth.AuthContext{
 			UserID:       session.UserID,
 			Login:        session.Login,
 			Email:        session.Email,

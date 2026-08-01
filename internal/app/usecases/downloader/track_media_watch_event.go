@@ -13,7 +13,7 @@ import (
 
 func (uc *Downloader) TrackMediaWatchEvent(
 	ctx context.Context,
-	authCtx dauth.UserContext,
+	authCtx dauth.AuthContext,
 	req dto.TrackMediaWatchEventRequest,
 ) error {
 	if req.DownloadID == uuid.Nil {
@@ -39,5 +39,5 @@ func (uc *Downloader) TrackMediaWatchEvent(
 		mediaDuration = time.Duration(mediaDownload.MediaInfo.DurationMs) * time.Millisecond
 	}
 
-	return uc.mediaWatch.CreateMediaWatchEvent(&req, mediaDuration)
+	return uc.mediaWatch.CreateMediaWatchEvent(&req, mediaDuration, uc)
 }

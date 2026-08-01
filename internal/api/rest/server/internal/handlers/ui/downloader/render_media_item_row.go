@@ -185,14 +185,17 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	if params.downloadInfo.FileSize != nil && *params.downloadInfo.FileSize > 0 {
 		data.FileSize = humanize.Bytes(*params.downloadInfo.FileSize)
 	}
+
 	if params.downloadInfo.FileExt != "" {
 		data.Format = params.downloadInfo.FileExt
 		data.DataFormat = params.downloadInfo.FileExt
 	}
+
 	if params.downloadInfo.MediaInfo != nil {
 		data.Duration = params.downloadInfo.MediaInfo.FormatDuration()
 		data.VideoIsShort = params.downloadInfo.MediaInfo.IsPortrait()
 		data.IsAudio = fmt.Sprint(params.downloadInfo.MediaInfo.FormatType == dtypes.FormatTypeAudioOnly)
+		data.WatchPercent = params.downloadInfo.WatchPercent()
 	}
 
 	if cacheChanged.mediaTitle {
