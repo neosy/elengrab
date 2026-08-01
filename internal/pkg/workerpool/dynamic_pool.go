@@ -46,6 +46,7 @@ func NewDynamicWorkerPool(logger *slog.Logger, name string, opts ...WorkerPoolOp
 
 	wp := &dynamicWorkerPool{
 		baseWorkerPool: baseWorkerPool{
+			logger:       logger,
 			name:         name,
 			options:      options,
 			workers:      make(map[uint64]Worker, options.MaxWorkers),

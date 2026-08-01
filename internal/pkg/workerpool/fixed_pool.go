@@ -28,6 +28,7 @@ func NewWorkerPool(logger *slog.Logger, name string, opts ...WorkerPoolOption) W
 
 	wp := &workerPool{
 		baseWorkerPool: baseWorkerPool{
+			logger:       logger,
 			name:         name,
 			options:      options,
 			workers:      make(map[uint64]Worker, options.MaxWorkers),
