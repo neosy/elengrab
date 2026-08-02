@@ -579,13 +579,17 @@
 }
 
 .media-result__thumbnail-duration {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
     position: absolute;
     right: 10px;
     bottom: 10px;
 
-    padding: 2px 6px;
+    padding: 3px 6px;
 
-    border-radius: 4px;
+    border-radius: 6px;
 
     background: var(--thumbnail-duration-bg);
     color: var(--thumbnail-duration-color);

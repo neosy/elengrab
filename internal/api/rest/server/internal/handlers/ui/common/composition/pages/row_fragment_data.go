@@ -74,11 +74,14 @@ type (
 		DownloaderResultItemDeleteIcon       template.HTML
 		DownloaderResultItemStatusFailedIcon template.HTML
 		RefreshingIcon                       template.HTML
-		MetaUserNameSeparatorIcon            template.HTML
-		PublicIcon                           template.HTML
-		PrivateIcon                          template.HTML
-		ShareLinkIcon                        template.HTML
-		WatchedIcon                          template.HTML
+
+		MetaUserNameSeparatorIcon template.HTML
+		PublicIcon                template.HTML
+		PrivateIcon               template.HTML
+
+		AudioIcon     template.HTML
+		ShareLinkIcon template.HTML
+		WatchedIcon   template.HTML
 
 		IsItemHTMXOptionRepeat bool
 		PageHasDivItems        bool

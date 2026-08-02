@@ -22,10 +22,13 @@ var (
 	DownloadPendingIcon    = newIcon("DownloadPendingIconName", "download-wait-icon.svg")
 	DownloadDeleteIcon     = newIcon("DownloadDeleteIconName", "download-delete-icon.svg")
 	DownloadRefreshingIcon = newIcon("DownloadRefreshingIconName", "refresh-icon.svg")
-	DownloadPublicIcon     = newIcon("DownloadPublicIconName", "public-people.svg")
-	DownloadPrivateIcon    = newIcon("DownloadPrivateIconName", "private-lock.svg")
-	DownloadShareLinkIcon  = newIcon("DownloadShareLinkIconName", "link-icon.svg")
-	DownloadWatchedIcon    = newIcon("DownloadWatchedIconName", "check-icon.svg")
+
+	MediaPublicIcon  = newIcon("DownloadPublicIconName", "public-people.svg")
+	MediaPrivateIcon = newIcon("DownloadPrivateIconName", "private-lock.svg")
+
+	MediaAudioIcon     = newIcon("DownloadMusicIconName", "music-note-icon.svg")
+	MediaShareLinkIcon = newIcon("DownloadShareLinkIconName", "link-icon.svg")
+	MediaWatchedIcon   = newIcon("DownloadWatchedIconName", "check-icon.svg")
 
 	MediaDefaultIcon                  = newIcon("MediaDefaultIconName", "media-default-icon.svg")
 	DownloadRepeatIcon                = newIcon("DownloadRepeatIconName", "download-repeat-icon.svg")
