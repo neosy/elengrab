@@ -59,8 +59,10 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	}
 
 	var thumbnailID string
-	if params.downloadInfo.MediaInfo != nil && params.downloadInfo.MediaInfo.PreferredThumbnailID() != uuid.Nil {
-		thumbnailID = params.downloadInfo.MediaInfo.PreferredThumbnailID().String()
+	if params.downloadInfo.MediaInfo != nil {
+		if params.downloadInfo.MediaInfo.PreferredThumbnailID() != uuid.Nil {
+			thumbnailID = params.downloadInfo.MediaInfo.PreferredThumbnailID().String()
+		}
 	}
 
 	downloadItemImageURL := httppaths.BuildPathMediaItemImage(
@@ -96,6 +98,13 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		isGrabResultItemHTMXOptionRepeat = true
 	}
 
+	link, _ := h.linkWeb.ResolveURL(ctx, h.buildMediaWatchURL(params.downloadInfo.DownloadID))
+
+	var shareLinkIcon template.HTML
+	if link != nil {
+		shareLinkIcon = icons.MediaShareLinkIcon.FileRaw()
+	}
+
 	var watchURL, downloadURL, streamURL string
 	if params.downloadInfo.Status == dtypes.MediaDownloadStatusDone {
 		watchURL = httppaths.BuildPathMediaItemWatch(params.downloadInfo.DownloadID)
@@ -103,16 +112,16 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		streamURL = httppaths.BuildPathMediaItemStream(params.downloadInfo.DownloadID)
 	}
 
-	link, _ := h.linkWeb.ResolveURL(ctx, h.buildMediaWatchURL(params.downloadInfo.DownloadID))
-
-	var shareLinkIcon template.HTML
-	if link != nil {
-		shareLinkIcon = icons.DownloadShareLinkIcon.FileRaw()
+	var audioIcon template.HTML
+	if params.downloadInfo.MediaInfo != nil {
+		if params.downloadInfo.MediaInfo.FormatType == dtypes.FormatTypeAudioOnly {
+			audioIcon = icons.MediaAudioIcon.FileRaw()
+		}
 	}
 
 	var watchedIcon template.HTML
 	if params.downloadInfo.UserWatched {
-		watchedIcon = icons.DownloadWatchedIcon.FileRaw()
+		watchedIcon = icons.MediaWatchedIcon.FileRaw()
 	}
 
 	data := pages.RowFragmentValues{
@@ -169,9 +178,11 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 
 		RefreshingIcon:            icons.DownloadRefreshingIcon.FileRaw(),
 		MetaUserNameSeparatorIcon: icons.DownloadMetaUserNameSeparatorIcon.FileRaw(),
-		PublicIcon:                icons.DownloadPublicIcon.FileRaw(),
-		PrivateIcon:               icons.DownloadPrivateIcon.FileRaw(),
 
+		PublicIcon:  icons.MediaPublicIcon.FileRaw(),
+		PrivateIcon: icons.MediaPrivateIcon.FileRaw(),
+
+		AudioIcon:     audioIcon,
 		ShareLinkIcon: shareLinkIcon,
 		WatchedIcon:   watchedIcon,
 
