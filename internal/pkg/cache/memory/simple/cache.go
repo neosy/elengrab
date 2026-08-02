@@ -182,13 +182,47 @@ func (c *Cache[K, T]) FindWithNow(key K, now time.Time) *T {
 	return valueCopy
 }
 
-// Exists checks if the cache contains a non-expired item for the given key.
-func (c *Cache[K, T]) Exists(key K) bool {
-	_, status := c.FindWithStatus(key)
-	if status == CacheStatusHit {
-		return true
+// ExistsWithNow checks if a key exists in the cache and is not expired.
+// The caller provides the current time to avoid repeated time.Now() calls
+// in hot paths such as batch lookups or high-load cache access.
+func (c *Cache[K, T]) ExistsWithNow(key K, now time.Time) bool {
+	cacheData, exists := c.cache[key]
+	if !exists {
+		return false
 	}
-	return false
+
+	if cacheData.ExpiredWithNow(now) {
+		return false
+	}
+
+	return true
+}
+
+// ExistsWithStatus checks if a key exists in the cache and is not expired, returning its status.
+func (c *Cache[K, T]) ExistsWithStatus(key K) (bool, CacheStatus) {
+	return c.ExistsWithStatusNow(key, time.Now().UTC())
+}
+
+// ExistsWithStatusNow checks if a key exists in the cache and is not expired, returning its status.
+// The caller provides the current time to avoid repeated time.Now() calls
+// in hot paths such as batch lookups or high-load cache access.
+func (c *Cache[K, T]) ExistsWithStatusNow(key K, now time.Time) (bool, CacheStatus) {
+	cacheData, exists := c.cache[key]
+	if !exists {
+		return false, CacheStatusMiss
+	}
+
+	if cacheData.ExpiredWithNow(now) {
+		return false, CacheStatusMiss
+	}
+
+	return true, cacheData.status
+}
+
+// Exists checks if a key exists in the cache and is not expired.
+// This is a convenience method that calls ExistsWithNow and ignores the current time.
+func (c *Cache[K, T]) Exists(key K) bool {
+	return c.ExistsWithNow(key, time.Now().UTC())
 }
 
 // CleanExpired removes all expired items from the cache.

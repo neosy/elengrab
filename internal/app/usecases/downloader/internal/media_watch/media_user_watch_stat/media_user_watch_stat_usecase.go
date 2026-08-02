@@ -11,6 +11,9 @@ type MediaUserWatchStat struct {
 
 	// repositories
 	statRep persistence.MediaUserWatchStatRepository
+
+	// in memory
+	statCacheRep persistence.MediaUserWatchStatCacheRepository
 }
 
 func NewMediaUserWatchStat(
@@ -18,9 +21,13 @@ func NewMediaUserWatchStat(
 
 	// repositories
 	statRep persistence.MediaUserWatchStatRepository,
+
+	// in memory
+	statCacheRep persistence.MediaUserWatchStatCacheRepository,
 ) *MediaUserWatchStat {
 	return &MediaUserWatchStat{
-		logger:  logger,
-		statRep: statRep,
+		logger:       logger,
+		statRep:      statRep,
+		statCacheRep: statCacheRep,
 	}
 }

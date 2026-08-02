@@ -14,7 +14,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/stringx"
 )
 
-type GetMediaDownloadInfoResponse struct {
+type MediaDownloadInfo struct {
 	DownloadID    uuid.UUID
 	Status        dtypes.MediaDownloadStatus
 	WorkingStatus WorkingStatus
@@ -28,9 +28,12 @@ type GetMediaDownloadInfoResponse struct {
 	MediaTitle       string
 	MediaDescription string
 
-	CreatedTimeAgo    string
-	ViewCount         uint32
-	LastWatchPosition time.Duration
+	CreatedTimeAgo string
+
+	ViewCount uint32
+
+	UserLastWatchPosition time.Duration
+	UserWatched           bool
 
 	HasSiteIcon          bool
 	FileName             string
@@ -58,11 +61,11 @@ type GetMediaDownloadInfoResponse struct {
 	MediaDownload *ddownload.MediaDownload
 }
 
-func (downloadInfo *GetMediaDownloadInfoResponse) IsYouTube() bool {
+func (downloadInfo *MediaDownloadInfo) IsYouTube() bool {
 	return hostdetect.YouTube(downloadInfo.MediaURL)
 }
 
-func (downloadInfo *GetMediaDownloadInfoResponse) ImageMetaHash(withValues ...any) string {
+func (downloadInfo *MediaDownloadInfo) ImageMetaHash(withValues ...any) string {
 	values := []any{
 		downloadInfo.DownloadID,
 		downloadInfo.UpdatedAt,
@@ -83,7 +86,7 @@ func (downloadInfo *GetMediaDownloadInfoResponse) ImageMetaHash(withValues ...an
 	return hash.MetaHashHex32(values)
 }
 
-func (info *GetMediaDownloadInfoResponse) MediaDescriptionUI() string {
+func (info *MediaDownloadInfo) MediaDescriptionUI() string {
 	description := stringx.SanitizeForMetaPreview(info.MediaDescription, 160, "...")
 
 	if len(description) == 0 {
@@ -93,14 +96,14 @@ func (info *GetMediaDownloadInfoResponse) MediaDescriptionUI() string {
 	return description
 }
 
-func (info *GetMediaDownloadInfoResponse) IsReady() bool {
+func (info *MediaDownloadInfo) IsReady() bool {
 	return info.Status == dtypes.MediaDownloadStatusDone ||
 		info.Status == dtypes.MediaDownloadStatusRefreshing
 }
 
-func (info *GetMediaDownloadInfoResponse) WatchPercent() float64 {
+func (info *MediaDownloadInfo) UserWatchPercent() float64 {
 	if info.MediaInfo == nil || info.MediaInfo.Duration() <= 0 {
 		return 0
 	}
-	return math.Round(float64(info.LastWatchPosition)/float64(info.MediaInfo.Duration())*100*100) / 100
+	return math.Round(float64(info.UserLastWatchPosition)/float64(info.MediaInfo.Duration())*100*100) / 100
 }

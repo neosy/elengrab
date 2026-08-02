@@ -10,6 +10,7 @@ import (
 type Repositories struct {
 	MediaDownload          persistence.MediaDownloadCacheRepository
 	DownloadState          persistence.DownloadStateCacheRepository
+	MediaUserWatchStat     persistence.MediaUserWatchStatCacheRepository
 	MediaWatchStat         persistence.MediaWatchStatCacheRepository
 	MediaUserWatchPosition persistence.MediaUserWatchPositionCacheRepository
 	YoutubeChannel         persistence.YoutubeChannelCacheRepository
@@ -22,6 +23,7 @@ type Repositories struct {
 type Dependencies struct {
 	MediaDownloadCacheTTL          time.Duration
 	DownloadStateCacheTTL          time.Duration
+	MediaUserWatchStatCacheTTL     time.Duration
 	MediaWatchStatCacheTTL         time.Duration
 	MediaUserWatchPositionCacheTTL time.Duration
 	YoutubeChannelCacheTTL         time.Duration
@@ -36,6 +38,7 @@ func New(deps Dependencies) *Repositories {
 	return &Repositories{
 		MediaDownload:          newMediaDownloadRepository(deps.MediaDownloadCacheTTL),
 		DownloadState:          newDownloadStateRepository(deps.DownloadStateCacheTTL),
+		MediaUserWatchStat:     newMediaUserWatchStatRepository(deps.MediaUserWatchStatCacheTTL),
 		MediaWatchStat:         newMediaWatchStatRepository(deps.MediaWatchStatCacheTTL),
 		MediaUserWatchPosition: newMediaUserWatchPositionRepository(deps.MediaUserWatchPositionCacheTTL),
 		YoutubeChannel:         newYoutubeChannelRepository(deps.YoutubeChannelCacheTTL),

@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 type MediaUserWatchPosition struct {
@@ -16,7 +15,7 @@ type MediaUserWatchPosition struct {
 	UserID uuid.UUID
 
 	// User session identifier (UUID)
-	SessionID *uuid.UUID
+	SessionID uuid.UUID
 
 	// Last saved playback position in milliseconds
 	Position time.Duration
@@ -33,7 +32,7 @@ func (p *MediaUserWatchPosition) Validate() error {
 		return errors.New("download ID is required")
 	}
 
-	if p.UserID == uuid.Nil && (p.SessionID == nil || *p.SessionID == uuid.Nil) {
+	if p.UserID == uuid.Nil && p.SessionID == uuid.Nil {
 		return errors.New("user ID is required")
 	}
 
@@ -46,8 +45,6 @@ func (src *MediaUserWatchPosition) Copy() *MediaUserWatchPosition {
 	}
 
 	copy := new(*src)
-
-	copy.SessionID = uptr.Copy(src.SessionID)
 
 	return copy
 }

@@ -13,5 +13,5 @@ func (uc *Downloader) GetLastWatchPosition(
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) (time.Duration, error) {
-	return uc.mediaWatch.GetLastUserWatchPosition(ctx, downloadID, authCtx.UserID, &authCtx.AnonSessionID)
+	return uc.mediaWatch.GetLastUserWatchPosition(ctx, downloadID, authCtx.UserID, authCtx.AnonSessionID)
 }

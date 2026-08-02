@@ -80,6 +80,11 @@
 
     --thumbnail-watch-progress-bg: #717171;
     --thumbnail-watch-progress-value: #ff0033;
+
+    --thumbnail-duration-bg: rgba(0, 0, 0, 0.8);
+    --thumbnail-duration-color: #fff;
+    --thumbnail-watched-bg: rgba(0, 0, 0, 0.65);
+    --thumbnail-watched-color: #fff;
     
     --bg-auth-button: #007bff;
     --bg-auth-button-hover: #0056b3;

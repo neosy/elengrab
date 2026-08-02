@@ -587,8 +587,8 @@
 
     border-radius: 4px;
 
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
+    background: var(--thumbnail-duration-bg);
+    color: var(--thumbnail-duration-color);
 
     font-size: 12px;
     font-weight: 500;
@@ -597,6 +597,28 @@
     pointer-events: none;
 
     user-select: none;
+}
+
+.media-result__thumbnail-watched {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+
+    padding: 2px 6px;
+
+    background: var(--thumbnail-watched-bg);
+    color: var(--thumbnail-watched-color);
+
+    font-size: 18px;
+    line-height: 1;
+
+    pointer-events: none;
+
+    user-select: none;
+}
+
+.media-result__thumbnail-watched svg path {
+    stroke-width: 3;
 }
 
 .media-result__thumbnail-watch-progress {

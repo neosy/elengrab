@@ -45,7 +45,7 @@ func (h *DownloaderHandlers) renderWatchPage(
 	}
 
 	var (
-		downloadInfo *dto.GetMediaDownloadInfoResponse
+		downloadInfo *dto.MediaDownloadInfo
 		err          error
 	)
 	if req.allowAnonymous {

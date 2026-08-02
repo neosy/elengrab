@@ -76,7 +76,7 @@ func (uc *Downloader) getDownloadImageThumbnail(
 
 func (uc *Downloader) getDownloadImageAvatar(
 	ctx context.Context,
-	downloadInfo *dto.GetMediaDownloadInfoResponse,
+	downloadInfo *dto.MediaDownloadInfo,
 ) (*dtypes.ImageData, error) {
 	if downloadInfo.ChannelID != nil && downloadInfo.IsYouTube() {
 		channel, _ := uc.FindYoutubeChannelInfo(ctx, *downloadInfo.ChannelID)
@@ -93,7 +93,7 @@ func (uc *Downloader) getDownloadImageAvatar(
 
 func (uc *Downloader) getDownloadImageSite(
 	ctx context.Context,
-	downloadInfo *dto.GetMediaDownloadInfoResponse,
+	downloadInfo *dto.MediaDownloadInfo,
 ) (*dtypes.ImageData, error) {
 	logo, err := uc.siteIcon.GetBySiteURL(ctx, httpx.BaseURL(downloadInfo.MediaURL))
 	if err != nil {

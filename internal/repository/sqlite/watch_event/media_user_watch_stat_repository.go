@@ -231,6 +231,54 @@ func (r *MediaUserWatchStatRepository) Find(ctx context.Context, downloadID uuid
 	return stat, nil
 }
 
+func (r *MediaUserWatchStatRepository) Exists(
+	ctx context.Context,
+	downloadID uuid.UUID, userID uuid.UUID,
+) (bool, error) {
+	var eStat ewatchevent.MediaUserWatchStat
+
+	// Build SELECT query
+	sqlBuilder := squirrel.
+		Select("1").
+		From(eStat.TableName()).
+		Where(squirrel.Eq{
+			eStat.FieldName(&eStat.DownloadID): downloadID,
+			eStat.FieldName(&eStat.UserID):     userID,
+		}).
+		PlaceholderFormat(squirrel.Dollar).
+		Limit(1)
+
+	// Generate SQL and args
+	sqlQuery, args, err := sqlBuilder.ToSql()
+	if err != nil {
+		return false, fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	var exists bool
+	db := dbexec.Resolve(ctx, r.db)
+	execQuery := func() error {
+		row := db.QueryRowContext(ctx, sqlQuery, args...)
+		var dummy int
+		err := row.Scan(&dummy)
+		if err == sql.ErrNoRows {
+			exists = false
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		exists = true
+		return nil
+	}
+	err = dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
+
 func (r *MediaUserWatchStatRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
 	return dbexec.Tx(ctx, r.db, r.lock, fn)
 }

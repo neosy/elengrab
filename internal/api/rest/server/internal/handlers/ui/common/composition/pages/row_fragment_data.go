@@ -40,11 +40,12 @@ type (
 		MediaTitle string
 		MediaURL   string
 
+		Duration         string
 		ContentViewCount string
 		ContentTimeAgo   string
 
-		Duration     string
 		WatchPercent float64
+		Watched      bool
 
 		UserName string
 
@@ -77,6 +78,7 @@ type (
 		PublicIcon                           template.HTML
 		PrivateIcon                          template.HTML
 		ShareLinkIcon                        template.HTML
+		WatchedIcon                          template.HTML
 
 		IsItemHTMXOptionRepeat bool
 		PageHasDivItems        bool

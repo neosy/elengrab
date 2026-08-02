@@ -150,7 +150,7 @@ func (h *DownloaderHandlers) handleDownloadAdd(w *bufio.Writer, event ucdto.Broa
 }
 
 func (h *DownloaderHandlers) handleDownloadUpdate(ctx context.Context, w *bufio.Writer, event ucdto.BroadcastEvent) {
-	downloadInfo, ok := event.Data.(*ucdto.GetMediaDownloadInfoResponse)
+	downloadInfo, ok := event.Data.(*ucdto.MediaDownloadInfo)
 	if !ok {
 		return
 	}
@@ -250,7 +250,7 @@ func (h *DownloaderHandlers) handleProgressUpdate(w *bufio.Writer, event ucdto.B
 }
 
 func (h *DownloaderHandlers) handleStartRefreshing(w *bufio.Writer, event ucdto.BroadcastEvent) {
-	downloadInfo, ok := event.Data.(*ucdto.GetMediaDownloadInfoResponse)
+	downloadInfo, ok := event.Data.(*ucdto.MediaDownloadInfo)
 	if !ok {
 		return
 	}

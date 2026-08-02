@@ -16,7 +16,7 @@ func (uc *Downloader) LoadHistory(
 	before time.Time,
 	limit uint64,
 	filterTitle string,
-) ([]*dto.GetMediaDownloadInfoResponse, error) {
+) ([]*dto.MediaDownloadInfo, error) {
 	options := dtypes.QueryOptions{
 		Before: new(before),
 		Limit:  new(limit),

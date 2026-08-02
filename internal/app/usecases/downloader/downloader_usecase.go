@@ -93,6 +93,7 @@ func NewDownloader(
 	// in memory
 	mediaDownloadCacheRep persistence.MediaDownloadCacheRepository,
 	downloadStateCacheRep persistence.DownloadStateCacheRepository,
+	mediaUserWatchStatCacheRep persistence.MediaUserWatchStatCacheRepository,
 	mediaWatchStatCacheRep persistence.MediaWatchStatCacheRepository,
 	mediaUserWatchPositionCacheRep persistence.MediaUserWatchPositionCacheRepository,
 	ytChannelCacheRep persistence.YoutubeChannelCacheRepository,
@@ -126,6 +127,7 @@ func NewDownloader(
 	mediawatch := mediawatch.NewMediaWatch(
 		logger,
 		watchEventRep, userWatchChunkRep, userWatchStatRep, watchStatRep, userWatchPosition,
+		mediaUserWatchStatCacheRep,
 		mediaWatchStatCacheRep,
 		mediaUserWatchPositionCacheRep,
 		watchEventDispatcher,
