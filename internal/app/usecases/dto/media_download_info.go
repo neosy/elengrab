@@ -107,3 +107,11 @@ func (info *MediaDownloadInfo) UserWatchPercent() float64 {
 	}
 	return math.Round(float64(info.UserLastWatchPosition)/float64(info.MediaInfo.Duration())*100*100) / 100
 }
+
+func (info *MediaDownloadInfo) IsShorts() bool {
+	if info.MediaInfo == nil {
+		return false
+	}
+
+	return info.MediaInfo.IsShorts()
+}

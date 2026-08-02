@@ -41,6 +41,11 @@ type (
 		MediaParameters    []MediaParameter
 
 		MediaStartPositionMs uint32
+
+		MediaIsAudioOnly  bool
+		MediaIsPortrait   bool
+		MediaIsShorts     bool
+		MediaLoopPlayback bool
 	}
 
 	MediaParameter struct {

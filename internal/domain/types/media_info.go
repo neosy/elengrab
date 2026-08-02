@@ -108,13 +108,55 @@ func (m *MediaInfo) IsPortrait() bool {
 	return m.VideoInfo.IsPortrait()
 }
 
+// Duration returns the duration of the media as a time.Duration.
 func (m *MediaInfo) Duration() time.Duration {
 	return time.Duration(m.DurationMs) * time.Millisecond
+}
+
+// IsShorts returns true if the media is a video and its duration is less than or equal to 3 minutes (180 seconds).
+func (m *MediaInfo) IsShorts() bool {
+	if m == nil {
+		return false
+	}
+
+	if m.VideoInfo == nil {
+		return false
+	}
+
+	if !m.IsVideo() {
+		return false
+	}
+
+	duration := m.Duration()
+
+	isShorts := duration > 0 &&
+		duration <= 180*time.Second &&
+		m.VideoInfo.AspectRatio() <= 1.0
+
+	return isShorts
+}
+
+// IsAudioOnly returns true if the media is audio-only (no video).
+func (m *MediaInfo) IsAudioOnly() bool {
+	return m != nil && m.FormatType == FormatTypeAudioOnly
+}
+
+// IsVideo returns true if the media has video (not audio-only).
+func (m *MediaInfo) IsVideo() bool {
+	return m != nil && m.VideoInfo != nil
 }
 
 // ResolutionString returns the video dimensions formatted as "widthxheight" (e.g., "1920x1080").
 func (v *VideoInfo) ResolutionString() string {
 	return fmt.Sprintf("%dx%d", v.Width, v.Height)
+}
+
+// AspectRatio returns the aspect ratio of the video as a float64 (width / height).
+func (v *VideoInfo) AspectRatio() float64 {
+	if v == nil || v.Width == 0 || v.Height == 0 {
+		return 0
+	}
+	return float64(v.Width) / float64(v.Height)
 }
 
 func (vi *VideoInfo) Copy() *VideoInfo {

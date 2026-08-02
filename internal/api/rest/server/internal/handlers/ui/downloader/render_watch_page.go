@@ -248,6 +248,13 @@ func (h *DownloaderHandlers) renderWatchPage(
 		},
 	}
 
+	if downloadInfo.MediaInfo != nil {
+		pageData.Values.MediaIsPortrait = downloadInfo.MediaInfo.IsPortrait()
+		pageData.Values.MediaIsAudioOnly = downloadInfo.MediaInfo.IsAudioOnly()
+		pageData.Values.MediaIsShorts = downloadInfo.MediaInfo.IsShorts()
+		pageData.Values.MediaLoopPlayback = pageData.Values.MediaIsShorts || pageData.Values.MediaIsAudioOnly
+	}
+
 	// Set content type so browser renders HTML properly
 	ctx.SetContentType(mime.TypeByExtension(".html"))
 
