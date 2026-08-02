@@ -11,7 +11,14 @@
                             </div>    
                             <div class="media-result__thumbnail-image__wrapper">
                                 <img class="media-result__thumbnail-image" src="{{ .Values.ThumbnailURL }}" alt="Video thumbnail">
-                                <div class="media-result__thumbnail-duration">{{ .Values.Duration }}</div>
+                                <div class="media-result__thumbnail-duration">
+                                    {{- if .Values.AudioIcon }}
+                                    <span class="media-result__thumbnail-duration-icon">
+                                        {{ .Values.AudioIcon }}
+                                    </span>
+                                    {{- end }}
+                                    <span class="media-result__thumbnail-duration-value">{{ .Values.Duration }}</span>
+                                </div>
                                 {{- if .Values.WatchedIcon }}
                                 <div class="media-result__thumbnail-watched">{{ .Values.WatchedIcon }}</div>
                                 {{- end }}
