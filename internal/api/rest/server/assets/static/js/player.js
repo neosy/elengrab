@@ -213,8 +213,9 @@ export class MediaWatchTracker {
 
         this.heartbeatInterval = 5000;
         this.heartbeatTimer = null;
-        this.lastSentAt = null;
-        this.lastPosition = null;
+
+        this.currentPosition = null;
+        this.lastSentPosition = null;
 
         this.stopPromise = null;
     }
@@ -227,23 +228,24 @@ export class MediaWatchTracker {
     }
 
     async sendWatchEvent(eventType = null) {
-        if (!this.video || this.lastSentAt === null) {
+        if (!this.video) {
             return;
         }
 
-        if (this.lastPosition === null) {
+        if (this.currentPosition === null || this.lastSentPosition === null) {
             return;
         }
 
-        const now = Date.now();
-        const intervalMs = now - this.lastSentAt;
+        console.log("Sending watch event:", eventType, "Current position:", this.currentPosition, "Last sent position:", this.lastSentPosition);
+
+        const intervalMs = Math.floor((this.currentPosition - this.lastSentPosition) * 1000);
 
         // Ignore empty or invalid intervals.
         if (intervalMs <= 0) {
             return;
         }
 
-        let positionMs = Math.floor(this.lastPosition * 1000);
+        let positionMs = Math.floor(this.currentPosition * 1000);
         if (positionMs < intervalMs) {
             positionMs = intervalMs;
         }
@@ -267,7 +269,7 @@ export class MediaWatchTracker {
                 body: JSON.stringify(event),
             });
 
-            this.lastSentAt = now;
+            this.lastSentPosition = this.currentPosition;
         } catch (err) {
             console.error("Failed to send media watch event", err);
         }
@@ -282,11 +284,9 @@ export class MediaWatchTracker {
             return;
         }
 
-        // Start measuring playback time.
-        this.lastSentAt = Date.now();
-
-        // Store the current position to track playback progress.
-        this.lastPosition = this.video.currentTime;
+        // Initialize the current position and last sent position to the current playback time.
+        this.currentPosition = this.video.currentTime;
+        this.lastSentPosition  = this.currentPosition
 
         this.heartbeatTimer = setInterval(() => {
             if (!this.video.paused && !this.video.ended) {
@@ -323,11 +323,9 @@ export class MediaWatchTracker {
         // Reset the heartbeat timer to avoid sending duplicate events.
         this.heartbeatTimer = null;
 
-        // Reset the last sent timestamp to avoid sending duplicate events.
-        this.lastSentAt = null;
-
-        // Reset the last position to avoid sending duplicate events.
-        this.lastPosition = null;
+        // Reset the current position and last sent position to null to avoid sending duplicate events.
+        this.currentPosition = null;
+        this.lastSentPosition = null;
     }
 
     init() {
@@ -336,6 +334,9 @@ export class MediaWatchTracker {
         });
 
         this.video.addEventListener("pause", () => {
+            if (!this.video.seeking && this.currentPosition !== null) {
+                this.currentPosition = this.video.currentTime;
+            }
             if (this.video.seeking) {
                 this.stopHeartbeat(MEDIA_WATCH_EVENT_SEEK);
             } else {
@@ -344,12 +345,19 @@ export class MediaWatchTracker {
         });
 
         this.video.addEventListener("ended", () => {
+            if (this.currentPosition !== null) {
+                this.currentPosition = this.video.currentTime;
+            }
             this.stopHeartbeat(MEDIA_WATCH_EVENT_ENDED);
         });
 
         this.video.addEventListener("timeupdate", () => {
-            if (!this.video.seeking) {
-                this.lastPosition = this.video.currentTime;
+            if (
+                !this.video.seeking &&
+                this.currentPosition !== null &&
+                this.video.currentTime >= this.currentPosition
+            ) {
+                this.currentPosition = this.video.currentTime;
             }
         });
 
