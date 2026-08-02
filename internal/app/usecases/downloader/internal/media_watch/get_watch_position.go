@@ -9,7 +9,8 @@ import (
 
 func (uc *MediaWatch) GetLastUserWatchPosition(
 	ctx context.Context,
-	downloadID uuid.UUID, userID uuid.UUID, sessionID *uuid.UUID,
+	downloadID uuid.UUID,
+	userID uuid.UUID, sessionID uuid.UUID,
 ) (time.Duration, error) {
 	position, err := uc.userPosition.Find(ctx, downloadID, userID, sessionID)
 	if err != nil {

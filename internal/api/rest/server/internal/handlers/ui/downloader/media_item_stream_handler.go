@@ -80,7 +80,7 @@ func (h *DownloaderHandlers) stream(
 	unrestricted bool,
 ) {
 	var (
-		downloadInfo *dto.GetMediaDownloadInfoResponse
+		downloadInfo *dto.MediaDownloadInfo
 		err          error
 	)
 	// Retrieve file info

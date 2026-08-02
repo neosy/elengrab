@@ -3,11 +3,9 @@ package mappers
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
@@ -15,14 +13,8 @@ import (
 
 func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 	download *ddownload.MediaDownload,
-	login string,
-	avatarTitle string,
-	progress *dservices.DownloaderProgress,
-	hasSiteIcon bool,
-	thumbnailIsPortrait bool,
-	viewCount uint32,
-	lastWatchPosition time.Duration,
-) *dto.GetMediaDownloadInfoResponse {
+	mappingData *dto.MediaDownloadInfoMappingData,
+) *dto.MediaDownloadInfo {
 	var mediaTitle = download.MediaTitle
 	if download.MediaTitle == "" {
 		mediaTitle = download.MediaURL
@@ -31,8 +23,8 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 	workingStatus := dto.WorkingStatusNone
 	if download.Status == dtypes.MediaDownloadStatusWorking {
 		workingStatus = dto.WorkingStatusStartDownload
-		if progress != nil {
-			if progress.Percent() < 100 {
+		if mappingData.Progress != nil {
+			if mappingData.Progress.Percent() < 100 {
 				workingStatus = dto.WorkingStatusDownloading
 			} else {
 				workingStatus = dto.WorkingStatusFinishDownload
@@ -42,26 +34,29 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 
 	mediaInfoText := mediaInfoText(download.MediaInfo)
 
-	return &dto.GetMediaDownloadInfoResponse{
+	return &dto.MediaDownloadInfo{
 		DownloadID: download.DownloadID,
 
 		Status:        download.Status,
 		WorkingStatus: workingStatus,
 
 		ChannelID:   download.ChannelID,
-		AvatarTitle: avatarTitle,
+		AvatarTitle: mappingData.AvatarTitle,
 
 		MediaURL: download.MediaURL,
 
 		MediaTitle:       mediaTitle,
 		MediaDescription: uptr.Deref(download.MediaDescription),
 
-		CreatedTimeAgo:    humanize.TimeAgo(download.CreatedAt),
-		ViewCount:         viewCount,
-		LastWatchPosition: lastWatchPosition,
+		CreatedTimeAgo: humanize.TimeAgo(download.CreatedAt),
 
-		HasSiteIcon:        hasSiteIcon,
-		ThumbnalIsPortrait: thumbnailIsPortrait,
+		ViewCount: mappingData.ViewCount,
+
+		UserLastWatchPosition: mappingData.UserLastWatchPosition,
+		UserWatched:           mappingData.UserWatched,
+
+		HasSiteIcon:        mappingData.HasSiteIcon,
+		ThumbnalIsPortrait: mappingData.ThumbnailIsPortrait,
 
 		FileName:             download.FileName,
 		FileExt:              download.Ext,
@@ -72,11 +67,11 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 		MediaInfo:            download.MediaInfo,
 		MediaInfoText:        mediaInfoText,
 		MediaInfoTooltip:     mediaInfoTooltip(mediaInfoText),
-		Progress:             progress,
+		Progress:             mappingData.Progress,
 		Visibility:           download.Visibility,
 
 		UserID:    download.UserID,
-		UserLogin: strings.ToLower(login),
+		UserLogin: strings.ToLower(mappingData.UserLogin),
 
 		CreatedAt: download.CreatedAt,
 		UpdatedAt: download.UpdatedAt,

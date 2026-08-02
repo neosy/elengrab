@@ -12,6 +12,9 @@
                             <div class="media-result__thumbnail-image__wrapper">
                                 <img class="media-result__thumbnail-image" src="{{ .Values.ThumbnailURL }}" alt="Video thumbnail">
                                 <div class="media-result__thumbnail-duration">{{ .Values.Duration }}</div>
+                                {{- if .Values.WatchedIcon }}
+                                <div class="media-result__thumbnail-watched">{{ .Values.WatchedIcon }}</div>
+                                {{- end }}
                                 {{- if gt .Values.WatchPercent 0.0 }}
                                 <div class="media-result__thumbnail-watch-progress">
                                     <div class="media-result__thumbnail-watch-progress-value" style="--watch-progress: {{ printf `%.2f` .Values.WatchPercent }}%"></div>

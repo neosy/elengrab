@@ -135,12 +135,12 @@ func (r *MediaUserWatchPositionRepository) Find(
 	ctx context.Context,
 	downloadID uuid.UUID,
 	userID uuid.UUID,
-	sessionID *uuid.UUID,
+	sessionID uuid.UUID,
 ) (*ddownload.MediaUserWatchPosition, error) {
 	var ePosition ewatchevent.MediaUserWatchPosition
 
 	var sessionIDFilter string
-	if sessionID != nil {
+	if sessionID != uuid.Nil {
 		sessionIDFilter = sessionID.String()
 	}
 

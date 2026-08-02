@@ -12,18 +12,18 @@ import (
 
 func (uc *MediaUserWatchPosition) Find(
 	ctx context.Context,
-	downloadID uuid.UUID, userID uuid.UUID, sessionID *uuid.UUID,
+	downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID,
 ) (*ddownload.MediaUserWatchPosition, error) {
 	if downloadID == uuid.Nil {
 		return nil, nil
 	}
 
-	if userID == uuid.Nil && (sessionID == nil || *sessionID == uuid.Nil) {
+	if userID == uuid.Nil && sessionID == uuid.Nil {
 		return nil, nil
 	}
 
-	if userID != uuid.Nil && sessionID != nil {
-		sessionID = nil
+	if userID != uuid.Nil && sessionID != uuid.Nil {
+		sessionID = uuid.Nil
 	}
 
 	position, cacheStatus, _ := uc.positionCacheRep.Find(downloadID, userID, sessionID)

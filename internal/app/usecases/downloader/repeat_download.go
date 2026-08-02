@@ -13,7 +13,7 @@ func (uc *Downloader) RetryDownload(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
-) (*dto.GetMediaDownloadInfoResponse, error) {
+) (*dto.MediaDownloadInfo, error) {
 	err := uc.validateWriteOperation(authCtx)
 	if err != nil {
 		return nil, err
