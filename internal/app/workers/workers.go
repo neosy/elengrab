@@ -19,6 +19,7 @@ const (
 
 	defaultCleanMediaDownloadCacheInterval          = 30 * time.Minute
 	defaultCleanDownloadStateCacheInterval          = 20 * time.Minute
+	defaultCleanMediaUserWatchStatCacheInterval     = 1 * time.Hour
 	defaultCleanMediaWatchStatCacheInterval         = 1 * time.Hour
 	defaultCleanMediaUserWatchPositionCacheInterval = 1 * time.Hour
 	defaultCleanYoutubeChannelCacheInterval         = 6 * time.Hour
@@ -38,6 +39,7 @@ type Dependencies struct {
 	// cache in memory
 	MediaDownloadCache          persistence.MediaDownloadCacheRepository
 	DownloadStateCache          persistence.DownloadStateCacheRepository
+	MediaUserWatchStatCache     persistence.MediaUserWatchStatCacheRepository
 	MediaWatchStatCache         persistence.MediaWatchStatCacheRepository
 	MediaUserWatchPositionCache persistence.MediaUserWatchPositionCacheRepository
 	YoutubeChannelCache         persistence.YoutubeChannelCacheRepository
@@ -66,6 +68,7 @@ type Dependencies struct {
 	CleanYoutubeChannelCacheInterval         time.Duration
 	CleanMediaDownloadCacheInterval          time.Duration
 	CleanDownloadStateCacheInterval          time.Duration
+	CleanMediaUserWatchStatCacheInterval     time.Duration
 	CleanMediaWatchStatCacheInterval         time.Duration
 	CleanMediaUserWatchPositionCacheInterval time.Duration
 	CleanSiteLogoCacheInterval               time.Duration
@@ -145,6 +148,11 @@ func Initialize(logger *slog.Logger, deps *Dependencies, ws *workers.Workers) {
 	ws.Add(workers.NewWorker(
 		cachejobs.NewCleanCacheJob(ws.Logger(), deps.DownloadStateCache),
 		workers.WithIntervalFallback(deps.CleanDownloadStateCacheInterval, defaultCleanDownloadStateCacheInterval),
+	))
+
+	ws.Add(workers.NewWorker(
+		cachejobs.NewCleanCacheJob(ws.Logger(), deps.MediaUserWatchStatCache),
+		workers.WithIntervalFallback(deps.CleanMediaUserWatchStatCacheInterval, defaultCleanMediaUserWatchStatCacheInterval),
 	))
 
 	ws.Add(workers.NewWorker(

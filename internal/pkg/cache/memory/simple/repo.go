@@ -94,6 +94,34 @@ func (r *Repository[T]) Exists(fnExists func() (bool, error)) (bool, error) {
 	return fnExists()
 }
 
+// ExistsWithNow executes a read operation to check existence safely under a read lock.
+// It is intended for high-performance cache lookups that provide a precomputed
+// current time value to avoid repeated time.Now() calls in hot paths.
+func (r *Repository[T]) ExistsWithNow(fnExists func() (bool, error)) (bool, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	return fnExists()
+}
+
+// ExistsWithStatus executes a read operation to check existence safely under a read lock, returning the cache status.
+func (r *Repository[T]) ExistsWithStatus(fnExists func() (bool, CacheStatus, error)) (bool, CacheStatus, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	return fnExists()
+}
+
+// ExistsWithStatusNow executes a read operation to check existence safely under a read lock.
+// It is intended for high-performance cache lookups that provide a precomputed
+// current time value to avoid repeated time.Now() calls in hot paths.
+func (r *Repository[T]) ExistsWithStatusNow(fnExists func() (bool, CacheStatus, error)) (bool, CacheStatus, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	return fnExists()
+}
+
 // CleanExpired executes a cleanup operation safely under a write lock.
 func (r *Repository[T]) CleanExpired(fnClean func() error) error {
 	r.mu.Lock()

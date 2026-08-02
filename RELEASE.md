@@ -4,6 +4,7 @@
 
 ### ✨ Features
 - Added watch progress bar to thumbnails. [L086]
+- Added a watched indicator for video thumbnails. [L087]
 
 ---
 

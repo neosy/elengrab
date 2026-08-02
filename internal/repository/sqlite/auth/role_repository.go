@@ -165,18 +165,27 @@ func (r *RoleRepository) Exists(ctx context.Context, roleID string) (bool, error
 
 	// Execute the query
 	db := dbexec.Resolve(ctx, r.db)
-
-	// Execute query and check if any row exists
-	var exists int
-	err = db.QueryRowContext(ctx, query, args...).Scan(&exists)
-	if err != nil {
+	var exists bool
+	execQuery := func() error {
+		row := db.QueryRowContext(ctx, query, args...)
+		var dummy int
+		err := row.Scan(&dummy)
 		if err == sql.ErrNoRows {
-			return false, nil
+			exists = false
+			return nil
+		} else if err != nil {
+			return err
 		}
+		exists = true
+		return nil
+	}
+
+	err = dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
+	if err != nil {
 		return false, err
 	}
 
-	return true, nil
+	return exists, nil
 }
 
 func (r *RoleRepository) GetAll(ctx context.Context) ([]*dauth.Role, error) {

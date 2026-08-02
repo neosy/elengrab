@@ -16,10 +16,15 @@ func (m *Mappers) MapUserWatchEventToWatchPosition(
 		userID = *event.UserID
 	}
 
+	var sessionID uuid.UUID
+	if event.SessionID != nil {
+		sessionID = *event.SessionID
+	}
+
 	position := &ddownload.MediaUserWatchPosition{
 		DownloadID: event.DownloadID,
 		UserID:     userID,
-		SessionID:  event.SessionID,
+		SessionID:  sessionID,
 		Position:   event.Position,
 	}
 	position.Normalize(mediaDuration)

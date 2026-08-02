@@ -42,6 +42,7 @@ func NewMediaWatch(
 	positionRep persistence.MediaUserWatchPositionRepository,
 
 	// in memory
+	userStatCacheRep persistence.MediaUserWatchStatCacheRepository,
 	statCacheRep persistence.MediaWatchStatCacheRepository,
 	positionCacheRep persistence.MediaUserWatchPositionCacheRepository,
 
@@ -60,7 +61,7 @@ func NewMediaWatch(
 
 		event:        watchevent.NewMediaWatchEvent(logger, eventRep),
 		userChunk:    uwatchchunk.NewMediaUserWatchChunk(logger, chunkRep),
-		userStat:     uwatchstat.NewMediaUserWatchStat(logger, userStatRep),
+		userStat:     uwatchstat.NewMediaUserWatchStat(logger, userStatRep, userStatCacheRep),
 		stat:         watchstat.NewMediaWatchStat(logger, statRep, statCacheRep),
 		userPosition: uwatchposition.NewMediaUserWatchPosition(logger, positionRep, positionCacheRep),
 	}

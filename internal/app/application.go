@@ -35,6 +35,8 @@ const (
 	// TTL for download state cache
 	downloadStateCacheTTL = 10 * time.Minute
 	// TTL for watch stat cache
+	mediaUserWatchStatCacheTTL = 30 * time.Minute
+	// TTL for watch stat cache
 	mediaWatchStatCacheTTL = 30 * time.Minute
 	// TTL for watch position cache
 	mediaUserWatchPositionCacheTTL = 30 * time.Minute
@@ -57,6 +59,7 @@ const (
 	// Cache cleanup intervals
 	cleanMediaDownloadCacheInterval         = 30 * time.Minute
 	cleanDownloadStateCacheInterval         = 30 * time.Minute
+	cleanMediaUserWatchStatCacheInterval    = 1 * time.Hour
 	cleanMediaWatchStatCacheInterval        = 1 * time.Hour
 	cleanMediaUserWatchPostionCacheInterval = 1 * time.Hour
 	cleanYoutubeChannelCacheInterval        = 5 * time.Hour
@@ -190,9 +193,10 @@ func (a *Application) initialize() error {
 			DownloadTask:          slRepositories.DownloadTask,
 			DownloadDataMigration: slRepositories.DownloadDataMigration,
 
-			MediaWatchEvent:        slRepositories.MediaWatchEvent,
-			MediaUserWatchChunk:    slRepositories.MediaUserWatchChunk,
-			MediaUserWatchStat:     slRepositories.MediaUserWatchStat,
+			MediaWatchEvent:     slRepositories.MediaWatchEvent,
+			MediaUserWatchChunk: slRepositories.MediaUserWatchChunk,
+			MediaUserWatchStat:  slRepositories.MediaUserWatchStat,
+
 			MediaWatchStat:         slRepositories.MediaWatchStat,
 			MediaUserWatchPosition: slRepositories.MediaUserWatchPosition,
 
@@ -211,6 +215,7 @@ func (a *Application) initialize() error {
 			// in memory
 			MediaDownloadCache:          inMemoryRepositories.MediaDownload,
 			DownloadStateCache:          inMemoryRepositories.DownloadState,
+			MediaUserWatchStatCache:     inMemoryRepositories.MediaUserWatchStat,
 			MediaWatchStatCache:         inMemoryRepositories.MediaWatchStat,
 			MediaUserWatchPositionCache: inMemoryRepositories.MediaUserWatchPosition,
 			YoutubeChannelCache:         inMemoryRepositories.YoutubeChannel,
@@ -263,6 +268,7 @@ func (a *Application) initialize() error {
 	wsDeps := &appworkers.Dependencies{
 		MediaDownloadCache:          inMemoryRepositories.MediaDownload,
 		DownloadStateCache:          inMemoryRepositories.DownloadState,
+		MediaUserWatchStatCache:     inMemoryRepositories.MediaUserWatchStat,
 		MediaWatchStatCache:         inMemoryRepositories.MediaWatchStat,
 		MediaUserWatchPositionCache: inMemoryRepositories.MediaUserWatchPosition,
 		YoutubeChannelCache:         inMemoryRepositories.YoutubeChannel,
@@ -289,6 +295,7 @@ func (a *Application) initialize() error {
 
 		CleanMediaDownloadCacheInterval:          cleanMediaDownloadCacheInterval,
 		CleanDownloadStateCacheInterval:          cleanDownloadStateCacheInterval,
+		CleanMediaUserWatchStatCacheInterval:     cleanMediaUserWatchStatCacheInterval,
 		CleanMediaWatchStatCacheInterval:         cleanMediaWatchStatCacheInterval,
 		CleanMediaUserWatchPositionCacheInterval: cleanMediaUserWatchPostionCacheInterval,
 		CleanYoutubeChannelCacheInterval:         cleanYoutubeChannelCacheInterval,
@@ -482,6 +489,7 @@ func (a *Application) initInMemoryRepositories() *inmemoryrep.Repositories {
 	inMemoryDeps := inmemoryrep.Dependencies{
 		MediaDownloadCacheTTL:          mediaDownloadCacheTTL,
 		DownloadStateCacheTTL:          downloadStateCacheTTL,
+		MediaUserWatchStatCacheTTL:     mediaUserWatchStatCacheTTL,
 		MediaWatchStatCacheTTL:         mediaWatchStatCacheTTL,
 		MediaUserWatchPositionCacheTTL: mediaUserWatchPositionCacheTTL,
 		YoutubeChannelCacheTTL:         youtubeChannelCacheTTL,

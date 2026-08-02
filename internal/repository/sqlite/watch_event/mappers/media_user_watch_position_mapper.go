@@ -11,7 +11,7 @@ import (
 func (m *Mappers) MapMediaUserWatchPositionDomainToEntity(position *ddownload.MediaUserWatchPosition) (*ewatchevent.MediaUserWatchPosition, error) {
 	var sessionID string
 
-	if position.SessionID != nil {
+	if position.SessionID != uuid.Nil {
 		sessionID = position.SessionID.String()
 	}
 
@@ -24,16 +24,13 @@ func (m *Mappers) MapMediaUserWatchPositionDomainToEntity(position *ddownload.Me
 }
 
 func (m *Mappers) MapMediaUserWatchPositionEntityToDomain(position *ewatchevent.MediaUserWatchPosition) (*ddownload.MediaUserWatchPosition, error) {
-	var sessionID *uuid.UUID
+	var sessionID uuid.UUID
 	if position.SessionID != "" {
-		id, _ := uuid.Parse(position.SessionID)
-		if id != uuid.Nil {
-			sessionID = &id
-		}
+		sessionID, _ = uuid.Parse(position.SessionID)
 	}
 
-	if position.UserID != uuid.Nil && sessionID != nil {
-		sessionID = nil
+	if position.UserID != uuid.Nil && sessionID != uuid.Nil {
+		sessionID = uuid.Nil
 	}
 
 	return &ddownload.MediaUserWatchPosition{

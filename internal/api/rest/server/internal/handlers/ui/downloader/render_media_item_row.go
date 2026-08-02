@@ -27,7 +27,7 @@ type renderMediaItemRowResponse struct {
 }
 
 type renderMediaItemRowParams struct {
-	downloadInfo    *dto.GetMediaDownloadInfoResponse
+	downloadInfo    *dto.MediaDownloadInfo
 	isDownloadEvent bool
 }
 
@@ -110,6 +110,11 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		shareLinkIcon = icons.DownloadShareLinkIcon.FileRaw()
 	}
 
+	var watchedIcon template.HTML
+	if params.downloadInfo.UserWatched {
+		watchedIcon = icons.DownloadWatchedIcon.FileRaw()
+	}
+
 	data := pages.RowFragmentValues{
 		DownloadID:     idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID),
 		DownloadStatus: params.downloadInfo.Status.String(),
@@ -129,6 +134,9 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 
 		ContentTimeAgo:   params.downloadInfo.CreatedTimeAgo,
 		ContentViewCount: humanize.CompactNumber(params.downloadInfo.ViewCount),
+
+		WatchPercent: params.downloadInfo.UserWatchPercent(),
+		Watched:      params.downloadInfo.UserWatched,
 
 		ImageURL:       downloadItemImageURL,
 		ImageAvatarURL: downloadItemImageAvatarURL,
@@ -165,6 +173,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		PrivateIcon:               icons.DownloadPrivateIcon.FileRaw(),
 
 		ShareLinkIcon: shareLinkIcon,
+		WatchedIcon:   watchedIcon,
 
 		DownloaderResultItemSourceLinkIcon: icons.DownloadSourceLinkIcon.FileRaw(),
 		DownloaderResultItemStatusIcon:     icons.DownloaderIconByStatus(params.downloadInfo.Status).FileRaw(),
@@ -195,7 +204,6 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		data.Duration = params.downloadInfo.MediaInfo.FormatDuration()
 		data.VideoIsShort = params.downloadInfo.MediaInfo.IsPortrait()
 		data.IsAudio = fmt.Sprint(params.downloadInfo.MediaInfo.FormatType == dtypes.FormatTypeAudioOnly)
-		data.WatchPercent = params.downloadInfo.WatchPercent()
 	}
 
 	if cacheChanged.mediaTitle {

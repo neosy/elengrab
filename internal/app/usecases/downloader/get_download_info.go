@@ -20,7 +20,7 @@ func (uc *Downloader) GetDownloadInfo(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
-) (*dto.GetMediaDownloadInfoResponse, error) {
+) (*dto.MediaDownloadInfo, error) {
 	resp, err := uc.findActualDownloadInfo(ctx, downloadID, withAuth(authCtx))
 	if err != nil {
 		uc.logger.Error("Failed get download info", "error", err)
@@ -42,7 +42,7 @@ func (uc *Downloader) GetDownloadInfo(
 func (uc *Downloader) GetDownloadInfoUnrestricted(
 	ctx context.Context,
 	downloadID uuid.UUID,
-) (*dto.GetMediaDownloadInfoResponse, error) {
+) (*dto.MediaDownloadInfo, error) {
 	resp, err := uc.findActualDownloadInfo(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed get media download info", "error", err)
@@ -58,7 +58,7 @@ func (uc *Downloader) GetDownloadInfoForEdit(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
-) (*dto.GetMediaDownloadInfoResponse, error) {
+) (*dto.MediaDownloadInfo, error) {
 	resp, err := uc.GetDownloadInfo(ctx, authCtx, downloadID)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func (uc *Downloader) findActualDownloadInfo(
 	ctx context.Context,
 	downloadID uuid.UUID,
 	opts ...callOption,
-) (*dto.GetMediaDownloadInfoResponse, error) {
+) (*dto.MediaDownloadInfo, error) {
 	var download *ddownload.MediaDownload
 
 	if downloadID == uuid.Nil {
@@ -110,7 +110,7 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 	ctx context.Context,
 	download *ddownload.MediaDownload,
 	opts ...callOption,
-) (*dto.GetMediaDownloadInfoResponse, error) {
+) (*dto.MediaDownloadInfo, error) {
 	var (
 		dlProgress *dservices.DownloaderProgress
 	)
@@ -163,13 +163,27 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 	var lastWatchPosition time.Duration
 	if options.authCtx != nil {
 		userID := options.authCtx.UserID
-		lastWatchPosition, _ = uc.mediaWatch.GetLastUserWatchPosition(ctx, download.DownloadID, userID, &options.authCtx.AnonSessionID)
+		lastWatchPosition, _ = uc.mediaWatch.GetLastUserWatchPosition(ctx, download.DownloadID, userID, options.authCtx.AnonSessionID)
 	}
 
-	return uc.mappers.MapDownloadDomainToDownloadInfoResponse(
-		download, login, avatarTitle, dlProgress, hasSiteIcon, isPortrait,
-		viewCount, lastWatchPosition,
-	), nil
+	watched, _ := uc.mediaWatch.HasUserWatched(ctx, download.DownloadID, options.authCtx.UserID)
+
+	mappingData := &dto.MediaDownloadInfoMappingData{
+		UserLogin:   login,
+		AvatarTitle: avatarTitle,
+
+		ViewCount: viewCount,
+
+		UserLastWatchPosition: lastWatchPosition,
+		UserWatched:           watched,
+
+		HasSiteIcon:         hasSiteIcon,
+		ThumbnailIsPortrait: isPortrait,
+
+		Progress: dlProgress,
+	}
+
+	return uc.mappers.MapDownloadDomainToDownloadInfoResponse(download, mappingData), nil
 }
 
 func (uc *Downloader) getDownloadsInfo(
@@ -178,8 +192,8 @@ func (uc *Downloader) getDownloadsInfo(
 	queryOptions dtypes.QueryOptions,
 	filters map[string]any,
 	opts ...callOption,
-) ([]*dto.GetMediaDownloadInfoResponse, error) {
-	var resps []*dto.GetMediaDownloadInfoResponse
+) ([]*dto.MediaDownloadInfo, error) {
+	var resps []*dto.MediaDownloadInfo
 
 	downloads, err := uc.download.GetBeforeTime(ctx, queryOptions, filters)
 	if err != nil {
@@ -187,7 +201,7 @@ func (uc *Downloader) getDownloadsInfo(
 		return nil, err
 	}
 
-	resps = make([]*dto.GetMediaDownloadInfoResponse, 0, len(downloads))
+	resps = make([]*dto.MediaDownloadInfo, 0, len(downloads))
 	for _, download := range downloads {
 		resp, err := uc.findActualDownloadInfoByDownload(ctx, download, opts...)
 		if err != nil {
