@@ -57,8 +57,10 @@ type (
 		FormatTitle   string
 		FormatTooltip string
 
-		IsAudio      string
-		VideoIsShort bool
+		IsAudioOnly  bool
+		IsPortrait   bool
+		IsShorts     bool
+		LoopPlayback bool
 
 		DownloadURL string
 		StreamURL   string

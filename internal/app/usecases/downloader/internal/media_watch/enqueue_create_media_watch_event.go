@@ -9,6 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
@@ -28,12 +29,17 @@ func (uc *MediaWatch) CreateMediaWatchEvent(
 		return errorx.NewHTTPMessage("Media duration is zero", http.StatusConflict)
 	}
 
+	position := req.Position
+	if req.EventType == dtypes.MediaWatchEventTypeEnded {
+		position = mediaDuration
+	}
+
 	event := &ddownload.MediaWatchEvent{
 		EventID:    uuid.New(),
 		DownloadID: req.DownloadID,
 		UserID:     req.UserID,
 		SessionID:  req.SessionID,
-		Position:   req.Position,
+		Position:   position,
 		Interval:   req.Interval,
 	}
 

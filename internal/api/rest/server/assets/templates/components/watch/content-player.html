@@ -3,7 +3,7 @@
             <div class="media__container" id="mediaContainer">
                 <div class="media_wrapper" id="videoWrapper">
                     {{- if .Values.IsVideoPlayer -}}
-                    <video id="videoElement" controls="false" autoplay playsinline disablePictureInPicture>
+                    <video id="videoElement" controls="false" autoplay playsinline disablePictureInPicture{{ if .Values.MediaLoopPlayback }} loop{{ end }}>
                         {{- if .Values.ContentType -}}
                         <source src="{{ .Paths.StreamURL }}" type="{{ .Values.ContentType }}">
                         {{- end -}}
@@ -11,7 +11,7 @@
                         Your browser does not support the video tag.
                     </video>
                     {{- else -}}
-                    <audio id="audioElement" controls="false" autoplay playsinline>
+                    <audio id="audioElement" controls="false" autoplay playsinline{{ if .Values.MediaLoopPlayback }} loop{{ end }}>
                         {{- if .Values.ContentType -}}
                         <source src="{{ .Paths.StreamURL }}" type="{{ .Values.ContentType }}">
                         {{- end -}}

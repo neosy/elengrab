@@ -50,34 +50,6 @@ func (uc *MediaUserWatchStat) Exists(
 	ctx context.Context,
 	downloadID uuid.UUID, userID uuid.UUID,
 ) (bool, error) {
-	if downloadID == uuid.Nil {
-		return false, nil
-	}
-
-	exists, cacheStatus, _ := uc.statCacheRep.Exists(downloadID, userID)
-	if cacheStatus == memsimple.CacheStatusHit {
-		return exists, nil
-	}
-	if cacheStatus == memsimple.CacheStatusNegativeHit {
-		return false, nil
-	}
-
-	stat, err := uc.statRep.Find(ctx, downloadID, userID)
-	if err != nil {
-		uc.logger.Warn(
-			"Failed to find media user watch statistics",
-			"downloadID", downloadID,
-			"userID", userID,
-			"error", err,
-		)
-		return false, errorx.Errorf("failed to check existence of media user watch statistics: %w", err, exceptionx.ERROR)
-	}
-
-	if stat != nil {
-		uc.statCacheRep.Save(stat)
-	} else {
-		uc.statCacheRep.SaveNegative(downloadID, userID)
-	}
-
-	return exists, nil
+	stat, err := uc.Find(ctx, downloadID, userID)
+	return stat != nil, err
 }

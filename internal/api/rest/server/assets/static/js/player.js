@@ -38,6 +38,7 @@ export function initPlayer() {
         if (!mediaURL) return;
 
         const isAudio = row.dataset.isAudio === "true";
+        const shouldLoop = row.dataset.loop === "true";
 
         // Clean previous players
         videoWrapper.innerHTML = "";
@@ -76,6 +77,7 @@ export function initPlayer() {
 
         element.controls = true;
         element.autoplay = true;
+        element.loop = shouldLoop;
 
         element.addEventListener("loadedmetadata", () => {
             if (positionMs > 0) {
@@ -201,6 +203,8 @@ export function initPlayer() {
 
 export const MEDIA_WATCH_EVENT_PAUSE = "pause";
 export const MEDIA_WATCH_EVENT_ENDED = "ended";
+export const MEDIA_WATCH_EVENT_SEEK = "seek";
+export const MEDIA_WATCH_EVENT_HEARTBEAT = "heartbeat";
 
 export class MediaWatchTracker {
     constructor(video, itemId) {
@@ -210,6 +214,9 @@ export class MediaWatchTracker {
         this.heartbeatInterval = 5000;
         this.heartbeatTimer = null;
         this.lastSentAt = null;
+        this.lastPosition = null;
+
+        this.stopPromise = null;
     }
 
     getWatchEventUrl() {
@@ -224,6 +231,10 @@ export class MediaWatchTracker {
             return;
         }
 
+        if (this.lastPosition === null) {
+            return;
+        }
+
         const now = Date.now();
         const intervalMs = now - this.lastSentAt;
 
@@ -232,8 +243,17 @@ export class MediaWatchTracker {
             return;
         }
 
+        let positionMs = Math.floor(this.lastPosition * 1000);
+        if (positionMs < intervalMs) {
+            positionMs = intervalMs;
+        }
+
+        if (eventType === MEDIA_WATCH_EVENT_ENDED) {
+            positionMs = 0;
+        }
+
         const event = {
-            positionMs: Math.floor(this.video.currentTime * 1000),
+            positionMs: positionMs,
             intervalMs,
             eventType,
         };
@@ -253,7 +273,11 @@ export class MediaWatchTracker {
         }
     }
 
-    startHeartbeat() {
+    async startHeartbeat() {
+        if (this.stopPromise !== null) {
+            await this.stopPromise;
+        }
+
         if (this.heartbeatTimer !== null) {
             return;
         }
@@ -261,25 +285,49 @@ export class MediaWatchTracker {
         // Start measuring playback time.
         this.lastSentAt = Date.now();
 
+        // Store the current position to track playback progress.
+        this.lastPosition = this.video.currentTime;
+
         this.heartbeatTimer = setInterval(() => {
             if (!this.video.paused && !this.video.ended) {
-                this.sendWatchEvent();
+                this.sendWatchEvent(MEDIA_WATCH_EVENT_HEARTBEAT);
             }
         }, this.heartbeatInterval);
     }
 
     async stopHeartbeat(type = null) {
+        if (this.stopPromise !== null) {
+            await this.stopPromise;
+            return;
+        }        
+
         if (this.heartbeatTimer === null) {
             return;
         }
 
+        this.stopPromise = this.stopHeartbeatInternal(type);
+
+        try {
+            await this.stopPromise;
+        } finally {
+            this.stopPromise = null;
+        }
+    }
+
+    async stopHeartbeatInternal(type = null) {
         clearInterval(this.heartbeatTimer);
-        this.heartbeatTimer = null;
 
         // Send the remaining playback time.
         await this.sendWatchEvent(type);
 
+        // Reset the heartbeat timer to avoid sending duplicate events.
+        this.heartbeatTimer = null;
+
+        // Reset the last sent timestamp to avoid sending duplicate events.
         this.lastSentAt = null;
+
+        // Reset the last position to avoid sending duplicate events.
+        this.lastPosition = null;
     }
 
     init() {
@@ -288,11 +336,28 @@ export class MediaWatchTracker {
         });
 
         this.video.addEventListener("pause", () => {
-            this.stopHeartbeat(MEDIA_WATCH_EVENT_PAUSE);
+            if (this.video.seeking) {
+                this.stopHeartbeat(MEDIA_WATCH_EVENT_SEEK);
+            } else {
+                this.stopHeartbeat(MEDIA_WATCH_EVENT_PAUSE);
+            }
         });
 
         this.video.addEventListener("ended", () => {
             this.stopHeartbeat(MEDIA_WATCH_EVENT_ENDED);
+        });
+
+        this.video.addEventListener("timeupdate", () => {
+            if (!this.video.seeking) {
+                this.lastPosition = this.video.currentTime;
+            }
+        });
+
+        this.video.addEventListener("seeked", async () => {
+            if (!this.video.paused && !this.video.ended && this.video.currentTime === 0) {
+                await this.stopHeartbeat(MEDIA_WATCH_EVENT_ENDED);
+                this.startHeartbeat();
+            }
         });
     }
 }

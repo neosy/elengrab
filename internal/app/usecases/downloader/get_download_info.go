@@ -160,13 +160,21 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 
 	options := buildCallOptions(opts...)
 
+	var authCtx dauth.AuthContext
+	if options.authCtx != nil {
+		authCtx = *options.authCtx
+	}
+
 	var lastWatchPosition time.Duration
 	if options.authCtx != nil {
 		userID := options.authCtx.UserID
 		lastWatchPosition, _ = uc.mediaWatch.GetLastUserWatchPosition(ctx, download.DownloadID, userID, options.authCtx.AnonSessionID)
 	}
 
-	watched, _ := uc.mediaWatch.HasUserWatched(ctx, download.DownloadID, options.authCtx.UserID)
+	var watched bool
+	if authCtx.UserID != uuid.Nil {
+		watched, _ = uc.mediaWatch.HasUserWatched(ctx, download.DownloadID, authCtx.UserID)
+	}
 
 	mappingData := &dto.MediaDownloadInfoMappingData{
 		UserLogin:   login,

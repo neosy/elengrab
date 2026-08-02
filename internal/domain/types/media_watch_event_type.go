@@ -10,21 +10,26 @@ import (
 type MediaWatchEventType string
 
 const (
-	MediaWatchEventTypeNone  MediaWatchEventType = ""
-	MediaWatchEventTypePause MediaWatchEventType = "pause"
-	MediaWatchEventTypeEnded MediaWatchEventType = "ended"
+	MediaWatchEventTypeNone      MediaWatchEventType = ""
+	MediaWatchEventTypePause     MediaWatchEventType = "pause"
+	MediaWatchEventTypeEnded     MediaWatchEventType = "ended"
+	MediaWatchEventTypeSeek      MediaWatchEventType = "seek"
+	MediaWatchEventTypeHeartbeat MediaWatchEventType = "heartbeat"
 )
 
 var (
 	mediaWatchEventTypeStringMap = map[MediaWatchEventType]string{
-		MediaWatchEventTypePause: "pause",
-		MediaWatchEventTypeEnded: "ended",
+		MediaWatchEventTypePause:     "pause",
+		MediaWatchEventTypeEnded:     "ended",
+		MediaWatchEventTypeSeek:      "seek",
+		MediaWatchEventTypeHeartbeat: "heartbeat",
 	}
 
 	parseMediaWatchEventTypeMap = map[string]MediaWatchEventType{
-		"":      MediaWatchEventTypeNone,
-		"pause": MediaWatchEventTypePause,
-		"ended": MediaWatchEventTypeEnded,
+		"pause":     MediaWatchEventTypePause,
+		"ended":     MediaWatchEventTypeEnded,
+		"seek":      MediaWatchEventTypeSeek,
+		"heartbeat": MediaWatchEventTypeHeartbeat,
 	}
 )
 

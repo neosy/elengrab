@@ -6,6 +6,7 @@
 - Added watch progress bar to thumbnails. [L086]
 - Added a watched indicator for video thumbnails. [L087]
 - Added a music note icon overlay for audio file thumbnails to improve media type identification. [L088]
+- Added automatic replay for shorts videos after playback completion. [L089]
 
 ---
 
