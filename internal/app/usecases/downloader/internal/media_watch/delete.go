@@ -8,12 +8,12 @@ import (
 
 func (uc *MediaWatch) DeleteAllByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
 	deleteActions := func(ctx context.Context) error {
-		err := uc.stat.DeleteByDownloadID(ctx, downloadID)
+		err := uc.userStat.DeleteByDownloadID(ctx, downloadID)
 		if err != nil {
 			return err
 		}
 
-		err = uc.userStat.DeleteByDownloadID(ctx, downloadID)
+		err = uc.stat.DeleteByDownloadID(ctx, downloadID)
 		if err != nil {
 			return err
 		}

@@ -353,11 +353,27 @@ export class MediaWatchTracker {
             }
         });
 
+        const LOOP_THRESHOLD = 0.2;
+
         this.video.addEventListener("seeked", async () => {
-            if (!this.video.paused && !this.video.ended && this.video.currentTime === 0) {
+            if (!this.video.paused && !this.video.ended && this.video.currentTime <= LOOP_THRESHOLD) {
                 await this.stopHeartbeat(MEDIA_WATCH_EVENT_ENDED);
                 this.startHeartbeat();
             }
         });
+
+        // [
+        //     "play",
+        //     "playing",
+        //     "pause",
+        //     "ended",
+        //     "seeking",
+        //     "seeked",
+        //     "timeupdate"
+        // ].forEach(name => {
+        //     this.video.addEventListener(name, () => {
+        //         console.log(name, this.video.currentTime);
+        //     });
+        // });        
     }
 }
