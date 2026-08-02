@@ -1,6 +1,7 @@
 package mappers
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -28,6 +29,10 @@ func (m *Mappers) MapMediaItemWatchTrackingRequestToUsecase(
 	eventType, err := dtypes.ParseMediaWatchEventType(req.EventType)
 	if err != nil {
 		return ucdto.TrackMediaWatchEventRequest{}, err
+	}
+
+	if eventType != dtypes.MediaWatchEventTypeEnded && req.IntervalMs > req.PositionMs {
+		return ucdto.TrackMediaWatchEventRequest{}, errors.New("intervalMs cannot be greater than positionMs")
 	}
 
 	return ucdto.TrackMediaWatchEventRequest{
