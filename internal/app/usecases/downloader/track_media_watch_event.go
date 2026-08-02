@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/google/uuid"
@@ -9,6 +10,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ierrors "github.com/neosy/elengrab/internal/errors"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
 )
 
 func (uc *Downloader) TrackMediaWatchEvent(
@@ -37,6 +39,11 @@ func (uc *Downloader) TrackMediaWatchEvent(
 	var mediaDuration time.Duration
 	if mediaDownload.MediaInfo != nil {
 		mediaDuration = time.Duration(mediaDownload.MediaInfo.DurationMs) * time.Millisecond
+	}
+
+	if mediaDuration <= 0 {
+		uc.logger.Warn("Media duration is not defined or is zero", "downloadID", req.DownloadID)
+		return errorx.NewHTTP("Media duration is not available", http.StatusConflict)
 	}
 
 	return uc.mediaWatch.CreateMediaWatchEvent(&req, mediaDuration, uc)

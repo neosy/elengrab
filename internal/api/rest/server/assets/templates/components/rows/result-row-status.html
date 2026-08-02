@@ -4,7 +4,7 @@
                     {{- if eq .Values.DownloadStatus "refreshing" }}
                         {{- $cssClass = "row--refreshing" }}
                     {{- end }}
-                <div class="media-result__row success {{ $cssClass }}" id="{{ .Values.RowID }}" data-item-id="{{ .Values.ItemID }}" data-media="{{ .Values.StreamURL }}" data-is-audio="{{ .Values.IsAudio }}">
+                <div class="media-result__row success {{ $cssClass }}" id="{{ .Values.RowID }}" data-item-id="{{ .Values.ItemID }}" data-media="{{ .Values.StreamURL }}" data-is-audio="{{ .Values.IsAudioOnly }}" data-loop="{{ .Values.LoopPlayback }}">
                 {{- else }}
                 <div class="media-result__row inprogress {{ .Values.ResultRowFade }}" id="{{ .Values.RowID }}" data-item-id="{{ .Values.ItemID }}">
                 {{- end }}

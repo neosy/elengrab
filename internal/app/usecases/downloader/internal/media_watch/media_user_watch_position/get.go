@@ -12,7 +12,8 @@ import (
 
 func (uc *MediaUserWatchPosition) Find(
 	ctx context.Context,
-	downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID,
+	downloadID uuid.UUID,
+	userID uuid.UUID, sessionID uuid.UUID,
 ) (*ddownload.MediaUserWatchPosition, error) {
 	if downloadID == uuid.Nil {
 		return nil, nil
@@ -51,4 +52,13 @@ func (uc *MediaUserWatchPosition) Find(
 	}
 
 	return position, nil
+}
+
+func (uc *MediaUserWatchPosition) Exists(
+	ctx context.Context,
+	downloadID uuid.UUID,
+	userID uuid.UUID, sessionID uuid.UUID,
+) (bool, error) {
+	position, err := uc.Find(ctx, downloadID, userID, sessionID)
+	return position != nil, err
 }

@@ -2,7 +2,6 @@ package downloader
 
 import (
 	"context"
-	"fmt"
 	"html/template"
 
 	"github.com/google/uuid"
@@ -213,8 +212,10 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 
 	if params.downloadInfo.MediaInfo != nil {
 		data.Duration = params.downloadInfo.MediaInfo.FormatDuration()
-		data.VideoIsShort = params.downloadInfo.MediaInfo.IsPortrait()
-		data.IsAudio = fmt.Sprint(params.downloadInfo.MediaInfo.FormatType == dtypes.FormatTypeAudioOnly)
+		data.IsPortrait = params.downloadInfo.MediaInfo.IsPortrait()
+		data.IsAudioOnly = params.downloadInfo.MediaInfo.IsAudioOnly()
+		data.IsShorts = params.downloadInfo.MediaInfo.IsShorts()
+		data.LoopPlayback = data.IsShorts || data.IsAudioOnly
 	}
 
 	if cacheChanged.mediaTitle {

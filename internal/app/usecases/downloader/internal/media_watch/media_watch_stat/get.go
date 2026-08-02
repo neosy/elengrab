@@ -41,3 +41,8 @@ func (uc *MediaWatchStat) Find(ctx context.Context, downloadID uuid.UUID) (*ddow
 
 	return stat, nil
 }
+
+func (uc *MediaWatchStat) Exists(ctx context.Context, downloadID uuid.UUID) (bool, error) {
+	stat, err := uc.Find(ctx, downloadID)
+	return stat != nil, err
+}
