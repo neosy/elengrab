@@ -141,3 +141,11 @@ func (info *MediaDownloadInfo) IsShorts() bool {
 
 	return info.MediaInfo.IsShorts()
 }
+
+func (info *MediaDownloadInfo) IsAudioOnly() bool {
+	if info.MediaInfo == nil {
+		return false
+	}
+
+	return info.MediaInfo.IsAudioOnly()
+}

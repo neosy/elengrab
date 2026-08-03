@@ -6,28 +6,77 @@ import (
 	"strings"
 )
 
+type contentTypeOptions struct {
+	isAudio bool
+}
+
+type contentTypeOption func(*contentTypeOptions)
+
+func defaultContentTypeOptions() contentTypeOptions {
+	return contentTypeOptions{
+		isAudio: false,
+	}
+}
+
+func applyContentTypeOptions(options *contentTypeOptions, opts ...contentTypeOption) {
+	for _, opt := range opts {
+		opt(options)
+	}
+}
+
+func newContentTypeOptions(opts ...contentTypeOption) contentTypeOptions {
+	options := defaultContentTypeOptions()
+
+	applyContentTypeOptions(&options, opts...)
+
+	return options
+}
+
+func ContentTypeOptionWithIsAudio(isAudio bool) contentTypeOption {
+	return func(opt *contentTypeOptions) {
+		opt.isAudio = isAudio
+	}
+}
+
 // ContentTypeByExt returns the MIME content type for the given file extension.
+// For ambiguous media extensions, such as .webm, the media type option is used.
 // The extension may be provided with or without a leading dot.
 // Unknown extensions fall back to "application/octet-stream".
-func ContentTypeByExt(ext string) string {
+func ContentTypeByExt(ext string, opts ...contentTypeOption) string {
+	options := newContentTypeOptions(opts...)
+
+	const unknownContentType = "application/octet-stream"
+
 	if ext == "" {
-		return "application/octet-stream"
+		return unknownContentType
 	}
 
 	if !strings.HasPrefix(ext, ".") {
 		ext = "." + ext
 	}
 
-	if contentType := mime.TypeByExtension(ext); contentType != "" {
+	var contentType string
+	switch ext {
+	case ".webm":
+		if options.isAudio {
+			contentType = "audio/webm"
+		} else {
+			contentType = "video/webm"
+		}
+	default:
+		contentType = mime.TypeByExtension(ext)
+	}
+
+	if contentType != "" {
 		return contentType
 	}
 
-	return "application/octet-stream" // fallback for unknown file types
+	return unknownContentType // fallback for unknown file types
 }
 
 // ContentTypeFromPath returns the MIME content type based on the file's path.
-func ContentTypeFromPath(path string) string {
-	return ContentTypeByExt(filepath.Ext(path))
+func ContentTypeFromPath(path string, opts ...contentTypeOption) string {
+	return ContentTypeByExt(filepath.Ext(path), opts...)
 }
 
 // ExtensionByContentType returns the most common file extension for a given Content-Type.

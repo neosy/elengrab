@@ -8,6 +8,10 @@ export const DOM_IDS = {
 export const DOM_CLASSES = {
     rowRefreshing: "row--refreshing",
     rowRemoving: "row--removing",
+    mediaResultRows: "media-result__rows",
+    mediaResultRow: "media-result__row",
+    mediaResultRowThumbnail: "media-result__row-thumbnail",
+    mediaResultRowThumbnailImageWrapper: "media-result__thumbnail-image__wrapper",
 };
 
 export const DOM_ELEMENTS = {

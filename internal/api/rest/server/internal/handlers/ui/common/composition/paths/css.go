@@ -27,6 +27,7 @@ var (
 		"result-rows.css",
 
 		"player.css",
+		"video-preview.css",
 		"notifications.css",
 	}
 

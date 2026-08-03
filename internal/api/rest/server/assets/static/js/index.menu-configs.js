@@ -1,4 +1,4 @@
-import * as constants from './index-constants.js';
+import * as constants from './constants.js';
 import * as share from './share.js';
 import { initMenu, DOM_CLASSES as MENU_CLASSES, positionFloatingMenu} from './menu.js';
 import * as notify from './notifications.js';

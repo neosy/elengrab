@@ -1,0 +1,20 @@
+{{- define "video-preview" }}
+    <div class="video-preview-container" id="video-preview-container" hidden>
+        <video id="video-preview-player" playsinline disablepictureinpicture muted></video>
+        <div class="video-preview__duration">
+            <span class="video-preview__duration-remaining" id="video-preview-duration-remaining">0:00</span>
+        </div>
+        <div class="video-preview__watch-progress">
+            <div class="video-preview__watch-progress-buffer" id="video-preview-watch-progress-buffer" style="--video-preview-watch-buffer: 0%"></div>
+            <div class="video-preview__watch-progress-value" id="video-preview-watch-progress-value" style="--video-preview-watch-progress: 0%"></div>
+        </div>
+        <button class="video-preview__sound" id="video-preview-sound" type="button" title="Turn on the sound" aria-label="Turn on the sound">
+            <div class="video-preview__sound-off">
+                {{ .Values.VideoPreview.SoundOffIcon }}
+            </div>
+            <div class="video-preview__sound-on" hidden>
+                {{ .Values.VideoPreview.SoundOnIcon }}
+            </div>            
+        </button>
+    </div>
+{{- end }}
