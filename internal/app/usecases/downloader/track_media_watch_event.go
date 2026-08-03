@@ -23,6 +23,13 @@ func (uc *Downloader) TrackMediaWatchEvent(
 		return apperrors.ErrDownloadIDIsNil
 	}
 
+	if err := req.Validate(); err != nil {
+		return errorx.Errorf(
+			"invalid track media watch event request: %w",
+			err, errorx.WithHttpStatus(http.StatusBadRequest),
+		)
+	}
+
 	mediaDownload, err := uc.download.FindByDownloadID(ctx, req.DownloadID)
 	if err != nil {
 		uc.logger.Error("Failed get media info", "error", err)

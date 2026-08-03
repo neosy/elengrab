@@ -3,8 +3,26 @@
 // Handles video/audio playback in modal overlay or bottom bar
 // -------------------------------------------------------------
 
-const WATCH_TRACKING_URL_TEMPLATE = "/downloader/items/{itemId}/watch-tracking";
-const WATCH_POSITION_URL_TEMPLATE = "/downloader/items/{itemId}/watch-position";
+import * as watchAPI from './watch-api.js';
+import { MEDIA_WATCH } from './constants.js';
+
+let watchTracker = null;
+let player = null
+
+function initWatchTracker(video, itemId) {
+    if (!video) return;
+    if (watchTracker !== null) return;
+
+    watchTracker = new watchAPI.MediaWatchTracker(video, itemId);
+    watchTracker.init();        
+}
+
+async function destroyWatchTracker() {
+    if (watchTracker === null) return;
+
+    await watchTracker.destroy();
+    watchTracker = null;
+}
 
 export function initPlayer() {
     const overlay           = document.getElementById("media-player-overlay");
@@ -25,6 +43,8 @@ export function initPlayer() {
     // Force initial hidden state
     overlay.style.display = "none";
 
+    initWatchTracker();
+
     document.addEventListener("click", async (event) => {
         const playBtn = event.target.closest(".media-result__play-button");
         if (!playBtn) return;
@@ -37,33 +57,20 @@ export function initPlayer() {
         const mediaURL = row.dataset.media;
         if (!mediaURL) return;
 
+        document.dispatchEvent(new Event("preview-player-opened"));
+
         const isAudio = row.dataset.isAudio === "true";
         const shouldLoop = row.dataset.loop === "true";
+
+        let positionMs = await watchAPI.getWatchPosition(itemId);
+
+        if (positionMs < MEDIA_WATCH.startThresholdMs) {
+            positionMs = 0;
+        }
 
         // Clean previous players
         videoWrapper.innerHTML = "";
         audioBarContainer.innerHTML = "";
-
-        let positionMs = 0;
-
-        try {
-            const response = await fetch(getWatchPositionUrl(itemId), {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to get watch position: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            positionMs = data.position;
-        } catch (err) {
-            console.error("Failed to get watch position", err);
-        }        
 
         let element;
         if (isAudio) {
@@ -74,6 +81,8 @@ export function initPlayer() {
             // Disable Picture-in-Picture
             element.disablePictureInPicture = true;
         }
+
+        player = element;
 
         element.controls = true;
         element.autoplay = true;
@@ -128,8 +137,7 @@ export function initPlayer() {
         }
 
         if (itemId) {
-            const watchTracker = new MediaWatchTracker(element, itemId);
-            watchTracker.init();        
+            initWatchTracker(element, itemId)
         }
     });
 
@@ -181,7 +189,14 @@ export function initPlayer() {
         }
     }    
 
-    function closePlayer() {
+    async function closePlayer() {
+        if (player !== null) {
+            if (!player.paused) {
+                await player.pause();
+            }
+            player = null;
+        }
+
         isOpenVideoPlayer = false
         history.replaceState(null, "", location.pathname + location.search);
 
@@ -190,198 +205,7 @@ export function initPlayer() {
         overlay.style.display = "none";
         document.body.style.overflow = "";
         document.body.classList.remove("audio-playing");
-    }
 
-    function getWatchPositionUrl(itemId) {
-        return WATCH_POSITION_URL_TEMPLATE.replace(
-            "{itemId}",
-            itemId
-        );
-    }
-
-}
-
-export const MEDIA_WATCH_EVENT_PAUSE = "pause";
-export const MEDIA_WATCH_EVENT_ENDED = "ended";
-export const MEDIA_WATCH_EVENT_SEEK = "seek";
-export const MEDIA_WATCH_EVENT_HEARTBEAT = "heartbeat";
-
-export class MediaWatchTracker {
-    constructor(video, itemId) {
-        this.video = video;
-        this.itemId = itemId;
-
-        this.heartbeatInterval = 5000;
-        this.heartbeatTimer = null;
-
-        this.currentPosition = null;
-        this.lastSentPosition = null;
-
-        this.stopPromise = null;
-    }
-
-    getWatchEventUrl() {
-        return WATCH_TRACKING_URL_TEMPLATE.replace(
-            "{itemId}",
-            this.itemId
-        );
-    }
-
-    async sendWatchEvent(eventType = null) {
-        if (!this.video) {
-            return;
-        }
-
-        if (this.currentPosition === null || this.lastSentPosition === null) {
-            return;
-        }
-
-        console.log("Sending watch event:", eventType, "Current position:", this.currentPosition, "Last sent position:", this.lastSentPosition);
-
-        const intervalMs = Math.floor((this.currentPosition - this.lastSentPosition) * 1000);
-
-        // Ignore empty or invalid intervals.
-        if (intervalMs <= 0) {
-            return;
-        }
-
-        let positionMs = Math.floor(this.currentPosition * 1000);
-        if (positionMs < intervalMs) {
-            positionMs = intervalMs;
-        }
-
-        if (eventType === MEDIA_WATCH_EVENT_ENDED) {
-            positionMs = 0;
-        }
-
-        const event = {
-            positionMs: positionMs,
-            intervalMs,
-            eventType,
-        };
-
-        try {
-            await fetch(this.getWatchEventUrl(), {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(event),
-            });
-
-            this.lastSentPosition = this.currentPosition;
-        } catch (err) {
-            console.error("Failed to send media watch event", err);
-        }
-    }
-
-    async startHeartbeat() {
-        if (this.stopPromise !== null) {
-            await this.stopPromise;
-        }
-
-        if (this.heartbeatTimer !== null) {
-            return;
-        }
-
-        // Initialize the current position and last sent position to the current playback time.
-        this.currentPosition = this.video.currentTime;
-        this.lastSentPosition  = this.currentPosition
-
-        this.heartbeatTimer = setInterval(() => {
-            if (!this.video.paused && !this.video.ended) {
-                this.sendWatchEvent(MEDIA_WATCH_EVENT_HEARTBEAT);
-            }
-        }, this.heartbeatInterval);
-    }
-
-    async stopHeartbeat(type = null) {
-        if (this.stopPromise !== null) {
-            await this.stopPromise;
-            return;
-        }        
-
-        if (this.heartbeatTimer === null) {
-            return;
-        }
-
-        this.stopPromise = this.stopHeartbeatInternal(type);
-
-        try {
-            await this.stopPromise;
-        } finally {
-            this.stopPromise = null;
-        }
-    }
-
-    async stopHeartbeatInternal(type = null) {
-        clearInterval(this.heartbeatTimer);
-
-        // Send the remaining playback time.
-        await this.sendWatchEvent(type);
-
-        // Reset the heartbeat timer to avoid sending duplicate events.
-        this.heartbeatTimer = null;
-
-        // Reset the current position and last sent position to null to avoid sending duplicate events.
-        this.currentPosition = null;
-        this.lastSentPosition = null;
-    }
-
-    init() {
-        this.video.addEventListener("play", () => {
-            this.startHeartbeat();
-        });
-
-        this.video.addEventListener("pause", () => {
-            if (!this.video.seeking && this.currentPosition !== null) {
-                this.currentPosition = this.video.currentTime;
-            }
-            if (this.video.seeking) {
-                this.stopHeartbeat(MEDIA_WATCH_EVENT_SEEK);
-            } else {
-                this.stopHeartbeat(MEDIA_WATCH_EVENT_PAUSE);
-            }
-        });
-
-        this.video.addEventListener("ended", () => {
-            if (this.currentPosition !== null) {
-                this.currentPosition = this.video.currentTime;
-            }
-            this.stopHeartbeat(MEDIA_WATCH_EVENT_ENDED);
-        });
-
-        this.video.addEventListener("timeupdate", () => {
-            if (
-                !this.video.seeking &&
-                this.currentPosition !== null &&
-                this.video.currentTime >= this.currentPosition
-            ) {
-                this.currentPosition = this.video.currentTime;
-            }
-        });
-
-        const LOOP_THRESHOLD = 0.2;
-
-        this.video.addEventListener("seeked", async () => {
-            if (!this.video.paused && !this.video.ended && this.video.currentTime <= LOOP_THRESHOLD) {
-                await this.stopHeartbeat(MEDIA_WATCH_EVENT_ENDED);
-                this.startHeartbeat();
-            }
-        });
-
-        // [
-        //     "play",
-        //     "playing",
-        //     "pause",
-        //     "ended",
-        //     "seeking",
-        //     "seeked",
-        //     "timeupdate"
-        // ].forEach(name => {
-        //     this.video.addEventListener(name, () => {
-        //         console.log(name, this.video.currentTime);
-        //     });
-        // });        
+        destroyWatchTracker();
     }
 }

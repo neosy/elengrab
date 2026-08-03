@@ -1,3 +1,5 @@
+const MOBILE_SCREEN_WIDTH = 580;
+
 let stableHeight = 0;
 
 export function initViewportHeightVar() {
@@ -66,4 +68,8 @@ function syncViewportHeightVar() {
         '--vh-visual',
         `${visualHeight * 0.01}px`
     );
+}
+
+export function isMobileScreen() {
+    return window.matchMedia(`(max-width: ${MOBILE_SCREEN_WIDTH}px)`).matches;
 }

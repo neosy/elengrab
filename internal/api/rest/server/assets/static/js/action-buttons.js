@@ -1,4 +1,4 @@
-import { ICON_PASTE, ICON_CLEAR, STORAGE_KEYS } from './index-constants.js';
+import { ICON_PASTE, ICON_CLEAR, STORAGE_KEYS } from './constants.js';
 import StorageState from './storage-state.js';
 
 // -------------------------------------------------------------

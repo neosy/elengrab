@@ -111,7 +111,7 @@ func (h *DownloaderHandlers) stream(
 	}
 
 	// Detect content type by extension
-	contentType := httpx.ContentTypeByExt(downloadInfo.FileExt)
+	contentType := httpx.ContentTypeByExt(downloadInfo.FileExt, httpx.ContentTypeOptionWithIsAudio(downloadInfo.IsAudioOnly()))
 
 	// Set headers for streaming in browser
 	ctx.Response.Header.Set("Content-Type", contentType)
