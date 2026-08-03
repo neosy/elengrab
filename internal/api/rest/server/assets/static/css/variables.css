@@ -78,7 +78,7 @@
     --row-icon-hover-blue: #3b82f6;
     --row-icon-hover-red: #c44b4b;
 
-    --thumbnail-watch-progress-bg: #717171;
+    --thumbnail-watch-progress-bg: rgba(128, 128, 128, 0.5);
     --thumbnail-watch-progress-value: #ff0033;
 
     --thumbnail-duration-bg: rgba(0, 0, 0, 0.6);
