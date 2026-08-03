@@ -143,7 +143,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		ContentTimeAgo:   params.downloadInfo.CreatedTimeAgo,
 		ContentViewCount: humanize.CompactNumber(params.downloadInfo.ViewCount),
 
-		WatchPercent: params.downloadInfo.UserWatchPercent(),
+		WatchPercent: params.downloadInfo.UserWatchDisplayPercent(),
 		Watched:      params.downloadInfo.UserWatched,
 
 		ImageURL:       downloadItemImageURL,

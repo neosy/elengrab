@@ -101,11 +101,37 @@ func (info *MediaDownloadInfo) IsReady() bool {
 		info.Status == dtypes.MediaDownloadStatusRefreshing
 }
 
+const (
+	userWatchStartThreshold           = 8 * time.Second
+	minDurationForWatchStartIndicator = 60 * time.Second
+)
+
+func (info *MediaDownloadInfo) ShouldShowWatchStartIndicator() bool {
+	if info.MediaInfo == nil {
+		return false
+	}
+
+	// For short videos, we do not show the beginning of the viewing
+	if info.MediaInfo.Duration() <= minDurationForWatchStartIndicator {
+		return false
+	}
+
+	return info.UserLastWatchPosition >= userWatchStartThreshold
+}
+
 func (info *MediaDownloadInfo) UserWatchPercent() float64 {
 	if info.MediaInfo == nil || info.MediaInfo.Duration() <= 0 {
 		return 0
 	}
 	return math.Round(float64(info.UserLastWatchPosition)/float64(info.MediaInfo.Duration())*100*100) / 100
+}
+
+func (info *MediaDownloadInfo) UserWatchDisplayPercent() float64 {
+	if !info.ShouldShowWatchStartIndicator() {
+		return 0
+	}
+
+	return info.UserWatchPercent()
 }
 
 func (info *MediaDownloadInfo) IsShorts() bool {
