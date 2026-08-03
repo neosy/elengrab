@@ -1,8 +1,9 @@
 import { DOM_ELEMENTS, initDomElements } from "./watch.dom.js";
 import * as browser from './browser.js';
 import * as actionButton from './action-buttons.js';
-import * as player from './player.js';
+import * as watchAPI from './watch-api.js';
 import * as notify from './notifications.js';
+import { MEDIA_WATCH } from './constants.js';
 
 const isPWA =
       window.matchMedia('(display-mode: standalone)').matches ||
@@ -42,7 +43,7 @@ function initPlayer() {
             DOM_ELEMENTS.mainContentPlayer?.dataset.startPositionMs
         );
 
-        if (startPositionMs > 0) {
+        if (startPositionMs >= MEDIA_WATCH.startThresholdMs) {
             player.currentTime = startPositionMs / 1000;
         }
     }
@@ -103,7 +104,7 @@ function initPlayer() {
     const itemId = DOM_ELEMENTS.mainContentPlayer?.dataset.itemId;
 
     if (itemId) {
-        const watchTracker = new player.MediaWatchTracker(DOM_ELEMENTS.player, itemId);
+        const watchTracker = new watchAPI.MediaWatchTracker(DOM_ELEMENTS.player, itemId);
         watchTracker.init();        
     }
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
@@ -29,9 +28,13 @@ func (uc *MediaWatch) CreateMediaWatchEvent(
 		return errorx.NewHTTPMessage("Media duration is zero", http.StatusConflict)
 	}
 
-	position := req.Position
-	if req.EventType == dtypes.MediaWatchEventTypeEnded {
-		position = mediaDuration
+	req.AdjustForMediaDuration(mediaDuration)
+
+	if err := req.Validate(); err != nil {
+		return errorx.Errorf(
+			"invalid track media watch event request: %w",
+			err, errorx.WithHttpStatus(http.StatusBadRequest),
+		)
 	}
 
 	event := &ddownload.MediaWatchEvent{
@@ -39,7 +42,7 @@ func (uc *MediaWatch) CreateMediaWatchEvent(
 		DownloadID: req.DownloadID,
 		UserID:     req.UserID,
 		SessionID:  req.SessionID,
-		Position:   position,
+		Position:   req.Position,
 		Interval:   req.Interval,
 	}
 

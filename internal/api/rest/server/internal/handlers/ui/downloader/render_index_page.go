@@ -119,6 +119,10 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, authCtx d
 				GetButtonTitle:     pages.IndexGrabGetButtonTitle,
 				GetButtonIcon:      icons.IndexGrabGetButtonIcon.FileRaw(),
 			},
+			VideoPreview: pages.VideoPreview{
+				SoundOnIcon:  icons.VideoPreviewSoundOnIcon.FileRaw(),
+				SoundOffIcon: icons.VideoPreviewSoundOffIcon.FileRaw(),
+			},
 		},
 		Extra: extraData,
 	}

@@ -31,6 +31,8 @@ type (
 		DiskUsed string
 
 		GrabForm IndexGrabForm
+
+		VideoPreview VideoPreview
 	}
 
 	IndexGrabForm struct {
@@ -38,5 +40,10 @@ type (
 		GetButtonTitle     string
 		SettingsButtonIcon template.HTML
 		GetButtonIcon      template.HTML
+	}
+
+	VideoPreview struct {
+		SoundOnIcon  template.HTML
+		SoundOffIcon template.HTML
 	}
 )

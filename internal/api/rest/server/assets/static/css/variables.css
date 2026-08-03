@@ -78,13 +78,20 @@
     --row-icon-hover-blue: #3b82f6;
     --row-icon-hover-red: #c44b4b;
 
-    --thumbnail-watch-progress-bg: rgba(128, 128, 128, 0.5);
-    --thumbnail-watch-progress-value: #ff0033;
-
     --thumbnail-duration-bg: rgba(0, 0, 0, 0.6);
     --thumbnail-duration-color: #fff;
     --thumbnail-watched-bg: rgba(0, 0, 0, 0.65);
     --thumbnail-watched-color: #fff;
+    --thumbnail-watch-progress-bg: rgba(128, 128, 128, 0.5);
+    --thumbnail-watch-progress-value: #ff0033;
+
+    --video-preview-control-bg: rgba(0, 0, 0, 0.6);
+    --video-preview-control-color: #fff;
+    --video-preview-duration-bg: rgba(0, 0, 0, 0.6);
+    --video-preview-duration-color: #fff;
+    --video-preview-watch-progress-bg: rgba(128, 128, 128, 0.5);
+    --video-preview-watch-progress-value-bg: #ff0033;
+    --video-preview-watch-progress-buffer-bg: rgba(255, 255, 255, 0.35);
     
     --bg-auth-button: #007bff;
     --bg-auth-button-hover: #0056b3;

@@ -1,4 +1,4 @@
-import { DOM_ELEMENTS, initDomElements } from "./index.dom.js";
+import { DOM_ELEMENTS, DOM_CLASSES, initDomElements } from "./index.dom.js";
 import * as utils from './utils.js';
 import * as cookie from './cookie.js';
 import * as browser from './browser.js';
@@ -7,9 +7,10 @@ import * as rowEventHandlers from './index.sse.events.js';
 import { initPlayer } from './player.js';
 import * as tooltip from './tooltip.js';
 import { initIndexMenus as initMenu } from './index.menu-configs.js';
-import { SELECT_NAMES, COOKIE_NAMES } from './index-constants.js';
+import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
 import * as notify from './notifications.js';
 import * as view from './index.view.js';
+import * as videoPreview from './video-preview.js';
 
 // Global variables
 let globalEventSource = null;
@@ -328,10 +329,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initPlayer();
 
     // Init settiongs action button
-    actionButton.initInputSettingsButton(DOM_ELEMENTS.inputActionSettingsBtn, DOM_ELEMENTS.grabOptionsCollapse, DOM_ELEMENTS.grabOptions)
+    actionButton.initInputSettingsButton(DOM_ELEMENTS.inputActionSettingsBtn, DOM_ELEMENTS.grabOptionsCollapse, DOM_ELEMENTS.grabOptions);
 
     // Init action button for input field
-    actionButton.initInputPasteClearButton(grabURLInput, grabInputActionBtn)
+    actionButton.initInputPasteClearButton(grabURLInput, grabInputActionBtn);
 
     // Init action button for search input
     const searchInputClearButton = actionButton.initInputClearButton(DOM_ELEMENTS.historySearchInputWrapper, DOM_ELEMENTS.historySearchClearButton);
@@ -340,7 +341,14 @@ document.addEventListener('DOMContentLoaded', () => {
     view.initSearching(searchInputClearButton.clear);
 
     // Init header user menu elements
-    view.initHeaderUserMenu()
+    view.initHeaderUserMenu();
+
+    // Initialize video preview player
+    videoPreview.initVideoPreview();
+    videoPreview.initVideoPreviewHover(
+        document.querySelector(`.${DOM_CLASSES.mediaResultRows}`),
+        DOM_CLASSES.mediaResultRow, DOM_CLASSES.mediaResultRowThumbnailImageWrapper
+    );
 
     // Create SSE connection
     var sse = null;

@@ -30,3 +30,14 @@ export const CLASS_NAMES = {
     listView: "list-view",
     isSearch: "is-search",
 }
+// Media watch constants
+export const MEDIA_WATCH = {
+    // Minimum watched time from the beginning to restore playback position
+    startThresholdMs: 8000,
+
+    // Minimum watch interval duration to send a watch event
+    minIntervalMs: 2000,
+
+    // Maximum allowed watch interval duration (with playback speed tolerance)
+    maxIntervalMs: 15500,
+};

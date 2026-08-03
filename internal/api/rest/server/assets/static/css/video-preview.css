@@ -1,0 +1,142 @@
+.video-preview-container {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.video-preview-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: black;
+}
+
+.video-preview__duration {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+
+    padding: 3px 6px;
+
+    border-radius: 6px;
+
+    background: var(--video-preview-duration-bg);
+    color: var(--video-preview-duration-color);
+
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+
+    pointer-events: none;
+
+    user-select: none;
+}
+
+.video-preview__sound {
+    display: flex;
+    z-index: 2;
+    align-items: center;
+    justify-content: center;
+
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    width: 36px;
+    height: 36px;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: var(--video-preview-control-bg);
+    color: var(--video-preview-control-color);
+
+    cursor: pointer;
+    user-select: none;
+    pointer-events: auto;
+
+    background: transparent;
+}
+
+.video-preview__sound::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    border-radius: 50%;
+    background: var(--video-preview-control-bg);
+
+    animation: video-preview-sound-fade 2s ease 3s forwards;
+}
+
+.video-preview__sound:hover::before {
+    animation: none;
+    opacity: 1;
+}
+
+@keyframes video-preview-sound-fade {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+.video-preview__sound svg {
+    position: relative;
+    z-index: 1;
+
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+
+    transition: transform 0.25s ease;
+}
+
+.video-preview__sound:hover svg {
+    transform: scale(1.1);
+}
+
+.video-preview__watch-progress {
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 4px;
+    background: var(--video-preview-watch-progress-bg);
+}
+
+.video-preview__watch-progress-buffer {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 1;
+
+    width: var(--video-preview-watch-buffer);
+
+    background: var(--video-preview-watch-progress-buffer-bg);
+}
+
+.video-preview__watch-progress-value {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 2;
+
+    width: var(--video-preview-watch-progress);
+    height: 100%;
+
+    background: var(--video-preview-watch-progress-value-bg);
+
+    transition: width 0.1s linear;
+}
