@@ -1,6 +1,3 @@
-export const DOM_IDS = {
-};
-
 export const DOM_CLASSES = {
     mediaEditorFieldInput: "media-editor__field--input",
     mediaEditorFieldError: "media-editor__field--error",

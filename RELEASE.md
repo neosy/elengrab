@@ -8,7 +8,8 @@
 - Added a music note icon overlay for audio file thumbnails to improve media type identification. [L088]
 - Added automatic replay for shorts videos after playback completion. [L089]
 - Updated watch start indicator behavior for short videos. [L093]
-- Feature: Added video auto-play preview when hovering over thumbnails [#448]
+- Added video auto-play preview when hovering over thumbnails [#448]
+- Added mobile video preview autoplay on scroll. [L094]
 
 ---
 

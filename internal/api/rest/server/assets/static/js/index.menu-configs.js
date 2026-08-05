@@ -1,4 +1,4 @@
-import * as constants from './constants.js';
+import { CLASS_NAMES } from './constants.js';
 import * as share from './share.js';
 import { initMenu, DOM_CLASSES as MENU_CLASSES, positionFloatingMenu} from './menu.js';
 import * as notify from './notifications.js';
@@ -234,14 +234,14 @@ const rowMenuConfig = {
   },
 
   beforeOpen(menu, trigger) {
-    document.documentElement.classList.add("ui-blocking-active");
-    document.body.classList.add('ui-blocking-active');
+    document.documentElement.classList.add(CLASS_NAMES.ui.blockingActive);
+    document.body.classList.add(CLASS_NAMES.ui.blockingActive);
     return true;
   },
 
   afterClose(menu) {
-    document.documentElement.classList.remove("ui-blocking-active");
-    document.body.classList.remove('ui-blocking-active');
+    document.documentElement.classList.remove(CLASS_NAMES.ui.blockingActive);
+    document.body.classList.remove(CLASS_NAMES.ui.blockingActive);
     return true;
   }
 };
