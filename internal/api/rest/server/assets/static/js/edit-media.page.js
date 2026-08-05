@@ -1,4 +1,4 @@
-import { DOM_IDS, DOM_CLASSES, DOM_ELEMENTS, initDomElements } from "./edit-media.dom.js";
+import { DOM_CLASSES, DOM_ELEMENTS, initDomElements } from "./edit-media.dom.js";
 import * as notify from './notifications.js';
 
 class OriginalValues {

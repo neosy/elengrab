@@ -1,5 +1,6 @@
-import { DOM_IDS, DOM_CLASSES, DOM_ELEMENTS } from "./index.dom.js";
+import { DOM_CLASSES, DOM_ELEMENTS } from "./index.dom.js";
 import * as notify from './notifications.js';
+import { DOM_IDS, VIDEO_PREVIEW } from './constants.js';
 
 // -------------------------------------------------------------
 // Handle row-add SSE event with multiple rows in one payload
@@ -11,10 +12,6 @@ export function handleRowAdd(event) {
         const data = JSON.parse(event.data);
         if (!data.itemId || !data.html) return
 
-        // Find the container that holds all rows
-        const container = DOM_ELEMENTS.resultRows;
-        if (!container) return;
-
         // Find the top placeholder div
         const placeholder = document.getElementById(DOM_IDS.rowTopPlaceholder);
         if (!placeholder) return;
@@ -25,7 +22,7 @@ export function handleRowAdd(event) {
         const newEl = document.getElementById(DOM_IDS.row(data.itemId));
         if (newEl) {
             // If the element exists, remove it from the DOM
-            const elNoItems = DOM_ELEMENTS.rowNoItems;
+            const elNoItems = document.getElementById(DOM_IDS.rowNoItems);;
             if (elNoItems) {
                 elNoItems.remove();
             }
@@ -57,6 +54,10 @@ export function handleRowUpdate(event) {
 
         const el = document.getElementById(DOM_IDS.row(data.itemId));
         if (!el) return;
+
+        if (el.classList.contains(VIDEO_PREVIEW.previewPlayingClassName)) {
+            return;
+        }
 
         const temp = document.createElement("div");
         temp.innerHTML = data.html.trim();
@@ -147,7 +148,7 @@ export function handleRowPatchField(event) {
 function handleRowPatchProgress(itemId, value) {
     if (!itemId || !value) return
 
-    const el = document.getElementById(DOM_IDS.progressRow(itemId));
+    const el = document.getElementById(DOM_IDS.progress(itemId));
     if (!el) return;
 
     el.textContent = value

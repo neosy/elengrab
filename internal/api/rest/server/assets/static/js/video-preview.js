@@ -1,19 +1,39 @@
 import * as watchAPI from './watch-api.js';
-import { MEDIA_WATCH } from './constants.js';
+import { CLASS_NAMES, MEDIA_WATCH, VIDEO_PREVIEW, DOM_IDS } from './constants.js';
 import { isMobileScreen } from './browser.js';
 
-let hoverTimer;
+const soundElements = {
+    button: null,
+    iconOff: null,
+    iconOn: null
+};
+
+const previewElements = {
+    container: null,
+    player: null,
+    durationRemaining: null,
+    progressValue: null,
+    progressBuffer: null
+};
+
+const previewState = {
+    hoverTimer: null,
+    scrollTimer: null,
+
+    ended: false,
+
+    currentItemId: null,
+    currentVideoUrl: null,
+
+    requestId: 0,
+};
+
 let watchTracker = null;
-
-let videoPreviewEnded = false;
-
-let soundElements = null;
-
-let previewElements = null;
 
 const cssClassNames = {
     soundOff: "video-preview__sound-off",
     soundOn: "video-preview__sound-on",
+    previewPlaying: VIDEO_PREVIEW.previewPlayingClassName,
 };
 
 const cssVarNames = {
@@ -22,21 +42,17 @@ const cssVarNames = {
 };
 
 export function initVideoPreview() {
-    previewElements = {
-        container: document.getElementById("video-preview-container"),
-        player: document.getElementById("video-preview-player"),
-        durationRemaining: document.getElementById("video-preview-duration-remaining"),
-        progressValue: document.getElementById("video-preview-watch-progress-value"),
-        progressBuffer: document.getElementById("video-preview-watch-progress-buffer")
-    };
+    previewElements.container = document.getElementById("video-preview-container");
+    previewElements.player = document.getElementById("video-preview-player");
+    previewElements.durationRemaining = document.getElementById("video-preview-duration-remaining");
+    previewElements.progressValue = document.getElementById("video-preview-watch-progress-value");
+    previewElements.progressBuffer = document.getElementById("video-preview-watch-progress-buffer");
 
     const soundButton = document.getElementById("video-preview-sound");
     if (soundButton != null) {
-        soundElements = {
-            button: soundButton,
-            iconOff: soundButton.querySelector(`.${cssClassNames.soundOff}`),
-            iconOn: soundButton.querySelector(`.${cssClassNames.soundOn}`)
-        }
+        soundElements.button = soundButton;
+        soundElements.iconOff = soundButton.querySelector(`.${cssClassNames.soundOff}`);
+        soundElements.iconOn = soundButton.querySelector(`.${cssClassNames.soundOn}`);
     }
 
     if (!previewElements.container || !previewElements.player) {
@@ -116,9 +132,7 @@ export function initVideoPreviewHover(container, elementClassName, thumbClassNam
             return;
         }
 
-        const thumbnail = el.querySelector(`.${thumbClassName}`);
-
-        if (!thumbnail) {
+        if (!el.classList.contains(CLASS_NAMES.rowStatus.success)) {
             return;
         }
 
@@ -129,20 +143,23 @@ export function initVideoPreviewHover(container, elementClassName, thumbClassNam
 
         const itemId = el.dataset.itemId;
 
-        clearTimeout(hoverTimer);
+        const thumbnail = el.querySelector(`.${thumbClassName}`);
 
-        hoverTimer = setTimeout(async () => {
-            if (videoPreviewEnded) {
+        if (!thumbnail) {
+            return;
+        }
+
+        clearTimeout(previewState.hoverTimer);
+
+        previewState.hoverTimer = setTimeout(async () => {
+            if (previewState.ended) {
                 return;
             }
-
-            const positionMs = await watchAPI.getWatchPosition(itemId);
 
             showVideoPreview(
                 thumbnail,
                 el.dataset.media,
-                itemId,
-                positionMs
+                itemId
             );
         }, 300);
     });
@@ -160,41 +177,51 @@ export function initVideoPreviewHover(container, elementClassName, thumbClassNam
             return;
         }
 
-        videoPreviewEnded = false;
+        previewState.ended = false;
 
-        clearTimeout(hoverTimer);
+        clearTimeout(previewState.hoverTimer);
         hideVideoPreview();
     });
 
-    document.addEventListener("preview-player-opened", () => {
-        clearTimeout(hoverTimer);
+    document.addEventListener(VIDEO_PREVIEW.playerOpenedEventName, () => {
+        clearTimeout(previewState.hoverTimer);
         hideVideoPreview();
     });
 
     previewElements.player.addEventListener("ended", () => {
-        videoPreviewEnded = true;
+        previewState.ended = true;
         hideVideoPreview();
     });
 
     previewElements.player.addEventListener("timeupdate", updateVideoPreviewDuration);
 }
 
-export async function showVideoPreview(thumbnail, videoUrl, itemId, positionMs) {
+export async function showVideoPreview(thumbnail, videoUrl, itemId) {
     if (!previewElements.container || !previewElements.player) {
         return;
     }
 
-    videoPreviewEnded = false;
+    const positionMs = await watchAPI.getWatchPosition(itemId);
+
+    previewState.ended = false;
+
+    const itemEl = document.getElementById(DOM_IDS.row(itemId));
+    if (itemEl) {
+        itemEl.classList.add(cssClassNames.previewPlaying);
+    }
 
     thumbnail.appendChild(previewElements.container);
 
     setWatchTrackerItemId(itemId);
 
-    previewElements.player.src = videoUrl;
+    if (previewState.currentVideoUrl !== videoUrl) {
+        previewState.currentVideoUrl = videoUrl;
+        previewElements.player.src = videoUrl;
 
-    await new Promise((resolve) => {
-        previewElements.player.onloadedmetadata = resolve;
-    });
+        await new Promise(resolve => {
+            previewElements.player.onloadedmetadata = resolve;
+        });
+    }
 
     if (positionMs < MEDIA_WATCH.startThresholdMs) {
         previewElements.player.currentTime = 0;
@@ -204,6 +231,8 @@ export async function showVideoPreview(thumbnail, videoUrl, itemId, positionMs) 
 
     previewElements.player.playsInline = true;
     previewElements.player.loop = false;
+
+    previewState.currentItemId = itemId;
 
     try {
         await previewElements.player.play();
@@ -218,6 +247,13 @@ export function hideVideoPreview() {
     if (!previewElements.container || !previewElements.player) {
         return;
     }
+
+    const itemEl = document.getElementById(DOM_IDS.row(previewState.currentItemId));
+    if (itemEl) {
+        itemEl.classList.remove(cssClassNames.previewPlaying);
+    }
+
+    previewState.currentItemId = null;
 
     previewElements.player.pause();
 
@@ -276,4 +312,108 @@ function formatDuration(seconds) {
     const remainingSeconds = seconds % 60;
 
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+}
+
+export function initVideoPreviewScroll(container, elementClassName, thumbClassName) {
+    if (!container) {
+        return;
+    }
+
+    const onScroll = () => {
+        if (!isMobileScreen()) {
+            return;
+        }
+
+        clearTimeout(previewState.scrollTimer);
+
+        previewState.scrollTimer = setTimeout(() => {
+            updateCenteredPreview(container, elementClassName, thumbClassName);
+        }, 120);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+
+    // We launch it immediately after opening the page.
+    onScroll();
+}
+
+async function updateCenteredPreview(container, elementClassName, thumbClassName) {
+    const element = findCenteredElement(container, elementClassName);
+
+    if (!element) {
+        hideVideoPreview();
+        return;
+    }
+
+    if (!element.classList.contains(CLASS_NAMES.rowStatus.success)) {
+        return;
+    }
+
+    const itemId = element.dataset.itemId;
+
+    if (itemId === previewState.currentItemId) {
+        return;
+    }
+
+    const requestId = ++previewState.requestId;
+
+    hideVideoPreview();
+
+    // While waiting for a response, the user has already scrolled through the list.
+    if (requestId !== previewState.requestId) {
+        return;
+    }
+
+    const thumbnail = element.querySelector(`.${thumbClassName}`);
+    if (!thumbnail) {
+        return;
+    }
+
+    await showVideoPreview(
+        thumbnail,
+        element.dataset.media,
+        itemId
+    );
+}
+
+function findCenteredElement(container, elementClassName) {
+    const viewportCenter = window.innerHeight / 2;
+
+    let bestElement = null;
+    let bestDistance = Number.MAX_VALUE;
+
+    const items = container.querySelectorAll(`.${elementClassName}`);
+
+    for (const item of items) {
+        if (item.dataset.isAudio === "true") {
+            continue;
+        }
+
+        const rect = item.getBoundingClientRect();
+
+        // Completely off-screen.
+        if (rect.bottom <= 0 || rect.top >= window.innerHeight) {
+            continue;
+        }
+
+        // Less than 40% visible.
+        const visibleHeight =
+            Math.min(rect.bottom, window.innerHeight) -
+            Math.max(rect.top, 0);
+
+        if (visibleHeight < rect.height * 0.4) {
+            continue;
+        }
+
+        const center = rect.top + rect.height / 2;
+        const distance = Math.abs(center - viewportCenter);
+
+        if (distance < bestDistance) {
+            bestDistance = distance;
+            bestElement = item;
+        }
+    }
+
+    return bestElement;
 }

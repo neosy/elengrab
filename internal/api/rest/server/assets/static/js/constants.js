@@ -18,7 +18,7 @@ export const COOKIE_NAMES = {
 export const STORAGE_KEYS = {
     grabOptionsCollapsed: "grabOptionsCollapsed",
     settingsGridView: "settingsGridView",
-}
+};
 
 // Action button icon URLs
 export const ICON_PASTE = 'static/icons/action-paste-v2-icon.svg';
@@ -29,7 +29,17 @@ export const CLASS_NAMES = {
     gridView: "grid-view",
     listView: "list-view",
     isSearch: "is-search",
-}
+
+    rowStatus: {
+        success: "success",
+        inProgress: "inprogress",
+    },
+
+    ui: {
+        blockingActive: "ui-blocking-active",
+    },
+};
+
 // Media watch constants
 export const MEDIA_WATCH = {
     // Minimum watched time from the beginning to restore playback position
@@ -40,4 +50,23 @@ export const MEDIA_WATCH = {
 
     // Maximum allowed watch interval duration (with playback speed tolerance)
     maxIntervalMs: 15500,
+};
+
+export const VIDEO_PREVIEW = {
+    // Event dispatched when the full video player is opened
+    playerOpenedEventName: "video-preview-player-opened",
+
+    previewPlayingClassName: "video-preview-playing",
+};
+
+export const DOM_IDS = {
+    rowTopPlaceholder: "row-top-placeholder",
+    rowNoItems: "row-no-items",
+
+    row: (id) => `row-${id}`,
+    progress: (id) => `progress-${id}`,
+
+    userRolesList: "userRolesList",
+   
+    rowUser: (id) => `row-user-${id}`,
 };
