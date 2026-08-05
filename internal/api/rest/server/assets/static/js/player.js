@@ -4,7 +4,7 @@
 // -------------------------------------------------------------
 
 import * as watchAPI from './watch-api.js';
-import { MEDIA_WATCH } from './constants.js';
+import { CLASS_NAMES, MEDIA_WATCH, VIDEO_PREVIEW } from './constants.js';
 
 let watchTracker = null;
 let player = null
@@ -57,7 +57,7 @@ export function initPlayer() {
         const mediaURL = row.dataset.media;
         if (!mediaURL) return;
 
-        document.dispatchEvent(new Event("preview-player-opened"));
+        document.dispatchEvent(new Event(VIDEO_PREVIEW.playerOpenedEventName));
 
         const isAudio = row.dataset.isAudio === "true";
         const shouldLoop = row.dataset.loop === "true";
@@ -95,6 +95,8 @@ export function initPlayer() {
         }, { once: true });        
 
         element.src = mediaURL;
+
+        document.documentElement.classList.add(CLASS_NAMES.ui.blockingActive);
 
         if (isAudio) {
             // Audio → bottom fixed bar
@@ -205,6 +207,8 @@ export function initPlayer() {
         overlay.style.display = "none";
         document.body.style.overflow = "";
         document.body.classList.remove("audio-playing");
+
+        document.documentElement.classList.remove(CLASS_NAMES.ui.blockingActive);
 
         destroyWatchTracker();
     }

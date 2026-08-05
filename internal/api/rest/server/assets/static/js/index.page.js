@@ -346,7 +346,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize video preview player
     videoPreview.initVideoPreview();
     videoPreview.initVideoPreviewHover(
-        document.querySelector(`.${DOM_CLASSES.mediaResultRows}`),
+        DOM_ELEMENTS.result,
+        DOM_CLASSES.mediaResultRow, DOM_CLASSES.mediaResultRowThumbnailImageWrapper
+    );
+    videoPreview.initVideoPreviewScroll(
+        DOM_ELEMENTS.result,
         DOM_CLASSES.mediaResultRow, DOM_CLASSES.mediaResultRowThumbnailImageWrapper
     );
 
