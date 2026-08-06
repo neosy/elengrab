@@ -11,6 +11,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/valyala/fasthttp"
 )
@@ -58,21 +59,28 @@ func (h *DownloaderHandlers) getDownloadsHistory(
 	}
 
 	// We upload one more line to see if we need to show "Upload more"
-	resps, err := h.downloader.LoadHistory(ctx, authCtx, before, loadHistoryLimit+1, filterByTitle)
+	query := dto.MediaDownloadQuery{
+		Before: before,
+		Limit:  loadHistoryLimit + 1,
+		Filters: dto.MediaDownloadFilters{
+			Title: filterByTitle,
+		},
+	}
+	downloads, err := h.downloader.ListDownloadInfo(ctx, authCtx, query)
 	if err != nil {
 		return err
 	}
 
-	if len(resps) == 0 {
+	if len(downloads) == 0 {
 		return nil
 	}
 
-	loadNextHistory := len(resps) > loadHistoryLimit
+	loadNextHistory := len(downloads) > loadHistoryLimit
 
 	// If there are more items than the limit, we show only the limited number of items and a "Load more"
-	lines := resps
-	if len(resps) > loadHistoryLimit {
-		lines = resps[:loadHistoryLimit]
+	lines := downloads
+	if len(downloads) > loadHistoryLimit {
+		lines = downloads[:loadHistoryLimit]
 	}
 
 	before = lines[len(lines)-1].CreatedAt

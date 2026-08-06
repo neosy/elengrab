@@ -96,7 +96,7 @@ func (wp *dynamicWorkerPool) Start(ctx context.Context) error {
 		}
 	}(ctx)
 
-	wp.wg.Go(func() {
+	wp.globalWG.Go(func() {
 		// Ensure running flag is cleared when dispatcher exits
 		defer func() {
 			wp.running.Store(false)
@@ -128,21 +128,27 @@ func (wp *dynamicWorkerPool) Start(ctx context.Context) error {
 
 			// Extract next job from queue
 			job, _ := wp.jobQueue.pop()
+			if job == nil {
+				wp.logger.Error(
+					"Job queue returned nil job despite being non-empty",
+				)
+				return
+			}
+
 			task := newTask(ctx, job)
 			wp.runningTasks[job.ID()] = task
 
 			// Release lock before sending job to worker
 			wp.mu.Unlock()
 
-			if job != nil {
+			if task != nil {
 				// Claim a worker slot (non-blocking due to prior check)
 				select {
 				case <-wp.quit:
 					return
 				case wp.semaphore <- struct{}{}:
 					wp.mu.Lock()
-					freeWorkers := wp.activeWorkers.Load() - wp.busyWorkers - uint32(len(wp.stoppingWorkers))
-					if freeWorkers == 0 {
+					if wp.freeWorkers() == 0 {
 						wp.addWorker(ctx)
 					}
 					wp.busyWorkers++
@@ -183,34 +189,36 @@ func (wp *dynamicWorkerPool) addWorker(ctx context.Context) {
 				"maxWorkers", wp.options.MaxWorkers,
 			)
 		}
+
+		return
 	}
 
-	id := wp.nextWorkerID.Load()
-	wp.nextWorkerID.Add(1)
-
-	wp.activeWorkers.Add(1)
+	id := wp.allocateWorkerID()
 
 	worker := newWorker(wp.logger, id)
 	wp.workers[id] = worker
 
-	wp.wg.Add(1)
+	wp.globalWG.Add(1)
+
 	worker.StartWithIdleTimeout(
 		ctx,
 		wp.options.IdleTime,
 		wp.taskStream,
 		wp.quit,
 		wp.notifyJobDone,
-		wp.canStopWorkerOnIdleTimeout,
+		wp.tryMarkWorkerStopping,
 		wp.removeWorker,
 	)
 
-	wp.logger.Debug(
-		"Worker added to pool",
-		"workerID", id,
-		"workers", len(wp.workers),
-		"activeWorkers", wp.ActiveWorkers(),
-		"maxWorkers", wp.options.MaxWorkers,
-	)
+	if wp.logger != nil {
+		wp.logger.Debug(
+			"Worker added to pool",
+			"workerID", id,
+			"workers", len(wp.workers),
+			"activeWorkers", wp.ActiveWorkers(),
+			"maxWorkers", wp.options.MaxWorkers,
+		)
+	}
 }
 
 // deleteWorker removes a stopped worker from the pool.
@@ -242,8 +250,10 @@ func (wp *dynamicWorkerPool) removeWorker(workerID uint64) {
 
 	delete(wp.workers, workerID)
 	delete(wp.stoppingWorkers, workerID)
-	wp.activeWorkers.Add(^uint32(0))
-	wp.wg.Add(-1)
+
+	wp.releaseWorkerID(workerID)
+
+	wp.globalWG.Done()
 
 	if wp.logger != nil {
 		wp.logger.Debug(
@@ -262,8 +272,8 @@ func (wp *dynamicWorkerPool) ActiveWorkers() uint32 {
 
 // PoolSize returns the maximum number of workers allowed in the dynamic pool.
 func (wp *dynamicWorkerPool) PoolSize() uint32 {
-	wp.mu.Lock()
-	defer wp.mu.Unlock()
+	wp.mu.RLock()
+	defer wp.mu.RUnlock()
 	return wp.options.MaxWorkers
 }
 
@@ -272,26 +282,50 @@ func (wp *dynamicWorkerPool) notifyJobDone(jobID string) {
 	wp.mu.Lock()
 	defer wp.mu.Unlock()
 
+	wp.jobsWG.Done()
+
 	select {
 	case <-wp.quit:
 		return
 	case <-wp.semaphore:
 		delete(wp.runningTasks, jobID)
 		wp.busyWorkers--
+		wp.cond.Signal() // Notify dispatcher that a slot is free
+		return
 	}
-
-	wp.cond.Signal() // Notify dispatcher that a slot is free
 }
 
-// canStopWorkerOnIdleTimeout checks if a worker can be stopped due to being idle for too long.
-func (wp *dynamicWorkerPool) canStopWorkerOnIdleTimeout(workerID uint64) bool {
+// tryMarkWorkerStopping checks if a worker can be stopped due to being idle for too long.
+func (wp *dynamicWorkerPool) tryMarkWorkerStopping(workerID uint64) bool {
 	wp.mu.Lock()
 	defer wp.mu.Unlock()
 
-	if wp.activeWorkers.Load()-wp.busyWorkers > 0 {
+	if wp.freeWorkers() > 0 {
 		wp.stoppingWorkers[workerID] = struct{}{}
 		return true
 	}
 
 	return false
+}
+
+// allocateWorkerID returns an available worker ID.
+// Reuses IDs released by stopped workers before allocating a new ID.
+// Must be called with wp.mu held.
+func (wp *dynamicWorkerPool) allocateWorkerID() uint64 {
+	wp.activeWorkers.Add(1)
+	return wp.baseWorkerPool.allocateWorkerID()
+}
+
+// releaseWorkerID releases a worker ID for reuse by future workers.
+// Must be called with wp.mu held.
+func (wp *dynamicWorkerPool) releaseWorkerID(id uint64) {
+	wp.activeWorkers.Add(^uint32(0))
+	wp.baseWorkerPool.releaseWorkerID(id)
+}
+
+// freeWorkers returns the number of workers available to accept new jobs.
+// Workers that are busy or scheduled for stopping are excluded.
+// Must be called with wp.mu held.
+func (wp *dynamicWorkerPool) freeWorkers() uint32 {
+	return wp.activeWorkers.Load() - wp.busyWorkers - uint32(len(wp.stoppingWorkers))
 }

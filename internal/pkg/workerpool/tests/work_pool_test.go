@@ -123,7 +123,7 @@ func TestManager_JobExecution(t *testing.T) {
 
 	for i := range jobs {
 		j := &testJob{id: i, done: make(chan struct{})}
-		if !m.AddJob(j) {
+		if m.AddJob(j) != nil {
 			continue
 		}
 
@@ -175,7 +175,7 @@ func TestManager_MaxWorkersLimit(t *testing.T) {
 			maxSeen: &maxSeen,
 			wg:      &wg,
 		}
-		if m.AddJob(wrapped) {
+		if m.AddJob(wrapped) == nil {
 			wg.Add(1)
 		}
 	}
@@ -292,7 +292,7 @@ func TestManager_Race(t *testing.T) {
 		wg.Go(func() {
 			for range jobsPer {
 				j := &testJob{done: make(chan struct{})}
-				if m.AddJob(j) {
+				if m.AddJob(j) == nil {
 					<-j.done
 				}
 			}
@@ -336,7 +336,7 @@ func TestManager_CancelJob(t *testing.T) {
 
 	// Add a job with sleep to ensure it does not start immediately
 	job1 := &testJob{id: 1, done: make(chan struct{}), sleep: 500 * time.Millisecond}
-	if !m.AddJob(job1) {
+	if m.AddJob(job1) != nil {
 		t.Fatal("failed to add job1")
 	}
 
@@ -357,7 +357,7 @@ func TestManager_CancelJob(t *testing.T) {
 
 	// Add another job and ensure it executes normally
 	job2 := &testJob{id: 2, done: make(chan struct{})}
-	if !m.AddJob(job2) {
+	if m.AddJob(job2) != nil {
 		t.Fatal("failed to add job2")
 	}
 
@@ -367,4 +367,68 @@ func TestManager_CancelJob(t *testing.T) {
 	case <-time.After(1 * time.Second):
 		t.Fatal("job2 did not complete")
 	}
+}
+
+func TestDynamicWorkerPool_ConcurrentJobs(t *testing.T) {
+	const (
+		maxWorkers = 500
+		jobsCount  = 10_000
+	)
+
+	wp := workerpool.NewDynamicWorkerPool(
+		nil,
+		"test",
+		workerpool.WithMaxWorkers(maxWorkers),
+		workerpool.WithIdleTime(time.Nanosecond),
+	)
+
+	if err := wp.Start(context.Background()); err != nil {
+		t.Fatalf("failed to start worker pool: %v", err)
+	}
+	defer wp.Stop()
+
+	var (
+		completedJobs atomic.Uint32
+		maxWorkerID   atomic.Uint64
+	)
+
+	for i := range jobsCount {
+		job := workerpool.NewSimpleJob(
+			string(rune(i)),
+			"test-job",
+			func(ctx context.Context, workerID uint64) error {
+				completedJobs.Add(1)
+
+				maxValue := max(maxWorkerID.Load(), workerID)
+				if maxValue > maxWorkerID.Load() {
+					maxWorkerID.Store(maxValue)
+				}
+
+				time.Sleep(100 * time.Millisecond)
+
+				return nil
+			},
+		)
+
+		wp.AddJob(job)
+	}
+
+	wp.WaitJobs()
+
+	if completedJobs.Load() != jobsCount {
+		t.Fatalf(
+			"unexpected completed jobs count: got %d want %d",
+			completedJobs.Load(),
+			jobsCount,
+		)
+	}
+
+	if maxWorkerID.Load() != maxWorkers {
+		t.Fatalf(
+			"unexpected max worker ID: got %d, want %d",
+			maxWorkerID.Load(),
+			maxWorkers,
+		)
+	}
+
 }

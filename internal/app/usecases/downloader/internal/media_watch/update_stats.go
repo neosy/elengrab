@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
+	wjobs "github.com/neosy/elengrab/internal/app/workers/pool_jobs"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
 )
@@ -136,7 +136,11 @@ func (uc *MediaWatch) updateStatsFromQueue(ctx context.Context) error {
 func (uc *MediaWatch) enqueueUpdateAllStats() workerpool.Job {
 	job := wjobs.NewUpdateWatchStatsJob(uc)
 
-	if !uc.watchEventDispatcher.AddJob(job) {
+	if err := uc.watchEventDispatcher.AddJob(job); err != nil {
+		uc.logger.Error(
+			"Failed to enqueue update watch stats job",
+			"error", err,
+		)
 		return nil
 	}
 
