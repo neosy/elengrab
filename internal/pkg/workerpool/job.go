@@ -12,7 +12,7 @@ type Job interface {
 }
 
 type JobDispatcher interface {
-	AddJob(job Job) bool
+	AddJob(job Job) error
 	CancelJob(jobID string) bool
 }
 
@@ -23,7 +23,7 @@ type jobQueue struct {
 
 type task struct {
 	ctx    context.Context
-	Cancel context.CancelFunc
+	cancel context.CancelFunc
 	job    Job
 }
 
@@ -41,7 +41,7 @@ func newTask(ctx context.Context, job Job) *task {
 
 	return &task{
 		ctx:    ctx,
-		Cancel: cancel,
+		cancel: cancel,
 		job:    job,
 	}
 }
@@ -105,4 +105,15 @@ func (q *jobQueue) remove(id string) bool {
 	delete(q.index, id)
 
 	return true
+}
+
+// Cancel cancels the task context.
+// It should be called when the task is no longer needed or has completed.
+func (t *task) Cancel() {
+	t.cancel()
+}
+
+// Close releases resources associated with the task.
+func (t *task) Close() {
+	t.Cancel()
 }

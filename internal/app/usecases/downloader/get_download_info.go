@@ -10,7 +10,6 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
@@ -119,12 +118,6 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 		return nil, nil
 	}
 
-	state, _ := uc.dlStateCache.FindByDownloadID(ctx, download.DownloadID)
-	if state != nil && state.Download != nil {
-		download = state.Download.Copy()
-		dlProgress = state.Progress.Copy()
-	}
-
 	var login string
 	if download.UserID != nil {
 		user, _ := uc.authSrv.FindByUserID(ctx, *download.UserID)
@@ -192,34 +185,6 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 	}
 
 	return uc.mappers.MapDownloadDomainToDownloadInfoResponse(download, mappingData), nil
-}
-
-func (uc *Downloader) getDownloadsInfo(
-	ctx context.Context,
-	authCtx dauth.AuthContext,
-	queryOptions dtypes.QueryOptions,
-	filters map[string]any,
-	opts ...callOption,
-) ([]*dto.MediaDownloadInfo, error) {
-	var resps []*dto.MediaDownloadInfo
-
-	downloads, err := uc.download.GetBeforeTime(ctx, queryOptions, filters)
-	if err != nil {
-		uc.logger.Warn("Failed get downloads", "queryOptions", queryOptions, "error", err)
-		return nil, err
-	}
-
-	resps = make([]*dto.MediaDownloadInfo, 0, len(downloads))
-	for _, download := range downloads {
-		resp, err := uc.findActualDownloadInfoByDownload(ctx, download, opts...)
-		if err != nil {
-			continue
-		}
-		resp.HasWriteAccess = uc.HasWriteOperation(authCtx)
-		resps = append(resps, resp)
-	}
-
-	return resps, nil
 }
 
 func (uc *Downloader) GetDownloadFilePath(ctx context.Context, downloadID uuid.UUID) (string, error) {
