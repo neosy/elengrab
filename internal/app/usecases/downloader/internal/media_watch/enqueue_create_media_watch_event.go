@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
-	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
+	wjobs "github.com/neosy/elengrab/internal/app/workers/pool_jobs"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -75,7 +75,12 @@ func (uc *MediaWatch) enqueueCreateMediaWatchEvent(
 ) workerpool.Job {
 	job := wjobs.NewCreateWatchMediaEventJob(runner, req)
 
-	if !uc.watchEventDispatcher.AddJob(job) {
+	if err := uc.watchEventDispatcher.AddJob(job); err != nil {
+		uc.logger.Error(
+			"Failed to enqueue create media watch event job",
+			"eventID", req.Event.EventID,
+			"error", err,
+		)
 		return nil
 	}
 

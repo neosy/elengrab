@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
-	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
+	wjobs "github.com/neosy/elengrab/internal/app/workers/pool_jobs"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -97,7 +97,12 @@ func (uc *Downloader) addTaskToQueueRefreshMetadata(userID uuid.UUID, download *
 func (uc *Downloader) enqueueRefreshMetadataTask(task *ddownload.RefreshMetadataTask) workerpool.Job {
 	job := wjobs.NewRefreshMetadataJob(uc, task)
 
-	if !uc.operationDispatcher.AddJob(job) {
+	if err := uc.operationDispatcher.AddJob(job); err != nil {
+		uc.logger.Warn(
+			"Failed to enqueue refresh metadata task",
+			"taskID", task.TaskID,
+			"error", err,
+		)
 		return nil
 	}
 

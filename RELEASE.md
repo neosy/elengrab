@@ -10,10 +10,14 @@
 - Updated watch start indicator behavior for short videos. [L093]
 - Added video auto-play preview when hovering over thumbnails [#448]
 - Added mobile video preview autoplay on scroll. [L094]
+- Added parallel loading of list rows to improve performance. [L096]
 
 ### 🧩 Refactor
 - Moved download preparation logic into a dedicated `DownloadPreparer` component. [L095]
-- Changed the download workflow to resolve and use explicit yt-dlp format IDs instead of downloading directly from format queries. [L095]
+- Changed the download workflow to resolve and use explicit `yt-dlp` format IDs instead of downloading directly from format queries. [L095]
+
+### 🐛 Fix
+- Fixed several issues in the dynamic worker pool related to worker lifecycle and synchronization. [L096]
 
 ---
 

@@ -81,7 +81,7 @@ func (w *worker) Start(
 	// Opening a channel on startup
 	w.stop = make(chan struct{})
 
-	w.status.Store(WorkerStatusIdle)
+	w.status.Store(WorkerStatusStarting)
 
 	go func() {
 		defer func() {
@@ -121,7 +121,10 @@ func (w *worker) Start(
 
 					done := make(chan struct{})
 					go func() {
-						defer close(done)
+						defer func() {
+							task.Close()
+							close(done)
+						}()
 
 						startTime := time.Now()
 						task.job.Execute(task.ctx, w.workerID)
@@ -163,7 +166,7 @@ func (w *worker) StartWithIdleTimeout(
 	taskStream chan *task,
 	quit <-chan struct{},
 	onJobDone func(jobID string),
-	canStopOnIdleTimeout func(workerID uint64) bool,
+	tryMarkWorkerStopping func(workerID uint64) bool,
 	onWorkerStop func(workerID uint64),
 ) {
 	if !w.running.CompareAndSwap(false, true) {
@@ -178,10 +181,11 @@ func (w *worker) StartWithIdleTimeout(
 	// Opening a channel on startup
 	w.stop = make(chan struct{})
 
-	w.status.Store(WorkerStatusIdle)
+	w.status.Store(WorkerStatusStarting)
 
 	go func() {
-		idleTimer := time.NewTimer(idleTime)
+		// Use a long initial duration until the worker receives its first task.
+		idleTimer := time.NewTimer(time.Minute)
 
 		// Reset the timer safely
 		idleTimeSafeReset := func() {
@@ -213,7 +217,7 @@ func (w *worker) StartWithIdleTimeout(
 			case <-quit:
 				return
 			case <-idleTimer.C:
-				if canStopOnIdleTimeout(w.workerID) {
+				if tryMarkWorkerStopping(w.workerID) {
 					return
 				}
 				idleTimeSafeReset()
@@ -279,9 +283,7 @@ func (w *worker) Stop() {
 	case <-w.stop:
 		// already closed
 	default:
-		if w.stop != nil {
-			close(w.stop)
-		}
+		close(w.stop)
 	}
 }
 

@@ -84,13 +84,10 @@ func (wp *workerPool) Start(ctx context.Context) error {
 		}
 	}(ctx)
 
-	wp.wg.Go(func() {
+	wp.globalWG.Go(func() {
 		// Ensure running flag is cleared when dispatcher exits
 		defer func() {
 			wp.running.Store(false)
-			if wp.logger != nil {
-				wp.logger.Debug("Worker pool manager stopped")
-			}
 		}()
 
 		for {
@@ -158,13 +155,13 @@ func (wp *workerPool) Start(ctx context.Context) error {
 // ctx: context passed to worker for lifecycle control.
 // Must be called with wp.mu held.
 func (wp *workerPool) addWorker(ctx context.Context) {
-	id := wp.nextWorkerID.Load()
-	wp.nextWorkerID.Add(1)
+	id := wp.allocateWorkerID()
 
 	worker := newWorker(wp.logger, id)
 	wp.workers[id] = worker
 
-	wp.wg.Add(1)
+	wp.globalWG.Add(1)
+
 	worker.Start(
 		ctx,
 		wp.taskStream,
@@ -186,8 +183,10 @@ func (wp *workerPool) addWorker(ctx context.Context) {
 // notifyStopWorker notifies the manager that a worker is stopping.
 func (wp *workerPool) notifyStopWorker(workerID uint64) {
 	wp.mu.Lock()
-	defer wp.mu.Unlock()
-	wp.wg.Add(-1)
+
+	wp.globalWG.Done()
+
+	wp.mu.Unlock()
 }
 
 // ActiveWorkers returns the current number of worker goroutines in the pool.
@@ -209,13 +208,15 @@ func (wp *workerPool) notifyJobDone(jobID string) {
 	wp.mu.Lock()
 	defer wp.mu.Unlock()
 
+	wp.jobsWG.Done()
+
 	delete(wp.runningTasks, jobID)
 
 	select {
 	case <-wp.quit:
 		return
 	case <-wp.semaphore:
+		wp.cond.Signal() // Notify dispatcher that a slot is free
+		return
 	}
-
-	wp.cond.Signal() // Notify dispatcher that a slot is free
 }

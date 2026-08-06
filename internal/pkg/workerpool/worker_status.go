@@ -11,18 +11,21 @@ import (
 type WorkerStatus string
 
 const (
-	WorkerStatusNone    WorkerStatus = "none"
-	WorkerStatusIdle    WorkerStatus = "idle"
-	WorkerStatusWorking WorkerStatus = "working"
-	WorkerStatusStopped WorkerStatus = "stopped"
+	WorkerStatusNone     WorkerStatus = "none"
+	WorkerStatusStarting WorkerStatus = "starting"
+	WorkerStatusWorking  WorkerStatus = "working"
+	WorkerStatusIdle     WorkerStatus = "idle"
+	WorkerStatusStopped  WorkerStatus = "stopped"
 )
 
 var (
 	// workerStatusMap implementation of a set for WorkerStatus
 	workerStatusMap = map[WorkerStatus]struct{}{
-		WorkerStatusNone:    {},
-		WorkerStatusIdle:    {},
-		WorkerStatusWorking: {},
+		WorkerStatusNone:     {},
+		WorkerStatusStarting: {},
+		WorkerStatusWorking:  {},
+		WorkerStatusIdle:     {},
+		WorkerStatusStopped:  {},
 	}
 )
 

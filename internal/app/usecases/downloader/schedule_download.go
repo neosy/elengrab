@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
-	wjobs "github.com/neosy/elengrab/internal/app/workers/jobs"
+	wjobs "github.com/neosy/elengrab/internal/app/workers/pool_jobs"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -169,7 +169,12 @@ func (uc *Downloader) addDownloadToQueueDownload(ctx context.Context, downloadID
 func (uc *Downloader) enqueueDownloadTask(task *ddownload.DownloadTask) workerpool.Job {
 	job := wjobs.NewDownloadJob(uc, task)
 
-	if !uc.downloadDispatcher.AddJob(job) {
+	if err := uc.downloadDispatcher.AddJob(job); err != nil {
+		uc.logger.Warn(
+			"Failed to add download job to dispatcher",
+			"jobID", job.ID(),
+			"error", err,
+		)
 		return nil
 	}
 
