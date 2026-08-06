@@ -7,7 +7,7 @@ import (
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
-func (m *Mappers) MapMediaInfoToDomain(info *idto.MediaInfo) *dservices.DownloaderMediaInfo {
+func (m *Mappers) MapMediaInfoToDomain(info *idto.ExtractInfo) *dservices.DownloaderMediaInfo {
 	var formats = make([]dservices.DownloaderMediaFormat, 0, len(info.Formats))
 
 	for _, f := range info.Formats {
