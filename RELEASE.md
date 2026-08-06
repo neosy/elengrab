@@ -11,6 +11,10 @@
 - Added video auto-play preview when hovering over thumbnails [#448]
 - Added mobile video preview autoplay on scroll. [L094]
 
+### 🧩 Refactor
+- Moved download preparation logic into a dedicated `DownloadPreparer` component. [L095]
+- Changed the download workflow to resolve and use explicit yt-dlp format IDs instead of downloading directly from format queries. [L095]
+
 ---
 
 ## v0.23.1 — 2026-08-01

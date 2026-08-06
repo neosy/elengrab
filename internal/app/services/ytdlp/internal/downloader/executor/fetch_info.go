@@ -19,13 +19,13 @@ func (e *Executor) FetchInfo(
 	ctx context.Context,
 	url string,
 	opts ...idto.ExecutorOption,
-) (*idto.MediaInfo, error) {
+) (*idto.ExtractInfo, error) {
 	dataJSON, err := e.loadInfoJSON(ctx, url, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("get formats json error: %w", err)
 	}
 
-	var info = &idto.MediaInfo{}
+	var info = &idto.ExtractInfo{}
 	err = json.NewDecoder(bytes.NewReader(dataJSON)).Decode(info)
 	if err != nil {
 		e.formatCache.DeleteByURL(url)
