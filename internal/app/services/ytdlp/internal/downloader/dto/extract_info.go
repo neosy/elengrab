@@ -6,7 +6,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-type MediaFormat struct {
+type ExtractMediaFormat struct {
 	FormatID       string  `json:"format_id"`
 	FileExt        string  `json:"ext"`
 	Height         float32 `json:"height"`
@@ -25,19 +25,19 @@ type MediaFormat struct {
 	FilesizeApprox *int64  `json:"filesize_approx"`
 }
 
-type MediaInfo struct {
-	ID           string        `json:"id"`
-	Title        string        `json:"title"`
-	Description  string        `json:"description"`
-	Extractor    string        `json:"extractor"`
-	ChannelID    string        `json:"channel_id"`
-	ChannelUrl   string        `json:"channel_url"`
-	ChannelTitle string        `json:"uploader"`
-	Duration     float64       `json:"duration"`
-	Formats      []MediaFormat `json:"formats"`
+type ExtractInfo struct {
+	ID           string               `json:"id"`
+	Title        string               `json:"title"`
+	Description  string               `json:"description"`
+	Extractor    string               `json:"extractor"`
+	ChannelID    string               `json:"channel_id"`
+	ChannelUrl   string               `json:"channel_url"`
+	ChannelTitle string               `json:"uploader"`
+	Duration     float64              `json:"duration"`
+	Formats      []ExtractMediaFormat `json:"formats"`
 }
 
-func (f *MediaFormat) AudioCodec() dtypes.AudioCodec {
+func (f *ExtractMediaFormat) AudioCodec() dtypes.AudioCodec {
 	if f.ACodec == "" {
 		return dtypes.AudioCodecNone
 	}
@@ -50,7 +50,7 @@ func (f *MediaFormat) AudioCodec() dtypes.AudioCodec {
 	return dtypes.AudioCodecNone
 }
 
-func (f *MediaFormat) VideoCodec() dtypes.VideoCodec {
+func (f *ExtractMediaFormat) VideoCodec() dtypes.VideoCodec {
 	if f.VCodec == "" {
 		return dtypes.VideoCodecNone
 	}

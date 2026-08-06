@@ -17,7 +17,7 @@ func (e *Executor) FetchInfoWithBestFormat(
 	url string,
 	format string,
 	opts ...idto.ExecutorOption,
-) (*idto.MediaInfo, error) {
+) (*idto.ExtractInfo, error) {
 	var opt = idto.NewExecutorOptions(opts...)
 	for _, o := range opts {
 		o(&opt)
@@ -76,7 +76,7 @@ func (e *Executor) FetchInfoWithBestFormat(
 		return nil, fmt.Errorf("get formats error: %w", err)
 	}
 
-	var bestFormats []idto.MediaFormat
+	var bestFormats []idto.ExtractMediaFormat
 	for _, bf := range bestFormatIds {
 		for _, f := range info.Formats {
 			if bf == f.FormatID {

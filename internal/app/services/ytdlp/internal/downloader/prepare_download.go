@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
+	downloadpreparer "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/download_preparer"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/stringx"
 )
@@ -18,17 +18,13 @@ func (d *Downloader) prepareDownload(
 	options idto.DLOptions,
 ) (*idto.DownloadMeta, *idto.DownloadExecOptions, error) {
 	// Build yt-dlp arguments and get file extension and title
-	args, fileExt, dtoMediaInfo, mediaInfo, err := helper.PrepareDownload(
-		ctx,
-		url,
-		options,
-		d.executor.FetchInfoWithBestFormat,
-	)
+	preparer := downloadpreparer.NewDownloadPreparer(d.executor.FetchInfoWithBestFormat)
+	downloadPlan, err := preparer.Prepare(ctx, url, options)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to build download arguments: %w", err)
 	}
 
-	title := dtoMediaInfo.Title
+	title := downloadPlan.ExtractInfo.Title
 
 	// If no title, try to get title manually
 	if title == "" {
@@ -57,13 +53,13 @@ func (d *Downloader) prepareDownload(
 		fileName = fmt.Sprintf("%s_%s", title, fileName)
 	}
 
-	fileFullName := fmt.Sprintf("%s.%s", fileName, fileExt)
+	fileFullName := fmt.Sprintf("%s.%s", fileName, downloadPlan.FileExt)
 
 	var (
 		fileSize *int64
 		tmpSize  int64
 	)
-	for _, f := range dtoMediaInfo.Formats {
+	for _, f := range downloadPlan.ExtractInfo.Formats {
 		if f.Filesize != nil {
 			tmpSize += *f.Filesize
 		} else if f.FilesizeApprox != nil {
@@ -75,30 +71,30 @@ func (d *Downloader) prepareDownload(
 	}
 
 	var channelID *string
-	if dtoMediaInfo.ChannelID != "" {
-		channelID = &dtoMediaInfo.ChannelID
+	if downloadPlan.ExtractInfo.ChannelID != "" {
+		channelID = &downloadPlan.ExtractInfo.ChannelID
 	}
 
 	meta := &idto.DownloadMeta{
 		URL:          url,
 		Title:        title,
-		Description:  dtoMediaInfo.Description,
+		Description:  downloadPlan.ExtractInfo.Description,
 		FileName:     fileName,
-		FileExt:      fileExt,
+		FileExt:      downloadPlan.FileExt,
 		FileFullName: fileFullName,
 		FileSize:     fileSize,
 		ChannelID:    channelID,
-		ChannelURL:   dtoMediaInfo.ChannelUrl,
-		ChannelTitle: dtoMediaInfo.ChannelTitle,
-		MediaInfo:    mediaInfo,
+		ChannelURL:   downloadPlan.ExtractInfo.ChannelUrl,
+		ChannelTitle: downloadPlan.ExtractInfo.ChannelTitle,
+		MediaInfo:    downloadPlan.MediaInfo,
 	}
 
 	execOptions := &idto.DownloadExecOptions{
 		ConcurrentFragments: options.ConcurrentFragments,
 		CookieFilePath:      options.CookieFilePathIfNeeded(),
-		Extractor:           dtoMediaInfo.Extractor,
+		Extractor:           downloadPlan.ExtractInfo.Extractor,
 		ExtractorArgs:       nil,
-		Args:                args,
+		Args:                downloadPlan.Args,
 	}
 
 	return meta, execOptions, nil
