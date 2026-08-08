@@ -17,11 +17,13 @@ type (
 	}
 
 	RowFragmentValues struct {
-		DownloadID     string
-		DownloadStatus string
-		WorkingStatus  string
-		Visibility     string
-		IsReady        bool
+		DownloadID      string
+		DownloadStatus  string
+		WorkingStatus   string
+		Visibility      string
+		VisibilityLabel string
+		IsReady         bool
+		HasShareLink    bool
 
 		DownloadRowPath    string
 		DownloadRepeatPath string
@@ -44,8 +46,9 @@ type (
 		ContentViewCount string
 		ContentTimeAgo   string
 
-		WatchPercent float64
-		Watched      bool
+		WatchIndicatorEnabled bool
+		WatchPercent          float64
+		Watched               bool
 
 		UserName string
 
@@ -78,8 +81,7 @@ type (
 		RefreshingIcon                       template.HTML
 
 		MetaUserNameSeparatorIcon template.HTML
-		PublicIcon                template.HTML
-		PrivateIcon               template.HTML
+		VisibilityIcon            template.HTML
 
 		AudioIcon     template.HTML
 		ShareLinkIcon template.HTML

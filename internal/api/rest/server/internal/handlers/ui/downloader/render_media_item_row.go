@@ -97,13 +97,6 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		isGrabResultItemHTMXOptionRepeat = true
 	}
 
-	link, _ := h.linkWeb.ResolveURL(ctx, h.buildMediaWatchURL(params.downloadInfo.DownloadID))
-
-	var shareLinkIcon template.HTML
-	if link != nil {
-		shareLinkIcon = icons.MediaShareLinkIcon.FileRaw()
-	}
-
 	var watchURL, downloadURL, streamURL string
 	if params.downloadInfo.Status == dtypes.MediaDownloadStatusDone {
 		watchURL = httppaths.BuildPathMediaItemWatch(params.downloadInfo.DownloadID)
@@ -118,17 +111,16 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		}
 	}
 
-	var watchedIcon template.HTML
-	if params.downloadInfo.UserWatched {
-		watchedIcon = icons.MediaWatchedIcon.FileRaw()
-	}
+	visibility := h.getVisibilityResponse(params.downloadInfo)
 
 	data := pages.RowFragmentValues{
-		DownloadID:     idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID),
-		DownloadStatus: params.downloadInfo.Status.String(),
-		WorkingStatus:  dltypes.MapUsecaseWorkingStatusToUI(params.downloadInfo.WorkingStatus).String(),
-		Visibility:     params.downloadInfo.Visibility.String(),
-		IsReady:        params.downloadInfo.Status.IsReady(),
+		DownloadID:      idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID),
+		DownloadStatus:  params.downloadInfo.Status.String(),
+		WorkingStatus:   dltypes.MapUsecaseWorkingStatusToUI(params.downloadInfo.WorkingStatus).String(),
+		Visibility:      params.downloadInfo.Visibility.String(),
+		VisibilityLabel: params.downloadInfo.Visibility.Label(),
+		IsReady:         params.downloadInfo.Status.IsReady(),
+		HasShareLink:    h.hasShareLink(ctx, params.downloadInfo.DownloadID),
 
 		YoutubeChannelID: youtubeChannelID,
 		AvatarTitle:      params.downloadInfo.AvatarTitle,
@@ -143,8 +135,9 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		ContentTimeAgo:   params.downloadInfo.CreatedTimeAgo,
 		ContentViewCount: humanize.CompactNumber(params.downloadInfo.ViewCount),
 
-		WatchPercent: params.downloadInfo.UserWatchDisplayPercent(),
-		Watched:      params.downloadInfo.UserWatched,
+		WatchIndicatorEnabled: params.downloadInfo.WatchIndicatorEnabled(),
+		WatchPercent:          params.downloadInfo.UserWatchDisplayPercent(),
+		Watched:               params.downloadInfo.UserWatched,
 
 		ImageURL:       downloadItemImageURL,
 		ImageAvatarURL: downloadItemImageAvatarURL,
@@ -178,12 +171,11 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		RefreshingIcon:            icons.DownloadRefreshingIcon.FileRaw(),
 		MetaUserNameSeparatorIcon: icons.DownloadMetaUserNameSeparatorIcon.FileRaw(),
 
-		PublicIcon:  icons.MediaPublicIcon.FileRaw(),
-		PrivateIcon: icons.MediaPrivateIcon.FileRaw(),
+		VisibilityIcon: visibility.Icon,
 
 		AudioIcon:     audioIcon,
-		ShareLinkIcon: shareLinkIcon,
-		WatchedIcon:   watchedIcon,
+		ShareLinkIcon: icons.MediaShareLinkIcon.FileRaw(),
+		WatchedIcon:   icons.MediaWatchedIcon.FileRaw(),
 
 		DownloaderResultItemSourceLinkIcon: icons.DownloadSourceLinkIcon.FileRaw(),
 		DownloaderResultItemStatusIcon:     icons.DownloaderIconByStatus(params.downloadInfo.Status).FileRaw(),

@@ -123,34 +123,12 @@ func NewDownloader(
 	channelUpdateInterval time.Duration,
 ) *Downloader {
 	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRep)
-
-	mediawatch := mediawatch.NewMediaWatch(
-		logger,
-		watchEventRep, userWatchChunkRep, userWatchStatRep, watchStatRep, userWatchPosition,
-		mediaUserWatchStatCacheRep,
-		mediaWatchStatCacheRep,
-		mediaUserWatchPositionCacheRep,
-		watchEventDispatcher,
-	)
-
 	dlTask := dltask.NewDownloadTask(logger, dlTaskRep, dlStateCache)
-	download := mediadownload.NewMediaDownload(
-		logger,
-
-		downloadRep,
-		mediaDownloadCacheRep,
-
-		dlTask,
-		dlStateCache,
-		mediawatch,
-
-		thumbnail,
-	)
 	dlTaskStatus := dltasktatus.NewDownloadTaskStatus(logger, dlTask)
 
 	authz := authz.NewAuthorization(logger, appMode)
 
-	return &Downloader{
+	downloader := &Downloader{
 		appCtx:  ctx,
 		logger:  logger,
 		mappers: mappers.NewMappers(),
@@ -167,21 +145,18 @@ func NewDownloader(
 		// Cache
 		dlStateCache: dlStateCache,
 
-		// dispetchers
+		// Dispetchers
 		downloadDispatcher:  downloadDispatcher,
 		operationDispatcher: operationDispatcher,
 
-		// internal
-		download:          download,
+		// Internal
 		dlTask:            dlTask,
-		downloadStatus:    downloadstatus.NewMediaDownloadStatus(logger, download, dlTask, dlTaskStatus),
 		dlTaskStatus:      dlTaskStatus,
 		ytChannel:         ytchannel.NewYoutubeChannel(logger, ytChannelRep, ytChannelCacheRep),
 		siteIcon:          siteicon.NewSiteIcon(logger, siteLogoRep, siteLogoCacheRep),
 		siteIconFetcher:   iconfetcher.NewSiteIconFetcher(logger),
 		authz:             authz,
 		downloadMigration: dlmigration.NewDownloadMigration(logger, downloadMigrationRep),
-		mediaWatch:        mediawatch,
 
 		// broadcasters
 		broadcaster: broadcaster.NewBroadcaster(authz),
@@ -201,6 +176,43 @@ func NewDownloader(
 		logoUpdateInterval:    logoUpdateInterval,
 		channelUpdateInterval: channelUpdateInterval,
 	}
+
+	mediaWatch := mediawatch.NewMediaWatch(
+		logger,
+
+		watchEventRep, userWatchChunkRep, userWatchStatRep, watchStatRep, userWatchPosition,
+
+		mediaUserWatchStatCacheRep,
+		mediaWatchStatCacheRep,
+		mediaUserWatchPositionCacheRep,
+
+		watchEventDispatcher,
+
+		downloader.broadcastWatchStatsUpdatedToAuth,
+		downloader.broadcastWatchPositionUpdatedToAuth,
+	)
+
+	download := mediadownload.NewMediaDownload(
+		logger,
+
+		downloadRep,
+		mediaDownloadCacheRep,
+
+		dlTask,
+		dlStateCache,
+		mediaWatch,
+
+		thumbnail,
+	)
+
+	downloadStatus := downloadstatus.NewMediaDownloadStatus(logger, download, dlTask, dlTaskStatus)
+
+	// Internal
+	downloader.download = download
+	downloader.downloadStatus = downloadStatus
+	downloader.mediaWatch = mediaWatch
+
+	return downloader
 }
 
 func (uc *Downloader) AppMode() dtypes.AppMode {

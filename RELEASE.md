@@ -11,6 +11,7 @@
 - Added video auto-play preview when hovering over thumbnails [#448]
 - Added mobile video preview autoplay on scroll. [L094]
 - Added parallel loading of list rows to improve performance. [L096]
+- Added partial field updates for download rows via SSE. [L098]
 
 ### 🧩 Refactor
 - Moved download preparation logic into a dedicated `DownloadPreparer` component. [L095]

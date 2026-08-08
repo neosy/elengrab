@@ -109,13 +109,22 @@ func (uc *MediaWatch) updateStatsFromQueue(ctx context.Context) error {
 
 	downloadIDs := make(map[uuid.UUID]time.Duration)
 
+	processed := make(map[downloadUserKey]struct{})
+
 	// Update user stats and collect download durations
 	for key, duration := range queue {
+		processedKey := key.downloadUserKey()
+		if _, exists := processed[processedKey]; exists {
+			continue
+		}
+		processed[processedKey] = struct{}{}
+
 		downloadIDs[key.downloadID] = duration
 		err := uc.updateUserStats(ctx, key.downloadID, key.userID, duration)
 		if err != nil {
 			hasError = true
 		}
+
 	}
 
 	// Update overall stats for each downloadID
@@ -128,6 +137,11 @@ func (uc *MediaWatch) updateStatsFromQueue(ctx context.Context) error {
 
 	if hasError {
 		return errors.New("failed to update one or more media watch statistics")
+	}
+
+	// Notify the external handler about updated watch statistics.
+	for key := range queue {
+		uc.onWatchStatsUpdated(ctx, key.authCtx(), key.downloadID)
 	}
 
 	return nil

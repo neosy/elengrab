@@ -18,7 +18,7 @@ import (
 func (uc *MediaWatch) CreateMediaWatchEvent(
 	req *dto.TrackMediaWatchEventRequest,
 	mediaDuration time.Duration,
-	runner pworkers.DownloadTaskRunner,
+	runner pworkers.WatchEventRunner,
 ) error {
 	if req == nil {
 		return apperrors.ErrFuncParamNullPointer
@@ -71,7 +71,7 @@ func (uc *MediaWatch) CreateMediaWatchEvent(
 
 func (uc *MediaWatch) enqueueCreateMediaWatchEvent(
 	req *dto.CreateMediaWatchEventRequest,
-	runner pworkers.DownloadTaskRunner,
+	runner pworkers.WatchEventRunner,
 ) workerpool.Job {
 	job := wjobs.NewCreateWatchMediaEventJob(runner, req)
 

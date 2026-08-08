@@ -120,6 +120,7 @@ function createSSEConnection() {
         // Business events
         globalEventSource.addEventListener("row-add", rowEventHandlers.handleRowAdd);
         globalEventSource.addEventListener("row-update", rowEventHandlers.handleRowUpdate);
+        globalEventSource.addEventListener("row-patch", rowEventHandlers.handleRowPatch);
         globalEventSource.addEventListener("row-delete", rowEventHandlers.handleRowDelete);
         globalEventSource.addEventListener("row-patch-field", rowEventHandlers.handleRowPatchField);
         globalEventSource.addEventListener("row-start-refreshing", rowEventHandlers.handleRowStartRefreshing);

@@ -7,5 +7,5 @@ const (
 
 	requiredWatchPercent = 90
 
-	statsUpdateInterval = 15 * time.Second
+	statsUpdateInterval = 5 * time.Second
 )

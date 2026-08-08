@@ -77,7 +77,7 @@ func (uc *Downloader) broadcastDownloadUpdate(
 	uc.broadcaster.BroadcastToUsersWithAccess(*downloadInfo.UserID, dto.BroadcastEventTypeDownloadUpdate, downloadInfo)
 }
 
-func (uc *Downloader) broadcastDownloadUpdateToAuth(
+func (uc *Downloader) broadcastWatchStatsUpdatedToAuth(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
@@ -92,7 +92,73 @@ func (uc *Downloader) broadcastDownloadUpdateToAuth(
 		return
 	}
 
-	uc.broadcaster.BroadcastToAuth(authCtx, dto.BroadcastEventTypeDownloadUpdate, downloadInfo)
+	downloadChanged := &dto.MediaDownloadChanged{
+		DownloadID: downloadID,
+		Info:       downloadInfo,
+	}
+
+	downloadChanged.MarkWatchStatsChanged()
+
+	uc.broadcaster.BroadcastToAuth(authCtx, dto.BroadcastEventTypeDownloadPatch, downloadChanged)
+}
+
+func (uc *Downloader) broadcastWatchPositionUpdatedToAuth(
+	ctx context.Context,
+	authCtx dauth.AuthContext,
+	downloadID uuid.UUID,
+) {
+	downloadInfo, err := uc.findActualDownloadInfo(ctx, downloadID, withAuth(authCtx))
+	if err != nil {
+		uc.logger.Error("Failed find download info", "error", err)
+		return
+	}
+
+	if downloadInfo == nil {
+		return
+	}
+
+	downloadChanged := &dto.MediaDownloadChanged{
+		DownloadID: downloadID,
+		Info:       downloadInfo,
+	}
+
+	downloadChanged.MarkWatchPositionChanged()
+
+	uc.broadcaster.BroadcastToAuth(authCtx, dto.BroadcastEventTypeDownloadPatch, downloadChanged)
+}
+
+func (uc *Downloader) broadcastDownloadChanged(
+	ctx context.Context,
+	req dto.MediaDownloadChanged,
+) {
+	if req.Info == nil {
+		downloadInfo, err := uc.findActualDownloadInfo(ctx, req.DownloadID)
+		if err != nil {
+			uc.logger.Error("Failed find download info", "error", err)
+			return
+		}
+		req.Info = downloadInfo
+	}
+
+	if req.Info == nil {
+		return
+	}
+
+	if req.Info.UserID == nil || *req.Info.UserID == uuid.Nil {
+		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadPatch, &req)
+		return
+	}
+
+	if req.Info.Visibility == dtypes.MediaVisibilityPublic {
+		uc.broadcaster.BroadcastPublic(
+			eventkey.NewEventKeyUserID(*req.Info.UserID),
+			dto.BroadcastEventTypeDownloadPatch,
+			&req,
+		)
+		return
+	}
+
+	uc.broadcaster.BroadcastToUsersWithAccess(*req.Info.UserID, dto.BroadcastEventTypeDownloadPatch, &req)
 }
 
 func (uc *Downloader) broadcastDownloadStartRefreshing(
@@ -126,10 +192,7 @@ func (uc *Downloader) broadcastDownloadStartRefreshing(
 	uc.broadcaster.BroadcastToUsersWithAccess(*downloadInfo.UserID, dto.BroadcastEventTypeDownloadStartRefreshing, downloadInfo)
 }
 
-func (uc *Downloader) broadcastDownloadDelete(
-	ctx context.Context,
-	download *ddownload.MediaDownload,
-) {
+func (uc *Downloader) broadcastDownloadDelete(_ context.Context, download *ddownload.MediaDownload) {
 	if download == nil {
 		return
 	}
@@ -220,4 +283,11 @@ func (uc *Downloader) NotifyDownloadUpdated(
 	downloadID uuid.UUID,
 ) {
 	uc.broadcastDownloadUpdate(ctx, downloadID)
+}
+
+func (uc *Downloader) NotifyDownloadChanged(
+	ctx context.Context,
+	req dto.MediaDownloadChanged,
+) {
+	uc.broadcastDownloadChanged(ctx, req)
 }

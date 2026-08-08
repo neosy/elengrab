@@ -6,6 +6,7 @@ const (
 	BroadcastEventTypeNone BroadcastEventType = iota
 	BroadcastEventTypeDownloadAdd
 	BroadcastEventTypeDownloadUpdate
+	BroadcastEventTypeDownloadPatch
 	BroadcastEventTypeDownloadDelete
 	BroadcastEventTypeProgressUpdate
 	BroadcastEventTypeDownloadStartRefreshing
@@ -19,6 +20,7 @@ var (
 		BroadcastEventTypeNone:                    "none",
 		BroadcastEventTypeDownloadAdd:             "download_add",
 		BroadcastEventTypeDownloadUpdate:          "download_update",
+		BroadcastEventTypeDownloadPatch:           "download_patch",
 		BroadcastEventTypeDownloadDelete:          "download_delete",
 		BroadcastEventTypeProgressUpdate:          "progress_update",
 		BroadcastEventTypeDownloadStartRefreshing: "start_refreshing",
@@ -29,6 +31,7 @@ var (
 	broadcastSSEEventNameByType = map[BroadcastEventType]string{
 		BroadcastEventTypeDownloadAdd:             "row-add",
 		BroadcastEventTypeDownloadUpdate:          "row-update",
+		BroadcastEventTypeDownloadPatch:           "row-patch",
 		BroadcastEventTypeDownloadDelete:          "row-delete",
 		BroadcastEventTypeProgressUpdate:          "row-patch-field",
 		BroadcastEventTypeDownloadStartRefreshing: "row-start-refreshing",

@@ -118,6 +118,12 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 		return nil, nil
 	}
 
+	state, _ := uc.dlStateCache.FindByDownloadID(ctx, download.DownloadID)
+	if state != nil && state.Download != nil {
+		download = state.Download.Copy()
+		dlProgress = state.Progress.Copy()
+	}
+
 	var login string
 	if download.UserID != nil {
 		user, _ := uc.authSrv.FindByUserID(ctx, *download.UserID)
