@@ -53,5 +53,5 @@ func (uc *Downloader) TrackMediaWatchEvent(
 		return errorx.NewHTTP("Media duration is not available", http.StatusConflict)
 	}
 
-	return uc.mediaWatch.CreateMediaWatchEvent(&req, mediaDuration, uc)
+	return uc.mediaWatch.CreateMediaWatchEvent(&req, mediaDuration, uc.mediaWatch)
 }

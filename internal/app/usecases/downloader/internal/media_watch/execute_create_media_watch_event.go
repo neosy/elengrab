@@ -24,6 +24,7 @@ func (uc *MediaWatch) ExecuteCreateMediaWatchEvent(
 	position := uc.mappers.MapUserWatchEventToWatchPosition(event, req.MediaDuration)
 	if position.Validate() == nil {
 		uc.userPosition.Write(ctx, position)
+		uc.onWatchPositionUpdated(ctx, req.Event.AuthCtx(), req.Event.DownloadID)
 	}
 
 	create := func(ctx context.Context) error {
@@ -53,7 +54,12 @@ func (uc *MediaWatch) ExecuteCreateMediaWatchEvent(
 		userID = *event.UserID
 	}
 
-	uc.pendingStats.add(event.DownloadID, userID, req.MediaDuration)
+	var sessionID uuid.UUID
+	if userID == uuid.Nil && event.SessionID != nil {
+		sessionID = *event.SessionID
+	}
+
+	uc.pendingStats.add(event.DownloadID, userID, sessionID, req.MediaDuration)
 
 	return nil
 }

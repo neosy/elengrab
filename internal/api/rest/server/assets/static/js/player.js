@@ -96,8 +96,6 @@ export function initPlayer() {
 
         element.src = mediaURL;
 
-        document.documentElement.classList.add(CLASS_NAMES.ui.blockingActive);
-
         if (isAudio) {
             // Audio → bottom fixed bar
             const bar = document.createElement("div");
@@ -117,6 +115,8 @@ export function initPlayer() {
             document.body.style.overflow = "";
             document.body.classList.add("audio-playing");
         } else {
+            document.documentElement.classList.add(CLASS_NAMES.ui.blockingActive);
+            
             isOpenVideoPlayer = true
             location.hash = playerHash
 

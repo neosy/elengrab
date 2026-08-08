@@ -1,4 +1,4 @@
-import { DOM_CLASSES, DOM_ELEMENTS } from "./index.dom.js";
+import { DOM_CLASS_PREFIXES, DOM_CLASSES, DOM_SELECTORS, DOM_CSS_VAR_NAMES, DOM_ELEMENTS } from "./index.dom.js";
 import * as notify from './notifications.js';
 import { DOM_IDS, VIDEO_PREVIEW } from './constants.js';
 
@@ -69,6 +69,92 @@ export function handleRowUpdate(event) {
 
         //HTMX will scan this element and activate all hx-* attributes
         htmx.process(newEl);
+    } catch (err) {
+        console.error(`SSE "${event.type}" handler error:`, err);
+    }
+}
+
+	// Title string `json:"title,omitempty"`
+	// WatchPercent  string  `json:"watchPercent,omitempty"`
+	// Watched       *bool   `json:"watched,omitempty"`
+	// ViewCount     *uint32 `json:"viewCount,omitempty"`
+	// ViewCountText string  `json:"viewCountText,omitempty"`
+export function handleRowPatch(event) {
+    try {
+        const data = JSON.parse(event.data);
+        if (!data.itemId) return
+
+        const el = document.getElementById(DOM_IDS.row(data.itemId));
+        if (!el) return;
+
+        if (data.title !== undefined && data.title !== "") {
+            const titleEl = el.querySelector(DOM_SELECTORS.mediaResultTitleLink);
+            if (titleEl) {
+                titleEl.textContent = data.title;
+                titleEl.title = data.title;
+            }
+        }
+
+        if (data.visibility !== undefined) {
+            const visibilityEl = el.querySelector(DOM_SELECTORS.mediaResultVisibility);
+
+            if (visibilityEl) {
+                const oldClass = [...visibilityEl.classList]
+                    .find(className => className.startsWith(DOM_CLASS_PREFIXES.visibility));
+
+                if (oldClass) {
+                    visibilityEl.classList.remove(oldClass);
+                }
+
+                visibilityEl.classList.toggle("hidden", !data.visibility.visible);
+                visibilityEl.classList.add(`${DOM_CLASS_PREFIXES.visibility}${data.visibility.value}`);
+                visibilityEl.dataset.tooltip = data.visibility.label;
+                visibilityEl.title = data.visibility.label;
+                visibilityEl.ariaLabel = data.visibility.label;
+                if (data.visibility.visible) {
+                    visibilityEl.innerHTML = data.visibility.icon;
+                } else {
+                    visibilityEl.innerHTML = "";
+                }
+            }
+        }
+
+        if (data.hasShareLink !== undefined) {
+            const linkEl = el.querySelector(DOM_SELECTORS.mediaResultShareLink);
+            if (linkEl) {
+                linkEl.classList.toggle("hidden", !data.hasShareLink);
+            }
+        }
+
+        if (data.watched !== undefined && data.watched) {
+            const watchedEl = el.querySelector(DOM_SELECTORS.mediaResultRowThumbnailWatched);
+            if (watchedEl) {
+                watchedEl.classList.remove("hidden");
+            }
+        }
+
+        if (data.watchPercent !== undefined) {
+            const progressEl = el.querySelector(DOM_SELECTORS.mediaResultRowThumbnailWatchProgress);
+            const progressValueEl = el.querySelector(DOM_SELECTORS.mediaResultRowThumbnailWatchProgressValue);
+            if (progressEl && progressValueEl) {
+                progressEl.classList.toggle("hidden", data.watchPercent === 0);
+                progressValueEl.style.setProperty(
+                    DOM_CSS_VAR_NAMES.watchProgress,
+                    `${data.watchPercent}%`,
+                );
+            }
+        }
+
+        if (data.viewCount !== undefined) {
+            const viewCountEl = el.querySelector(DOM_SELECTORS.mediaResultViewCount);
+            if (viewCountEl) {
+                viewCountEl.textContent = data.viewCount.text;
+            }
+        }
+
+        if (el.classList.contains(VIDEO_PREVIEW.previewPlayingClassName)) {
+            return;
+        }
     } catch (err) {
         console.error(`SSE "${event.type}" handler error:`, err);
     }

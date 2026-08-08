@@ -19,11 +19,9 @@
                                     {{- end }}
                                     <span class="media-result__thumbnail-duration-value">{{ .Values.Duration }}</span>
                                 </div>
-                                {{- if .Values.WatchedIcon }}
-                                <div class="media-result__thumbnail-watched">{{ .Values.WatchedIcon }}</div>
-                                {{- end }}
-                                {{- if gt .Values.WatchPercent 0.0 }}
-                                <div class="media-result__thumbnail-watch-progress">
+                                <div class="media-result__thumbnail-watched{{- if not .Values.Watched }} hidden{{- end }}">{{ .Values.WatchedIcon }}</div>
+                                {{- if .Values.WatchIndicatorEnabled }}
+                                <div class="media-result__thumbnail-watch-progress{{if eq .Values.WatchPercent 0.0 }} hidden{{end }}">
                                     <div class="media-result__thumbnail-watch-progress-value" style="--watch-progress: {{ printf `%.2f` .Values.WatchPercent }}%"></div>
                                 </div>
                                 {{- end }}

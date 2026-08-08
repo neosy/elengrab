@@ -11,8 +11,14 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/neosy/elengrab/internal/pkg/stringx"
 )
+
+var displayedVisibilities = map[dtypes.MediaVisibility]struct{}{
+	dtypes.MediaVisibilityPrivate: {},
+	dtypes.MediaVisibilityPublic:  {},
+}
 
 type MediaDownloadInfo struct {
 	DownloadID    uuid.UUID
@@ -106,13 +112,25 @@ const (
 	minDurationForWatchStartIndicator = 60 * time.Second
 )
 
-func (info *MediaDownloadInfo) ShouldShowWatchStartIndicator() bool {
+// WatchIndicatorEnabled reports whether the watch indicator
+// is enabled for this media.
+func (info *MediaDownloadInfo) WatchIndicatorEnabled() bool {
 	if info.MediaInfo == nil {
 		return false
 	}
 
-	// For short videos, we do not show the beginning of the viewing
+	// The watch start indicator is disabled for short videos.
 	if info.MediaInfo.Duration() <= minDurationForWatchStartIndicator {
+		return false
+	}
+
+	return true
+}
+
+// ShouldShowWatchStartIndicator reports whether the watch start indicator
+// should be shown based on the user's current watch position.
+func (info *MediaDownloadInfo) ShouldShowWatchStartIndicator() bool {
+	if !info.WatchIndicatorEnabled() {
 		return false
 	}
 
@@ -148,4 +166,13 @@ func (info *MediaDownloadInfo) IsAudioOnly() bool {
 	}
 
 	return info.MediaInfo.IsAudioOnly()
+}
+
+func (info *MediaDownloadInfo) ViewCountText() string {
+	return fmt.Sprintf("%s views", humanize.CompactNumber(info.ViewCount))
+}
+
+func (info *MediaDownloadInfo) ShouldShowVisibility() bool {
+	_, exists := displayedVisibilities[info.Visibility]
+	return exists
 }
