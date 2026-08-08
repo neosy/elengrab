@@ -77,9 +77,15 @@
     animation: video-preview-sound-fade 2s ease 3s forwards;
 }
 
-.video-preview__sound:hover::before {
-    animation: none;
-    opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+    .video-preview__sound:hover::before {
+        animation: none;
+        opacity: 1;
+    }
+
+    .video-preview__sound:hover svg {
+        transform: scale(1.1);
+    }
 }
 
 @keyframes video-preview-sound-fade {
@@ -101,10 +107,6 @@
     stroke-width: 2;
 
     transition: transform 0.25s ease;
-}
-
-.video-preview__sound:hover svg {
-    transform: scale(1.1);
 }
 
 .video-preview__watch-progress {
