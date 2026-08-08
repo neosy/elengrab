@@ -824,7 +824,7 @@
     white-space: nowrap;
 }
 
-.media-result__title-meta > * + *::before {
+.media-result__title-meta > :not(.hidden) + :not(.hidden)::before {
     display: inline-block;
 
     width: 4px;

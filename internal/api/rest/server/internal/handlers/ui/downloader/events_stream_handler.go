@@ -106,6 +106,8 @@ func (h *DownloaderHandlers) handleEvent(
 		h.handleDownloadAdd(w, event)
 	case ucdto.BroadcastEventTypeDownloadUpdate:
 		h.handleDownloadUpdate(ctx, w, event)
+	case ucdto.BroadcastEventTypeDownloadPatch:
+		h.handleDownloadPatch(ctx, w, event)
 	case ucdto.BroadcastEventTypeDownloadDelete:
 		h.handleDownloadDelete(w, event)
 	case ucdto.BroadcastEventTypeProgressUpdate:
@@ -183,6 +185,38 @@ func (h *DownloaderHandlers) handleDownloadUpdate(ctx context.Context, w *bufio.
 	}{
 		DownloadID: idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
 		HTML:       html,
+	}
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return
+	}
+
+	fmt.Fprintf(w, "event: %s\n", event.Type.SSEEventName())
+	fmt.Fprintf(w, "data: %s\n\n", jsonData)
+	w.Flush()
+}
+
+func (h *DownloaderHandlers) handleDownloadPatch(ctx context.Context, w *bufio.Writer, event ucdto.BroadcastEvent) {
+	downloadChanged, ok := event.Data.(*ucdto.MediaDownloadChanged)
+	if !ok {
+		return
+	}
+
+	if downloadChanged == nil {
+		return
+	}
+
+	data := h.mappers.MapMediaDownloadChangedToEventResponse(
+		downloadChanged,
+		h.getVisibilityResponse,
+		func(downloadID uuid.UUID) bool {
+			return h.hasShareLink(ctx, downloadID)
+		},
+	)
+
+	if !data.HasChanges() {
+		return
 	}
 
 	jsonData, err := json.Marshal(data)

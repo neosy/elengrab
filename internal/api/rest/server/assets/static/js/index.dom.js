@@ -1,11 +1,34 @@
+export const DOM_CSS_VAR_NAMES = {
+    watchProgress: "--watch-progress",
+};
+
+export const DOM_CLASS_PREFIXES = {
+    visibility: "visibility--",
+};
+
 export const DOM_CLASSES = {
     rowRefreshing: "row--refreshing",
     rowRemoving: "row--removing",
 
     mediaResultRow: "media-result__row",
+
     mediaResultRowThumbnail: "media-result__row-thumbnail",
     mediaResultRowThumbnailImageWrapper: "media-result__thumbnail-image__wrapper",
+    mediaResultRowThumbnailWatched: "media-result__thumbnail-watched",
+    mediaResultRowThumbnailWatchProgress: "media-result__thumbnail-watch-progress",
+    mediaResultRowThumbnailWatchProgressValue: "media-result__thumbnail-watch-progress-value",
+
+    mediaResultTitleLink: "media-result__title-link",
+    mediaResultViewCount: "media-result__content-view-count",
+    mediaResultVisibility: "media-result__content-visibility",
+    mediaResultShareLink: "media-result__content-share-link",
 };
+
+export const DOM_SELECTORS = Object.fromEntries(
+    Object.entries(DOM_CLASSES)
+        .filter(([, value]) => typeof value === "string")
+        .map(([key, value]) => [key, `.${value}`])
+);
 
 export const DOM_ELEMENTS = {
     grabForm: null,

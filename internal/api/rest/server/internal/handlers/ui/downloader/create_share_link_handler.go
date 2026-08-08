@@ -3,6 +3,7 @@ package downloader
 import (
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
@@ -30,7 +31,11 @@ func (h *DownloaderHandlers) CreateShareLinkHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	h.downloader.NotifyDownloadUpdated(ctx, downloadID)
+	downloadChanged := ucdto.MediaDownloadChanged{
+		DownloadID: downloadID,
+	}
+	downloadChanged.MarkShareLinkChanges()
+	h.downloader.NotifyDownloadChanged(ctx, downloadChanged)
 
 	resp := dto.GetShareLinkResponse{
 		DownloadID: idcodec.EncodeUUIDBase64URL(downloadID),

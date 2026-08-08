@@ -9,7 +9,7 @@ import (
 )
 
 func NewCreateWatchMediaEventJob(
-	runner pworkers.DownloadTaskRunner,
+	runner pworkers.WatchEventRunner,
 	request *dto.CreateMediaWatchEventRequest,
 ) workerpool.Job {
 	var (

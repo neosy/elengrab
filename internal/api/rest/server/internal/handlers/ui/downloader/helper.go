@@ -1,13 +1,17 @@
 package downloader
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
+	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -145,4 +149,27 @@ func mediaSourceFromURL(mediaURL string) string {
 func (h *DownloaderHandlers) buildMediaWatchURL(downloadID uuid.UUID) string {
 	return strings.TrimSuffix(h.baseURL, "/") +
 		httppaths.BuildPathMediaItemWatch(downloadID)
+}
+
+func (h *DownloaderHandlers) getVisibilityResponse(info *ucdto.MediaDownloadInfo) *dto.VisibilityResponse {
+	response := &dto.VisibilityResponse{
+		Visible: info.ShouldShowVisibility(),
+		Value:   info.Visibility.String(),
+		Label:   info.Visibility.Label(),
+	}
+
+	switch info.Visibility {
+	case dtypes.MediaVisibilityPrivate:
+		response.Icon = icons.MediaPrivateIcon.FileRaw()
+
+	case dtypes.MediaVisibilityPublic:
+		response.Icon = icons.MediaPublicIcon.FileRaw()
+	}
+
+	return response
+}
+
+func (h *DownloaderHandlers) hasShareLink(ctx context.Context, downloadID uuid.UUID) bool {
+	link, _ := h.linkWeb.ResolveURL(ctx, h.buildMediaWatchURL(downloadID))
+	return link != nil
 }

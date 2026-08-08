@@ -78,7 +78,12 @@ func (uc *Downloader) PatchMediaDownload(
 		return err
 	}
 
-	uc.broadcastDownloadUpdate(ctx, download.DownloadID)
+	downloadChanged := &dto.MediaDownloadChanged{
+		DownloadID: download.DownloadID,
+	}
+	downloadChanged.MarkManualChanges()
+
+	uc.broadcastDownloadChanged(ctx, *downloadChanged)
 
 	return nil
 }
