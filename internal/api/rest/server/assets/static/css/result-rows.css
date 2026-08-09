@@ -608,7 +608,7 @@
     right: 0px;
     top: 0px;
 
-    padding: 2px 6px;
+    padding: 4px 6px;
 
     background: var(--thumbnail-watched-bg);
     color: var(--thumbnail-watched-color);
@@ -616,8 +616,9 @@
     font-size: 18px;
     line-height: 1;
 
-    pointer-events: none;
+    border-bottom-left-radius: 6px;
 
+    pointer-events: none;
     user-select: none;
 }
 
