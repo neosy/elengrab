@@ -11,6 +11,7 @@ import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
 )
 
@@ -29,16 +30,20 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 	id := idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID)
 
 	data := pages.RowFragmentValues{
+		DownloadID:     id,
 		MediaURL:       downloadInfo.URL,
 		DownloadStatus: downloadInfo.Status.String(),
-		DeleteURL:      httppaths.BuildMediaItemPath(downloadInfo.DownloadID),
-		ImageURL:       downloadImageURL,
-		DownloadID:     id,
-		RowID:          "row-" + id,
-		MediaTitle:     downloadInfo.URL,
-		FilePath:       httppaths.BuildPathMediaItemRow(downloadInfo.DownloadID),
-		FileSize:       "-",
-		Format:         "-",
+		LazyLoadImages: false,
+
+		RowID:      "row-" + id,
+		MediaTitle: downloadInfo.URL,
+
+		DeleteURL: httppaths.BuildMediaItemPath(downloadInfo.DownloadID),
+		ImageURL:  downloadImageURL,
+		FilePath:  httppaths.BuildPathMediaItemRow(downloadInfo.DownloadID),
+		FileSize:  "-",
+		Format:    "-",
+		Duration:  humanize.DurationClock(0),
 
 		DownloaderResultItemStatusIcon: icons.DownloaderIconByStatus(downloadInfo.Status).FileRaw(),
 		DownloaderResultItemDeleteIcon: icons.DownloadDeleteIcon.FileRaw(),

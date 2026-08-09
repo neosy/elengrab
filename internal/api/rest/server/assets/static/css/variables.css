@@ -84,6 +84,10 @@
     --thumbnail-watched-color: #fff;
     --thumbnail-watch-progress-bg: rgba(128, 128, 128, 0.5);
     --thumbnail-watch-progress-value: #ff0033;
+    --thumbnail-placeholder-bg: #e8e8e8;
+
+    --history-loading-spinner-bg: #e5e7eb;
+    --history-loading-spinner-color: #6b7280;    
 
     --video-preview-control-bg: rgba(0, 0, 0, 0.6);
     --video-preview-control-color: #fff;
@@ -193,6 +197,11 @@
     --row-icon-gray: #6b7280;
     --row-icon-hover-blue: #3b82f6;
     --row-icon-hover-red: #c44b4b;
+
+    --thumbnail-placeholder-bg: #2a2a2a;
+
+    --history-loading-spinner-bg: #374151;
+    --history-loading-spinner-color: #9ca3af;    
 
     --bg-auth-button: #007bff;
     --bg-auth-button-hover: #0056b3;

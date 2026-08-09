@@ -12,6 +12,10 @@
 - Added mobile video preview autoplay on scroll. [L094]
 - Added parallel loading of list rows to improve performance. [L096]
 - Added partial field updates for download rows via SSE. [L098]
+- Added lazy loading for thumbnails and avatars. [L100]
+
+### ⚡ Performance
+- Improved image loading for dynamically added content. [L100]
 
 ### 🧩 Refactor
 - Moved download preparation logic into a dedicated `DownloadPreparer` component. [L095]

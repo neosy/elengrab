@@ -28,6 +28,7 @@ type renderMediaItemRowResponse struct {
 type renderMediaItemRowParams struct {
 	downloadInfo    *dto.MediaDownloadInfo
 	isDownloadEvent bool
+	lazyLoadImages  bool
 }
 
 func (h *DownloaderHandlers) renderMediaItemRow(
@@ -104,10 +105,48 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		streamURL = httppaths.BuildPathMediaItemStream(params.downloadInfo.DownloadID)
 	}
 
-	var audioIcon template.HTML
-	if params.downloadInfo.MediaInfo != nil {
-		if params.downloadInfo.MediaInfo.FormatType == dtypes.FormatTypeAudioOnly {
+	var (
+		audioIcon     template.HTML
+		mediaDuration = humanize.DurationClock(0)
+
+		fileSize   = "-"
+		format     = "-"
+		dataFormat = "-"
+
+		thumbnailWidth       template.CSS
+		thumbnailHeight      template.CSS
+		thumbnailAspectRatio template.CSS
+	)
+	if mediaInfo := params.downloadInfo.MediaInfo; mediaInfo != nil {
+		if mediaInfo.FormatType == dtypes.FormatTypeAudioOnly {
 			audioIcon = icons.MediaAudioIcon.FileRaw()
+		}
+
+		if params.downloadInfo.FileSize != nil && *params.downloadInfo.FileSize > 0 {
+			fileSize = humanize.Bytes(*params.downloadInfo.FileSize)
+		}
+
+		if params.downloadInfo.FileExt != "" {
+			format = params.downloadInfo.FileExt
+			dataFormat = params.downloadInfo.FileExt
+		}
+
+		mediaDuration = mediaInfo.FormatDuration()
+
+		var width, height int
+		if mediaInfo.VideoInfo != nil {
+			width = mediaInfo.VideoInfo.Width
+			height = mediaInfo.VideoInfo.Height
+		}
+
+		if width == 0 || height == 0 || width > height {
+			thumbnailWidth = "720px"
+			thumbnailHeight = "auto"
+			thumbnailAspectRatio = "16/9"
+		} else {
+			thumbnailHeight = "720px"
+			thumbnailWidth = "auto"
+			thumbnailAspectRatio = "9/16"
 		}
 	}
 
@@ -125,9 +164,15 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		YoutubeChannelID: youtubeChannelID,
 		AvatarTitle:      params.downloadInfo.AvatarTitle,
 
+		LazyLoadImages: params.lazyLoadImages,
+
 		ThumbnailID:         thumbnailID,
 		ThumbnailIsPortrait: params.downloadInfo.ThumbnalIsPortrait,
 		ThumbnailURL:        h.thumbnailURLWithFallback(params.downloadInfo.MediaInfo),
+
+		ThumbnailWidth:       thumbnailWidth,
+		ThumbnailHeight:      thumbnailHeight,
+		ThumbnailAspectRatio: thumbnailAspectRatio,
 
 		MediaTitle: params.downloadInfo.MediaTitle,
 		MediaURL:   params.downloadInfo.MediaURL,
@@ -146,9 +191,10 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		DownloadRowPath:    httppaths.BuildPathMediaItemRow(params.downloadInfo.DownloadID),
 		DownloadRepeatPath: httppaths.BuildPathMediaItemDownloadRepeat(params.downloadInfo.DownloadID),
 
-		FileSize:   "-",
-		Format:     "-",
-		DataFormat: "-",
+		FileSize:   fileSize,
+		Format:     format,
+		DataFormat: dataFormat,
+		Duration:   mediaDuration,
 
 		FormatTitle:   params.downloadInfo.MediaInfoText,
 		FormatTooltip: params.downloadInfo.MediaInfoTooltip,
@@ -193,17 +239,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		)
 	}
 
-	if params.downloadInfo.FileSize != nil && *params.downloadInfo.FileSize > 0 {
-		data.FileSize = humanize.Bytes(*params.downloadInfo.FileSize)
-	}
-
-	if params.downloadInfo.FileExt != "" {
-		data.Format = params.downloadInfo.FileExt
-		data.DataFormat = params.downloadInfo.FileExt
-	}
-
 	if params.downloadInfo.MediaInfo != nil {
-		data.Duration = params.downloadInfo.MediaInfo.FormatDuration()
 		data.IsPortrait = params.downloadInfo.MediaInfo.IsPortrait()
 		data.IsAudioOnly = params.downloadInfo.MediaInfo.IsAudioOnly()
 		data.IsShorts = params.downloadInfo.MediaInfo.IsShorts()
