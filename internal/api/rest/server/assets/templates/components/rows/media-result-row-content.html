@@ -2,8 +2,8 @@
                     <div class="media-result__row-content">
                         <div class="media-result__content-main">
                             <span class="media-result__avatar" title="{{ .Values.AvatarTitle }}">
-                                <img class="media-result__avatar-image" src="{{ .Values.ImageURL }}" alt="Channel avatar">
-                                <img class="media-result__avatar-image--avatar" src="{{ .Values.ImageAvatarURL }}" alt="Channel avatar">
+                                <img class="media-result__avatar-image" {{ if .Values.LazyLoadImages }}data-src{{ else }}src{{ end }}="{{ .Values.ImageURL }}" alt="Channel avatar">
+                                <img class="media-result__avatar-image--avatar" {{ if .Values.LazyLoadImages }}data-src{{ else }}src{{ end }}="{{ .Values.ImageAvatarURL }}" alt="Channel avatar">
                                 {{- if eq .Values.DownloadStatus "done" }}
                                 <button class="media-result__avatar-play-button media-result__play-button" data-watch-url="{{ .Values.WatchURL }}">
                                     <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

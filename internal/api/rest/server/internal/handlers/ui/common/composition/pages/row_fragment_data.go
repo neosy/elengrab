@@ -25,6 +25,8 @@ type (
 		IsReady         bool
 		HasShareLink    bool
 
+		LazyLoadImages bool
+
 		DownloadRowPath    string
 		DownloadRepeatPath string
 
@@ -34,6 +36,10 @@ type (
 		ThumbnailID         string
 		ThumbnailIsPortrait bool
 		ThumbnailURL        string
+
+		ThumbnailWidth       template.CSS
+		ThumbnailHeight      template.CSS
+		ThumbnailAspectRatio template.CSS
 
 		ImageURL       string
 		ImageAvatarURL string

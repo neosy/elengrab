@@ -81,3 +81,65 @@ function selectGrabInput(grabInput) {
 
     grabInput.focus();
 }
+
+export function initLazyImages({
+    containerSelector,
+    imageSelector = "img[data-src]",
+    placeholderSelector,
+    rootMargin = "300px 0px",
+}) {
+    const observer = new IntersectionObserver(
+        (entries) => {
+            for (const entry of entries) {
+                if (!entry.isIntersecting) {
+                    continue;
+                }
+
+                loadImages(entry.target);
+                observer.unobserve(entry.target);
+            }
+        },
+        {
+            rootMargin,
+        },
+    );
+
+    function observe(root) {
+        if (root.matches?.(containerSelector)) {
+            observer.observe(root);
+        }
+
+        for (const container of root.querySelectorAll(containerSelector)) {
+            observer.observe(container);
+        }
+    }
+
+    function loadImages(container) {
+        for (const image of container.querySelectorAll(imageSelector)) {
+            const placeholder = placeholderSelector
+                ? image.parentElement.querySelector(placeholderSelector)
+                : null;
+
+            const removePlaceholder = () => {
+                requestAnimationFrame(() => {
+                    placeholder?.remove();
+                    image.removeAttribute("data-src");
+                });
+            };
+
+            image.addEventListener("load", removePlaceholder, { once: true });
+
+            image.src = image.dataset.src;
+
+            if (image.complete && image.naturalWidth > 0) {
+                removePlaceholder();
+            }
+        }
+    }
+
+    observe(document);
+
+    document.addEventListener("htmx:afterSwap", (event) => {
+        observe(event.target);
+    });
+}

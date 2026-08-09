@@ -13,10 +13,14 @@ export const DOM_CLASSES = {
     mediaResultRow: "media-result__row",
 
     mediaResultRowThumbnail: "media-result__row-thumbnail",
+    mediaResultThumbnailPlayButton: "media-result__thumbnail-play-button",
     mediaResultRowThumbnailImageWrapper: "media-result__thumbnail-image__wrapper",
+    mediaResultThumbnailPlaceholder: "media-result__thumbnail-placeholder",
     mediaResultRowThumbnailWatched: "media-result__thumbnail-watched",
     mediaResultRowThumbnailWatchProgress: "media-result__thumbnail-watch-progress",
     mediaResultRowThumbnailWatchProgressValue: "media-result__thumbnail-watch-progress-value",
+
+    mediaResultAvatar: "media-result__avatar",
 
     mediaResultTitleLink: "media-result__title-link",
     mediaResultViewCount: "media-result__content-view-count",

@@ -7,10 +7,16 @@
                     <div class="media-result__row-thumbnail full-bleed{{ $cssClass }}">
                         <button class="media-result__thumbnail-play-button media-result__play-button" data-watch-url="{{ .Values.WatchURL }}">
                             <div class="media-result__thumbnail-bg">
-                                <img src="{{ .Values.ThumbnailURL }}" alt="" aria-hidden="true">
+                                {{- if .Values.LazyLoadImages }}
+                                <div class="media-result__thumbnail-placeholder"></div>
+                                {{- end }}
+                                <img {{ if .Values.LazyLoadImages }}data-src{{ else }}src{{ end }}="{{ .Values.ThumbnailURL }}" alt="" aria-hidden="true">
                             </div>    
                             <div class="media-result__thumbnail-image__wrapper">
-                                <img class="media-result__thumbnail-image" src="{{ .Values.ThumbnailURL }}" alt="Video thumbnail">
+                                {{- if .Values.LazyLoadImages }}
+                                <div class="media-result__thumbnail-placeholder"></div>
+                                {{- end }}
+                                <img class="media-result__thumbnail-image" {{ if .Values.LazyLoadImages }}data-src{{ else }}src{{ end }}="{{ .Values.ThumbnailURL }}" style="--thumbnail-image-width: {{.Values.ThumbnailWidth}}; --thumbnail-image-height: {{.Values.ThumbnailHeight}}; --thumbnail-image-aspect-ratio: {{.Values.ThumbnailAspectRatio}};" alt="Video thumbnail">
                                 <div class="media-result__thumbnail-duration">
                                     {{- if .Values.AudioIcon }}
                                     <span class="media-result__thumbnail-duration-icon">
