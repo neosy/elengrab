@@ -89,7 +89,8 @@ func (h *DownloaderHandlers) getDownloadsHistory(
 		row := h.renderMediaItemRow(
 			ctx,
 			renderMediaItemRowParams{
-				downloadInfo: downloadInfo,
+				downloadInfo:   downloadInfo,
+				lazyLoadImages: true,
 			},
 		)
 		if row.err != nil {

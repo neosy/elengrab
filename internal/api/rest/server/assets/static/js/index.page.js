@@ -1,4 +1,4 @@
-import { DOM_ELEMENTS, DOM_CLASSES, initDomElements } from "./index.dom.js";
+import { DOM_ELEMENTS, DOM_CLASSES, initDomElements, DOM_SELECTORS } from "./index.dom.js";
 import * as utils from './utils.js';
 import * as cookie from './cookie.js';
 import * as browser from './browser.js';
@@ -354,6 +354,17 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.result,
         DOM_CLASSES.mediaResultRow, DOM_CLASSES.mediaResultRowThumbnailImageWrapper
     );
+
+    // Lazy-load video thumbnails.
+    view.initLazyImages({
+        containerSelector: DOM_SELECTORS.mediaResultThumbnailPlayButton,
+        placeholderSelector: DOM_SELECTORS.mediaResultThumbnailPlaceholder,
+    });
+
+    // Lazy-load channel avatars.
+    view.initLazyImages({
+        containerSelector: DOM_SELECTORS.mediaResultAvatar,
+    });
 
     // Create SSE connection
     var sse = null;
