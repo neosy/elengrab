@@ -572,7 +572,7 @@ img[data-src] {
 .media-result__thumbnail-placeholder {
     position: absolute;
     inset: 0;
-    z-index: 2;
+    z-index: 3;
 
     background: var(--thumbnail-placeholder-bg);
 }
@@ -601,6 +601,8 @@ img[data-src] {
 
 .media-result__thumbnail-duration {
     display: flex;
+    z-index: 2;
+
     align-items: center;
     gap: 4px;
 
@@ -625,6 +627,8 @@ img[data-src] {
 }
 
 .media-result__thumbnail-watched {
+    z-index: 2;
+
     position: absolute;
     right: 0px;
     top: 0px;
@@ -648,6 +652,8 @@ img[data-src] {
 }
 
 .media-result__thumbnail-watch-progress {
+    z-index: 2;
+
     position: absolute;
     left: 0;
     right: 0;
