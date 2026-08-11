@@ -324,6 +324,9 @@ export function initVideoPreviewScroll(container, elementClassName, thumbClassNa
             return;
         }
 
+        // Stop the current preview immediately when scrolling starts.
+        hideVideoPreview();
+
         clearTimeout(previewState.scrollTimer);
 
         previewState.scrollTimer = setTimeout(() => {
