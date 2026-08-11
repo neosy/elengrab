@@ -324,8 +324,15 @@ export function initVideoPreviewScroll(container, elementClassName, thumbClassNa
             return;
         }
 
-        // Stop the current preview immediately when scrolling starts.
-        hideVideoPreview();
+        if (previewState.currentItemId) {
+            const element = document.getElementById(
+                DOM_IDS.row(previewState.currentItemId)
+            );
+
+            if (!element || !isElementInViewport(element)) {
+                hideVideoPreview();
+            }
+        }
 
         clearTimeout(previewState.scrollTimer);
 
@@ -339,6 +346,12 @@ export function initVideoPreviewScroll(container, elementClassName, thumbClassNa
 
     // We launch it immediately after opening the page.
     onScroll();
+}
+
+function isElementInViewport(element) {
+    const rect = element.getBoundingClientRect();
+
+    return rect.bottom > 0 && rect.top < window.innerHeight;
 }
 
 async function updateCenteredPreview(container, elementClassName, thumbClassName) {
