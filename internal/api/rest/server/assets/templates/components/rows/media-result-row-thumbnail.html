@@ -16,7 +16,7 @@
                                 {{- if .Values.LazyLoadImages }}
                                 <div class="media-result__thumbnail-placeholder"></div>
                                 {{- end }}
-                                <img class="media-result__thumbnail-image" {{ if .Values.LazyLoadImages }}data-src{{ else }}src{{ end }}="{{ .Values.ThumbnailURL }}" style="--thumbnail-image-width: {{.Values.ThumbnailWidth}}; --thumbnail-image-height: {{.Values.ThumbnailHeight}}; --thumbnail-image-aspect-ratio: {{.Values.ThumbnailAspectRatio}};" alt="Video thumbnail">
+                                <img class="media-result__thumbnail-image" {{ if .Values.LazyLoadImages }}data-src{{ else }}src{{ end }}="{{ .Values.ThumbnailURL }}" alt="Video thumbnail">
                                 <div class="media-result__thumbnail-duration">
                                     {{- if .Values.AudioIcon }}
                                     <span class="media-result__thumbnail-duration-icon">

@@ -113,9 +113,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		format     = "-"
 		dataFormat = "-"
 
-		thumbnailWidth       template.CSS
-		thumbnailHeight      template.CSS
-		thumbnailAspectRatio template.CSS
+		isPortrait bool
 	)
 	if mediaInfo := params.downloadInfo.MediaInfo; mediaInfo != nil {
 		if mediaInfo.FormatType == dtypes.FormatTypeAudioOnly {
@@ -133,21 +131,13 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 
 		mediaDuration = mediaInfo.FormatDuration()
 
-		var width, height int
 		if mediaInfo.VideoInfo != nil {
-			width = mediaInfo.VideoInfo.Width
-			height = mediaInfo.VideoInfo.Height
-		}
-
-		if width == 0 || height == 0 || width > height {
-			thumbnailWidth = "720px"
-			thumbnailHeight = "auto"
-			thumbnailAspectRatio = "16/9"
+			isPortrait = mediaInfo.VideoInfo.Height > mediaInfo.VideoInfo.Width
 		} else {
-			thumbnailHeight = "720px"
-			thumbnailWidth = "auto"
-			thumbnailAspectRatio = "9/16"
+			isPortrait = params.downloadInfo.ThumbnalIsPortrait
 		}
+	} else {
+		isPortrait = params.downloadInfo.ThumbnalIsPortrait
 	}
 
 	visibility := h.getVisibilityResponse(params.downloadInfo)
@@ -167,12 +157,8 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		LazyLoadImages: params.lazyLoadImages,
 
 		ThumbnailID:         thumbnailID,
-		ThumbnailIsPortrait: params.downloadInfo.ThumbnalIsPortrait,
+		ThumbnailIsPortrait: isPortrait,
 		ThumbnailURL:        h.thumbnailURLWithFallback(params.downloadInfo.MediaInfo),
-
-		ThumbnailWidth:       thumbnailWidth,
-		ThumbnailHeight:      thumbnailHeight,
-		ThumbnailAspectRatio: thumbnailAspectRatio,
 
 		MediaTitle: params.downloadInfo.MediaTitle,
 		MediaURL:   params.downloadInfo.MediaURL,
