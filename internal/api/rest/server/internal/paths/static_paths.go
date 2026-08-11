@@ -40,3 +40,7 @@ func BuildThumbnailPath(thumbID uuid.UUID) string {
 func BuildImagePath(fileName string) string {
 	return GroupStatic + strings.Replace(PathImageFiles, "{filepath:*}", fileName, 1)
 }
+
+func BuildIconPath(fileName string) string {
+	return GroupStatic + strings.Replace(PathIconFiles, "{filepath:*}", fileName, 1)
+}

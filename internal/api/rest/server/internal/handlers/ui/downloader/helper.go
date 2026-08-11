@@ -173,3 +173,26 @@ func (h *DownloaderHandlers) hasShareLink(ctx context.Context, downloadID uuid.U
 	link, _ := h.linkWeb.ResolveURL(ctx, h.buildMediaWatchURL(downloadID))
 	return link != nil
 }
+
+func (h *DownloaderHandlers) buildMediaAvatarImageURL(downloadInfo *ucdto.MediaDownloadInfo) string {
+	url := httppaths.BuildPathMediaItemImage(
+		downloadInfo.DownloadID,
+		downloadInfo.ImageMetaHash(),
+		[]dtypes.ImageSource{
+			dtypes.ImageSourceAvatar,
+			dtypes.ImageSourceSite,
+		},
+	)
+	return url
+}
+
+func (h *DownloaderHandlers) buildMediaSiteImageURL(downloadInfo *ucdto.MediaDownloadInfo) string {
+	url := httppaths.BuildPathMediaItemImage(
+		downloadInfo.DownloadID,
+		downloadInfo.ImageMetaHash(),
+		[]dtypes.ImageSource{
+			dtypes.ImageSourceSite,
+		},
+	)
+	return url
+}

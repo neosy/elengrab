@@ -1,6 +1,8 @@
 package downloader
 
 import (
+	"html/template"
+	"slices"
 	"strings"
 
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
@@ -63,10 +65,26 @@ func (h *DownloaderHandlers) MediaItemImageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	defaultAvatarSVG := icons.MediaDefaultIcon.FileRaw()
+	hasAvatarOrSite := func() bool {
+		return slices.ContainsFunc(imageSources, func(v dtypes.ImageSource) bool {
+			return v == dtypes.ImageSourceAvatar || v == dtypes.ImageSourceSite
+		})
+	}
+
+	var defaultImageSVG template.HTML
+	if hasAvatarOrSite() {
+		downloadInfo, _ := h.downloader.GetDownloadInfo(ctx, authCtx, downloadID)
+		if downloadInfo != nil && !downloadInfo.Status.IsReady() {
+			defaultImageSVG = icons.DownloadAvatarPlaceholderIcon.FileRaw()
+		}
+	}
+
+	if defaultImageSVG == "" {
+		defaultImageSVG = icons.MediaDefaultIcon.FileRaw()
+	}
 
 	ctx.SetContentType("image/svg+xml")
 	ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
-	ctx.SetBody([]byte(defaultAvatarSVG))
+	ctx.SetBody([]byte(defaultImageSVG))
 	ctx.SetStatusCode(fasthttp.StatusOK)
 }
