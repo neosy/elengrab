@@ -137,10 +137,11 @@ export function handleRowPatch(event) {
             const progressEl = el.querySelector(DOM_SELECTORS.mediaResultRowThumbnailWatchProgress);
             const progressValueEl = el.querySelector(DOM_SELECTORS.mediaResultRowThumbnailWatchProgressValue);
             if (progressEl && progressValueEl) {
-                progressEl.classList.toggle("hidden", data.watchPercent === 0);
+                const watchPercent = Number(data.watchPercent);
+                progressEl.classList.toggle("hidden", watchPercent === 0);
                 progressValueEl.style.setProperty(
                     DOM_CSS_VAR_NAMES.watchProgress,
-                    `${data.watchPercent}%`,
+                    `${watchPercent}%`,
                 );
             }
         }
