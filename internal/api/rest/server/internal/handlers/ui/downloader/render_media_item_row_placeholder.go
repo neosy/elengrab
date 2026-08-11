@@ -16,7 +16,7 @@ import (
 )
 
 func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
-	downloadInfo *ucdto.ScheduleDownloadResponse,
+	schelduleDownload *ucdto.ScheduleDownloadResponse,
 	pageHasDivItems bool,
 ) *bytes.Buffer {
 	imageSources := []dtypes.ImageSource{
@@ -25,27 +25,36 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 		dtypes.ImageSourceSite,
 	}
 
-	downloadImageURL := httppaths.BuildPathMediaItemImage(downloadInfo.DownloadID, downloadInfo.ImageMetaHash(time.Now().String()), imageSources)
+	downloadImageURL := httppaths.BuildPathMediaItemImage(schelduleDownload.DownloadID, schelduleDownload.ImageMetaHash(time.Now().String()), imageSources)
 
-	id := idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID)
+	id := idcodec.EncodeUUIDBase64URL(schelduleDownload.DownloadID)
 
 	data := pages.RowFragmentValues{
 		DownloadID:     id,
-		MediaURL:       downloadInfo.URL,
-		DownloadStatus: downloadInfo.Status.String(),
+		MediaURL:       schelduleDownload.URL,
+		DownloadStatus: schelduleDownload.Status.String(),
 		LazyLoadImages: false,
 
 		RowID:      "row-" + id,
-		MediaTitle: downloadInfo.URL,
+		MediaTitle: schelduleDownload.URL,
 
-		DeleteURL: httppaths.BuildMediaItemPath(downloadInfo.DownloadID),
-		ImageURL:  downloadImageURL,
-		FilePath:  httppaths.BuildPathMediaItemRow(downloadInfo.DownloadID),
+		ThumbnailURL: h.thumbnailURLWithFallback(nil),
+
+		ImageURL: downloadImageURL,
+
+		ImageAvatarURL: httppaths.BuildPathMediaItemImage(
+			schelduleDownload.DownloadID,
+			schelduleDownload.ImageMetaHash(time.Now().String()),
+			[]dtypes.ImageSource{dtypes.ImageSourceAvatar},
+		),
+
+		DeleteURL: httppaths.BuildMediaItemPath(schelduleDownload.DownloadID),
+		FilePath:  httppaths.BuildPathMediaItemRow(schelduleDownload.DownloadID),
 		FileSize:  "-",
 		Format:    "-",
 		Duration:  humanize.DurationClock(0),
 
-		DownloaderResultItemStatusIcon: icons.DownloaderIconByStatus(downloadInfo.Status).FileRaw(),
+		DownloaderResultItemStatusIcon: icons.DownloaderIconByStatus(schelduleDownload.Status).FileRaw(),
 		DownloaderResultItemDeleteIcon: icons.DownloadDeleteIcon.FileRaw(),
 		IsItemHTMXOptionRepeat:         true,
 		PageHasDivItems:                pageHasDivItems,

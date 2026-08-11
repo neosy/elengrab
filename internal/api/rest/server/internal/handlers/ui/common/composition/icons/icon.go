@@ -1,6 +1,10 @@
 package icons
 
-import "html/template"
+import (
+	"html/template"
+
+	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
+)
 
 var (
 	iconsDir           string
@@ -35,6 +39,10 @@ func (icon Icon) FileName() string {
 
 func (icon Icon) FileRaw() template.HTML {
 	return FileRaw(icon.fileName, iconsDir)
+}
+
+func (icon *Icon) URLPath() string {
+	return httppaths.BuildIconPath(icon.fileName)
 }
 
 func FileNamesByKey() map[string]string {

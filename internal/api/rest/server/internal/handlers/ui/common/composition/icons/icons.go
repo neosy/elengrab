@@ -35,6 +35,8 @@ var (
 	DownloadSourceLinkIcon            = newIcon("DownloadSourceLinkIconName", "external-link-icon.svg")
 	DownloadMetaUserNameSeparatorIcon = newIcon("DownloadMetaUserNameSeparatorIconName", "play-icon.svg")
 
+	DownloadAvatarPlaceholderIcon = newIcon("DownloadAvatarPlaceholderIconName", "media-default-icon.svg")
+
 	CopyURLIcon = newIcon("CopyURLIconName", "copy-icon.svg")
 
 	AccountMenuLogoutIcon = newIcon("AccountMenuLogoutIconName", "menu-logout-icon.svg")
