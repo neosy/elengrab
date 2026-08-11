@@ -1,6 +1,6 @@
 # Releases
 
-## v0.24.0 — 2026-08-10
+## v0.24.0 — 2026-08-11
 
 ### ✨ Features
 - Added watch progress bar to thumbnails. [L086]

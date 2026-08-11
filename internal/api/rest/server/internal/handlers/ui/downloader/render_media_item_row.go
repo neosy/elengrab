@@ -75,23 +75,6 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		},
 	)
 
-	downloadItemImageAvatarURL := httppaths.BuildPathMediaItemImage(
-		params.downloadInfo.DownloadID,
-		params.downloadInfo.ImageMetaHash(),
-		[]dtypes.ImageSource{
-			dtypes.ImageSourceAvatar,
-			dtypes.ImageSourceSite,
-		},
-	)
-
-	downloadItemImageSiteURL := httppaths.BuildPathMediaItemImage(
-		params.downloadInfo.DownloadID,
-		params.downloadInfo.ImageMetaHash(),
-		[]dtypes.ImageSource{
-			dtypes.ImageSourceSite,
-		},
-	)
-
 	var isGrabResultItemHTMXOptionRepeat = false
 	switch params.downloadInfo.Status {
 	case dtypes.MediaDownloadStatusNew, dtypes.MediaDownloadStatusPending, dtypes.MediaDownloadStatusWorking:
@@ -171,8 +154,8 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		Watched:               params.downloadInfo.UserWatched,
 
 		ImageURL:       downloadItemImageURL,
-		ImageAvatarURL: downloadItemImageAvatarURL,
-		ImageSiteURL:   downloadItemImageSiteURL,
+		ImageAvatarURL: h.buildMediaAvatarImageURL(params.downloadInfo),
+		ImageSiteURL:   h.buildMediaSiteImageURL(params.downloadInfo),
 
 		DownloadRowPath:    httppaths.BuildPathMediaItemRow(params.downloadInfo.DownloadID),
 		DownloadRepeatPath: httppaths.BuildPathMediaItemDownloadRepeat(params.downloadInfo.DownloadID),

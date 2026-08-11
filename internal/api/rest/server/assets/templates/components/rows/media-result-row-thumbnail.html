@@ -1,9 +1,8 @@
 {{- define "media-result-row-thumbnail" }}
-                    {{- if .Values.ThumbnailURL }}
-                        {{- $cssClass := "" -}}
-                        {{- if .Values.ThumbnailIsPortrait -}}
-                            {{- $cssClass = " thumbnail--portrait" -}}
-                        {{- end -}}
+                    {{- $cssClass := "" -}}
+                    {{- if .Values.ThumbnailIsPortrait -}}
+                        {{- $cssClass = " thumbnail--portrait" -}}
+                    {{- end -}}
                     <div class="media-result__row-thumbnail full-bleed{{ $cssClass }}">
                         <button class="media-result__thumbnail-play-button media-result__play-button" data-watch-url="{{ .Values.WatchURL }}">
                             <div class="media-result__thumbnail-bg">
@@ -41,5 +40,4 @@
                             </div>
                         </button>
                     </div>
-                    {{- end }}
 {{- end }}
