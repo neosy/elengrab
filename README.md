@@ -75,29 +75,38 @@ The project is fully written in **Go**, with a frontend built using plain **HTML
 
 ## Features
 
-- Support for downloading video and audio from multiple websites, powered by yt-dlp extractors.
-- Support for YouTube content in various formats.
-- Configurable format and quality settings.
-- Cookie-based authentication support for YouTube (optional, requires Deno).
-- Task queue for media processing.
-- Concurrent processing of multiple tasks (3 by default).
-- Instant addition/removal from queue.
-- User authentication and access control.
-- Built-in media search.
-- In-browser video and audio playback.
-- Option to customize how download history is displayed: globally or per user.
-- Animated status indicators for download and processing tasks.
-- Channel and website icons displayed in the interface.
-- Dark theme.
-- Cross-platform support: Windows, macOS/Linux.
+* Support for downloading video and audio from **1,000+ websites**, powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp) extractors.
+* Configurable format and quality settings.
+* Cookie-based authentication support for YouTube and other supported websites.
+* Task queue for media processing.
+* Concurrent processing of multiple tasks.
+* Instant addition and removal of tasks from the queue.
+* Built-in media search.
+* **In-browser video and audio playback.**
+* **Video thumbnails and media type indicators.**
+* **Video preview on desktop and mobile devices.**
+* **Watch progress tracking with resume playback and view statistics.**
+* **Grid View and list view for browsing media.**
+* **Short links for sharing media.**
+* **Mobile sharing support for importing videos directly from apps such as YouTube and Instagram.**
+* **PWA support for installing Elengrab as a standalone application.**
+* **Multiple access modes for anonymous, read-only, session-isolated, and authenticated access.**
+* **Configurable media visibility and public access.**
+* Animated status indicators for download and processing tasks.
+* Real-time task and media updates via SSE.
+* Channel and website icons displayed in the interface.
+* Responsive interface optimized for desktop and mobile devices.
+* Dark theme.
+* Cross-platform support: Windows, macOS, and Linux.
+* Docker support for easy deployment.
 
 ---
 
-## YouTube Content Context
+## Media Content
 
-Elengrab is designed to work with media hosted on YouTube.
-It operates as a self-hosted interface for organizing and processing personal video and audio content.
-Users are responsible for ensuring compliance with applicable laws and platform terms.
+Elengrab is designed to work with video and audio content from a wide range of websites and platforms through [yt-dlp](https://github.com/yt-dlp/yt-dlp).
+
+Users are responsible for ensuring that their use of Elengrab and downloaded content complies with applicable laws, copyright requirements, and the terms of service of the respective platforms.
 
 ---
 
@@ -106,7 +115,7 @@ Users are responsible for ensuring compliance with applicable laws and platform 
 ### Minimum
 
 * **CPU:** 1–2 cores
-* **Memory:** ~1 GB RAM
+* **Memory:** ~512 MB RAM
 * **Concurrent downloads:** 1 worker
 * **Dependencies:** `yt-dlp` and `ffmpeg` must be installed
 
@@ -118,7 +127,7 @@ ELENGRAB_DOWNLOAD_WORKERS=1
 
 ### Recommended
 
-* **CPU:** 4-6 cores
+* **CPU:** 4 cores
 * **Memory:** 4 GB RAM
 * **Concurrent downloads:** 3 workers (default)
 * **Dependencies:** `yt-dlp` and `ffmpeg` must be installed
@@ -129,7 +138,7 @@ By default, the Docker container is configured to use this setup.
 
 The main resource consumers are `yt-dlp` and `ffmpeg`, especially during video downloading, merging, and transcoding.
 
-The number of concurrent workers can be adjusted using the following environment variable:
+Resource usage increases with the number of concurrent workers. The number of concurrent workers can be adjusted using the following environment variable:
 
 ```
 ELENGRAB_DOWNLOAD_WORKERS=3
@@ -183,6 +192,58 @@ docker run -d \
 ---
 
 ## Usage
+
+### Run as a standalone application
+
+Elengrab is distributed as a single binary for Windows, Linux, and macOS. Download the latest release for your operating system and run the application directly without Docker.
+
+Elengrab requires [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://github.com/FFmpeg/FFmpeg), which are not included in the standard releases.
+
+#### Windows
+
+##### Standard release
+
+Download the latest Windows release from the [GitHub Releases](https://github.com/neosy/elengrab/releases) page and run `elengrab.exe`.
+
+After starting Elengrab, open `http://localhost:8080` in your browser.
+
+##### Portable Windows package
+
+A portable Windows package containing the latest `elengrab.exe`, `yt-dlp.exe`, `ffmpeg.exe`, and `ffprobe.exe` is also available [here](https://nc.n-hub.ru/index.php/s/XyTm8HqginkwECT).
+
+After starting Elengrab, open `http://localhost:2380` in your browser.
+
+#### Linux
+
+Download the latest Linux binary for your architecture from the [GitHub Releases](https://github.com/neosy/elengrab/releases) page.
+
+Make the binary executable and run it:
+
+```bash
+chmod +x elengrab
+./elengrab
+```
+
+Install [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://github.com/FFmpeg/FFmpeg) separately.
+
+After starting Elengrab, open `http://localhost:8080` in your browser.
+
+#### macOS
+
+Download the latest macOS binary for your architecture from the [GitHub Releases](https://github.com/neosy/elengrab/releases) page.
+
+Make the binary executable and run it:
+
+```bash
+chmod +x elengrab
+./elengrab
+```
+
+Install [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://github.com/FFmpeg/FFmpeg) separately.
+
+After starting Elengrab, open `http://localhost:8080` in your browser.
+
+---
 
 ### Run Docker with default settings
 
