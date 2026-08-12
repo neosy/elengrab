@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag (example: v0.18.5)'
+        description: 'Release tag (example: v0.24.1)'
         required: false
       prerelease:
         description: 'Create prerelease?'
@@ -51,7 +51,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Resolve build tag
         id: build_tag
@@ -71,7 +71,7 @@ jobs:
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: '1.25'
 
@@ -123,7 +123,7 @@ jobs:
           fi
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: elengrab-binaries-${{ matrix.goos }}-${{ matrix.goarch }}
           path: dist/${{ matrix.goos }}-${{ matrix.goarch }}/*
@@ -136,7 +136,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Resolve release tag
         id: release_tag
@@ -179,31 +179,31 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Download linux-amd64 artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: elengrab-binaries-linux-amd64
           path: dist/linux-amd64
 
       - name: Download linux-arm64 artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: elengrab-binaries-linux-arm64
           path: dist/linux-arm64
 
       - name: Download windows-amd64 artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: elengrab-binaries-windows-amd64
           path: dist/windows-amd64
 
       - name: Download darwin-amd64 artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: elengrab-binaries-darwin-amd64
           path: dist/darwin-amd64
 
       - name: Download darwin-arm64 artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: elengrab-binaries-darwin-arm64
           path: dist/darwin-arm64
