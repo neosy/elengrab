@@ -117,7 +117,8 @@ Users are responsible for ensuring that their use of Elengrab and downloaded con
 * **CPU:** 1–2 cores
 * **Memory:** ~512 MB RAM
 * **Concurrent downloads:** 1 worker
-* **Dependencies:** `yt-dlp` and `ffmpeg` must be installed
+* **Dependencies:** [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://github.com/FFmpeg/FFmpeg) must be installed
+* **Optional:** [Deno](https://github.com/denoland/deno) is required when using cookie support
 
 This configuration is suitable for low-resource servers. To limit concurrency, set:
 
@@ -130,7 +131,8 @@ ELENGRAB_DOWNLOAD_WORKERS=1
 * **CPU:** 4 cores
 * **Memory:** 4 GB RAM
 * **Concurrent downloads:** 3 workers (default)
-* **Dependencies:** `yt-dlp` and `ffmpeg` must be installed
+* **Dependencies:** [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://github.com/FFmpeg/FFmpeg) must be installed
+* **Optional:** [Deno](https://github.com/denoland/deno) is required when using cookie support
 
 By default, the Docker container is configured to use this setup.
 
