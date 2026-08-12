@@ -11,9 +11,11 @@
 
 # Elengrab
 
-**Fast self-hosted downloader for video and audio with flexible format and quality options. Integrates with media processing utilities (such as [yt-dlp](https://github.com/yt-dlp/yt-dlp)) as an optional backend. Supports downloading from multiple platforms, including YouTube, Facebook, Instagram, Twitter/X, Twitch, Pinterest, Reddit, VK Video, Rutube, and more.**
+**Fast cross-platform application for downloading and watching video and audio with flexible format and quality options. Integrates with media processing utilities such as [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://github.com/FFmpeg/FFmpeg). Supports downloading from more than 1,000 websites and platforms, including YouTube, Facebook, Instagram, Twitter/X, Twitch, Pinterest, Reddit, VK Video, Rutube, and more.**
 
-Elengrab provides a simple and **very fast** web interface to quickly download with videos and audio tracks, allowing selection of formats and quality settings. The project is fully written in **Go**, and the frontend is powered by **HTMX**, ensuring high responsiveness and minimal overhead. It runs in a lightweight Docker container, is easy to deploy, and serves as a self-hosted frontend for managing your personal media server.
+Elengrab provides a simple and very fast web interface for downloading and watching media directly in the browser, with a YouTube-like viewing experience, thumbnails, video previews, and a dedicated interface optimized for mobile devices. Supports Grid View, short links for sharing, and flexible playback options. On mobile devices, videos can be shared directly from apps such as YouTube and Instagram to Elengrab, where they are automatically picked up and downloaded.
+
+The project is fully written in **Go**, with a frontend built using plain **HTML** and **CSS**, **HTMX**, and vanilla **JavaScript** without external libraries. It can run as a single binary on Windows, Linux, and macOS, or in a lightweight Docker container for easy deployment. Elengrab also includes full **PWA** support, allowing it to be installed and used as a standalone application. Different operating modes allow you to enable authentication and use Elengrab as a full-featured web service accessible over the Internet. This makes it well suited for creating a fast-access home media service as well as a personal media service accessible from anywhere.
 
 ### Screenshots of the interface
 <details>
