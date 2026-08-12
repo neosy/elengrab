@@ -15,6 +15,60 @@
 
 Elengrab provides a simple and **very fast** web interface to quickly download with videos and audio tracks, allowing selection of formats and quality settings. The project is fully written in **Go**, and the frontend is powered by **HTMX**, ensuring high responsiveness and minimal overhead. It runs in a lightweight Docker container, is easy to deploy, and serves as a self-hosted frontend for managing your personal media server.
 
+### Screenshots of the interface
+<details>
+<summary><strong>Desktop — Light and dark themes</strong></summary>
+  &nbsp;&nbsp;
+  <p align="center">
+    <img width="1842" height="909" alt="Screenshot_160" src="https://github.com/user-attachments/assets/2153a3c9-0423-483b-bb0f-6e510df3505f" />
+    &nbsp;&nbsp;
+    <img width="1867" height="915" alt="Screenshot_158" src="https://github.com/user-attachments/assets/0ae7c011-cdba-42ae-b344-65ffaaf59dac" />
+  </p>
+</details>
+<details>
+<summary><strong>Desktop — Grid view</strong></summary>
+  &nbsp;&nbsp;
+  <p align="center">
+    <img width="1323" height="625" alt="image" src="https://github.com/user-attachments/assets/5b5a5db6-ab0d-4eb3-adfe-ea7167e1238d" />
+    &nbsp;&nbsp;
+    <img width="1327" height="619" alt="image" src="https://github.com/user-attachments/assets/4a4f52dd-ac82-4fd1-83cd-11bc7a1f9a00" />
+  </p>
+</details>
+<details>
+<summary><strong>Desktop — Menu and Editing</strong></summary>
+  &nbsp;&nbsp;
+  <p align="center">
+    <img width="1235" height="664" alt="image" src="https://github.com/user-attachments/assets/90d0b894-91c3-47e6-9b32-ea08e8a491e8" />
+    &nbsp;&nbsp;&nbsp;
+    <img width="1230" height="661" alt="image" src="https://github.com/user-attachments/assets/caac8f79-58e6-48ba-acdc-95baa0867dd4" />
+  </p>
+</details>
+
+<details>
+<summary><strong>Mobile — Light and dark themes</strong></summary>
+  &nbsp;&nbsp;
+  <p align="center">
+    <img width="360" height="740" alt="image" src="https://github.com/user-attachments/assets/b59b44ed-0037-4751-a53f-8b0a145c8fda" />
+    &nbsp;&nbsp;&nbsp;
+    <img width="360" height="740" alt="image" src="https://github.com/user-attachments/assets/ee80e7a2-af13-4e4f-8ea7-5d3b47256b62" />
+  </p>
+  &nbsp;&nbsp;&nbsp;
+  <p align="center">
+  <img width="360" height="740" alt="image" src="https://github.com/user-attachments/assets/eaf4df5d-cf7d-41aa-bfe4-e28aeeed4063" />
+    &nbsp;&nbsp;&nbsp;
+  <img width="360" height="740" alt="image" src="https://github.com/user-attachments/assets/a1fd3bc7-76d4-4305-b4ce-8af14e49b481" />
+  </p>
+</details>
+<details>
+<summary><strong>Mobile — Menu and Editing</strong></summary>
+  &nbsp;&nbsp;
+  <p align="center">
+    <img width="360" height="740" alt="image" src="https://github.com/user-attachments/assets/2ff66a7b-3e7c-48e4-9b41-d2127d70f5c0" />
+    &nbsp;&nbsp;&nbsp;
+    <img width="360" height="740" alt="image" src="https://github.com/user-attachments/assets/d0f7c3fc-4264-4f72-b36f-da6062a20eab" />
+  </p>
+</details>
+
 ---
 
 ## Features
