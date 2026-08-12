@@ -1,7 +1,7 @@
 <p align="center">
   <img width="192" height="192" alt="android-chrome-192x192_round" src="https://github.com/user-attachments/assets/f2973dcc-90d3-4046-b9e0-fd34b6697fa5" />
 </p>
-<h3 align="center">Self-hosted web interface for downloading media from multiple platforms (YouTube, Instagram, TikTok, Twitch, etc.).</h3>
+<h3 align="center">Self-hosted cross-platform downloader and media viewer for video and audio from 1,000+ platforms (YouTube, Instagram, TikTok, Twitch, etc.).</h3>
 
 ---
 
