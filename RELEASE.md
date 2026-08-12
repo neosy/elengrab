@@ -1,6 +1,6 @@
 # Releases
 
-## v0.24.1 — 2026-08-11
+## v0.24.1 — 2026-08-12
 
 ### 🐛 Fix
 - Fixed watch progress visibility when the watch percentage is zero. [L104]
