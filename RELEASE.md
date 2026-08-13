@@ -1,5 +1,20 @@
 # Releases
 
+## v0.24.2 — 2026-08-13
+
+### ⚙️ Config
+- Renamed `ELENGRAB_DELETE_DUPLICATES_SCOPE` to `ELENGRAB_DELETE_DUPLICATES_UNIQUENESS_SCOPE`. [L107]
+
+### 📚 Docs
+- Improved comments and descriptions for application configuration settings. [L107]
+- Improved documentation for application startup and bootstrap initialization. [L107]
+- Added automatic generation of `environments.md` with environment variable documentation from Go configuration. [L107]
+
+### 📦 Chore
+- Added Makefile targets for updating Go dependencies and generating environment variable documentation. [L107]
+
+---
+
 ## v0.24.1 — 2026-08-12
 
 ### 🐛 Fix

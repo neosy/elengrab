@@ -48,7 +48,7 @@ type Dependencies struct {
 	DatabaseBackupsDir  string
 	DatabaseBackupsKeep int
 
-	DeleteDuplicatesScope dtypes.UniquenessScope
+	DeleteDuplicatesUniquenessScope dtypes.UniquenessScope
 
 	LogoUpdateInterval    time.Duration
 	ChannelUpdateInterval time.Duration
@@ -189,7 +189,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			// options
 			deps.DemoMode,
 			deps.AppMode,
-			deps.DeleteDuplicatesScope,
+			deps.DeleteDuplicatesUniquenessScope,
 			deps.LogoUpdateInterval,
 			deps.ChannelUpdateInterval,
 		),

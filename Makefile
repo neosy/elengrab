@@ -116,6 +116,13 @@ stack-deploy: ## Deploy containers
 stack-rm: ## Remove containers
 	@docker stack rm $(STACK_NAME)
 
+update-deps: ## Update Go dependencies to the latest versions
+	go get -u ./...
+	go mod tidy
+	
+generate-env-docs: ## Generate environment variables documentation
+	go generate ./internal/config/...
+
 checkout: ## Create branch with auto task id, e.g. git checkout -b fix/L001-name
 	@if [ ! -f $(TASK_ID_FILE) ]; then echo "L000" > $(TASK_ID_FILE); fi
 	@branch_goal=$(filter-out $@,$(MAKECMDGOALS)); \

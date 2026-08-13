@@ -6,7 +6,7 @@ import (
 
 // DeleteDuplicates deletes duplicate downloads based on their hash values.
 func (uc *Downloader) DeleteDuplicates(ctx context.Context) error {
-	rows, err := uc.download.GetDuplicateHashes(ctx, uc.deleteDuplicatesScope)
+	rows, err := uc.download.GetDuplicateHashes(ctx, uc.deleteDuplicatesUniquenessScope)
 	if err != nil {
 		return err
 	}

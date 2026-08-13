@@ -21,19 +21,20 @@ refactor/htmx-server
 
 ## 🔹 Branch Prefixes and Their Purpose
 
-| Prefix            | Description                                                      |
-| ----------------- | ---------------------------------------------------------------- |
-| `feature/<name>`  | Adds new functionality (e.g., new API, module, or UI component). |
-| `fix/<name>`      | Fixes a bug or error in existing code.                           |
-| `refactor/<name>` | Refactors code without changing external behavior.               |
-| `style/<name>`    | Updates styling (CSS, HTML layout, UI design).                   |
-| `docs/<name>`     | Documentation updates (README, Swagger, etc.).                   |
-| `test/<name>`     | Adds or modifies tests.                                          |
-| `perf/<name>`     | Improves performance or efficiency.                              |
-| `build/<name>`    | Changes related to build tools, Docker, Makefile, or CI/CD.      |
-| `chore/<name>`    | Minor maintenance tasks (e.g., dependency updates).              |
-| `hotfix/<name>`   | Urgent fix for a production issue.                               |
-| `wip/<name>`      | Work in progress — temporary branch for incomplete work.         |
+| Prefix            | Description                                                              |
+| ----------------- | ------------------------------------------------------------------------ |
+| `feature/<name>`  | Adds new functionality (e.g., new API, module, or UI component).         |
+| `fix/<name>`      | Fixes a bug or error in existing code.                                   |
+| `refactor/<name>` | Refactors code without changing external behavior.                       |
+| `style/<name>`    | Updates styling (CSS, HTML layout, UI design).                           |
+| `docs/<name>`     | Documentation updates (README, Swagger, etc.).                           |
+| `config/<name>`   | Changes application configuration, environment variables, or config API. |
+| `test/<name>`     | Adds or modifies tests.                                                  |
+| `perf/<name>`     | Improves performance or efficiency.                                      |
+| `build/<name>`    | Changes related to build tools, Docker, Makefile, or CI/CD.              |
+| `chore/<name>`    | Minor maintenance tasks (e.g., dependency updates).                      |
+| `hotfix/<name>`   | Urgent fix for a production issue.                                       |
+| `wip/<name>`      | Work in progress — temporary branch for incomplete work.                 |
 
 ---
 

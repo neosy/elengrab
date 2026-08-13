@@ -67,11 +67,11 @@ type Downloader struct {
 	authSrv       pservices.AuthService
 
 	// Options
-	demoMode              bool
-	appMode               dtypes.AppMode
-	deleteDuplicatesScope dtypes.UniquenessScope
-	logoUpdateInterval    time.Duration
-	channelUpdateInterval time.Duration
+	demoMode                        bool
+	appMode                         dtypes.AppMode
+	deleteDuplicatesUniquenessScope dtypes.UniquenessScope
+	logoUpdateInterval              time.Duration
+	channelUpdateInterval           time.Duration
 }
 
 func NewDownloader(
@@ -118,7 +118,7 @@ func NewDownloader(
 	// options
 	demoMode bool,
 	appMode dtypes.AppMode,
-	deleteDuplicatesScope dtypes.UniquenessScope,
+	deleteDuplicatesUniquenessScope dtypes.UniquenessScope,
 	logoUpdateInterval time.Duration,
 	channelUpdateInterval time.Duration,
 ) *Downloader {
@@ -170,11 +170,11 @@ func NewDownloader(
 		authSrv:       authSrv,
 
 		// Options
-		demoMode:              demoMode,
-		appMode:               appMode,
-		deleteDuplicatesScope: deleteDuplicatesScope,
-		logoUpdateInterval:    logoUpdateInterval,
-		channelUpdateInterval: channelUpdateInterval,
+		demoMode:                        demoMode,
+		appMode:                         appMode,
+		deleteDuplicatesUniquenessScope: deleteDuplicatesUniquenessScope,
+		logoUpdateInterval:              logoUpdateInterval,
+		channelUpdateInterval:           channelUpdateInterval,
 	}
 
 	mediaWatch := mediawatch.NewMediaWatch(

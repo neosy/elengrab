@@ -6,9 +6,10 @@ import (
 	"os"
 
 	iconfig "github.com/neosy/elengrab/internal/config"
-	"github.com/neosy/elengrab/internal/pkg/logger"
+	nlogger "github.com/neosy/elengrab/internal/pkg/logger"
 )
 
+// Initialize loads the application configuration and initializes the logger.
 func Initialize() (*iconfig.Config, *slog.Logger) {
 	// Load application configuration
 	cfg, err := iconfig.New()
@@ -18,9 +19,9 @@ func Initialize() (*iconfig.Config, *slog.Logger) {
 
 	// Create a logger with Info level using HandlerOptions
 	handlerOptions := &slog.HandlerOptions{
-		// Set the logging level
 		Level: nlogger.LevelToSlogLevel(cfg.AppConfig.LogLevel),
 	}
+
 	logger := slog.New(slog.NewTextHandler(os.Stdout, handlerOptions))
 
 	log.Printf("Logging level set to '%s'.\n", cfg.AppConfig.LogLevel)
