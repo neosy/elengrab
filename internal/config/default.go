@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// defaultRootDir returns the default application data directory for the current OS.
 func defaultRootDir() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -14,15 +15,16 @@ func defaultRootDir() (string, error) {
 	}
 
 	if runtime.GOOS == "windows" {
-		// %LOCALAPPDATA%
+		// Use %LOCALAPPDATA% when available.
 		localAppData := os.Getenv("LOCALAPPDATA")
 		if localAppData != "" {
 			return filepath.Join(localAppData, AppName), nil
 		}
-		// fallback
+
+		// Fall back to the user's local application data directory.
 		return filepath.Join(home, "AppData", "Local", AppName), nil
 	}
 
-	// Linux / macOS
+	// Use a hidden directory in the user's home directory on Linux and macOS.
 	return filepath.Join(home, "."+strings.ToLower(AppName)), nil
 }

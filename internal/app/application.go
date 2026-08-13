@@ -251,7 +251,7 @@ func (a *Application) initialize() error {
 		DatabaseBackupsDir:  absPath(a.cfg.Elengrab.RootDir, a.cfg.SQLite.BackupsDir),
 		DatabaseBackupsKeep: a.cfg.Elengrab.Maintenance.DatabaseBackupsKeep,
 
-		DeleteDuplicatesScope: dtypes.MustParseUniquenessScope(a.cfg.Elengrab.DeleteDuplicatesScope),
+		DeleteDuplicatesUniquenessScope: dtypes.MustParseUniquenessScope(a.cfg.Elengrab.DeleteDuplicatesUniquenessScope),
 
 		LogoUpdateInterval:    logoUpdateInterval,
 		ChannelUpdateInterval: channelUpdateInterval,

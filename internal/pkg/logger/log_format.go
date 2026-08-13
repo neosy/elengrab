@@ -1,4 +1,4 @@
-package nlogger
+package logger
 
 type LogFormat string
 

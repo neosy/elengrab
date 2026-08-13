@@ -8,12 +8,13 @@ services:
     environment:
       TZ: "Europe/Moscow"
       ELENGRAB_DOWNLOAD_WORKERS: "3"
-      ELENGRAB_MODE: "global"
+      ELENGRAB_MODE: "public"
     volumes:
       - db:/app_n/sqlite/data
       - db_backups:/app_n/sqlite/backups
       - downloads:/app_n/downloads
       - cookies:/app_n/cookies
+      - media:/app_n/media
     deploy:
       mode: replicated
       replicas: 1
@@ -27,3 +28,4 @@ volumes:
   db_backups:
   downloads:
   cookies:
+  media:
