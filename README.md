@@ -357,6 +357,14 @@ docker service ls
 
 ---
 
+## Support
+
+If you find Elengrab useful, you can support its development with a donation:
+
+**[Support Elengrab](https://n-hub.ru/donate)**
+
+---
+
 # License
 
 Copyright (C) 2025–2026 Yury Savonin (Neosy)
