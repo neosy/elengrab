@@ -357,11 +357,11 @@ docker service ls
 
 ---
 
-## Support
+## Donations
 
-If you find Elengrab useful, you can support its development with a donation:
+If you find Elengrab useful, you can support its development:
 
-**[Support Elengrab](https://n-hub.ru/donate)**
+**[Donate](https://n-hub.ru/donate)**
 
 ---
 
