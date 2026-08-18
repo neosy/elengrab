@@ -2,7 +2,8 @@ package httppaths
 
 // Root
 const (
-	PathIndex          = "/"
-	PathRootFaviconICO = "/favicon.ico"
-	PathRootRobotsTxt  = "/robots.txt"
+	IndexPath = "/"
+
+	RootFaviconICOPath = "/favicon.ico"
+	RootRobotsTxtPath  = "/robots.txt"
 )

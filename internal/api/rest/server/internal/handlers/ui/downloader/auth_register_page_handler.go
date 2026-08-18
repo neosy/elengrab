@@ -31,7 +31,7 @@ func (h *DownloaderHandlers) AuthRegisterPageHandler(ctx *fasthttp.RequestCtx) {
 		ctx.Response.Header.Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
 		ctx.Response.Header.Set("Pragma", "no-cache")
 		ctx.Response.Header.Set("Expires", "0")
-		ctx.Redirect(httppaths.PathIndex, fasthttp.StatusSeeOther)
+		ctx.Redirect(httppaths.IndexPath, fasthttp.StatusSeeOther)
 		return
 	}
 
@@ -81,7 +81,7 @@ func (h *DownloaderHandlers) AuthRegisterSubmitHandler(ctx *fasthttp.RequestCtx)
 	ctxUser := policy.ResolveUser(ctx)
 	if ctxUser != nil && ctxUser.UserType() != dtypes.UserTypeGuest {
 		ctx.SetStatusCode(fasthttp.StatusSeeOther)
-		ctx.Response.Header.Set("HX-Redirect", httppaths.PathIndex)
+		ctx.Response.Header.Set("HX-Redirect", httppaths.IndexPath)
 		return
 	}
 
@@ -127,5 +127,5 @@ func (h *DownloaderHandlers) AuthRegisterSubmitHandler(ctx *fasthttp.RequestCtx)
 
 	ctx.SetStatusCode(fasthttp.StatusSeeOther)
 	ctx.Response.Header.Set("Cache-Control", "no-store")
-	ctx.Response.Header.Set("HX-Redirect", httppaths.PathIndex)
+	ctx.Response.Header.Set("HX-Redirect", httppaths.IndexPath)
 }

@@ -58,5 +58,5 @@ func (h *DownloaderHandlers) ImportFromShareHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	ctx.Redirect(httppaths.PathIndex, fasthttp.StatusFound)
+	ctx.Redirect(httppaths.IndexPath, fasthttp.StatusFound)
 }

@@ -215,7 +215,7 @@ func (h *DownloaderHandlers) renderWatchPage(
 		)
 	}
 
-	titleImageURL := httppaths.BuildPathMediaItemImage(
+	titleImageURL := httppaths.BuildMediaItemImagePath(
 		downloadInfo.DownloadID,
 		downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
