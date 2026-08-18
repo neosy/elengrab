@@ -35,7 +35,7 @@ var rowMenuActions = []rowMenuAction{
 			Action:     "watch",
 			Title:      "Watch",
 			Link: linkOptions{
-				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemWatch,
+				URL:          httppaths.DownloaderGroup + httppaths.MediaItemWatchPath,
 				NewTab:       false,
 				replaceInURL: RowMenuActionItemIDKey,
 			},
@@ -83,7 +83,7 @@ var rowMenuActions = []rowMenuAction{
 			Action:     "share-link",
 			Title:      "Share link",
 			Link: linkOptions{
-				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
+				URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
 				replaceInURL: RowMenuActionItemIDKey,
 			},
 		},
@@ -98,7 +98,7 @@ var rowMenuActions = []rowMenuAction{
 			Action:     rowMenuActionCreateLink,
 			Title:      "Create short link",
 			Link: linkOptions{
-				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
+				URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
 				replaceInURL: RowMenuActionItemIDKey,
 			},
 		},
@@ -113,7 +113,7 @@ var rowMenuActions = []rowMenuAction{
 			Action:     rowMenuActionCopyLink,
 			Title:      "Copy short link",
 			Link: linkOptions{
-				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
+				URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
 				replaceInURL: RowMenuActionItemIDKey,
 			},
 		},
@@ -128,7 +128,7 @@ var rowMenuActions = []rowMenuAction{
 			Action:     rowMenuActionDeleteLink,
 			Title:      "Delete short link",
 			Link: linkOptions{
-				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemShortLink,
+				URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
 				replaceInURL: RowMenuActionItemIDKey,
 			},
 		},
@@ -149,7 +149,7 @@ var rowMenuActions = []rowMenuAction{
 			Action:     "refresh",
 			Title:      "Refresh Media Information",
 			Link: linkOptions{
-				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemRefresh,
+				URL:          httppaths.DownloaderGroup + httppaths.MediaItemRefreshPath,
 				NewTab:       false,
 				replaceInURL: RowMenuActionItemIDKey,
 			},
@@ -166,7 +166,7 @@ var rowMenuActions = []rowMenuAction{
 			Action:     "edit",
 			Title:      "Edit",
 			Link: linkOptions{
-				URL:          httppaths.GroupDownloader + httppaths.PathMediaItemEdit,
+				URL:          httppaths.DownloaderGroup + httppaths.MediaItemEditPath,
 				NewTab:       false,
 				replaceInURL: RowMenuActionItemIDKey,
 			},
@@ -188,7 +188,7 @@ var rowMenuActions = []rowMenuAction{
 			Action:     "delete",
 			Title:      "Delete",
 			Link: linkOptions{
-				URL:          httppaths.GroupDownloader + httppaths.PathMediaItem,
+				URL:          httppaths.DownloaderGroup + httppaths.MediaItemPath,
 				replaceInURL: RowMenuActionItemIDKey,
 			},
 		},

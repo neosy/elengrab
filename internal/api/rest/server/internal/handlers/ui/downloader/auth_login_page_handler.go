@@ -30,7 +30,7 @@ func (h *DownloaderHandlers) AuthLoginPageHandler(ctx *fasthttp.RequestCtx) {
 		ctx.Response.Header.Set("Pragma", "no-cache")
 		ctx.Response.Header.Set("Expires", "0")
 
-		ctx.Redirect(httppaths.PathIndex, fasthttp.StatusSeeOther)
+		ctx.Redirect(httppaths.IndexPath, fasthttp.StatusSeeOther)
 		return
 	}
 
@@ -53,7 +53,7 @@ func (h *DownloaderHandlers) AuthLoginPageHandler(ctx *fasthttp.RequestCtx) {
 
 	redirectPath := string(ctx.QueryArgs().Peek(redirectKey))
 	if redirectPath == "" {
-		redirectPath = httppaths.PathIndex
+		redirectPath = httppaths.IndexPath
 	}
 
 	pageData := pages.AuthLoginPageData{
@@ -88,7 +88,7 @@ func (h *DownloaderHandlers) AuthLoginSubmitHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser := policy.ResolveUser(ctx)
 	if ctxUser != nil && ctxUser.UserType() != dtypes.UserTypeGuest {
 		ctx.SetStatusCode(fasthttp.StatusSeeOther)
-		ctx.Response.Header.Set("HX-Redirect", httppaths.PathIndex)
+		ctx.Response.Header.Set("HX-Redirect", httppaths.IndexPath)
 		return
 	}
 
@@ -127,7 +127,7 @@ func (h *DownloaderHandlers) AuthLoginSubmitHandler(ctx *fasthttp.RequestCtx) {
 
 	redirectPath := formRedirect
 	if redirectPath == "" {
-		redirectPath = httppaths.PathIndex
+		redirectPath = httppaths.IndexPath
 	}
 
 	ctx.SetStatusCode(fasthttp.StatusSeeOther)

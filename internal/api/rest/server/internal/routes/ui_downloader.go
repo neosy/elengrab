@@ -10,105 +10,90 @@ import (
 func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, shortLinkPrefix string) {
 	middlewareError := r.middlewares.Error.ErrorHandler
 
-	// Account with middleware (error, auth or anonym)
-	g := nfasthttp.NewRouterGroup(httppaths.GroupAccount, r.router)
-	g.Use(middlewareError, r.middlewares.Auth.AuthOrAnonym)
-	{
-		g.GET(httppaths.PathRegister, handlers.AuthRegisterPageHandler)
-		g.HEAD(httppaths.PathRegister, handlers.AuthRegisterPageHandler)
-		g.POST(httppaths.PathRegister, handlers.AuthRegisterSubmitHandler)
-
-		g.GET(httppaths.PathLogin, handlers.AuthLoginPageHandler)
-		g.HEAD(httppaths.PathLogin, handlers.AuthLoginPageHandler)
-		g.POST(httppaths.PathLogin, handlers.AuthLoginSubmitHandler)
-
-		g.GET(httppaths.PathLogout, handlers.AuthLogoutHandler)
-	}
-
 	// Downloader
 	//group = r.Group(httppaths.GroupDownloader)
 	{
 		// With middleware (error, require auth)
-		g := nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r.router)
+		g := nfasthttp.NewRouterGroup(httppaths.DownloaderGroup, r.router)
 		g.Use(middlewareError, r.middlewares.Auth.RequireAuth)
 		{
-			g.GET(httppaths.PathAccountMenu, handlers.AccountMenuHandler)
-			g.HEAD(httppaths.PathAccountMenu, handlers.AccountMenuHandler)
+			g.GET(httppaths.AccountMenuPath, handlers.AccountMenuHandler)
+			g.HEAD(httppaths.AccountMenuPath, handlers.AccountMenuHandler)
 		}
 
 		// With middleware (error, auth optional)
-		g = nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r.router)
+		g = nfasthttp.NewRouterGroup(httppaths.DownloaderGroup, r.router)
 		g.Use(middlewareError, r.middlewares.Auth.AuthOptional)
 		{
-			g.HEAD(httppaths.PathHistory, handlers.MediaHistoryHandler)
-			g.GET(httppaths.PathHistory, handlers.MediaHistoryHandler)
+			g.HEAD(httppaths.HistoryPath, handlers.MediaHistoryHandler)
+			g.GET(httppaths.HistoryPath, handlers.MediaHistoryHandler)
 
-			g.GET(httppaths.PathEvents, handlers.EventsStreamHandler)
+			g.GET(httppaths.EventsPath, handlers.EventsStreamHandler)
 
-			g.POST(httppaths.PathSearch, handlers.SearchHandler)
+			g.POST(httppaths.SearchPath, handlers.SearchHandler)
 
-			g.HEAD(httppaths.PathMediaItemRow, handlers.MediaItemRowHandler)
-			g.GET(httppaths.PathMediaItemRow, handlers.MediaItemRowHandler)
+			g.HEAD(httppaths.MediaItemRowPath, handlers.MediaItemRowHandler)
+			g.GET(httppaths.MediaItemRowPath, handlers.MediaItemRowHandler)
 
-			g.HEAD(httppaths.PathMediaItemImage, handlers.MediaItemImageHandler)
-			g.GET(httppaths.PathMediaItemImage, handlers.MediaItemImageHandler)
+			g.HEAD(httppaths.MediaItemImagePath, handlers.MediaItemImageHandler)
+			g.GET(httppaths.MediaItemImagePath, handlers.MediaItemImageHandler)
 
-			g.GET(httppaths.PathMediaItemMenu, handlers.MediaItemRowMenuHandler)
+			g.GET(httppaths.MediaItemMenuPath, handlers.MediaItemRowMenuHandler)
 
-			g.HEAD(httppaths.PathMediaItemStream, handlers.MediaItemStreamHandler)
-			g.GET(httppaths.PathMediaItemStream, handlers.MediaItemStreamHandler)
+			g.HEAD(httppaths.MediaItemStreamPath, handlers.MediaItemStreamHandler)
+			g.GET(httppaths.MediaItemStreamPath, handlers.MediaItemStreamHandler)
 
-			g.HEAD(httppaths.PathMediaItemWatch, handlers.WatchPageByDownloadIDHandler)
-			g.GET(httppaths.PathMediaItemWatch, handlers.WatchPageByDownloadIDHandler)
+			g.HEAD(httppaths.MediaItemWatchPath, handlers.WatchPageByDownloadIDHandler)
+			g.GET(httppaths.MediaItemWatchPath, handlers.WatchPageByDownloadIDHandler)
 
-			g.HEAD(httppaths.PathDownloadFile, handlers.DownloadFileHandler)
-			g.GET(httppaths.PathDownloadFile, handlers.DownloadFileHandler)
+			g.HEAD(httppaths.DownloadFilePath, handlers.DownloadFileHandler)
+			g.GET(httppaths.DownloadFilePath, handlers.DownloadFileHandler)
 
-			g.HEAD(httppaths.PathMediaItemShortLink, handlers.GetShareLinkHandler)
-			g.GET(httppaths.PathMediaItemShortLink, handlers.GetShareLinkHandler)
+			g.HEAD(httppaths.MediaItemShortLinkPath, handlers.GetShareLinkHandler)
+			g.GET(httppaths.MediaItemShortLinkPath, handlers.GetShareLinkHandler)
 
-			g.HEAD(httppaths.PathMediaItemWatchPosition, handlers.GetLastWatchPositionHandler)
-			g.GET(httppaths.PathMediaItemWatchPosition, handlers.GetLastWatchPositionHandler)
+			g.HEAD(httppaths.MediaItemWatchPositionPath, handlers.GetLastWatchPositionHandler)
+			g.GET(httppaths.MediaItemWatchPositionPath, handlers.GetLastWatchPositionHandler)
 
-			g.POST(httppaths.PathMediaItemReWatchTracking, handlers.MediaItemWatchTrackingHandler)
+			g.POST(httppaths.MediaItemReWatchTrackingPath, handlers.MediaItemWatchTrackingHandler)
 		}
 
 		// With middleware (error, auth or guest)
-		g = nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r.router)
+		g = nfasthttp.NewRouterGroup(httppaths.DownloaderGroup, r.router)
 		g.Use(middlewareError, r.middlewares.Auth.AuthOrGuest)
 		{
-			g.POST(httppaths.PathGrab, handlers.ImportMediaByURLHandler)
-			g.GET(httppaths.PathShareTarget, handlers.ImportFromShareHandler)
-			g.DELETE(httppaths.PathMediaItem, handlers.MediaItemDeleteHandler)
-			g.POST(httppaths.PathMediaItemDownloadRepeat, handlers.RetryImportMediaHandler)
+			g.POST(httppaths.GrabPath, handlers.ImportMediaByURLHandler)
+			g.GET(httppaths.ShareTargetPath, handlers.ImportFromShareHandler)
+			g.DELETE(httppaths.MediaItemPath, handlers.MediaItemDeleteHandler)
+			g.POST(httppaths.MediaItemDownloadRepeatPath, handlers.RetryImportMediaHandler)
 
-			g.HEAD(httppaths.PathMediaItemEdit, handlers.EditMediaPageByDownloadIDHandler)
-			g.GET(httppaths.PathMediaItemEdit, handlers.EditMediaPageByDownloadIDHandler)
+			g.HEAD(httppaths.MediaItemEditPath, handlers.EditMediaPageByDownloadIDHandler)
+			g.GET(httppaths.MediaItemEditPath, handlers.EditMediaPageByDownloadIDHandler)
 
-			g.PATCH(httppaths.PathMediaItem, handlers.PatchMediaByDownloadIDHandler)
+			g.PATCH(httppaths.MediaItemPath, handlers.PatchMediaByDownloadIDHandler)
 
-			g.POST(httppaths.PathMediaItemRefresh, handlers.RefreshMetadataByDownloadIDHandler)
+			g.POST(httppaths.MediaItemRefreshPath, handlers.RefreshMetadataByDownloadIDHandler)
 		}
 
 		// With middleware (error, require auth mode)
-		g = nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r.router)
+		g = nfasthttp.NewRouterGroup(httppaths.DownloaderGroup, r.router)
 		g.Use(middlewareError, r.middlewares.Auth.RequireAuthMode)
 		{
-			g.POST(httppaths.PathMediaItemShortLink, handlers.CreateShareLinkHandler)
-			g.DELETE(httppaths.PathMediaItemShortLink, handlers.DeleteShareLinkHandler)
+			g.POST(httppaths.MediaItemShortLinkPath, handlers.CreateShareLinkHandler)
+			g.DELETE(httppaths.MediaItemShortLinkPath, handlers.DeleteShareLinkHandler)
 		}
 
 		// With middleware (error, auth or anonym)
-		g = nfasthttp.NewRouterGroup(httppaths.GroupDownloader, r.router)
+		g = nfasthttp.NewRouterGroup(httppaths.DownloaderGroup, r.router)
 		g.Use(middlewareError, r.middlewares.Auth.AuthOrAnonym)
 		{
-			g.GET(httppaths.PathChannelAvatar, handlers.GetChannelAvatarHandler)
-			g.HEAD(httppaths.PathChannelAvatar, handlers.GetChannelAvatarHandler)
+			g.GET(httppaths.ChannelAvatarPath, handlers.GetChannelAvatarHandler)
+			g.HEAD(httppaths.ChannelAvatarPath, handlers.GetChannelAvatarHandler)
 
-			g.GET(httppaths.PathSettingsMenu, handlers.SettingsMenuHandler)
+			g.GET(httppaths.SettingsMenuPath, handlers.SettingsMenuHandler)
 
-			g.GET(httppaths.PathStreamShortCode, handlers.StreamShortCodeHandler)
-			g.HEAD(httppaths.PathStreamShortCode, handlers.StreamShortCodeHandler)
+			g.GET(httppaths.StreamShortCodePath, handlers.StreamShortCodeHandler)
+			g.HEAD(httppaths.StreamShortCodePath, handlers.StreamShortCodeHandler)
 		}
 
 	}
@@ -119,8 +104,8 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		g := nfasthttp.NewRouterGroup(shortLinkPrefix, r.router)
 		g.Use(middlewareError, r.middlewares.Auth.AuthOrAnonym)
 		{
-			g.GET(httppaths.PathShortLink, handlers.ResolveShortLinkHandler)
-			g.HEAD(httppaths.PathShortLink, handlers.ResolveShortLinkHandler)
+			g.GET(httppaths.ShortLinkPath, handlers.ResolveShortLinkHandler)
+			g.HEAD(httppaths.ShortLinkPath, handlers.ResolveShortLinkHandler)
 		}
 	}
 }

@@ -25,6 +25,7 @@ func NewRoutes(
 	routes.registerStatic(handlers.Static)
 	routes.registerUIRoot(handlers.UI.Downloader)
 	routes.registerUIAdmin(handlers.UI.Admin)
+	routes.registerUIAuth(handlers.UI.Downloader)
 	routes.registerUIDownloader(handlers.UI.Downloader, shortLinkPrefix)
 	routes.registerAPI(handlers.API.V1)
 

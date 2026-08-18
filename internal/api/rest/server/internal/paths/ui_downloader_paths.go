@@ -13,85 +13,89 @@ import (
 // UI
 const (
 	// Groups
-	GroupDownloader = "/downloader"
-	GroupAccount    = "/account"
+	DownloaderGroup = "/downloader"
 
 	// Paths Downloader
-	PathAccountMenu  = "/account-menu"
-	PathSettingsMenu = "/settings-menu"
-	PathGrab         = "/grab"
-	PathShareTarget  = "/share-target"
-	PathHistory      = "/history"
-	PathDownloadFile = "/download"
-	PathSearch       = "/search"
-	PathEvents       = "/events"
+	AccountMenuPath  = "/account-menu"
+	SettingsMenuPath = "/settings-menu"
+	GrabPath         = "/grab"
+	ShareTargetPath  = "/share-target"
+	HistoryPath      = "/history"
+	DownloadFilePath = "/download"
+	SearchPath       = "/search"
+	EventsPath       = "/events"
+
+	// Downloader Paths
+	DownloaderAccountMenuPath  = DownloaderGroup + AccountMenuPath
+	DownloaderSettingsMenuPath = DownloaderGroup + SettingsMenuPath
+	DownloaderGrabPath         = DownloaderGroup + GrabPath
+	DownloaderShareTargetPath  = DownloaderGroup + ShareTargetPath
+	DownloaderHistoryPath      = DownloaderGroup + HistoryPath
+	DownloaderDownloadFilePath = DownloaderGroup + DownloadFilePath
+	DownloaderSearchPath       = DownloaderGroup + SearchPath
+	DownloaderEventsPath       = DownloaderGroup + EventsPath
 
 	// Paths items Downloader
-	PathMediaItem                = "/items/{itemId}"
-	PathMediaItemRow             = "/items/{itemId}/row"
-	PathMediaItemDownloadRepeat  = "/items/{itemId}/repeat"
-	PathMediaItemImage           = "/items/{itemId}/image"
-	PathMediaItemMenu            = "/items/{itemId}/menu"
-	PathMediaItemShortLink       = "/items/{itemId}/short-link"
-	PathMediaItemStream          = "/items/{itemId}/stream"
-	PathMediaItemWatch           = "/items/{itemId}/watch"
-	PathMediaItemEdit            = "/items/{itemId}/edit"
-	PathMediaItemRefresh         = "/items/{itemId}/refresh"
-	PathMediaItemReWatchTracking = "/items/{itemId}/watch-tracking"
-	PathMediaItemWatchPosition   = "/items/{itemId}/watch-position"
+	MediaItemPath                = "/items/{itemId}"
+	MediaItemRowPath             = "/items/{itemId}/row"
+	MediaItemDownloadRepeatPath  = "/items/{itemId}/repeat"
+	MediaItemImagePath           = "/items/{itemId}/image"
+	MediaItemMenuPath            = "/items/{itemId}/menu"
+	MediaItemShortLinkPath       = "/items/{itemId}/short-link"
+	MediaItemStreamPath          = "/items/{itemId}/stream"
+	MediaItemWatchPath           = "/items/{itemId}/watch"
+	MediaItemEditPath            = "/items/{itemId}/edit"
+	MediaItemRefreshPath         = "/items/{itemId}/refresh"
+	MediaItemReWatchTrackingPath = "/items/{itemId}/watch-tracking"
+	MediaItemWatchPositionPath   = "/items/{itemId}/watch-position"
 
 	// Paths channels in Downloader
-	PathChannelAvatar = "/channels/{channelId}/avatar"
-
-	// Paths Account
-	PathRegister = "/register"
-	PathLogin    = "/login"
-	PathLogout   = "/logout"
+	ChannelAvatarPath = "/channels/{channelId}/avatar"
 
 	// Paths short links, e.g. /s/{shortCode}
-	PathShortLink       = "/{shortCode}"
-	PathStreamShortCode = "/stream/{shortCode}"
+	ShortLinkPath       = "/{shortCode}"
+	StreamShortCodePath = "/stream/{shortCode}"
 )
 
 func buildMediaItemPath(path string, downloadID uuid.UUID) string {
 	id := idcodec.EncodeUUIDBase64URL(downloadID)
-	return GroupDownloader + strings.Replace(path, "{itemId}", id, 1)
+	return DownloaderGroup + strings.Replace(path, "{itemId}", id, 1)
 }
 
 func BuildMediaItemPath(downloadID uuid.UUID) string {
-	return buildMediaItemPath(PathMediaItem, downloadID)
+	return buildMediaItemPath(MediaItemPath, downloadID)
 }
 
-func BuildPathMediaItemRow(downloadID uuid.UUID) string {
-	return buildMediaItemPath(PathMediaItemRow, downloadID)
+func BuildMediaItemRowPath(downloadID uuid.UUID) string {
+	return buildMediaItemPath(MediaItemRowPath, downloadID)
 }
 
-func BuildPathMediaItemDownloadRepeat(downloadID uuid.UUID) string {
-	return buildMediaItemPath(PathMediaItemDownloadRepeat, downloadID)
+func BuildMediaItemDownloadRepeatPath(downloadID uuid.UUID) string {
+	return buildMediaItemPath(MediaItemDownloadRepeatPath, downloadID)
 }
 
-func BuildPathMediaItemStream(downloadID uuid.UUID) string {
-	return buildMediaItemPath(PathMediaItemStream, downloadID)
+func BuildMediaItemStreamPath(downloadID uuid.UUID) string {
+	return buildMediaItemPath(MediaItemStreamPath, downloadID)
 }
 
-func BuildPathMediaItemWatch(downloadID uuid.UUID) string {
-	return buildMediaItemPath(PathMediaItemWatch, downloadID)
+func BuildMediaItemWatchPath(downloadID uuid.UUID) string {
+	return buildMediaItemPath(MediaItemWatchPath, downloadID)
 }
 
-func BuildPathMediaItemEdit(downloadID uuid.UUID) string {
-	return buildMediaItemPath(PathMediaItemEdit, downloadID)
+func BuildMediaItemEditPath(downloadID uuid.UUID) string {
+	return buildMediaItemPath(MediaItemEditPath, downloadID)
 }
 
-func BuildPathStreamShortCode(shortCode string) string {
-	return GroupDownloader + strings.Replace(PathStreamShortCode, "{shortCode}", shortCode, 1)
+func BuildStreamShortCodePath(shortCode string) string {
+	return DownloaderGroup + strings.Replace(StreamShortCodePath, "{shortCode}", shortCode, 1)
 }
 
-func BuildPathMediaItemDownload(downloadID uuid.UUID) string {
+func BuildMediaItemDownloadPath(downloadID uuid.UUID) string {
 	id := idcodec.EncodeUUIDBase64URL(downloadID)
-	return fmt.Sprintf("%s?itemId=%s", GroupDownloader+PathDownloadFile, id)
+	return fmt.Sprintf("%s?itemId=%s", DownloaderGroup+DownloadFilePath, id)
 }
 
-func BuildPathMediaItemImage(downloadID uuid.UUID, verHash string, sources []dtypes.ImageSource) string {
+func BuildMediaItemImagePath(downloadID uuid.UUID, verHash string, sources []dtypes.ImageSource) string {
 	var sourceStrings []string
 	for _, src := range sources {
 		if src.Exists() {
@@ -114,5 +118,5 @@ func BuildPathMediaItemImage(downloadID uuid.UUID, verHash string, sources []dty
 		urlSufix = "?" + urlValues.Encode()
 	}
 
-	return buildMediaItemPath(PathMediaItemImage, downloadID) + urlSufix
+	return buildMediaItemPath(MediaItemImagePath, downloadID) + urlSufix
 }

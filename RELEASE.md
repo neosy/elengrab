@@ -1,5 +1,14 @@
 # Releases
 
+## v0.25.0 — 2026-08-30
+
+### 🧩 Refactor
+- Renamed /account paths to /auth. [L113]
+- Renamed HTTP path constants to use Group and Path suffixes for consistent naming. [L113]
+- Added full path constants to avoid combining route groups and paths at call sites. [L113]
+
+---
+
 ## v0.24.2 — 2026-08-13
 
 ### ⚙️ Config
