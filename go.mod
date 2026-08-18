@@ -1,6 +1,6 @@
 module github.com/neosy/elengrab
 
-go 1.26.2
+go 1.26.6
 
 require (
 	github.com/Masterminds/squirrel v1.5.4

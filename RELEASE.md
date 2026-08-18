@@ -7,6 +7,9 @@
 - Renamed HTTP path constants to use Group and Path suffixes for consistent naming. [L113]
 - Added full path constants to avoid combining route groups and paths at call sites. [L113]
 
+### 📦 Build
+- Updated Go to 1.26.6.
+
 ---
 
 ## v0.24.2 — 2026-08-13
