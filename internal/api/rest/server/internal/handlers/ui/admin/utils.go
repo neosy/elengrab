@@ -16,10 +16,8 @@ import (
 func (h *AdminHandlers) redirectAuth(ctx *fasthttp.RequestCtx) bool {
 	ctxUser := policy.ResolveUser(ctx)
 	if ctxUser == nil || ctxUser.UserType() < dtypes.UserTypeUser {
-		loginPath := httppaths.GroupAccount + httppaths.PathLogin
-
 		loginURL := &url.URL{
-			Path: loginPath,
+			Path: httppaths.AuthLoginPath,
 		}
 
 		q := loginURL.Query()

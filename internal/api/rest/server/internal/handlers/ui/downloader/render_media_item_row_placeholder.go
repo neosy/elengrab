@@ -25,7 +25,7 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 		dtypes.ImageSourceSite,
 	}
 
-	downloadImageURL := httppaths.BuildPathMediaItemImage(schelduleDownload.DownloadID, schelduleDownload.ImageMetaHash(time.Now().String()), imageSources)
+	downloadImageURL := httppaths.BuildMediaItemImagePath(schelduleDownload.DownloadID, schelduleDownload.ImageMetaHash(time.Now().String()), imageSources)
 
 	id := idcodec.EncodeUUIDBase64URL(schelduleDownload.DownloadID)
 
@@ -42,14 +42,14 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 
 		ImageURL: downloadImageURL,
 
-		ImageAvatarURL: httppaths.BuildPathMediaItemImage(
+		ImageAvatarURL: httppaths.BuildMediaItemImagePath(
 			schelduleDownload.DownloadID,
 			schelduleDownload.ImageMetaHash(time.Now().String()),
 			[]dtypes.ImageSource{dtypes.ImageSourceAvatar},
 		),
 
 		DeleteURL: httppaths.BuildMediaItemPath(schelduleDownload.DownloadID),
-		FilePath:  httppaths.BuildPathMediaItemRow(schelduleDownload.DownloadID),
+		FilePath:  httppaths.BuildMediaItemRowPath(schelduleDownload.DownloadID),
 		FileSize:  "-",
 		Format:    "-",
 		Duration:  humanize.DurationClock(0),

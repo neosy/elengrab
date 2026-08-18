@@ -55,7 +55,7 @@ func (h *DownloaderHandlers) redirectGuestIfAuthRequired(ctx *fasthttp.RequestCt
 	if h.appMode == dtypes.AppModeAuthenticated {
 		ctxUser := policy.ResolveUser(ctx)
 		if ctxUser == nil || ctxUser.UserType() < dtypes.UserTypeUser {
-			ctx.Redirect(httppaths.GroupAccount+httppaths.PathLogin, fasthttp.StatusFound)
+			ctx.Redirect(httppaths.AuthLoginPath, fasthttp.StatusFound)
 			return true
 		}
 	}
@@ -148,7 +148,7 @@ func mediaSourceFromURL(mediaURL string) string {
 
 func (h *DownloaderHandlers) buildMediaWatchURL(downloadID uuid.UUID) string {
 	return strings.TrimSuffix(h.baseURL, "/") +
-		httppaths.BuildPathMediaItemWatch(downloadID)
+		httppaths.BuildMediaItemWatchPath(downloadID)
 }
 
 func (h *DownloaderHandlers) getVisibilityResponse(info *ucdto.MediaDownloadInfo) *dto.VisibilityResponse {
@@ -175,7 +175,7 @@ func (h *DownloaderHandlers) hasShareLink(ctx context.Context, downloadID uuid.U
 }
 
 func (h *DownloaderHandlers) buildMediaAvatarImageURL(downloadInfo *ucdto.MediaDownloadInfo) string {
-	url := httppaths.BuildPathMediaItemImage(
+	url := httppaths.BuildMediaItemImagePath(
 		downloadInfo.DownloadID,
 		downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
@@ -187,7 +187,7 @@ func (h *DownloaderHandlers) buildMediaAvatarImageURL(downloadInfo *ucdto.MediaD
 }
 
 func (h *DownloaderHandlers) buildMediaSiteImageURL(downloadInfo *ucdto.MediaDownloadInfo) string {
-	url := httppaths.BuildPathMediaItemImage(
+	url := httppaths.BuildMediaItemImagePath(
 		downloadInfo.DownloadID,
 		downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{

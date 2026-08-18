@@ -9,38 +9,38 @@ import (
 
 const (
 	// Groups
-	GroupStatic = "/static"
+	StaticGroup = "/static"
 
-	GroupStaticCss             = GroupStatic + "/css"
-	GroupStaticFonts           = GroupStatic + "/fonts"
-	GroupStaticJs              = GroupStatic + "/js"
-	GroupStaticImages          = GroupStatic + "/images"
-	GroupStaticIcons           = GroupStatic + "/icons"
-	GroupStaticPwa             = GroupStatic + "/pwa"
-	GroupStaticThumbnails      = GroupStatic + "/thumbnails"
-	GroupStaticYoutubeChannels = GroupStatic + "/ytchannels"
+	StaticCssGroup             = StaticGroup + "/css"
+	StaticFontsGroup           = StaticGroup + "/fonts"
+	StaticJsGroup              = StaticGroup + "/js"
+	StaticImagesGroup          = StaticGroup + "/images"
+	StaticIconsGroup           = StaticGroup + "/icons"
+	StaticPwaGroup             = StaticGroup + "/pwa"
+	StaticThumbnailsGroup      = StaticGroup + "/thumbnails"
+	StaticYoutubeChannelsGroup = StaticGroup + "/ytchannels"
 
 	// Path files
-	PathCssFiles        = "/css/{filepath:*}"
-	PathFontFiles       = "/fonts/{filepath:*}"
-	PathImageFiles      = "/images/{filepath:*}"
-	PathImageFaviconICO = "/images/favicon.ico"
-	PathIconFiles       = "/icons/{filepath:*}"
-	PathJsFiles         = "/js/{filepath:*}"
-	PathPwaFiles        = "/pwa/{filepath:*}"
-	PathThumbnail       = "/thumbnails/{thumbnailId}"
-	PathYoutubeChannel  = "/ytchannels/{channelId}"
+	CssFilesPath        = "/css/{filepath:*}"
+	FontFilesPath       = "/fonts/{filepath:*}"
+	ImageFilesPath      = "/images/{filepath:*}"
+	ImageFaviconICOPath = "/images/favicon.ico"
+	IconFilesPath       = "/icons/{filepath:*}"
+	JsFilesPath         = "/js/{filepath:*}"
+	PwaFilesPath        = "/pwa/{filepath:*}"
+	ThumbnailPath       = "/thumbnails/{thumbnailId}"
+	YoutubeChannelPath  = "/ytchannels/{channelId}"
 )
 
 func BuildThumbnailPath(thumbID uuid.UUID) string {
 	id := idcodec.EncodeUUIDBase64URL(thumbID)
-	return GroupStatic + strings.Replace(PathThumbnail, "{thumbnailId}", id, 1)
+	return StaticGroup + strings.Replace(ThumbnailPath, "{thumbnailId}", id, 1)
 }
 
 func BuildImagePath(fileName string) string {
-	return GroupStatic + strings.Replace(PathImageFiles, "{filepath:*}", fileName, 1)
+	return StaticGroup + strings.Replace(ImageFilesPath, "{filepath:*}", fileName, 1)
 }
 
 func BuildIconPath(fileName string) string {
-	return GroupStatic + strings.Replace(PathIconFiles, "{filepath:*}", fileName, 1)
+	return StaticGroup + strings.Replace(IconFilesPath, "{filepath:*}", fileName, 1)
 }

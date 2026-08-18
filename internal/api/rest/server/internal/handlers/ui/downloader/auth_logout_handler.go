@@ -18,5 +18,5 @@ func (h *DownloaderHandlers) AuthLogoutHandler(ctx *fasthttp.RequestCtx) {
 	if ctxUser != nil {
 		authmw.CookieSessionTokenKey.DeleteWithSecure(ctx)
 	}
-	ctx.Redirect(httppaths.PathIndex, fasthttp.StatusFound)
+	ctx.Redirect(httppaths.IndexPath, fasthttp.StatusFound)
 }

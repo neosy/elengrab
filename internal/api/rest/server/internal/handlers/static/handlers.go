@@ -84,7 +84,7 @@ func (h *StaticHandlers) newFSHandler(name string, httpPath string) fasthttp.Req
 	re := regexp.MustCompile(`^(.*?)(\.[0-9a-f]{6,})?(\.css|\.js|\.json)$`)
 
 	return func(ctx *fasthttp.RequestCtx) {
-		path := httppaths.GroupStatic + "/" + httpPath
+		path := httppaths.StaticGroup + "/" + httpPath
 
 		pathSuffix := string(ctx.Path()[len(path):])
 		fileName, _ := strings.CutPrefix(pathSuffix, "/")

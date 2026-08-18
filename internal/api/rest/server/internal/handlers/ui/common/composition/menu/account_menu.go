@@ -30,7 +30,7 @@ var accountMenuActions = []accountMenuAction{
 		Action: "logout",
 		Title:  "Logout",
 		icon:   icons.AccountMenuLogoutIcon,
-		URL:    httppaths.GroupAccount + httppaths.PathLogout,
+		URL:    httppaths.AuthLogoutPath,
 	},
 }
 

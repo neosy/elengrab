@@ -8,8 +8,8 @@ import (
 // registerAPI register API routes.
 func (r *routes) registerAPI(v1 *apiv1.V1Handlers) {
 	// Youtube channel
-	group := r.router.Group(httppaths.GroupV1YoutubeChannelClient)
+	group := r.router.Group(httppaths.APIV1YoutubeChannelClientGroup)
 	{
-		group.GET(httppaths.PathV1GetYoutubeChannelByID, v1.GetChannelByID)
+		group.GET(httppaths.APIV1GetYoutubeChannelByIDPath, v1.GetChannelByID)
 	}
 }

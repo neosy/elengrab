@@ -65,7 +65,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		}
 	}
 
-	downloadItemImageURL := httppaths.BuildPathMediaItemImage(
+	downloadItemImageURL := httppaths.BuildMediaItemImagePath(
 		params.downloadInfo.DownloadID,
 		params.downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
@@ -83,9 +83,9 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 
 	var watchURL, downloadURL, streamURL string
 	if params.downloadInfo.Status == dtypes.MediaDownloadStatusDone {
-		watchURL = httppaths.BuildPathMediaItemWatch(params.downloadInfo.DownloadID)
-		downloadURL = httppaths.BuildPathMediaItemDownload(params.downloadInfo.DownloadID)
-		streamURL = httppaths.BuildPathMediaItemStream(params.downloadInfo.DownloadID)
+		watchURL = httppaths.BuildMediaItemWatchPath(params.downloadInfo.DownloadID)
+		downloadURL = httppaths.BuildMediaItemDownloadPath(params.downloadInfo.DownloadID)
+		streamURL = httppaths.BuildMediaItemStreamPath(params.downloadInfo.DownloadID)
 	}
 
 	var (
@@ -157,8 +157,8 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		ImageAvatarURL: h.buildMediaAvatarImageURL(params.downloadInfo),
 		ImageSiteURL:   h.buildMediaSiteImageURL(params.downloadInfo),
 
-		DownloadRowPath:    httppaths.BuildPathMediaItemRow(params.downloadInfo.DownloadID),
-		DownloadRepeatPath: httppaths.BuildPathMediaItemDownloadRepeat(params.downloadInfo.DownloadID),
+		DownloadRowPath:    httppaths.BuildMediaItemRowPath(params.downloadInfo.DownloadID),
+		DownloadRepeatPath: httppaths.BuildMediaItemDownloadRepeatPath(params.downloadInfo.DownloadID),
 
 		FileSize:   fileSize,
 		Format:     format,
