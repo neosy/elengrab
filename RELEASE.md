@@ -1,5 +1,47 @@
 # Releases
 
+## v0.25.0 — 2026-09-15
+
+### ✨ Features
+- Added the ability to edit download cards while the download is in progress. [L115]
+- Added transaction support to the cache package, allowing multiple write operations to be executed under a single lock. [L115]
+- Added media sorting options (Newest, Popular, Oldest). Closes #450
+- Encode URL parameters into a compact `sp` parameter. [L127]
+
+### 🖥️ UI / Frontend
+- Reordered favicon declarations to prioritize larger image sizes for better favicon selection in Google Search Console. [L116]
+- Added SVG versions of the favicon and logo. [L117]
+- Updated favicon links to use `favicon.svg`. [L117]
+- Reordered favicon links. [L117]
+- Replaced PNG logo images with `logo.svg`. [L117]
+
+### 🎨 Style
+- Updated the add media icon and changed the plus color. [L121]
+
+### 🧩 Refactor
+- Renamed /account paths to /auth. [L113]
+- Renamed HTTP path constants to use Group and Path suffixes for consistent naming. [L113]
+- Added full path constants to avoid combining route groups and paths at call sites. [L113]
+- Replaced `fatih/structs` with the standard `reflect` package for struct field and tag processing. [L114]
+- Added tests for tag-based field and value operations to ensure the refactoring does not change existing behavior. [L114]
+- Refactored download execution and metadata refresh logic in the `download_executor` package. [L115]
+- Simplified DownloadState handling. [L120]
+- Restructured migrations into separate components and extracted them into a dedicated use case. [#450]
+- Split downloader interfaces into dedicated API, maintenance, and worker contracts. [#450]
+- Reworked SQLite repositories. [#450]
+- Renamed downloader history path from /downloader/history to /downloader/items. [#450]
+
+### 🐛 Fix
+- Fixed media download updates to correctly apply changes using the latest download data. [L120]
+
+### 📦 Build
+- Updated Go to 1.27.1.
+
+### ⚙️ Config
+- Disabled the per-IP connection limit to support deployments behind reverse proxies. [L124]
+
+---
+
 ## v0.24.3 — 2026-09-12
 
 ### 🐛 Fix

@@ -34,8 +34,8 @@ func (h *DownloaderHandlers) WatchPageByDownloadIDHandler(ctx *fasthttp.RequestC
 
 	h.renderWatchPage(ctx,
 		renderWatchPageRequest{
-			pageURL:        httppaths.BuildPathMediaItemWatch(downloadID),
-			streamURLPath:  httppaths.BuildPathMediaItemStream(downloadID),
+			pageURL:        httppaths.BuildMediaItemWatchPath(downloadID),
+			streamURLPath:  httppaths.BuildMediaItemStreamPath(downloadID),
 			downloadID:     downloadID,
 			showBackButton: true,
 			authCtx:        authCtx,

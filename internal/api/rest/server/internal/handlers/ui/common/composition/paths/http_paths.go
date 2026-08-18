@@ -34,25 +34,25 @@ type (
 
 var (
 	httpPathsDefault = HttpPaths{
-		StaticImages:          httppaths.GroupStaticImages,
-		StaticIcons:           httppaths.GroupStaticIcons,
-		StaticCss:             httppaths.GroupStaticCss,
-		StaticJs:              httppaths.GroupStaticJs,
-		StaticPwa:             httppaths.GroupStaticPwa,
-		StaticThumbnails:      httppaths.GroupStaticThumbnails,
-		StaticYoutubeChannels: httppaths.GroupStaticYoutubeChannels,
+		StaticImages:          httppaths.StaticImagesGroup,
+		StaticIcons:           httppaths.StaticIconsGroup,
+		StaticCss:             httppaths.StaticCssGroup,
+		StaticJs:              httppaths.StaticJsGroup,
+		StaticPwa:             httppaths.StaticPwaGroup,
+		StaticThumbnails:      httppaths.StaticThumbnailsGroup,
+		StaticYoutubeChannels: httppaths.StaticYoutubeChannelsGroup,
 
-		AuthRegister: httppaths.GroupAccount + httppaths.PathRegister,
-		AuthLogin:    httppaths.GroupAccount + httppaths.PathLogin,
+		AuthRegister: httppaths.AuthRegisterPath,
+		AuthLogin:    httppaths.AuthLoginPath,
 
-		Downloader:        httppaths.GroupDownloader,
-		AccountMenu:       httppaths.GroupDownloader + httppaths.PathAccountMenu,
-		SettingsMenu:      httppaths.GroupDownloader + httppaths.PathSettingsMenu,
-		RowMenu:           httppaths.GroupDownloader + httppaths.PathMediaItemMenu,
-		DownloaderHistory: httppaths.GroupDownloader + httppaths.PathHistory,
-		DownloaderGrab:    httppaths.GroupDownloader + httppaths.PathGrab,
-		DownloaderSearch:  httppaths.GroupDownloader + httppaths.PathSearch,
-		DownloaderEvents:  httppaths.GroupDownloader + httppaths.PathEvents,
+		Downloader:        httppaths.DownloaderGroup,
+		AccountMenu:       httppaths.DownloaderAccountMenuPath,
+		SettingsMenu:      httppaths.DownloaderSettingsMenuPath,
+		RowMenu:           httppaths.DownloaderGroup + httppaths.MediaItemMenuPath,
+		DownloaderHistory: httppaths.DownloaderHistoryPath,
+		DownloaderGrab:    httppaths.DownloaderGrabPath,
+		DownloaderSearch:  httppaths.DownloaderSearchPath,
+		DownloaderEvents:  httppaths.DownloaderEventsPath,
 	}
 )
 
@@ -61,29 +61,29 @@ func NewHttpPaths() HttpPaths {
 }
 
 func ImagePath(fileName string) string {
-	return httppaths.GroupStaticImages + "/" + fileName
+	return httppaths.StaticImagesGroup + "/" + fileName
 }
 
 func IconPath(fileName string) string {
-	return httppaths.GroupStaticIcons + "/" + fileName
+	return httppaths.StaticIconsGroup + "/" + fileName
 }
 
 func CssPath(fileName string) string {
-	return httppaths.GroupStaticCss + "/" + fileName
+	return httppaths.StaticCssGroup + "/" + fileName
 }
 
 func JsPath(fileName string) string {
-	return httppaths.GroupStaticJs + "/" + fileName
+	return httppaths.StaticJsGroup + "/" + fileName
 }
 
 func PwaPath(fileName string) string {
-	return httppaths.GroupStaticPwa + "/" + fileName
+	return httppaths.StaticPwaGroup + "/" + fileName
 }
 
 func ThumbnailPath(id string) string {
-	return httppaths.GroupStaticThumbnails + "/" + id
+	return httppaths.StaticThumbnailsGroup + "/" + id
 }
 
 func YoutubeChannelPath(channelId string) string {
-	return httppaths.GroupStaticYoutubeChannels + "/" + channelId
+	return httppaths.StaticYoutubeChannelsGroup + "/" + channelId
 }
