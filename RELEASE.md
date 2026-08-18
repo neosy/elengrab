@@ -6,6 +6,8 @@
 - Renamed /account paths to /auth. [L113]
 - Renamed HTTP path constants to use Group and Path suffixes for consistent naming. [L113]
 - Added full path constants to avoid combining route groups and paths at call sites. [L113]
+- Replaced `fatih/structs` with the standard `reflect` package for struct field and tag processing. [L114]
+- Added tests for tag-based field and value operations to ensure the refactoring does not change existing behavior. [L114]
 
 ### 📦 Build
 - Updated Go to 1.26.6.

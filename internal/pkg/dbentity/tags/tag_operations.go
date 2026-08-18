@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/fatih/structs"
 )
 
 // TagName is a type alias for a string, used to represent a tag name
@@ -87,46 +86,44 @@ func Fields(ent any, operTagName TagName) []string {
 	return FieldsExceptFalseTag(ent, operTagName)
 }
 
-// FieldsWithTrueTag returns a list of fields that have the operTagName explicitly set to tagValueTrue
+// FieldsWithTrueTag returns a list of fields that have the operTagName explicitly set to tagValueTrue.
 func FieldsWithTrueTag(ent any, operTagName TagName) []string {
-	var fields = make([]string, 0, len(structs.Fields(ent)))
+	typeInfo := structType(ent)
 
-	// Iterate through all struct fields
-	for _, field := range structs.Fields(ent) {
+	result := make([]string, 0, typeInfo.NumField())
+
+	for field := range typeInfo.Fields() {
 		// Get the field name specified in the tag according to columnConfig.tagName
-		fieldName := field.Tag(columnConfig.tagName.String())
+		fieldName := field.Tag.Get(columnConfig.tagName.String())
 
 		// Get the value of the operTagName tag
-		operTag := field.Tag(operTagName.String())
+		operTag := field.Tag.Get(operTagName.String())
 
-		// Condition: field name is specified, and operTagName is set to tagValueTrue
+		// Include fields explicitly enabled for the operation.
 		if fieldName != "" && operTag == tagValueTrue {
-			fields = append(fields, fieldName)
+			result = append(result, fieldName)
 		}
 	}
 
-	return fields
+	return result
 }
 
 // FieldsExceptFalseTag returns fields with a tag and without operTagName set to "false".
 func FieldsExceptFalseTag(ent any, operTagName TagName) []string {
-	var fields = make([]string, 0, len(structs.Fields(ent)))
+	typeInfo := structType(ent)
 
-	// Iterate through all struct fields
-	for _, field := range structs.Fields(ent) {
-		// Get the field name from the corresponding tag
-		fieldName := field.Tag(columnConfig.tagName.String())
+	result := make([]string, 0, typeInfo.NumField())
 
-		if fieldName != "" {
-			// Check if the exclusion flag is set in the operTagName tag
-			if field.Tag(operTagName.String()) == tagValueFalse {
-				continue
-			}
-			fields = append(fields, fieldName)
+	for field := range typeInfo.Fields() {
+		fieldName := field.Tag.Get(columnConfig.tagName.String())
+
+		if fieldName != "" &&
+			field.Tag.Get(operTagName.String()) != tagValueFalse {
+			result = append(result, fieldName)
 		}
 	}
 
-	return fields
+	return result
 }
 
 // Values returns field values for which operTagName is not explicitly set to "false".
@@ -138,29 +135,31 @@ func Values(ent any, operTagName TagName) []any {
 // ValuesWithTrueTag returns a list of field values for which the operTagName tag is explicitly set to tagValueTrue.
 // If a field has an expression tag (TagNameExpr), its value is wrapped using squirrel.Expr.
 func ValuesWithTrueTag(ent any, operTagName TagName) []any {
-	var values = make([]any, 0, len(structs.Fields(ent)))
+	typeInfo := structType(ent)
+	value := structValue(ent)
 
-	// Iterate through all struct fields
-	for _, field := range structs.Fields(ent) {
-		// Get the field name from the corresponding tag
-		fieldName := field.Tag(columnConfig.tagName.String())
+	values := make([]any, 0, typeInfo.NumField())
 
-		if fieldName != "" {
-			// Skip if operTagName is not set to tagValueTrue
-			if field.Tag(operTagName.String()) != tagValueTrue {
-				continue
-			}
+	for i := range typeInfo.NumField() {
+		field := typeInfo.Field(i)
 
-			// Check if the field has an expression tag (TagNameExpr)
-			exprTag := field.Tag(TagNameExpr.String())
-			if exprTag != "" {
-				// Add the expression (e.g., SQL expression) to the values slice
-				values = append(values, squirrel.Expr(exprTag))
-			} else {
-				// If there is no expression tag, add the field value
-				values = append(values, field.Value())
-			}
+		// Skip fields without a column tag.
+		if field.Tag.Get(columnConfig.tagName.String()) == "" {
+			continue
 		}
+
+		// Skip if operTagName is not set to tagValueTrue.
+		if field.Tag.Get(operTagName.String()) != tagValueTrue {
+			continue
+		}
+
+		// Use SQL expression when specified.
+		if exprTag := field.Tag.Get(TagNameExpr.String()); exprTag != "" {
+			values = append(values, squirrel.Expr(exprTag))
+			continue
+		}
+
+		values = append(values, value.Field(i).Interface())
 	}
 
 	return values
@@ -169,29 +168,31 @@ func ValuesWithTrueTag(ent any, operTagName TagName) []any {
 // ValuesExceptFalseTag returns field values for which operTagName is not explicitly set to "false".
 // If TagNameExpr is set, the value is wrapped with squirrel.Expr.
 func ValuesExceptFalseTag(ent any, operTagName TagName) []any {
-	var values = make([]any, 0, len(structs.Fields(ent)))
+	typeInfo := structType(ent)
+	value := structValue(ent)
 
-	// Iterate through all struct fields
-	for _, field := range structs.Fields(ent) {
-		// Get the field name from the corresponding tag
-		fieldName := field.Tag(columnConfig.tagName.String())
+	values := make([]any, 0, typeInfo.NumField())
 
-		if fieldName != "" {
-			// Skip if operTagName is set to tagValueFalse
-			if field.Tag(operTagName.String()) == tagValueFalse {
-				continue
-			}
+	for i := range typeInfo.NumField() {
+		field := typeInfo.Field(i)
 
-			// Check if the field has an expression tag (TagNameExpr)
-			exprTag := field.Tag(TagNameExpr.String())
-			if exprTag != "" {
-				// Add the expression (e.g., SQL expression) to the values slice
-				values = append(values, squirrel.Expr(exprTag))
-			} else {
-				// If there is no expression tag, add the field value
-				values = append(values, field.Value())
-			}
+		// Skip fields without a column tag.
+		if field.Tag.Get(columnConfig.tagName.String()) == "" {
+			continue
 		}
+
+		// Skip fields explicitly excluded from the operation.
+		if field.Tag.Get(operTagName.String()) == tagValueFalse {
+			continue
+		}
+
+		// Use SQL expression when specified.
+		if exprTag := field.Tag.Get(TagNameExpr.String()); exprTag != "" {
+			values = append(values, squirrel.Expr(exprTag))
+			continue
+		}
+
+		values = append(values, value.Field(i).Interface())
 	}
 
 	return values
@@ -201,11 +202,11 @@ func ValuesExceptFalseTag(ent any, operTagName TagName) []any {
 // using the field's offset relative to the beginning of the struct.
 // Returns the tag value as a string and a boolean indicating whether it was found.
 func GetFieldTagByOffset(structPtr any, fieldPtr any, tagKey string) (string, bool) {
-	// Get the type of the struct
-	structType := reflect.TypeOf(structPtr).Elem()
+	typeInfo := structType(structPtr)
 
 	// Get the base address of the struct (in bytes)
 	baseAddr := reflect.ValueOf(structPtr).Pointer()
+
 	// Get the address of the field (in bytes)
 	fieldAddr := reflect.ValueOf(fieldPtr).Pointer()
 
@@ -213,15 +214,31 @@ func GetFieldTagByOffset(structPtr any, fieldPtr any, tagKey string) (string, bo
 	offsetAddr := uintptr(fieldAddr - baseAddr)
 
 	// Iterate through all struct fields
-	for i := range structType.NumField() {
-		field := structType.Field(i)
-
-		// Compare the offset
+	for field := range typeInfo.Fields() {
 		if field.Offset == offsetAddr {
 			return field.Tag.Get(tagKey), true
 		}
 	}
 
-	// Field not found
 	return "", false
+}
+
+func structType(ent any) reflect.Type {
+	typeInfo := reflect.TypeOf(ent)
+
+	if typeInfo.Kind() == reflect.Pointer {
+		typeInfo = typeInfo.Elem()
+	}
+
+	return typeInfo
+}
+
+func structValue(ent any) reflect.Value {
+	value := reflect.ValueOf(ent)
+
+	if value.Kind() == reflect.Pointer {
+		value = value.Elem()
+	}
+
+	return value
 }
