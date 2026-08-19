@@ -13,11 +13,17 @@ CREATE TABLE IF NOT EXISTS files (
     -- Media URL
     media_url TEXT NOT NULL,
 
+    -- Original title from the media source
+    media_title_original TEXT NOT NULL,
+
     -- Title media
     media_title TEXT NOT NULL,
 
     -- MediaTitleLower in lowercase for efficient case-insensitive searches
     media_title_lower TEXT NOT NULL,
+
+    -- Original description from the media source
+    media_description_original TEXT NULL,
 
     -- Description media
     media_description TEXT NULL,

@@ -13,7 +13,6 @@ import (
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 func (uc *Executor) startDownload(
@@ -38,7 +37,7 @@ func (uc *Executor) startDownload(
 		)
 		download, e := uc.download.FindByDownloadIDNoCache(uc.appCtx, task.DownloadID)
 		if e == nil && download != nil {
-			uc.downloadStatus.Failed(uc.appCtx, task.DownloadID, nil, uptr.String(err.Error()))
+			uc.downloadStatus.Failed(uc.appCtx, task.DownloadID, nil, new(ctx.Err().Error()))
 		}
 		uc.dlStateCache.Delete(uc.appCtx, task.DownloadID)
 		return nil, ctx.Err()
@@ -49,7 +48,7 @@ func (uc *Executor) startDownload(
 		"error", err,
 	)
 
-	uc.downloadStatus.Failed(ctx, task.DownloadID, nil, uptr.String(err.Error()))
+	uc.downloadStatus.Failed(ctx, task.DownloadID, nil, new(err.Error()))
 
 	return nil, err
 }
@@ -75,16 +74,6 @@ func (uc *Executor) processDownloadResults(
 		}
 
 		if r.Error != nil {
-			// The context was canceled
-			if ctx.Err() != nil {
-				download, e := uc.download.FindByDownloadIDNoCache(uc.appCtx, task.DownloadID)
-				if e == nil && download != nil {
-					uc.downloadStatus.Failed(uc.appCtx, task.DownloadID, nil, new(r.Error.Error()))
-				}
-				uc.dlStateCache.Delete(uc.appCtx, task.DownloadID)
-				return nil, ctx.Err()
-			}
-
 			uc.logger.Error(
 				"Failed to download",
 				"downloadID", task.DownloadID,
@@ -92,24 +81,22 @@ func (uc *Executor) processDownloadResults(
 			)
 
 			patch := func(download *ddownload.MediaDownload) {
-				if download == nil || result == nil {
-					return
-				}
-
-				download.ChannelID = result.ChannelID
-				if result.MediaTitle != "" {
-					download.MediaTitle = result.MediaTitle
-				}
-				if result.FileExt != "" {
-					download.Ext = result.FileExt
-				}
-				if result.Filesize != nil && *result.Filesize != 0 {
-					download.FileSize = result.Filesize
-				}
+				uc.mappers.MapDownloadResultToMediaDownload(download, result, thumbnailsIDs)
 			}
+
+			ctx := ctx
+			// The context was canceled
+			if ctx.Err() != nil {
+				ctx = uc.appCtx
+			}
+
 			uc.downloadStatus.Failed(ctx, task.DownloadID, patch, new(r.Error.Error()))
+			uc.dlStateCache.Delete(ctx, task.DownloadID)
+
 			return nil, r.Error
 		}
+
+		result = r
 
 		state, err := uc.dlStateCache.FindByDownloadID(ctx, task.DownloadID)
 		if err != nil {
@@ -122,7 +109,10 @@ func (uc *Executor) processDownloadResults(
 			return nil, err
 		}
 
-		result = r
+		if state.Download != nil && state.Download.MediaInfo != nil {
+			thumbnailsIDs.ThumbnailID = state.Download.MediaInfo.ThumbnailID
+			thumbnailsIDs.FrameThumbnailID = state.Download.MediaInfo.FrameThumbnailID
+		}
 
 		// Adding a record to the YouTube Channel table
 		if result.ChannelID != nil && result.Channel != nil {
@@ -143,7 +133,7 @@ func (uc *Executor) processDownloadResults(
 			})
 		}
 
-		if result.Thumbnail != nil {
+		if result.Thumbnail != nil && thumbnailsIDs.ThumbnailID == nil {
 			thumbnailProcess.Do(func() {
 				req := &dto.CreateThumbnailRequest{
 					SourceType: dtypes.ThumbnailSourceTypeExternal,
@@ -158,7 +148,7 @@ func (uc *Executor) processDownloadResults(
 		}
 
 		mediaInfo := uc.mappers.MapMediaInfoDomain(result.MediaInfo, thumbnailsIDs)
-		state.InitFromDownloaderResult(result, mediaInfo)
+		uc.mappers.MapDownloaderResultToState(state, result, mediaInfo)
 		uc.dlStateCache.Save(
 			ctx,
 			state,
@@ -187,7 +177,7 @@ func (uc *Executor) processDownloadResults(
 		return nil, err
 	}
 
-	if result.ThumbnailVideoFrame != nil {
+	if result.ThumbnailVideoFrame != nil && thumbnailsIDs.FrameThumbnailID == nil {
 		req := &dto.CreateThumbnailRequest{
 			SourceType: dtypes.ThumbnailSourceTypeVideoFrame,
 			ImageData:  result.ThumbnailVideoFrame,

@@ -32,7 +32,7 @@ func (uc *MediaUserWatchPosition) Write(ctx context.Context, position *ddownload
 		return errorx.Errorf("failed to insert record: %w", err, exceptionx.ERROR)
 	}
 
-	uc.positionCacheRep.Save(position)
+	uc.positionCacheRep.Save(ctx, position)
 
 	return nil
 }

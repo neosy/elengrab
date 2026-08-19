@@ -1,6 +1,7 @@
 package paths
 
 import (
+	"context"
 	"path/filepath"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
@@ -92,10 +93,10 @@ func (names cssFileNames) newLoader(assets *assets.Assets, loader loaderAssetPat
 	}
 }
 
-func (name cssFileName) Raw(assets *assets.Assets) ([]byte, error) {
+func (name cssFileName) Raw(ctx context.Context, assets *assets.Assets) ([]byte, error) {
 	filePath := filepath.Join(assets.FolderPaths().Css(), string(name))
 
-	file, err := assets.ReadAssetFile(filePath)
+	file, err := assets.ReadAssetFile(ctx, filePath)
 	if err != nil {
 		return nil, err
 	}

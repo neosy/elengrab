@@ -27,7 +27,7 @@ func (uc *MediaUserWatchPosition) Find(
 		sessionID = uuid.Nil
 	}
 
-	position, cacheStatus, _ := uc.positionCacheRep.Find(downloadID, userID, sessionID)
+	position, cacheStatus, _ := uc.positionCacheRep.Find(ctx, downloadID, userID, sessionID)
 	if position != nil {
 		return position, nil
 	}
@@ -46,9 +46,9 @@ func (uc *MediaUserWatchPosition) Find(
 	}
 
 	if position != nil {
-		uc.positionCacheRep.Save(position)
+		uc.positionCacheRep.Save(ctx, position)
 	} else {
-		uc.positionCacheRep.SaveNegative(downloadID, userID, sessionID)
+		uc.positionCacheRep.SaveNegative(ctx, downloadID, userID, sessionID)
 	}
 
 	return position, nil

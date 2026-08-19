@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	ytdlpsrv "github.com/neosy/elengrab/internal/app/services/ytdlp"
+	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/helper"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
@@ -14,6 +15,7 @@ import (
 )
 
 type refreshMetadataPatch struct {
+	title       *string
 	description *string
 
 	mediaInfo dtypes.MediaInfo
@@ -121,11 +123,12 @@ func (uc *Executor) collectMetadata(
 	}
 
 	if mediaInfo != nil {
-		var description string
-		if media.MediaDescription != nil {
-			description = *media.MediaDescription
+		if mediaInfo.Title != media.MediaTitle {
+			patch.needPatch = true
+			patch.title = &mediaInfo.Title
 		}
-		if mediaInfo.Description != "" && mediaInfo.Description != description {
+
+		if helper.ValuesEqual(media.MediaDescription, &mediaInfo.Description) {
 			patch.needPatch = true
 			patch.description = &mediaInfo.Description
 		}
@@ -230,8 +233,17 @@ func (uc *Executor) applyMetadataPatch(
 	}
 
 	patch := func(d *ddownload.MediaDownload) bool {
+		if metadataPatch.title != nil {
+			if d.MediaTitle == d.MediaTitleOriginal {
+				d.MediaTitle = *metadataPatch.title
+			}
+			d.MediaTitleOriginal = *metadataPatch.title
+		}
 		if metadataPatch.description != nil {
-			d.MediaDescription = metadataPatch.description
+			if helper.ValuesEqual(d.MediaDescription, d.MediaDescriptionOriginal) {
+				d.MediaDescription = metadataPatch.description
+			}
+			d.MediaDescriptionOriginal = metadataPatch.description
 		}
 		d.MediaInfo = &metadataPatch.mediaInfo
 		return true

@@ -54,6 +54,12 @@ var (
 		MediaDownloadStatusDone,
 		MediaDownloadStatusRefreshing,
 	}
+
+	editableStatuses = []MediaDownloadStatus{
+		MediaDownloadStatusWorking,
+		MediaDownloadStatusDone,
+		MediaDownloadStatusRefreshing,
+	}
 )
 
 // String returns the value as a string.
@@ -82,6 +88,13 @@ func (v MediaDownloadStatus) Contains(statuses []MediaDownloadStatus) bool {
 func MediaDownloadCompletedStatuses() []MediaDownloadStatus {
 	statuses := make([]MediaDownloadStatus, len(completedStatuses))
 	copy(statuses, completedStatuses)
+	return statuses
+}
+
+// MediaDownloadEditableStatuses returns a copy of the editable download statuses.
+func MediaDownloadEditableStatuses() []MediaDownloadStatus {
+	statuses := make([]MediaDownloadStatus, len(editableStatuses))
+	copy(statuses, editableStatuses)
 	return statuses
 }
 

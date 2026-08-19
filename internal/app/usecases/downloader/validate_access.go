@@ -1,6 +1,8 @@
 package downloader
 
 import (
+	"slices"
+
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	iconfig "github.com/neosy/elengrab/internal/config"
@@ -77,4 +79,15 @@ func (uc *Downloader) validateDownloadWriteAccess(authCtx dauth.AuthContext, dow
 	}
 
 	return ierrors.ErrAccessDenied
+}
+
+func (uc *Downloader) validateDownloadEditAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
+	if !slices.Contains(dtypes.MediaDownloadEditableStatuses(), download.Status) {
+		return ierrors.ErrAccessDenied
+	}
+	return uc.validateDownloadWriteAccess(authCtx, download)
+}
+
+func (uc *Downloader) validateDownloadDeleteAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
+	return uc.validateDownloadWriteAccess(authCtx, download)
 }

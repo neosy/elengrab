@@ -22,12 +22,12 @@ type MediaUserWatchPositionRepository interface {
 type MediaUserWatchPositionCacheRepository interface {
 	memory.CacheRepository
 
-	Save(position *ddownload.MediaUserWatchPosition) error
-	SaveNegative(downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID) error
-	Delete(downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID) error
+	Save(ctx context.Context, position *ddownload.MediaUserWatchPosition) error
+	SaveNegative(ctx context.Context, downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID) error
+	Delete(ctx context.Context, downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID) error
 
-	Find(downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID) (*ddownload.MediaUserWatchPosition, memsimple.CacheStatus, error)
-	Exists(downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID) (bool, error)
+	Find(ctx context.Context, downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID) (*ddownload.MediaUserWatchPosition, memsimple.CacheStatus, error)
+	Exists(ctx context.Context, downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID) (bool, error)
 
 	CleanExpired(context.Context) error
 }
