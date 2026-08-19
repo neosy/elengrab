@@ -1,4 +1,4 @@
-package downloader
+package dlexecutor
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
-func (uc *Downloader) fetchIcon(ctx context.Context, url string) error {
+func (uc *Executor) fetchIcon(ctx context.Context, url string) error {
 	baseURL := httpx.BaseURL(url)
 
 	logo, err := uc.siteIcon.FindBySiteURL(ctx, baseURL)

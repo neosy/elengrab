@@ -8,6 +8,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/broadcaster"
 	dlmigration "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_data_migration"
+	dlexecutor "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_executor"
 	dlstate "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_state_cache"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task"
 	dltasktatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task_status"
@@ -15,7 +16,6 @@ import (
 	downloadstatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download_status"
 	mediawatch "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch"
 	siteicon "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon"
-	iconfetcher "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon_fetcher"
 	ytchannel "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/youtube_channel"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/mappers"
@@ -50,10 +50,10 @@ type Downloader struct {
 	ytChannel         *ytchannel.YoutubeChannel
 	siteIcon          *siteicon.SiteIcon
 	dlStateCache      *dlstate.DownloadStateCache
-	siteIconFetcher   *iconfetcher.SiteIconFetcher
 	authz             *authz.Authorization
 	downloadMigration *dlmigration.DownloadMigration
 	mediaWatch        *mediawatch.MediaWatch
+	dlExecutor        *dlexecutor.Executor
 
 	// broadcasters
 	broadcaster *broadcaster.Broadcaster
@@ -70,8 +70,6 @@ type Downloader struct {
 	demoMode                        bool
 	appMode                         dtypes.AppMode
 	deleteDuplicatesUniquenessScope dtypes.UniquenessScope
-	logoUpdateInterval              time.Duration
-	channelUpdateInterval           time.Duration
 }
 
 func NewDownloader(
@@ -128,6 +126,9 @@ func NewDownloader(
 
 	authz := authz.NewAuthorization(logger, appMode)
 
+	siteIcon := siteicon.NewSiteIcon(logger, siteLogoRep, siteLogoCacheRep)
+	ytChannel := ytchannel.NewYoutubeChannel(logger, ytChannelRep, ytChannelCacheRep)
+
 	downloader := &Downloader{
 		appCtx:  ctx,
 		logger:  logger,
@@ -152,9 +153,8 @@ func NewDownloader(
 		// Internal
 		dlTask:            dlTask,
 		dlTaskStatus:      dlTaskStatus,
-		ytChannel:         ytchannel.NewYoutubeChannel(logger, ytChannelRep, ytChannelCacheRep),
-		siteIcon:          siteicon.NewSiteIcon(logger, siteLogoRep, siteLogoCacheRep),
-		siteIconFetcher:   iconfetcher.NewSiteIconFetcher(logger),
+		ytChannel:         ytChannel,
+		siteIcon:          siteIcon,
 		authz:             authz,
 		downloadMigration: dlmigration.NewDownloadMigration(logger, downloadMigrationRep),
 
@@ -173,8 +173,6 @@ func NewDownloader(
 		demoMode:                        demoMode,
 		appMode:                         appMode,
 		deleteDuplicatesUniquenessScope: deleteDuplicatesUniquenessScope,
-		logoUpdateInterval:              logoUpdateInterval,
-		channelUpdateInterval:           channelUpdateInterval,
 	}
 
 	mediaWatch := mediawatch.NewMediaWatch(
@@ -207,10 +205,43 @@ func NewDownloader(
 
 	downloadStatus := downloadstatus.NewMediaDownloadStatus(logger, download, dlTask, dlTaskStatus)
 
+	dlExecutor := dlexecutor.NewExecutor(
+		ctx,
+		logger,
+
+		// Storages
+		downloadsStorage,
+
+		// Caches
+		dlStateCache,
+
+		// Services
+		downloaderSrv,
+		ffmpegSrv,
+
+		// Usecases
+		download,
+		downloadStatus,
+		siteIcon,
+		ytChannel,
+		thumbnail,
+
+		// Broadcaster
+		dlexecutor.Broadcaster{
+			DownloadUpdate:         downloader.broadcastDownloadUpdate,
+			DownloadProgressUpdate: downloader.broadcastDownloadProgressUpdate,
+		},
+
+		// Options
+		logoUpdateInterval,
+		channelUpdateInterval,
+	)
+
 	// Internal
 	downloader.download = download
 	downloader.downloadStatus = downloadStatus
 	downloader.mediaWatch = mediaWatch
+	downloader.dlExecutor = dlExecutor
 
 	return downloader
 }

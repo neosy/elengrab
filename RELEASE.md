@@ -18,9 +18,6 @@
 ### 🎨 Style
 - Updated the add media icon and changed the plus color. [L121]
 
-### 🖥️ UI / Frontend
-- Reordered favicon declarations to prioritize larger image sizes for better favicon selection in Google Search Console. [L116]
-
 ### 🧩 Refactor
 - Renamed /account paths to /auth. [L113]
 - Renamed HTTP path constants to use Group and Path suffixes for consistent naming. [L113]
@@ -51,9 +48,6 @@
 - Fixed public media disappearing when creating a record in guest mode. [L128]
 - Fixed guest records created with Authenticated visibility instead of Private visibility. [L128]
 - Allowed regular users to access media with Authenticated visibility. [L128]
-
-### 📦 Build
-- Updated Go to 1.26.6.
 
 ---
 
