@@ -63,7 +63,7 @@ func (uc *Downloader) GetDownloadInfoForEdit(
 		return nil, err
 	}
 
-	err = uc.validateDownloadWriteAccess(authCtx, resp.MediaDownload)
+	err = uc.validateDownloadEditAccess(authCtx, resp.MediaDownload)
 	if err != nil {
 		return nil, err
 	}

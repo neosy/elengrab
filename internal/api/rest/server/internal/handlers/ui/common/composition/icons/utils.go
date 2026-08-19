@@ -1,6 +1,7 @@
 package icons
 
 import (
+	"context"
 	"html/template"
 	"os"
 	"path/filepath"
@@ -9,7 +10,9 @@ import (
 func FileRaw(fileName string, iconsDir string) template.HTML {
 	const svgEmpty = `<svg width="1em" height="1em"></svg>`
 
-	icon, _, _ := iconRep.Find(fileName)
+	ctx := context.Background()
+
+	icon, _, _ := iconRep.Find(ctx, fileName)
 	if icon != nil {
 		return icon.raw
 	}
@@ -21,7 +24,7 @@ func FileRaw(fileName string, iconsDir string) template.HTML {
 		return svgEmpty
 	}
 
-	iconRep.Save(fileName, &iconEntry{template.HTML(data)})
+	iconRep.Save(ctx, fileName, &iconEntry{template.HTML(data)})
 
 	return template.HTML(data)
 }

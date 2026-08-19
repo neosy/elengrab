@@ -4,6 +4,7 @@
 
 ### ✨ Features
 - Added the ability to edit download cards while the download is in progress. [L115]
+- Added transaction support to the cache package, allowing multiple write operations to be executed under a single lock. [L115]
 
 ### 🖥️ UI / Frontend
 - Reordered favicon declarations to prioritize larger image sizes for better favicon selection in Google Search Console. [L116]

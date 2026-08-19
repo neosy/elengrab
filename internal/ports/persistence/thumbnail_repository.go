@@ -41,12 +41,12 @@ type ThumbnailCacheRepository interface {
 type ThumbnailFileCacheRepository interface {
 	memory.CacheRepository
 
-	Save(thumbID uuid.UUID, file []byte) error
-	SaveNegative(fileID uuid.UUID) error
-	Delete(fileID uuid.UUID) error
+	Save(ctx context.Context, thumbID uuid.UUID, file []byte) error
+	SaveNegative(ctx context.Context, fileID uuid.UUID) error
+	Delete(ctx context.Context, fileID uuid.UUID) error
 
-	FindByFileID(fileID uuid.UUID) ([]byte, memsimple.CacheStatus, error)
-	ExistsByFileID(fileID uuid.UUID) (bool, error)
+	FindByFileID(ctx context.Context, fileID uuid.UUID) ([]byte, memsimple.CacheStatus, error)
+	ExistsByFileID(ctx context.Context, fileID uuid.UUID) (bool, error)
 
 	CleanExpired(context.Context) error
 }

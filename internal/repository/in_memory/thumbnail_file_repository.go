@@ -49,7 +49,7 @@ func (r *ThumbnailFileRepository) Name() string {
 	return "thumbnail_file"
 }
 
-func (r *ThumbnailFileRepository) Save(fileID uuid.UUID, raw []byte) error {
+func (r *ThumbnailFileRepository) Save(ctx context.Context, fileID uuid.UUID, raw []byte) error {
 	if len(raw) == 0 || fileID == uuid.Nil {
 		return nil
 	}
@@ -70,10 +70,10 @@ func (r *ThumbnailFileRepository) Save(fileID uuid.UUID, raw []byte) error {
 		return nil
 	}
 
-	return r.Repository.Save(save)
+	return r.Repository.Save(ctx, save)
 }
 
-func (r *ThumbnailFileRepository) SaveNegative(fileID uuid.UUID) error {
+func (r *ThumbnailFileRepository) SaveNegative(ctx context.Context, fileID uuid.UUID) error {
 	if fileID == uuid.Nil {
 		return nil
 	}
@@ -87,29 +87,31 @@ func (r *ThumbnailFileRepository) SaveNegative(fileID uuid.UUID) error {
 		return nil
 	}
 
-	return r.Repository.Save(save)
+	return r.Repository.Save(ctx, save)
 }
 
 // Delete removes a thumbnail from the in-memory repository using its ID.
-func (r *ThumbnailFileRepository) Delete(fileID uuid.UUID) error {
+func (r *ThumbnailFileRepository) Delete(ctx context.Context, fileID uuid.UUID) error {
 	delete := func() error {
 		if fileID != uuid.Nil {
 			r.cacheByFileID.Delete(fileID)
 		}
 		return nil
 	}
-	return r.Repository.Delete(delete)
+	return r.Repository.Delete(ctx, delete)
 }
 
 // FindByFileID retrieves a thumbnail by its thumbnail ID from the repository.
-func (r *ThumbnailFileRepository) FindByFileID(fileID uuid.UUID) ([]byte, memsimple.CacheStatus, error) {
+func (r *ThumbnailFileRepository) FindByFileID(
+	ctx context.Context, fileID uuid.UUID,
+) ([]byte, memsimple.CacheStatus, error) {
 	find := func() (*thumbnailRawFile, memsimple.CacheStatus, error) {
 		data, status := r.cacheByFileID.FindWithStatus(fileID)
 		return data, status, nil
 	}
 
 	var data []byte
-	file, status, err := r.Repository.FindWithStatus(find)
+	file, status, err := r.Repository.FindWithStatus(ctx, find)
 	if file != nil {
 		data = file.Data
 	}
@@ -118,20 +120,20 @@ func (r *ThumbnailFileRepository) FindByFileID(fileID uuid.UUID) ([]byte, memsim
 }
 
 // Checks if a thumbnail exists by its thumbnail ID.
-func (r *ThumbnailFileRepository) ExistsByFileID(fileID uuid.UUID) (bool, error) {
+func (r *ThumbnailFileRepository) ExistsByFileID(ctx context.Context, fileID uuid.UUID) (bool, error) {
 	exists := func() (bool, error) {
 		return r.cacheByFileID.Exists(fileID), nil
 	}
-	return r.Repository.Exists(exists)
+	return r.Repository.Exists(ctx, exists)
 }
 
 // CleanExpired cleans expired entries from the repository.
-func (r *ThumbnailFileRepository) CleanExpired(context.Context) error {
+func (r *ThumbnailFileRepository) CleanExpired(ctx context.Context) error {
 	// Define a clean function to remove expired entries from the cache.
 	clean := func() error {
 		r.cacheByFileID.CleanExpired()
 		return nil
 	}
 	// Call the base repository's CleanExpired method with the custom clean function.
-	return r.Repository.CleanExpired(clean)
+	return r.Repository.CleanExpired(ctx, clean)
 }

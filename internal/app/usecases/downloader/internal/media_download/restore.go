@@ -13,7 +13,7 @@ func (uc *MediaDownload) Restore(ctx context.Context, downloadID uuid.UUID) erro
 		return err
 	}
 
-	uc.downloadCacheRep.Delete(downloadID)
+	uc.downloadCacheRep.Delete(ctx, downloadID)
 
 	return nil
 }

@@ -34,7 +34,7 @@ func (uc *Downloader) DeleteDownload(
 		return err
 	}
 
-	err = uc.validateDownloadWriteAccess(authCtx, download)
+	err = uc.validateDownloadDeleteAccess(authCtx, download)
 	if err != nil {
 		return err
 	}

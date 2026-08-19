@@ -178,7 +178,7 @@ func BenchmarkRepository_MixedWorkload(b *testing.B) {
 	for i := range 10000 {
 		key := uint64(i)
 
-		_ = repo.Save(func() error {
+		_ = repo.Save(b.Context(), func() error {
 			repo.cache.Save(
 				key,
 				&benchUser{ID: key},
@@ -201,7 +201,7 @@ func BenchmarkRepository_MixedWorkload(b *testing.B) {
 
 			if counter%10 == 0 {
 
-				_ = repo.Save(func() error {
+				_ = repo.Save(b.Context(), func() error {
 					repo.cache.Save(
 						key,
 						&benchUser{ID: key},
@@ -213,7 +213,7 @@ func BenchmarkRepository_MixedWorkload(b *testing.B) {
 
 			} else {
 
-				_, _ = repo.Find(func() (*benchUser, error) {
+				_, _ = repo.Find(b.Context(), func() (*benchUser, error) {
 					return repo.cache.Find(key), nil
 				})
 			}

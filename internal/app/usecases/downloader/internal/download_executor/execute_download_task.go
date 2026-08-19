@@ -49,16 +49,11 @@ func (uc *Executor) ExecuteDownloadTask(
 	}
 
 	patch := func(download *ddownload.MediaDownload) {
-		download.ChannelID = processed.Result.ChannelID
-		download.MediaTitle = processed.Result.MediaTitle
-		download.MediaDescription = processed.Result.MediaDescription
-		download.FileName = processed.Result.Filename
-		download.Ext = processed.Result.FileExt
-		download.FileFullName = processed.Result.FileFullName
-		download.SafeReadableFileFullName = download.NormalizeFileFullName()
-		download.FileSize = processed.Result.Filesize
-		download.PartialHash = processed.Result.PartialHash
-		download.MediaInfo = uc.mappers.MapMediaInfoDomain(processed.Result.MediaInfo, processed.ThumbnailIDs)
+		if processed == nil {
+			return
+		}
+
+		uc.mappers.MapDownloadResultToMediaDownload(download, processed.Result, processed.ThumbnailIDs)
 	}
 
 	err = uc.downloadStatus.Done(ctx, task.DownloadID, patch)

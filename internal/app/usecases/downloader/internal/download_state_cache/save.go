@@ -24,7 +24,16 @@ func (uc *DownloadStateCache) SaveByDownload(ctx context.Context, download *ddow
 	state := &ddownload.DownloadState{
 		DownloadID: download.DownloadID,
 		TaskID:     taskId,
-		Download:   download,
+		Download:   download.Copy(),
+	}
+
+	oldState, _ := uc.stateCacheRep.FindByDownloadID(ctx, download.DownloadID)
+	if oldState != nil {
+		state.Progress = oldState.Progress
+
+		if state.Download.MediaInfo == nil && oldState.Download.MediaInfo != nil {
+			state.Download.MediaInfo = oldState.Download.MediaInfo
+		}
 	}
 
 	return uc.stateCacheRep.Save(ctx, state)

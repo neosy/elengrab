@@ -31,7 +31,7 @@ func TestRepository_Save(t *testing.T) {
 
 	called := false
 
-	err := repo.Save(func() error {
+	err := repo.Save(t.Context(), func() error {
 		called = true
 		return nil
 	})
@@ -46,7 +46,7 @@ func TestRepository_SaveError(t *testing.T) {
 
 	expected := errors.New("save error")
 
-	err := repo.Save(func() error {
+	err := repo.Save(t.Context(), func() error {
 		return expected
 	})
 
@@ -59,7 +59,7 @@ func TestRepository_Delete(t *testing.T) {
 
 	called := false
 
-	err := repo.Delete(func() error {
+	err := repo.Delete(t.Context(), func() error {
 		called = true
 		return nil
 	})
@@ -76,7 +76,7 @@ func TestRepository_Find(t *testing.T) {
 		ID: 1,
 	}
 
-	result, err := repo.Find(func() (*testValue, error) {
+	result, err := repo.Find(t.Context(), func() (*testValue, error) {
 		return &value, nil
 	})
 
@@ -92,7 +92,7 @@ func TestRepository_FindError(t *testing.T) {
 
 	expected := errors.New("find error")
 
-	_, err := repo.Find(func() (*testValue, error) {
+	_, err := repo.Find(t.Context(), func() (*testValue, error) {
 		return nil, expected
 	})
 
@@ -107,7 +107,7 @@ func TestRepository_FindWithStatus(t *testing.T) {
 		ID: 10,
 	}
 
-	result, status, err := repo.FindWithStatus(func() (*testValue, CacheStatus, error) {
+	result, status, err := repo.FindWithStatus(t.Context(), func() (*testValue, CacheStatus, error) {
 		return &value, CacheStatusHit, nil
 	})
 
@@ -121,7 +121,7 @@ func TestRepository_Exists(t *testing.T) {
 	var repo Repository[testValue]
 	repo.Init(time.Second)
 
-	exists, err := repo.Exists(func() (bool, error) {
+	exists, err := repo.Exists(t.Context(), func() (bool, error) {
 		return true, nil
 	})
 
@@ -135,7 +135,7 @@ func TestRepository_CleanExpired(t *testing.T) {
 
 	called := false
 
-	err := repo.CleanExpired(func() error {
+	err := repo.CleanExpired(t.Context(), func() error {
 		called = true
 		return nil
 	})
@@ -173,7 +173,7 @@ func TestRepository_ConcurrentRead(t *testing.T) {
 		go func() {
 			defer wg.Done()
 
-			_, err := repo.Find(func() (*testValue, error) {
+			_, err := repo.Find(t.Context(), func() (*testValue, error) {
 				time.Sleep(time.Millisecond)
 				return &testValue{}, nil
 			})
@@ -200,7 +200,7 @@ func TestRepository_ConcurrentWrite(t *testing.T) {
 		go func() {
 			defer wg.Done()
 
-			err := repo.Save(func() error {
+			err := repo.Save(t.Context(), func() error {
 				counter++
 				return nil
 			})

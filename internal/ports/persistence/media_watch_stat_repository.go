@@ -23,12 +23,12 @@ type MediaWatchStatRepository interface {
 type MediaWatchStatCacheRepository interface {
 	memory.CacheRepository
 
-	Save(stat *ddownload.MediaWatchStat) error
-	SaveNegative(downloadID uuid.UUID) error
-	Delete(downloadID uuid.UUID) error
+	Save(ctx context.Context, stat *ddownload.MediaWatchStat) error
+	SaveNegative(ctx context.Context, downloadID uuid.UUID) error
+	Delete(ctx context.Context, downloadID uuid.UUID) error
 
-	Find(downloadID uuid.UUID) (*ddownload.MediaWatchStat, memsimple.CacheStatus, error)
-	Exists(downloadID uuid.UUID) (bool, error)
+	Find(ctx context.Context, downloadID uuid.UUID) (*ddownload.MediaWatchStat, memsimple.CacheStatus, error)
+	Exists(ctx context.Context, downloadID uuid.UUID) (bool, error)
 
 	CleanExpired(context.Context) error
 }

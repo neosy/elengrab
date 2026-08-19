@@ -24,7 +24,7 @@ func (h *DownloaderHandlers) renderErrorPage(
 	ctx *fasthttp.RequestCtx,
 	req renderErrorPageRequest,
 ) {
-	cssStyleRaw, _ := paths.ErrorCssFileName.Raw(h.assets)
+	cssStyleRaw, _ := paths.ErrorCssFileName.Raw(ctx, h.assets)
 
 	pageData := pages.ErrorPageData{
 		BaseValues: pages.NewBaseValues(),

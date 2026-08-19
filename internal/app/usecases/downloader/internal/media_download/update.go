@@ -20,7 +20,7 @@ func (uc *MediaDownload) Update(ctx context.Context, userID *uuid.UUID, download
 		return err
 	}
 
-	uc.downloadCacheRep.Delete(download.DownloadID)
+	uc.downloadCacheRep.Delete(ctx, download.DownloadID)
 
 	uc.saveToDownloadStateCache(ctx, download.DownloadID)
 

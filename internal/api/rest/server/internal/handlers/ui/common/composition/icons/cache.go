@@ -1,6 +1,7 @@
 package icons
 
 import (
+	"context"
 	"html/template"
 	"time"
 
@@ -34,7 +35,7 @@ func newIconRepository(ttl time.Duration) *iconRepository {
 	return r
 }
 
-func (r *iconRepository) Save(fileName string, icon *iconEntry) error {
+func (r *iconRepository) Save(ctx context.Context, fileName string, icon *iconEntry) error {
 	if icon == nil || fileName == "" {
 		return nil
 	}
@@ -48,10 +49,10 @@ func (r *iconRepository) Save(fileName string, icon *iconEntry) error {
 		return nil
 	}
 
-	return r.Repository.Save(save)
+	return r.Repository.Save(ctx, save)
 }
 
-func (r *iconRepository) SaveNegative(fileName string) error {
+func (r *iconRepository) SaveNegative(ctx context.Context, fileName string) error {
 	if fileName == "" {
 		return nil
 	}
@@ -65,44 +66,44 @@ func (r *iconRepository) SaveNegative(fileName string) error {
 		return nil
 	}
 
-	return r.Repository.Save(save)
+	return r.Repository.Save(ctx, save)
 }
 
 // Delete removes a thumbnail from the in-memory repository using its ID.
-func (r *iconRepository) Delete(fileName string) error {
+func (r *iconRepository) Delete(ctx context.Context, fileName string) error {
 	delete := func() error {
 		if fileName != "" {
 			r.cache.Delete(fileName)
 		}
 		return nil
 	}
-	return r.Repository.Delete(delete)
+	return r.Repository.Delete(ctx, delete)
 }
 
 // FindByThumbID retrieves a thumbnail by its thumbnail ID from the repository.
-func (r *iconRepository) Find(fileName string) (*iconEntry, memsimple.CacheStatus, error) {
+func (r *iconRepository) Find(ctx context.Context, fileName string) (*iconEntry, memsimple.CacheStatus, error) {
 	find := func() (*iconEntry, memsimple.CacheStatus, error) {
 		data, status := r.cache.FindWithStatus(fileName)
 		return data, status, nil
 	}
-	return r.Repository.FindWithStatus(find)
+	return r.Repository.FindWithStatus(ctx, find)
 }
 
 // Checks if a thumbnail exists by its thumbnail ID.
-func (r *iconRepository) Exists(fileName string) (bool, error) {
+func (r *iconRepository) Exists(ctx context.Context, fileName string) (bool, error) {
 	exists := func() (bool, error) {
 		return r.cache.Exists(fileName), nil
 	}
-	return r.Repository.Exists(exists)
+	return r.Repository.Exists(ctx, exists)
 }
 
 // CleanExpired cleans expired entries from the repository.
-func (r *iconRepository) CleanExpired() error {
+func (r *iconRepository) CleanExpired(ctx context.Context) error {
 	// Define a clean function to remove expired entries from the cache.
 	clean := func() error {
 		r.cache.CleanExpired()
 		return nil
 	}
 	// Call the base repository's CleanExpired method with the custom clean function.
-	return r.Repository.CleanExpired(clean)
+	return r.Repository.CleanExpired(ctx, clean)
 }

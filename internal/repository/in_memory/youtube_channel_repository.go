@@ -30,7 +30,7 @@ func (r *YoutubeChannelRepository) Name() string {
 	return "youtube_channel"
 }
 
-func (r *YoutubeChannelRepository) Save(_ context.Context, channel *dmedia.YoutubeChannel) error {
+func (r *YoutubeChannelRepository) Save(ctx context.Context, channel *dmedia.YoutubeChannel) error {
 	if channel == nil || channel.ChannelID == "" {
 		return nil
 	}
@@ -44,10 +44,10 @@ func (r *YoutubeChannelRepository) Save(_ context.Context, channel *dmedia.Youtu
 		return nil
 	}
 
-	return r.Repository.Save(save)
+	return r.Repository.Save(ctx, save)
 }
 
-func (r *YoutubeChannelRepository) SaveNegative(_ context.Context, channelID string) error {
+func (r *YoutubeChannelRepository) SaveNegative(ctx context.Context, channelID string) error {
 	if channelID == "" {
 		return nil
 	}
@@ -61,47 +61,47 @@ func (r *YoutubeChannelRepository) SaveNegative(_ context.Context, channelID str
 		return nil
 	}
 
-	return r.Repository.Save(save)
+	return r.Repository.Save(ctx, save)
 }
 
 // Delete removes a YouTube channel from the in-memory repository using its ID.
-func (r *YoutubeChannelRepository) Delete(_ context.Context, channelID string) error {
+func (r *YoutubeChannelRepository) Delete(ctx context.Context, channelID string) error {
 	delete := func() error {
 		if channelID != "" {
 			r.cacheByChannel.Delete(channelID)
 		}
 		return nil
 	}
-	return r.Repository.Delete(delete)
+	return r.Repository.Delete(ctx, delete)
 }
 
 // FindByChannelID retrieves a YouTube channel by its channel ID from the repository.
 func (r *YoutubeChannelRepository) FindByChannelID(
-	_ context.Context,
+	ctx context.Context,
 	channelID string,
 ) (*dmedia.YoutubeChannel, memsimple.CacheStatus, error) {
 	find := func() (*dmedia.YoutubeChannel, memsimple.CacheStatus, error) {
 		data, status := r.cacheByChannel.FindWithStatus(channelID)
 		return data, status, nil
 	}
-	return r.Repository.FindWithStatus(find)
+	return r.Repository.FindWithStatus(ctx, find)
 }
 
 // Checks if a YouTube channel exists by its channel ID.
-func (r *YoutubeChannelRepository) ExistsByChannelID(_ context.Context, channelID string) (bool, error) {
+func (r *YoutubeChannelRepository) ExistsByChannelID(ctx context.Context, channelID string) (bool, error) {
 	exists := func() (bool, error) {
 		return r.cacheByChannel.Exists(channelID), nil
 	}
-	return r.Repository.Exists(exists)
+	return r.Repository.Exists(ctx, exists)
 }
 
 // CleanExpired cleans expired entries from the repository.
-func (r *YoutubeChannelRepository) CleanExpired(_ context.Context) error {
+func (r *YoutubeChannelRepository) CleanExpired(ctx context.Context) error {
 	// Define a clean function to remove expired entries from the cache.
 	clean := func() error {
 		r.cacheByChannel.CleanExpired()
 		return nil
 	}
 	// Call the base repository's CleanExpired method with the custom clean function.
-	return r.Repository.CleanExpired(clean)
+	return r.Repository.CleanExpired(ctx, clean)
 }

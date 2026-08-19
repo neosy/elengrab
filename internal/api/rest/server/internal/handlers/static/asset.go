@@ -1,6 +1,7 @@
 package static
 
 import (
+	"context"
 	"mime"
 	"path"
 	"path/filepath"
@@ -44,7 +45,7 @@ func (h *StaticHandlers) newAssetHandler(subdirPath string) func(*fasthttp.Reque
 		if h.appEnv == appenv.AppEnvDevelop {
 			assetFile, err = h.assets.ReadAssetFileNoCache(filePath)
 		} else {
-			assetFile, err = h.assets.ReadAssetFile(filePath)
+			assetFile, err = h.assets.ReadAssetFile(context.Background(), filePath)
 		}
 		if err != nil {
 			nfasthttp.WriteErrorx(ctx, err)
