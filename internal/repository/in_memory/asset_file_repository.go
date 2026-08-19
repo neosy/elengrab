@@ -30,7 +30,7 @@ func (r *AssetFileRepository) Name() string {
 	return "asset_file"
 }
 
-func (r *AssetFileRepository) Save(assetFile *dtypes.AssetFile) error {
+func (r *AssetFileRepository) Save(ctx context.Context, assetFile *dtypes.AssetFile) error {
 	if assetFile == nil {
 		return nil
 	}
@@ -44,10 +44,10 @@ func (r *AssetFileRepository) Save(assetFile *dtypes.AssetFile) error {
 		return nil
 	}
 
-	return r.Repository.Save(save)
+	return r.Repository.Save(ctx, save)
 }
 
-func (r *AssetFileRepository) SaveNegative(filePath string) error {
+func (r *AssetFileRepository) SaveNegative(ctx context.Context, filePath string) error {
 	if filePath == "" {
 		return nil
 	}
@@ -61,44 +61,44 @@ func (r *AssetFileRepository) SaveNegative(filePath string) error {
 		return nil
 	}
 
-	return r.Repository.Save(save)
+	return r.Repository.Save(ctx, save)
 }
 
 // Delete removes a asset file from the in-memory repository using its filePath.
-func (r *AssetFileRepository) Delete(filePath string) error {
+func (r *AssetFileRepository) Delete(ctx context.Context, filePath string) error {
 	delete := func() error {
 		if filePath != "" {
 			r.cacheByPath.Delete(filePath)
 		}
 		return nil
 	}
-	return r.Repository.Delete(delete)
+	return r.Repository.Delete(ctx, delete)
 }
 
 // FindByPath retrieves a file by its file path from the repository.
-func (r *AssetFileRepository) FindByPath(filePath string) (*dtypes.AssetFile, memsimple.CacheStatus, error) {
+func (r *AssetFileRepository) FindByPath(ctx context.Context, filePath string) (*dtypes.AssetFile, memsimple.CacheStatus, error) {
 	find := func() (*dtypes.AssetFile, memsimple.CacheStatus, error) {
 		data, status := r.cacheByPath.FindWithStatus(filePath)
 		return data, status, nil
 	}
-	return r.Repository.FindWithStatus(find)
+	return r.Repository.FindWithStatus(ctx, find)
 }
 
 // ExistsByPath checks if a asset file exists by its file path.
-func (r *AssetFileRepository) ExistsByPath(filePath string) (bool, error) {
+func (r *AssetFileRepository) ExistsByPath(ctx context.Context, filePath string) (bool, error) {
 	exists := func() (bool, error) {
 		return r.cacheByPath.Exists(filePath), nil
 	}
-	return r.Repository.Exists(exists)
+	return r.Repository.Exists(ctx, exists)
 }
 
 // CleanExpired cleans expired entries from the repository.
-func (r *AssetFileRepository) CleanExpired(context.Context) error {
+func (r *AssetFileRepository) CleanExpired(ctx context.Context) error {
 	// Define a clean function to remove expired entries from the cache.
 	clean := func() error {
 		r.cacheByPath.CleanExpired()
 		return nil
 	}
 	// Call the base repository's CleanExpired method with the custom clean function.
-	return r.Repository.CleanExpired(clean)
+	return r.Repository.CleanExpired(ctx, clean)
 }

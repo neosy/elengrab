@@ -48,7 +48,7 @@ func (r *MediaUserWatchPositionRepository) Name() string {
 	return "media_usser_watch_position"
 }
 
-func (r *MediaUserWatchPositionRepository) Save(position *ddownload.MediaUserWatchPosition) error {
+func (r *MediaUserWatchPositionRepository) Save(ctx context.Context, position *ddownload.MediaUserWatchPosition) error {
 	if position == nil {
 		return nil
 	}
@@ -67,10 +67,14 @@ func (r *MediaUserWatchPositionRepository) Save(position *ddownload.MediaUserWat
 		return nil
 	}
 
-	return r.Repository.Save(save)
+	return r.Repository.Save(ctx, save)
 }
 
-func (r *MediaUserWatchPositionRepository) SaveNegative(downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID) error {
+func (r *MediaUserWatchPositionRepository) SaveNegative(
+	ctx context.Context,
+	downloadID uuid.UUID,
+	userID uuid.UUID, sessionID uuid.UUID,
+) error {
 	if downloadID == uuid.Nil {
 		return nil
 	}
@@ -89,49 +93,57 @@ func (r *MediaUserWatchPositionRepository) SaveNegative(downloadID uuid.UUID, us
 		return nil
 	}
 
-	return r.Repository.Save(save)
+	return r.Repository.Save(ctx, save)
 }
 
 // Delete removes a mediaDownload from the in-memory repository using its ID.
-func (r *MediaUserWatchPositionRepository) Delete(downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID) error {
+func (r *MediaUserWatchPositionRepository) Delete(
+	ctx context.Context,
+	downloadID uuid.UUID,
+	userID uuid.UUID, sessionID uuid.UUID,
+) error {
 	fn := func() error {
 		if downloadID != uuid.Nil {
 			r.cache.Delete(buildMediaUserWatchPositionKey(downloadID, userID, sessionID))
 		}
 		return nil
 	}
-	return r.Repository.Delete(fn)
+	return r.Repository.Delete(ctx, fn)
 }
 
 // FindByDownloadID retrieves a mediaDownload by its downloadID from the repository.
 func (r *MediaUserWatchPositionRepository) Find(
-	downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID,
+	ctx context.Context,
+	downloadID uuid.UUID,
+	userID uuid.UUID, sessionID uuid.UUID,
 ) (*ddownload.MediaUserWatchPosition, memsimple.CacheStatus, error) {
 	find := func() (*ddownload.MediaUserWatchPosition, memsimple.CacheStatus, error) {
 		position, status := r.cache.FindWithStatus(buildMediaUserWatchPositionKey(downloadID, userID, sessionID))
 		return position, status, nil
 	}
 
-	return r.Repository.FindWithStatus(find)
+	return r.Repository.FindWithStatus(ctx, find)
 }
 
 // Checks if a mediaDownload exists by its downloadID.
 func (r *MediaUserWatchPositionRepository) Exists(
-	downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID,
+	ctx context.Context,
+	downloadID uuid.UUID,
+	userID uuid.UUID, sessionID uuid.UUID,
 ) (bool, error) {
 	exists := func() (bool, error) {
 		return r.cache.Exists(buildMediaUserWatchPositionKey(downloadID, userID, sessionID)), nil
 	}
-	return r.Repository.Exists(exists)
+	return r.Repository.Exists(ctx, exists)
 }
 
 // CleanExpired cleans expired entries from the repository.
-func (r *MediaUserWatchPositionRepository) CleanExpired(context.Context) error {
+func (r *MediaUserWatchPositionRepository) CleanExpired(ctx context.Context) error {
 	// Define a clean function to remove expired entries from the cache.
 	clean := func() error {
 		r.cache.CleanExpired()
 		return nil
 	}
 	// Call the base repository's CleanExpired method with the custom clean function.
-	return r.Repository.CleanExpired(clean)
+	return r.Repository.CleanExpired(ctx, clean)
 }

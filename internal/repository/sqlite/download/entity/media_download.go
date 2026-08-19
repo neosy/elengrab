@@ -14,8 +14,10 @@ type MediaDownload struct {
 	UserID                   *uuid.UUID `db:"user_id"`
 	Status                   string     `db:"file_status"`
 	MediaURL                 string     `db:"media_url"`
+	MediaTitleOriginal       string     `db:"media_title_original"`
 	MediaTitle               string     `db:"media_title"`
 	MediaTitleLower          string     `db:"media_title_lower"`
+	MediaDescriptionOriginal *string    `db:"media_description_original"`
 	MediaDescription         *string    `db:"media_description"`
 	ChannelID                *string    `db:"channel_id"`
 	FileName                 string     `db:"file_name"`

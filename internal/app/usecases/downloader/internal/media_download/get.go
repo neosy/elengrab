@@ -52,7 +52,7 @@ func (uc *MediaDownload) FindByDownloadID(
 		return nil, nil
 	}
 
-	mediaDownload, cacheStatus, _ := uc.downloadCacheRep.FindByDownloadID(downloadID)
+	mediaDownload, cacheStatus, _ := uc.downloadCacheRep.FindByDownloadID(ctx, downloadID)
 	if mediaDownload != nil {
 		return mediaDownload, nil
 	}
@@ -66,9 +66,9 @@ func (uc *MediaDownload) FindByDownloadID(
 	}
 
 	if mediaDownload != nil {
-		uc.downloadCacheRep.Save(mediaDownload)
+		uc.downloadCacheRep.Save(ctx, mediaDownload)
 	} else {
-		uc.downloadCacheRep.SaveNegative(downloadID)
+		uc.downloadCacheRep.SaveNegative(ctx, downloadID)
 	}
 
 	return mediaDownload, nil

@@ -1,6 +1,7 @@
 package assets
 
 import (
+	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -23,8 +24,8 @@ func (a *Assets) readOriginalFileNoCache(filePath string) (*dtypes.AssetFile, er
 	return dtypes.NewAssetFile(filePath, hash, data), nil
 }
 
-func (a *Assets) readOriginalFile(filePath string) (*dtypes.AssetFile, error) {
-	file, status, err := a.fileCache.FindByPath(filePath)
+func (a *Assets) readOriginalFile(ctx context.Context, filePath string) (*dtypes.AssetFile, error) {
+	file, status, err := a.fileCache.FindByPath(ctx, filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -40,13 +41,13 @@ func (a *Assets) readOriginalFile(filePath string) (*dtypes.AssetFile, error) {
 	file, err = a.readOriginalFileNoCache(filePath)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			a.fileCache.SaveNegative(filePath)
+			a.fileCache.SaveNegative(ctx, filePath)
 			return nil, errorx.New("file not found", exceptionx.NOT_FOUND, err)
 		}
 		return nil, err
 	}
 
-	a.fileCache.Save(file)
+	a.fileCache.Save(ctx, file)
 
 	return file, nil
 }
@@ -74,8 +75,8 @@ func (a *Assets) readJsFileHashedImportsNoCache(filePath string) (*dtypes.AssetF
 	return dtypes.NewAssetFile(filePath, hash, updatedData), nil
 }
 
-func (a *Assets) readJsFileHashedImports(filePath string) (*dtypes.AssetFile, error) {
-	file, status, err := a.fileCache.FindByPath(filePath)
+func (a *Assets) readJsFileHashedImports(ctx context.Context, filePath string) (*dtypes.AssetFile, error) {
+	file, status, err := a.fileCache.FindByPath(ctx, filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -91,13 +92,13 @@ func (a *Assets) readJsFileHashedImports(filePath string) (*dtypes.AssetFile, er
 	file, err = a.readJsFileHashedImportsNoCache(filePath)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			a.fileCache.SaveNegative(filePath)
+			a.fileCache.SaveNegative(ctx, filePath)
 			return nil, errorx.New("file not found", exceptionx.NOT_FOUND, err)
 		}
 		return nil, err
 	}
 
-	a.fileCache.Save(file)
+	a.fileCache.Save(ctx, file)
 
 	return file, nil
 }
@@ -112,12 +113,12 @@ func (a *Assets) ReadAssetFileNoCache(filePath string) (*dtypes.AssetFile, error
 	}
 }
 
-func (a *Assets) ReadAssetFile(filePath string) (*dtypes.AssetFile, error) {
+func (a *Assets) ReadAssetFile(ctx context.Context, filePath string) (*dtypes.AssetFile, error) {
 	ext := filepath.Ext(filePath)
 	switch ext {
 	case ".js":
-		return a.readJsFileHashedImports(filePath)
+		return a.readJsFileHashedImports(ctx, filePath)
 	default:
-		return a.readOriginalFile(filePath)
+		return a.readOriginalFile(ctx, filePath)
 	}
 }

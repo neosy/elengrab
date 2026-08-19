@@ -4,8 +4,9 @@ import "time"
 
 const minNegativeTTL = 15 * time.Second
 
-// NegativeTTL defines a strategy for calculating negative cache TTL
-// based on the positive TTL.
+// minNegativeTTL defines the minimum lifetime of a negative cache entry,
+// preventing negative results from expiring too quickly when a short
+// positive TTL is configured.
 type NegativeTTL func(positiveTTL time.Duration) time.Duration
 
 var (

@@ -15,7 +15,7 @@ func (uc *MediaWatchStat) Find(ctx context.Context, downloadID uuid.UUID) (*ddow
 		return nil, nil
 	}
 
-	stat, cacheStatus, _ := uc.statCacheRep.Find(downloadID)
+	stat, cacheStatus, _ := uc.statCacheRep.Find(ctx, downloadID)
 	if stat != nil {
 		return stat, nil
 	}
@@ -34,9 +34,9 @@ func (uc *MediaWatchStat) Find(ctx context.Context, downloadID uuid.UUID) (*ddow
 	}
 
 	if stat != nil {
-		uc.statCacheRep.Save(stat)
+		uc.statCacheRep.Save(ctx, stat)
 	} else {
-		uc.statCacheRep.SaveNegative(downloadID)
+		uc.statCacheRep.SaveNegative(ctx, downloadID)
 	}
 
 	return stat, nil

@@ -33,8 +33,14 @@ type MediaDownload struct {
 	// Media URL
 	MediaURL string
 
+	// Original title from the media source
+	MediaTitleOriginal string
+
 	// Media title
 	MediaTitle string
+
+	// Original description from the media source
+	MediaDescriptionOriginal *string
 
 	// Media description
 	MediaDescription *string
@@ -111,14 +117,23 @@ func (src *MediaDownload) Copy() *MediaDownload {
 
 func (d *MediaDownload) Normalize() {
 	d.MediaTitle = strings.TrimSpace(d.MediaTitle)
+	d.MediaTitleOriginal = strings.TrimSpace(d.MediaTitleOriginal)
 
 	// TODO: Normalize title hashtags after deciding how to handle platform-specific tags.
 	// d.MediaTitle = stringx.RemoveTrailingHashtags(d.MediaTitle)
+	// d.MediaTitleOriginal = stringx.RemoveTrailingHashtags(d.MediaTitleOriginal)
 
 	if d.MediaDescription != nil {
 		*d.MediaDescription = strings.TrimSpace(*d.MediaDescription)
 		if *d.MediaDescription == "" {
 			d.MediaDescription = nil
+		}
+	}
+
+	if d.MediaDescriptionOriginal != nil {
+		*d.MediaDescriptionOriginal = strings.TrimSpace(*d.MediaDescriptionOriginal)
+		if *d.MediaDescriptionOriginal == "" {
+			d.MediaDescriptionOriginal = nil
 		}
 	}
 }
@@ -134,8 +149,13 @@ func (d *MediaDownload) NormalizeForSave() {
 	d.Normalize()
 
 	d.MediaTitle = stringx.TruncateWords(d.MediaTitle, MediaTitleMaxLength)
+	d.MediaTitleOriginal = stringx.TruncateWords(d.MediaTitleOriginal, MediaTitleMaxLength)
+
 	if d.MediaDescription != nil {
 		*d.MediaDescription = stringx.Truncate(*d.MediaDescription, MediaDescriptionMaxLength)
+	}
+	if d.MediaDescriptionOriginal != nil {
+		*d.MediaDescriptionOriginal = stringx.Truncate(*d.MediaDescriptionOriginal, MediaDescriptionMaxLength)
 	}
 }
 

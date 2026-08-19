@@ -2,6 +2,7 @@ package memsimple
 
 import (
 	"testing"
+	"testing/synctest"
 	"time"
 
 	"github.com/stretchr/testify/assert"
@@ -190,9 +191,13 @@ func TestCache_Exists(t *testing.T) {
 	cache.Save(1, &testUser{ID: 1}, 0)
 	assert.True(t, cache.Exists(1))
 
-	// Negative hit should return false for Exists
 	cache.Save(2, nil, 0)
-	assert.False(t, cache.Exists(2))
+	assert.True(t, cache.Exists(2))
+
+	// Negative cache hit should still be considered an existing cache entry.
+	exists, status := cache.ExistsWithStatus(2)
+	assert.True(t, exists)
+	assert.Equal(t, CacheStatusNegativeHit, status)
 }
 
 func TestCache_Expiration(t *testing.T) {
@@ -209,19 +214,29 @@ func TestCache_Expiration(t *testing.T) {
 }
 
 func TestCache_CleanExpired(t *testing.T) {
-	cache := NewCacheWithDeaultCopier[uint64, testUser, *testUser]()
+	synctest.Test(t, func(t *testing.T) {
+		cache := NewCacheWithDeaultCopier[uint64, testUser, *testUser]()
 
-	cache.Save(1, &testUser{ID: 1}, 0)                   // never expires
-	cache.Save(2, &testUser{ID: 2}, 10*time.Millisecond) // will expire
-	cache.Save(3, nil, 0)                                // negative
+		cache.Save(1, &testUser{ID: 1}, 0)              // never expires
+		cache.Save(2, &testUser{ID: 2}, 10*time.Second) // will expire
+		cache.Save(3, nil, 100*time.Second)             // negative
+		cache.Save(4, nil, 500*time.Second)             // negative
 
-	time.Sleep(50 * time.Millisecond)
+		time.Sleep(50 * time.Second)
 
-	cache.CleanExpired()
+		cache.CleanExpired()
 
-	assert.True(t, cache.Exists(1))
-	assert.False(t, cache.Exists(2))
-	assert.False(t, cache.Exists(3)) // negative also removed on clean? Wait — check logic
+		assert.True(t, cache.Exists(1))
+		assert.False(t, cache.Exists(2))
+
+		exists, status := cache.ExistsWithStatus(3)
+		assert.False(t, exists)
+		assert.Equal(t, CacheStatusMiss, status)
+
+		exists, status = cache.ExistsWithStatus(4)
+		assert.True(t, exists)
+		assert.Equal(t, CacheStatusNegativeHit, status)
+	})
 }
 
 func TestCache_Delete(t *testing.T) {
@@ -243,7 +258,7 @@ func TestRepository(t *testing.T) {
 	assert.Equal(t, 5*time.Minute, repo.TTL())
 
 	called := false
-	err := repo.Save(func() error {
+	err := repo.Save(t.Context(), func() error {
 		called = true
 		return nil
 	})
@@ -252,7 +267,7 @@ func TestRepository(t *testing.T) {
 
 	// Test Find
 	called = false
-	_, err = repo.Find(func() (*testUser, error) {
+	_, err = repo.Find(t.Context(), func() (*testUser, error) {
 		called = true
 		return nil, nil
 	})

@@ -1,6 +1,10 @@
 package paths
 
-import "github.com/neosy/elengrab/internal/api/rest/server/assets"
+import (
+	"context"
+
+	"github.com/neosy/elengrab/internal/api/rest/server/assets"
+)
 
 type AssetPaths struct {
 	loaders assetPathLoaders
@@ -22,7 +26,9 @@ type AssetPaths struct {
 }
 
 func NewAssetPaths(assets *assets.Assets) AssetPaths {
-	loaders := newAssetPathLoaders()
+	ctx := context.Background()
+	loaders := newAssetPathLoaders(ctx)
+
 	return AssetPaths{
 		loaders: loaders,
 
@@ -32,11 +38,11 @@ func NewAssetPaths(assets *assets.Assets) AssetPaths {
 		WatchPageCssPaths:     watchPageCssPaths.newLoader(assets, loaders.cssPaths),
 		EditMediaPageCssPaths: editMediaPageCssPaths.newLoader(assets, loaders.cssPaths),
 
-		AuthPageJsPaths:      authPageJsPaths.newLoader(assets),
-		IndexPageJsPaths:     indexPageJsPaths.newLoader(assets),
-		AdminPageJsPaths:     adminPageJsPaths.newLoader(assets),
-		WatchPageJsPaths:     watchPageJsPaths.newLoader(assets),
-		EditMediaPageJsPaths: editMediaPageJsPaths.newLoader(assets),
+		AuthPageJsPaths:      authPageJsPaths.newLoader(ctx, assets),
+		IndexPageJsPaths:     indexPageJsPaths.newLoader(ctx, assets),
+		AdminPageJsPaths:     adminPageJsPaths.newLoader(ctx, assets),
+		WatchPageJsPaths:     watchPageJsPaths.newLoader(ctx, assets),
+		EditMediaPageJsPaths: editMediaPageJsPaths.newLoader(ctx, assets),
 
 		PwaManifestPath: pwaManifestPath.newLoader(assets, loaders.pwaPath),
 		PwaPaths:        pwaPaths.newLoader(assets, loaders.pwaPaths),

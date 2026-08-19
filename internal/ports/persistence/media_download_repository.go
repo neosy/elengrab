@@ -48,12 +48,12 @@ type MediaDownloadRepository interface {
 type MediaDownloadCacheRepository interface {
 	memory.CacheRepository
 
-	Save(media *ddownload.MediaDownload) error
-	SaveNegative(downloadID uuid.UUID) error
-	Delete(downloadID uuid.UUID) error
+	Save(ctx context.Context, media *ddownload.MediaDownload) error
+	SaveNegative(ctx context.Context, downloadID uuid.UUID) error
+	Delete(ctx context.Context, downloadID uuid.UUID) error
 
-	FindByDownloadID(downloadID uuid.UUID) (*ddownload.MediaDownload, memsimple.CacheStatus, error)
-	ExistsByFileID(downloadID uuid.UUID) (bool, error)
+	FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.MediaDownload, memsimple.CacheStatus, error)
+	ExistsByFileID(ctx context.Context, downloadID uuid.UUID) (bool, error)
 
 	CleanExpired(context.Context) error
 }

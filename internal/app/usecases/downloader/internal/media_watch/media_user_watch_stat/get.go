@@ -18,7 +18,7 @@ func (uc *MediaUserWatchStat) Find(
 		return nil, nil
 	}
 
-	stat, cacheStatus, _ := uc.statCacheRep.Find(downloadID, userID)
+	stat, cacheStatus, _ := uc.statCacheRep.Find(ctx, downloadID, userID)
 	if stat != nil {
 		return stat, nil
 	}
@@ -38,9 +38,9 @@ func (uc *MediaUserWatchStat) Find(
 	}
 
 	if stat != nil {
-		uc.statCacheRep.Save(stat)
+		uc.statCacheRep.Save(ctx, stat)
 	} else {
-		uc.statCacheRep.SaveNegative(downloadID, userID)
+		uc.statCacheRep.SaveNegative(ctx, downloadID, userID)
 	}
 
 	return stat, nil

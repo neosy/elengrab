@@ -2,11 +2,9 @@ package downloader
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
 )
 
 func (uc *Downloader) PatchMediaDownload(
@@ -25,55 +23,17 @@ func (uc *Downloader) PatchMediaDownload(
 		return err
 	}
 
-	download, err := uc.download.GetByDownloadIDNoCache(ctx, req.DownloadID)
+	download, err := uc.download.GetByDownloadID(ctx, req.DownloadID)
 	if err != nil {
 		return err
 	}
 
-	err = uc.validateDownloadWriteAccess(authCtx, download)
+	err = uc.validateDownloadEditAccess(authCtx, download)
 	if err != nil {
 		return err
 	}
 
-	var needUpdate bool
-
-	if req.MediaTitle != nil && *req.MediaTitle != download.MediaTitle {
-		download.MediaTitle = *req.MediaTitle
-		needUpdate = true
-	}
-
-	var (
-		description     string
-		origDescription string
-	)
-
-	if req.MediaDescription != nil {
-		description = *req.MediaDescription
-	}
-
-	if download.MediaDescription != nil {
-		origDescription = *download.MediaDescription
-	}
-
-	if description != origDescription {
-		download.MediaDescription = &description
-		needUpdate = true
-	}
-
-	if req.Visibility != nil && *req.Visibility != download.Visibility {
-		download.Visibility = *req.Visibility
-		needUpdate = true
-	}
-
-	if !needUpdate {
-		return errorx.NewHTTPMessage("No changes to update", http.StatusBadRequest)
-	}
-
-	if err := download.Validate(); err != nil {
-		return err
-	}
-
-	err = uc.download.Update(ctx, &authCtx.UserID, download)
+	err = uc.download.UpdateFields(ctx, req)
 	if err != nil {
 		return err
 	}

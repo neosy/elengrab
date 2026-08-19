@@ -50,7 +50,7 @@ func (r *DownloadStateRepository) WithUser(userID uuid.UUID) persistence.Downloa
 	}
 }
 
-func (r *DownloadStateRepository) Save(_ context.Context, state *ddownload.DownloadState) error {
+func (r *DownloadStateRepository) Save(ctx context.Context, state *ddownload.DownloadState) error {
 	if state == nil || state.DownloadID == uuid.Nil {
 		return nil
 	}
@@ -78,7 +78,7 @@ func (r *DownloadStateRepository) Save(_ context.Context, state *ddownload.Downl
 		return nil
 	}
 
-	return r.Repository.Save(save)
+	return r.Repository.Save(ctx, save)
 }
 
 func (r *DownloadStateRepository) Insert(ctx context.Context, state *ddownload.DownloadState) error {
@@ -89,7 +89,7 @@ func (r *DownloadStateRepository) Update(ctx context.Context, state *ddownload.D
 	return r.Save(ctx, state)
 }
 
-func (r *DownloadStateRepository) Delete(_ context.Context, downloadID uuid.UUID) error {
+func (r *DownloadStateRepository) Delete(ctx context.Context, downloadID uuid.UUID) error {
 	delete := func() error {
 		download := r.cacheByDownloadID.Find(downloadID)
 		if download == nil {
@@ -110,10 +110,10 @@ func (r *DownloadStateRepository) Delete(_ context.Context, downloadID uuid.UUID
 
 		return nil
 	}
-	return r.Repository.Delete(delete)
+	return r.Repository.Delete(ctx, delete)
 }
 
-func (r *DownloadStateRepository) FindByDownloadID(_ context.Context, downloadID uuid.UUID) (*ddownload.DownloadState, error) {
+func (r *DownloadStateRepository) FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.DownloadState, error) {
 	var find func() (*ddownload.DownloadState, error)
 
 	if r.userID == nil {
@@ -125,22 +125,22 @@ func (r *DownloadStateRepository) FindByDownloadID(_ context.Context, downloadID
 			return r.cacheByUserIDDownloadID.Find(userIDDownloadIDKey{*r.userID, downloadID}), nil
 		}
 	}
-	return r.Repository.Find(find)
+	return r.Repository.Find(ctx, find)
 }
 
-func (r *DownloadStateRepository) FindByTaskID(_ context.Context, taskId uuid.UUID) (*ddownload.DownloadState, error) {
+func (r *DownloadStateRepository) FindByTaskID(ctx context.Context, taskId uuid.UUID) (*ddownload.DownloadState, error) {
 	find := func() (*ddownload.DownloadState, error) {
 		return r.cacheByTaskID.Find(taskId), nil
 	}
-	return r.Repository.Find(find)
+	return r.Repository.Find(ctx, find)
 }
 
-func (r *DownloadStateRepository) CleanExpired(_ context.Context) error {
+func (r *DownloadStateRepository) CleanExpired(ctx context.Context) error {
 	clean := func() error {
 		r.cacheByDownloadID.CleanExpired()
 		r.cacheByTaskID.CleanExpired()
 		r.cacheByUserIDDownloadID.CleanExpired()
 		return nil
 	}
-	return r.Repository.CleanExpired(clean)
+	return r.Repository.CleanExpired(ctx, clean)
 }
