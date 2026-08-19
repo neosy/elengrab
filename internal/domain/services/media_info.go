@@ -66,13 +66,6 @@ func (m MediaInfo) MediaInfoDomain() dtypes.MediaInfo {
 	}
 }
 
-func (m *MediaInfo) MediaInfoDomainPtr() *dtypes.MediaInfo {
-	if m == nil {
-		return nil
-	}
-	return new(m.MediaInfoDomain())
-}
-
 func (m *MediaInfo) Copy() *MediaInfo {
 	if m == nil {
 		return nil
