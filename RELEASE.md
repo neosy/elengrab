@@ -2,6 +2,9 @@
 
 ## v0.25.0 — 2026-08-30
 
+### ✨ Features
+- Added the ability to edit download cards while the download is in progress. [L115]
+
 ### 🖥️ UI / Frontend
 - Reordered favicon declarations to prioritize larger image sizes for better favicon selection in Google Search Console. [L116]
 
@@ -11,6 +14,7 @@
 - Added full path constants to avoid combining route groups and paths at call sites. [L113]
 - Replaced `fatih/structs` with the standard `reflect` package for struct field and tag processing. [L114]
 - Added tests for tag-based field and value operations to ensure the refactoring does not change existing behavior. [L114]
+- Refactored download execution and metadata refresh logic in the `download_executor` package. [L115]
 
 ### 📦 Build
 - Updated Go to 1.26.6.
