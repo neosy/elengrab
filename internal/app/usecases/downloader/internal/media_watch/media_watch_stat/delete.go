@@ -17,7 +17,7 @@ func (uc *MediaWatchStat) DeleteByDownloadID(ctx context.Context, downloadID uui
 		return err
 	}
 
-	uc.statCacheRep.Delete(downloadID)
+	uc.statCacheRep.Delete(ctx, downloadID)
 
 	return nil
 }

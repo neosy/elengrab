@@ -1,6 +1,7 @@
 package paths
 
 import (
+	"context"
 	"path/filepath"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
@@ -21,21 +22,21 @@ type (
 	}
 )
 
-func newAssetPathLoaders() assetPathLoaders {
+func newAssetPathLoaders(ctx context.Context) assetPathLoaders {
 	return assetPathLoaders{
-		cssPaths: newLoaderAssetPaths(assetCssDir, CssPath),
+		cssPaths: newLoaderAssetPaths(ctx, assetCssDir, CssPath),
 
-		pwaPath:  newLoaderAssetPath(assetPwaDir, PwaPath),
-		pwaPaths: newLoaderAssetPaths(assetPwaDir, PwaPath),
+		pwaPath:  newLoaderAssetPath(ctx, assetPwaDir, PwaPath),
+		pwaPaths: newLoaderAssetPaths(ctx, assetPwaDir, PwaPath),
 
-		jsNameKeyPath: newLoaderAssetNameKeyPaths(assetJsDir, JsPath),
+		jsNameKeyPath: newLoaderAssetNameKeyPaths(ctx, assetJsDir, JsPath),
 	}
 }
 
-func newLoaderAssetPath(dirSelector assetDirSelector, httpPath func(fileName string) string) loaderAssetPath {
+func newLoaderAssetPath(ctx context.Context, dirSelector assetDirSelector, httpPath func(fileName string) string) loaderAssetPath {
 	return func(fileName string, assets *assets.Assets) (string, error) {
 		filePath := filepath.Join(dirSelector(assets), fileName)
-		file, err := assets.ReadAssetFile(filePath)
+		file, err := assets.ReadAssetFile(ctx, filePath)
 		if err != nil {
 			return "", err
 		}
@@ -43,9 +44,9 @@ func newLoaderAssetPath(dirSelector assetDirSelector, httpPath func(fileName str
 	}
 }
 
-func newLoaderAssetPaths(dirSelector assetDirSelector, httpPath func(fileName string) string) loaderAssetPaths {
+func newLoaderAssetPaths(ctx context.Context, dirSelector assetDirSelector, httpPath func(fileName string) string) loaderAssetPaths {
 	return func(fileNames []string, assets *assets.Assets) ([]string, error) {
-		paths, err := loadFileNamesWithHash(fileNames, dirSelector, assets)
+		paths, err := loadFileNamesWithHash(ctx, fileNames, dirSelector, assets)
 		if err != nil {
 			return nil, err
 		}
@@ -58,9 +59,13 @@ func newLoaderAssetPaths(dirSelector assetDirSelector, httpPath func(fileName st
 	}
 }
 
-func newLoaderAssetNameKeyPaths(dirSelector assetDirSelector, httpPath func(fileName string) string) loaderAssetNameKeyPaths {
+func newLoaderAssetNameKeyPaths(
+	ctx context.Context,
+	dirSelector assetDirSelector,
+	httpPath func(fileName string) string,
+) loaderAssetNameKeyPaths {
 	return func(fileNames []string, assets *assets.Assets) (map[string]string, error) {
-		paths, err := loadFileNamesWithHash(fileNames, dirSelector, assets)
+		paths, err := loadFileNamesWithHash(ctx, fileNames, dirSelector, assets)
 		if err != nil {
 			return nil, err
 		}

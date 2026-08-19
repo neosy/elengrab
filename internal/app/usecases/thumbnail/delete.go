@@ -44,7 +44,7 @@ func (t *Thumbnail) Delete(ctx context.Context, thumbID uuid.UUID) error {
 	}
 
 	fileID := dmedia.MakeThumbnailStorageKey(thumbID, thumbnail.Variant.String(), thumbnail.Format.String())
-	t.thumbnailFileCache.Delete(fileID)
+	t.thumbnailFileCache.Delete(ctx, fileID)
 
 	t.logger.Debug(
 		"Thumbnail deleted",

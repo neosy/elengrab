@@ -28,29 +28,30 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	downloadResp, err := h.downloader.GetDownloadInfo(ctx, authCtx, downloadID)
+	downloadInfo, err := h.downloader.GetDownloadInfo(ctx, authCtx, downloadID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
 	var errorMessage string
-	if downloadResp.MediaDownload != nil && downloadResp.MediaDownload.ErrorMessage != nil {
-		errorMessage = *downloadResp.MediaDownload.ErrorMessage
+	if downloadInfo.MediaDownload != nil && downloadInfo.MediaDownload.ErrorMessage != nil {
+		errorMessage = *downloadInfo.MediaDownload.ErrorMessage
 	}
 
-	link, _ := h.linkWeb.ResolveURL(ctx, h.buildMediaWatchURL(downloadResp.DownloadID))
+	link, _ := h.linkWeb.ResolveURL(ctx, h.buildMediaWatchURL(downloadInfo.DownloadID))
 
 	extraData := make(map[string]any)
 	extraData[items.MenuActionsKey] = menu.RowMenuActions(
 		map[string]string{
 			menu.RowMenuActionItemIDKey: idcodec.EncodeUUIDBase64URL(downloadID),
-			menu.RowMenuActionURLKey:    downloadResp.MediaURL,
+			menu.RowMenuActionURLKey:    downloadInfo.MediaURL,
 		},
-		downloadResp.Status,
-		downloadResp.HasWriteAccess,
+		downloadInfo.Status,
+		downloadInfo.HasWriteAccess,
 		menu.WithErrorText(errorMessage),
 		menu.WithShareLink(link),
+		menu.WithMetadata(downloadInfo.MediaInfo != nil),
 	)
 
 	pageData := pages.PageFragmentData{

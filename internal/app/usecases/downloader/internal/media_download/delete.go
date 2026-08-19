@@ -14,7 +14,7 @@ func (uc *MediaDownload) SoftDelete(ctx context.Context, downloadID uuid.UUID) e
 		return err
 	}
 
-	uc.downloadCacheRep.Delete(downloadID)
+	uc.downloadCacheRep.Delete(ctx, downloadID)
 
 	err = uc.dlStateCache.Delete(ctx, downloadID)
 	if err != nil {
@@ -36,7 +36,7 @@ func (uc *MediaDownload) HardDelete(ctx context.Context, downloadID uuid.UUID) e
 		return err
 	}
 
-	uc.downloadCacheRep.Delete(downloadID)
+	uc.downloadCacheRep.Delete(ctx, downloadID)
 
 	err = uc.dlStateCache.Delete(ctx, downloadID)
 	if err != nil {

@@ -1,6 +1,7 @@
 package paths
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 
@@ -139,9 +140,9 @@ func (scripts jsScripts) fileNames() []string {
 	return names
 }
 
-func (scripts jsScripts) newLoader(assets *assets.Assets) func(legacy bool) ([]JsScript, error) {
+func (scripts jsScripts) newLoader(ctx context.Context, assets *assets.Assets) func(legacy bool) ([]JsScript, error) {
 	return func(legacy bool) ([]JsScript, error) {
-		names, err := loadFileNamesWithHash(scripts.fileNames(), assetJsDir, assets)
+		names, err := loadFileNamesWithHash(ctx, scripts.fileNames(), assetJsDir, assets)
 		if err != nil {
 			return nil, err
 		}

@@ -19,7 +19,7 @@ func (t *Thumbnail) LoadByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmed
 
 	getThumbnailFile := func() ([]byte, error) {
 		fileID := dmedia.MakeThumbnailStorageKey(thumbID, thumbnail.Variant.String(), thumbnail.Format.String())
-		raw, cacheStatus, err := t.thumbnailFileCache.FindByFileID(fileID)
+		raw, cacheStatus, err := t.thumbnailFileCache.FindByFileID(ctx, fileID)
 		if err != nil {
 			return nil, err
 		}
@@ -41,16 +41,16 @@ func (t *Thumbnail) LoadByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmed
 				"thumbnailID", thumbID,
 				"error", err,
 			)
-			t.thumbnailFileCache.SaveNegative(fileID)
+			t.thumbnailFileCache.SaveNegative(ctx, fileID)
 			return nil, errorx.Errorf("failed to get thumbnail from storage: %w", err, exceptionx.NOT_FOUND)
 		}
 
 		if len(raw) == 0 {
-			t.thumbnailFileCache.SaveNegative(fileID)
+			t.thumbnailFileCache.SaveNegative(ctx, fileID)
 			return nil, errorx.Errorf("thumbnail file not found", exceptionx.NOT_FOUND)
 		}
 
-		t.thumbnailFileCache.Save(fileID, raw)
+		t.thumbnailFileCache.Save(ctx, fileID, raw)
 
 		return raw, nil
 	}

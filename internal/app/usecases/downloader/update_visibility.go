@@ -25,7 +25,7 @@ func (uc *Downloader) UpdateVisibility(
 		return err
 	}
 
-	err = uc.validateDownloadWriteAccess(authCtx, download)
+	err = uc.validateDownloadEditAccess(authCtx, download)
 	if err != nil {
 		return err
 	}

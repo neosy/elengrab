@@ -26,6 +26,7 @@ const (
 	rowMenuActionCopyLink   = "copy-link"
 	rowMenuActionCreateLink = "create-link"
 	rowMenuActionDeleteLink = "delete-link"
+	rowMenuActionEdit       = "edit"
 )
 
 var rowMenuActions = []rowMenuAction{
@@ -172,7 +173,7 @@ var rowMenuActions = []rowMenuAction{
 			},
 		},
 		icon:               icons.DownloaderRowMenuEditIcon,
-		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
+		visibleStatuses:    dtypes.MediaDownloadEditableStatuses(),
 		requireWriteAccess: true,
 	},
 
@@ -206,12 +207,8 @@ func RowMenuActions(
 	actions := make([]rowMenuAction, 0, len(rowMenuActions))
 	var (
 		lastRenderType renderType
-		options        MenuActionOptions
+		options        = NewMenuActionOptions(opts...)
 	)
-
-	for _, opt := range opts {
-		opt(&options)
-	}
 
 	for _, a := range rowMenuActions {
 		if len(a.visibleStatuses) > 0 && !status.Contains(a.visibleStatuses) {
@@ -226,16 +223,23 @@ func RowMenuActions(
 			continue
 		}
 
-		if a.Action == rowMenuActionCreateLink && options.HasShareLink {
-			continue
-		}
-
-		if a.Action == rowMenuActionCopyLink && !options.HasShareLink {
-			continue
-		}
-
-		if a.Action == rowMenuActionDeleteLink && !options.HasShareLink {
-			continue
+		switch a.Action {
+		case rowMenuActionCreateLink:
+			if options.HasShareLink {
+				continue
+			}
+		case rowMenuActionCopyLink:
+			if !options.HasShareLink {
+				continue
+			}
+		case rowMenuActionDeleteLink:
+			if !options.HasShareLink {
+				continue
+			}
+		case rowMenuActionEdit:
+			if !options.HasMetadata {
+				continue
+			}
 		}
 
 		if a.RenderType == renderTypeDivider {
