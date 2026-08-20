@@ -2,6 +2,9 @@
 
 ## v0.25.0 — 2026-08-30
 
+### 🖥️ UI / Frontend
+- Reordered favicon declarations to prioritize larger image sizes for better favicon selection in Google Search Console. [L116]
+
 ### 🧩 Refactor
 - Renamed /account paths to /auth. [L113]
 - Renamed HTTP path constants to use Group and Path suffixes for consistent naming. [L113]
