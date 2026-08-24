@@ -9,6 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/repository/sqlite/download"
 	"github.com/neosy/elengrab/internal/repository/sqlite/link"
 	"github.com/neosy/elengrab/internal/repository/sqlite/media"
+	searchindex "github.com/neosy/elengrab/internal/repository/sqlite/search_index"
 	sqlitetypes "github.com/neosy/elengrab/internal/repository/sqlite/types"
 	watchevent "github.com/neosy/elengrab/internal/repository/sqlite/watch_event"
 )
@@ -31,6 +32,7 @@ type Repositories struct {
 	MediaUserWatchStat     persistence.MediaUserWatchStatRepository
 	MediaWatchStat         persistence.MediaWatchStatRepository
 	MediaUserWatchPosition persistence.MediaUserWatchPositionRepository
+	MediaSourceIndex       persistence.MediaSourceIndexRepository
 
 	YoutubeChannel persistence.YoutubeChannelRepository
 	SiteLogo       persistence.SiteLogoRepository
@@ -78,6 +80,10 @@ func New(dbEntries []persistence.DBEntry) *Repositories {
 		locker: dbexec.NewSQLiteLock(),
 	}
 
+	eSearchIndex := dbEntry{
+		db: entriesByName[SearchIndexSchema.DBName()].DB(),
+	}
+
 	return &Repositories{
 		dbRegistry: sqlitetypes.NewRegistry(entriesByName),
 
@@ -95,6 +101,8 @@ func New(dbEntries []persistence.DBEntry) *Repositories {
 		MediaUserWatchStat:     watchevent.NewMediaUserWatchStatRepository(eWatchEvent.db, eWatchEvent.locker),
 		MediaWatchStat:         watchevent.NewMediaWatchStatRepository(eWatchEvent.db, eWatchEvent.locker),
 		MediaUserWatchPosition: watchevent.NewMediaUserWatchPositionRepository(eWatchEvent.db, eWatchEvent.locker),
+
+		MediaSourceIndex: searchindex.NewMediaSourceIndexRepository(eSearchIndex.db, eSearchIndex.locker),
 
 		YoutubeChannel: media.NewYoutubeChannelRepository(eMedia.db, eMedia.locker),
 		SiteLogo:       media.NewSiteLogoRepository(eMedia.db, eMedia.locker),
