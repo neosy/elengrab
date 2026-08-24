@@ -113,11 +113,12 @@ type Application struct {
 
 	Workers *workers.Workers
 
-	dbAuth       *sql.DB
-	dbMain       *sql.DB
-	dbMedia      *sql.DB
-	dbLink       *sql.DB
-	dbWatchEvent *sql.DB
+	dbAuth        *sql.DB
+	dbMain        *sql.DB
+	dbMedia       *sql.DB
+	dbLink        *sql.DB
+	dbWatchEvent  *sql.DB
+	dbSearchIndex *sql.DB
 }
 
 func NewApplication(logger *slog.Logger, cfg *iconfig.Config) (*Application, error) {
@@ -199,6 +200,8 @@ func (a *Application) initialize() error {
 
 			MediaWatchStat:         slRepositories.MediaWatchStat,
 			MediaUserWatchPosition: slRepositories.MediaUserWatchPosition,
+
+			MediaSourceIndex: slRepositories.MediaSourceIndex,
 
 			YoutubeChannel: slRepositories.YoutubeChannel,
 			SiteLogo:       slRepositories.SiteLogo,
@@ -452,12 +455,18 @@ func (a *Application) initSQLiteRepositories() (*sqliterep.Repositories, error) 
 		return nil, err
 	}
 
+	a.dbSearchIndex, err = newDB(a.logger, sqliterep.SearchIndexSchema.Path(sqliteDir))
+	if err != nil {
+		return nil, err
+	}
+
 	var (
-		authEntry       = sqlitetypes.NewDBEntry(sqliterep.AuthSchema, a.dbAuth)
-		mainEntry       = sqlitetypes.NewDBEntry(sqliterep.MainSchema, a.dbMain)
-		mediaEntry      = sqlitetypes.NewDBEntry(sqliterep.MediaSchema, a.dbMedia)
-		linkEntry       = sqlitetypes.NewDBEntry(sqliterep.LinkSchema, a.dbLink)
-		watchEventEntry = sqlitetypes.NewDBEntry(sqliterep.WatchEventSchema, a.dbWatchEvent)
+		authEntry        = sqlitetypes.NewDBEntry(sqliterep.AuthSchema, a.dbAuth)
+		mainEntry        = sqlitetypes.NewDBEntry(sqliterep.MainSchema, a.dbMain)
+		mediaEntry       = sqlitetypes.NewDBEntry(sqliterep.MediaSchema, a.dbMedia)
+		linkEntry        = sqlitetypes.NewDBEntry(sqliterep.LinkSchema, a.dbLink)
+		watchEventEntry  = sqlitetypes.NewDBEntry(sqliterep.WatchEventSchema, a.dbWatchEvent)
+		searchIndexEntry = sqlitetypes.NewDBEntry(sqliterep.SearchIndexSchema, a.dbSearchIndex)
 
 		entries = []persistence.DBEntry{
 			authEntry,
@@ -465,6 +474,7 @@ func (a *Application) initSQLiteRepositories() (*sqliterep.Repositories, error) 
 			mediaEntry,
 			linkEntry,
 			watchEventEntry,
+			searchIndexEntry,
 		}
 	)
 
@@ -476,6 +486,7 @@ func (a *Application) initSQLiteRepositories() (*sqliterep.Repositories, error) 
 		mediaEntry,
 		linkEntry,
 		watchEventEntry,
+		searchIndexEntry,
 	)
 	if err != nil {
 		return nil, err
