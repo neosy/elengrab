@@ -93,8 +93,8 @@ ON files(user_id);
 CREATE INDEX files_downloaded_created_sort_idx
 ON files(COALESCE(downloaded_at, created_at) DESC);
 
--- Create index for youtube_title, media_title_lower fields
+-- Create index for media_title, media_title_lower fields
 CREATE INDEX IF NOT EXISTS files_media_title_idx
-ON files(youtube_title);
+ON files(media_title);
 CREATE INDEX IF NOT EXISTS files_media_title_lower_idx
 ON files(media_title_lower);
