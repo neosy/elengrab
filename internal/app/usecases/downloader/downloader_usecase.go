@@ -15,6 +15,7 @@ import (
 	mediadownload "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download"
 	downloadstatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download_status"
 	mediawatch "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch"
+	searchindex "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/search_index"
 	siteicon "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon"
 	ytchannel "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/youtube_channel"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
@@ -52,6 +53,7 @@ type Downloader struct {
 	authz             *authz.Authorization
 	downloadMigration *dlmigration.DownloadMigration
 	mediaWatch        *mediawatch.MediaWatch
+	searchIndex       *searchindex.SearchIndex
 	dlExecutor        *dlexecutor.Executor
 
 	// broadcasters
@@ -84,6 +86,7 @@ func NewDownloader(
 	userWatchStatRep persistence.MediaUserWatchStatRepository,
 	watchStatRep persistence.MediaWatchStatRepository,
 	userWatchPosition persistence.MediaUserWatchPositionRepository,
+	sourceIndexRep persistence.MediaSourceIndexRepository,
 	ytChannelRep persistence.YoutubeChannelRepository,
 	siteLogoRep persistence.SiteLogoRepository,
 
@@ -158,7 +161,8 @@ func NewDownloader(
 		broadcaster: broadcaster.NewBroadcaster(authz),
 
 		// usecases
-		thumbnail: thumbnail,
+		thumbnail:   thumbnail,
+		searchIndex: searchindex.NewSearchIndex(logger, sourceIndexRep),
 
 		// services
 		downloaderSrv: downloaderSrv,

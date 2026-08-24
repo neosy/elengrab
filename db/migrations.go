@@ -28,6 +28,9 @@ var migrationsLinkFS embed.FS
 //go:embed watch_event/migrations/*
 var migrationsWatchEventFS embed.FS
 
+//go:embed search_index/migrations/*
+var migrationsSearchIndexFS embed.FS
+
 func migrationsMainRoot() (fs.FS, error) {
 	return fs.Sub(migrationsMainFS, "download/migrations")
 }
@@ -46,6 +49,10 @@ func migrationsLinkRoot() (fs.FS, error) {
 
 func migrationsWatchEventRoot() (fs.FS, error) {
 	return fs.Sub(migrationsWatchEventFS, "watch_event/migrations")
+}
+
+func migrationsSearchIndexRoot() (fs.FS, error) {
+	return fs.Sub(migrationsSearchIndexFS, "search_index/migrations")
 }
 
 type MigrationConfig struct {
@@ -89,6 +96,8 @@ func NewMigrations(logger *slog.Logger, dbEntry persistence.DBEntry, config *Mig
 		fs, _ = migrationsLinkRoot()
 	case sqliterep.WatchEventSchema.DBName():
 		fs, _ = migrationsWatchEventRoot()
+	case sqliterep.SearchIndexSchema.DBName():
+		fs, _ = migrationsSearchIndexRoot()
 	}
 
 	return &Migrations{
