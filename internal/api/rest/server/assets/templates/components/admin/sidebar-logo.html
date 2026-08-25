@@ -1,7 +1,7 @@
 {{- define "admin-sidebar-logo" }}
             <div class="sidebar__logo">
                 <a class="sidebar__logo-link" href="/">
-                    <img class="sidebar__logo-image" src="{{ .BasePaths.StaticImages }}/logo-512.png">
+                    <div class="sidebar__logo-image">{{ .BaseValues.LogoIcon }}</div>
                 </a>
                     <div class="sidebar__logo-text">
                         <a class="sidebar__logo-link" href="/">

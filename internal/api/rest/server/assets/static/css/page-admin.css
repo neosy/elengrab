@@ -206,7 +206,7 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-.header__title-logo-image {
+.header__title-logo-image svg {
     height: 24px;
     width: auto;
 }
@@ -312,7 +312,7 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-.sidebar__logo-image {
+.sidebar__logo-image svg {
     height: var(--sidebar-logo-image-height);
     width: auto;
 }
