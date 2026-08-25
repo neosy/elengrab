@@ -1,6 +1,9 @@
 package pages
 
 import (
+	"html/template"
+
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	iconfig "github.com/neosy/elengrab/internal/config"
 )
 
@@ -27,6 +30,8 @@ type baseValues struct {
 
 	AuthRegisterTitle string
 	AuthLoginTitle    string
+
+	LogoIcon template.HTML
 }
 
 var (
@@ -43,6 +48,10 @@ var (
 )
 
 func NewBaseValues() baseValues {
+	if baseValuesDefault.LogoIcon == "" {
+		baseValuesDefault.LogoIcon = icons.LogoIcon.FileRaw()
+	}
+
 	return baseValuesDefault
 }
 
