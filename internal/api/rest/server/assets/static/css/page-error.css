@@ -61,7 +61,7 @@ h1 { font-size: var(--h1); font-weight: 600; font-family: 'Cinzel', serif; }
     -webkit-tap-highlight-color: transparent;
 }
 
-.header__logo-image {
+.header__logo-image svg {
     height: 3em;
     width: auto;
 }

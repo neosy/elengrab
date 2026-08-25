@@ -9,7 +9,7 @@
 </head>
 <body>
     <a class="header__logo-link" href="{{ .Values.BaseURL }}">
-        <img class="header__logo-image" src="{{.BasePaths.StaticImages}}/logo-512.png">
+        <div class="header__logo-image">{{ .BaseValues.LogoIcon }}</div>
         <h1 class="header__logo-title">{{.Values.Header}}</h1>
     </a>
     <p><b>{{ .Values.ErrorCode }}.</b> <ins>{{ .Values.ErrorTitle }}</ins></p>

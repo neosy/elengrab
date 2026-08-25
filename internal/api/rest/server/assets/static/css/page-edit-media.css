@@ -94,7 +94,7 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-.header__logo-image {
+.header__logo-image svg {
     height: 2.4em;
     width: auto;
 }

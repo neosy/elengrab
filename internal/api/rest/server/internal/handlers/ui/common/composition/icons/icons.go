@@ -14,6 +14,8 @@ var (
 	UserAvatarGuestIcon  = newIcon("UserAvatarGuestIconName", "user-guest.svg")
 	UserAvatarAnonymIcon = newIcon("UserAvatarAnonymIconName", "user-anonymous-2.svg")
 
+	LogoIcon = newIcon("LogoIconName", "logo-icon.svg")
+
 	IndexGrabSettingsButtonIcon = newIcon("IndexGrabSettingsButtonIconName", "settings-icon.svg")
 	IndexGrabGetButtonIcon      = newIcon("IndexGrabGetButtonIconName", "download-cloud-icon.svg")
 
