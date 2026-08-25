@@ -34,8 +34,8 @@ type baseValues struct {
 	LogoIcon template.HTML
 }
 
-var (
-	baseValuesDefault = baseValues{
+func NewBaseValues() baseValues {
+	return baseValues{
 		Title:       PageTitle,
 		Description: PageDescription,
 
@@ -44,15 +44,9 @@ var (
 
 		Header:     Header,
 		AppVersion: iconfig.AppVersion,
-	}
-)
 
-func NewBaseValues() baseValues {
-	if baseValuesDefault.LogoIcon == "" {
-		baseValuesDefault.LogoIcon = icons.LogoIcon.FileRaw()
+		LogoIcon: icons.LogoIcon.FileRaw(),
 	}
-
-	return baseValuesDefault
 }
 
 type (
