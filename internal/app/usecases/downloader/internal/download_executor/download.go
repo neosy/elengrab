@@ -26,7 +26,7 @@ func (uc *Executor) startDownload(
 	)
 
 	if err == nil {
-		return resultCh, err
+		return resultCh, nil
 	}
 
 	// The context was canceled
@@ -35,11 +35,6 @@ func (uc *Executor) startDownload(
 			"Failed to download: The context was canceled",
 			"error", err,
 		)
-		download, e := uc.download.FindByDownloadIDNoCache(uc.appCtx, task.DownloadID)
-		if e == nil && download != nil {
-			uc.downloadStatus.Failed(uc.appCtx, task.DownloadID, nil, new(ctx.Err().Error()))
-		}
-		uc.dlStateCache.Delete(uc.appCtx, task.DownloadID)
 		return nil, ctx.Err()
 	}
 
@@ -47,8 +42,6 @@ func (uc *Executor) startDownload(
 		"Failed to download",
 		"error", err,
 	)
-
-	uc.downloadStatus.Failed(ctx, task.DownloadID, nil, new(err.Error()))
 
 	return nil, err
 }
@@ -59,17 +52,15 @@ func (uc *Executor) processDownloadResults(
 	resultCh <-chan *dservices.DownloaderResult,
 ) (*types.ProcessedDownload, error) {
 	var (
-		result, resultBeforeBroadcast, resultProgressBeforeBroadcast *dservices.DownloaderResult
+		lastResult, resultBeforeBroadcast, resultProgressBeforeBroadcast *dservices.DownloaderResult
 
 		channelProcess, thumbnailProcess sync.Once
-		thumbnailsIDs                    types.ThumbnailIDs
+		thumbnailIDs                     types.ThumbnailIDs
 	)
 
 	for r := range resultCh {
 		if r == nil {
 			uc.logger.Error("Received nil result from result channel")
-			uc.downloadStatus.Failed(uc.appCtx, task.DownloadID, nil, new(apperrors.ErrDownloaderEmptyResponse.Error()))
-			uc.dlStateCache.Delete(uc.appCtx, task.DownloadID)
 			return nil, apperrors.ErrDownloaderEmptyResponse
 		}
 
@@ -79,117 +70,106 @@ func (uc *Executor) processDownloadResults(
 				"downloadID", task.DownloadID,
 				"error", r.Error,
 			)
-
-			patch := func(download *ddownload.MediaDownload) {
-				uc.mappers.MapDownloadResultToMediaDownload(download, result, thumbnailsIDs)
+			if lastResult != nil {
+				state, _ := uc.download.FindState(ctx, task.DownloadID)
+				return uc.mappers.MapDownloadResultToProcessedDownload(lastResult, state, thumbnailIDs), r.Error
 			}
-
-			ctx := ctx
-			// The context was canceled
-			if ctx.Err() != nil {
-				ctx = uc.appCtx
-			}
-
-			uc.downloadStatus.Failed(ctx, task.DownloadID, patch, new(r.Error.Error()))
-			uc.dlStateCache.Delete(ctx, task.DownloadID)
-
 			return nil, r.Error
 		}
 
-		result = r
+		lastResult = r
 
-		state, err := uc.dlStateCache.FindByDownloadID(ctx, task.DownloadID)
+		state, err := uc.download.GetOrCreateState(ctx, task.DownloadID)
 		if err != nil {
-			uc.logger.Error(
-				"Failed to download",
-				"action", "Find by downloadID",
-				"error", err,
-			)
-			uc.downloadStatus.Failed(ctx, task.DownloadID, nil, new(err.Error()))
 			return nil, err
 		}
 
 		if state.Download != nil && state.Download.MediaInfo != nil {
-			thumbnailsIDs.ThumbnailID = state.Download.MediaInfo.ThumbnailID
-			thumbnailsIDs.FrameThumbnailID = state.Download.MediaInfo.FrameThumbnailID
+			thumbnailIDs.ThumbnailID = state.Download.MediaInfo.ThumbnailID
+			thumbnailIDs.FrameThumbnailID = state.Download.MediaInfo.FrameThumbnailID
 		}
 
 		// Adding a record to the YouTube Channel table
-		if result.ChannelID != nil && result.Channel != nil {
+		if lastResult.ChannelID != nil && lastResult.Channel != nil {
 			channelProcess.Do(func() {
-				channel, _ := uc.ytChannel.FindByChannelID(ctx, *result.ChannelID)
+				channel, _ := uc.ytChannel.FindByChannelID(ctx, *lastResult.ChannelID)
 				if channel != nil {
 					if time.Since(channel.UpdatedAt) > uc.channelUpdateInterval {
-						channel.InitFromChannel(result.Channel)
+						channel.InitFromChannel(lastResult.Channel)
 						uc.ytChannel.Update(ctx, channel)
 					}
 				} else {
 					channel := &dmedia.YoutubeChannel{
-						ChannelID: *result.ChannelID,
+						ChannelID: *lastResult.ChannelID,
 					}
-					channel.InitFromChannel(result.Channel)
+					channel.InitFromChannel(lastResult.Channel)
 					uc.ytChannel.Create(ctx, channel)
 				}
 			})
 		}
 
-		if result.Thumbnail != nil && thumbnailsIDs.ThumbnailID == nil {
+		if lastResult.Thumbnail != nil && thumbnailIDs.ThumbnailID == nil {
 			thumbnailProcess.Do(func() {
 				req := &dto.CreateThumbnailRequest{
 					SourceType: dtypes.ThumbnailSourceTypeExternal,
-					SourceURL:  &result.Thumbnail.URL,
-					ImageData:  result.Thumbnail,
+					SourceURL:  &lastResult.Thumbnail.URL,
+					ImageData:  lastResult.Thumbnail,
 				}
 				id, err := uc.thumbnail.Create(ctx, req)
 				if err == nil {
-					thumbnailsIDs.ThumbnailID = &id
+					thumbnailIDs.ThumbnailID = &id
 				}
 			})
 		}
 
-		mediaInfo := uc.mappers.MapMediaInfoDomain(result.MediaInfo, thumbnailsIDs)
-		uc.mappers.MapDownloaderResultToState(state, result, mediaInfo)
-		uc.dlStateCache.Save(
-			ctx,
-			state,
+		uc.download.PatchState(
+			ctx, task.DownloadID,
+			func(state *ddownload.DownloadState) error {
+				if lastResult != nil {
+					var mediaInfo *dtypes.MediaInfo
+					if lastResult.MediaInfo != nil {
+						mediaInfo = uc.mappers.MapMediaInfoDomain(lastResult.MediaInfo, thumbnailIDs)
+					}
+					uc.mappers.MapDownloaderResultToState(state, lastResult, mediaInfo)
+				}
+				return nil
+			},
 		)
 
 		if resultProgressBeforeBroadcast == nil {
-			resultProgressBeforeBroadcast = result
+			resultProgressBeforeBroadcast = lastResult
 		}
 
-		if result.MetadataChanged(resultBeforeBroadcast) {
+		if lastResult.MetadataChanged(resultBeforeBroadcast) {
 			uc.broadcaster.DownloadUpdate(ctx, task.DownloadID)
-			resultBeforeBroadcast = result
-		} else if result.ProgressChanged(resultProgressBeforeBroadcast) {
+			resultBeforeBroadcast = lastResult
+		} else if lastResult.ProgressChanged(resultProgressBeforeBroadcast) {
 			uc.broadcaster.DownloadProgressUpdate(ctx, task.DownloadID)
-			resultProgressBeforeBroadcast = result
+			resultProgressBeforeBroadcast = lastResult
 		}
 	}
 
-	if result == nil {
+	if lastResult == nil {
 		err := fmt.Errorf("failed to download: no result returned")
 		uc.logger.Error(
 			"Failed to download",
 			"error", err,
 		)
-		uc.downloadStatus.Failed(ctx, task.DownloadID, nil, new(err.Error()))
 		return nil, err
 	}
 
-	if result.ThumbnailVideoFrame != nil && thumbnailsIDs.FrameThumbnailID == nil {
+	if lastResult.ThumbnailVideoFrame != nil && thumbnailIDs.FrameThumbnailID == nil {
 		req := &dto.CreateThumbnailRequest{
 			SourceType: dtypes.ThumbnailSourceTypeVideoFrame,
-			ImageData:  result.ThumbnailVideoFrame,
+			ImageData:  lastResult.ThumbnailVideoFrame,
 		}
 		id, err := uc.thumbnail.Create(ctx, req)
 		if err == nil {
-			thumbnailsIDs.FrameThumbnailID = &id
+			thumbnailIDs.FrameThumbnailID = &id
 		}
 	}
 
-	return &types.ProcessedDownload{
-		Result:       result,
-		ThumbnailIDs: thumbnailsIDs,
-	}, nil
+	state, _ := uc.download.FindState(ctx, task.DownloadID)
+
+	return uc.mappers.MapDownloadResultToProcessedDownload(lastResult, state, thumbnailIDs), nil
 }

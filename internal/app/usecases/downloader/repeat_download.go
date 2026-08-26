@@ -59,7 +59,6 @@ func (uc *Downloader) RetryDownload(
 		return nil, err
 	}
 
-	uc.dlStateCache.SaveByDownload(ctx, download)
 	uc.broadcastDownloadUpdate(ctx, downloadID)
 
 	return uc.findActualDownloadInfoByDownload(ctx, download)

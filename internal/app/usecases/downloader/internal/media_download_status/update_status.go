@@ -13,7 +13,7 @@ func (uc *MediaDownloadStatus) updateStatus(
 	ctx context.Context,
 	downloadID uuid.UUID,
 	toStatus dtypes.MediaDownloadStatus,
-	patch func(download *ddownload.MediaDownload),
+	mutate func(download *ddownload.MediaDownload) error,
 ) error {
 	download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 	if err != nil {
@@ -31,8 +31,10 @@ func (uc *MediaDownloadStatus) updateStatus(
 	}
 
 	// Update fields
-	if patch != nil {
-		patch(download)
+	if mutate != nil {
+		if err := mutate(download); err != nil {
+			return err
+		}
 	}
 
 	// Update in the repository
