@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_executor/mappers"
-	dlstate "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_state_cache"
 	mediadownload "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download"
 	downloadstatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download_status"
 	siteicon "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon"
@@ -30,9 +29,6 @@ type Executor struct {
 
 	// Storages
 	downloadsStorage pstorage.DownloadsStorage
-
-	// Caches
-	dlStateCache *dlstate.DownloadStateCache
 
 	// Services
 	downloaderSrv pservices.Downloader
@@ -61,9 +57,6 @@ func NewExecutor(
 	// Storages
 	downloadsStorage pstorage.DownloadsStorage,
 
-	// Caches
-	dlStateCache *dlstate.DownloadStateCache,
-
 	// Services
 	downloaderSrv pservices.Downloader,
 	ffmpegSrv pservices.FFMpeg,
@@ -89,9 +82,6 @@ func NewExecutor(
 
 		// Storages
 		downloadsStorage: downloadsStorage,
-
-		// Caches
-		dlStateCache: dlStateCache,
 
 		// Services
 		downloaderSrv: downloaderSrv,

@@ -232,7 +232,7 @@ func (uc *Executor) applyMetadataPatch(
 		}
 	}
 
-	patch := func(d *ddownload.MediaDownload) bool {
+	patch := func(d *ddownload.MediaDownload) error {
 		if metadataPatch.title != nil {
 			if d.MediaTitle == d.MediaTitleOriginal {
 				d.MediaTitle = *metadataPatch.title
@@ -245,8 +245,10 @@ func (uc *Executor) applyMetadataPatch(
 			}
 			d.MediaDescriptionOriginal = metadataPatch.description
 		}
+
 		d.MediaInfo = &metadataPatch.mediaInfo
-		return true
+
+		return nil
 	}
 
 	return uc.download.Patch(ctx, nil, media.DownloadID, patch)

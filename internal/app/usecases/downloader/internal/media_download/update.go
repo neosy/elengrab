@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 func (uc *MediaDownload) Update(ctx context.Context, userID *uuid.UUID, download *ddownload.MediaDownload) error {
@@ -22,7 +23,11 @@ func (uc *MediaDownload) Update(ctx context.Context, userID *uuid.UUID, download
 
 	uc.downloadCacheRep.Delete(ctx, download.DownloadID)
 
-	uc.saveToDownloadStateCache(ctx, download.DownloadID)
+	if download.Status == dtypes.MediaDownloadStatusWorking {
+		uc.saveToDownloadStateCache(ctx, download.DownloadID)
+	} else {
+		uc.dlStateCache.Delete(ctx, download.DownloadID)
+	}
 
 	return err
 }

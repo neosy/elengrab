@@ -40,25 +40,39 @@ func (uc *Executor) ExecuteDownloadTask(
 
 	resultCh, err := uc.startDownload(ctx, task)
 	if err != nil {
+		// The context was canceled
+		if ctx.Err() != nil {
+			ctx = uc.appCtx
+		}
+		uc.downloadStatus.Failed(ctx, task.DownloadID, nil, err.Error())
 		return err
 	}
 
 	processed, err := uc.processDownloadResults(ctx, task, resultCh)
 	if err != nil {
+		var patch func(*ddownload.MediaDownload) error
+		if processed != nil {
+			patch = func(download *ddownload.MediaDownload) error {
+				uc.mappers.MapProcessedDownloadToMediaDownload(download, processed)
+				return nil
+			}
+		}
+		// The context was canceled
+		if ctx.Err() != nil {
+			ctx = uc.appCtx
+		}
+		uc.downloadStatus.Failed(ctx, task.DownloadID, patch, err.Error())
 		return err
 	}
 
-	patch := func(download *ddownload.MediaDownload) {
-		if processed == nil {
-			return
-		}
-
-		uc.mappers.MapDownloadResultToMediaDownload(download, processed.Result, processed.ThumbnailIDs)
+	patch := func(download *ddownload.MediaDownload) error {
+		uc.mappers.MapProcessedDownloadToMediaDownload(download, processed)
+		return nil
 	}
 
 	err = uc.downloadStatus.Done(ctx, task.DownloadID, patch)
 	if err != nil {
-		uc.downloadStatus.Failed(ctx, task.DownloadID, patch, new(err.Error()))
+		uc.downloadStatus.Failed(ctx, task.DownloadID, patch, err.Error())
 		return err
 	}
 

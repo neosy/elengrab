@@ -12,7 +12,6 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
 )
 
@@ -123,13 +122,11 @@ func (uc *Downloader) addDownloadToQueueDownload(ctx context.Context, downloadID
 		err := uc.downloadStatus.Pending(ctx, downloadID, taskId, jobID)
 		if err != nil {
 			uc.logger.Warn("Failed update status", "downloadID", downloadID, "error", err)
-			uc.dlStateCache.Delete(ctx, downloadID)
 			return err
 		}
 
 		download, err = uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 		if err != nil {
-			uc.dlStateCache.Delete(ctx, downloadID)
 			return err
 		}
 
@@ -144,10 +141,9 @@ func (uc *Downloader) addDownloadToQueueDownload(ctx context.Context, downloadID
 	if job == nil {
 		uc.logger.Warn("Task has not been added to the queue", "downloadID", download.DownloadID)
 
-		e := uc.downloadStatus.Failed(ctx, downloadID, nil, uptr.String("failed to enqueue download task"))
+		e := uc.downloadStatus.Failed(ctx, downloadID, nil, "failed to enqueue download task")
 		if e != nil {
 			uc.logger.Warn("Failed update status", "downloadID", download.DownloadID, "error", e)
-			uc.dlStateCache.Delete(ctx, downloadID)
 
 			return errorx.Errorf(
 				"task has not been added to the queue: %w", e,

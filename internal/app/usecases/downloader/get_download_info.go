@@ -84,14 +84,14 @@ func (uc *Downloader) findActualDownloadInfo(
 		return nil, apperrors.ErrDownloadIDIsNil
 	}
 
-	state, _ := uc.dlStateCache.FindByDownloadID(ctx, downloadID)
+	state, _ := uc.download.FindState(ctx, downloadID)
 	if state != nil && state.Download != nil {
-		download = state.Download.Copy()
+		download = state.Download
 	}
 
 	if download == nil {
 		var err error
-		download, err = uc.download.FindByDownloadIDNoCache(ctx, downloadID)
+		download, err = uc.download.FindByDownloadID(ctx, downloadID)
 		if err != nil {
 			return nil, err
 		}
@@ -118,10 +118,10 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 		return nil, nil
 	}
 
-	state, _ := uc.dlStateCache.FindByDownloadID(ctx, download.DownloadID)
+	state, _ := uc.download.FindState(ctx, download.DownloadID)
 	if state != nil && state.Download != nil {
-		download = state.Download.Copy()
-		dlProgress = state.Progress.Copy()
+		download = state.Download
+		dlProgress = state.Progress
 	}
 
 	var login string

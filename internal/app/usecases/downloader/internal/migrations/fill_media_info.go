@@ -141,9 +141,9 @@ func (m *migrations) fillMediaInfo(ctx context.Context) (bool, error) {
 
 		err = m.usecases.download.Patch(
 			ctx, nil, media.DownloadID,
-			func(download *ddownload.MediaDownload) bool {
+			func(download *ddownload.MediaDownload) error {
 				download.MediaInfo = mediaInfo
-				return true
+				return nil
 			},
 		)
 		if err != nil {

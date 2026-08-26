@@ -44,12 +44,12 @@ func (m *migrations) fillTitleForInstagram(ctx context.Context) (bool, error) {
 		err = m.usecases.download.Patch(
 			ctx, nil,
 			media.DownloadID,
-			func(download *ddownload.MediaDownload) bool {
+			func(download *ddownload.MediaDownload) error {
 				download.MediaTitle = info.Title
 				if info.Description != "" && (download.MediaDescription == nil || *download.MediaDescription != info.Description) {
 					download.MediaDescription = &info.Description
 				}
-				return true
+				return nil
 			},
 		)
 		if err != nil {

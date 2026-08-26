@@ -1,10 +1,25 @@
 package types
 
 import (
-	dservices "github.com/neosy/elengrab/internal/domain/services"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 type ProcessedDownload struct {
-	Result       *dservices.DownloaderResult
-	ThumbnailIDs ThumbnailIDs
+	MediaTitle         string
+	MediaTitleOriginal string
+
+	MediaDescription         *string
+	MediaDescriptionOriginal *string
+
+	Filename     string
+	FileFullName string
+
+	FileExt  string
+	Filesize *int64
+
+	PartialHash *string
+
+	ChannelID *string
+
+	MediaInfo *dtypes.MediaInfo
 }
