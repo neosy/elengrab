@@ -10,11 +10,7 @@ func (m *Mappers) MapMediaInfoDomain(
 	srvMediaInfo *dservices.MediaInfo,
 	thumbnailIDs types.ThumbnailIDs,
 ) *dtypes.MediaInfo {
-	if srvMediaInfo == nil {
-		return nil
-	}
-
-	mediaInfo := new(srvMediaInfo.MediaInfoDomain())
+	mediaInfo := srvMediaInfo.NewMediaInfoDomain()
 
 	mediaInfo.ThumbnailID = thumbnailIDs.ThumbnailID
 	mediaInfo.FrameThumbnailID = thumbnailIDs.FrameThumbnailID

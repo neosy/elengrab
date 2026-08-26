@@ -13,7 +13,7 @@ import (
 func (s *MediaDownloadStatus) Done(
 	ctx context.Context,
 	downloadID uuid.UUID,
-	patch func(*ddownload.MediaDownload),
+	mutate func(*ddownload.MediaDownload) error,
 ) error {
 	update := func(ctx context.Context) error {
 		err := s.dlTask.DeleteByDownloadID(ctx, downloadID)
@@ -25,13 +25,16 @@ func (s *MediaDownloadStatus) Done(
 			ctx,
 			downloadID,
 			dtypes.MediaDownloadStatusDone,
-			func(download *ddownload.MediaDownload) {
-				if patch != nil {
-					patch(download)
+			func(download *ddownload.MediaDownload) error {
+				if mutate != nil {
+					if err := mutate(download); err != nil {
+						return err
+					}
 				}
 				if download.DownloadedAt == nil {
 					download.DownloadedAt = new(time.Now().UTC())
 				}
+				return nil
 			},
 		)
 		if err != nil {

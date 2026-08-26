@@ -6,14 +6,15 @@ import (
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 // Failed set status to failed
 func (s *MediaDownloadStatus) Failed(
 	ctx context.Context,
 	downloadID uuid.UUID,
-	patch func(*ddownload.MediaDownload),
-	message *string,
+	mutate func(*ddownload.MediaDownload) error,
+	message string,
 ) error {
 	task, err := s.dlTask.GetByDownloadID(ctx, downloadID)
 	if err != nil {
@@ -29,9 +30,14 @@ func (s *MediaDownloadStatus) Failed(
 		ctx,
 		downloadID,
 		dtypes.MediaDownloadStatusFailed,
-		func(download *ddownload.MediaDownload) {
-			patch(download)
-			download.ErrorMessage = message
+		func(download *ddownload.MediaDownload) error {
+			if mutate != nil {
+				if err := mutate(download); err != nil {
+					return err
+				}
+			}
+			download.ErrorMessage = uptr.NonZeroString(message)
+			return nil
 		},
 	)
 	if err != nil {

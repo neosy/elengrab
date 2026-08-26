@@ -20,6 +20,7 @@
 - Replaced `fatih/structs` with the standard `reflect` package for struct field and tag processing. [L114]
 - Added tests for tag-based field and value operations to ensure the refactoring does not change existing behavior. [L114]
 - Refactored download execution and metadata refresh logic in the `download_executor` package. [L115]
+- Simplified DownloadState handling. [L120]
 
 ### 🐛 Fix
 - Fixed media download updates to correctly apply changes using the latest download data. [L120]

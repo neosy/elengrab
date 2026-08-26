@@ -42,7 +42,5 @@ func (uc *MediaDownload) Create(ctx context.Context, download *ddownload.MediaDo
 		return errorx.Errorf("failed to create task: %w", err, exceptionx.ERROR)
 	}
 
-	uc.saveToDownloadStateCache(ctx, download.DownloadID)
-
 	return nil
 }

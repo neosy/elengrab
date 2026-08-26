@@ -13,8 +13,9 @@ func (s *MediaDownloadStatus) New(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) error {
-	updateFieldsFunc := func(download *ddownload.MediaDownload) {
+	mutate := func(download *ddownload.MediaDownload) error {
 		download.ErrorMessage = nil
+		return nil
 	}
 
 	task, err := s.dlTask.GetByDownloadID(ctx, downloadID)
@@ -31,6 +32,6 @@ func (s *MediaDownloadStatus) New(
 		ctx,
 		downloadID,
 		dtypes.MediaDownloadStatusNew,
-		updateFieldsFunc,
+		mutate,
 	)
 }

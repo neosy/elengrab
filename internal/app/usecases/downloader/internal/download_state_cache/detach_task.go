@@ -1,4 +1,4 @@
-package dltask
+package dlstate
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
-func (uc *DownloadTask) deleteToDownloadStateCache(ctx context.Context, taskID uuid.UUID) {
-	dlStateCache, _ := uc.dlStateCache.FindByTaskID(ctx, taskID)
+func (uc *DownloadStateCache) DetachDownloadTask(ctx context.Context, taskID uuid.UUID) {
+	dlStateCache, _ := uc.FindByTaskID(ctx, taskID)
 	if dlStateCache != nil {
 		dlStateCache.TaskID = nil
 		if dlStateCache.Download != nil {

@@ -29,7 +29,7 @@ func (m *Mappers) MapPatchMediaRequestToUsecase(
 		DownloadID: downloadID,
 
 		MediaTitle:       &req.Title,
-		MediaDescription: description,
+		MediaDescription: &description,
 		Visibility:       &visibility,
 	}, nil
 }

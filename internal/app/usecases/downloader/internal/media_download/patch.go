@@ -12,7 +12,7 @@ func (uc *MediaDownload) Patch(
 	ctx context.Context,
 	userID *uuid.UUID,
 	downloadID uuid.UUID,
-	mutate func(*ddownload.MediaDownload) bool,
+	mutate func(*ddownload.MediaDownload) error,
 ) error {
 	return uc.Tx(ctx, func(ctx context.Context) error {
 		download, err := uc.GetByDownloadIDNoCache(ctx, downloadID)
@@ -20,8 +20,8 @@ func (uc *MediaDownload) Patch(
 			return err
 		}
 
-		if !mutate(download) {
-			return nil
+		if err := mutate(download); err != nil {
+			return err
 		}
 
 		err = uc.Update(ctx, userID, download)

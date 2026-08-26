@@ -48,13 +48,13 @@ func NewMediaInfoFromDomain(dMediaInfo *dtypes.MediaInfo) *MediaInfo {
 	}
 }
 
-func (m MediaInfo) MediaInfoDomain() dtypes.MediaInfo {
+func (m MediaInfo) NewMediaInfoDomain() *dtypes.MediaInfo {
 	var durationText string
 	if m.Duration > 0 {
 		durationText = strconv.FormatFloat(m.Duration.Seconds(), 'f', 6, 64)
 	}
 
-	return dtypes.MediaInfo{
+	return &dtypes.MediaInfo{
 		FormatType: m.FormatType,
 		Format:     m.Format,
 
