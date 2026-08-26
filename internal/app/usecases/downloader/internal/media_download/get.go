@@ -22,6 +22,10 @@ func (uc *MediaDownload) FindByDownloadIDNoCache(
 		return nil, err
 	}
 
+	if download != nil {
+		uc.downloadCacheRep.Save(ctx, download)
+	}
+
 	return download, err
 }
 

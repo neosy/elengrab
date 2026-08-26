@@ -43,9 +43,9 @@ func (m *migrations) fillMediaDescription(ctx context.Context) (bool, error) {
 		err = m.usecases.download.Patch(
 			ctx, nil,
 			media.DownloadID,
-			func(download *ddownload.MediaDownload) bool {
+			func(download *ddownload.MediaDownload) error {
 				download.MediaDescription = &info.Description
-				return true
+				return nil
 			},
 		)
 		if err != nil {

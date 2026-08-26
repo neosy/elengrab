@@ -13,7 +13,7 @@ type PatchMediaDownloadRequest struct {
 	DownloadID uuid.UUID
 
 	MediaTitle       *string
-	MediaDescription *string
+	MediaDescription **string
 	Visibility       *dtypes.MediaVisibility
 }
 
@@ -28,13 +28,13 @@ func (r *PatchMediaDownloadRequest) Normalize() {
 		}
 	}
 
-	if r.MediaDescription != nil {
+	if r.MediaDescription != nil && *r.MediaDescription != nil {
 		var description string
-		description = strings.TrimSpace(*r.MediaDescription)
+		description = strings.TrimSpace(**r.MediaDescription)
 		if description == "" {
 			r.MediaDescription = nil
 		} else {
-			r.MediaDescription = new(description)
+			r.MediaDescription = new(&description)
 		}
 	}
 }

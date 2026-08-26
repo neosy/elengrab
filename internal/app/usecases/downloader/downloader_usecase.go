@@ -49,7 +49,6 @@ type Downloader struct {
 	dlTaskStatus      *dltasktatus.DownloadTaskStatus
 	ytChannel         *ytchannel.YoutubeChannel
 	siteIcon          *siteicon.SiteIcon
-	dlStateCache      *dlstate.DownloadStateCache
 	authz             *authz.Authorization
 	downloadMigration *dlmigration.DownloadMigration
 	mediaWatch        *mediawatch.MediaWatch
@@ -143,9 +142,6 @@ func NewDownloader(
 			},
 		},
 
-		// Cache
-		dlStateCache: dlStateCache,
-
 		// Dispetchers
 		downloadDispatcher:  downloadDispatcher,
 		operationDispatcher: operationDispatcher,
@@ -211,9 +207,6 @@ func NewDownloader(
 
 		// Storages
 		downloadsStorage,
-
-		// Caches
-		dlStateCache,
 
 		// Services
 		downloaderSrv,

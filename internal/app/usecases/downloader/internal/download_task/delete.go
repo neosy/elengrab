@@ -8,12 +8,13 @@ import (
 
 func (uc *DownloadTask) Delete(ctx context.Context, taskID uuid.UUID) error {
 	err := uc.TaskRep.Delete(ctx, taskID)
-
-	if err == nil {
-		uc.deleteToDownloadStateCache(ctx, taskID)
+	if err != nil {
+		return err
 	}
 
-	return err
+	uc.dlStateCache.DetachDownloadTask(ctx, taskID)
+
+	return nil
 }
 
 func (uc *DownloadTask) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {

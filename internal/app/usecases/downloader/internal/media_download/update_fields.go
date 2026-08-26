@@ -13,9 +13,7 @@ func (uc *MediaDownload) UpdateFields(
 	ctx context.Context,
 	req dto.PatchMediaDownloadRequest,
 ) error {
-	return uc.Tx(ctx, func(ctx context.Context) error {
-		var err error
-
+	update := func(ctx context.Context) error {
 		download, err := uc.GetByDownloadIDNoCache(ctx, req.DownloadID)
 		if err != nil {
 			return err
@@ -28,8 +26,13 @@ func (uc *MediaDownload) UpdateFields(
 			needUpdate = true
 		}
 
-		if !helper.ValuesEqual(download.MediaDescription, req.MediaDescription) {
-			download.MediaDescription = req.MediaDescription
+		var reqMediaDescription *string
+		if req.MediaDescription != nil {
+			reqMediaDescription = *req.MediaDescription
+		}
+
+		if !helper.ValuesEqual(download.MediaDescription, reqMediaDescription) {
+			download.MediaDescription = reqMediaDescription
 			needUpdate = true
 		}
 
@@ -54,26 +57,17 @@ func (uc *MediaDownload) UpdateFields(
 			return err
 		}
 
-		uc.downloadCacheRep.Delete(ctx, download.DownloadID)
-
-		uc.dlStateCache.Transaction(func(ctx context.Context) error {
-			state, _ := uc.dlStateCache.FindByDownloadID(ctx, req.DownloadID)
-			if state != nil && state.Download != nil {
-				if req.MediaTitle != nil {
-					state.Download.MediaTitle = *req.MediaTitle
-				}
-				if req.MediaDescription != nil {
-					state.Download.MediaDescription = req.MediaDescription
-				}
-				if req.Visibility != nil {
-					state.Download.Visibility = *req.Visibility
-				}
-				uc.dlStateCache.Save(ctx, state)
-			}
-
-			return nil
-		})
-
 		return nil
-	})
+	}
+
+	err := uc.Tx(ctx, update)
+	if err != nil {
+		return err
+	}
+
+	uc.dlStateCache.PatchDownload(ctx, req)
+
+	uc.downloadCacheRep.Delete(ctx, req.DownloadID)
+
+	return nil
 }

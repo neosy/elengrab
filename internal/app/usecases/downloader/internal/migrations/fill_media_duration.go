@@ -51,9 +51,9 @@ func (m *migrations) fillMediaDuration(ctx context.Context) (bool, error) {
 		err = m.usecases.download.Patch(
 			ctx, nil,
 			media.DownloadID,
-			func(download *ddownload.MediaDownload) bool {
+			func(download *ddownload.MediaDownload) error {
 				download.MediaInfo.SetDuration(duration)
-				return true
+				return nil
 			},
 		)
 		if err != nil {
