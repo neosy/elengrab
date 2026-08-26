@@ -21,6 +21,9 @@
 - Added tests for tag-based field and value operations to ensure the refactoring does not change existing behavior. [L114]
 - Refactored download execution and metadata refresh logic in the `download_executor` package. [L115]
 
+### 🐛 Fix
+- Fixed media download updates to correctly apply changes using the latest download data. [L120]
+
 ### 📦 Build
 - Updated Go to 1.26.6.
 
