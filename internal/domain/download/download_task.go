@@ -42,10 +42,11 @@ func (src *DownloadTask) Copy() *DownloadTask {
 		return nil
 	}
 
-	copy := uptr.Copy(src)
+	copy := *src
+
 	copy.Options = src.Options.Copy()
 	copy.WorkerID = uptr.Copy(src.WorkerID)
 	copy.JobID = uptr.Copy(src.JobID)
 
-	return copy
+	return &copy
 }

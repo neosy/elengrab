@@ -37,7 +37,8 @@ func (src *DownloadOptions) Copy() *DownloadOptions {
 		return nil
 	}
 
-	copy := uptr.Copy(src)
+	copy := *src
+
 	copy.VideoFormat = uptr.Copy(src.VideoFormat)
 	copy.VideoCodec = uptr.Copy(src.VideoCodec)
 	copy.VideoResolution = uptr.Copy(src.VideoResolution)
@@ -46,5 +47,5 @@ func (src *DownloadOptions) Copy() *DownloadOptions {
 	copy.VideoQuality = uptr.Copy(src.VideoQuality)
 	copy.AudioQuality = uptr.Copy(src.AudioQuality)
 
-	return copy
+	return &copy
 }

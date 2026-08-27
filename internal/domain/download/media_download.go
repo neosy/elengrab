@@ -33,17 +33,17 @@ type MediaDownload struct {
 	// Media URL
 	MediaURL string
 
-	// Original title from the media source
-	MediaTitleOriginal string
-
 	// Media title
 	MediaTitle string
 
-	// Original description from the media source
-	MediaDescriptionOriginal *string
+	// Original title from the media source
+	MediaTitleOriginal string
 
 	// Media description
 	MediaDescription *string
+
+	// Original description from the media source
+	MediaDescriptionOriginal *string
 
 	// Channel ID
 	ChannelID *string
@@ -100,9 +100,11 @@ func (src *MediaDownload) Copy() *MediaDownload {
 		return nil
 	}
 
-	copy := uptr.Copy(src)
+	copy := *src
+
 	copy.UserID = uptr.Copy(src.UserID)
 	copy.MediaDescription = uptr.Copy(src.MediaDescription)
+	copy.MediaDescriptionOriginal = uptr.Copy(src.MediaDescriptionOriginal)
 	copy.ChannelID = uptr.Copy(src.ChannelID)
 	copy.FileSize = uptr.Copy(src.FileSize)
 	copy.PartialHash = uptr.Copy(src.PartialHash)
@@ -112,7 +114,7 @@ func (src *MediaDownload) Copy() *MediaDownload {
 	copy.DeletedAt = uptr.Copy(src.DeletedAt)
 	copy.DownloadTask = src.DownloadTask.Copy()
 
-	return copy
+	return &copy
 }
 
 func (d *MediaDownload) Normalize() {
