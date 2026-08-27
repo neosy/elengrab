@@ -28,11 +28,11 @@ func (f *AssetFile) Copy() *AssetFile {
 		return nil
 	}
 
-	file := new(*f)
+	file := *f
 
 	file.Raw = slices.Clone(f.Raw)
 
-	return file
+	return &file
 }
 
 func (f *AssetFile) FileNameWithHash() string {

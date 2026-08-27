@@ -73,10 +73,10 @@ func (e *MediaWatchEvent) Copy() *MediaWatchEvent {
 		return nil
 	}
 
-	copy := new(*e)
+	copy := *e
 
 	copy.UserID = uptr.Copy(e.UserID)
 	copy.SessionID = uptr.Copy(e.SessionID)
 
-	return copy
+	return &copy
 }

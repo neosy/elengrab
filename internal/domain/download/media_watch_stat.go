@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 type MediaWatchStat struct {
@@ -36,7 +35,7 @@ func (src *MediaWatchStat) Copy() *MediaWatchStat {
 		return nil
 	}
 
-	copy := uptr.Copy(src)
+	copy := *src
 
-	return copy
+	return &copy
 }

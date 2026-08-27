@@ -40,12 +40,13 @@ func (src *DownloadState) Copy() *DownloadState {
 		return nil
 	}
 
-	copy := uptr.Copy(src)
+	copy := *src
+
 	copy.UserID = uptr.Copy(src.UserID)
 	copy.TaskID = uptr.Copy(src.TaskID)
 	copy.Download = src.Download.Copy()
 	copy.Progress = src.Progress.Copy()
 
-	return copy
+	return &copy
 
 }

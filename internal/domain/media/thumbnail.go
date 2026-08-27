@@ -1,6 +1,7 @@
 package dmedia
 
 import (
+	"bytes"
 	"fmt"
 	"time"
 
@@ -152,9 +153,7 @@ func (t *Thumbnail) Copy() *Thumbnail {
 	thumbnailCopy.Height = uptr.Copy(t.Height)
 	thumbnailCopy.SourceID = uptr.Copy(t.SourceID)
 	thumbnailCopy.SourceURL = uptr.Copy(t.SourceURL)
-
-	imageRaw := make([]byte, len(thumbnailCopy.ImageRaw))
-	copy(imageRaw, thumbnailCopy.ImageRaw)
+	thumbnailCopy.ImageRaw = bytes.Clone(t.ImageRaw)
 
 	return &thumbnailCopy
 }
