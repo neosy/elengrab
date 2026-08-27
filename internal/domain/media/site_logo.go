@@ -1,11 +1,11 @@
 package dmedia
 
 import (
+	"bytes"
 	"time"
 
 	"github.com/google/uuid"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 type SiteLogo struct {
@@ -74,11 +74,9 @@ func (src *SiteLogo) Copy() *SiteLogo {
 		return nil
 	}
 
-	copy := uptr.Copy(src)
+	copy := *src
 
-	if len(src.ImageRaw) > 1 {
-		copy.ImageRaw = append([]byte{}, src.ImageRaw...)
-	}
+	copy.ImageRaw = bytes.Clone(src.ImageRaw)
 
-	return copy
+	return &copy
 }

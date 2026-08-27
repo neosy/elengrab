@@ -1,11 +1,11 @@
 package dmedia
 
 import (
+	"bytes"
 	"time"
 
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/imgx"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 type YoutubeChannel struct {
@@ -51,13 +51,11 @@ func (c *YoutubeChannel) Copy() *YoutubeChannel {
 		return nil
 	}
 
-	copy := uptr.Copy(c)
+	copy := *c
 
-	if len(c.ImageRaw) > 1 {
-		copy.ImageRaw = append([]byte{}, c.ImageRaw...)
-	}
+	copy.ImageRaw = bytes.Clone(c.ImageRaw)
 
-	return copy
+	return &copy
 }
 
 func (c *YoutubeChannel) ImageData() *dtypes.ImageData {

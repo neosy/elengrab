@@ -1,6 +1,7 @@
 package inmemory
 
 import (
+	"bytes"
 	"context"
 	"time"
 
@@ -17,14 +18,9 @@ func (f *thumbnailRawFile) Copy() *thumbnailRawFile {
 		return nil
 	}
 
-	file := new(*f)
-
-	if f.Data != nil {
-		file.Data = make([]byte, len(f.Data))
-		copy(file.Data, f.Data)
+	return &thumbnailRawFile{
+		Data: bytes.Clone(f.Data),
 	}
-
-	return file
 }
 
 // Defines the structure for the in-memory repository.
