@@ -13,6 +13,9 @@
 - Reordered favicon links. [L117]
 - Replaced PNG logo images with `logo.svg`. [L117]
 
+### 🎨 Style
+- Updated the add media icon and changed the plus color. [L121]
+
 ### 🧩 Refactor
 - Renamed /account paths to /auth. [L113]
 - Renamed HTTP path constants to use Group and Path suffixes for consistent naming. [L113]
