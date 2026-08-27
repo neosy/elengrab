@@ -44,9 +44,9 @@ func (src *MediaUserWatchPosition) Copy() *MediaUserWatchPosition {
 		return nil
 	}
 
-	copy := new(*src)
+	copy := *src
 
-	return copy
+	return &copy
 }
 
 func (p *MediaUserWatchPosition) Normalize(mediaDuration time.Duration) {
