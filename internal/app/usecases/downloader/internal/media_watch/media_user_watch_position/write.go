@@ -23,7 +23,7 @@ func (uc *MediaUserWatchPosition) Write(ctx context.Context, position *ddownload
 		return err
 	}
 
-	err := uc.positionRep.Write(ctx, position)
+	err := uc.positionRepo().Write(ctx, position)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to insert record into repository",

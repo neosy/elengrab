@@ -7,7 +7,7 @@ import (
 )
 
 func (uc *DownloadTask) Delete(ctx context.Context, taskID uuid.UUID) error {
-	err := uc.TaskRep.Delete(ctx, taskID)
+	err := uc.TaskRepo().Delete(ctx, taskID)
 	if err != nil {
 		return err
 	}
@@ -18,5 +18,5 @@ func (uc *DownloadTask) Delete(ctx context.Context, taskID uuid.UUID) error {
 }
 
 func (uc *DownloadTask) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
-	return uc.TaskRep.DeleteByDownloadID(ctx, downloadID)
+	return uc.TaskRepo().DeleteByDownloadID(ctx, downloadID)
 }

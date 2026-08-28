@@ -24,7 +24,7 @@ func (uc *YoutubeChannel) FindByChannelID(ctx context.Context, channelID string)
 		return nil, nil
 	}
 
-	channel, err := uc.channelRep.FindByChannelID(ctx, channelID)
+	channel, err := uc.channelRepo().FindByChannelID(ctx, channelID)
 	if err != nil {
 		uc.logger.Warn("Failed get youtubeChannel", "error", err)
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
@@ -68,7 +68,7 @@ func (uc *YoutubeChannel) ExistsByChannelID(ctx context.Context, channelID strin
 		return exists, nil
 	}
 
-	exists, err := uc.channelRep.ExistsByChannelID(ctx, channelID)
+	exists, err := uc.channelRepo().ExistsByChannelID(ctx, channelID)
 	if err != nil {
 		uc.logger.Warn("Failed to check if YouTube channel exists", "channelId", channelID, "error", err)
 	}

@@ -60,29 +60,29 @@ type Dependencies struct {
 type DepRepositories struct {
 	Repositories persistence.Repositories
 
-	User        persistence.UserRepository
-	Role        persistence.RoleRepository
-	UserRole    persistence.UserRoleRepository
-	UserSession persistence.UserSessionRepository
+	User        persistence.UserRepositoryFactory
+	Role        persistence.RoleRepositoryFactory
+	UserRole    persistence.UserRoleRepositoryFactory
+	UserSession persistence.UserSessionRepositoryFactory
 
-	MediaDownload         persistence.MediaDownloadRepository
-	DownloadTask          persistence.DownloadTaskRepository
-	DownloadDataMigration persistence.DownloadDataMigrationRepository
+	DownloadDataMigration persistence.DownloadDataMigrationRepositoryFactory
+	MediaDownload         persistence.MediaDownloadRepositoryFactory
+	DownloadTask          persistence.DownloadTaskRepositoryFactory
 
-	MediaWatchEvent        persistence.MediaWatchEventRepository
-	MediaUserWatchChunk    persistence.MediaUserWatchChunkRepository
-	MediaUserWatchStat     persistence.MediaUserWatchStatRepository
-	MediaWatchStat         persistence.MediaWatchStatRepository
-	MediaUserWatchPosition persistence.MediaUserWatchPositionRepository
+	MediaWatchEvent        persistence.MediaWatchEventRepositoryFactory
+	MediaUserWatchChunk    persistence.MediaUserWatchChunkRepositoryFactory
+	MediaUserWatchStat     persistence.MediaUserWatchStatRepositoryFactory
+	MediaWatchStat         persistence.MediaWatchStatRepositoryFactory
+	MediaUserWatchPosition persistence.MediaUserWatchPositionRepositoryFactory
 
-	MediaSourceIndex persistence.MediaSourceIndexRepository
+	MediaSourceIndex persistence.MediaSourceIndexRepositoryFactory
 
-	YoutubeChannel persistence.YoutubeChannelRepository
-	SiteLogo       persistence.SiteLogoRepository
-	Thumbnail      persistence.ThumbnailRepository
+	YoutubeChannel persistence.YoutubeChannelRepositoryFactory
+	SiteLogo       persistence.SiteLogoRepositoryFactory
+	Thumbnail      persistence.ThumbnailRepositoryFactory
 
-	Link      persistence.LinkRepository
-	LinkClick persistence.LinkClickRepository
+	Link      persistence.LinkRepositoryFactory
+	LinkClick persistence.LinkClickRepositoryFactory
 
 	// in memory
 	MediaDownloadCache          persistence.MediaDownloadCacheRepository

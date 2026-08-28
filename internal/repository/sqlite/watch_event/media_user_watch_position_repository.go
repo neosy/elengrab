@@ -10,7 +10,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	ewatchevent "github.com/neosy/elengrab/internal/repository/sqlite/watch_event/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/watch_event/mappers"
@@ -28,32 +28,22 @@ type MediaUserWatchPositionRepository struct {
 }
 
 // NewMediaUserWatchPositionRepository returns a new object for the repository
-func NewMediaUserWatchPositionRepository(db *sql.DB, lock dbexec.WriteLocker) *MediaUserWatchPositionRepository {
-	return &MediaUserWatchPositionRepository{
-		mappers: mappers.NewMappers(),
-		db:      db,
-		lock:    lock,
+func NewMediaUserWatchPositionRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.MediaUserWatchPositionRepositoryFactory {
+	return func() persistence.MediaUserWatchPositionRepository {
+		return &MediaUserWatchPositionRepository{
+			mappers: mappers.NewMappers(),
+			db:      db,
+			lock:    lock,
 
-		filtersByName: make(map[string]any),
+			filtersByName: make(map[string]any),
 
-		// options
-		retryOptions: dbexec.RetryOptions{
-			MaxRetries: maxRetriesDefault,
-			Delay:      retryDelayDefault,
-		},
+			// options
+			retryOptions: dbexec.RetryOptions{
+				MaxRetries: maxRetriesDefault,
+				Delay:      retryDelayDefault,
+			},
+		}
 	}
-}
-
-func (r *MediaUserWatchPositionRepository) Copy() *MediaUserWatchPositionRepository {
-	rep := uptr.Copy(r)
-
-	rep.mappers = r.mappers
-	rep.db = r.db
-	rep.lock = r.lock
-
-	rep.filtersByName = rep.filtersByName.copy()
-
-	return rep
 }
 
 func (r *MediaUserWatchPositionRepository) Insert(ctx context.Context, position *ddownload.MediaUserWatchPosition) error {

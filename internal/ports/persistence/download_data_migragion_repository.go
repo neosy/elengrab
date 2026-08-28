@@ -6,6 +6,8 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
+type DownloadDataMigrationRepositoryFactory func() DownloadDataMigrationRepository
+
 type DownloadDataMigrationRepository interface {
 	Insert(ctx context.Context, migration *ddownload.DataMigration) error
 	Find(ctx context.Context, migrationID string) (*ddownload.DataMigration, error)

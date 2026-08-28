@@ -10,15 +10,15 @@ type UserRole struct {
 	logger *slog.Logger
 
 	// repositories
-	userRoleRep persistence.UserRoleRepository
+	userRoleRepo persistence.UserRoleRepositoryFactory
 }
 
 func NewUserRole(
 	logger *slog.Logger,
-	userRoleRep persistence.UserRoleRepository,
+	userRoleRepo persistence.UserRoleRepositoryFactory,
 ) *UserRole {
 	return &UserRole{
-		logger:      logger,
-		userRoleRep: userRoleRep,
+		logger:       logger,
+		userRoleRepo: userRoleRepo,
 	}
 }

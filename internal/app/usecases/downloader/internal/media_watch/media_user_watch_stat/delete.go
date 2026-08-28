@@ -7,7 +7,7 @@ import (
 )
 
 func (uc *MediaUserWatchStat) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
-	err := uc.statRep.DeleteByDownloadID(ctx, downloadID)
+	err := uc.statRepo().DeleteByDownloadID(ctx, downloadID)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to delete media user watch statistics",
@@ -21,7 +21,7 @@ func (uc *MediaUserWatchStat) DeleteByDownloadID(ctx context.Context, downloadID
 }
 
 func (uc *MediaUserWatchStat) DeleteAll(ctx context.Context) error {
-	err := uc.statRep.DeleteAll(ctx)
+	err := uc.statRepo().DeleteAll(ctx)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to delete all media user watch statistics",

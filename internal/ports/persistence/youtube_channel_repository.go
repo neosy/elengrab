@@ -8,7 +8,11 @@ import (
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
 
+type YoutubeChannelRepositoryFactory func() YoutubeChannelRepository
+
 type YoutubeChannelRepository interface {
+	Transactional
+
 	Insert(ctx context.Context, channel *dmedia.YoutubeChannel) error
 	Update(ctx context.Context, channel *dmedia.YoutubeChannel) error
 	Save(ctx context.Context, channel *dmedia.YoutubeChannel) error

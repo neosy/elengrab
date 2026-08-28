@@ -11,7 +11,7 @@ type DownloadTask struct {
 	logger *slog.Logger
 
 	// repositories
-	TaskRep persistence.DownloadTaskRepository
+	TaskRepo persistence.DownloadTaskRepositoryFactory
 
 	// internal
 	dlStateCache *dlstate.DownloadStateCache
@@ -19,12 +19,12 @@ type DownloadTask struct {
 
 func NewDownloadTask(
 	logger *slog.Logger,
-	taskRep persistence.DownloadTaskRepository,
+	taskRepo persistence.DownloadTaskRepositoryFactory,
 	dlStateCache *dlstate.DownloadStateCache,
 ) *DownloadTask {
 	return &DownloadTask{
 		logger:       logger,
-		TaskRep:      taskRep,
+		TaskRepo:      taskRepo,
 		dlStateCache: dlStateCache,
 	}
 }

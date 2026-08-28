@@ -18,28 +18,29 @@ import (
 type Repositories struct {
 	dbRegistry *sqlitetypes.DBRegistry
 
-	User        persistence.UserRepository
-	Role        persistence.RoleRepository
-	UserRole    persistence.UserRoleRepository
-	UserSession persistence.UserSessionRepository
+	User        persistence.UserRepositoryFactory
+	Role        persistence.RoleRepositoryFactory
+	UserRole    persistence.UserRoleRepositoryFactory
+	UserSession persistence.UserSessionRepositoryFactory
 
-	MediaDownload         persistence.MediaDownloadRepository
-	DownloadTask          persistence.DownloadTaskRepository
-	DownloadDataMigration persistence.DownloadDataMigrationRepository
+	DownloadDataMigration persistence.DownloadDataMigrationRepositoryFactory
+	MediaDownload         persistence.MediaDownloadRepositoryFactory
+	DownloadTask          persistence.DownloadTaskRepositoryFactory
 
-	MediaWatchEvent        persistence.MediaWatchEventRepository
-	MediaUserWatchChunk    persistence.MediaUserWatchChunkRepository
-	MediaUserWatchStat     persistence.MediaUserWatchStatRepository
-	MediaWatchStat         persistence.MediaWatchStatRepository
-	MediaUserWatchPosition persistence.MediaUserWatchPositionRepository
-	MediaSourceIndex       persistence.MediaSourceIndexRepository
+	MediaSourceIndex persistence.MediaSourceIndexRepositoryFactory
 
-	YoutubeChannel persistence.YoutubeChannelRepository
-	SiteLogo       persistence.SiteLogoRepository
-	Thumbnail      persistence.ThumbnailRepository
+	MediaWatchEvent        persistence.MediaWatchEventRepositoryFactory
+	MediaUserWatchChunk    persistence.MediaUserWatchChunkRepositoryFactory
+	MediaUserWatchStat     persistence.MediaUserWatchStatRepositoryFactory
+	MediaWatchStat         persistence.MediaWatchStatRepositoryFactory
+	MediaUserWatchPosition persistence.MediaUserWatchPositionRepositoryFactory
 
-	Link      persistence.LinkRepository
-	LickClick persistence.LinkClickRepository
+	YoutubeChannel persistence.YoutubeChannelRepositoryFactory
+	SiteLogo       persistence.SiteLogoRepositoryFactory
+	Thumbnail      persistence.ThumbnailRepositoryFactory
+
+	Link      persistence.LinkRepositoryFactory
+	LickClick persistence.LinkClickRepositoryFactory
 }
 
 // New returns a new Repositories struct with database connections.
@@ -92,9 +93,9 @@ func New(dbEntries []persistence.DBEntry) *Repositories {
 		UserRole:    auth.NewUserRoleRepository(eAuth.db, eAuth.locker),
 		UserSession: auth.NewUserSessionRepository(eAuth.db, eAuth.locker),
 
+		DownloadDataMigration: download.NewDataMigrationRepository(eMain.db, eMain.locker),
 		MediaDownload:         download.NewMediaDownloadRepository(eMain.db, eMain.locker),
 		DownloadTask:          download.NewDownloadTaskRepository(eMain.db, eMain.locker),
-		DownloadDataMigration: download.NewDataMigrationRepository(eMain.db, eMain.locker),
 
 		MediaWatchEvent:        watchevent.NewMediaWatchEventRepository(eWatchEvent.db, eWatchEvent.locker),
 		MediaUserWatchChunk:    watchevent.NewMediaUserWatchChunkRepository(eWatchEvent.db, eWatchEvent.locker),

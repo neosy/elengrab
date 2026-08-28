@@ -10,7 +10,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	ewatchevent "github.com/neosy/elengrab/internal/repository/sqlite/watch_event/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/watch_event/mappers"
@@ -28,32 +28,22 @@ type MediaWatchStatRepository struct {
 }
 
 // NewMediaWatchStatRepository returns a new object for the repository
-func NewMediaWatchStatRepository(db *sql.DB, lock dbexec.WriteLocker) *MediaWatchStatRepository {
-	return &MediaWatchStatRepository{
-		mappers: mappers.NewMappers(),
-		db:      db,
-		lock:    lock,
+func NewMediaWatchStatRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.MediaWatchStatRepositoryFactory {
+	return func() persistence.MediaWatchStatRepository {
+		return &MediaWatchStatRepository{
+			mappers: mappers.NewMappers(),
+			db:      db,
+			lock:    lock,
 
-		filtersByName: make(map[string]any),
+			filtersByName: make(map[string]any),
 
-		// options
-		retryOptions: dbexec.RetryOptions{
-			MaxRetries: maxRetriesDefault,
-			Delay:      retryDelayDefault,
-		},
+			// options
+			retryOptions: dbexec.RetryOptions{
+				MaxRetries: maxRetriesDefault,
+				Delay:      retryDelayDefault,
+			},
+		}
 	}
-}
-
-func (r *MediaWatchStatRepository) Copy() *MediaWatchStatRepository {
-	rep := uptr.Copy(r)
-
-	rep.mappers = r.mappers
-	rep.db = r.db
-	rep.lock = r.lock
-
-	rep.filtersByName = rep.filtersByName.copy()
-
-	return rep
 }
 
 func (r *MediaWatchStatRepository) Insert(ctx context.Context, stat *ddownload.MediaWatchStat) error {
