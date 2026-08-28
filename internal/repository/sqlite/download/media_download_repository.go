@@ -19,15 +19,15 @@ import (
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
 	"github.com/neosy/elengrab/internal/repository/sqlite/sqlutil"
+	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 )
 
 type MediaDownloadRepository struct {
 	mappers *mappers.Mappers
-	db      *sql.DB
-	lock    dbexec.WriteLocker
+	dbEntry persistence.DBEntry
 
 	// filters
-	filtersByName filtersByName
+	filtersByName types.FiltersByName
 	queryOptions  mediaDownloadQueryOptions
 
 	// options
@@ -44,12 +44,11 @@ type mediaDownloadQueryOptions struct {
 }
 
 // NewMediaDownloadRepository returns a factory for creating media download repositories.
-func NewMediaDownloadRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.MediaDownloadRepositoryFactory {
+func NewMediaDownloadRepository(dbEntry persistence.DBEntry) persistence.MediaDownloadRepositoryFactory {
 	return func() persistence.MediaDownloadRepository {
 		return &MediaDownloadRepository{
 			mappers: mappers.NewMappers(),
-			db:      db,
-			lock:    lock,
+			dbEntry: dbEntry,
 
 			filtersByName: make(map[string]any),
 			queryOptions:  mediaDownloadQueryOptions{},
@@ -71,94 +70,15 @@ func (r *MediaDownloadRepository) downloadStatusesToStrings(statuses []dtypes.Me
 	return statuseStrings
 }
 
-func (r *MediaDownloadRepository) WithOptions(options dtypes.QueryMediaOptions) persistence.MediaDownloadRepository {
-	if options.Before != nil {
-		r.queryOptions.Before = options.Before
-	}
-
-	if options.Limit != nil {
-		r.queryOptions.Limit = options.Limit
-	}
-
-	if options.MediaVisibility != nil {
-		r.queryOptions.visibility = options.MediaVisibility
-	}
-
-	r.queryOptions.isGuestRequest = options.IsGuestRequest
-
-	return r
-}
-
-func (r *MediaDownloadRepository) WithStatus(statuses ...dtypes.MediaDownloadStatus) persistence.MediaDownloadRepository {
-	if len(statuses) == 0 {
-		return r
-	}
-
-	r.queryOptions.statuses = statuses
-
-	return r
-}
-
-func (r *MediaDownloadRepository) WithDeleted() persistence.MediaDownloadRepository {
-	r.queryOptions.includeDeleted = true
-	return r
-}
-
-func (r *MediaDownloadRepository) WithUser(userID uuid.UUID) persistence.MediaDownloadRepository {
-	var eDownload edownload.MediaDownload
-
-	if userID == uuid.Nil {
-		r.queryOptions.Visibility = new(dtypes.QueryMediaVisibilityPublic)
-	} else {
-		r.filtersByName[eDownload.FieldName(&eDownload.UserID)] = userID
-	}
-
-	return r
-}
-
-func (r *MediaDownloadRepository) WithFilters(filters map[string]any) persistence.MediaDownloadRepository {
-	var (
-		eDownload edownload.MediaDownload
-
-		fieldNameByAllowedFilter = map[string]string{
-			dtypes.QueryFilterNameUserID: eDownload.FieldName(&eDownload.UserID),
-			dtypes.QueryFilterNameTitle:  eDownload.FieldName(&eDownload.MediaTitleLower),
-		}
-	)
-
-	for name, value := range filters {
-		fieldName, exists := fieldNameByAllowedFilter[name]
-		if exists {
-			switch fieldName {
-			case eDownload.FieldName(&eDownload.UserID):
-				id, ok := value.(uuid.UUID)
-				if !ok {
-					continue
-				}
-				if id == uuid.Nil {
-					r.queryOptions.Visibility = new(dtypes.QueryMediaVisibilityPublic)
-					continue
-				}
-				r.filtersByName[fieldName] = value
-			default:
-				r.filtersByName[fieldName] = value
-			}
-
-		}
-	}
-
-	return r
-}
-
 func (r *MediaDownloadRepository) Insert(ctx context.Context, download *ddownload.MediaDownload) error {
-	return r.save(ctx, download)
+	return r.Save(ctx, download)
 }
 
 func (r *MediaDownloadRepository) Update(ctx context.Context, download *ddownload.MediaDownload) error {
-	return r.save(ctx, download)
+	return r.Save(ctx, download)
 }
 
-func (r *MediaDownloadRepository) save(ctx context.Context, download *ddownload.MediaDownload) error {
+func (r *MediaDownloadRepository) Save(ctx context.Context, download *ddownload.MediaDownload) error {
 	if download == nil {
 		return ierrors.ErrFuncParamNullPointer
 	}
@@ -193,7 +113,7 @@ func (r *MediaDownloadRepository) save(ctx context.Context, download *ddownload.
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save media download: %v", err)
 	}
@@ -242,7 +162,7 @@ func (r *MediaDownloadRepository) UpdateStatus(
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to update media download: %v", err)
 	}
@@ -268,7 +188,7 @@ func (r *MediaDownloadRepository) UpdateOwner(ctx context.Context, fromID, toID 
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to update media download: %v", err)
 	}
@@ -296,7 +216,7 @@ func (r *MediaDownloadRepository) SoftDelete(ctx context.Context, downloadID uui
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save mediaDownlaod: %v", err)
 	}
@@ -320,7 +240,7 @@ func (r *MediaDownloadRepository) HardDelete(ctx context.Context, downloadID uui
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete mediaDownload: %v", err)
 	}
@@ -353,7 +273,7 @@ func (r *MediaDownloadRepository) Restore(ctx context.Context, downloadID uuid.U
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save mediaDownload: %v", err)
 	}
@@ -405,7 +325,7 @@ func (r *MediaDownloadRepository) FindByDownloadID(ctx context.Context, download
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -542,7 +462,7 @@ func (r *MediaDownloadRepository) iterateGetAll(
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		return err
@@ -619,7 +539,7 @@ func (r *MediaDownloadRepository) IterateFullNames(ctx context.Context, includeD
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		return err
@@ -772,7 +692,7 @@ func (r *MediaDownloadRepository) GetDuplicateHashes(ctx context.Context, scope 
 	var hashRows []ddownload.DuplicateHashRow
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -852,7 +772,7 @@ func (r *MediaDownloadRepository) GetDeleted(ctx context.Context, from, to *time
 	var downloads []*ddownload.MediaDownload
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -890,7 +810,7 @@ func (r *MediaDownloadRepository) FillEmptyMediaTitleLower(ctx context.Context) 
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		return err
@@ -918,7 +838,7 @@ func (r *MediaDownloadRepository) FillEmptyMediaTitleLower(ctx context.Context) 
 			return fmt.Errorf("error generating SQL: %v", err)
 		}
 
-		err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+		err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 		if err != nil {
 			return fmt.Errorf("failed to save mediaDownload: %v", err)
 		}
@@ -928,9 +848,9 @@ func (r *MediaDownloadRepository) FillEmptyMediaTitleLower(ctx context.Context) 
 }
 
 func (r *MediaDownloadRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.Tx(ctx, r.db, r.lock, fn)
+	return dbexec.Tx(ctx, r.dbEntry, fn)
 }
 
 func (r *MediaDownloadRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+	return dbexec.TxIndependent(ctx, r.dbEntry, fn)
 }

@@ -17,20 +17,18 @@ import (
 
 type DataMigrationRepository struct {
 	mappers *mappers.Mappers
-	db      *sql.DB
-	lock    dbexec.WriteLocker
+	dbEntry persistence.DBEntry
 
 	// options
 	retryOptions dbexec.RetryOptions
 }
 
 // NewDataMigrationRepository returns a new object for the repository
-func NewDataMigrationRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.DownloadDataMigrationRepositoryFactory {
+func NewDataMigrationRepository(dbEntry persistence.DBEntry) persistence.DownloadDataMigrationRepositoryFactory {
 	return func() persistence.DownloadDataMigrationRepository {
 		return &DataMigrationRepository{
 			mappers: mappers.NewMappers(),
-			db:      db,
-			lock:    lock,
+			dbEntry: dbEntry,
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -78,7 +76,7 @@ func (r *DataMigrationRepository) Save(ctx context.Context, migration *ddownload
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save siteMigration: %v", err)
 	}
@@ -104,7 +102,7 @@ func (r *DataMigrationRepository) Find(
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -147,7 +145,7 @@ func (r *DataMigrationRepository) Exists(ctx context.Context, migrationID string
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 
 	// Execute query and check if any row exists
 	var exists int
@@ -163,5 +161,5 @@ func (r *DataMigrationRepository) Exists(ctx context.Context, migrationID string
 }
 
 func (r *DataMigrationRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.Tx(ctx, r.db, r.lock, fn)
+	return dbexec.Tx(ctx, r.dbEntry, fn)
 }

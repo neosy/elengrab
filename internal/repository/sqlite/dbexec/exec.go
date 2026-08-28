@@ -15,19 +15,19 @@ type DBExecutor interface {
 	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
 }
 
-func ExecContext(ctx context.Context, db *sql.DB, lock WriteLocker, sqlQuery string, args []any, options RetryOptions) error {
+func ExecContext(ctx context.Context, dbEntry dbEntry, sqlQuery string, args []any, options RetryOptions) error {
 	var (
 		err  error
-		dbtx = Resolve(ctx, db)
+		dbtx = Resolve(ctx, dbEntry)
 	)
 
 	for i := range options.MaxRetries {
 		if !txLocked(ctx) {
-			lock.Lock()
+			dbEntry.Locker().Lock()
 		}
 		_, err = dbtx.ExecContext(ctx, sqlQuery, args...)
 		if !txLocked(ctx) {
-			lock.Unlock()
+			dbEntry.Locker().Unlock()
 		}
 		if err == nil {
 			break

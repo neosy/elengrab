@@ -18,20 +18,18 @@ import (
 
 type SiteLogoRepository struct {
 	mappers *mappers.Mappers
-	db      *sql.DB
-	lock    dbexec.WriteLocker
+	dbEntry persistence.DBEntry
 
 	// options
 	retryOptions dbexec.RetryOptions
 }
 
 // NewSiteLogoRepository returns a new object for the repository
-func NewSiteLogoRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.SiteLogoRepositoryFactory {
+func NewSiteLogoRepository(dbEntry persistence.DBEntry) persistence.SiteLogoRepositoryFactory {
 	return func() persistence.SiteLogoRepository {
 		return &SiteLogoRepository{
 			mappers: mappers.NewMappers(),
-			db:      db,
-			lock:    lock,
+			dbEntry: dbEntry,
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -79,7 +77,7 @@ func (r *SiteLogoRepository) Save(ctx context.Context, logo *dmedia.SiteLogo) er
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save siteLogo: %v", err)
 	}
@@ -104,7 +102,7 @@ func (r *SiteLogoRepository) FindByLogoID(ctx context.Context, logoID uuid.UUID)
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -148,7 +146,7 @@ func (r *SiteLogoRepository) ExistsByLogoID(ctx context.Context, logoID uuid.UUI
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 
 	// Execute query and check if any row exists
 	var exists int
@@ -180,7 +178,7 @@ func (r *SiteLogoRepository) FindBySiteURL(ctx context.Context, siteURL string) 
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -224,7 +222,7 @@ func (r *SiteLogoRepository) ExistsBySiteURL(ctx context.Context, siteURL string
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 
 	// Execute query and check if any row exists
 	var exists int
