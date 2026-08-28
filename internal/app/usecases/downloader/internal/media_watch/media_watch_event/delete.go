@@ -7,5 +7,5 @@ import (
 )
 
 func (uc *MediaWatchEvent) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
-	return uc.eventRep.DeleteByDownloadID(ctx, downloadID)
+	return uc.eventRepo().DeleteByDownloadID(ctx, downloadID)
 }

@@ -24,7 +24,10 @@ CREATE TABLE IF NOT EXISTS media_sources_index (
     views INTEGER NOT NULL DEFAULT 0,
 
     -- Media source creation timestamp
-    source_created_at DATETIME NOT NULL
+    source_created_at DATETIME NOT NULL,
+
+    -- Record delete timestamp
+    deleted_at DATETIME NULL
 );
 
 CREATE INDEX media_sources_index_source_created_at_idx

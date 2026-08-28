@@ -7,7 +7,7 @@ import (
 )
 
 func (u *User) SoftDelete(ctx context.Context, userID uuid.UUID) error {
-	err := u.userRep.Delete(ctx, userID, true)
+	err := u.userRepo().Delete(ctx, userID, true)
 	if err != nil {
 		u.logger.Warn("Failed soft delete user", "error", err)
 		return err
@@ -16,7 +16,7 @@ func (u *User) SoftDelete(ctx context.Context, userID uuid.UUID) error {
 }
 
 func (u *User) HardDelete(ctx context.Context, userID uuid.UUID) error {
-	err := u.userRep.Delete(ctx, userID, false)
+	err := u.userRepo().Delete(ctx, userID, false)
 	if err != nil {
 		u.logger.Warn("Failed delete user", "error", err)
 		return err

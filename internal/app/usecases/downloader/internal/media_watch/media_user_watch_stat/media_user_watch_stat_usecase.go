@@ -10,7 +10,7 @@ type MediaUserWatchStat struct {
 	logger *slog.Logger
 
 	// repositories
-	statRep persistence.MediaUserWatchStatRepository
+	statRepo persistence.MediaUserWatchStatRepositoryFactory
 
 	// in memory
 	statCacheRep persistence.MediaUserWatchStatCacheRepository
@@ -20,14 +20,14 @@ func NewMediaUserWatchStat(
 	logger *slog.Logger,
 
 	// repositories
-	statRep persistence.MediaUserWatchStatRepository,
+	statRepo persistence.MediaUserWatchStatRepositoryFactory,
 
 	// in memory
 	statCacheRep persistence.MediaUserWatchStatCacheRepository,
 ) *MediaUserWatchStat {
 	return &MediaUserWatchStat{
 		logger:       logger,
-		statRep:      statRep,
+		statRepo:     statRepo,
 		statCacheRep: statCacheRep,
 	}
 }

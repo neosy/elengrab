@@ -10,17 +10,17 @@ type MediaUserWatchChunk struct {
 	logger *slog.Logger
 
 	// repositories
-	chunkRep persistence.MediaUserWatchChunkRepository
+	chunkRepo persistence.MediaUserWatchChunkRepositoryFactory
 }
 
 func NewMediaUserWatchChunk(
 	logger *slog.Logger,
 
 	// repositories
-	chunkRep persistence.MediaUserWatchChunkRepository,
+	chunkRepo persistence.MediaUserWatchChunkRepositoryFactory,
 ) *MediaUserWatchChunk {
 	return &MediaUserWatchChunk{
-		logger:   logger,
-		chunkRep: chunkRep,
+		logger:    logger,
+		chunkRepo: chunkRepo,
 	}
 }

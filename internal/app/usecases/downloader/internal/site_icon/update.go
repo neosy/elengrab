@@ -7,7 +7,7 @@ import (
 )
 
 func (uc *SiteIcon) Update(ctx context.Context, logo *dmedia.SiteLogo) error {
-	err := uc.logoRep.Update(ctx, logo)
+	err := uc.logoRepo().Update(ctx, logo)
 	if err != nil {
 		uc.logger.Warn("Update record error", "error", err)
 		return err

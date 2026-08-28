@@ -7,7 +7,7 @@ import (
 )
 
 func (uc *UserSession) Update(ctx context.Context, session *dauth.UserSession) error {
-	err := uc.userSessionRep.Update(ctx, session)
+	err := uc.userSessionRepo().Update(ctx, session)
 	if err != nil {
 		uc.logger.Warn("Update record error", "error", err)
 		return err

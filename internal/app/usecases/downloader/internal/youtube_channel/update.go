@@ -8,7 +8,7 @@ import (
 
 // Update updates an existing YouTube channel in the database.
 func (uc *YoutubeChannel) Update(ctx context.Context, channel *dmedia.YoutubeChannel) error {
-	err := uc.channelRep.Update(ctx, channel)
+	err := uc.channelRepo().Update(ctx, channel)
 	if err != nil {
 		uc.logger.Warn("Update record error", "error", err)
 		return err

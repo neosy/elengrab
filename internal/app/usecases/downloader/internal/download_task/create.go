@@ -20,7 +20,7 @@ func (uc *DownloadTask) Create(ctx context.Context, task *ddownload.DownloadTask
 	}
 	task.Status = dtypes.DownloadTaskStatusNew
 
-	err := uc.TaskRep.Insert(ctx, task)
+	err := uc.TaskRepo().Insert(ctx, task)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to insert record",

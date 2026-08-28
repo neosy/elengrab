@@ -14,7 +14,7 @@ func (r *ThumbnailRepository) Insert(ctx context.Context, thumbnail *dmedia.Thum
 		return apperrors.ErrFuncParamNullPointer
 	}
 
-	err := r.repo.Insert(ctx, thumbnail)
+	err := r.repo().Insert(ctx, thumbnail)
 	if err != nil {
 		r.logger.Warn(
 			"Failed to insert record into repository",
@@ -29,7 +29,7 @@ func (r *ThumbnailRepository) Insert(ctx context.Context, thumbnail *dmedia.Thum
 		return err
 	}
 
-	thumbnail, _ = r.repo.FindByThumbID(ctx, thumbnail.ThumbID)
+	thumbnail, _ = r.repo().FindByThumbID(ctx, thumbnail.ThumbID)
 	if thumbnail != nil {
 		r.cacheRepo.Save(ctx, thumbnail)
 	}

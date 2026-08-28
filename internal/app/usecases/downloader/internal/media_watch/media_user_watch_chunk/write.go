@@ -19,7 +19,7 @@ func (uc *MediaUserWatchChunk) AddChunkQty(ctx context.Context, chunk *ddownload
 		return err
 	}
 
-	err := uc.chunkRep.AddChunkQty(ctx, chunk)
+	err := uc.chunkRepo().AddChunkQty(ctx, chunk)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to insert record into repository",
@@ -43,7 +43,7 @@ func (uc *MediaUserWatchChunk) AddChunkQtyBatch(ctx context.Context, chunks []*d
 		}
 	}
 
-	err := uc.chunkRep.AddChunkQtyBatch(ctx, chunks)
+	err := uc.chunkRepo().AddChunkQtyBatch(ctx, chunks)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to insert records into repository",

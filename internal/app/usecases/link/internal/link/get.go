@@ -14,7 +14,7 @@ func (u *Link) FindByLinkID(ctx context.Context, linkID uuid.UUID) (*dlink.Link,
 		return nil, nil
 	}
 
-	repo := u.linkRep.WithoutDeleted()
+	repo := u.linkRepo().WithoutDeleted()
 
 	link, err := repo.Find(ctx, linkID)
 	if err != nil {
@@ -44,7 +44,7 @@ func (u *Link) FindLastByShortCode(ctx context.Context, shortCode string) (*dlin
 		return nil, nil
 	}
 
-	repo := u.linkRep.WithoutDeleted()
+	repo := u.linkRepo().WithoutDeleted()
 
 	link, err := repo.FindLastByShortCode(ctx, shortCode)
 	if err != nil {

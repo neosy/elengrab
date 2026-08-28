@@ -34,26 +34,26 @@ func NewAuth(
 	logger *slog.Logger,
 
 	// repositories
-	userRep persistence.UserRepository,
-	roleRep persistence.RoleRepository,
-	userRoleRep persistence.UserRoleRepository,
-	userSessionRep persistence.UserSessionRepository,
+	userRepo persistence.UserRepositoryFactory,
+	roleRepo persistence.RoleRepositoryFactory,
+	userRoleRepo persistence.UserRoleRepositoryFactory,
+	userSessionRepo persistence.UserSessionRepositoryFactory,
 
 	// optons
 	opts ...AuthOption,
 ) *Auth {
 	options := NewAuthOptions(opts...)
-	userRole := authuserrole.NewUserRole(logger, userRoleRep)
+	userRole := authuserrole.NewUserRole(logger, userRoleRepo)
 
 	return &Auth{
 		logger:  logger,
 		mappers: mappers.NewMappers(),
 
 		// internal
-		user:        authuser.NewUser(logger, userRep, userRole),
-		role:        authrole.NewRole(logger, roleRep),
+		user:        authuser.NewUser(logger, userRepo, userRole),
+		role:        authrole.NewRole(logger, roleRepo),
 		userRole:    userRole,
-		userSession: authsession.NewUserSession(logger, userSessionRep),
+		userSession: authsession.NewUserSession(logger, userSessionRepo),
 
 		// options
 		sessionTTL:             options.SessionTTL,

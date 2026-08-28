@@ -8,6 +8,8 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
+type DownloadTaskRepositoryFactory func() DownloadTaskRepository
+
 type DownloadTaskRepository interface {
 	Insert(ctx context.Context, task *ddownload.DownloadTask) error
 	Update(ctx context.Context, task *ddownload.DownloadTask) error

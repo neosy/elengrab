@@ -19,7 +19,7 @@ func (uc *MediaUserWatchStat) Write(ctx context.Context, stat *ddownload.MediaUs
 		return err
 	}
 
-	err := uc.statRep.Write(ctx, stat)
+	err := uc.statRepo().Write(ctx, stat)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to insert record into repository",

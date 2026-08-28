@@ -19,16 +19,18 @@ func (uc *Downloader) ListDownloadInfo(
 	authCtx dauth.AuthContext,
 	query dto.MediaDownloadQuery,
 ) ([]*dto.MediaDownloadInfo, error) {
-	options := dtypes.QueryOptions{
-		Before: new(query.Before),
-		Limit:  new(query.Limit),
+	options := dtypes.QueryMediaOptions{
+		QueryOptions: dtypes.QueryOptions{
+			Before: new(query.Before),
+			Limit:  new(query.Limit),
+		},
 	}
 
 	filters := make(map[string]any)
 	if uc.authz.ShouldRestrictDownloads(authCtx.RoleIDs) {
 		filters[dtypes.QueryFilterNameUserID] = authCtx.UserID
 		if authCtx.IsUser() {
-			options.MediaVisibility = new(dtypes.QueryMediaVisibilityAuthenticated)
+			options.Visibility = new(dtypes.QueryMediaVisibilityAuthenticated)
 		}
 	}
 
@@ -42,7 +44,7 @@ func (uc *Downloader) ListDownloadInfo(
 func (uc *Downloader) listDownloadInfo(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
-	queryOptions dtypes.QueryOptions,
+	queryOptions dtypes.QueryMediaOptions,
 	filters map[string]any,
 	opts ...callOption,
 ) ([]*dto.MediaDownloadInfo, error) {
@@ -50,7 +52,7 @@ func (uc *Downloader) listDownloadInfo(
 		mu sync.Mutex
 	)
 
-	downloads, err := uc.download.GetBeforeTime(ctx, queryOptions, filters)
+	downloads, err := uc.download.GetAll(ctx, &queryOptions, filters)
 	if err != nil {
 		uc.logger.Warn("Failed get downloads", "queryOptions", queryOptions, "error", err)
 		return nil, err

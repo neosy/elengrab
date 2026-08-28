@@ -13,7 +13,7 @@ func (c *DownloadMigration) Insert(ctx context.Context, migration *ddownload.Dat
 		return apperrors.ErrFuncParamNullPointer
 	}
 
-	err := c.dataMigrationRep.Insert(ctx, migration)
+	err := c.dataMigrationRepo().Insert(ctx, migration)
 	if err != nil {
 		c.logger.Warn(
 			"Failed to insert record into repository",

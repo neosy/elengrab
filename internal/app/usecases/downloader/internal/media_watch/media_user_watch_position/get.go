@@ -35,7 +35,7 @@ func (uc *MediaUserWatchPosition) Find(
 		return nil, nil
 	}
 
-	position, err := uc.positionRep.Find(ctx, downloadID, userID, sessionID)
+	position, err := uc.positionRepo().Find(ctx, downloadID, userID, sessionID)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to find media watch positions",

@@ -7,7 +7,7 @@ import (
 )
 
 func (u *User) Update(ctx context.Context, user *dauth.User) error {
-	err := u.userRep.Update(ctx, user)
+	err := u.userRepo().Update(ctx, user)
 	if err != nil {
 		u.logger.Warn("Update record error", "error", err)
 		return err

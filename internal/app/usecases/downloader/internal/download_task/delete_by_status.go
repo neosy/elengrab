@@ -7,5 +7,5 @@ import (
 )
 
 func (uc *DownloadTask) DeleteByStatus(ctx context.Context, status dtypes.DownloadTaskStatus) error {
-	return uc.TaskRep.DeleteByStatus(ctx, status)
+	return uc.TaskRepo().DeleteByStatus(ctx, status)
 }

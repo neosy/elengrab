@@ -10,7 +10,7 @@ type MediaUserWatchPosition struct {
 	logger *slog.Logger
 
 	// repositories
-	positionRep persistence.MediaUserWatchPositionRepository
+	positionRepo persistence.MediaUserWatchPositionRepositoryFactory
 
 	// in memory
 	positionCacheRep persistence.MediaUserWatchPositionCacheRepository
@@ -20,14 +20,14 @@ func NewMediaUserWatchPosition(
 	logger *slog.Logger,
 
 	// repositories
-	positionRep persistence.MediaUserWatchPositionRepository,
+	positionRepo persistence.MediaUserWatchPositionRepositoryFactory,
 
 	// in memory
 	positionCacheRep persistence.MediaUserWatchPositionCacheRepository,
 ) *MediaUserWatchPosition {
 	return &MediaUserWatchPosition{
 		logger:           logger,
-		positionRep:      positionRep,
+		positionRepo:     positionRepo,
 		positionCacheRep: positionCacheRep,
 	}
 }

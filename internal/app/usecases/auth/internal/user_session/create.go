@@ -18,7 +18,7 @@ func (uc *UserSession) Create(ctx context.Context, session *dauth.UserSession) (
 		session.SessionID = uuid.New()
 	}
 
-	err := uc.userSessionRep.Insert(ctx, session)
+	err := uc.userSessionRepo().Insert(ctx, session)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to insert record into repository",
