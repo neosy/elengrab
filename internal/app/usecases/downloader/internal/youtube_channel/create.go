@@ -14,7 +14,7 @@ func (uc *YoutubeChannel) Create(ctx context.Context, channel *dmedia.YoutubeCha
 		return apperrors.ErrFuncParamNullPointer
 	}
 
-	err := uc.channelRep.Insert(ctx, channel)
+	err := uc.channelRepo().Insert(ctx, channel)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to insert record into repository",
@@ -23,7 +23,7 @@ func (uc *YoutubeChannel) Create(ctx context.Context, channel *dmedia.YoutubeCha
 		return err
 	}
 
-	channel, _ = uc.channelRep.FindByChannelID(ctx, channel.ChannelID)
+	channel, _ = uc.channelRepo().FindByChannelID(ctx, channel.ChannelID)
 	if channel != nil {
 		err := uc.channelCacheRep.Save(ctx, channel)
 		if err != nil {

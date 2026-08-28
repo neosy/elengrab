@@ -27,7 +27,7 @@ type Thumbnail struct {
 func NewThumbnail(
 	logger *slog.Logger,
 	// Repositories
-	thumbnailRep persistence.ThumbnailRepository,
+	thumbnailRepo persistence.ThumbnailRepositoryFactory,
 	// Caches
 	thumbnailCache persistence.ThumbnailCacheRepository,
 	thumbnailFileCache persistence.ThumbnailFileCacheRepository,
@@ -45,6 +45,6 @@ func NewThumbnail(
 		storage: storage,
 
 		// Internal usecases
-		repo: repository.NewThumbnailRepository(logger, thumbnailRep, thumbnailCache),
+		repo: repository.NewThumbnailRepository(logger, thumbnailRepo, thumbnailCache),
 	}
 }

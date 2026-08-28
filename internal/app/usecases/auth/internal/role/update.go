@@ -9,7 +9,7 @@ import (
 )
 
 func (uc *Role) Update(ctx context.Context, role *dauth.Role) error {
-	err := uc.roleRep.Update(ctx, role)
+	err := uc.roleRepo().Update(ctx, role)
 	if err != nil {
 		uc.logger.Warn("Update record error", "error", err)
 		return errorx.NewFromError(err, exceptionx.ERROR)

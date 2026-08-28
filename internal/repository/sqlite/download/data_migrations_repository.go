@@ -9,6 +9,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
@@ -24,17 +25,19 @@ type DataMigrationRepository struct {
 }
 
 // NewDataMigrationRepository returns a new object for the repository
-func NewDataMigrationRepository(db *sql.DB, lock dbexec.WriteLocker) *DataMigrationRepository {
-	return &DataMigrationRepository{
-		mappers: mappers.NewMappers(),
-		db:      db,
-		lock:    lock,
+func NewDataMigrationRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.DownloadDataMigrationRepositoryFactory {
+	return func() persistence.DownloadDataMigrationRepository {
+		return &DataMigrationRepository{
+			mappers: mappers.NewMappers(),
+			db:      db,
+			lock:    lock,
 
-		// options
-		retryOptions: dbexec.RetryOptions{
-			MaxRetries: maxRetriesDefault,
-			Delay:      retryDelayDefault,
-		},
+			// options
+			retryOptions: dbexec.RetryOptions{
+				MaxRetries: maxRetriesDefault,
+				Delay:      retryDelayDefault,
+			},
+		}
 	}
 }
 

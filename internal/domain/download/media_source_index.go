@@ -8,6 +8,7 @@ import (
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
+// MediaSourceIndex represents a media source index
 type MediaSourceIndex struct {
 	// Identifier of the watched media (UUID)
 	DownloadID uuid.UUID
@@ -29,8 +30,12 @@ type MediaSourceIndex struct {
 
 	// Media source creation timestamp
 	SourceCreatedAt time.Time
+
+	// Timestamp when the record was soft deleted
+	DeletedAt *time.Time
 }
 
+// Copy creates a copy of the MediaSourceIndex object
 func (src *MediaSourceIndex) Copy() *MediaSourceIndex {
 	if src == nil {
 		return nil

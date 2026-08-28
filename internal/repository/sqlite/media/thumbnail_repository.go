@@ -11,6 +11,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	emedia "github.com/neosy/elengrab/internal/repository/sqlite/media/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/media/mappers"
@@ -26,17 +27,19 @@ type ThumbnailRepository struct {
 }
 
 // NewThumbnailRepository returns a new object for the repository
-func NewThumbnailRepository(db *sql.DB, lock dbexec.WriteLocker) *ThumbnailRepository {
-	return &ThumbnailRepository{
-		mappers: mappers.NewMappers(),
-		db:      db,
-		lock:    lock,
+func NewThumbnailRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.ThumbnailRepositoryFactory {
+	return func() persistence.ThumbnailRepository {
+		return &ThumbnailRepository{
+			mappers: mappers.NewMappers(),
+			db:      db,
+			lock:    lock,
 
-		// options
-		retryOptions: dbexec.RetryOptions{
-			MaxRetries: maxRetriesDefault,
-			Delay:      retryDelayDefault,
-		},
+			// options
+			retryOptions: dbexec.RetryOptions{
+				MaxRetries: maxRetriesDefault,
+				Delay:      retryDelayDefault,
+			},
+		}
 	}
 }
 

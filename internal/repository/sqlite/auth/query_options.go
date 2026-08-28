@@ -1,27 +1,11 @@
 package auth
 
 import (
-	"time"
-
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 type queryOptions struct {
-	beforeTime   *time.Time
-	limit        *uint64
+	dtypes.QueryOptions
+
 	withoutGuest *bool
-}
-
-func (o *queryOptions) copy() queryOptions {
-	if o == nil {
-		return queryOptions{}
-	}
-
-	options := *o
-
-	options.beforeTime = uptr.Copy(o.beforeTime)
-	options.limit = uptr.Copy(o.limit)
-	options.withoutGuest = uptr.Copy(o.withoutGuest)
-
-	return options
 }

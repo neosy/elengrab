@@ -23,7 +23,7 @@ func (uc *MediaWatchStat) Find(ctx context.Context, downloadID uuid.UUID) (*ddow
 		return nil, nil
 	}
 
-	stat, err := uc.statRep.Find(ctx, downloadID)
+	stat, err := uc.statRepo().Find(ctx, downloadID)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to find media watch statistics",

@@ -25,8 +25,8 @@ func NewLink(
 	logger *slog.Logger,
 
 	// repositories
-	linkRep persistence.LinkRepository,
-	linkClickRep persistence.LinkClickRepository,
+	linkRepo persistence.LinkRepositoryFactory,
+	linkClickRepo persistence.LinkClickRepositoryFactory,
 
 	// options
 	opts ...LinkOption,
@@ -42,8 +42,8 @@ func NewLink(
 		mappers: mappers.NewMappers(),
 
 		// internal
-		link:      link.NewLink(logger, linkRep),
-		linkClick: linkclick.NewLinkClick(logger, linkClickRep),
+		link:      link.NewLink(logger, linkRepo),
+		linkClick: linkclick.NewLinkClick(logger, linkClickRepo),
 
 		// options
 		options: options,

@@ -7,5 +7,5 @@ import (
 )
 
 func (u *LinkClick) CountByLinkId(ctx context.Context, linkID uuid.UUID) (uint16, error) {
-	return u.linkClickRep.CountByLinkId(ctx, linkID)
+	return u.linkClickRepo().CountByLinkId(ctx, linkID)
 }

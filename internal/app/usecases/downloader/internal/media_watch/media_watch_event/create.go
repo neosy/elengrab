@@ -24,7 +24,7 @@ func (uc *MediaWatchEvent) Create(ctx context.Context, event *ddownload.MediaWat
 		return err
 	}
 
-	err := uc.eventRep.Insert(ctx, event)
+	err := uc.eventRepo().Insert(ctx, event)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to insert record into repository",

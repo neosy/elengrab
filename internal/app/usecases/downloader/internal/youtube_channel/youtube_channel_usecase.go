@@ -10,7 +10,7 @@ type YoutubeChannel struct {
 	logger *slog.Logger
 
 	// repositories
-	channelRep persistence.YoutubeChannelRepository
+	channelRepo persistence.YoutubeChannelRepositoryFactory
 
 	// cache
 	channelCacheRep persistence.YoutubeChannelCacheRepository
@@ -18,12 +18,12 @@ type YoutubeChannel struct {
 
 func NewYoutubeChannel(
 	logger *slog.Logger,
-	channelRep persistence.YoutubeChannelRepository,
+	channelRepo persistence.YoutubeChannelRepositoryFactory,
 	channelCacheRep persistence.YoutubeChannelCacheRepository,
 ) *YoutubeChannel {
 	return &YoutubeChannel{
 		logger:          logger,
-		channelRep:      channelRep,
+		channelRepo:     channelRepo,
 		channelCacheRep: channelCacheRep,
 	}
 }

@@ -7,8 +7,11 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
+type UserSessionRepositoryFactory func() UserSessionRepository
+
 type UserSessionRepository interface {
 	Transactional
+
 	Insert(ctx context.Context, session *dauth.UserSession) error
 	Update(ctx context.Context, session *dauth.UserSession) error
 	Save(ctx context.Context, session *dauth.UserSession) error

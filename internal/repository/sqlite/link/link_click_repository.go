@@ -10,6 +10,7 @@ import (
 	dlink "github.com/neosy/elengrab/internal/domain/link"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	elink "github.com/neosy/elengrab/internal/repository/sqlite/link/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/link/mappers"
@@ -25,17 +26,19 @@ type LinkClickRepository struct {
 }
 
 // NewLinkClickRepository returns a new object for the repository
-func NewLinkClickRepository(db *sql.DB, lock dbexec.WriteLocker) *LinkClickRepository {
-	return &LinkClickRepository{
-		mappers: mappers.NewMappers(),
-		db:      db,
-		lock:    lock,
+func NewLinkClickRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.LinkClickRepositoryFactory {
+	return func() persistence.LinkClickRepository {
+		return &LinkClickRepository{
+			mappers: mappers.NewMappers(),
+			db:      db,
+			lock:    lock,
 
-		// options
-		retryOptions: dbexec.RetryOptions{
-			MaxRetries: maxRetriesDefault,
-			Delay:      retryDelayDefault,
-		},
+			// options
+			retryOptions: dbexec.RetryOptions{
+				MaxRetries: maxRetriesDefault,
+				Delay:      retryDelayDefault,
+			},
+		}
 	}
 }
 

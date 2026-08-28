@@ -14,7 +14,7 @@ func (uc *Role) Find(ctx context.Context, roleID string) (*dauth.Role, error) {
 		return nil, nil
 	}
 
-	role, err := uc.roleRep.Find(ctx, roleID)
+	role, err := uc.roleRepo().Find(ctx, roleID)
 	if err != nil {
 		uc.logger.Warn("Failed get role", "error", err)
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
@@ -41,7 +41,7 @@ func (uc *Role) Get(ctx context.Context, roleID string) (*dauth.Role, error) {
 
 // Exists
 func (uc *Role) Exists(ctx context.Context, roleID string) (bool, error) {
-	exists, err := uc.roleRep.Exists(ctx, roleID)
+	exists, err := uc.roleRepo().Exists(ctx, roleID)
 	if err != nil {
 		uc.logger.Warn("Failed to check if role exists", "roleID", roleID, "error", err)
 	}
@@ -50,9 +50,9 @@ func (uc *Role) Exists(ctx context.Context, roleID string) (bool, error) {
 }
 
 func (uc *Role) GetAll(ctx context.Context) ([]*dauth.Role, error) {
-	return uc.roleRep.GetAll(ctx)
+	return uc.roleRepo().GetAll(ctx)
 }
 
 func (uc *Role) GetAllWithoutGuest(ctx context.Context) ([]*dauth.Role, error) {
-	return uc.roleRep.WithoutGuest().GetAll(ctx)
+	return uc.roleRepo().WithoutGuest().GetAll(ctx)
 }

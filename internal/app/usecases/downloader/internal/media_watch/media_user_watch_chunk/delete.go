@@ -7,9 +7,9 @@ import (
 )
 
 func (uc *MediaUserWatchChunk) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
-	return uc.chunkRep.DeleteByDownloadID(ctx, downloadID)
+	return uc.chunkRepo().DeleteByDownloadID(ctx, downloadID)
 }
 
 func (uc *MediaUserWatchChunk) DeleteAll(ctx context.Context) error {
-	return uc.chunkRep.DeleteAll(ctx)
+	return uc.chunkRepo().DeleteAll(ctx)
 }

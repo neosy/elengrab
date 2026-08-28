@@ -7,9 +7,9 @@ import (
 )
 
 func (u *Link) SoftDelete(ctx context.Context, linkID uuid.UUID) error {
-	return u.linkRep.SoftDelete(ctx, linkID)
+	return u.linkRepo().SoftDelete(ctx, linkID)
 }
 
 func (u *Link) HardDelete(ctx context.Context, linkID uuid.UUID) error {
-	return u.linkRep.HardDelete(ctx, linkID)
+	return u.linkRepo().HardDelete(ctx, linkID)
 }

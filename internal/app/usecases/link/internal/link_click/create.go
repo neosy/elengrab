@@ -20,7 +20,7 @@ func (uc *LinkClick) Create(ctx context.Context, linkClick *dlink.LinkClick) (uu
 		linkClick.LinkClickID = uuid.New()
 	}
 
-	err := uc.linkClickRep.Insert(ctx, linkClick)
+	err := uc.linkClickRepo().Insert(ctx, linkClick)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to insert record into repository",

@@ -7,6 +7,8 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
+type MediaUserWatchChunkRepositoryFactory func() MediaUserWatchChunkRepository
+
 type MediaUserWatchChunkRepository interface {
 	Transactional
 

@@ -11,7 +11,7 @@ type User struct {
 	logger *slog.Logger
 
 	// repositories
-	userRep persistence.UserRepository
+	userRepo persistence.UserRepositoryFactory
 
 	// internal
 	userRole *authuserrole.UserRole
@@ -19,12 +19,12 @@ type User struct {
 
 func NewUser(
 	logger *slog.Logger,
-	userRep persistence.UserRepository,
+	userRepo persistence.UserRepositoryFactory,
 	userRole *authuserrole.UserRole,
 ) *User {
 	return &User{
 		logger:  logger,
-		userRep: userRep,
+		userRepo: userRepo,
 
 		// internal
 		userRole: userRole,

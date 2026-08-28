@@ -15,7 +15,7 @@ func (uc *MediaDownload) Update(ctx context.Context, userID *uuid.UUID, download
 		download.UserID = userID
 	}
 
-	err := uc.downloadRep.Update(ctx, download)
+	err := uc.downloadRep().Update(ctx, download)
 	if err != nil {
 		uc.logger.Warn("Update record error", "error", err)
 		return err

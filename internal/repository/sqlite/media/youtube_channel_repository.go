@@ -9,6 +9,7 @@ import (
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	emedia "github.com/neosy/elengrab/internal/repository/sqlite/media/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/media/mappers"
@@ -24,17 +25,19 @@ type YoutubeChannelRepository struct {
 }
 
 // NewYoutubeChannelRepository returns a new object for the repository
-func NewYoutubeChannelRepository(db *sql.DB, lock dbexec.WriteLocker) *YoutubeChannelRepository {
-	return &YoutubeChannelRepository{
-		mappers: mappers.NewMappers(),
-		db:      db,
-		lock:    lock,
+func NewYoutubeChannelRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.YoutubeChannelRepositoryFactory {
+	return func() persistence.YoutubeChannelRepository {
+		return &YoutubeChannelRepository{
+			mappers: mappers.NewMappers(),
+			db:      db,
+			lock:    lock,
 
-		// options
-		retryOptions: dbexec.RetryOptions{
-			MaxRetries: maxRetriesDefault,
-			Delay:      retryDelayDefault,
-		},
+			// options
+			retryOptions: dbexec.RetryOptions{
+				MaxRetries: maxRetriesDefault,
+				Delay:      retryDelayDefault,
+			},
+		}
 	}
 }
 
@@ -156,4 +159,12 @@ func (r *YoutubeChannelRepository) ExistsByChannelID(ctx context.Context, channe
 	}
 
 	return true, nil
+}
+
+func (r *YoutubeChannelRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
+	return dbexec.Tx(ctx, r.db, r.lock, fn)
+}
+
+func (r *YoutubeChannelRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
+	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
 }

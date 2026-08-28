@@ -11,7 +11,7 @@ func (uc *MediaUserWatchPosition) DeleteByDownloadID(ctx context.Context, downlo
 		return nil
 	}
 
-	err := uc.positionRep.DeleteByDownloadID(ctx, downloadID)
+	err := uc.positionRepo().DeleteByDownloadID(ctx, downloadID)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to delete media watch positions",

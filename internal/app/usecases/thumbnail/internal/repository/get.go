@@ -24,7 +24,7 @@ func (r *ThumbnailRepository) FindByThumbID(ctx context.Context, thumbID uuid.UU
 		return nil, nil
 	}
 
-	thumbnail, err := r.repo.FindByThumbID(ctx, thumbID)
+	thumbnail, err := r.repo().FindByThumbID(ctx, thumbID)
 	if err != nil {
 		r.logger.Warn("Failed get thumbnail", "error", err)
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)

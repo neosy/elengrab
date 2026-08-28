@@ -10,6 +10,8 @@ import (
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
 
+type ThumbnailRepositoryFactory func() ThumbnailRepository
+
 type ThumbnailRepository interface {
 	Transactional
 	Insert(ctx context.Context, thumbnail *dmedia.Thumbnail) error

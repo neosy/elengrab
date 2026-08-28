@@ -10,7 +10,7 @@ import (
 )
 
 func (c *DownloadMigration) Find(ctx context.Context, migrationID string) (*ddownload.DataMigration, error) {
-	migration, err := c.dataMigrationRep.Find(ctx, migrationID)
+	migration, err := c.dataMigrationRepo().Find(ctx, migrationID)
 	if err != nil {
 		c.logger.Warn("Failed to find migration", "error", err)
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
@@ -33,7 +33,7 @@ func (c *DownloadMigration) GetByMigrationID(ctx context.Context, migrationID st
 }
 
 func (c *DownloadMigration) Exists(ctx context.Context, migrationID string) (bool, error) {
-	exists, err := c.dataMigrationRep.Exists(ctx, migrationID)
+	exists, err := c.dataMigrationRepo().Exists(ctx, migrationID)
 	if err != nil {
 		c.logger.Warn("Failed to exists migration", "error", err)
 		return false, errorx.NewFromError(err, exceptionx.ERROR)

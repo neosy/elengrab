@@ -7,12 +7,12 @@ import (
 )
 
 func (uc *UserRole) Delete(ctx context.Context, userID uuid.UUID, roleID string) error {
-	return uc.userRoleRep.Delete(ctx, userID, roleID)
+	return uc.userRoleRepo().Delete(ctx, userID, roleID)
 }
 
 func (uc *UserRole) DeleteRoleIDs(ctx context.Context, userID uuid.UUID, roleIDs []string) error {
 	for _, roleID := range roleIDs {
-		err := uc.userRoleRep.Delete(ctx, userID, roleID)
+		err := uc.userRoleRepo().Delete(ctx, userID, roleID)
 		if err != nil {
 			uc.logger.Warn(
 				"Failed to delete entry from repository",

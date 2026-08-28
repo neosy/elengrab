@@ -10,17 +10,17 @@ type MediaWatchEvent struct {
 	logger *slog.Logger
 
 	// repositories
-	eventRep persistence.MediaWatchEventRepository
+	eventRepo persistence.MediaWatchEventRepositoryFactory
 }
 
 func NewMediaWatchEvent(
 	logger *slog.Logger,
 
 	// repositories
-	eventRep persistence.MediaWatchEventRepository,
+	eventRepo persistence.MediaWatchEventRepositoryFactory,
 ) *MediaWatchEvent {
 	return &MediaWatchEvent{
-		logger:   logger,
-		eventRep: eventRep,
+		logger:    logger,
+		eventRepo: eventRepo,
 	}
 }

@@ -10,15 +10,15 @@ type Link struct {
 	logger *slog.Logger
 
 	// repositories
-	linkRep persistence.LinkRepository
+	linkRepo persistence.LinkRepositoryFactory
 }
 
 func NewLink(
 	logger *slog.Logger,
-	linkRep persistence.LinkRepository,
+	linkRepo persistence.LinkRepositoryFactory,
 ) *Link {
 	return &Link{
-		logger:  logger,
-		linkRep: linkRep,
+		logger:   logger,
+		linkRepo: linkRepo,
 	}
 }

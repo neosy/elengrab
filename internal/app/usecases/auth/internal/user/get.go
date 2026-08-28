@@ -16,7 +16,7 @@ func (u *User) FindByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User,
 		return nil, nil
 	}
 
-	repo := u.userRep.WithoutDeleted()
+	repo := u.userRepo().WithoutDeleted()
 
 	user, err := repo.FindByUserID(ctx, userID)
 	if err != nil {
@@ -32,7 +32,7 @@ func (u *User) FindByLogin(ctx context.Context, login dtypes.Login) (*dauth.User
 		return nil, nil
 	}
 
-	repo := u.userRep.WithoutDeleted()
+	repo := u.userRepo().WithoutDeleted()
 
 	user, err := repo.FindByLogin(ctx, login)
 	if err != nil {
@@ -48,7 +48,7 @@ func (u *User) FindByEmail(ctx context.Context, email string) (*dauth.User, erro
 		return nil, nil
 	}
 
-	repo := u.userRep.WithoutDeleted()
+	repo := u.userRepo().WithoutDeleted()
 
 	user, err := repo.FindByEmail(ctx, email)
 	if err != nil {
@@ -104,7 +104,7 @@ func (u *User) GetByEmail(ctx context.Context, email string) (*dauth.User, error
 }
 
 func (u *User) ExistsByUserID(ctx context.Context, userID uuid.UUID) (bool, error) {
-	repo := u.userRep.WithoutDeleted()
+	repo := u.userRepo().WithoutDeleted()
 
 	exists, err := repo.ExistsByUserID(ctx, userID)
 	if err != nil {
@@ -115,7 +115,7 @@ func (u *User) ExistsByUserID(ctx context.Context, userID uuid.UUID) (bool, erro
 }
 
 func (u *User) ExistsByLogin(ctx context.Context, login dtypes.Login) (bool, error) {
-	repo := u.userRep.WithoutDeleted()
+	repo := u.userRepo().WithoutDeleted()
 
 	exists, err := repo.ExistsByLogin(ctx, login)
 	if err != nil {
@@ -128,7 +128,7 @@ func (u *User) ExistsByLogin(ctx context.Context, login dtypes.Login) (bool, err
 func (u *User) GetAllUsers(ctx context.Context) ([]*dauth.User, error) {
 	var users []*dauth.User
 
-	rep := u.userRep.WithoutDeleted()
+	rep := u.userRepo().WithoutDeleted()
 
 	err := rep.IterateGetAll(
 		ctx,
@@ -149,7 +149,7 @@ func (u *User) GetAllUsers(ctx context.Context) ([]*dauth.User, error) {
 func (u *User) GetAllUsersWithoutGuest(ctx context.Context) ([]*dauth.User, error) {
 	var users []*dauth.User
 
-	rep := u.userRep.WithoutDeleted().WithoutGuest()
+	rep := u.userRepo().WithoutDeleted().WithoutGuest()
 
 	err := rep.IterateGetAll(
 		ctx,

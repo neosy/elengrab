@@ -33,33 +33,22 @@ type UserRepository struct {
 }
 
 // NewUserRepository returns a new object for the repository
-func NewUserRepository(db *sql.DB, lock dbexec.WriteLocker) *UserRepository {
-	return &UserRepository{
-		mappers: mappers.NewMappers(),
-		db:      db,
-		lock:    lock,
+func NewUserRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.UserRepositoryFactory {
+	return func() persistence.UserRepository {
+		return &UserRepository{
+			mappers: mappers.NewMappers(),
+			db:      db,
+			lock:    lock,
 
-		filtersByName: make(map[string]any),
+			filtersByName: make(map[string]any),
 
-		// options
-		retryOptions: dbexec.RetryOptions{
-			MaxRetries: maxRetriesDefault,
-			Delay:      retryDelayDefault,
-		},
+			// options
+			retryOptions: dbexec.RetryOptions{
+				MaxRetries: maxRetriesDefault,
+				Delay:      retryDelayDefault,
+			},
+		}
 	}
-}
-
-func (r *UserRepository) Copy() *UserRepository {
-	rep := uptr.Copy(r)
-
-	rep.mappers = r.mappers
-	rep.db = r.db
-	rep.lock = r.lock
-
-	rep.filtersByName = rep.filtersByName.copy()
-	rep.queryOptions = rep.queryOptions.copy()
-
-	return rep
 }
 
 func (r *UserRepository) Insert(ctx context.Context, user *dauth.User) error {
@@ -343,8 +332,8 @@ func (r *UserRepository) iterateGetAll(
 
 	var sqlWhere = squirrel.And{}
 
-	if r.queryOptions.beforeTime != nil && !r.queryOptions.beforeTime.IsZero() {
-		t := r.queryOptions.beforeTime.UTC().Add(-1 * time.Nanosecond)
+	if r.queryOptions.Before != nil && !r.queryOptions.Before.IsZero() {
+		t := r.queryOptions.Before.UTC().Add(-1 * time.Nanosecond)
 		sqlWhere = append(sqlWhere, squirrel.Lt{eUser.FieldNameWithAlias(&eUser.CreatedAt, aliasUsers): t})
 	}
 	if r.queryOptions.withoutGuest != nil && *r.queryOptions.withoutGuest {
@@ -372,8 +361,8 @@ func (r *UserRepository) iterateGetAll(
 		GroupBy(eUser.FieldNameWithAlias(&eUser.UserID, aliasUsers)).
 		PlaceholderFormat(squirrel.Dollar)
 
-	if r.queryOptions.limit != nil && *r.queryOptions.limit > 0 {
-		qb = qb.Limit(*r.queryOptions.limit)
+	if r.queryOptions.Limit != nil && *r.queryOptions.Limit > 0 {
+		qb = qb.Limit(*r.queryOptions.Limit)
 	}
 
 	sqlQuery, args, err := qb.ToSql()
@@ -492,34 +481,28 @@ func (r *UserRepository) WithFilters(filters map[string]any) persistence.UserRep
 		}
 	)
 
-	rep := r.Copy()
 	for name, value := range filters {
 		fieldName := fieldNamesAllowed[name]
 		if fieldName != "" {
-			rep.filtersByName[fieldName] = value
+			r.filtersByName[fieldName] = value
 		}
 
 	}
 
-	return rep
+	return r
 }
 
 func (r *UserRepository) WithoutDeleted() persistence.UserRepository {
-	rep := r.Copy()
-
 	var eUser eauth.User
 
-	rep.filtersByName[eUser.FieldName(&eUser.DeletedAt)] = nil
+	r.filtersByName[eUser.FieldName(&eUser.DeletedAt)] = nil
 
-	return rep
+	return r
 }
 
 func (r *UserRepository) WithoutGuest() persistence.UserRepository {
-	rep := r.Copy()
-
-	rep.queryOptions.withoutGuest = new(true)
-
-	return rep
+	r.queryOptions.withoutGuest = new(true)
+	return r
 }
 
 func (r *UserRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {

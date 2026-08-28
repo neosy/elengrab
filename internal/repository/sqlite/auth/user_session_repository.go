@@ -10,6 +10,7 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth/mappers"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
@@ -25,17 +26,19 @@ type UserSessionRepository struct {
 }
 
 // NewUserSessionRepository returns a new object for the repository
-func NewUserSessionRepository(db *sql.DB, lock dbexec.WriteLocker) *UserSessionRepository {
-	return &UserSessionRepository{
-		mappers: mappers.NewMappers(),
-		db:      db,
-		lock:    lock,
+func NewUserSessionRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.UserSessionRepositoryFactory {
+	return func() persistence.UserSessionRepository {
+		return &UserSessionRepository{
+			mappers: mappers.NewMappers(),
+			db:      db,
+			lock:    lock,
 
-		// options
-		retryOptions: dbexec.RetryOptions{
-			MaxRetries: maxRetriesDefault,
-			Delay:      retryDelayDefault,
-		},
+			// options
+			retryOptions: dbexec.RetryOptions{
+				MaxRetries: maxRetriesDefault,
+				Delay:      retryDelayDefault,
+			},
+		}
 	}
 }
 

@@ -7,12 +7,12 @@ import (
 )
 
 func (uc *MediaUserWatchChunk) CountViews(ctx context.Context, downloadID uuid.UUID, requiredChunks uint32) (uint32, error) {
-	return uc.chunkRep.CountViews(ctx, downloadID, requiredChunks)
+	return uc.chunkRepo().CountViews(ctx, downloadID, requiredChunks)
 }
 
 func (uc *MediaUserWatchChunk) CountUserViews(
 	ctx context.Context,
 	downloadID uuid.UUID, userID uuid.UUID,
 	requiredChunks uint32) (uint32, error) {
-	return uc.chunkRep.CountUserViews(ctx, downloadID, userID, requiredChunks)
+	return uc.chunkRepo().CountUserViews(ctx, downloadID, userID, requiredChunks)
 }

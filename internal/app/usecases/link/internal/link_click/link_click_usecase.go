@@ -10,15 +10,15 @@ type LinkClick struct {
 	logger *slog.Logger
 
 	// repositories
-	linkClickRep persistence.LinkClickRepository
+	linkClickRepo persistence.LinkClickRepositoryFactory
 }
 
 func NewLinkClick(
 	logger *slog.Logger,
-	linkClickRep persistence.LinkClickRepository,
+	linkClickRepo persistence.LinkClickRepositoryFactory,
 ) *LinkClick {
 	return &LinkClick{
-		logger:       logger,
-		linkClickRep: linkClickRep,
+		logger:        logger,
+		linkClickRepo: linkClickRepo,
 	}
 }

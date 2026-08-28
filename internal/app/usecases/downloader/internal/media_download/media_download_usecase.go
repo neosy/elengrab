@@ -14,7 +14,7 @@ type MediaDownload struct {
 	logger *slog.Logger
 
 	// repositories
-	downloadRep persistence.MediaDownloadRepository
+	downloadRep persistence.MediaDownloadRepositoryFactory
 
 	// caches
 	downloadCacheRep persistence.MediaDownloadCacheRepository
@@ -32,7 +32,7 @@ func NewMediaDownload(
 	logger *slog.Logger,
 
 	// repositories
-	downloadRep persistence.MediaDownloadRepository,
+	downloadRep persistence.MediaDownloadRepositoryFactory,
 
 	// caches
 	downloadCacheRep persistence.MediaDownloadCacheRepository,

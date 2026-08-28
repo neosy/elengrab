@@ -9,6 +9,8 @@ import (
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
 
+type MediaUserWatchPositionRepositoryFactory func() MediaUserWatchPositionRepository
+
 type MediaUserWatchPositionRepository interface {
 	Transactional
 

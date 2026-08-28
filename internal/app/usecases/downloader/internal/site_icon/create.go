@@ -21,7 +21,7 @@ func (uc *SiteIcon) Create(ctx context.Context, logo *dmedia.SiteLogo) error {
 	}
 
 	// Attempt to insert the site logo into the repository
-	err := uc.logoRep.Insert(ctx, logo)
+	err := uc.logoRepo().Insert(ctx, logo)
 	if err != nil {
 		uc.logger.Error(
 			"Failed to insert record into siteLogo cache repository",
@@ -31,7 +31,7 @@ func (uc *SiteIcon) Create(ctx context.Context, logo *dmedia.SiteLogo) error {
 		return err
 	}
 
-	logo, _ = uc.logoRep.FindByLogoID(ctx, logo.LogoID)
+	logo, _ = uc.logoRepo().FindByLogoID(ctx, logo.LogoID)
 	if logo != nil {
 		err := uc.logoCacheRep.Save(ctx, logo)
 		if err != nil {

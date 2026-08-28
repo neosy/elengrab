@@ -6,6 +6,8 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
+type RoleRepositoryFactory func() RoleRepository
+
 type RoleRepository interface {
 	Transactional
 	Insert(ctx context.Context, role *dauth.Role) error

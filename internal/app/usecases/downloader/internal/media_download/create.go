@@ -28,7 +28,7 @@ func (uc *MediaDownload) Create(ctx context.Context, download *ddownload.MediaDo
 
 	download.NormalizeForSave()
 
-	err := uc.downloadRep.Insert(ctx, download)
+	err := uc.downloadRep().Insert(ctx, download)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to insert record into repository",

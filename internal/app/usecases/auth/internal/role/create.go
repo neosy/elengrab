@@ -19,7 +19,7 @@ func (uc *Role) Create(ctx context.Context, role *dauth.Role) (string, error) {
 		return "", errorx.New("empty roleID field", exceptionx.ERROR)
 	}
 
-	err := uc.roleRep.Insert(ctx, role)
+	err := uc.roleRepo().Insert(ctx, role)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to insert record into repository",

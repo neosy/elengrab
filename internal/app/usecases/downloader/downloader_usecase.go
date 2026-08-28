@@ -78,17 +78,17 @@ func NewDownloader(
 	logger *slog.Logger,
 
 	// repositories
-	downloadRep persistence.MediaDownloadRepository,
-	dlTaskRep persistence.DownloadTaskRepository,
-	downloadMigrationRep persistence.DownloadDataMigrationRepository,
-	watchEventRep persistence.MediaWatchEventRepository,
-	userWatchChunkRep persistence.MediaUserWatchChunkRepository,
-	userWatchStatRep persistence.MediaUserWatchStatRepository,
-	watchStatRep persistence.MediaWatchStatRepository,
-	userWatchPosition persistence.MediaUserWatchPositionRepository,
-	sourceIndexRep persistence.MediaSourceIndexRepository,
-	ytChannelRep persistence.YoutubeChannelRepository,
-	siteLogoRep persistence.SiteLogoRepository,
+	downloadRepo persistence.MediaDownloadRepositoryFactory,
+	dlTaskRepo persistence.DownloadTaskRepositoryFactory,
+	downloadMigrationRepo persistence.DownloadDataMigrationRepositoryFactory,
+	watchEventRepo persistence.MediaWatchEventRepositoryFactory,
+	userWatchChunkRepo persistence.MediaUserWatchChunkRepositoryFactory,
+	userWatchStatRepo persistence.MediaUserWatchStatRepositoryFactory,
+	watchStatRepo persistence.MediaWatchStatRepositoryFactory,
+	userWatchPositionRepo persistence.MediaUserWatchPositionRepositoryFactory,
+	sourceIndexRepo persistence.MediaSourceIndexRepositoryFactory,
+	ytChannelRepo persistence.YoutubeChannelRepositoryFactory,
+	siteLogoRepo persistence.SiteLogoRepositoryFactory,
 
 	// in memory
 	mediaDownloadCacheRep persistence.MediaDownloadCacheRepository,
@@ -123,13 +123,13 @@ func NewDownloader(
 	channelUpdateInterval time.Duration,
 ) *Downloader {
 	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRep)
-	dlTask := dltask.NewDownloadTask(logger, dlTaskRep, dlStateCache)
+	dlTask := dltask.NewDownloadTask(logger, dlTaskRepo, dlStateCache)
 	dlTaskStatus := dltasktatus.NewDownloadTaskStatus(logger, dlTask)
 
 	authz := authz.NewAuthorization(logger, appMode)
 
-	siteIcon := siteicon.NewSiteIcon(logger, siteLogoRep, siteLogoCacheRep)
-	ytChannel := ytchannel.NewYoutubeChannel(logger, ytChannelRep, ytChannelCacheRep)
+	siteIcon := siteicon.NewSiteIcon(logger, siteLogoRepo, siteLogoCacheRep)
+	ytChannel := ytchannel.NewYoutubeChannel(logger, ytChannelRepo, ytChannelCacheRep)
 
 	downloader := &Downloader{
 		appCtx:  ctx,
@@ -155,14 +155,14 @@ func NewDownloader(
 		ytChannel:         ytChannel,
 		siteIcon:          siteIcon,
 		authz:             authz,
-		downloadMigration: dlmigration.NewDownloadMigration(logger, downloadMigrationRep),
+		downloadMigration: dlmigration.NewDownloadMigration(logger, downloadMigrationRepo),
 
 		// broadcasters
 		broadcaster: broadcaster.NewBroadcaster(authz),
 
 		// usecases
 		thumbnail:   thumbnail,
-		searchIndex: searchindex.NewSearchIndex(logger, sourceIndexRep),
+		searchIndex: searchindex.NewSearchIndex(logger, sourceIndexRepo),
 
 		// services
 		downloaderSrv: downloaderSrv,
@@ -178,7 +178,7 @@ func NewDownloader(
 	mediaWatch := mediawatch.NewMediaWatch(
 		logger,
 
-		watchEventRep, userWatchChunkRep, userWatchStatRep, watchStatRep, userWatchPosition,
+		watchEventRepo, userWatchChunkRepo, userWatchStatRepo, watchStatRepo, userWatchPositionRepo,
 
 		mediaUserWatchStatCacheRep,
 		mediaWatchStatCacheRep,
@@ -193,7 +193,7 @@ func NewDownloader(
 	download := mediadownload.NewMediaDownload(
 		logger,
 
-		downloadRep,
+		downloadRepo,
 		mediaDownloadCacheRep,
 
 		dlTask,

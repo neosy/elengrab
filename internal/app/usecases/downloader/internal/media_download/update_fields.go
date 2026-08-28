@@ -51,7 +51,7 @@ func (uc *MediaDownload) UpdateFields(
 
 		download.NormalizeForSave()
 
-		err = uc.downloadRep.Update(ctx, download)
+		err = uc.downloadRep().Update(ctx, download)
 		if err != nil {
 			uc.logger.Warn("Update record error", "error", err)
 			return err

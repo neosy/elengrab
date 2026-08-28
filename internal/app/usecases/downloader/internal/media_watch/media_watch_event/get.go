@@ -7,5 +7,5 @@ import (
 )
 
 func (uc *MediaWatchEvent) IterateGetAll(ctx context.Context, fn func(*ddownload.MediaWatchEvent) error) error {
-	return uc.eventRep.IterateAll(ctx, fn)
+	return uc.eventRepo().IterateAll(ctx, fn)
 }

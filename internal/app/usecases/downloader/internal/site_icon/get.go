@@ -22,7 +22,7 @@ func (uc *SiteIcon) FindByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia
 		return logo, nil
 	}
 
-	logo, err := uc.logoRep.FindByLogoID(ctx, logoID)
+	logo, err := uc.logoRepo().FindByLogoID(ctx, logoID)
 	if err != nil {
 		uc.logger.Warn("Failed get siteLogo", "error", err)
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
@@ -59,7 +59,7 @@ func (uc *SiteIcon) ExistsByLogoID(ctx context.Context, logoID uuid.UUID) (bool,
 		return exists, nil
 	}
 
-	exists, err := uc.logoRep.ExistsByLogoID(ctx, logoID)
+	exists, err := uc.logoRepo().ExistsByLogoID(ctx, logoID)
 	if err != nil {
 		uc.logger.Warn("Failed to check if site logo exists", "logoID", logoID, "error", err)
 	}
@@ -82,7 +82,7 @@ func (uc *SiteIcon) FindBySiteURL(ctx context.Context, siteURL string) (*dmedia.
 		return nil, nil
 	}
 
-	logo, err := uc.logoRep.FindBySiteURL(ctx, siteURL)
+	logo, err := uc.logoRepo().FindBySiteURL(ctx, siteURL)
 	if err != nil {
 		uc.logger.Warn("Failed get siteLogo", "error", err)
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
@@ -123,7 +123,7 @@ func (uc *SiteIcon) ExistsBySiteURL(ctx context.Context, siteURL string) (bool, 
 		return exists, nil
 	}
 
-	exists, err := uc.logoRep.ExistsBySiteURL(ctx, siteURL)
+	exists, err := uc.logoRepo().ExistsBySiteURL(ctx, siteURL)
 	if err != nil {
 		uc.logger.Warn("Failed to check if site logo exists", "siteURL", siteURL, "error", err)
 	}

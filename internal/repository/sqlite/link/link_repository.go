@@ -11,7 +11,6 @@ import (
 	dlink "github.com/neosy/elengrab/internal/domain/link"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	elink "github.com/neosy/elengrab/internal/repository/sqlite/link/entity"
@@ -30,32 +29,22 @@ type LinkRepository struct {
 }
 
 // NewLinkRepository returns a new object for the repository
-func NewLinkRepository(db *sql.DB, lock dbexec.WriteLocker) *LinkRepository {
-	return &LinkRepository{
-		mappers: mappers.NewMappers(),
-		db:      db,
-		lock:    lock,
+func NewLinkRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.LinkRepositoryFactory {
+	return func() persistence.LinkRepository {
+		return &LinkRepository{
+			mappers: mappers.NewMappers(),
+			db:      db,
+			lock:    lock,
 
-		filtersByName: make(map[string]any),
+			filtersByName: make(map[string]any),
 
-		// options
-		retryOptions: dbexec.RetryOptions{
-			MaxRetries: maxRetriesDefault,
-			Delay:      retryDelayDefault,
-		},
+			// options
+			retryOptions: dbexec.RetryOptions{
+				MaxRetries: maxRetriesDefault,
+				Delay:      retryDelayDefault,
+			},
+		}
 	}
-}
-
-func (r *LinkRepository) Copy() *LinkRepository {
-	rep := uptr.Copy(r)
-
-	rep.mappers = r.mappers
-	rep.db = r.db
-	rep.lock = r.lock
-
-	rep.filtersByName = rep.filtersByName.copy()
-
-	return rep
 }
 
 func (r *LinkRepository) Insert(ctx context.Context, link *dlink.Link) error {
@@ -347,13 +336,11 @@ func (r *LinkRepository) ExistsActiveShortCode(ctx context.Context, shortCode st
 }
 
 func (r *LinkRepository) WithoutDeleted() persistence.LinkRepository {
-	rep := r.Copy()
-
 	var eLink elink.Link
 
-	rep.filtersByName[eLink.FieldName(&eLink.DeletedAt)] = nil
+	r.filtersByName[eLink.FieldName(&eLink.DeletedAt)] = nil
 
-	return rep
+	return r
 }
 
 func (r *LinkRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {

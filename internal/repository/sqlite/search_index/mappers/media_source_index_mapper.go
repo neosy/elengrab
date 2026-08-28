@@ -41,5 +41,6 @@ func (m *Mappers) MapSourceIndexEntityToDomain(index *esearchindex.MediaSourceIn
 		Views:           uint32(index.Views),
 		Visibility:      visibility,
 		SourceCreatedAt: index.SourceCreatedAt,
+		DeletedAt:       index.DeletedAt,
 	}, nil
 }

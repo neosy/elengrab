@@ -12,7 +12,12 @@ func (m *migrations) getAllDownloads(
 ) ([]*ddownload.MediaDownload, error) {
 	var downloads []*ddownload.MediaDownload
 
-	err := m.usecases.download.GetAll(ctx, includeDeleted,
+	iterateGetAll := m.usecases.download.IterateGetAll
+	if includeDeleted {
+		iterateGetAll = m.usecases.download.IterateGetAllWithDeleted
+	}
+
+	err := iterateGetAll(ctx,
 		func(download *ddownload.MediaDownload) error {
 			if download == nil || download.MediaInfo == nil {
 				return nil

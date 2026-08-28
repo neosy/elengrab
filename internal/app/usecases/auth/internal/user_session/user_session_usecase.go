@@ -10,15 +10,15 @@ type UserSession struct {
 	logger *slog.Logger
 
 	// repositories
-	userSessionRep persistence.UserSessionRepository
+	userSessionRepo persistence.UserSessionRepositoryFactory
 }
 
 func NewUserSession(
 	logger *slog.Logger,
-	userSessionRep persistence.UserSessionRepository,
+	userSessionRepo persistence.UserSessionRepositoryFactory,
 ) *UserSession {
 	return &UserSession{
 		logger:         logger,
-		userSessionRep: userSessionRep,
+		userSessionRepo: userSessionRepo,
 	}
 }

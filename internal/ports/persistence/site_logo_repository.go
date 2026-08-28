@@ -9,6 +9,8 @@ import (
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
 
+type SiteLogoRepositoryFactory func() SiteLogoRepository
+
 type SiteLogoRepository interface {
 	Insert(ctx context.Context, logo *dmedia.SiteLogo) error
 	Update(ctx context.Context, logo *dmedia.SiteLogo) error

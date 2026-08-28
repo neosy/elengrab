@@ -8,9 +8,9 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	ewatchevent "github.com/neosy/elengrab/internal/repository/sqlite/watch_event/entity"
@@ -23,40 +23,29 @@ type MediaWatchEventRepository struct {
 	lock    dbexec.WriteLocker
 
 	filtersByName filtersByName
-	queryOptions  queryOptions
+	queryOptions  dtypes.QueryOptions
 
 	// options
 	retryOptions dbexec.RetryOptions
 }
 
 // NewMediaWatchEventRepository returns a new object for the repository
-func NewMediaWatchEventRepository(db *sql.DB, lock dbexec.WriteLocker) *MediaWatchEventRepository {
-	return &MediaWatchEventRepository{
-		mappers: mappers.NewMappers(),
-		db:      db,
-		lock:    lock,
+func NewMediaWatchEventRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.MediaWatchEventRepositoryFactory {
+	return func() persistence.MediaWatchEventRepository {
+		return &MediaWatchEventRepository{
+			mappers: mappers.NewMappers(),
+			db:      db,
+			lock:    lock,
 
-		filtersByName: make(map[string]any),
+			filtersByName: make(map[string]any),
 
-		// options
-		retryOptions: dbexec.RetryOptions{
-			MaxRetries: maxRetriesDefault,
-			Delay:      retryDelayDefault,
-		},
+			// options
+			retryOptions: dbexec.RetryOptions{
+				MaxRetries: maxRetriesDefault,
+				Delay:      retryDelayDefault,
+			},
+		}
 	}
-}
-
-func (r *MediaWatchEventRepository) Copy() *MediaWatchEventRepository {
-	rep := uptr.Copy(r)
-
-	rep.mappers = r.mappers
-	rep.db = r.db
-	rep.lock = r.lock
-
-	rep.filtersByName = rep.filtersByName.copy()
-	rep.queryOptions = rep.queryOptions.copy()
-
-	return rep
 }
 
 func (r *MediaWatchEventRepository) Insert(ctx context.Context, event *ddownload.MediaWatchEvent) error {
@@ -163,8 +152,8 @@ func (r *MediaWatchEventRepository) iterateGetAll(
 		OrderBy(orderBy).
 		PlaceholderFormat(squirrel.Dollar)
 
-	if r.queryOptions.limit != nil && *r.queryOptions.limit > 0 {
-		qb = qb.Limit(*r.queryOptions.limit)
+	if r.queryOptions.Limit != nil && *r.queryOptions.Limit > 0 {
+		qb = qb.Limit(*r.queryOptions.Limit)
 	}
 
 	sqlQuery, args, err := qb.ToSql()
@@ -205,13 +194,11 @@ func (r *MediaWatchEventRepository) iterateGetAll(
 }
 
 func (r *MediaWatchEventRepository) WithUserID() persistence.MediaWatchEventRepository {
-	rep := r.Copy()
-
 	var eEvent ewatchevent.MediaWatchEvent
 
-	rep.filtersByName[eEvent.FieldName(&eEvent.UserID)] = nil
+	r.filtersByName[eEvent.FieldName(&eEvent.UserID)] = nil
 
-	return rep
+	return r
 }
 
 func (r *MediaWatchEventRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {

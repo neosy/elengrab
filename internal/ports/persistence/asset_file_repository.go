@@ -8,6 +8,8 @@ import (
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
 
+type AssetFileCacheRepositoryFactory func() AssetFileCacheRepository
+
 type AssetFileCacheRepository interface {
 	memory.CacheRepository
 

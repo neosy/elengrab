@@ -35,10 +35,10 @@ func (u *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption)
 		opt(&roles)
 	}
 
-	err := u.userRep.Tx(
+	err := u.userRepo().Tx(
 		ctx,
 		func(ctx context.Context) error {
-			err := u.userRep.Insert(ctx, user)
+			err := u.userRepo().Insert(ctx, user)
 			if err != nil {
 				return err
 			}

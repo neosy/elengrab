@@ -37,6 +37,9 @@ type MediaSourceIndex struct {
 
 	// Media source creation timestamp
 	SourceCreatedAt time.Time `db:"source_created_at"`
+
+	// Timestamp when the record was soft deleted
+	DeletedAt *time.Time `db:"deleted_at" insert:"false"`
 }
 
 // TableName returns the table name

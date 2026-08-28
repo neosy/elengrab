@@ -50,11 +50,11 @@ func NewMediaWatch(
 	logger *slog.Logger,
 
 	// Repositories
-	eventRep persistence.MediaWatchEventRepository,
-	chunkRep persistence.MediaUserWatchChunkRepository,
-	userStatRep persistence.MediaUserWatchStatRepository,
-	statRep persistence.MediaWatchStatRepository,
-	positionRep persistence.MediaUserWatchPositionRepository,
+	eventRepo persistence.MediaWatchEventRepositoryFactory,
+	chunkRepo persistence.MediaUserWatchChunkRepositoryFactory,
+	userStatRepo persistence.MediaUserWatchStatRepositoryFactory,
+	statRepo persistence.MediaWatchStatRepositoryFactory,
+	positionRepo persistence.MediaUserWatchPositionRepositoryFactory,
 
 	// In memory
 	userStatCacheRep persistence.MediaUserWatchStatCacheRepository,
@@ -86,11 +86,11 @@ func NewMediaWatch(
 		// State
 		pendingStats: newStatsUpdateQueue(),
 
-		event:        watchevent.NewMediaWatchEvent(logger, eventRep),
-		userChunk:    uwatchchunk.NewMediaUserWatchChunk(logger, chunkRep),
-		userStat:     uwatchstat.NewMediaUserWatchStat(logger, userStatRep, userStatCacheRep),
-		stat:         watchstat.NewMediaWatchStat(logger, statRep, statCacheRep),
-		userPosition: uwatchposition.NewMediaUserWatchPosition(logger, positionRep, positionCacheRep),
+		event:        watchevent.NewMediaWatchEvent(logger, eventRepo),
+		userChunk:    uwatchchunk.NewMediaUserWatchChunk(logger, chunkRepo),
+		userStat:     uwatchstat.NewMediaUserWatchStat(logger, userStatRepo, userStatCacheRep),
+		stat:         watchstat.NewMediaWatchStat(logger, statRepo, statCacheRep),
+		userPosition: uwatchposition.NewMediaUserWatchPosition(logger, positionRepo, positionCacheRep),
 
 		// Callbacks
 		onWatchStatsUpdated:    onWatchStatsUpdated,

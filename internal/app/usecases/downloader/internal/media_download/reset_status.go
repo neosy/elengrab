@@ -12,7 +12,7 @@ func (uc *MediaDownload) ResetStatus(ctx context.Context) error {
 		dtypes.MediaDownloadStatusWorking,
 	}
 
-	err := uc.downloadRep.UpdateStatus(ctx, statusesToNew, dtypes.MediaDownloadStatusNew)
+	err := uc.downloadRep().UpdateStatus(ctx, statusesToNew, dtypes.MediaDownloadStatusNew)
 	if err != nil {
 		uc.logger.Warn("Failed update status to new", "error", err)
 		return err
@@ -22,7 +22,7 @@ func (uc *MediaDownload) ResetStatus(ctx context.Context) error {
 		dtypes.MediaDownloadStatusRefreshing,
 	}
 
-	err = uc.downloadRep.UpdateStatus(ctx, statusesToDone, dtypes.MediaDownloadStatusDone)
+	err = uc.downloadRep().UpdateStatus(ctx, statusesToDone, dtypes.MediaDownloadStatusDone)
 	if err != nil {
 		uc.logger.Warn("Failed update status to done", "error", err)
 		return err
