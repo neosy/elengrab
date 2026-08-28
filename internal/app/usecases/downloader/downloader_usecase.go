@@ -131,6 +131,8 @@ func NewDownloader(
 	siteIcon := siteicon.NewSiteIcon(logger, siteLogoRepo, siteLogoCacheRep)
 	ytChannel := ytchannel.NewYoutubeChannel(logger, ytChannelRepo, ytChannelCacheRep)
 
+	searchIndex := searchindex.NewSearchIndex(logger, sourceIndexRepo)
+
 	downloader := &Downloader{
 		appCtx:  ctx,
 		logger:  logger,
@@ -162,7 +164,7 @@ func NewDownloader(
 
 		// usecases
 		thumbnail:   thumbnail,
-		searchIndex: searchindex.NewSearchIndex(logger, sourceIndexRepo),
+		searchIndex: searchIndex,
 
 		// services
 		downloaderSrv: downloaderSrv,
@@ -199,6 +201,7 @@ func NewDownloader(
 		dlTask,
 		dlStateCache,
 		mediaWatch,
+		searchIndex,
 
 		thumbnail,
 	)

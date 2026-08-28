@@ -15,26 +15,25 @@ import (
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	elink "github.com/neosy/elengrab/internal/repository/sqlite/link/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/link/mappers"
+	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 )
 
 type LinkRepository struct {
 	mappers *mappers.Mappers
-	db      *sql.DB
-	lock    dbexec.WriteLocker
+	dbEntry persistence.DBEntry
 
-	filtersByName filtersByName
+	filtersByName types.FiltersByName
 
 	// options
 	retryOptions dbexec.RetryOptions
 }
 
 // NewLinkRepository returns a new object for the repository
-func NewLinkRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.LinkRepositoryFactory {
+func NewLinkRepository(dbEntry persistence.DBEntry) persistence.LinkRepositoryFactory {
 	return func() persistence.LinkRepository {
 		return &LinkRepository{
 			mappers: mappers.NewMappers(),
-			db:      db,
-			lock:    lock,
+			dbEntry: dbEntry,
 
 			filtersByName: make(map[string]any),
 
@@ -84,7 +83,7 @@ func (r *LinkRepository) save(ctx context.Context, link *dlink.Link) error {
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save link: %v", err)
 	}
@@ -112,7 +111,7 @@ func (r *LinkRepository) SoftDelete(ctx context.Context, linkID uuid.UUID) error
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save file: %v", err)
 	}
@@ -135,7 +134,7 @@ func (r *LinkRepository) HardDelete(ctx context.Context, linkID uuid.UUID) error
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete file: %v", err)
 	}
@@ -168,7 +167,7 @@ func (r *LinkRepository) Find(ctx context.Context, linkID uuid.UUID) (*dlink.Lin
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...).Scan(eLink.FieldPointers()...)
 		// Scan result into entity
@@ -221,7 +220,7 @@ func (r *LinkRepository) Exists(ctx context.Context, linkID uuid.UUID) (bool, er
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 
 	// Execute query and check if any row exists
 	var exists int
@@ -262,7 +261,7 @@ func (r *LinkRepository) FindLastByShortCode(ctx context.Context, shortCode stri
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -320,7 +319,7 @@ func (r *LinkRepository) ExistsActiveShortCode(ctx context.Context, shortCode st
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 
 	// Execute query and check if any row exists
 	var exists int
@@ -344,5 +343,5 @@ func (r *LinkRepository) WithoutDeleted() persistence.LinkRepository {
 }
 
 func (r *LinkRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.Tx(ctx, r.db, r.lock, fn)
+	return dbexec.Tx(ctx, r.dbEntry, fn)
 }

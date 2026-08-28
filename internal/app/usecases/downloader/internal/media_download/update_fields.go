@@ -6,6 +6,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/helper"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 )
 
@@ -13,8 +14,12 @@ func (uc *MediaDownload) UpdateFields(
 	ctx context.Context,
 	req dto.PatchMediaDownloadRequest,
 ) error {
+	var download *ddownload.MediaDownload
+
 	update := func(ctx context.Context) error {
-		download, err := uc.GetByDownloadIDNoCache(ctx, req.DownloadID)
+		var err error
+
+		download, err = uc.GetByDownloadIDNoCache(ctx, req.DownloadID)
 		if err != nil {
 			return err
 		}
@@ -51,7 +56,7 @@ func (uc *MediaDownload) UpdateFields(
 
 		download.NormalizeForSave()
 
-		err = uc.downloadRep().Update(ctx, download)
+		err = uc.downloadRepo().Update(ctx, download)
 		if err != nil {
 			uc.logger.Warn("Update record error", "error", err)
 			return err
@@ -66,8 +71,9 @@ func (uc *MediaDownload) UpdateFields(
 	}
 
 	uc.dlStateCache.PatchDownload(ctx, req)
-
 	uc.downloadCacheRep.Delete(ctx, req.DownloadID)
+
+	uc.updateDependencies(ctx, download)
 
 	return nil
 }
