@@ -77,5 +77,11 @@ func (uc *DownloadStateCache) SaveByDownload(ctx context.Context, download *ddow
 		}
 	}
 
-	return uc.stateCacheRep.Save(ctx, state)
+	err := uc.stateCacheRep.Save(ctx, state)
+	if err != nil {
+		uc.logger.Warn("Failed to save download state cache", "error", err)
+		return err
+	}
+
+	return nil
 }

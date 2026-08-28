@@ -8,17 +8,23 @@ import (
 )
 
 func (uc *MediaDownload) SoftDelete(ctx context.Context, downloadID uuid.UUID) error {
-	err := uc.downloadRep().SoftDelete(ctx, downloadID)
+	download, err := uc.GetByDownloadID(ctx, downloadID)
+	if err != nil {
+		return err
+	}
+
+	err = uc.downloadRepo().SoftDelete(ctx, downloadID)
 	if err != nil {
 		uc.logger.Warn("Failed delete file", "error", err)
 		return err
 	}
 
 	uc.downloadCacheRep.Delete(ctx, downloadID)
+	uc.dlStateCache.Delete(ctx, downloadID)
 
-	err = uc.dlStateCache.Delete(ctx, downloadID)
+	err = uc.softDeleteDependencies(ctx, download)
 	if err != nil {
-		uc.logger.Warn("Failed delete download state cache", "error", err)
+		return err
 	}
 
 	return nil
@@ -30,7 +36,7 @@ func (uc *MediaDownload) HardDelete(ctx context.Context, downloadID uuid.UUID) e
 		return err
 	}
 
-	err = uc.downloadRep().HardDelete(ctx, downloadID)
+	err = uc.downloadRepo().HardDelete(ctx, downloadID)
 	if err != nil {
 		uc.logger.Warn("Failed delete media download", "error", err)
 		return err
@@ -43,7 +49,7 @@ func (uc *MediaDownload) HardDelete(ctx context.Context, downloadID uuid.UUID) e
 		uc.logger.Warn("Failed delete download state cache", "error", err)
 	}
 
-	err = uc.deleteDependencies(ctx, download)
+	err = uc.hardDeleteDependencies(ctx, download)
 	if err != nil {
 		return err
 	}
@@ -51,7 +57,15 @@ func (uc *MediaDownload) HardDelete(ctx context.Context, downloadID uuid.UUID) e
 	return nil
 }
 
-func (uc *MediaDownload) deleteDependencies(ctx context.Context, download *ddownload.MediaDownload) error {
+func (uc *MediaDownload) softDeleteDependencies(ctx context.Context, download *ddownload.MediaDownload) error {
+	go func() {
+		uc.searchIndex.SoftDeleteMediaDownload(ctx, download.DownloadID)
+	}()
+
+	return nil
+}
+
+func (uc *MediaDownload) hardDeleteDependencies(ctx context.Context, download *ddownload.MediaDownload) error {
 	err := uc.mediaWatch.DeleteAllByDownloadID(ctx, download.DownloadID)
 	if err != nil {
 		uc.logger.Warn(
@@ -64,6 +78,7 @@ func (uc *MediaDownload) deleteDependencies(ctx context.Context, download *ddown
 
 	go func() {
 		uc.deleteThumbnails(ctx, download)
+		uc.searchIndex.HardDeleteMediaDownload(ctx, download.DownloadID)
 	}()
 
 	return nil

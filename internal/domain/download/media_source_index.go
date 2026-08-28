@@ -47,3 +47,26 @@ func (src *MediaSourceIndex) Copy() *MediaSourceIndex {
 
 	return copy
 }
+
+// Validate validates
+func (index *MediaSourceIndex) Validate() error {
+	return nil
+}
+
+func (index *MediaSourceIndex) InitFromMediaDownload(download *MediaDownload) {
+	index.DownloadID = download.DownloadID
+	index.UserID = download.UserID
+
+	index.Title = download.MediaTitle
+	index.Description = download.MediaDescription
+
+	index.Visibility = download.Visibility
+	index.SourceCreatedAt = download.CreatedAt
+}
+
+func (index *MediaSourceIndex) NeedsUpdateFromMediaDownload(download *MediaDownload) bool {
+	return index.UserID != download.UserID ||
+		index.Title != download.MediaTitle ||
+		index.Description != download.MediaDescription ||
+		index.Visibility != download.Visibility
+}

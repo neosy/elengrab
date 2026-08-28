@@ -12,16 +12,16 @@ import (
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
+	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 	ewatchevent "github.com/neosy/elengrab/internal/repository/sqlite/watch_event/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/watch_event/mappers"
 )
 
 type MediaUserWatchChunkRepository struct {
 	mappers *mappers.Mappers
-	db      *sql.DB
-	lock    dbexec.WriteLocker
+	dbEntry persistence.DBEntry
 
-	filtersByName filtersByName
+	filtersByName types.FiltersByName
 	queryOptions  dtypes.QueryOptions
 
 	// options
@@ -29,12 +29,11 @@ type MediaUserWatchChunkRepository struct {
 }
 
 // NewMediaUserWatchChunkRepository returns a new object for the repository
-func NewMediaUserWatchChunkRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.MediaUserWatchChunkRepositoryFactory {
+func NewMediaUserWatchChunkRepository(dbEntry persistence.DBEntry) persistence.MediaUserWatchChunkRepositoryFactory {
 	return func() persistence.MediaUserWatchChunkRepository {
 		return &MediaUserWatchChunkRepository{
 			mappers: mappers.NewMappers(),
-			db:      db,
-			lock:    lock,
+			dbEntry: dbEntry,
 
 			filtersByName: make(map[string]any),
 
@@ -80,7 +79,7 @@ func (r *MediaUserWatchChunkRepository) AddChunkQty(ctx context.Context, chunk *
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save record: %w", err)
 	}
@@ -134,7 +133,7 @@ func (r *MediaUserWatchChunkRepository) AddChunkQtyBatch(ctx context.Context, ch
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save records: %w", err)
 	}
@@ -158,7 +157,7 @@ func (r *MediaUserWatchChunkRepository) DeleteByDownloadID(ctx context.Context, 
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete record: %w", err)
 	}
@@ -181,7 +180,7 @@ func (r *MediaUserWatchChunkRepository) DeleteAll(ctx context.Context) error {
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete all records: %w", err)
 	}
@@ -226,7 +225,7 @@ func (r *MediaUserWatchChunkRepository) IterateDownloadUsers(
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		return err
@@ -285,7 +284,7 @@ func (r *MediaUserWatchChunkRepository) CountViews(
 	)
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(
 			ctx, countViewsSQL,
@@ -344,7 +343,7 @@ func (r *MediaUserWatchChunkRepository) CountUserViews(
 	)
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(
 			ctx, countUserViewsSQL,
@@ -379,9 +378,9 @@ func (r *MediaUserWatchChunkRepository) WithUserID() persistence.MediaUserWatchC
 }
 
 func (r *MediaUserWatchChunkRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.Tx(ctx, r.db, r.lock, fn)
+	return dbexec.Tx(ctx, r.dbEntry, fn)
 }
 
 func (r *MediaUserWatchChunkRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+	return dbexec.TxIndependent(ctx, r.dbEntry, fn)
 }

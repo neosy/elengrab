@@ -19,20 +19,18 @@ import (
 
 type ThumbnailRepository struct {
 	mappers *mappers.Mappers
-	db      *sql.DB
-	lock    dbexec.WriteLocker
+	dbEntry persistence.DBEntry
 
 	// options
 	retryOptions dbexec.RetryOptions
 }
 
 // NewThumbnailRepository returns a new object for the repository
-func NewThumbnailRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.ThumbnailRepositoryFactory {
+func NewThumbnailRepository(dbEntry persistence.DBEntry) persistence.ThumbnailRepositoryFactory {
 	return func() persistence.ThumbnailRepository {
 		return &ThumbnailRepository{
 			mappers: mappers.NewMappers(),
-			db:      db,
-			lock:    lock,
+			dbEntry: dbEntry,
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -80,7 +78,7 @@ func (r *ThumbnailRepository) Save(ctx context.Context, thumbnail *dmedia.Thumbn
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save siteThumbnail: %v", err)
 	}
@@ -103,7 +101,7 @@ func (r *ThumbnailRepository) Delete(ctx context.Context, thumbID uuid.UUID) err
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete file: %v", err)
 	}
@@ -129,7 +127,7 @@ func (r *ThumbnailRepository) FindByThumbID(
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -172,7 +170,7 @@ func (r *ThumbnailRepository) ExistsByThumbID(ctx context.Context, thumbID uuid.
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 
 	// Execute query and check if any row exists
 	var exists int
@@ -215,7 +213,7 @@ func (r *ThumbnailRepository) FindByVersion(
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -279,7 +277,7 @@ func (r *ThumbnailRepository) FindByMediaIDBest(
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -331,7 +329,7 @@ func (r *ThumbnailRepository) GetByMediaID(
 	var thumbnails []*dmedia.Thumbnail
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -367,9 +365,9 @@ func (r *ThumbnailRepository) GetByMediaID(
 }
 
 func (r *ThumbnailRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.Tx(ctx, r.db, r.lock, fn)
+	return dbexec.Tx(ctx, r.dbEntry, fn)
 }
 
 func (r *ThumbnailRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+	return dbexec.TxIndependent(ctx, r.dbEntry, fn)
 }

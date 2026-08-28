@@ -1,22 +1,19 @@
 package sqliterep
 
 import (
-	"database/sql"
-
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth"
-	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download"
 	"github.com/neosy/elengrab/internal/repository/sqlite/link"
 	"github.com/neosy/elengrab/internal/repository/sqlite/media"
 	searchindex "github.com/neosy/elengrab/internal/repository/sqlite/search_index"
-	sqlitetypes "github.com/neosy/elengrab/internal/repository/sqlite/types"
+	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 	watchevent "github.com/neosy/elengrab/internal/repository/sqlite/watch_event"
 )
 
 // Repositories groups all database repositories.
 type Repositories struct {
-	dbRegistry *sqlitetypes.DBRegistry
+	dbRegistry *types.DBRegistry
 
 	User        persistence.UserRepositoryFactory
 	Role        persistence.RoleRepositoryFactory
@@ -51,66 +48,62 @@ func New(dbEntries []persistence.DBEntry) *Repositories {
 		entriesByName[e.DBName()] = e
 	}
 
-	type dbEntry struct {
-		db     *sql.DB
-		locker dbexec.WriteLocker
-	}
+	authEntry := types.NewDBEntry(
+		AuthSchema,
+		entriesByName[AuthSchema.DBName()].DB(),
+	)
 
-	eAuth := dbEntry{
-		db:     entriesByName[AuthSchema.DBName()].DB(),
-		locker: dbexec.NewSQLiteLock(),
-	}
+	mainEntry := types.NewDBEntry(
+		MainSchema,
+		entriesByName[MainSchema.DBName()].DB(),
+	)
 
-	eMain := dbEntry{
-		db:     entriesByName[MainSchema.DBName()].DB(),
-		locker: dbexec.NewSQLiteLock(),
-	}
+	mediaEntry := types.NewDBEntry(
+		MediaSchema,
+		entriesByName[MediaSchema.DBName()].DB(),
+	)
 
-	eMedia := dbEntry{
-		db:     entriesByName[MediaSchema.DBName()].DB(),
-		locker: dbexec.NewSQLiteLock(),
-	}
+	linkEntry := types.NewDBEntry(
+		LinkSchema,
+		entriesByName[LinkSchema.DBName()].DB(),
+	)
 
-	eLink := dbEntry{
-		db:     entriesByName[LinkSchema.DBName()].DB(),
-		locker: dbexec.NewSQLiteLock(),
-	}
+	watchEventEntry := types.NewDBEntry(
+		WatchEventSchema,
+		entriesByName[WatchEventSchema.DBName()].DB(),
+	)
 
-	eWatchEvent := dbEntry{
-		db:     entriesByName[WatchEventSchema.DBName()].DB(),
-		locker: dbexec.NewSQLiteLock(),
-	}
-
-	eSearchIndex := dbEntry{
-		db: entriesByName[SearchIndexSchema.DBName()].DB(),
-	}
+	searchIndexEntry := types.NewDBEntry(
+		SearchIndexSchema,
+		entriesByName[SearchIndexSchema.DBName()].DB(),
+	)
 
 	return &Repositories{
-		dbRegistry: sqlitetypes.NewRegistry(entriesByName),
+		dbRegistry: types.NewRegistry(entriesByName),
 
-		User:        auth.NewUserRepository(eAuth.db, eAuth.locker),
-		Role:        auth.NewRoleRepository(eAuth.db, eAuth.locker),
-		UserRole:    auth.NewUserRoleRepository(eAuth.db, eAuth.locker),
-		UserSession: auth.NewUserSessionRepository(eAuth.db, eAuth.locker),
+		User:        auth.NewUserRepository(authEntry),
+		Role:        auth.NewRoleRepository(authEntry),
+		UserRole:    auth.NewUserRoleRepository(authEntry),
+		UserSession: auth.NewUserSessionRepository(authEntry),
 
-		DownloadDataMigration: download.NewDataMigrationRepository(eMain.db, eMain.locker),
-		MediaDownload:         download.NewMediaDownloadRepository(eMain.db, eMain.locker),
-		DownloadTask:          download.NewDownloadTaskRepository(eMain.db, eMain.locker),
+		DownloadDataMigration: download.NewDataMigrationRepository(mainEntry),
+		MediaDownload:         download.NewMediaDownloadRepository(mainEntry),
+		DownloadTask:          download.NewDownloadTaskRepository(mainEntry),
 
-		MediaWatchEvent:        watchevent.NewMediaWatchEventRepository(eWatchEvent.db, eWatchEvent.locker),
-		MediaUserWatchChunk:    watchevent.NewMediaUserWatchChunkRepository(eWatchEvent.db, eWatchEvent.locker),
-		MediaUserWatchStat:     watchevent.NewMediaUserWatchStatRepository(eWatchEvent.db, eWatchEvent.locker),
-		MediaWatchStat:         watchevent.NewMediaWatchStatRepository(eWatchEvent.db, eWatchEvent.locker),
-		MediaUserWatchPosition: watchevent.NewMediaUserWatchPositionRepository(eWatchEvent.db, eWatchEvent.locker),
+		MediaWatchEvent:        watchevent.NewMediaWatchEventRepository(watchEventEntry),
+		MediaUserWatchChunk:    watchevent.NewMediaUserWatchChunkRepository(watchEventEntry),
+		MediaUserWatchStat:     watchevent.NewMediaUserWatchStatRepository(watchEventEntry),
+		MediaWatchStat:         watchevent.NewMediaWatchStatRepository(watchEventEntry),
+		MediaUserWatchPosition: watchevent.NewMediaUserWatchPositionRepository(watchEventEntry),
 
-		MediaSourceIndex: searchindex.NewMediaSourceIndexRepository(eSearchIndex.db, eSearchIndex.locker),
+		MediaSourceIndex: searchindex.NewMediaSourceIndexRepository(searchIndexEntry),
 
-		YoutubeChannel: media.NewYoutubeChannelRepository(eMedia.db, eMedia.locker),
-		SiteLogo:       media.NewSiteLogoRepository(eMedia.db, eMedia.locker),
-		Thumbnail:      media.NewThumbnailRepository(eMedia.db, eMedia.locker),
+		YoutubeChannel: media.NewYoutubeChannelRepository(mediaEntry),
+		SiteLogo:       media.NewSiteLogoRepository(mediaEntry),
+		Thumbnail:      media.NewThumbnailRepository(mediaEntry),
 
-		Link:      link.NewLinkRepository(eLink.db, eLink.locker),
-		LickClick: link.NewLinkClickRepository(eLink.db, eLink.locker),
+		Link:      link.NewLinkRepository(linkEntry),
+		LickClick: link.NewLinkClickRepository(linkEntry),
 	}
 }
 

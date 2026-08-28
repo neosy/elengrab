@@ -17,27 +17,26 @@ import (
 	esearchindex "github.com/neosy/elengrab/internal/repository/sqlite/search_index/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/search_index/mappers"
 	"github.com/neosy/elengrab/internal/repository/sqlite/sqlutil"
+	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 )
 
 type MediaSourceIndexRepository struct {
 	mappers *mappers.Mappers
-	db      *sql.DB
-	lock    dbexec.WriteLocker
+	dbEntry   persistence.DBEntry
 
-	filtersByName filtersByName
-	queryOptions  dtypes.QueryMediaOptions
+	filtersByName types.FiltersByName
+	queryOptions  queryOptions
 
 	// options
 	retryOptions dbexec.RetryOptions
 }
 
 // NewMediaSourceIndexRepository returns a new object for the repository
-func NewMediaSourceIndexRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.MediaSourceIndexRepositoryFactory {
+func NewMediaSourceIndexRepository(dbEntry persistence.DBEntry) persistence.MediaSourceIndexRepositoryFactory {
 	return func() persistence.MediaSourceIndexRepository {
 		return &MediaSourceIndexRepository{
 			mappers: mappers.NewMappers(),
-			db:      db,
-			lock:    lock,
+			dbEntry:   dbEntry,
 
 			filtersByName: make(map[string]any),
 
@@ -48,68 +47,6 @@ func NewMediaSourceIndexRepository(db *sql.DB, lock dbexec.WriteLocker) persiste
 			},
 		}
 	}
-}
-
-func (r *MediaSourceIndexRepository) WithOptions(options dtypes.QueryMediaOptions) persistence.MediaSourceIndexRepository {
-	if options.Before != nil {
-		r.queryOptions.Before = options.Before
-	}
-
-	if options.Limit != nil {
-		r.queryOptions.Limit = options.Limit
-	}
-
-	if options.Visibility != nil {
-		r.queryOptions.Visibility = options.Visibility
-	}
-
-	return r
-}
-
-func (r *MediaSourceIndexRepository) WithUser(userID uuid.UUID) persistence.MediaSourceIndexRepository {
-	var eIndex esearchindex.MediaSourceIndex
-
-	if userID == uuid.Nil {
-		r.queryOptions.Visibility = new(dtypes.QueryMediaVisibilityPublic)
-	} else {
-		r.filtersByName[eIndex.FieldName(&eIndex.UserID)] = userID
-	}
-
-	return r
-}
-
-func (r *MediaSourceIndexRepository) WithFilters(filters map[string]any) persistence.MediaSourceIndexRepository {
-	var (
-		eIndex esearchindex.MediaSourceIndex
-
-		fieldNameByAllowedFilter = map[string]string{
-			dtypes.QueryFilterNameUserID: eIndex.FieldName(&eIndex.UserID),
-			dtypes.QueryFilterNameTitle:  eIndex.FieldName(&eIndex.TitleLower),
-		}
-	)
-
-	for name, value := range filters {
-		fieldName, exists := fieldNameByAllowedFilter[name]
-		if exists {
-			switch fieldName {
-			case eIndex.FieldName(&eIndex.UserID):
-				id, ok := value.(uuid.UUID)
-				if !ok {
-					continue
-				}
-				if id == uuid.Nil {
-					r.queryOptions.Visibility = new(dtypes.QueryMediaVisibilityPublic)
-					continue
-				}
-				r.filtersByName[fieldName] = value
-			default:
-				r.filtersByName[fieldName] = value
-			}
-
-		}
-	}
-
-	return r
 }
 
 func (r *MediaSourceIndexRepository) Insert(ctx context.Context, index *ddownload.MediaSourceIndex) error {
@@ -149,7 +86,7 @@ func (r *MediaSourceIndexRepository) Save(ctx context.Context, index *ddownload.
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save media download: %v", err)
 	}
@@ -175,7 +112,7 @@ func (r *MediaSourceIndexRepository) UpdateOwner(ctx context.Context, fromID, to
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to update media download: %v", err)
 	}
@@ -203,7 +140,7 @@ func (r *MediaSourceIndexRepository) SoftDelete(ctx context.Context, downloadID 
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save: %v", err)
 	}
@@ -227,7 +164,7 @@ func (r *MediaSourceIndexRepository) HardDelete(ctx context.Context, downloadID 
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete: %v", err)
 	}
@@ -260,7 +197,7 @@ func (r *MediaSourceIndexRepository) Restore(ctx context.Context, downloadID uui
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save: %v", err)
 	}
@@ -299,7 +236,7 @@ func (r *MediaSourceIndexRepository) FindByDownloadID(ctx context.Context, downl
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -330,7 +267,6 @@ func (r *MediaSourceIndexRepository) FindByDownloadID(ctx context.Context, downl
 func (r *MediaSourceIndexRepository) iterateGetAll(
 	ctx context.Context,
 	sortOrderBy string,
-	includeDeleted bool,
 	fn func(*ddownload.MediaSourceIndex) error,
 ) error {
 	var eIndex esearchindex.MediaSourceIndex
@@ -383,7 +319,7 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 		t := r.queryOptions.Before.Add(-1 * time.Nanosecond)
 		conditions = append(conditions, squirrel.Lt{eIndex.FieldName(&eIndex.SourceCreatedAt): t})
 	}
-	if !includeDeleted {
+	if !r.queryOptions.includeDeleted {
 		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.DeletedAt): nil})
 	}
 
@@ -412,7 +348,7 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		return err
@@ -441,14 +377,14 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 	return nil
 }
 
-func (r *MediaSourceIndexRepository) IterateGetAll(ctx context.Context, includeDeleted bool, fn func(*ddownload.MediaSourceIndex) error) error {
-	return r.iterateGetAll(ctx, dbutils.OrderDesc, includeDeleted, fn)
+func (r *MediaSourceIndexRepository) IterateGetAll(ctx context.Context, fn func(*ddownload.MediaSourceIndex) error) error {
+	return r.iterateGetAll(ctx, dbutils.OrderDesc, fn)
 }
 
 func (r *MediaSourceIndexRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.Tx(ctx, r.db, r.lock, fn)
+	return dbexec.Tx(ctx, r.dbEntry, fn)
 }
 
 func (r *MediaSourceIndexRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+	return dbexec.TxIndependent(ctx, r.dbEntry, fn)
 }

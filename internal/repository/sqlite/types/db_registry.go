@@ -1,4 +1,4 @@
-package sqlitetypes
+package types
 
 import (
 	"github.com/neosy/elengrab/internal/ports/persistence"

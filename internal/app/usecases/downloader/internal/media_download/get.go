@@ -16,7 +16,7 @@ func (uc *MediaDownload) FindByDownloadIDNoCache(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) (*ddownload.MediaDownload, error) {
-	download, err := uc.downloadRep().FindByDownloadID(ctx, downloadID)
+	download, err := uc.downloadRepo().FindByDownloadID(ctx, downloadID)
 	if err != nil {
 		uc.logger.Warn("Failed to find record", "error", err)
 		return nil, err
@@ -96,7 +96,7 @@ func (uc *MediaDownload) GetByDownloadID(
 }
 
 func (uc *MediaDownload) iterateGetAll(ctx context.Context, includeDeleted bool, fn func(*ddownload.MediaDownload) error) error {
-	repo := uc.downloadRep()
+	repo := uc.downloadRepo()
 
 	if includeDeleted {
 		repo = repo.WithDeleted()
@@ -120,7 +120,7 @@ func (uc *MediaDownload) IterateGetAllWithDeleted(ctx context.Context, fn func(*
 }
 
 func (uc *MediaDownload) GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error) {
-	names, err := uc.downloadRep().GetAllFullNames(ctx, includeDeleted)
+	names, err := uc.downloadRepo().GetAllFullNames(ctx, includeDeleted)
 	if err != nil {
 		uc.logger.Warn("Failed to get fullNames", "error", err)
 		return nil, err
@@ -134,7 +134,7 @@ func (uc *MediaDownload) GetAll(
 	queryOptions *dtypes.QueryMediaOptions,
 	filters map[string]any,
 ) ([]*ddownload.MediaDownload, error) {
-	repo := uc.downloadRep()
+	repo := uc.downloadRepo()
 
 	if queryOptions != nil {
 		repo = repo.WithOptions(*queryOptions)
@@ -159,7 +159,7 @@ func (uc *MediaDownload) GetAll(
 }
 
 func (uc *MediaDownload) GetByStatus(ctx context.Context, status dtypes.MediaDownloadStatus) ([]*ddownload.MediaDownload, error) {
-	download, err := uc.downloadRep().GetByStatus(ctx, status)
+	download, err := uc.downloadRepo().GetByStatus(ctx, status)
 	if err != nil {
 		uc.logger.Warn("Failed to get downloads", "error", err)
 		return nil, err
@@ -169,7 +169,7 @@ func (uc *MediaDownload) GetByStatus(ctx context.Context, status dtypes.MediaDow
 }
 
 func (uc *MediaDownload) GetByPartialHash(ctx context.Context, criteria ddownload.DuplicateHashRow) ([]*ddownload.MediaDownload, error) {
-	downloadRep := uc.downloadRep()
+	downloadRep := uc.downloadRepo()
 	if criteria.UserID != nil {
 		downloadRep = downloadRep.WithUser(*criteria.UserID)
 	}
@@ -185,7 +185,7 @@ func (uc *MediaDownload) GetByPartialHash(ctx context.Context, criteria ddownloa
 func (uc *MediaDownload) GetWithoutPartialHash(ctx context.Context) ([]*ddownload.MediaDownload, error) {
 	var downloads []*ddownload.MediaDownload
 
-	gFiles, err := uc.downloadRep().GetWithoutPartialHash(ctx)
+	gFiles, err := uc.downloadRepo().GetWithoutPartialHash(ctx)
 	if err != nil {
 		uc.logger.Warn("Failed to get downloads", "error", err)
 		return nil, err
@@ -205,7 +205,7 @@ func (uc *MediaDownload) GetWithoutPartialHash(ctx context.Context) ([]*ddownloa
 }
 
 func (uc *MediaDownload) GetDuplicateHashes(ctx context.Context, scope dtypes.UniquenessScope) ([]ddownload.DuplicateHashRow, error) {
-	rows, err := uc.downloadRep().GetDuplicateHashes(ctx, scope)
+	rows, err := uc.downloadRepo().GetDuplicateHashes(ctx, scope)
 	if err != nil {
 		uc.logger.Warn("Failed to get dublicate hashes", "error", err)
 		return nil, err
@@ -215,7 +215,7 @@ func (uc *MediaDownload) GetDuplicateHashes(ctx context.Context, scope dtypes.Un
 }
 
 func (uc *MediaDownload) GetDeleted(ctx context.Context, from, to *time.Time) ([]*ddownload.MediaDownload, error) {
-	downloads, err := uc.downloadRep().GetDeleted(ctx, from, to)
+	downloads, err := uc.downloadRepo().GetDeleted(ctx, from, to)
 	if err != nil {
 		uc.logger.Warn("Failed to get deleted", "fromDate", from, "toDate", to, "error", err)
 		return nil, err

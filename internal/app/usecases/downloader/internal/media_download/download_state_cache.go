@@ -7,16 +7,6 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-func (uc *MediaDownload) saveToDownloadStateCache(ctx context.Context, downloadID uuid.UUID) {
-	download, _ := uc.GetByDownloadIDNoCache(ctx, downloadID)
-	if download != nil {
-		err := uc.dlStateCache.SaveByDownload(ctx, download)
-		if err != nil {
-			uc.logger.Warn("Failed to save download state cache", "error", err)
-		}
-	}
-}
-
 func (uc *MediaDownload) FindState(
 	ctx context.Context,
 	downloadID uuid.UUID,

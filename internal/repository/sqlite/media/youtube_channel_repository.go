@@ -17,20 +17,18 @@ import (
 
 type YoutubeChannelRepository struct {
 	mappers *mappers.Mappers
-	db      *sql.DB
-	lock    dbexec.WriteLocker
+	dbEntry persistence.DBEntry
 
 	// options
 	retryOptions dbexec.RetryOptions
 }
 
 // NewYoutubeChannelRepository returns a new object for the repository
-func NewYoutubeChannelRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.YoutubeChannelRepositoryFactory {
+func NewYoutubeChannelRepository(dbEntry persistence.DBEntry) persistence.YoutubeChannelRepositoryFactory {
 	return func() persistence.YoutubeChannelRepository {
 		return &YoutubeChannelRepository{
 			mappers: mappers.NewMappers(),
-			db:      db,
-			lock:    lock,
+			dbEntry: dbEntry,
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -78,7 +76,7 @@ func (r *YoutubeChannelRepository) Save(ctx context.Context, channel *dmedia.You
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save youtubeChannel: %v", err)
 	}
@@ -102,7 +100,7 @@ func (r *YoutubeChannelRepository) FindByChannelID(ctx context.Context, channelI
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -146,7 +144,7 @@ func (r *YoutubeChannelRepository) ExistsByChannelID(ctx context.Context, channe
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 
 	// Execute query and check if any row exists
 	var exists int
@@ -162,9 +160,9 @@ func (r *YoutubeChannelRepository) ExistsByChannelID(ctx context.Context, channe
 }
 
 func (r *YoutubeChannelRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.Tx(ctx, r.db, r.lock, fn)
+	return dbexec.Tx(ctx, r.dbEntry, fn)
 }
 
 func (r *YoutubeChannelRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+	return dbexec.TxIndependent(ctx, r.dbEntry, fn)
 }

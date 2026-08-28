@@ -2,7 +2,6 @@ package watchevent
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
@@ -13,16 +12,16 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
+	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 	ewatchevent "github.com/neosy/elengrab/internal/repository/sqlite/watch_event/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/watch_event/mappers"
 )
 
 type MediaWatchEventRepository struct {
 	mappers *mappers.Mappers
-	db      *sql.DB
-	lock    dbexec.WriteLocker
+	dbEntry persistence.DBEntry
 
-	filtersByName filtersByName
+	filtersByName types.FiltersByName
 	queryOptions  dtypes.QueryOptions
 
 	// options
@@ -30,12 +29,11 @@ type MediaWatchEventRepository struct {
 }
 
 // NewMediaWatchEventRepository returns a new object for the repository
-func NewMediaWatchEventRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.MediaWatchEventRepositoryFactory {
+func NewMediaWatchEventRepository(dbEntry persistence.DBEntry) persistence.MediaWatchEventRepositoryFactory {
 	return func() persistence.MediaWatchEventRepository {
 		return &MediaWatchEventRepository{
 			mappers: mappers.NewMappers(),
-			db:      db,
-			lock:    lock,
+			dbEntry: dbEntry,
 
 			filtersByName: make(map[string]any),
 
@@ -89,7 +87,7 @@ func (r *MediaWatchEventRepository) save(ctx context.Context, event *ddownload.M
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save record: %v", err)
 	}
@@ -113,7 +111,7 @@ func (r *MediaWatchEventRepository) DeleteByDownloadID(ctx context.Context, down
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete record: %v", err)
 	}
@@ -162,7 +160,7 @@ func (r *MediaWatchEventRepository) iterateGetAll(
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		return err
@@ -202,9 +200,9 @@ func (r *MediaWatchEventRepository) WithUserID() persistence.MediaWatchEventRepo
 }
 
 func (r *MediaWatchEventRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.Tx(ctx, r.db, r.lock, fn)
+	return dbexec.Tx(ctx, r.dbEntry, fn)
 }
 
 func (r *MediaWatchEventRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+	return dbexec.TxIndependent(ctx, r.dbEntry, fn)
 }

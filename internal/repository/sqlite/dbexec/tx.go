@@ -2,30 +2,29 @@ package dbexec
 
 import (
 	"context"
-	"database/sql"
 )
 
 // Tx executes fn within a transaction.
 // If the context already contains a transaction, it is reused.
 // Otherwise, a new transaction is created for the duration of fn.
-func Tx(ctx context.Context, db *sql.DB, locker WriteLocker, fn func(ctx context.Context) error) error {
+func Tx(ctx context.Context, dbEntry dbEntry, fn func(ctx context.Context) error) error {
 	var (
-		tx       = txFromCtx(ctx)
+		tx       = txFromCtx(ctx, dbEntry.DBName())
 		newCtx   = ctx
 		isOpenTx = false
 	)
 
 	if tx == nil {
-		locker.Lock()
-		defer locker.Unlock()
+		dbEntry.Locker().Lock()
+		defer dbEntry.Locker().Unlock()
 
 		var err error
-		tx, err = db.BeginTx(ctx, nil)
+		tx, err = dbEntry.DB().BeginTx(ctx, nil)
 		if err != nil {
 			return err
 		}
 
-		newCtx = ctxWithTx(ctx, tx)
+		newCtx = ctxWithTx(ctx, dbEntry.DBName(), tx)
 		isOpenTx = true
 	}
 
@@ -46,16 +45,16 @@ func Tx(ctx context.Context, db *sql.DB, locker WriteLocker, fn func(ctx context
 // TxIndependent executes fn in a new independent transaction.
 // If the context already contains a transaction, it is ignored and
 // a new transaction is created for the duration of fn.
-func TxIndependent(ctx context.Context, db *sql.DB, locker WriteLocker, fn func(ctx context.Context) error) error {
-	locker.Lock()
-	defer locker.Unlock()
+func TxIndependent(ctx context.Context, dbEntry dbEntry, fn func(ctx context.Context) error) error {
+	dbEntry.Locker().Lock()
+	defer dbEntry.Locker().Unlock()
 
-	tx, err := db.BeginTx(ctx, nil)
+	tx, err := dbEntry.DB().BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
-	newCtx := ctxWithTx(ctx, tx)
+	newCtx := ctxWithTx(ctx, dbEntry.DBName(), tx)
 
 	if err := fn(newCtx); err != nil {
 		_ = tx.Rollback()

@@ -14,14 +14,14 @@ import (
 	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth/mappers"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
+	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 )
 
 type RoleRepository struct {
 	mappers *mappers.Mappers
-	db      *sql.DB
-	lock    dbexec.WriteLocker
+	dbEntry persistence.DBEntry
 
-	filtersByName filtersByName
+	filtersByName types.FiltersByName
 	queryOptions  queryOptions
 
 	// options
@@ -29,12 +29,11 @@ type RoleRepository struct {
 }
 
 // NewRoleRepository returns a new object for the repository
-func NewRoleRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.RoleRepositoryFactory {
+func NewRoleRepository(dbEntry persistence.DBEntry) persistence.RoleRepositoryFactory {
 	return func() persistence.RoleRepository {
 		return &RoleRepository{
 			mappers: mappers.NewMappers(),
-			db:      db,
-			lock:    lock,
+			dbEntry: dbEntry,
 
 			filtersByName: make(map[string]any),
 
@@ -84,7 +83,7 @@ func (r *RoleRepository) Save(ctx context.Context, role *dauth.Role) error {
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save role: %v", err)
 	}
@@ -108,7 +107,7 @@ func (r *RoleRepository) Find(ctx context.Context, roleID string) (*dauth.Role, 
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -152,7 +151,7 @@ func (r *RoleRepository) Exists(ctx context.Context, roleID string) (bool, error
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	var exists bool
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, query, args...)
@@ -237,7 +236,7 @@ func (r *RoleRepository) iterateGetAll(
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		return err
@@ -296,9 +295,9 @@ func (r *RoleRepository) WithoutGuest() persistence.RoleRepository {
 }
 
 func (r *RoleRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.Tx(ctx, r.db, r.lock, fn)
+	return dbexec.Tx(ctx, r.dbEntry, fn)
 }
 
 func (r *RoleRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+	return dbexec.TxIndependent(ctx, r.dbEntry, fn)
 }

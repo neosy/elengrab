@@ -18,20 +18,18 @@ import (
 
 type UserSessionRepository struct {
 	mappers *mappers.Mappers
-	db      *sql.DB
-	lock    dbexec.WriteLocker
+	dbEntry   persistence.DBEntry
 
 	// options
 	retryOptions dbexec.RetryOptions
 }
 
 // NewUserSessionRepository returns a new object for the repository
-func NewUserSessionRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.UserSessionRepositoryFactory {
+func NewUserSessionRepository(dbEntry persistence.DBEntry) persistence.UserSessionRepositoryFactory {
 	return func() persistence.UserSessionRepository {
 		return &UserSessionRepository{
 			mappers: mappers.NewMappers(),
-			db:      db,
-			lock:    lock,
+			dbEntry:   dbEntry,
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -79,7 +77,7 @@ func (r *UserSessionRepository) Save(ctx context.Context, session *dauth.UserSes
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save user session: %v", err)
 	}
@@ -103,7 +101,7 @@ func (r *UserSessionRepository) FindBySessionID(ctx context.Context, sessionID u
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -148,7 +146,7 @@ func (r *UserSessionRepository) FindByToken(ctx context.Context, token string) (
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -178,9 +176,9 @@ func (r *UserSessionRepository) FindByToken(ctx context.Context, token string) (
 }
 
 func (r *UserSessionRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.Tx(ctx, r.db, r.lock, fn)
+	return dbexec.Tx(ctx, r.dbEntry, fn)
 }
 
 func (r *UserSessionRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+	return dbexec.TxIndependent(ctx, r.dbEntry, fn)
 }

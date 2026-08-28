@@ -18,7 +18,7 @@ type MediaSourceIndex struct {
 	UserID *uuid.UUID `db:"user_id"`
 
 	// Media title
-	Title string `db:"media_title"`
+	Title string `db:"title"`
 
 	// Media title in lowercase for efficient case-insensitive searches
 	TitleLower string `db:"title_lower"`
