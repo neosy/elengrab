@@ -15,7 +15,7 @@ func (uc *UserRole) Find(ctx context.Context, userID uuid.UUID, roleID string) (
 		return nil, nil
 	}
 
-	userRole, err := uc.userRoleRep.Find(ctx, userID, roleID)
+	userRole, err := uc.userRoleRepo().Find(ctx, userID, roleID)
 	if err != nil {
 		uc.logger.Warn("Failed get userRole", "error", err)
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
@@ -42,7 +42,7 @@ func (uc *UserRole) Get(ctx context.Context, userID uuid.UUID, roleID string) (*
 
 // Exists
 func (uc *UserRole) Exists(ctx context.Context, userID uuid.UUID, roleID string) (bool, error) {
-	exists, err := uc.userRoleRep.Exists(ctx, userID, roleID)
+	exists, err := uc.userRoleRepo().Exists(ctx, userID, roleID)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to check if userRole exists",

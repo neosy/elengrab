@@ -10,7 +10,6 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth/mappers"
@@ -30,33 +29,22 @@ type RoleRepository struct {
 }
 
 // NewRoleRepository returns a new object for the repository
-func NewRoleRepository(db *sql.DB, lock dbexec.WriteLocker) *RoleRepository {
-	return &RoleRepository{
-		mappers: mappers.NewMappers(),
-		db:      db,
-		lock:    lock,
+func NewRoleRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.RoleRepositoryFactory {
+	return func() persistence.RoleRepository {
+		return &RoleRepository{
+			mappers: mappers.NewMappers(),
+			db:      db,
+			lock:    lock,
 
-		filtersByName: make(map[string]any),
+			filtersByName: make(map[string]any),
 
-		// options
-		retryOptions: dbexec.RetryOptions{
-			MaxRetries: maxRetriesDefault,
-			Delay:      retryDelayDefault,
-		},
+			// options
+			retryOptions: dbexec.RetryOptions{
+				MaxRetries: maxRetriesDefault,
+				Delay:      retryDelayDefault,
+			},
+		}
 	}
-}
-
-func (r *RoleRepository) Copy() *RoleRepository {
-	rep := uptr.Copy(r)
-
-	rep.mappers = r.mappers
-	rep.db = r.db
-	rep.lock = r.lock
-
-	rep.filtersByName = rep.filtersByName.copy()
-	rep.queryOptions = rep.queryOptions.copy()
-
-	return rep
 }
 
 func (r *RoleRepository) Insert(ctx context.Context, role *dauth.Role) error {
@@ -239,8 +227,8 @@ func (r *RoleRepository) iterateGetAll(
 		OrderBy(orderBy).
 		PlaceholderFormat(squirrel.Dollar)
 
-	if r.queryOptions.limit != nil && *r.queryOptions.limit > 0 {
-		qb = qb.Limit(*r.queryOptions.limit)
+	if r.queryOptions.Limit != nil && *r.queryOptions.Limit > 0 {
+		qb = qb.Limit(*r.queryOptions.Limit)
 	}
 
 	sqlQuery, args, err := qb.ToSql()
@@ -291,25 +279,20 @@ func (r *RoleRepository) WithFilters(filters map[string]any) persistence.RoleRep
 		}
 	)
 
-	cloneRepo := r.Copy()
-
 	for name, value := range filters {
 		fieldName, exists := fieldNameByAllowedFilter[name]
 		if exists {
-			cloneRepo.filtersByName[fieldName] = value
+			r.filtersByName[fieldName] = value
 		}
 
 	}
 
-	return cloneRepo
+	return r
 }
 
 func (r *RoleRepository) WithoutGuest() persistence.RoleRepository {
-	rep := r.Copy()
-
-	rep.queryOptions.withoutGuest = new(true)
-
-	return rep
+	r.queryOptions.withoutGuest = new(true)
+	return r
 }
 
 func (r *RoleRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {

@@ -20,13 +20,13 @@ func NewSearchIndex(
 	logger *slog.Logger,
 
 	// Repositories
-	sourceIndexRep persistence.MediaSourceIndexRepository,
+	sourceIndexRepo persistence.MediaSourceIndexRepositoryFactory,
 ) *SearchIndex {
 	return &SearchIndex{
 		logger:  logger,
 		mappers: mappers.NewMappers(),
 
 		// Internal usecase
-		searchIndex: sourceindex.NewMediaSourceIndex(logger, sourceIndexRep),
+		searchIndex: sourceindex.NewMediaSourceIndex(logger, sourceIndexRepo),
 	}
 }

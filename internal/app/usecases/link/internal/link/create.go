@@ -41,7 +41,7 @@ func (u *Link) Create(
 			link.ShortCode = dlink.GenerateShortCode(link.LinkID, link.OriginalURL, shortCodeLength, deterministic)
 
 			// Check if this short code already exists
-			existsShortCode, _ = u.linkRep.ExistsActiveShortCode(ctx, link.ShortCode)
+			existsShortCode, _ = u.linkRepo().ExistsActiveShortCode(ctx, link.ShortCode)
 			if !existsShortCode {
 				break
 			}
@@ -66,7 +66,7 @@ func (u *Link) Create(
 	link.ShortURL = baseURL + link.ShortCode
 
 	// Insert the link into the repository
-	err := u.linkRep.Insert(ctx, link)
+	err := u.linkRepo().Insert(ctx, link)
 	if err != nil {
 		u.logger.Warn(
 			"Failed to insert record into repository",

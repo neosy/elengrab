@@ -10,7 +10,7 @@ type SiteIcon struct {
 	logger *slog.Logger
 
 	// repositories
-	logoRep persistence.SiteLogoRepository
+	logoRepo persistence.SiteLogoRepositoryFactory
 
 	// cache
 	logoCacheRep persistence.SiteLogoCacheRepository
@@ -18,12 +18,12 @@ type SiteIcon struct {
 
 func NewSiteIcon(
 	logger *slog.Logger,
-	logoRep persistence.SiteLogoRepository,
+	logoRepo persistence.SiteLogoRepositoryFactory,
 	logoCacheRep persistence.SiteLogoCacheRepository,
 ) *SiteIcon {
 	return &SiteIcon{
 		logger:       logger,
-		logoRep:      logoRep,
+		logoRepo:     logoRepo,
 		logoCacheRep: logoCacheRep,
 	}
 }

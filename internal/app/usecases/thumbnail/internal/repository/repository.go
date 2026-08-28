@@ -10,7 +10,7 @@ type ThumbnailRepository struct {
 	logger *slog.Logger
 
 	// repositories
-	repo persistence.ThumbnailRepository
+	repo persistence.ThumbnailRepositoryFactory
 
 	// cache in memory
 	cacheRepo persistence.ThumbnailCacheRepository
@@ -18,7 +18,7 @@ type ThumbnailRepository struct {
 
 func NewThumbnailRepository(
 	logger *slog.Logger,
-	repo persistence.ThumbnailRepository,
+	repo persistence.ThumbnailRepositoryFactory,
 	cacheRepo persistence.ThumbnailCacheRepository,
 ) *ThumbnailRepository {
 	return &ThumbnailRepository{

@@ -8,7 +8,7 @@ import (
 )
 
 func (uc *MediaDownload) SoftDelete(ctx context.Context, downloadID uuid.UUID) error {
-	err := uc.downloadRep.Delete(ctx, downloadID, true)
+	err := uc.downloadRep().SoftDelete(ctx, downloadID)
 	if err != nil {
 		uc.logger.Warn("Failed delete file", "error", err)
 		return err
@@ -30,7 +30,7 @@ func (uc *MediaDownload) HardDelete(ctx context.Context, downloadID uuid.UUID) e
 		return err
 	}
 
-	err = uc.downloadRep.Delete(ctx, downloadID, false)
+	err = uc.downloadRep().HardDelete(ctx, downloadID)
 	if err != nil {
 		uc.logger.Warn("Failed delete media download", "error", err)
 		return err

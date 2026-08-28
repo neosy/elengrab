@@ -10,6 +10,7 @@ import (
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	emedia "github.com/neosy/elengrab/internal/repository/sqlite/media/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/media/mappers"
@@ -25,17 +26,19 @@ type SiteLogoRepository struct {
 }
 
 // NewSiteLogoRepository returns a new object for the repository
-func NewSiteLogoRepository(db *sql.DB, lock dbexec.WriteLocker) *SiteLogoRepository {
-	return &SiteLogoRepository{
-		mappers: mappers.NewMappers(),
-		db:      db,
-		lock:    lock,
+func NewSiteLogoRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.SiteLogoRepositoryFactory {
+	return func() persistence.SiteLogoRepository {
+		return &SiteLogoRepository{
+			mappers: mappers.NewMappers(),
+			db:      db,
+			lock:    lock,
 
-		// options
-		retryOptions: dbexec.RetryOptions{
-			MaxRetries: maxRetriesDefault,
-			Delay:      retryDelayDefault,
-		},
+			// options
+			retryOptions: dbexec.RetryOptions{
+				MaxRetries: maxRetriesDefault,
+				Delay:      retryDelayDefault,
+			},
+		}
 	}
 }
 

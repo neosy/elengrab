@@ -11,6 +11,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
@@ -27,21 +28,23 @@ type DownloadTaskRepository struct {
 
 type taskByFields struct {
 	downloadID *uuid.UUID
-	status *dtypes.DownloadTaskStatus
+	status     *dtypes.DownloadTaskStatus
 }
 
 // NewTaskRepository returns a new object for the repository
-func NewDownloadTaskRepository(db *sql.DB, lock dbexec.WriteLocker) *DownloadTaskRepository {
-	return &DownloadTaskRepository{
-		mappers: mappers.NewMappers(),
-		db:      db,
-		lock:    lock,
+func NewDownloadTaskRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.DownloadTaskRepositoryFactory {
+	return func() persistence.DownloadTaskRepository {
+		return &DownloadTaskRepository{
+			mappers: mappers.NewMappers(),
+			db:      db,
+			lock:    lock,
 
-		// options
-		retryOptions: dbexec.RetryOptions{
-			MaxRetries: maxRetriesDefault,
-			Delay:      retryDelayDefault,
-		},
+			// options
+			retryOptions: dbexec.RetryOptions{
+				MaxRetries: maxRetriesDefault,
+				Delay:      retryDelayDefault,
+			},
+		}
 	}
 }
 

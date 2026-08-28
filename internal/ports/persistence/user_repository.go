@@ -8,8 +8,11 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
+type UserRepositoryFactory func() UserRepository
+
 type UserRepository interface {
 	Transactional
+
 	Insert(ctx context.Context, user *dauth.User) error
 	Update(ctx context.Context, user *dauth.User) error
 	Delete(ctx context.Context, userID uuid.UUID, soft bool) error

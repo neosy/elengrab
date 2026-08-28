@@ -10,7 +10,7 @@ import (
 )
 
 func (uc *DownloadTask) FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.DownloadTask, error) {
-	task, err := uc.TaskRep.FindByDownloadID(ctx, downloadID)
+	task, err := uc.TaskRepo().FindByDownloadID(ctx, downloadID)
 	if err != nil {
 		uc.logger.Warn("Error finding record", "error", err)
 		return nil, err
@@ -34,7 +34,7 @@ func (uc *DownloadTask) GetByDownloadID(ctx context.Context, downloadID uuid.UUI
 }
 
 func (uc *DownloadTask) FindByTaskID(ctx context.Context, taskId uuid.UUID) (*ddownload.DownloadTask, error) {
-	task, err := uc.TaskRep.FindByTaskID(ctx, taskId)
+	task, err := uc.TaskRepo().FindByTaskID(ctx, taskId)
 	if err != nil {
 		uc.logger.Warn("Error finding record", "error", err)
 		return nil, err

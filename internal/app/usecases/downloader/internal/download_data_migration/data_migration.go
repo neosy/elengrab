@@ -10,15 +10,15 @@ type DownloadMigration struct {
 	logger *slog.Logger
 
 	// repositories
-	dataMigrationRep persistence.DownloadDataMigrationRepository
+	dataMigrationRepo persistence.DownloadDataMigrationRepositoryFactory
 }
 
 func NewDownloadMigration(
 	logger *slog.Logger,
-	dataMigrationRep persistence.DownloadDataMigrationRepository,
+	dataMigrationRepo persistence.DownloadDataMigrationRepositoryFactory,
 ) *DownloadMigration {
 	return &DownloadMigration{
 		logger:           logger,
-		dataMigrationRep: dataMigrationRep,
+		dataMigrationRepo: dataMigrationRepo,
 	}
 }

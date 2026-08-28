@@ -10,17 +10,17 @@ type MediaSourceIndex struct {
 	logger *slog.Logger
 
 	// repositories
-	indexRep persistence.MediaSourceIndexRepository
+	indexRepo persistence.MediaSourceIndexRepositoryFactory
 }
 
 func NewMediaSourceIndex(
 	logger *slog.Logger,
 
 	// repositories
-	indexRep persistence.MediaSourceIndexRepository,
+	indexRepo persistence.MediaSourceIndexRepositoryFactory,
 ) *MediaSourceIndex {
 	return &MediaSourceIndex{
-		logger:   logger,
-		indexRep: indexRep,
+		logger:    logger,
+		indexRepo: indexRepo,
 	}
 }

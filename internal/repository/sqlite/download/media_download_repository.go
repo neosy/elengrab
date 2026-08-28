@@ -14,7 +14,6 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
@@ -44,52 +43,24 @@ type mediaDownloadQueryOptions struct {
 	isGuestRequest bool
 }
 
-func (o *mediaDownloadQueryOptions) copy() mediaDownloadQueryOptions {
-	if o == nil {
-		return mediaDownloadQueryOptions{}
+// NewMediaDownloadRepository returns a factory for creating media download repositories.
+func NewMediaDownloadRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.MediaDownloadRepositoryFactory {
+	return func() persistence.MediaDownloadRepository {
+		return &MediaDownloadRepository{
+			mappers: mappers.NewMappers(),
+			db:      db,
+			lock:    lock,
+
+			filtersByName: make(map[string]any),
+			queryOptions:  mediaDownloadQueryOptions{},
+
+			// options
+			retryOptions: dbexec.RetryOptions{
+				MaxRetries: maxRetriesDefault,
+				Delay:      retryDelayDefault,
+			},
+		}
 	}
-
-	options := *o
-
-	options.statuses = slices.Clone(o.statuses)
-	options.beforeTime = uptr.Copy(o.beforeTime)
-	options.limit = uptr.Copy(o.limit)
-	if o.partialHash != nil {
-		options.partialHash = new(uptr.Copy(*o.partialHash))
-	}
-	options.visibility = uptr.Copy(o.visibility)
-
-	return options
-}
-
-// NewMediaDownloadRepository returns a new object for the repository
-func NewMediaDownloadRepository(db *sql.DB, lock dbexec.WriteLocker) *MediaDownloadRepository {
-	return &MediaDownloadRepository{
-		mappers: mappers.NewMappers(),
-		db:      db,
-		lock:    lock,
-
-		filtersByName: make(map[string]any),
-
-		// options
-		retryOptions: dbexec.RetryOptions{
-			MaxRetries: maxRetriesDefault,
-			Delay:      retryDelayDefault,
-		},
-	}
-}
-
-func (r *MediaDownloadRepository) Copy() *MediaDownloadRepository {
-	rep := uptr.Copy(r)
-
-	rep.mappers = r.mappers
-	rep.db = r.db
-	rep.lock = r.lock
-
-	rep.filtersByName = rep.filtersByName.copy()
-	rep.queryOptions = rep.queryOptions.copy()
-
-	return rep
 }
 
 func (r *MediaDownloadRepository) downloadStatusesToStrings(statuses []dtypes.MediaDownloadStatus) []string {
@@ -100,24 +71,22 @@ func (r *MediaDownloadRepository) downloadStatusesToStrings(statuses []dtypes.Me
 	return statuseStrings
 }
 
-func (r *MediaDownloadRepository) WithOptions(options dtypes.QueryOptions) persistence.MediaDownloadRepository {
-	cloneRepo := r.Copy()
-
+func (r *MediaDownloadRepository) WithOptions(options dtypes.QueryMediaOptions) persistence.MediaDownloadRepository {
 	if options.Before != nil {
-		cloneRepo.queryOptions.beforeTime = options.Before
+		r.queryOptions.Before = options.Before
 	}
 
 	if options.Limit != nil {
-		cloneRepo.queryOptions.limit = options.Limit
+		r.queryOptions.Limit = options.Limit
 	}
 
 	if options.MediaVisibility != nil {
-		cloneRepo.queryOptions.visibility = options.MediaVisibility
+		r.queryOptions.visibility = options.MediaVisibility
 	}
 
-	cloneRepo.queryOptions.isGuestRequest = options.IsGuestRequest
+	r.queryOptions.isGuestRequest = options.IsGuestRequest
 
-	return cloneRepo
+	return r
 }
 
 func (r *MediaDownloadRepository) WithStatus(statuses ...dtypes.MediaDownloadStatus) persistence.MediaDownloadRepository {
@@ -125,25 +94,26 @@ func (r *MediaDownloadRepository) WithStatus(statuses ...dtypes.MediaDownloadSta
 		return r
 	}
 
-	cloneRepo := r.Copy()
+	r.queryOptions.statuses = statuses
 
-	cloneRepo.queryOptions.statuses = statuses
+	return r
+}
 
-	return cloneRepo
+func (r *MediaDownloadRepository) WithDeleted() persistence.MediaDownloadRepository {
+	r.queryOptions.includeDeleted = true
+	return r
 }
 
 func (r *MediaDownloadRepository) WithUser(userID uuid.UUID) persistence.MediaDownloadRepository {
 	var eDownload edownload.MediaDownload
 
-	cloneRepo := r.Copy()
-
 	if userID == uuid.Nil {
-		cloneRepo.queryOptions.visibility = new(dtypes.QueryMediaVisibilityPublic)
+		r.queryOptions.Visibility = new(dtypes.QueryMediaVisibilityPublic)
 	} else {
-		cloneRepo.filtersByName[eDownload.FieldName(&eDownload.UserID)] = userID
+		r.filtersByName[eDownload.FieldName(&eDownload.UserID)] = userID
 	}
 
-	return cloneRepo
+	return r
 }
 
 func (r *MediaDownloadRepository) WithFilters(filters map[string]any) persistence.MediaDownloadRepository {
@@ -156,8 +126,6 @@ func (r *MediaDownloadRepository) WithFilters(filters map[string]any) persistenc
 		}
 	)
 
-	cloneRepo := r.Copy()
-
 	for name, value := range filters {
 		fieldName, exists := fieldNameByAllowedFilter[name]
 		if exists {
@@ -168,18 +136,18 @@ func (r *MediaDownloadRepository) WithFilters(filters map[string]any) persistenc
 					continue
 				}
 				if id == uuid.Nil {
-					cloneRepo.queryOptions.visibility = new(dtypes.QueryMediaVisibilityPublic)
+					r.queryOptions.Visibility = new(dtypes.QueryMediaVisibilityPublic)
 					continue
 				}
-				cloneRepo.filtersByName[fieldName] = value
+				r.filtersByName[fieldName] = value
 			default:
-				cloneRepo.filtersByName[fieldName] = value
+				r.filtersByName[fieldName] = value
 			}
 
 		}
 	}
 
-	return cloneRepo
+	return r
 }
 
 func (r *MediaDownloadRepository) Insert(ctx context.Context, download *ddownload.MediaDownload) error {
@@ -308,19 +276,10 @@ func (r *MediaDownloadRepository) UpdateOwner(ctx context.Context, fromID, toID 
 	return nil
 }
 
-func (r *MediaDownloadRepository) Delete(ctx context.Context, downloadID uuid.UUID, soft bool) error {
-	if soft {
-		return r.softDelete(ctx, downloadID)
-	} else {
-		return r.hardDelete(ctx, downloadID)
-	}
-}
-
-func (r *MediaDownloadRepository) softDelete(ctx context.Context, downloadID uuid.UUID) error {
+func (r *MediaDownloadRepository) SoftDelete(ctx context.Context, downloadID uuid.UUID) error {
 	var eDownload edownload.MediaDownload
 
 	fieldsToUpdate := map[string]interface{}{
-		eDownload.FieldName(&eDownload.UpdatedAt): squirrel.Expr("CURRENT_TIMESTAMP"),
 		eDownload.FieldName(&eDownload.DeletedAt): squirrel.Expr("CURRENT_TIMESTAMP"),
 	}
 
@@ -345,7 +304,7 @@ func (r *MediaDownloadRepository) softDelete(ctx context.Context, downloadID uui
 	return nil
 }
 
-func (r *MediaDownloadRepository) hardDelete(ctx context.Context, downloadID uuid.UUID) error {
+func (r *MediaDownloadRepository) HardDelete(ctx context.Context, downloadID uuid.UUID) error {
 	var ent edownload.MediaDownload
 
 	// Build DELETE query
@@ -373,7 +332,6 @@ func (r *MediaDownloadRepository) Restore(ctx context.Context, downloadID uuid.U
 	var eDownload edownload.MediaDownload
 
 	fieldsToUpdate := map[string]any{
-		eDownload.FieldName(&eDownload.UpdatedAt): squirrel.Expr("CURRENT_TIMESTAMP"),
 		eDownload.FieldName(&eDownload.DeletedAt): nil,
 	}
 
@@ -478,7 +436,6 @@ func (r *MediaDownloadRepository) FindByDownloadID(ctx context.Context, download
 func (r *MediaDownloadRepository) iterateGetAll(
 	ctx context.Context,
 	sortOrderBy string,
-	includeDeleted bool,
 	fn func(*ddownload.MediaDownload) error,
 ) error {
 	var (
@@ -519,18 +476,17 @@ func (r *MediaDownloadRepository) iterateGetAll(
 		}
 	}
 
-	if r.queryOptions.visibility != nil {
-		if *r.queryOptions.visibility > dtypes.QueryMediaVisibilityAll {
+	if r.queryOptions.Visibility != nil {
+		if *r.queryOptions.Visibility > dtypes.QueryMediaVisibilityAll {
 			sqlOr := squirrel.Or{
 				squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.UserID, aliasDownloads): nil},
 				squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.UserID, aliasDownloads): uuid.Nil},
 				squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.Visibility, aliasDownloads): dtypes.MediaVisibilityPublic.String()},
 			}
-			if filterUserID != "" && *r.queryOptions.visibility == dtypes.QueryMediaVisibilityAuthenticated {
+			if filterUserID != "" && *r.queryOptions.Visibility == dtypes.QueryMediaVisibilityAuthenticated {
 				if !r.queryOptions.isGuestRequest {
 					sqlOr = append(sqlOr, squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.Visibility, aliasDownloads): dtypes.MediaVisibilityAuthenticated.String()})
 				}
-				sqlOr = append(sqlOr, squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.UserID, aliasDownloads): filterUserID})
 				filterUserID = ""
 			}
 			conditions = append(conditions, sqlOr)
@@ -541,8 +497,8 @@ func (r *MediaDownloadRepository) iterateGetAll(
 		conditions = append(conditions, squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.UserID, aliasDownloads): filterUserID})
 	}
 
-	if r.queryOptions.beforeTime != nil && !r.queryOptions.beforeTime.IsZero() {
-		t := r.queryOptions.beforeTime.Add(-1 * time.Nanosecond)
+	if r.queryOptions.Before != nil && !r.queryOptions.Before.IsZero() {
+		t := r.queryOptions.Before.Add(-1 * time.Nanosecond)
 		conditions = append(conditions, squirrel.Lt{eDownload.FieldNameWithAlias(&eDownload.CreatedAt, aliasDownloads): t})
 	}
 	if r.queryOptions.partialHash != nil {
@@ -552,7 +508,7 @@ func (r *MediaDownloadRepository) iterateGetAll(
 			conditions = append(conditions, squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.PartialHash, aliasDownloads): **r.queryOptions.partialHash})
 		}
 	}
-	if !includeDeleted {
+	if !r.queryOptions.includeDeleted {
 		conditions = append(conditions, squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.DeletedAt, aliasDownloads): nil})
 	}
 
@@ -575,8 +531,8 @@ func (r *MediaDownloadRepository) iterateGetAll(
 		).
 		PlaceholderFormat(squirrel.Dollar)
 
-	if r.queryOptions.limit != nil && *r.queryOptions.limit > 0 {
-		qb = qb.Limit(*r.queryOptions.limit)
+	if r.queryOptions.Limit != nil && *r.queryOptions.Limit > 0 {
+		qb = qb.Limit(*r.queryOptions.Limit)
 	}
 
 	sqlQuery, args, err := qb.ToSql()
@@ -615,8 +571,8 @@ func (r *MediaDownloadRepository) iterateGetAll(
 	return nil
 }
 
-func (r *MediaDownloadRepository) IterateGetAll(ctx context.Context, includeDeleted bool, fn func(*ddownload.MediaDownload) error) error {
-	return r.iterateGetAll(ctx, dbutils.OrderDesc, includeDeleted, fn)
+func (r *MediaDownloadRepository) IterateGetAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error {
+	return r.iterateGetAll(ctx, dbutils.OrderDesc, fn)
 }
 
 func (r *MediaDownloadRepository) GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error) {
@@ -689,26 +645,6 @@ func (r *MediaDownloadRepository) IterateFullNames(ctx context.Context, includeD
 	return nil
 }
 
-func (r *MediaDownloadRepository) GetBeforeTime(ctx context.Context) ([]*ddownload.MediaDownload, error) {
-	downloads := make([]*ddownload.MediaDownload, 0)
-
-	clonedRepo := r.Copy()
-
-	err := clonedRepo.iterateGetAll(
-		ctx,
-		dbutils.OrderDesc,
-		false,
-		func(f *ddownload.MediaDownload) error {
-			downloads = append(downloads, f)
-			return nil
-		})
-	if err != nil {
-		return nil, err
-	}
-
-	return downloads, nil
-}
-
 func (r *MediaDownloadRepository) GetByStatus(ctx context.Context, status dtypes.MediaDownloadStatus) ([]*ddownload.MediaDownload, error) {
 	return r.GetByStatuses(ctx, []dtypes.MediaDownloadStatus{status})
 }
@@ -716,13 +652,12 @@ func (r *MediaDownloadRepository) GetByStatus(ctx context.Context, status dtypes
 func (r *MediaDownloadRepository) GetByStatuses(ctx context.Context, statuses []dtypes.MediaDownloadStatus) ([]*ddownload.MediaDownload, error) {
 	var downloads = make([]*ddownload.MediaDownload, 0)
 
-	clonedRepo := r.Copy()
+	r.queryOptions.statuses = statuses
+	r.queryOptions.includeDeleted = false
 
-	clonedRepo.queryOptions.statuses = statuses
-
-	err := clonedRepo.iterateGetAll(
+	err := r.iterateGetAll(
 		ctx,
-		dbutils.OrderAsc, false,
+		dbutils.OrderAsc,
 		func(f *ddownload.MediaDownload) error {
 			downloads = append(downloads, f)
 			return nil
@@ -740,15 +675,13 @@ func (r *MediaDownloadRepository) GetByPartialHash(ctx context.Context, hash str
 		downloads = make([]*ddownload.MediaDownload, 0)
 	)
 
-	clonedRepo := r.Copy()
+	r.queryOptions.statuses = []dtypes.MediaDownloadStatus{dtypes.MediaDownloadStatusDone}
+	r.queryOptions.partialHash = &h
+	r.queryOptions.includeDeleted = false
 
-	clonedRepo.queryOptions.statuses = []dtypes.MediaDownloadStatus{dtypes.MediaDownloadStatusDone}
-	clonedRepo.queryOptions.partialHash = &h
-
-	err := clonedRepo.iterateGetAll(
+	err := r.iterateGetAll(
 		ctx,
 		dbutils.OrderDesc,
-		false,
 		func(f *ddownload.MediaDownload) error {
 			downloads = append(downloads, f)
 			return nil
@@ -766,13 +699,12 @@ func (r *MediaDownloadRepository) GetWithoutPartialHash(ctx context.Context) ([]
 		downloads = make([]*ddownload.MediaDownload, 0)
 	)
 
-	clonedRepo := r.Copy()
+	r.queryOptions.partialHash = &h
+	r.queryOptions.includeDeleted = false
 
-	clonedRepo.queryOptions.partialHash = &h
-
-	err := clonedRepo.iterateGetAll(
+	err := r.iterateGetAll(
 		ctx,
-		dbutils.OrderAsc, false,
+		dbutils.OrderAsc,
 		func(f *ddownload.MediaDownload) error {
 			downloads = append(downloads, f)
 			return nil

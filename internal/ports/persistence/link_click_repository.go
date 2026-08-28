@@ -7,6 +7,8 @@ import (
 	dlink "github.com/neosy/elengrab/internal/domain/link"
 )
 
+type LinkClickRepositoryFactory func() LinkClickRepository
+
 type LinkClickRepository interface {
 	// Insert inserting a record
 	Insert(ctx context.Context, linkClick *dlink.LinkClick) error

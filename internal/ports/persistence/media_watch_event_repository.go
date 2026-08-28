@@ -7,6 +7,8 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
+type MediaWatchEventRepositoryFactory func() MediaWatchEventRepository
+
 type MediaWatchEventRepository interface {
 	Transactional
 
