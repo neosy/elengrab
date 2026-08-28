@@ -28,19 +28,40 @@ func (uc *MediaDownload) Create(ctx context.Context, download *ddownload.MediaDo
 
 	download.NormalizeForSave()
 
-	err := uc.downloadRep().Insert(ctx, download)
+	err := uc.downloadRepo().Tx(ctx, func(ctx context.Context) error {
+		err := uc.downloadRepo().Insert(ctx, download)
+		if err != nil {
+			uc.logger.Warn(
+				"Failed to insert record into repository",
+				"error", err,
+			)
+			return errorx.Errorf("failed to insert download: %w", err, exceptionx.ERROR)
+		}
+
+		download, err = uc.GetByDownloadID(ctx, download.DownloadID)
+		if err != nil {
+			return err
+		}
+
+		err = uc.CreateTask(ctx, download, dlOptions)
+		if err != nil {
+			return errorx.Errorf("failed to create task: %w", err, exceptionx.ERROR)
+		}
+
+		return nil
+	})
 	if err != nil {
-		uc.logger.Warn(
-			"Failed to insert record into repository",
-			"error", err,
-		)
-		return errorx.Errorf("failed to insert download: %w", err, exceptionx.ERROR)
+		return err
 	}
 
-	err = uc.CreateTask(ctx, download, dlOptions)
-	if err != nil {
-		return errorx.Errorf("failed to create task: %w", err, exceptionx.ERROR)
-	}
+	uc.createDependencies(ctx, download)
 
+	return nil
+}
+
+func (uc *MediaDownload) createDependencies(ctx context.Context, download *ddownload.MediaDownload) error {
+	go func() {
+		uc.searchIndex.CreateMediaDownload(ctx, download)
+	}()
 	return nil
 }

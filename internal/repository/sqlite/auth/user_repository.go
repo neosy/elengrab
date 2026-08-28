@@ -18,14 +18,14 @@ import (
 	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth/mappers"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
+	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 )
 
 type UserRepository struct {
 	mappers *mappers.Mappers
-	db      *sql.DB
-	lock    dbexec.WriteLocker
+	dbEntry persistence.DBEntry
 
-	filtersByName filtersByName
+	filtersByName types.FiltersByName
 	queryOptions  queryOptions
 
 	// options
@@ -33,12 +33,11 @@ type UserRepository struct {
 }
 
 // NewUserRepository returns a new object for the repository
-func NewUserRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.UserRepositoryFactory {
+func NewUserRepository(dbEntry persistence.DBEntry) persistence.UserRepositoryFactory {
 	return func() persistence.UserRepository {
 		return &UserRepository{
 			mappers: mappers.NewMappers(),
-			db:      db,
-			lock:    lock,
+			dbEntry: dbEntry,
 
 			filtersByName: make(map[string]any),
 
@@ -84,7 +83,7 @@ func (r *UserRepository) Insert(ctx context.Context, user *dauth.User) error {
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save user: %v", err)
 	}
@@ -116,7 +115,7 @@ func (r *UserRepository) Update(ctx context.Context, user *dauth.User) error {
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save user: %v", err)
 	}
@@ -149,7 +148,7 @@ func (r *UserRepository) UpdatePassword(ctx context.Context, userID uuid.UUID, n
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save user: %v", err)
 	}
@@ -185,7 +184,7 @@ func (r *UserRepository) softDelete(ctx context.Context, userID uuid.UUID) error
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save file: %v", err)
 	}
@@ -208,7 +207,7 @@ func (r *UserRepository) hardDelete(ctx context.Context, userID uuid.UUID) error
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete file: %v", err)
 	}
@@ -280,7 +279,7 @@ func (r *UserRepository) findByFieldName(ctx context.Context, fieldName string, 
 		notFound bool
 		roles    string
 	)
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -371,7 +370,7 @@ func (r *UserRepository) iterateGetAll(
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	rows, err := db.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {
 		return err
@@ -444,7 +443,7 @@ func (r *UserRepository) existsByFieldName(ctx context.Context, fieldName string
 
 	// Execute the query
 	var exists bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, query, args...)
 		var dummy int
@@ -506,9 +505,9 @@ func (r *UserRepository) WithoutGuest() persistence.UserRepository {
 }
 
 func (r *UserRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.Tx(ctx, r.db, r.lock, fn)
+	return dbexec.Tx(ctx, r.dbEntry, fn)
 }
 
 func (r *UserRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+	return dbexec.TxIndependent(ctx, r.dbEntry, fn)
 }

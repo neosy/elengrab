@@ -18,20 +18,18 @@ import (
 
 type UserRoleRepository struct {
 	mappers *mappers.Mappers
-	db      *sql.DB
-	lock    dbexec.WriteLocker
+	dbEntry persistence.DBEntry
 
 	// options
 	retryOptions dbexec.RetryOptions
 }
 
 // NewUserRoleRepository returns a new object for the repository
-func NewUserRoleRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.UserRoleRepositoryFactory {
+func NewUserRoleRepository(dbEntry persistence.DBEntry) persistence.UserRoleRepositoryFactory {
 	return func() persistence.UserRoleRepository {
 		return &UserRoleRepository{
 			mappers: mappers.NewMappers(),
-			db:      db,
-			lock:    lock,
+			dbEntry: dbEntry,
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -83,7 +81,7 @@ func (r *UserRoleRepository) Save(ctx context.Context, userRole *dauth.UserRole)
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save userRole: %v", err)
 	}
@@ -111,7 +109,7 @@ func (r *UserRoleRepository) Delete(ctx context.Context, userID uuid.UUID, roleI
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete user role: %v", err)
 	}
@@ -143,7 +141,7 @@ func (r *UserRoleRepository) Find(
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -195,7 +193,7 @@ func (r *UserRoleRepository) Exists(
 	}
 
 	// Execute the query
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 
 	// Execute query and check if any row exists
 	var exists int
@@ -211,9 +209,9 @@ func (r *UserRoleRepository) Exists(
 }
 
 func (r *UserRoleRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.Tx(ctx, r.db, r.lock, fn)
+	return dbexec.Tx(ctx, r.dbEntry, fn)
 }
 
 func (r *UserRoleRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.TxIndependent(ctx, r.db, r.lock, fn)
+	return dbexec.TxIndependent(ctx, r.dbEntry, fn)
 }

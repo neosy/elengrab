@@ -19,8 +19,7 @@ import (
 
 type DownloadTaskRepository struct {
 	mappers *mappers.Mappers
-	db      *sql.DB
-	lock    dbexec.WriteLocker
+	dbEntry persistence.DBEntry
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -32,12 +31,11 @@ type taskByFields struct {
 }
 
 // NewTaskRepository returns a new object for the repository
-func NewDownloadTaskRepository(db *sql.DB, lock dbexec.WriteLocker) persistence.DownloadTaskRepositoryFactory {
+func NewDownloadTaskRepository(dbEntry persistence.DBEntry) persistence.DownloadTaskRepositoryFactory {
 	return func() persistence.DownloadTaskRepository {
 		return &DownloadTaskRepository{
 			mappers: mappers.NewMappers(),
-			db:      db,
-			lock:    lock,
+			dbEntry: dbEntry,
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -85,7 +83,7 @@ func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.Downl
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlQuery, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to save task: %v", err)
 	}
@@ -114,7 +112,7 @@ func (r *DownloadTaskRepository) UpdateStatusToNew(ctx context.Context) error {
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to update file: %v", err)
 	}
@@ -138,7 +136,7 @@ func (r *DownloadTaskRepository) FindByTaskID(ctx context.Context, taskID uuid.U
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -182,7 +180,7 @@ func (r *DownloadTaskRepository) FindByDownloadID(ctx context.Context, downloadI
 
 	// Execute the query
 	var notFound bool
-	db := dbexec.Resolve(ctx, r.db)
+	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
@@ -225,7 +223,7 @@ func (r *DownloadTaskRepository) Delete(ctx context.Context, taskID uuid.UUID) e
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete task: %v", err)
 	}
@@ -255,7 +253,7 @@ func (r *DownloadTaskRepository) deleteBy(ctx context.Context, byFields taskByFi
 	}
 
 	// Execute the query
-	err = dbexec.ExecContext(ctx, r.db, r.lock, sqlStr, args, r.retryOptions)
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlStr, args, r.retryOptions)
 	if err != nil {
 		return fmt.Errorf("failed to delete task: %v", err)
 	}
@@ -272,5 +270,5 @@ func (r *DownloadTaskRepository) DeleteByStatus(ctx context.Context, status dtyp
 }
 
 func (r *DownloadTaskRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	return dbexec.Tx(ctx, r.db, r.lock, fn)
+	return dbexec.Tx(ctx, r.dbEntry, fn)
 }

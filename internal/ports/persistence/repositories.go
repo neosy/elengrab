@@ -3,12 +3,15 @@ package persistence
 import (
 	"context"
 	"database/sql"
+
+	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 )
 
 type DBEntry interface {
 	Schema() DBSchema
 	DB() *sql.DB
 	DBName() string
+	Locker() dbexec.WriteLocker
 }
 
 type DBSchema interface {
