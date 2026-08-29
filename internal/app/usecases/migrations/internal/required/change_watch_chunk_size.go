@@ -1,4 +1,4 @@
-package migrations
+package required
 
 import (
 	"context"
@@ -29,18 +29,18 @@ func (m *migrations) changeWatchChunkSizeOnce(ctx context.Context) (bool, error)
 }
 
 func (m *migrations) changeWatchChunkSize(ctx context.Context) (bool, error) {
-	m.logger.Info("Changing media watch chunk size...")
+	m.Logger().Info("Changing media watch chunk size...")
 
-	err := m.usecases.mediaWatch.RebuildUserChunks(ctx, m.usecases.download.FindByDownloadID)
+	err := m.Usecases().MediaWatch.RebuildUserChunks(ctx)
 	if err != nil {
-		m.logger.Warn(
+		m.Logger().Warn(
 			"Failed to rebuild media watch chunks",
 			"error", err,
 		)
 		return false, fmt.Errorf("errors in the migration process")
 	}
 
-	m.logger.Info("Media watch chunk size successfully changed")
+	m.Logger().Info("Media watch chunk size successfully changed")
 
 	return true, nil
 }

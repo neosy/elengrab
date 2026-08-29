@@ -12,7 +12,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
-func (uc *Downloader) GetDownloadImage(
+func (uc *downloader) GetDownloadImage(
 	ctx context.Context,
 	userCtx dauth.AuthContext,
 	downloadID uuid.UUID,
@@ -58,7 +58,7 @@ func (uc *Downloader) GetDownloadImage(
 	return imageData, nil
 }
 
-func (uc *Downloader) getDownloadImageThumbnail(
+func (uc *downloader) getDownloadImageThumbnail(
 	ctx context.Context,
 	mediaInfo *dtypes.MediaInfo,
 ) (*dtypes.ImageData, error) {
@@ -74,7 +74,7 @@ func (uc *Downloader) getDownloadImageThumbnail(
 	return nil, errorx.NewHTTPMessage("thumbnail not found", http.StatusNotFound)
 }
 
-func (uc *Downloader) getDownloadImageAvatar(
+func (uc *downloader) getDownloadImageAvatar(
 	ctx context.Context,
 	downloadInfo *dto.MediaDownloadInfo,
 ) (*dtypes.ImageData, error) {
@@ -91,7 +91,7 @@ func (uc *Downloader) getDownloadImageAvatar(
 	return nil, errorx.NewHTTPMessage("avatar not found", http.StatusNotFound)
 }
 
-func (uc *Downloader) getDownloadImageSite(
+func (uc *downloader) getDownloadImageSite(
 	ctx context.Context,
 	downloadInfo *dto.MediaDownloadInfo,
 ) (*dtypes.ImageData, error) {

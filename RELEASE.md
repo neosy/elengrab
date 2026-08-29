@@ -25,6 +25,8 @@
 - Added tests for tag-based field and value operations to ensure the refactoring does not change existing behavior. [L114]
 - Refactored download execution and metadata refresh logic in the `download_executor` package. [L115]
 - Simplified DownloadState handling. [L120]
+- Restructured migrations into separate components and extracted them into a dedicated use case. [#450]
+- Split downloader interfaces into dedicated API, maintenance, and worker contracts. [#450]
 
 ### 🐛 Fix
 - Fixed media download updates to correctly apply changes using the latest download data. [L120]

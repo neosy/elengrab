@@ -1,4 +1,4 @@
-package migrations
+package deferred
 
 import (
 	"context"
@@ -24,12 +24,12 @@ func (m *migrations) fillMediaDuration(ctx context.Context) (bool, error) {
 		return true, nil
 	}
 
-	m.logger.Debug("Found media with zero duration", "count", len(medias))
+	m.Logger().Debug("Found media with zero duration", "count", len(medias))
 
 	var hasError bool
 
 	for i, media := range medias {
-		m.logger.Debug(
+		m.Logger().Debug(
 			"Extract media duration",
 			"index", i+1,
 			"total", len(medias),
@@ -38,8 +38,8 @@ func (m *migrations) fillMediaDuration(ctx context.Context) (bool, error) {
 			"format", media.MediaInfo.Format.String(),
 		)
 
-		filePath := m.dlStorage.Path(media.FileFullName)
-		duration, err := m.services.ffmpeg.ExtractDurationMs(ctx, filePath)
+		filePath := m.DownloadsStorage().Path(media.FileFullName)
+		duration, err := m.Services().FFMpeg.ExtractDurationMs(ctx, filePath)
 		if err != nil {
 			continue
 		}
@@ -48,7 +48,7 @@ func (m *migrations) fillMediaDuration(ctx context.Context) (bool, error) {
 			continue
 		}
 
-		err = m.usecases.download.Patch(
+		err = m.Usecases().MediaDownload.Patch(
 			ctx, nil,
 			media.DownloadID,
 			func(download *ddownload.MediaDownload) error {

@@ -17,11 +17,11 @@ func (s *systemInfoStore) read() dto.SystemInfoResponse {
 	return s.data
 }
 
-func (uc *Downloader) SystemInfo() dto.SystemInfoResponse {
+func (uc *downloader) SystemInfo() dto.SystemInfoResponse {
 	return uc.systemInfoStore.read()
 }
 
-func (uc *Downloader) UpdateSystemInfo() {
+func (uc *downloader) UpdateSystemInfo() {
 	stats, err := uc.downloadsStorage.Stats()
 	if err != nil {
 		uc.logger.Warn("Failed to get storage stats", "error", err)

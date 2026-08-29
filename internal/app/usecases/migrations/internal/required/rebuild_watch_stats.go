@@ -1,4 +1,4 @@
-package migrations
+package required
 
 import (
 	"context"
@@ -29,18 +29,18 @@ func (m *migrations) rebuildWatchStatsOnce(ctx context.Context) (bool, error) {
 }
 
 func (m *migrations) rebuildWatchStats(ctx context.Context) (bool, error) {
-	m.logger.Info("Rebuilding user watch statistics...")
+	m.Logger().Info("Rebuilding user watch statistics...")
 
-	err := m.usecases.mediaWatch.RebuildWatchStats(ctx, m.usecases.download.FindByDownloadID)
+	err := m.Usecases().MediaWatch.RebuildWatchStats(ctx)
 	if err != nil {
-		m.logger.Warn(
+		m.Logger().Warn(
 			"Failed to rebuild user watch statistics",
 			"error", err,
 		)
 		return false, fmt.Errorf("errors in the migration process")
 	}
 
-	m.logger.Info("User watch statistics successfully rebuilt")
+	m.Logger().Info("User watch statistics successfully rebuilt")
 
 	return true, nil
 }

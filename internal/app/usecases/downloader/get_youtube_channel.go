@@ -6,7 +6,7 @@ import (
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 
-func (uc *Downloader) FindYoutubeChannelInfo(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, error) {
+func (uc *downloader) FindYoutubeChannelInfo(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, error) {
 	channel, err := uc.ytChannel.FindByChannelID(ctx, channelID)
 	if err != nil {
 		return nil, err
@@ -19,7 +19,7 @@ func (uc *Downloader) FindYoutubeChannelInfo(ctx context.Context, channelID stri
 	return channel, nil
 }
 
-func (uc *Downloader) GetYoutubeChannelInfo(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, error) {
+func (uc *downloader) GetYoutubeChannelInfo(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, error) {
 	channel, err := uc.ytChannel.GetByChannelID(ctx, channelID)
 	if err != nil {
 		return nil, err

@@ -13,7 +13,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 )
 
-func (uc *Downloader) TrackMediaWatchEvent(
+func (uc *downloader) TrackMediaWatchEvent(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	req dto.TrackMediaWatchEventRequest,

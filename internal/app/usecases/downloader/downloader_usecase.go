@@ -7,7 +7,6 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/broadcaster"
-	dlmigration "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_data_migration"
 	dlexecutor "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_executor"
 	dlstate "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_state_cache"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task"
@@ -29,7 +28,7 @@ import (
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
-type Downloader struct {
+type downloader struct {
 	appCtx  context.Context
 	logger  *slog.Logger
 	mappers *mappers.Mappers
@@ -44,17 +43,16 @@ type Downloader struct {
 	operationDispatcher workerpool.JobDispatcher
 
 	// internal
-	download          *mediadownload.MediaDownload
-	dlTask            *dltask.DownloadTask
-	downloadStatus    *downloadstatus.MediaDownloadStatus
-	dlTaskStatus      *dltasktatus.DownloadTaskStatus
-	ytChannel         *ytchannel.YoutubeChannel
-	siteIcon          *siteicon.SiteIcon
-	authz             *authz.Authorization
-	downloadMigration *dlmigration.DownloadMigration
-	mediaWatch        *mediawatch.MediaWatch
-	searchIndex       *searchindex.SearchIndex
-	dlExecutor        *dlexecutor.Executor
+	download       *mediadownload.MediaDownload
+	dlTask         *dltask.DownloadTask
+	downloadStatus *downloadstatus.MediaDownloadStatus
+	dlTaskStatus   *dltasktatus.DownloadTaskStatus
+	ytChannel      *ytchannel.YoutubeChannel
+	siteIcon       *siteicon.SiteIcon
+	authz          *authz.Authorization
+	mediaWatch     *mediawatch.MediaWatch
+	searchIndex    *searchindex.SearchIndex
+	dlExecutor     *dlexecutor.Executor
 
 	// broadcasters
 	broadcaster *broadcaster.Broadcaster
@@ -80,7 +78,6 @@ func NewDownloader(
 	// repositories
 	downloadRepo persistence.MediaDownloadRepositoryFactory,
 	dlTaskRepo persistence.DownloadTaskRepositoryFactory,
-	downloadMigrationRepo persistence.DownloadDataMigrationRepositoryFactory,
 	watchEventRepo persistence.MediaWatchEventRepositoryFactory,
 	userWatchChunkRepo persistence.MediaUserWatchChunkRepositoryFactory,
 	userWatchStatRepo persistence.MediaUserWatchStatRepositoryFactory,
@@ -121,7 +118,7 @@ func NewDownloader(
 	deleteDuplicatesUniquenessScope dtypes.UniquenessScope,
 	logoUpdateInterval time.Duration,
 	channelUpdateInterval time.Duration,
-) *Downloader {
+) *downloader {
 	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRep)
 	dlTask := dltask.NewDownloadTask(logger, dlTaskRepo, dlStateCache)
 	dlTaskStatus := dltasktatus.NewDownloadTaskStatus(logger, dlTask)
@@ -133,7 +130,7 @@ func NewDownloader(
 
 	searchIndex := searchindex.NewSearchIndex(logger, sourceIndexRepo)
 
-	downloader := &Downloader{
+	downloader := &downloader{
 		appCtx:  ctx,
 		logger:  logger,
 		mappers: mappers.NewMappers(),
@@ -152,12 +149,11 @@ func NewDownloader(
 		operationDispatcher: operationDispatcher,
 
 		// Internal
-		dlTask:            dlTask,
-		dlTaskStatus:      dlTaskStatus,
-		ytChannel:         ytChannel,
-		siteIcon:          siteIcon,
-		authz:             authz,
-		downloadMigration: dlmigration.NewDownloadMigration(logger, downloadMigrationRepo),
+		dlTask:       dlTask,
+		dlTaskStatus: dlTaskStatus,
+		ytChannel:    ytChannel,
+		siteIcon:     siteIcon,
+		authz:        authz,
 
 		// broadcasters
 		broadcaster: broadcaster.NewBroadcaster(authz),
@@ -246,10 +242,10 @@ func NewDownloader(
 	return downloader
 }
 
-func (uc *Downloader) AppMode() dtypes.AppMode {
+func (uc *downloader) AppMode() dtypes.AppMode {
 	return uc.appMode
 }
 
-func (uc *Downloader) DemoMode() bool {
+func (uc *downloader) DemoMode() bool {
 	return uc.demoMode
 }

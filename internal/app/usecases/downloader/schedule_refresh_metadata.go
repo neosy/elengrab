@@ -15,7 +15,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
 )
 
-func (uc *Downloader) ScheduleRefreshMetadata(
+func (uc *downloader) ScheduleRefreshMetadata(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
@@ -70,7 +70,7 @@ func (uc *Downloader) ScheduleRefreshMetadata(
 	return nil
 }
 
-func (uc *Downloader) addTaskToQueueRefreshMetadata(userID uuid.UUID, download *ddownload.MediaDownload) error {
+func (uc *downloader) addTaskToQueueRefreshMetadata(userID uuid.UUID, download *ddownload.MediaDownload) error {
 	task := &ddownload.RefreshMetadataTask{
 		TaskID:     uuid.New(),
 		DownloadID: download.DownloadID,
@@ -94,7 +94,7 @@ func (uc *Downloader) addTaskToQueueRefreshMetadata(userID uuid.UUID, download *
 	return nil
 }
 
-func (uc *Downloader) enqueueRefreshMetadataTask(task *ddownload.RefreshMetadataTask) workerpool.Job {
+func (uc *downloader) enqueueRefreshMetadataTask(task *ddownload.RefreshMetadataTask) workerpool.Job {
 	job := wjobs.NewRefreshMetadataJob(uc, task)
 
 	if err := uc.operationDispatcher.AddJob(job); err != nil {

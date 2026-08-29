@@ -1,4 +1,4 @@
-package migrations
+package deferred
 
 import (
 	"context"
@@ -25,14 +25,14 @@ func (m *migrations) fillTitleForInstagram(ctx context.Context) (bool, error) {
 		return true, nil
 	}
 
-	m.logger.Debug("Found instagram medias", "count", len(medias))
+	m.Logger().Debug("Found instagram medias", "count", len(medias))
 
 	var hasError bool
 
 	for i, media := range medias {
-		m.logger.Debug("Extract media info", "index", i+1, "total", len(medias))
+		m.Logger().Debug("Extract media info", "index", i+1, "total", len(medias))
 
-		info, err := m.services.downloader.FetchInfo(ctx, media.MediaURL)
+		info, err := m.Services().Downloader.FetchInfo(ctx, media.MediaURL)
 		if err != nil {
 			continue
 		}
@@ -41,7 +41,7 @@ func (m *migrations) fillTitleForInstagram(ctx context.Context) (bool, error) {
 			continue
 		}
 
-		err = m.usecases.download.Patch(
+		err = m.Usecases().MediaDownload.Patch(
 			ctx, nil,
 			media.DownloadID,
 			func(download *ddownload.MediaDownload) error {

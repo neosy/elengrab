@@ -8,7 +8,7 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
-func (uc *Downloader) GetLastWatchPosition(
+func (uc *downloader) GetLastWatchPosition(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,

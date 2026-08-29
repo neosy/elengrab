@@ -1,4 +1,4 @@
-package migrations
+package required
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 )
 
 func (m *migrations) moveDownloadsToStorage(ctx context.Context) (bool, error) {
-	fileNames, err := m.usecases.download.GetAllFullNames(ctx, true)
+	fileNames, err := m.Usecases().MediaDownload.GetAllFullNamesWithDeleted(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -26,19 +26,19 @@ func (m *migrations) moveDownloadsToStorage(ctx context.Context) (bool, error) {
 		default:
 		}
 
-		filePath := filepath.Join(m.dlStorage.BasePath(), fName)
+		filePath := filepath.Join(m.DownloadsStorage().BasePath(), fName)
 		exists, err := nfile.FileExists(filePath)
 		if err != nil {
-			m.logger.Warn("Failed to exists file", "filePath", filePath, "error", err)
+			m.Logger().Warn("Failed to exists file", "filePath", filePath, "error", err)
 			hasErr = true
 		}
 		if err == nil && !exists {
 			continue
 		}
 
-		err = m.dlStorage.Move(filePath, fName)
+		err = m.DownloadsStorage().Move(filePath, fName)
 		if err != nil {
-			m.logger.Warn("Failed to move storage", "filePath", filePath, "error", err)
+			m.Logger().Warn("Failed to move storage", "filePath", filePath, "error", err)
 			hasErr = true
 			continue
 		}

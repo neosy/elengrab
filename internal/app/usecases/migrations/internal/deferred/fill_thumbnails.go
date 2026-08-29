@@ -1,4 +1,4 @@
-package migrations
+package deferred
 
 import (
 	"context"
@@ -21,26 +21,26 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 
 	var (
 		fetchThumbnail = makeFetchThumbnail(
-			m.logger,
+			m.Logger(),
 			retryCountDefault, retryDelayDefault,
 			func(ctx context.Context, path string) (*dtypes.ImageData, error) {
-				return m.services.downloader.FetchThumbnail(ctx, path, ytdlpsrv.WithRequestCookies())
+				return m.Services().Downloader.FetchThumbnail(ctx, path, ytdlpsrv.WithRequestCookies())
 			},
 		)
 
 		extractThumbnail = makeFetchThumbnail(
-			m.logger,
+			m.Logger(),
 			1, 0,
 			func(ctx context.Context, path string) (*dtypes.ImageData, error) {
-				return m.services.ffmpeg.ExtractBestFrame(ctx, path)
+				return m.Services().FFMpeg.ExtractBestFrame(ctx, path)
 			},
 		)
 
 		extractBalanceThumbnail = makeFetchThumbnail(
-			m.logger,
+			m.Logger(),
 			1, 0,
 			func(ctx context.Context, path string) (*dtypes.ImageData, error) {
-				return m.services.ffmpeg.ExtractBestFrame(
+				return m.Services().FFMpeg.ExtractBestFrame(
 					ctx,
 					path,
 					ffmpegsrv.WithFrameStrategy(ffmpegsrv.FrameStrategyBalanced{}),
@@ -61,14 +61,14 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 			return err
 		}
 
-		err = m.usecases.download.PatchMediaInfo(
+		err = m.Usecases().MediaDownload.PatchMediaInfo(
 			ctx, nil, downloadID,
 			func(mediaInfo *dtypes.MediaInfo) {
 				mutateMediaInfo(mediaInfo, thumbID)
 			},
 		)
 		if err != nil {
-			m.usecases.thumbnail.Delete(ctx, thumbID)
+			m.Usecases().Thumbnail.Delete(ctx, thumbID)
 			return err
 		}
 		return nil
@@ -90,12 +90,12 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 		return true, nil
 	}
 
-	m.logger.Debug("Found medias without thumbnails", "count", len(medias))
+	m.Logger().Debug("Found medias without thumbnails", "count", len(medias))
 
 	var hasError bool
 
 	for i, media := range medias {
-		m.logger.Debug("Fetching thumbnails", "index", i+1, "total", len(medias))
+		m.Logger().Debug("Fetching thumbnails", "index", i+1, "total", len(medias))
 
 		select {
 		case <-ctx.Done():
@@ -123,7 +123,7 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 		}
 
 		if media.MediaInfo.FrameThumbnailID == nil && media.MediaInfo.Format.IsVideo() {
-			filePath := m.dlStorage.Path(media.FileFullName)
+			filePath := m.DownloadsStorage().Path(media.FileFullName)
 			imageData := extractBalanceThumbnail(ctx, filePath)
 			if imageData == nil {
 				imageData = extractThumbnail(ctx, filePath)

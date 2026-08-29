@@ -51,7 +51,7 @@ func New(logger *slog.Logger, deps *Dependencies) (*Handlers, error) {
 		Static: static.NewStaticHandlers(
 			deps.Assets,
 			deps.Usecases.Thumbnail,
-			deps.Usecases.Downloader,
+			deps.Usecases.DownloaderAPI,
 			deps.AppEnv,
 		),
 		UI: ui.NewHandlers(

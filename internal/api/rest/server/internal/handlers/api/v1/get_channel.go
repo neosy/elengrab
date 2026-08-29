@@ -16,7 +16,7 @@ func (h *V1Handlers) GetChannelByID(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	channel, err := h.usecases.Downloader.GetYoutubeChannelInfo(ctx, channelID)
+	channel, err := h.downloader.GetYoutubeChannelInfo(ctx, channelID)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

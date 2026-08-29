@@ -25,7 +25,7 @@ type StaticHandlers struct {
 
 	// usecases
 	thumbnail  *thumbnail.Thumbnail
-	downloader *downloader.Downloader
+	downloader downloader.DownloaderAPI
 
 	// options
 	appEnv appenv.AppEnv
@@ -37,7 +37,7 @@ func NewStaticHandlers(
 
 	// usecases
 	thumbnail *thumbnail.Thumbnail,
-	downloader *downloader.Downloader,
+	downloader downloader.DownloaderAPI,
 
 	// options
 	appEnv appenv.AppEnv,

@@ -1,4 +1,4 @@
-package migrations
+package deferred
 
 import (
 	"context"
@@ -12,9 +12,9 @@ func (m *migrations) getAllDownloads(
 ) ([]*ddownload.MediaDownload, error) {
 	var downloads []*ddownload.MediaDownload
 
-	iterateGetAll := m.usecases.download.IterateGetAll
+	iterateGetAll := m.Usecases().MediaDownload.IterateGetAll
 	if includeDeleted {
-		iterateGetAll = m.usecases.download.IterateGetAllWithDeleted
+		iterateGetAll = m.Usecases().MediaDownload.IterateGetAllWithDeleted
 	}
 
 	err := iterateGetAll(ctx,

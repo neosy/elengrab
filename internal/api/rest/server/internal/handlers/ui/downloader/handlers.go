@@ -31,7 +31,7 @@ type DownloaderHandlers struct {
 
 	// Usecases
 	authWeb    *authweb.AuthWeb
-	downloader *downloader.Downloader
+	downloader downloader.DownloaderAPI
 	linkWeb    *linkweb.LinkWeb
 	thumbnail  *thumbnail.Thumbnail
 
@@ -70,7 +70,7 @@ func NewDownloaderHandlers(
 
 		// Usecases
 		authWeb:    usecases.AuthWeb,
-		downloader: usecases.Downloader,
+		downloader: usecases.DownloaderAPI,
 		linkWeb:    usecases.LinkWeb,
 		thumbnail:  usecases.Thumbnail,
 

@@ -6,7 +6,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-func (uc *Downloader) ExecuteDownloadTask(
+func (uc *downloader) ExecuteDownloadTask(
 	ctx context.Context,
 	workerId uint64,
 	task *ddownload.DownloadTask,
