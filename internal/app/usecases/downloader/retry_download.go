@@ -9,7 +9,7 @@ import (
 )
 
 // RetryDownload repeats the download process for a specific download.
-func (uc *Downloader) RetryDownload(
+func (uc *downloader) RetryDownload(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,

@@ -15,7 +15,7 @@ import (
 )
 
 // GetDownloadInfo retrieves download information by download ID for a specific user.
-func (uc *Downloader) GetDownloadInfo(
+func (uc *downloader) GetDownloadInfo(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
@@ -38,7 +38,7 @@ func (uc *Downloader) GetDownloadInfo(
 	return resp, nil
 }
 
-func (uc *Downloader) GetDownloadInfoUnrestricted(
+func (uc *downloader) GetDownloadInfoUnrestricted(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) (*dto.MediaDownloadInfo, error) {
@@ -53,7 +53,7 @@ func (uc *Downloader) GetDownloadInfoUnrestricted(
 	return resp, nil
 }
 
-func (uc *Downloader) GetDownloadInfoForEdit(
+func (uc *downloader) GetDownloadInfoForEdit(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
@@ -72,7 +72,7 @@ func (uc *Downloader) GetDownloadInfoForEdit(
 }
 
 // findActualDownloadInfo retrieves the actual download information based on user ID and download ID.
-func (uc *Downloader) findActualDownloadInfo(
+func (uc *downloader) findActualDownloadInfo(
 	ctx context.Context,
 	downloadID uuid.UUID,
 	opts ...callOption,
@@ -105,7 +105,7 @@ func (uc *Downloader) findActualDownloadInfo(
 }
 
 // findActualDownloadInfoByDownload retrieves the actual download information based on the provided download.
-func (uc *Downloader) findActualDownloadInfoByDownload(
+func (uc *downloader) findActualDownloadInfoByDownload(
 	ctx context.Context,
 	download *ddownload.MediaDownload,
 	opts ...callOption,
@@ -193,7 +193,7 @@ func (uc *Downloader) findActualDownloadInfoByDownload(
 	return uc.mappers.MapDownloadDomainToDownloadInfoResponse(download, mappingData), nil
 }
 
-func (uc *Downloader) GetDownloadFilePath(ctx context.Context, downloadID uuid.UUID) (string, error) {
+func (uc *downloader) GetDownloadFilePath(ctx context.Context, downloadID uuid.UUID) (string, error) {
 	download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed find download", "error", err)
@@ -210,7 +210,7 @@ func (uc *Downloader) GetDownloadFilePath(ctx context.Context, downloadID uuid.U
 //
 //	filename - the human-readable name of the file
 //	err      - an error if the record is not found or a query fails
-func (uc *Downloader) GetDownloadFileName(
+func (uc *downloader) GetDownloadFileName(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,

@@ -7,7 +7,7 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
-func (uc *Downloader) PatchMediaDownload(
+func (uc *downloader) PatchMediaDownload(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	req dto.PatchMediaDownloadRequest,

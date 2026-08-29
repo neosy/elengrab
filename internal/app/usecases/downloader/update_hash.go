@@ -6,7 +6,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/utils/hash"
 )
 
-func (uc *Downloader) UpdateHash(ctx context.Context) error {
+func (uc *downloader) UpdateHash(ctx context.Context) error {
 	downloads, err := uc.download.GetWithoutPartialHash(ctx)
 	if err != nil {
 		return err

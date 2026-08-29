@@ -13,7 +13,7 @@ import (
 	"github.com/neosy/elengrab/internal/exceptions"
 )
 
-func (uc *Downloader) CanAddMediaDownload(authCtx dauth.AuthContext) bool {
+func (uc *downloader) CanAddMediaDownload(authCtx dauth.AuthContext) bool {
 	if iconfig.DemoMode() {
 		return false
 	}
@@ -29,7 +29,7 @@ func (uc *Downloader) CanAddMediaDownload(authCtx dauth.AuthContext) bool {
 	return false
 }
 
-func (uc *Downloader) HasWriteOperation(authCtx dauth.AuthContext) bool {
+func (uc *downloader) HasWriteOperation(authCtx dauth.AuthContext) bool {
 	if iconfig.DemoMode() {
 		return false
 	}
@@ -41,7 +41,7 @@ func (uc *Downloader) HasWriteOperation(authCtx dauth.AuthContext) bool {
 	return true
 }
 
-func (uc *Downloader) validateWriteOperation(authCtx dauth.AuthContext) error {
+func (uc *downloader) validateWriteOperation(authCtx dauth.AuthContext) error {
 	if uc.demoMode {
 		uc.broadcastNotification(
 			authCtx.EventKey(),
@@ -65,7 +65,7 @@ func (uc *Downloader) validateWriteOperation(authCtx dauth.AuthContext) error {
 	return nil
 }
 
-func (uc *Downloader) validateDownloadWriteAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
+func (uc *downloader) validateDownloadWriteAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
 	if uc.authz.HasWriteAllAccess(authCtx.RoleIDs) {
 		return nil
 	}
@@ -81,13 +81,13 @@ func (uc *Downloader) validateDownloadWriteAccess(authCtx dauth.AuthContext, dow
 	return ierrors.ErrAccessDenied
 }
 
-func (uc *Downloader) validateDownloadEditAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
+func (uc *downloader) validateDownloadEditAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
 	if !slices.Contains(dtypes.MediaDownloadEditableStatuses(), download.Status) {
 		return ierrors.ErrAccessDenied
 	}
 	return uc.validateDownloadWriteAccess(authCtx, download)
 }
 
-func (uc *Downloader) validateDownloadDeleteAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
+func (uc *downloader) validateDownloadDeleteAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
 	return uc.validateDownloadWriteAccess(authCtx, download)
 }
