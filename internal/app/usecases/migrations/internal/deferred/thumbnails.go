@@ -1,4 +1,4 @@
-package migrations
+package deferred
 
 import (
 	"context"
@@ -78,5 +78,5 @@ func (m *migrations) createThumbnail(
 		ImageData:  imageData,
 	}
 
-	return m.usecases.thumbnail.Create(ctx, req)
+	return m.Usecases().Thumbnail.Create(ctx, req)
 }

@@ -12,11 +12,11 @@ import (
 	eventkey "github.com/neosy/elengrab/internal/domain/types/event_key"
 )
 
-func (uc *Downloader) Broadcaster() *broadcaster.Broadcaster {
+func (uc *downloader) Broadcaster() *broadcaster.Broadcaster {
 	return uc.broadcaster
 }
 
-func (uc *Downloader) broadcastDownloadAdd(download *ddownload.MediaDownload) {
+func (uc *downloader) broadcastDownloadAdd(download *ddownload.MediaDownload) {
 	if download == nil {
 		return
 	}
@@ -46,7 +46,7 @@ func (uc *Downloader) broadcastDownloadAdd(download *ddownload.MediaDownload) {
 	uc.broadcaster.BroadcastToUsersWithAccess(*download.UserID, dto.BroadcastEventTypeDownloadAdd, resp)
 }
 
-func (uc *Downloader) broadcastDownloadUpdate(
+func (uc *downloader) broadcastDownloadUpdate(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) {
@@ -77,7 +77,7 @@ func (uc *Downloader) broadcastDownloadUpdate(
 	uc.broadcaster.BroadcastToUsersWithAccess(*downloadInfo.UserID, dto.BroadcastEventTypeDownloadUpdate, downloadInfo)
 }
 
-func (uc *Downloader) broadcastWatchStatsUpdatedToAuth(
+func (uc *downloader) broadcastWatchStatsUpdatedToAuth(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
@@ -102,7 +102,7 @@ func (uc *Downloader) broadcastWatchStatsUpdatedToAuth(
 	uc.broadcaster.BroadcastToAuth(authCtx, dto.BroadcastEventTypeDownloadPatch, downloadChanged)
 }
 
-func (uc *Downloader) broadcastWatchPositionUpdatedToAuth(
+func (uc *downloader) broadcastWatchPositionUpdatedToAuth(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
@@ -127,7 +127,7 @@ func (uc *Downloader) broadcastWatchPositionUpdatedToAuth(
 	uc.broadcaster.BroadcastToAuth(authCtx, dto.BroadcastEventTypeDownloadPatch, downloadChanged)
 }
 
-func (uc *Downloader) broadcastDownloadChanged(
+func (uc *downloader) broadcastDownloadChanged(
 	ctx context.Context,
 	req dto.MediaDownloadChanged,
 ) {
@@ -161,7 +161,7 @@ func (uc *Downloader) broadcastDownloadChanged(
 	uc.broadcaster.BroadcastToUsersWithAccess(*req.Info.UserID, dto.BroadcastEventTypeDownloadPatch, &req)
 }
 
-func (uc *Downloader) broadcastDownloadStartRefreshing(
+func (uc *downloader) broadcastDownloadStartRefreshing(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) {
@@ -192,7 +192,7 @@ func (uc *Downloader) broadcastDownloadStartRefreshing(
 	uc.broadcaster.BroadcastToUsersWithAccess(*downloadInfo.UserID, dto.BroadcastEventTypeDownloadStartRefreshing, downloadInfo)
 }
 
-func (uc *Downloader) broadcastDownloadDelete(_ context.Context, download *ddownload.MediaDownload) {
+func (uc *downloader) broadcastDownloadDelete(_ context.Context, download *ddownload.MediaDownload) {
 	if download == nil {
 		return
 	}
@@ -215,7 +215,7 @@ func (uc *Downloader) broadcastDownloadDelete(_ context.Context, download *ddown
 
 }
 
-func (uc *Downloader) broadcastDownloadProgressUpdate(
+func (uc *downloader) broadcastDownloadProgressUpdate(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) {
@@ -260,11 +260,11 @@ func (uc *Downloader) broadcastDownloadProgressUpdate(
 	uc.broadcaster.BroadcastToUsersWithAccess(*downloadInfo.UserID, dto.BroadcastEventTypeProgressUpdate, resp)
 }
 
-func (uc *Downloader) broadcastSystemInfoUpdate() {
+func (uc *downloader) broadcastSystemInfoUpdate() {
 	uc.broadcaster.Broadcast(dto.BroadcastEventTypeSystemInfoUpdate, uc.SystemInfo())
 }
 
-func (uc *Downloader) broadcastNotification(
+func (uc *downloader) broadcastNotification(
 	eventKey eventkey.EventKey,
 	module dto.BroadcastNotificationModule,
 	notificationType dto.BroadcastNotificationType,
@@ -278,14 +278,14 @@ func (uc *Downloader) broadcastNotification(
 	uc.broadcaster.BroadcastByKey(eventKey, dto.BroadcastEventTypeNotification, notification)
 }
 
-func (uc *Downloader) NotifyDownloadUpdated(
+func (uc *downloader) NotifyDownloadUpdated(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) {
 	uc.broadcastDownloadUpdate(ctx, downloadID)
 }
 
-func (uc *Downloader) NotifyDownloadChanged(
+func (uc *downloader) NotifyDownloadChanged(
 	ctx context.Context,
 	req dto.MediaDownloadChanged,
 ) {

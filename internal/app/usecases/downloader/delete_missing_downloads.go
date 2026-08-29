@@ -30,7 +30,7 @@ const (
 // DeleteMissingDownloads removes downloads from the database that no longer exist
 // in the downloads directory, and moves any orphaned downloads found on disk
 // into the "lost" folder for further inspection.
-func (uc *Downloader) DeleteMissingDownloads(ctx context.Context, enableMoveUnmatchedFiles bool) error {
+func (uc *downloader) DeleteMissingDownloads(ctx context.Context, enableMoveUnmatchedFiles bool) error {
 	err := uc.deleteMissingDownloads(ctx)
 	if err != nil {
 		uc.logger.Error("Failed to delete missing downloads", "error", err)
@@ -51,7 +51,7 @@ func (uc *Downloader) DeleteMissingDownloads(ctx context.Context, enableMoveUnma
 // deleteMissingDownloads checks for downloads marked as Done,
 // soft-deletes them if missing, and then either restores or permanently deletes
 // records based on whether the download exists after the retention period.
-func (uc *Downloader) deleteMissingDownloads(ctx context.Context) error {
+func (uc *downloader) deleteMissingDownloads(ctx context.Context) error {
 	// Select all records with status Done
 	downloads, err := uc.download.GetByStatus(ctx, dtypes.MediaDownloadStatusDone)
 	if err != nil {
@@ -110,7 +110,7 @@ func (uc *Downloader) deleteMissingDownloads(ctx context.Context) error {
 // moveUnmatchedFiles scans the downloads directory and moves all files
 // that do not exist in the database into the "lost" subdirectory.
 // This helps clean up orphaned downloads that were downloaded but not recorded.
-func (uc *Downloader) moveUnmatchedFiles(ctx context.Context) error {
+func (uc *downloader) moveUnmatchedFiles(ctx context.Context) error {
 	// Load all known filenames from DB (including deleted)
 	names, err := uc.download.GetAllFullNames(ctx, true)
 	if err != nil {

@@ -16,7 +16,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
 )
 
-func (uc *Downloader) ScheduleDownload(
+func (uc *downloader) ScheduleDownload(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	url string,
@@ -113,7 +113,7 @@ func (uc *Downloader) ScheduleDownload(
 	}, nil
 }
 
-func (uc *Downloader) addDownloadToQueueDownload(ctx context.Context, downloadID uuid.UUID, taskId uuid.UUID) error {
+func (uc *downloader) addDownloadToQueueDownload(ctx context.Context, downloadID uuid.UUID, taskId uuid.UUID) error {
 	var (
 		download *ddownload.MediaDownload
 	)
@@ -163,7 +163,7 @@ func (uc *Downloader) addDownloadToQueueDownload(ctx context.Context, downloadID
 	return nil
 }
 
-func (uc *Downloader) enqueueDownloadTask(task *ddownload.DownloadTask) workerpool.Job {
+func (uc *downloader) enqueueDownloadTask(task *ddownload.DownloadTask) workerpool.Job {
 	job := wjobs.NewDownloadJob(uc, task)
 
 	if err := uc.downloadDispatcher.AddJob(job); err != nil {
