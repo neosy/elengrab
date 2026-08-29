@@ -11,6 +11,6 @@ type Handlers struct {
 
 func NewHandlers(usecases *usecases.Usecases) *Handlers {
 	return &Handlers{
-		V1: handlers.NewV1Handlers(usecases),
+		V1: handlers.NewV1Handlers(usecases.DownloaderAPI),
 	}
 }

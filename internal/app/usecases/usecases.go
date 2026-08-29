@@ -13,6 +13,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/link"
 	linkweb "github.com/neosy/elengrab/internal/app/usecases/link_web"
 	"github.com/neosy/elengrab/internal/app/usecases/maintenance"
+	"github.com/neosy/elengrab/internal/app/usecases/migrations"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
@@ -102,14 +103,18 @@ type DepStorages struct {
 }
 
 type Usecases struct {
-	Auth        *auth.Auth
-	AuthWeb     *authweb.AuthWeb
-	Admin       *admin.Admin
-	Downloader  *downloader.Downloader
-	Maintenance *maintenance.Maintenance
-	Link        *link.Link
-	LinkWeb     *linkweb.LinkWeb
-	Thumbnail   *thumbnail.Thumbnail
+	Auth                  *auth.Auth
+	AuthWeb               *authweb.AuthWeb
+	Admin                 *admin.Admin
+	Downloader            downloader.Downloader
+	DownloaderAPI         downloader.DownloaderAPI
+	DownloaderMaintenance downloader.DownloaderMaintenance
+	DownloaderTask        downloader.DownloaderTask
+	Maintenance           *maintenance.Maintenance
+	Link                  *link.Link
+	LinkWeb               *linkweb.LinkWeb
+	Thumbnail             *thumbnail.Thumbnail
+	Migrations            migrations.Migrations
 }
 
 func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *Usecases {
@@ -138,6 +143,55 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 		deps.Storages.Thumbnails,
 	)
 
+	downloader := downloader.NewDownloader(
+		ctx,
+		logger,
+
+		// repositories
+		deps.Repositories.MediaDownload,
+		deps.Repositories.DownloadTask,
+		deps.Repositories.MediaWatchEvent,
+		deps.Repositories.MediaUserWatchChunk,
+		deps.Repositories.MediaUserWatchStat,
+		deps.Repositories.MediaWatchStat,
+		deps.Repositories.MediaUserWatchPosition,
+		deps.Repositories.MediaSourceIndex,
+		deps.Repositories.YoutubeChannel,
+		deps.Repositories.SiteLogo,
+
+		// in memory
+		deps.Repositories.MediaDownloadCache,
+		deps.Repositories.DownloadStateCache,
+		deps.Repositories.MediaUserWatchStatCache,
+		deps.Repositories.MediaWatchStatCache,
+		deps.Repositories.MediaUserWatchPositionCache,
+		deps.Repositories.YoutubeChannelCache,
+		deps.Repositories.SiteLogoCache,
+
+		// storages
+		deps.Storages.Downloads,
+
+		// dispetchers
+		deps.DownloadDispetcher,
+		deps.OperationDispatcher,
+		deps.WatchEventDispatcher,
+
+		// usecases
+		thumbnail,
+
+		// services
+		deps.Services.Downloader,
+		deps.Services.FFMpeg,
+		auth,
+
+		// options
+		deps.DemoMode,
+		deps.AppMode,
+		deps.DeleteDuplicatesUniquenessScope,
+		deps.LogoUpdateInterval,
+		deps.ChannelUpdateInterval,
+	)
+
 	return &Usecases{
 		Auth: auth,
 		AuthWeb: authweb.NewAuthWeb(
@@ -146,56 +200,11 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			deps.DefaultAdminLogin,
 			deps.DefaultAdminPassword,
 		),
-		Admin: admin.NewAdmin(logger, auth),
-		Downloader: downloader.NewDownloader(
-			ctx,
-			logger,
-
-			// repositories
-			deps.Repositories.MediaDownload,
-			deps.Repositories.DownloadTask,
-			deps.Repositories.DownloadDataMigration,
-			deps.Repositories.MediaWatchEvent,
-			deps.Repositories.MediaUserWatchChunk,
-			deps.Repositories.MediaUserWatchStat,
-			deps.Repositories.MediaWatchStat,
-			deps.Repositories.MediaUserWatchPosition,
-			deps.Repositories.MediaSourceIndex,
-			deps.Repositories.YoutubeChannel,
-			deps.Repositories.SiteLogo,
-
-			// in memory
-			deps.Repositories.MediaDownloadCache,
-			deps.Repositories.DownloadStateCache,
-			deps.Repositories.MediaUserWatchStatCache,
-			deps.Repositories.MediaWatchStatCache,
-			deps.Repositories.MediaUserWatchPositionCache,
-			deps.Repositories.YoutubeChannelCache,
-			deps.Repositories.SiteLogoCache,
-
-			// storages
-			deps.Storages.Downloads,
-
-			// dispetchers
-			deps.DownloadDispetcher,
-			deps.OperationDispatcher,
-			deps.WatchEventDispatcher,
-
-			// usecases
-			thumbnail,
-
-			// services
-			deps.Services.Downloader,
-			deps.Services.FFMpeg,
-			auth,
-
-			// options
-			deps.DemoMode,
-			deps.AppMode,
-			deps.DeleteDuplicatesUniquenessScope,
-			deps.LogoUpdateInterval,
-			deps.ChannelUpdateInterval,
-		),
+		Admin:                 admin.NewAdmin(logger, auth),
+		Downloader:            downloader,
+		DownloaderAPI:         downloader,
+		DownloaderMaintenance: downloader,
+		DownloaderTask:        downloader,
 		Maintenance: maintenance.NewMaintenance(
 			logger,
 			deps.Repositories.Repositories,
@@ -216,5 +225,19 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 			},
 		),
 		Thumbnail: thumbnail,
+		Migrations: migrations.NewMigrations(
+			logger, deps.Repositories.DownloadDataMigration,
+			migrations.Dependencies{
+				DownloadsStorage: deps.Storages.Downloads,
+				Usecases: migrations.Usecases{
+					Downloader: downloader,
+					Thumbnail:  thumbnail,
+				},
+				Services: migrations.Services{
+					Downloader: deps.Services.Downloader,
+					FFMpeg:     deps.Services.FFMpeg,
+				},
+			},
+		),
 	}
 }

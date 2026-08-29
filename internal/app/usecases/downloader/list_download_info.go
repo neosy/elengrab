@@ -14,7 +14,7 @@ import (
 const listDownloadInfoMaxWorkers = 5
 
 // ListDownloadInfo retrieves the download history for a user.
-func (uc *Downloader) ListDownloadInfo(
+func (uc *downloader) ListDownloadInfo(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	query dto.MediaDownloadQuery,
@@ -41,7 +41,7 @@ func (uc *Downloader) ListDownloadInfo(
 	return uc.listDownloadInfo(ctx, authCtx, options, filters, withAuth(authCtx))
 }
 
-func (uc *Downloader) listDownloadInfo(
+func (uc *downloader) listDownloadInfo(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	queryOptions dtypes.QueryMediaOptions,

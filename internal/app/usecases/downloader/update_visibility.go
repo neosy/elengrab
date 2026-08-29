@@ -9,7 +9,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-func (uc *Downloader) UpdateVisibility(
+func (uc *downloader) UpdateVisibility(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,

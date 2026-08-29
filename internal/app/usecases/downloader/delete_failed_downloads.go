@@ -15,7 +15,7 @@ const (
 
 // DeleteFailedDownloads removes database records for videos
 // that were not successfully downloaded from YouTube.
-func (uc *Downloader) DeleteFailedDownloads(ctx context.Context) error {
+func (uc *downloader) DeleteFailedDownloads(ctx context.Context) error {
 	downloads, err := uc.download.GetByStatus(ctx, dtypes.MediaDownloadStatusFailed)
 	if err != nil {
 		uc.logger.Error("Failed to get by status", "status", dtypes.MediaDownloadStatusFailed, "error", err)

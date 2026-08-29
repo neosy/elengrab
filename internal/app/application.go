@@ -281,12 +281,12 @@ func (a *Application) initialize() error {
 		AssetFileCache:              inMemoryRepositories.AssetFile,
 
 		// runners
-		DownloaderMaintenance: a.Usecases.Downloader,
+		DownloaderMaintenance: a.Usecases.DownloaderMaintenance,
 		DBMaintenance:         a.Usecases.Maintenance,
 		DBMMetrics:            slRepositories,
-		DownloaderTask:        a.Usecases.Downloader,
+		DownloaderTask:        a.Usecases.DownloaderTask,
 		AuthWebStartup:        a.Usecases.AuthWeb,
-		DownloaderMigrations:  a.Usecases.Downloader,
+		DownloaderMigrations:  a.Usecases.Migrations,
 
 		// options
 		MetricsEnabled:                 a.cfg.AdminServer.Enable && a.cfg.AdminServer.DebugConfig.EnableMetrics,
@@ -332,7 +332,7 @@ func (a *Application) Logger() *slog.Logger {
 func (a *Application) RunRequiredMigrations() error {
 	a.logger.Info("Running required migrations")
 
-	err := a.Usecases.Downloader.RunRequiredMigrations(a.ctx)
+	err := a.Usecases.Migrations.RunRequiredMigrations(a.ctx)
 	if err != nil {
 		return err
 	}
@@ -359,7 +359,7 @@ func (a *Application) StartBackground() error {
 	}
 
 	// Initialize stuck download jobs
-	if err := a.Usecases.Downloader.ResetStuckJobs(a.ctx); err != nil {
+	if err := a.Usecases.DownloaderMaintenance.ResetStuckJobs(a.ctx); err != nil {
 		a.logger.Error("Failed to init downloader", "err", err)
 		return err
 	}
