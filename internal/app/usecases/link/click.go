@@ -15,12 +15,12 @@ import (
 
 // Click handles a click on a short link: validates the request, checks link availability,
 // and records the click in the database. Returns the created click record.
-func (u *Link) Click(ctx context.Context, req *dto.ShortLinkClickRequest) (*dlink.Link, error) {
+func (u *link) Click(ctx context.Context, req *dto.ShortLinkClickRequest) (*dlink.Link, error) {
 	linkClick := u.mappers.MapShortLinkClickRequestToDomain(req)
 	return u.click(ctx, linkClick)
 }
 
-func (u *Link) click(
+func (u *link) click(
 	ctx context.Context,
 	linkClickDraft *dlink.LinkClick,
 ) (*dlink.Link, error) {
@@ -60,7 +60,7 @@ func (u *Link) click(
 	return link, err
 }
 
-func (u *Link) validateClick(
+func (u *link) validateClick(
 	ctx context.Context,
 	link *dlink.Link,
 	linkClick *dlink.LinkClick,

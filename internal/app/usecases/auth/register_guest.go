@@ -7,7 +7,7 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
-func (a *Auth) RegisterGuest(ctx context.Context) (*dto.AuthUserResponse, error) {
+func (a *auth) RegisterGuest(ctx context.Context) (*dto.AuthUserResponse, error) {
 	var (
 		user    *dauth.User
 		session *dauth.UserSession
@@ -41,7 +41,7 @@ func (a *Auth) RegisterGuest(ctx context.Context) (*dto.AuthUserResponse, error)
 	return userCtx, nil
 }
 
-func (u *Auth) createGuest(ctx context.Context) (*dauth.User, error) {
+func (u *auth) createGuest(ctx context.Context) (*dauth.User, error) {
 	userID, err := u.user.CreateGuest(ctx)
 	if err != nil {
 		return nil, err

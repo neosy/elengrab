@@ -8,7 +8,7 @@ import (
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
-func (t *Thumbnail) Delete(ctx context.Context, thumbID uuid.UUID) error {
+func (t *thumbnail) Delete(ctx context.Context, thumbID uuid.UUID) error {
 	thumbnail, err := t.repo.GetByThumbID(ctx, thumbID)
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func (t *Thumbnail) Delete(ctx context.Context, thumbID uuid.UUID) error {
 	return nil
 }
 
-func (t *Thumbnail) DeleteBatch(ctx context.Context, thumbIDs []uuid.UUID) error {
+func (t *thumbnail) DeleteBatch(ctx context.Context, thumbIDs []uuid.UUID) error {
 	for _, thumbID := range thumbIDs {
 		err := t.Delete(ctx, thumbID)
 		if err != nil {

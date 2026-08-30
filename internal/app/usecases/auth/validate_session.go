@@ -7,7 +7,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 )
 
-func (a *Auth) ValidateSession(ctx context.Context, token string) (*dto.AuthUserResponse, error) {
+func (a *auth) ValidateSession(ctx context.Context, token string) (*dto.AuthUserResponse, error) {
 	session, err := a.userSession.FindByToken(ctx, token)
 	if err != nil {
 		return nil, err

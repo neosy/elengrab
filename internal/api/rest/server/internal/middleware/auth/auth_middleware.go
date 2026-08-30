@@ -3,7 +3,6 @@ package authmw
 import (
 	"log/slog"
 
-	"github.com/neosy/elengrab/internal/app/usecases/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
@@ -18,7 +17,7 @@ type AuthMiddleware struct {
 	appMode dtypes.AppMode
 }
 
-func NewAuthMiddleware(logger *slog.Logger, auth *auth.Auth, appMode dtypes.AppMode) *AuthMiddleware {
+func NewAuthMiddleware(logger *slog.Logger, auth pservices.AuthMiddleware, appMode dtypes.AppMode) *AuthMiddleware {
 	return &AuthMiddleware{
 		logger: logger,
 

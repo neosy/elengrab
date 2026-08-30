@@ -12,7 +12,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-func (a *Auth) RegisterUser(
+func (a *auth) RegisterUser(
 	ctx context.Context,
 	req *dto.RegisterUserRequest,
 ) (*dto.AuthUserResponse, error) {
@@ -77,7 +77,7 @@ func (a *Auth) RegisterUser(
 	return userCtx, nil
 }
 
-func (a *Auth) createUser(ctx context.Context, req *idto.CreateUserRequest) (*dauth.User, error) {
+func (a *auth) createUser(ctx context.Context, req *idto.CreateUserRequest) (*dauth.User, error) {
 	userID, err := a.user.CreateUser(ctx, req)
 	if err != nil {
 		return nil, err

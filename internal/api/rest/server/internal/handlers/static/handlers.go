@@ -24,7 +24,7 @@ type StaticHandlers struct {
 	pwaHandler   fasthttp.RequestHandler
 
 	// usecases
-	thumbnail  *thumbnail.Thumbnail
+	thumbnail  thumbnail.Thumbnail
 	downloader downloader.DownloaderAPI
 
 	// options
@@ -36,7 +36,7 @@ func NewStaticHandlers(
 	assets *assets.Assets,
 
 	// usecases
-	thumbnail *thumbnail.Thumbnail,
+	thumbnail thumbnail.Thumbnail,
 	downloader downloader.DownloaderAPI,
 
 	// options

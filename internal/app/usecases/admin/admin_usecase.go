@@ -6,7 +6,7 @@ import (
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
-type Admin struct {
+type admin struct {
 	logger *slog.Logger
 
 	// services
@@ -22,8 +22,8 @@ func NewAdmin(
 	adminPanel pservices.AdminPanelService,
 
 	// options
-) *Admin {
-	return &Admin{
+) Admin {
+	return &admin{
 		logger: logger,
 
 		// adminPanel

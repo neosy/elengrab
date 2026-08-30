@@ -1,5 +1,5 @@
 package maintenance
 
-func (m *Maintenance) FlushWAL() error {
+func (m *maintenance) FlushWAL() error {
 	return m.repositories.FlushWAL()
 }

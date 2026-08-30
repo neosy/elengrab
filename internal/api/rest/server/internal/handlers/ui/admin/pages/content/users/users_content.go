@@ -8,12 +8,12 @@ import (
 type Content struct {
 	mappers *mappers.Mappers
 
-	admin *adminuc.Admin
+	admin adminuc.Admin
 
 	title string
 }
 
-func NewContent(mappers *mappers.Mappers, admin *adminuc.Admin, title string) *Content {
+func NewContent(mappers *mappers.Mappers, admin adminuc.Admin, title string) *Content {
 	return &Content{
 		mappers: mappers,
 		admin:   admin,

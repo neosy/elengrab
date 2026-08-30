@@ -40,7 +40,7 @@ type Executor struct {
 	siteIcon        *siteicon.SiteIcon
 	siteIconFetcher *iconfetcher.SiteIconFetcher
 	ytChannel       *ytchannel.YoutubeChannel
-	thumbnail       *thumbnail.Thumbnail
+	thumbnail       thumbnail.Thumbnail
 
 	// Broadcaster
 	broadcaster Broadcaster
@@ -66,7 +66,7 @@ func NewExecutor(
 	downloadStatus *downloadstatus.MediaDownloadStatus,
 	siteIcon *siteicon.SiteIcon,
 	ytChannel *ytchannel.YoutubeChannel,
-	thumbnail *thumbnail.Thumbnail,
+	thumbnail thumbnail.Thumbnail,
 
 	// Broadcaster
 	broadcaster Broadcaster,

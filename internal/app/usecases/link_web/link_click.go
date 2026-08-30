@@ -8,7 +8,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 )
 
-func (u *LinkWeb) ShortLinkClick(
+func (u *linkWeb) ShortLinkClick(
 	ctx context.Context,
 	shortURL string,
 	ipAddress string,

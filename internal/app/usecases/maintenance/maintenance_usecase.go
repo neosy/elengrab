@@ -11,7 +11,7 @@ const (
 	backupDateFormat = "2006-01-02_15-04-05"
 )
 
-type Maintenance struct {
+type maintenance struct {
 	logger *slog.Logger
 
 	// Repositories
@@ -33,8 +33,8 @@ func NewMaintenance(
 	appName string,
 	databaseBackupsDir string,
 	databaseBackupsKeep int,
-) *Maintenance {
-	return &Maintenance{
+) *maintenance {
+	return &maintenance{
 		logger:       logger,
 		repositories: repositories,
 

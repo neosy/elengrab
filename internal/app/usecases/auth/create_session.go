@@ -12,7 +12,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-func (u *Auth) createSession(ctx context.Context, userID uuid.UUID) (*dauth.UserSession, error) {
+func (u *auth) createSession(ctx context.Context, userID uuid.UUID) (*dauth.UserSession, error) {
 	token, err := authtoken.GenerateToken(authtoken.CookieToken)
 	if err != nil {
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)

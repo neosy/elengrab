@@ -30,10 +30,10 @@ type DownloaderHandlers struct {
 	downloadsStorage pstorage.DownloadsStorage
 
 	// Usecases
-	authWeb    *authweb.AuthWeb
+	authWeb    authweb.AuthWeb
 	downloader downloader.DownloaderAPI
-	linkWeb    *linkweb.LinkWeb
-	thumbnail  *thumbnail.Thumbnail
+	linkWeb    linkweb.LinkWeb
+	thumbnail  thumbnail.Thumbnail
 
 	// Options
 	appMode         dtypes.AppMode

@@ -12,7 +12,7 @@ const (
 	refreshThresholdDefault = 7 * 24 * time.Hour
 )
 
-func (u *LinkWeb) CreateShortLink(ctx context.Context, url string) (string, error) {
+func (u *linkWeb) CreateShortLink(ctx context.Context, url string) (string, error) {
 	shortCode := u.link.GenerateShortCode(url, u.options.ShortCodeLength, true)
 
 	link, err := u.link.FindLastByShortCode(ctx, shortCode)

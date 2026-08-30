@@ -12,7 +12,7 @@ import (
 	nfile "github.com/neosy/elengrab/internal/pkg/filex"
 )
 
-func (m *Maintenance) BackupDatabase(ctx context.Context) error {
+func (m *maintenance) BackupDatabase(ctx context.Context) error {
 	if m.databaseBackupsKeep <= 0 {
 		return nil
 	}
@@ -50,7 +50,7 @@ func (m *Maintenance) BackupDatabase(ctx context.Context) error {
 	return nil
 }
 
-func (m *Maintenance) backupDB(dbName string, backupDir string) error {
+func (m *maintenance) backupDB(dbName string, backupDir string) error {
 	filename := fmt.Sprintf(
 		"%s_%s.%s",
 		m.prefixBackup(dbName),
@@ -70,13 +70,13 @@ func (m *Maintenance) backupDB(dbName string, backupDir string) error {
 	return nil
 }
 
-func (m *Maintenance) prefixBackup(dbName string) string {
+func (m *maintenance) prefixBackup(dbName string) string {
 	prefix := nfile.SanitizeFileName(dbName)
 	prefix = strings.ToLower(prefix)
 	return prefix
 }
 
-func (m *Maintenance) cleanupOldBackups(dbName string, backupDir string) error {
+func (m *maintenance) cleanupOldBackups(dbName string, backupDir string) error {
 	entries, err := os.ReadDir(backupDir)
 	if err != nil {
 		return err

@@ -6,10 +6,10 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
-func (a *Auth) GetAllRoles(ctx context.Context) ([]*dauth.Role, error) {
+func (a *auth) GetAllRoles(ctx context.Context) ([]*dauth.Role, error) {
 	return a.role.GetAll(ctx)
 }
 
-func (a *Auth) GetAllRolesWithoutGuest(ctx context.Context) ([]*dauth.Role, error) {
+func (a *auth) GetAllRolesWithoutGuest(ctx context.Context) ([]*dauth.Role, error) {
 	return a.role.GetAllWithoutGuest(ctx)
 }

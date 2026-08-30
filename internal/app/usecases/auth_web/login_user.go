@@ -10,7 +10,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (a *AuthWeb) LoginUser(
+func (a *authWeb) LoginUser(
 	ctx context.Context,
 	req *dto.AuthUserRequest,
 ) (*dto.AuthUserResponse, error) {

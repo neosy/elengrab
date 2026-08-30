@@ -6,7 +6,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 )
 
-func (a *AuthWeb) Startup(ctx context.Context) error {
+func (a *authWeb) Startup(ctx context.Context) error {
 	err := a.registerDefaultAdmin(ctx)
 	if err != nil {
 		return err
@@ -15,7 +15,7 @@ func (a *AuthWeb) Startup(ctx context.Context) error {
 	return nil
 }
 
-func (a *AuthWeb) registerDefaultAdmin(ctx context.Context) error {
+func (a *authWeb) registerDefaultAdmin(ctx context.Context) error {
 	if a.defaultAdminLogin == "" || a.defaultAdminPassword == "" {
 		return nil
 	}

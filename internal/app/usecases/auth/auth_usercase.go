@@ -13,7 +13,7 @@ import (
 )
 
 type (
-	Auth struct {
+	auth struct {
 		logger  *slog.Logger
 		mappers *mappers.Mappers
 
@@ -41,11 +41,11 @@ func NewAuth(
 
 	// optons
 	opts ...AuthOption,
-) *Auth {
+) Auth {
 	options := NewAuthOptions(opts...)
 	userRole := authuserrole.NewUserRole(logger, userRoleRepo)
 
-	return &Auth{
+	return &auth{
 		logger:  logger,
 		mappers: mappers.NewMappers(),
 

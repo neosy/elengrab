@@ -7,15 +7,15 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 )
 
-func (u *LinkWeb) FindLastByShortCode(ctx context.Context, shortCode string) (*dlink.Link, error) {
+func (u *linkWeb) FindLastByShortCode(ctx context.Context, shortCode string) (*dlink.Link, error) {
 	return u.link.FindLastByShortCode(ctx, shortCode)
 }
 
-func (u *LinkWeb) GetLastByShortCode(ctx context.Context, shortCode string) (*dlink.Link, error) {
+func (u *linkWeb) GetLastByShortCode(ctx context.Context, shortCode string) (*dlink.Link, error) {
 	return u.link.GetLastByShortCode(ctx, shortCode)
 }
 
-func (u *LinkWeb) FindLastShortURL(ctx context.Context, url string) (string, error) {
+func (u *linkWeb) FindLastShortURL(ctx context.Context, url string) (string, error) {
 	shortCode := u.link.GenerateShortCode(url, u.options.ShortCodeLength, true)
 
 	link, err := u.link.FindLastByShortCode(ctx, shortCode)
@@ -33,7 +33,7 @@ func (u *LinkWeb) FindLastShortURL(ctx context.Context, url string) (string, err
 	return link.ShortURL, nil
 }
 
-func (u *LinkWeb) GetLastShortURL(ctx context.Context, url string) (string, error) {
+func (u *linkWeb) GetLastShortURL(ctx context.Context, url string) (string, error) {
 	shortCode := u.link.GenerateShortCode(url, u.options.ShortCodeLength, true)
 
 	link, err := u.link.GetLastByShortCode(ctx, shortCode)
