@@ -12,5 +12,5 @@ type Usecases struct {
 	MediaWatch    downloader.MediaWatch
 
 	DownloadMigration *dlmigration.DownloadMigration
-	Thumbnail         *thumbnail.Thumbnail
+	Thumbnail         thumbnail.Thumbnail
 }

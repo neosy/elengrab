@@ -16,7 +16,7 @@ type Content interface {
 	Build(ctx context.Context) (any, error)
 }
 
-func NewContent(mappers *mappers.Mappers, admin *adminuc.Admin, p page.Page) (Content, error) {
+func NewContent(mappers *mappers.Mappers, admin adminuc.Admin, p page.Page) (Content, error) {
 	switch p.Name {
 	case page.PageNameDashboard:
 		return dashboard.NewContent(mappers, admin, p.Title), nil

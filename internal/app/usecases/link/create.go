@@ -11,7 +11,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-func (u *Link) Create(ctx context.Context, req *dto.LinkCreateRequest) (*dlink.Link, error) {
+func (u *link) Create(ctx context.Context, req *dto.LinkCreateRequest) (*dlink.Link, error) {
 	if req == nil {
 		return nil, linkerr.ErrFunctionNilParameter
 	}
@@ -58,7 +58,7 @@ func (u *Link) Create(ctx context.Context, req *dto.LinkCreateRequest) (*dlink.L
 	return link, err
 }
 
-func (u *Link) validateCreateRequestFields(req *dto.LinkCreateRequest) error {
+func (u *link) validateCreateRequestFields(req *dto.LinkCreateRequest) error {
 	if req.OriginalURL == "" {
 		u.logger.Error(
 			"The originalURL field is empty.",

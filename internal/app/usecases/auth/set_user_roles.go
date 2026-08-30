@@ -10,7 +10,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-func (a *Auth) SetUserRoles(ctx context.Context, userID uuid.UUID, roleIDs []string) error {
+func (a *auth) SetUserRoles(ctx context.Context, userID uuid.UUID, roleIDs []string) error {
 	if len(roleIDs) == 0 {
 		return errorx.NewMessage("roles are not defined", exceptionx.WRONG_DATA)
 	}

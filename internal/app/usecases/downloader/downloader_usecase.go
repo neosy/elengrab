@@ -58,7 +58,7 @@ type downloader struct {
 	broadcaster *broadcaster.Broadcaster
 
 	// usecases
-	thumbnail *thumbnail.Thumbnail
+	thumbnail thumbnail.Thumbnail
 
 	// services
 	downloaderSrv pservices.Downloader
@@ -105,7 +105,7 @@ func NewDownloader(
 	watchEventDispatcher workerpool.JobDispatcher,
 
 	// usecases
-	thumbnail *thumbnail.Thumbnail,
+	thumbnail thumbnail.Thumbnail,
 
 	// services
 	downloaderSrv pservices.Downloader,

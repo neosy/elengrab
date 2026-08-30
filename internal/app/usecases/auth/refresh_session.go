@@ -9,7 +9,7 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
-func (a *Auth) RefreshSession(ctx context.Context, token string) (*dto.AuthUserResponse, error) {
+func (a *auth) RefreshSession(ctx context.Context, token string) (*dto.AuthUserResponse, error) {
 	var (
 		user       *dauth.User
 		newSession *dauth.UserSession
@@ -57,11 +57,11 @@ func (a *Auth) RefreshSession(ctx context.Context, token string) (*dto.AuthUserR
 	return userCtx, nil
 }
 
-func (u *Auth) shouldRefreshSession(expiresAt time.Time) bool {
+func (u *auth) shouldRefreshSession(expiresAt time.Time) bool {
 	return time.Until(expiresAt) <= u.sessionRefreshInterval
 }
 
-func (a *Auth) sessionRefreshPredicate() func(*dauth.UserSession) bool {
+func (a *auth) sessionRefreshPredicate() func(*dauth.UserSession) bool {
 	return func(session *dauth.UserSession) bool {
 		return a.shouldRefreshSession(session.ExpiresAt)
 	}

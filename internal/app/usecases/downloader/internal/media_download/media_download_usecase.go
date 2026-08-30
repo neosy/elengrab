@@ -27,7 +27,7 @@ type MediaDownload struct {
 	searchIndex  *searchindex.SearchIndex
 
 	// usecases
-	thumbnail *thumbnail.Thumbnail
+	thumbnail thumbnail.Thumbnail
 }
 
 func NewMediaDownload(
@@ -46,7 +46,7 @@ func NewMediaDownload(
 	searchIndex *searchindex.SearchIndex,
 
 	// usecases
-	thumbnail *thumbnail.Thumbnail,
+	thumbnail thumbnail.Thumbnail,
 ) *MediaDownload {
 	return &MediaDownload{
 		logger:           logger,

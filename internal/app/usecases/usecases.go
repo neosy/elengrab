@@ -103,17 +103,17 @@ type DepStorages struct {
 }
 
 type Usecases struct {
-	Auth                  *auth.Auth
-	AuthWeb               *authweb.AuthWeb
-	Admin                 *admin.Admin
+	Auth                  auth.Auth
+	AuthWeb               authweb.AuthWeb
+	Admin                 admin.Admin
 	Downloader            downloader.Downloader
 	DownloaderAPI         downloader.DownloaderAPI
 	DownloaderMaintenance downloader.DownloaderMaintenance
 	DownloaderTask        downloader.DownloaderTask
-	Maintenance           *maintenance.Maintenance
-	Link                  *link.Link
-	LinkWeb               *linkweb.LinkWeb
-	Thumbnail             *thumbnail.Thumbnail
+	Maintenance           maintenance.Maintenance
+	Link                  link.Link
+	LinkWeb               linkweb.LinkWeb
+	Thumbnail             thumbnail.Thumbnail
 	Migrations            migrations.Migrations
 }
 

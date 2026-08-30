@@ -6,7 +6,7 @@ import (
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
-type AuthWeb struct {
+type authWeb struct {
 	logger *slog.Logger
 
 	// services
@@ -26,8 +26,8 @@ func NewAuthWeb(
 	// options
 	defaultAdminLogin string,
 	defaultAdminPassword string,
-) *AuthWeb {
-	return &AuthWeb{
+) AuthWeb {
+	return &authWeb{
 		logger: logger,
 
 		// services

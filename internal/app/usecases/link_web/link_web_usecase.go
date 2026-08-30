@@ -10,7 +10,7 @@ import (
 
 type Dependencies struct {
 	// Services
-	Link *link.Link
+	Link link.Link
 }
 
 type Options struct {
@@ -20,7 +20,7 @@ type Options struct {
 	RefreshThreshold time.Duration
 }
 
-type LinkWeb struct {
+type linkWeb struct {
 	logger *slog.Logger
 
 	// services
@@ -30,8 +30,8 @@ type LinkWeb struct {
 	options Options
 }
 
-func NewLinkWeb(logger *slog.Logger, deps Dependencies, opts Options) *LinkWeb {
-	return &LinkWeb{
+func NewLinkWeb(logger *slog.Logger, deps Dependencies, opts Options) *linkWeb {
+	return &linkWeb{
 		logger: logger,
 
 		// services

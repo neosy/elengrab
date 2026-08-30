@@ -12,7 +12,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-func (a *Auth) AuthenticateUser(
+func (a *auth) AuthenticateUser(
 	ctx context.Context,
 	req *dto.AuthUserRequest,
 ) (*dto.AuthUserResponse, error) {

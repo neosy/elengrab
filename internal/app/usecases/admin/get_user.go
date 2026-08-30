@@ -6,6 +6,6 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
-func (a *Admin) GetAllUsersWithoutGuest(ctx context.Context) ([]*dauth.User, error) {
+func (a *admin) GetAllUsersWithoutGuest(ctx context.Context) ([]*dauth.User, error) {
 	return a.adminPanel.GetAllUsersWithoutGuest(ctx)
 }

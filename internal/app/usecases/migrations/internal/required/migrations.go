@@ -3,8 +3,8 @@ package required
 import (
 	"log/slog"
 
-	"github.com/neosy/elengrab/internal/app/usecases/migrations/internal/dependencies"
 	"github.com/neosy/elengrab/internal/app/usecases/migrations/internal/base"
+	"github.com/neosy/elengrab/internal/app/usecases/migrations/internal/dependencies"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
