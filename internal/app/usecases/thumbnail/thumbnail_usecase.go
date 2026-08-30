@@ -9,7 +9,7 @@ import (
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
-type Thumbnail struct {
+type thumbnail struct {
 	logger  *slog.Logger
 	mappers *mappers.Mappers
 
@@ -33,8 +33,8 @@ func NewThumbnail(
 	thumbnailFileCache persistence.ThumbnailFileCacheRepository,
 	// Usecaes
 	storage pstorage.ThumbnailsStorage,
-) *Thumbnail {
-	return &Thumbnail{
+) Thumbnail {
+	return &thumbnail{
 		logger:  logger,
 		mappers: mappers.NewMappers(),
 

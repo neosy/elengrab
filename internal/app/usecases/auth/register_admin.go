@@ -10,7 +10,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-func (a *Auth) RegisterAdmin(ctx context.Context, req *dto.RegisterAdminRequest) (*dto.AuthUserResponse, error) {
+func (a *auth) RegisterAdmin(ctx context.Context, req *dto.RegisterAdminRequest) (*dto.AuthUserResponse, error) {
 	if req == nil {
 		return nil, autherr.ErrFunctionNilParameter
 	}
@@ -62,7 +62,7 @@ func (a *Auth) RegisterAdmin(ctx context.Context, req *dto.RegisterAdminRequest)
 	return userCtx, nil
 }
 
-func (u *Auth) createAdmin(ctx context.Context, req *idto.CreateUserRequest) (*dauth.User, error) {
+func (u *auth) createAdmin(ctx context.Context, req *idto.CreateUserRequest) (*dauth.User, error) {
 	userID, err := u.user.CreateAdmin(ctx, req)
 	if err != nil {
 		return nil, err

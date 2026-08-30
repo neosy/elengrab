@@ -8,7 +8,7 @@ import (
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
-func (t *Thumbnail) Create(ctx context.Context, req *dto.CreateThumbnailRequest) (uuid.UUID, error) {
+func (t *thumbnail) Create(ctx context.Context, req *dto.CreateThumbnailRequest) (uuid.UUID, error) {
 	thumbnail, err := t.mappers.MapCreateThumbnailRequestToThumbnailDomain(req)
 	if err != nil {
 		return uuid.Nil, err

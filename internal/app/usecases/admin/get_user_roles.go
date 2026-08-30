@@ -10,7 +10,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-func (a *Admin) GetUserInfo(ctx context.Context, userID uuid.UUID) (*dto.UserInfoResponse, error) {
+func (a *admin) GetUserInfo(ctx context.Context, userID uuid.UUID) (*dto.UserInfoResponse, error) {
 	user, err := a.adminPanel.FindByUserID(ctx, userID)
 	if err != nil {
 		return nil, err

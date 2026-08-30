@@ -6,6 +6,6 @@ import (
 	"github.com/google/uuid"
 )
 
-func (u *Link) SoftDelete(ctx context.Context, linkID uuid.UUID) error {
+func (u *link) SoftDelete(ctx context.Context, linkID uuid.UUID) error {
 	return u.link.SoftDelete(ctx, linkID)
 }
