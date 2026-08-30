@@ -9,7 +9,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (a *AuthWeb) RegisterUser(
+func (a *authWeb) RegisterUser(
 	ctx context.Context,
 	req *dto.RegisterUserRequest,
 ) (*dto.AuthUserResponse, error) {

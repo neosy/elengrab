@@ -9,7 +9,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (u *Link) ResolveShortCode(ctx context.Context, shortCode string) (*dlink.Link, error) {
+func (u *link) ResolveShortCode(ctx context.Context, shortCode string) (*dlink.Link, error) {
 	link, err := u.link.FindLastByShortCode(ctx, shortCode)
 	if err != nil {
 		return nil, err

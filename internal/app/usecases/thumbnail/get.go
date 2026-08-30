@@ -11,7 +11,7 @@ import (
 )
 
 // LoadByThumbID retrieves thumbnail metadata by ID and loads its file data from storage.
-func (t *Thumbnail) LoadByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, error) {
+func (t *thumbnail) LoadByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, error) {
 	thumbnail, err := t.repo.GetByThumbID(ctx, thumbID)
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (t *Thumbnail) LoadByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmed
 }
 
 // GetByThumbID retrieves thumbnail information by its ID without loading the raw image data.
-func (t *Thumbnail) GetByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, error) {
+func (t *thumbnail) GetByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, error) {
 	thumbnail, err := t.repo.GetByThumbID(ctx, thumbID)
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func (t *Thumbnail) GetByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedi
 
 // FindByThumbID retrieves thumbnail information by its ID without loading the raw image data.
 // Returns nil if the thumbnail does not exist.
-func (t *Thumbnail) FindByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, error) {
+func (t *thumbnail) FindByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, error) {
 	thumbnail, err := t.repo.FindByThumbID(ctx, thumbID)
 	if err != nil {
 		return nil, err

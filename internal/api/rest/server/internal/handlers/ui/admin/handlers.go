@@ -14,7 +14,7 @@ import (
 )
 
 type appUsecases struct {
-	admin *adminuc.Admin
+	admin adminuc.Admin
 }
 
 type AdminHandlers struct {

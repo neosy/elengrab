@@ -3,18 +3,18 @@ package link
 import (
 	"log/slog"
 
-	link "github.com/neosy/elengrab/internal/app/usecases/link/internal/link"
+	ilink "github.com/neosy/elengrab/internal/app/usecases/link/internal/link"
 	linkclick "github.com/neosy/elengrab/internal/app/usecases/link/internal/link_click"
 	"github.com/neosy/elengrab/internal/app/usecases/link/mappers"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 )
 
-type Link struct {
+type link struct {
 	logger  *slog.Logger
 	mappers *mappers.Mappers
 
 	// internal
-	link      *link.Link
+	link      *ilink.Link
 	linkClick *linkclick.LinkClick
 
 	// options
@@ -30,19 +30,19 @@ func NewLink(
 
 	// options
 	opts ...LinkOption,
-) *Link {
+) *link {
 	options := DefaultLinkOptions()
 
 	for _, opt := range opts {
 		opt(&options)
 	}
 
-	link := &Link{
+	link := &link{
 		logger:  logger,
 		mappers: mappers.NewMappers(),
 
 		// internal
-		link:      link.NewLink(logger, linkRepo),
+		link:      ilink.NewLink(logger, linkRepo),
 		linkClick: linkclick.NewLinkClick(logger, linkClickRepo),
 
 		// options
