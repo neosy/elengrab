@@ -31,6 +31,9 @@
 ### 📦 Build
 - Updated Go to 1.26.6.
 
+### ⚙️ Config
+- Disabled the per-IP connection limit to support deployments behind reverse proxies. [L124]
+
 ---
 
 ## v0.24.2 — 2026-08-13
