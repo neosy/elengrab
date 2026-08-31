@@ -134,9 +134,11 @@ func (s *httpServer) ListenAndServe(ctx context.Context, port string) error {
 		// --- Concurrency and limits ---
 		// Maximum number of concurrent connections
 		Concurrency: 1024,
-		// Prevents a single IP from exhausting workers
-		MaxConnsPerIP: 100,
+		// Prevents a single IP from exhausting workers.
+		// 0 disables the per-IP connection limit.
+		MaxConnsPerIP: 0,
 		// Periodically rotates long-lived connections
+		// 0 disables the limit.
 		MaxRequestsPerConn: 1000,
 
 		// --- Buffers and request sizes ---
