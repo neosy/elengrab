@@ -1,7 +1,7 @@
 {{- define "result-row-load-history" }}
     <div class="media-result__row-load-history" id="row-load-history"
 {{- if not .Extra.DisableHTMXEvent }}
-    hx-get="{{.BasePaths.DownloaderHistory}}"
+    hx-get="{{.BasePaths.DownloaderItems}}"
     hx-trigger="revealed once"
     hx-target="this"
     hx-swap="outerHTML"
