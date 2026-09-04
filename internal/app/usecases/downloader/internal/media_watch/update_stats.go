@@ -15,7 +15,7 @@ func (uc *MediaWatch) updateStats(
 	ctx context.Context,
 	downloadID uuid.UUID,
 	mediaDuration time.Duration,
-) error {
+) (*ddownload.MediaWatchStat, error) {
 	requiredChunkCount := calcRequiredChunkCount(mediaDuration)
 
 	views, err := uc.userChunk.CountViews(ctx, downloadID, requiredChunkCount)
@@ -26,30 +26,47 @@ func (uc *MediaWatch) updateStats(
 			"requiredChunkCount", requiredChunkCount,
 			"error", err,
 		)
-		return err
+		return nil, err
 	}
 
 	if views == 0 {
-		return nil
+		return nil, nil
 	}
 
-	stat := &ddownload.MediaWatchStat{
-		DownloadID: downloadID,
-		Views:      views,
-	}
+	var updatedStat *ddownload.MediaWatchStat
 
-	err = uc.stat.Write(ctx, stat)
-	if err != nil {
-		uc.logger.Warn(
-			"Failed to update media watch statistics",
-			"downloadID", downloadID,
-			"views", views,
-			"error", err,
-		)
-		return err
-	}
+	err = uc.stat.Tx(
+		ctx,
+		func(ctx context.Context) error {
+			stat, _ := uc.stat.Find(ctx, downloadID)
 
-	return nil
+			if stat != nil && stat.Views == views {
+				return nil
+			}
+
+			stat = &ddownload.MediaWatchStat{
+				DownloadID: downloadID,
+				Views:      views,
+			}
+
+			err = uc.stat.Write(ctx, stat)
+			if err != nil {
+				uc.logger.Warn(
+					"Failed to update media watch statistics",
+					"downloadID", downloadID,
+					"views", views,
+					"error", err,
+				)
+				return err
+			}
+
+			updatedStat, _ = uc.stat.Find(ctx, downloadID)
+
+			return nil
+		},
+	)
+
+	return updatedStat, err
 }
 
 func (uc *MediaWatch) updateUserStats(
@@ -127,11 +144,17 @@ func (uc *MediaWatch) updateStatsFromQueue(ctx context.Context) error {
 
 	}
 
+	updatedIDs := make(map[uuid.UUID]*ddownload.MediaWatchStat)
+
 	// Update overall stats for each downloadID
 	for downloadID, duration := range downloadIDs {
-		err := uc.updateStats(ctx, downloadID, duration)
+		stat, err := uc.updateStats(ctx, downloadID, duration)
 		if err != nil {
 			hasError = true
+		}
+
+		if stat != nil {
+			updatedIDs[downloadID] = stat
 		}
 	}
 
@@ -139,9 +162,16 @@ func (uc *MediaWatch) updateStatsFromQueue(ctx context.Context) error {
 		return errors.New("failed to update one or more media watch statistics")
 	}
 
-	// Notify the external handler about updated watch statistics.
+	// Update the external handler about updated user watch statistics for each processed downloadID and userID.
 	for key := range queue {
-		uc.onWatchStatsUpdated(ctx, key.authCtx(), key.downloadID)
+		if _, exists := updatedIDs[key.downloadID]; exists {
+			uc.onWatchUserStatsUpdated(ctx, key.authCtx(), key.downloadID)
+		}
+	}
+
+	// Update the external handler about updated watch statistics for each downloadID.
+	for _, stat := range updatedIDs {
+		uc.onWatchStatsUpdated(ctx, stat)
 	}
 
 	return nil
