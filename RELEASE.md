@@ -28,6 +28,7 @@
 - Restructured migrations into separate components and extracted them into a dedicated use case. [#450]
 - Split downloader interfaces into dedicated API, maintenance, and worker contracts. [#450]
 - Reworked SQLite repositories. [#450]
+- Renamed downloader history path from /downloader/history to /downloader/items. [#450]
 
 ### 🐛 Fix
 - Fixed media download updates to correctly apply changes using the latest download data. [L120]
