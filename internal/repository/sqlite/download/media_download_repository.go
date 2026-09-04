@@ -362,7 +362,15 @@ func (r *MediaDownloadRepository) iterateGetAll(
 	var conditions = squirrel.And{}
 	if len(r.queryOptions.statuses) > 0 {
 		statusStrings := r.downloadStatusesToStrings(r.queryOptions.statuses)
-		conditions = append(conditions, squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.Status, aliasDownloads): statusStrings})
+		conditions = append(conditions, squirrel.Eq{
+			eDownload.FieldNameWithAlias(&eDownload.Status, aliasDownloads): statusStrings,
+		})
+	}
+
+	if len(r.queryOptions.downloadIDs) > 0 {
+		conditions = append(conditions, squirrel.Eq{
+			eDownload.FieldNameWithAlias(&eDownload.DownloadID, aliasDownloads): r.queryOptions.downloadIDs,
+		})
 	}
 
 	var filterUserID string
@@ -482,6 +490,26 @@ func (r *MediaDownloadRepository) iterateGetAll(
 
 func (r *MediaDownloadRepository) IterateGetAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error {
 	return r.iterateGetAll(ctx, dbutils.OrderDesc, fn)
+}
+
+func (r *MediaDownloadRepository) IterateGetByIDs(ctx context.Context, ids []uuid.UUID, fn func(*ddownload.MediaDownload) error) error {
+	r.queryOptions.downloadIDs = ids
+	return r.iterateGetAll(ctx, dbutils.OrderDesc, fn)
+}
+
+func (r *MediaDownloadRepository) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ddownload.MediaDownload, error) {
+	downloads := make([]*ddownload.MediaDownload, 0)
+
+	err := r.IterateGetByIDs(ctx, ids,
+		func(download *ddownload.MediaDownload) error {
+			downloads = append(downloads, download)
+			return nil
+		})
+	if err != nil {
+		return nil, err
+	}
+
+	return downloads, nil
 }
 
 func (r *MediaDownloadRepository) GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error) {

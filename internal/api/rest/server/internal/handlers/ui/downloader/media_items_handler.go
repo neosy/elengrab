@@ -35,7 +35,7 @@ func (h *DownloaderHandlers) MediaItemsHandler(ctx *fasthttp.RequestCtx) {
 	filters := parseFilters(ctx)
 
 	var bodyBuffer bytes.Buffer
-	err := h.getDownloadsHistory(ctx, &bodyBuffer, ctxUser, before, filters)
+	err := h.listDownloadsItems(ctx, &bodyBuffer, ctxUser, before, filters)
 	if err != nil {
 		ctx.SetStatusCode(fasthttp.StatusOK)
 		ctx.SetBodyString("")
@@ -46,7 +46,7 @@ func (h *DownloaderHandlers) MediaItemsHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetBody(bodyBuffer.Bytes())
 }
 
-func (h *DownloaderHandlers) getDownloadsHistory(
+func (h *DownloaderHandlers) listDownloadsItems(
 	ctx context.Context,
 	buf *bytes.Buffer,
 	authCtx dauth.AuthContext,

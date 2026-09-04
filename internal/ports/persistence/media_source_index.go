@@ -29,5 +29,5 @@ type MediaSourceIndexRepository interface {
 	WithOptions(options dtypes.QueryMediaOptions) MediaSourceIndexRepository
 	WithDeleted() MediaSourceIndexRepository
 	WithUser(userID uuid.UUID) MediaSourceIndexRepository
-	WithFilters(filters map[string]any) MediaSourceIndexRepository
+	WithFilters(filters map[dtypes.QueryFilterName]any) MediaSourceIndexRepository
 }

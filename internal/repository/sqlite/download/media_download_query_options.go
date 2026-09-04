@@ -1,6 +1,8 @@
 package download
 
 import (
+	"strings"
+
 	"github.com/google/uuid"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/ports/persistence"
@@ -12,8 +14,29 @@ type mediaDownloadQueryOptions struct {
 
 	includeDeleted bool
 	statuses       []dtypes.MediaDownloadStatus
+	downloadIDs    []uuid.UUID
 
 	partialHash **string
+}
+
+type queryArgs struct {
+	Placeholder string
+	Values      []any
+}
+
+func (o *mediaDownloadQueryOptions) downloadIDsQuery() queryArgs {
+	placeholders := make([]string, len(o.downloadIDs))
+	values := make([]any, len(o.downloadIDs))
+
+	for i, id := range o.downloadIDs {
+		placeholders[i] = "?"
+		values[i] = id.String()
+	}
+
+	return queryArgs{
+		Placeholder: strings.Join(placeholders, ", "),
+		Values:      values,
+	}
 }
 
 func (r *MediaDownloadRepository) WithOptions(options dtypes.QueryMediaOptions) persistence.MediaDownloadRepository {
@@ -55,11 +78,11 @@ func (r *MediaDownloadRepository) WithUser(userID uuid.UUID) persistence.MediaDo
 	return r
 }
 
-func (r *MediaDownloadRepository) WithFilters(filters map[string]any) persistence.MediaDownloadRepository {
+func (r *MediaDownloadRepository) WithFilters(filters map[dtypes.QueryFilterName]any) persistence.MediaDownloadRepository {
 	var (
 		eDownload edownload.MediaDownload
 
-		fieldNameByAllowedFilter = map[string]string{
+		fieldNameByAllowedFilter = map[dtypes.QueryFilterName]string{
 			dtypes.QueryFilterNameUserID: eDownload.FieldName(&eDownload.UserID),
 			dtypes.QueryFilterNameTitle:  eDownload.FieldName(&eDownload.MediaTitleLower),
 		}
@@ -82,7 +105,15 @@ func (r *MediaDownloadRepository) WithFilters(filters map[string]any) persistenc
 			default:
 				r.filtersByName[fieldName] = value
 			}
+			continue
+		}
 
+		switch name {
+		case dtypes.QueryFilterNameDownloadIDs:
+			ids, ok := value.([]uuid.UUID)
+			if ok {
+				r.queryOptions.downloadIDs = ids
+			}
 		}
 	}
 

@@ -26,7 +26,7 @@ func (uc *downloader) ListDownloadInfo(
 		},
 	}
 
-	filters := make(map[string]any)
+	filters := make(map[dtypes.QueryFilterName]any)
 	if uc.authz.ShouldRestrictDownloads(authCtx.RoleIDs) {
 		filters[dtypes.QueryFilterNameUserID] = authCtx.UserID
 		if authCtx.IsUser() {
@@ -45,16 +45,24 @@ func (uc *downloader) listDownloadInfo(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	queryOptions dtypes.QueryMediaOptions,
-	filters map[string]any,
+	filters map[dtypes.QueryFilterName]any,
 	opts ...callOption,
 ) ([]*dto.MediaDownloadInfo, error) {
 	var (
 		mu sync.Mutex
 	)
 
-	downloads, err := uc.download.GetAll(ctx, &queryOptions, filters)
+	downloadIDs, err := uc.searchIndex.GetDownloadIDsFromMediaSourceIndex(ctx, &queryOptions, filters)
 	if err != nil {
-		uc.logger.Warn("Failed get downloads", "queryOptions", queryOptions, "error", err)
+		return nil, err
+	}
+
+	if len(downloadIDs) == 0 {
+		return nil, nil
+	}
+
+	downloads, err := uc.download.GetByIDs(ctx, downloadIDs)
+	if err != nil {
 		return nil, err
 	}
 

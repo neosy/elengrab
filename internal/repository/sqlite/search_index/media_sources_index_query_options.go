@@ -18,8 +18,16 @@ func (r *MediaSourceIndexRepository) WithOptions(options dtypes.QueryMediaOption
 		r.queryOptions.Before = options.Before
 	}
 
+	if options.Offset != nil {
+		r.queryOptions.Offset = options.Offset
+	}
+
 	if options.Limit != nil {
 		r.queryOptions.Limit = options.Limit
+	}
+
+	if len(options.OrderBy) > 0 {
+		r.queryOptions.OrderBy = options.OrderBy
 	}
 
 	if options.Visibility != nil {
@@ -46,11 +54,11 @@ func (r *MediaSourceIndexRepository) WithUser(userID uuid.UUID) persistence.Medi
 	return r
 }
 
-func (r *MediaSourceIndexRepository) WithFilters(filters map[string]any) persistence.MediaSourceIndexRepository {
+func (r *MediaSourceIndexRepository) WithFilters(filters map[dtypes.QueryFilterName]any) persistence.MediaSourceIndexRepository {
 	var (
 		eIndex esearchindex.MediaSourceIndex
 
-		fieldNameByAllowedFilter = map[string]string{
+		fieldNameByAllowedFilter = map[dtypes.QueryFilterName]string{
 			dtypes.QueryFilterNameUserID: eIndex.FieldName(&eIndex.UserID),
 			dtypes.QueryFilterNameTitle:  eIndex.FieldName(&eIndex.TitleLower),
 		}
@@ -77,5 +85,9 @@ func (r *MediaSourceIndexRepository) WithFilters(filters map[string]any) persist
 		}
 	}
 
+	return r
+}
+
+func (r *MediaSourceIndexRepository) WithOrderBy(orderBy []dtypes.QueryOrderBy) persistence.MediaSourceIndexRepository {
 	return r
 }

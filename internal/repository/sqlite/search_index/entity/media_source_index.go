@@ -33,10 +33,10 @@ type MediaSourceIndex struct {
 	Visibility string `db:"visibility"`
 
 	// Number of completed views
-	Views int `db:"views"`
+	Views int `db:"views" pfield:"views"`
 
 	// Media source creation timestamp
-	SourceCreatedAt time.Time `db:"source_created_at"`
+	SourceCreatedAt time.Time `db:"source_created_at" pfield:"createdAt"`
 
 	// Timestamp when the record was soft deleted
 	DeletedAt *time.Time `db:"deleted_at" insert:"false"`
@@ -73,6 +73,15 @@ func (e *MediaSourceIndex) FieldPointers() []any {
 func (e *MediaSourceIndex) FieldPointer(fieldName string) any {
 	ptr, _ := e.BaseEntity.FieldPointer(e, fieldName)
 	return ptr
+}
+
+// PaginateFieldName returns the field name with alias from the pagination tag.
+// Example:
+//
+//	var ent <TableEntity>
+//	fieldName := ent.PaginateFieldName(&view.SomeField)
+func (e *MediaSourceIndex) PaginateFieldName(fieldPtr any) string {
+	return e.BaseEntity.PaginateFieldName(e, fieldPtr)
 }
 
 // Values returns a list of values for fields that will be used for updates

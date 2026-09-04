@@ -24,7 +24,7 @@ import (
 
 func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, authCtx dauth.AuthContext) {
 	var rowsBuf bytes.Buffer
-	err := h.getDownloadsHistory(ctx, &rowsBuf, authCtx, time.Now().UTC(), nil)
+	err := h.listDownloadsItems(ctx, &rowsBuf, authCtx, time.Now().UTC(), nil)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
