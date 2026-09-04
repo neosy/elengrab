@@ -18,15 +18,13 @@ import (
 	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth/mappers"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
-	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 )
 
 type UserRepository struct {
 	mappers *mappers.Mappers
 	dbEntry persistence.DBEntry
 
-	filtersByName types.FiltersByName
-	queryOptions  queryOptions
+	queryOptions queryOptions
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -39,7 +37,7 @@ func NewUserRepository(dbEntry persistence.DBEntry) persistence.UserRepositoryFa
 			mappers: mappers.NewMappers(),
 			dbEntry: dbEntry,
 
-			filtersByName: make(map[string]any),
+			queryOptions: newQueryOptions(),
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -67,8 +65,8 @@ func (r *UserRepository) Insert(ctx context.Context, user *dauth.User) error {
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eUser.Fields()
-	values := eUser.Values()
+	fields := eUser.InsertFields()
+	values := eUser.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -105,7 +103,7 @@ func (r *UserRepository) Update(ctx context.Context, user *dauth.User) error {
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
 		Update(eUser.TableName()).
-		SetMap(eUser.FieldsMap()).
+		SetMap(eUser.InsertFieldValues()).
 		Where(squirrel.Eq{eUser.FieldName(&eUser.UserID): eUser.UserID}).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
@@ -240,21 +238,21 @@ func (r *UserRepository) findByFieldName(ctx context.Context, fieldName string, 
 	)
 
 	selectFields := append(
-		eUser.FieldsAllWithAlias(aliasUsers),
-		"GROUP_CONCAT("+eUserRole.FieldNameWithAlias(&eUserRole.RoleID, aliasUserRoles)+") AS roles",
+		eUser.QueryFieldsWithAlias(aliasUsers),
+		"GROUP_CONCAT("+eUserRole.FieldName(&eUserRole.RoleID, aliasUserRoles)+") AS roles",
 	)
 
 	var sqlWhere squirrel.Sqlizer
 
 	if fieldName == eUser.FieldName(&eUser.Login) {
 		sqlWhere = squirrel.Expr(
-			eUser.FieldNameWithAlias(eUser.FieldPointer(fieldName), aliasUsers)+" = ? COLLATE NOCASE",
+			eUser.FieldName(fieldName, aliasUsers)+" = ? COLLATE NOCASE",
 			value,
 		)
 
 	} else {
 		sqlWhere = squirrel.Eq{
-			eUser.FieldNameWithAlias(eUser.FieldPointer(fieldName), aliasUsers): value,
+			eUser.FieldName(fieldName, aliasUsers): value,
 		}
 	}
 
@@ -262,11 +260,11 @@ func (r *UserRepository) findByFieldName(ctx context.Context, fieldName string, 
 		From(eUser.TableName() + " AS " + aliasUsers).
 		LeftJoin(
 			eUserRole.TableName() + " AS " + aliasUserRoles +
-				" ON " + eUserRole.FieldNameWithAlias(&eUserRole.UserID, aliasUserRoles) +
-				" = " + eUser.FieldNameWithAlias(&eUser.UserID, aliasUsers),
+				" ON " + eUserRole.FieldName(&eUserRole.UserID, aliasUserRoles) +
+				" = " + eUser.FieldName(&eUser.UserID, aliasUsers),
 		).
 		Where(sqlWhere).
-		GroupBy(eUser.FieldNameWithAlias(&eUser.UserID, aliasUsers)).
+		GroupBy(eUser.FieldName(&eUser.UserID, aliasUsers)).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()
@@ -308,12 +306,11 @@ func (r *UserRepository) findByFieldName(ctx context.Context, fieldName string, 
 }
 
 func (r *UserRepository) IterateGetAll(ctx context.Context, fn func(*dauth.User) error) error {
-	return r.iterateGetAll(ctx, dbutils.OrderAsc, fn)
+	return r.iterateGetAll(ctx, fn)
 }
 
 func (r *UserRepository) iterateGetAll(
 	ctx context.Context,
-	sortOrderBy string,
 	fn func(*dauth.User) error,
 ) error {
 	var (
@@ -325,39 +322,36 @@ func (r *UserRepository) iterateGetAll(
 	)
 
 	selectFields := append(
-		eUser.FieldsAllWithAlias(aliasUsers),
-		"GROUP_CONCAT("+eUserRole.FieldNameWithAlias(&eUserRole.RoleID, aliasUserRoles)+") AS roles",
+		eUser.QueryFieldsWithAlias(aliasUsers),
+		"GROUP_CONCAT("+eUserRole.FieldName(&eUserRole.RoleID, aliasUserRoles)+") AS roles",
 	)
 
 	var sqlWhere = squirrel.And{}
 
-	if r.queryOptions.Before != nil && !r.queryOptions.Before.IsZero() {
-		t := r.queryOptions.Before.UTC().Add(-1 * time.Nanosecond)
-		sqlWhere = append(sqlWhere, squirrel.Lt{eUser.FieldNameWithAlias(&eUser.CreatedAt, aliasUsers): t})
-	}
 	if r.queryOptions.withoutGuest != nil && *r.queryOptions.withoutGuest {
-		sqlWhere = append(sqlWhere, squirrel.NotEq{eUserRole.FieldNameWithAlias(&eUserRole.RoleID, aliasUserRoles): dtypes.UserRoleGuest.String()})
+		sqlWhere = append(sqlWhere, squirrel.NotEq{eUserRole.FieldName(&eUserRole.RoleID, aliasUserRoles): dtypes.UserRoleGuest.String()})
 	}
 
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, squirrel.Eq{eUser.FieldNameWithAlias(eUser.FieldPointer(name), aliasUsers): value})
+			sqlWhere = append(sqlWhere, filter.Condition().SqlCondition(eUser.FieldName(name, aliasUsers)))
 		}
 	}
 
 	// Create an ORDER BY clause based on fieldы with the specified sort order.
-	orderBy := "MIN(" + eUser.FieldNameWithAlias(&eUser.Login, aliasUsers) + ") COLLATE NOCASE" + " " + sortOrderBy
+	qOrderBy := "MIN(" + eUser.FieldName(&eUser.Login, aliasUsers) +
+		") COLLATE NOCASE" + " " + dbutils.OrderAscending.String()
 
 	qb := squirrel.Select(selectFields...).
 		From(eUser.TableName() + " AS " + aliasUsers).
 		LeftJoin(
 			eUserRole.TableName() + " AS " + aliasUserRoles +
-				" ON " + eUserRole.FieldNameWithAlias(&eUserRole.UserID, aliasUserRoles) +
-				" = " + eUser.FieldNameWithAlias(&eUser.UserID, aliasUsers),
+				" ON " + eUserRole.FieldName(&eUserRole.UserID, aliasUserRoles) +
+				" = " + eUser.FieldName(&eUser.UserID, aliasUsers),
 		).
 		Where(sqlWhere).
-		OrderBy(orderBy).
-		GroupBy(eUser.FieldNameWithAlias(&eUser.UserID, aliasUsers)).
+		OrderBy(qOrderBy).
+		GroupBy(eUser.FieldName(&eUser.UserID, aliasUsers)).
 		PlaceholderFormat(squirrel.Dollar)
 
 	if r.queryOptions.Limit != nil && *r.queryOptions.Limit > 0 {
@@ -466,7 +460,7 @@ func (r *UserRepository) existsByFieldName(ctx context.Context, fieldName string
 	return exists, nil
 }
 
-func (r *UserRepository) WithFilters(filters map[string]any) persistence.UserRepository {
+func (r *UserRepository) WithFilters(filters ...dtypes.QueryFilter) persistence.UserRepository {
 	if len(filters) == 0 {
 		return r
 	}
@@ -480,10 +474,10 @@ func (r *UserRepository) WithFilters(filters map[string]any) persistence.UserRep
 		}
 	)
 
-	for name, value := range filters {
-		fieldName := fieldNamesAllowed[name]
+	for _, filter := range filters {
+		fieldName := fieldNamesAllowed[filter.Name.String()]
 		if fieldName != "" {
-			r.filtersByName[fieldName] = value
+			r.queryOptions.Filters.Add(fieldName, filter.Condition())
 		}
 
 	}
@@ -494,7 +488,7 @@ func (r *UserRepository) WithFilters(filters map[string]any) persistence.UserRep
 func (r *UserRepository) WithoutDeleted() persistence.UserRepository {
 	var eUser eauth.User
 
-	r.filtersByName[eUser.FieldName(&eUser.DeletedAt)] = nil
+	r.queryOptions.Filters.Add(eUser.FieldName(&eUser.DeletedAt), nil)
 
 	return r
 }

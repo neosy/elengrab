@@ -18,18 +18,19 @@ var (
 		"utilities.css",
 		"variables.css",
 
-		"page-index.css",
-		"theme-switcher.css",
+		"components.css",
+		"player.css",
+		"video-preview.css",
+		"notifications.css",
 
 		"menu.css",
 		"menu-variants.css",
 
-		"grab-form.css",
-		"result-rows.css",
+		"theme-switcher.css",
+		"page-index.css",
 
-		"player.css",
-		"video-preview.css",
-		"notifications.css",
+		"grab-form.css",
+		"media-result.css",
 	}
 
 	adminPageCssPaths = cssFileNames{
@@ -37,10 +38,12 @@ var (
 		"base.css",
 		"utilities.css",
 		"variables.css",
+
+		"components.css",
 		"notifications.css",
 
-		"page-admin.css",
 		"theme-switcher.css",
+		"page-admin.css",
 	}
 
 	authPageCssPaths = cssFileNames{
@@ -50,8 +53,8 @@ var (
 		"utilities.css",
 		"variables.css",
 
-		"page-auth.css",
 		"theme-switcher.css",
+		"page-auth.css",
 	}
 
 	watchPageCssPaths = cssFileNames{
@@ -61,10 +64,11 @@ var (
 		"utilities.css",
 		"variables.css",
 
-		"page-watch.css",
-		"theme-switcher.css",
-
+		"components.css",
 		"notifications.css",
+
+		"theme-switcher.css",
+		"page-watch.css",
 	}
 
 	editMediaPageCssPaths = cssFileNames{
@@ -75,10 +79,11 @@ var (
 		"variables.css",
 		"variables-page.css",
 
-		"page-edit-media.css",
-		"theme-switcher.css",
-
+		"components.css",
 		"notifications.css",
+
+		"theme-switcher.css",
+		"page-edit-media.css",
 	}
 )
 

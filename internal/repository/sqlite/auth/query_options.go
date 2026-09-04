@@ -1,11 +1,15 @@
 package auth
 
-import (
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
-)
+import "github.com/neosy/elengrab/internal/repository/sqlite/types"
 
 type queryOptions struct {
-	dtypes.QueryOptions
+	types.QueryOptions
 
 	withoutGuest *bool
+}
+
+func newQueryOptions() queryOptions {
+	return queryOptions{
+		QueryOptions: types.NewQueryOptions(),
+	}
 }

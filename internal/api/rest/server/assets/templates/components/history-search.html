@@ -9,8 +9,9 @@
                     maxlength="255"
                     autocomplete="off"
                     hx-post="{{ .BasePaths.DownloaderSearch }}"
-                    hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load[this.value.length > 0]"
+                    hx-trigger="input[this.value.length == 0 || this.value.length >= 2] changed delay:500ms, keyup[key=='Enter']"
                     hx-target="#media-result-rows"
+                    hx-on::config-request="event.detail.parameters.viewMode = document.querySelector('.view-mode-tabs').dataset.viewMode"
                     hx-swap="outerHTML">
                     <button class="history-search__clear-button" id="historySearchClearButton" type="button">×</button>
                 </div>

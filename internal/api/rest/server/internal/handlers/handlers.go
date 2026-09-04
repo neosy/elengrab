@@ -11,7 +11,6 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/static"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
-	httptemplates "github.com/neosy/elengrab/internal/api/rest/server/templates"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
@@ -68,7 +67,7 @@ func New(logger *slog.Logger, deps *Dependencies) (*Handlers, error) {
 	}, nil
 }
 
-func loadPageTemplates(source *template.Template, assets *assets.Assets) (*httptemplates.Templates, error) {
+func loadPageTemplates(source *template.Template, apiAssets *assets.Assets) (*assets.Templates, error) {
 	templatePages := make(map[string]*template.Template)
 
 	for _, page := range pages.AllPages() {
@@ -83,7 +82,7 @@ func loadPageTemplates(source *template.Template, assets *assets.Assets) (*httpt
 			return nil, err
 		}
 
-		t, err = t.ParseFiles(filepath.Join(assets.FolderPaths().Pages(), page.FileName()))
+		t, err = t.ParseFiles(filepath.Join(apiAssets.FolderPaths().Pages(), page.FileName()))
 		if err != nil {
 			return nil, fmt.Errorf("parse page %s: %w", key, err)
 		}
@@ -91,7 +90,7 @@ func loadPageTemplates(source *template.Template, assets *assets.Assets) (*httpt
 		templatePages[key] = t
 	}
 
-	return &httptemplates.Templates{
+	return &assets.Templates{
 		Base:  source,
 		Pages: templatePages,
 	}, nil

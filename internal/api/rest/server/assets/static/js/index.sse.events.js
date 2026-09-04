@@ -13,11 +13,11 @@ export function handleRowAdd(event) {
         if (!data.itemId || !data.html) return
 
         // Find the top placeholder div
-        const placeholder = document.getElementById(DOM_IDS.rowTopPlaceholder);
-        if (!placeholder) return;
+        const itemsEl = document.getElementById(DOM_IDS.mediaResultItems);
+        if (!itemsEl) return;
 
         // Insert all rows right after the placeholder
-        placeholder.insertAdjacentHTML("afterend", data.html);
+        itemsEl.insertAdjacentHTML("afterbegin", data.html);
 
         const newEl = document.getElementById(DOM_IDS.row(data.itemId));
         if (newEl) {

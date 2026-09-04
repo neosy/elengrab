@@ -335,10 +335,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init action button for input field
     actionButton.initInputPasteClearButton(grabURLInput, grabInputActionBtn);
 
-    // Init action button for search input
-    const searchInputClearButton = actionButton.initInputClearButton(DOM_ELEMENTS.historySearchInputWrapper, DOM_ELEMENTS.historySearchClearButton);
-
     // Init search elements
+    const searchInputClearButton = actionButton.initInputClearButton(DOM_ELEMENTS.historySearchInputWrapper, DOM_ELEMENTS.historySearchClearButton);
     view.initSearching(searchInputClearButton.clear);
 
     // Init header user menu elements
@@ -356,14 +354,22 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // Lazy-load video thumbnails.
-    view.initLazyImages({
+    const thumbnailLazyImages = view.initLazyImages({
         containerSelector: DOM_SELECTORS.mediaResultThumbnailPlayButton,
         placeholderSelector: DOM_SELECTORS.mediaResultThumbnailPlaceholder,
     });
 
     // Lazy-load channel avatars.
-    view.initLazyImages({
+    const avatarLazyImages = view.initLazyImages({
         containerSelector: DOM_SELECTORS.mediaResultAvatar,
+    });
+
+    // Initialize view mode bar
+    view.initViewModeBar({
+        lazyObservers: [
+            thumbnailLazyImages,
+            avatarLazyImages,
+        ],
     });
 
     // Create SSE connection

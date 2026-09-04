@@ -81,9 +81,9 @@ func SetColumnTagName(tagName string) {
 	})
 }
 
-// Fields returns fields with a tag and without operTagName set to "false".
-func Fields(ent any, operTagName TagName) []string {
-	return FieldsExceptFalseTag(ent, operTagName)
+// FieldNames returns fields with a tag and without operationTagName set to "false".
+func FieldNames(ent any, operationTagName TagName) []string {
+	return FieldNamesExceptFalseTag(ent, operationTagName)
 }
 
 // FieldsWithTrueTag returns a list of fields that have the operTagName explicitly set to tagValueTrue.
@@ -108,8 +108,8 @@ func FieldsWithTrueTag(ent any, operTagName TagName) []string {
 	return result
 }
 
-// FieldsExceptFalseTag returns fields with a tag and without operTagName set to "false".
-func FieldsExceptFalseTag(ent any, operTagName TagName) []string {
+// FieldNamesExceptFalseTag returns fields with a tag and without operationTagName set to "false".
+func FieldNamesExceptFalseTag(ent any, operationTagName TagName) []string {
 	typeInfo := structType(ent)
 
 	result := make([]string, 0, typeInfo.NumField())
@@ -118,12 +118,57 @@ func FieldsExceptFalseTag(ent any, operTagName TagName) []string {
 		fieldName := field.Tag.Get(columnConfig.tagName.String())
 
 		if fieldName != "" &&
-			field.Tag.Get(operTagName.String()) != tagValueFalse {
+			field.Tag.Get(operationTagName.String()) != tagValueFalse {
 			result = append(result, fieldName)
 		}
 	}
 
 	return result
+}
+
+// FieldNamesByTag returns a list of field names defined by the specified tag.
+// Only fields with a non-empty value for the specified tag are included.
+func FieldNamesByTag(ent any, tag TagName) []string {
+	typeInfo := structType(ent)
+
+	names := make([]string, 0)
+
+	for field := range typeInfo.Fields() {
+		fieldName := field.Tag.Get(tag.String())
+
+		if fieldName != "" {
+			names = append(names, fieldName)
+		}
+	}
+
+	return names
+}
+
+// FieldNamesByTags returns a map that maps values of tagA to values of tagB.
+// Only fields that have both tags defined are included.
+//
+// For example, given:
+//
+//	SourceCreatedAt time.Time `db:"created_at" pfield:"createdAt"`
+//
+// FieldNamesByTags(ent, "pfield", "db") returns:
+//
+//	map[string]string{"createdAt": "created_at"}
+func FieldNamesByTags(ent any, tagA, tagB TagName) map[string]string {
+	typeInfo := structType(ent)
+
+	names := make(map[string]string)
+
+	for field := range typeInfo.Fields() {
+		fieldAName := field.Tag.Get(tagA.String())
+		fieldBName := field.Tag.Get(tagB.String())
+
+		if fieldAName != "" && fieldBName != "" {
+			names[fieldAName] = fieldBName
+		}
+	}
+
+	return names
 }
 
 // Values returns field values for which operTagName is not explicitly set to "false".
