@@ -11,12 +11,11 @@ import (
 type MediaDownload struct {
 	dbentity.BaseEntity[MediaDownload]
 	DownloadID               uuid.UUID  `db:"file_id"`
-	UserID                   *uuid.UUID `db:"user_id"`
+	UserID                   *uuid.UUID `db:"user_id" pfield:"userID"`
 	Status                   string     `db:"file_status"`
 	MediaURL                 string     `db:"media_url"`
 	MediaTitleOriginal       string     `db:"media_title_original"`
 	MediaTitle               string     `db:"media_title"`
-	MediaTitleLower          string     `db:"media_title_lower"`
 	MediaDescriptionOriginal *string    `db:"media_description_original"`
 	MediaDescription         *string    `db:"media_description"`
 	ChannelID                *string    `db:"channel_id"`
@@ -30,9 +29,15 @@ type MediaDownload struct {
 	ErrorMessage             *string    `db:"error_message"`
 	Visibility               string     `db:"visibility"`
 	DownloadedAt             *string    `db:"downloaded_at"`
-	CreatedAt                time.Time  `db:"created_at" insert:"false"`
+	CreatedAt                time.Time  `db:"created_at" insert:"false" pfield:"createdAt"`
 	UpdatedAt                time.Time  `db:"updated_at" sqlexpr:"CURRENT_TIMESTAMP"`
 	DeletedAt                *time.Time `db:"deleted_at" insert:"false"`
+}
+
+var mediaDownloadMeta dbentity.EntityMetadata
+
+func init() {
+	mediaDownloadMeta = dbentity.NewEntityMetadata(MediaDownload{}.BaseEntity)
 }
 
 // TableName returns the table name
@@ -40,25 +45,17 @@ func (e *MediaDownload) TableName() string {
 	return tablenames.Files
 }
 
-// FieldName field name from sql tag by structure field name
-// Example:
-// var ent <TableEntity>
-// ent.FieldName(&ent.SalesId)
-func (e *MediaDownload) FieldName(fieldPtr any) string {
-	return e.BaseEntity.FieldName(e, fieldPtr)
-}
-
-// FieldNameWithAlias field name with alieas from sql tag by structure field pointer
-// Example:
-// var ent <TableEntity>
-// ent.FieldName(ent, &ent.SalesId, "alias")
-func (e *MediaDownload) FieldNameWithAlias(fieldPtr any, alias string) string {
-	return e.BaseEntity.FieldNameWithAlias(e, fieldPtr, alias)
-}
-
-// Values returns a list of values for fields that will be used for updates
-func (e *MediaDownload) Values() []any {
-	return e.BaseEntity.Values(e)
+// FieldName returns the field name from the SQL tag using a structure field name or pointer,
+// optionally prefixed with a table alias.
+//
+// Examples:
+//
+//	var entity <TableEntity>
+//	entity.FieldName("created_at", "")              // "created_at"
+//	entity.FieldName(&entity.CreatedAt, "")         // "created_at"
+//	entity.FieldName(&entity.CreatedAt, "users")    // "users.created_at"
+func (e *MediaDownload) FieldName(field any, alias ...string) string {
+	return e.BaseEntity.FieldName(e, field, alias...)
 }
 
 // FieldPointers returns a slice of pointers to all exported fields of the given struct.
@@ -71,4 +68,40 @@ func (e *MediaDownload) FieldPointers() []any {
 func (e *MediaDownload) FieldPointer(fieldName string) any {
 	ptr, _ := e.BaseEntity.FieldPointer(e, fieldName)
 	return ptr
+}
+
+// PaginateFieldNameFromPointer returns the field name with alias from the pagination tag.
+// Example:
+//
+//	var ent <TableEntity>
+//	fieldName := ent.PaginateFieldName(&view.SomeField)
+func (e *MediaDownload) PaginateFieldNameFromPointer(fieldPtr any) string {
+	return e.BaseEntity.PaginateFieldNameFromPointer(e, fieldPtr)
+}
+
+// InsertFields returns fields included in insert operations.
+// Fields with the `insert:"false"` tag are excluded.
+func (e *MediaDownload) InsertFields() []string {
+	return mediaDownloadMeta.InsertFields()
+}
+
+// QueryFields returns a list of fields that will be used for queries
+func (e *MediaDownload) QueryFields() []string {
+	return mediaDownloadMeta.QueryFields()
+}
+
+// QueryFieldsWithAlias returns a list of fields with alias that will be used for queries
+func (e *MediaDownload) QueryFieldsWithAlias(alias string) []string {
+	return e.BaseEntity.FieldsWithAlias(e.QueryFields(), alias)
+}
+
+// InsertValues returns values for fields included in insert operations.
+// Fields with the `insert:"false"` tag are excluded.
+func (e *MediaDownload) InsertValues() []any {
+	return e.BaseEntity.InsertValues(e)
+}
+
+// FieldValues returns a map of field names to their corresponding values
+func (e *MediaDownload) InsertFieldValues() map[string]any {
+	return e.FieldValues(e.InsertFields(), e.InsertValues())
 }

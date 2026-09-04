@@ -61,8 +61,8 @@ func (r *ThumbnailRepository) Save(ctx context.Context, thumbnail *dmedia.Thumbn
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eThumbnail.Fields()
-	values := eThumbnail.Values()
+	fields := eThumbnail.InsertFields()
+	values := eThumbnail.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -114,7 +114,7 @@ func (r *ThumbnailRepository) FindByThumbID(
 	var ent emedia.Thumbnail
 
 	// Build SQL query
-	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(ent.QueryFields()...).
 		From(ent.TableName()).
 		Where(squirrel.Eq{ent.FieldName(&ent.ThumbID): thumbID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
@@ -200,7 +200,7 @@ func (r *ThumbnailRepository) FindByVersion(
 	}
 
 	// Build SQL query
-	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(ent.QueryFields()...).
 		From(ent.TableName()).
 		Where(sqlWehere).
 		PlaceholderFormat(squirrel.Dollar).
@@ -259,13 +259,15 @@ func (r *ThumbnailRepository) FindByMediaIDBest(
 			ELSE 5
 		END`
 
+	orderBy := dbutils.SortBy(ent.FieldName(&ent.Version), dbutils.OrderDescending)
+
 	// Build SQL query
-	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(ent.QueryFields()...).
 		From(ent.TableName()).
 		Where(sqlWehere).
 		OrderBy(
 			sqlOrderVariant,
-			dbutils.OrderBy(dbutils.Flds{ent.FieldName(&ent.Version): dbutils.OrderDesc}),
+			orderBy.Query(),
 		).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
@@ -316,7 +318,7 @@ func (r *ThumbnailRepository) GetByMediaID(
 	}
 
 	// Build SQL query
-	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(ent.QueryFields()...).
 		From(ent.TableName()).
 		Where(sqlWehere).
 		PlaceholderFormat(squirrel.Dollar).

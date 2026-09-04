@@ -18,7 +18,7 @@ import (
 
 type UserSessionRepository struct {
 	mappers *mappers.Mappers
-	dbEntry   persistence.DBEntry
+	dbEntry persistence.DBEntry
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -29,7 +29,7 @@ func NewUserSessionRepository(dbEntry persistence.DBEntry) persistence.UserSessi
 	return func() persistence.UserSessionRepository {
 		return &UserSessionRepository{
 			mappers: mappers.NewMappers(),
-			dbEntry:   dbEntry,
+			dbEntry: dbEntry,
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -60,8 +60,8 @@ func (r *UserSessionRepository) Save(ctx context.Context, session *dauth.UserSes
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eSession.Fields()
-	values := eSession.Values()
+	fields := eSession.InsertFields()
+	values := eSession.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -88,7 +88,7 @@ func (r *UserSessionRepository) Save(ctx context.Context, session *dauth.UserSes
 func (r *UserSessionRepository) FindBySessionID(ctx context.Context, sessionID uuid.UUID) (*dauth.UserSession, error) {
 	var eSession eauth.UserSession
 
-	sqlQuery, args, err := squirrel.Select(eSession.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eSession.QueryFields()...).
 		From(eSession.TableName()).
 		Where(squirrel.Eq{eSession.FieldName(&eSession.SessionID): sessionID}).
 		PlaceholderFormat(squirrel.Dollar).
@@ -133,7 +133,7 @@ func (r *UserSessionRepository) FindBySessionID(ctx context.Context, sessionID u
 func (r *UserSessionRepository) FindByToken(ctx context.Context, token string) (*dauth.UserSession, error) {
 	var eSession eauth.UserSession
 
-	sqlQuery, args, err := squirrel.Select(eSession.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eSession.QueryFields()...).
 		From(eSession.TableName()).
 		Where(squirrel.Eq{eSession.FieldName(&eSession.SessionToken): token}).
 		PlaceholderFormat(squirrel.Dollar).

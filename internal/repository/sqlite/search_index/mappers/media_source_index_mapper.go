@@ -1,6 +1,7 @@
 package mappers
 
 import (
+	"database/sql"
 	"strings"
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -43,4 +44,27 @@ func (m *Mappers) MapSourceIndexEntityToDomain(index *esearchindex.MediaSourceIn
 		SourceCreatedAt: index.SourceCreatedAt,
 		DeletedAt:       index.DeletedAt,
 	}, nil
+}
+
+func (m *Mappers) MapRowsToSourceIndexes(rows *sql.Rows) ([]*ddownload.MediaSourceIndex, error) {
+	var (
+		eIndex  esearchindex.MediaSourceIndex
+		indexes []*ddownload.MediaSourceIndex
+	)
+
+	for rows.Next() {
+		err := rows.Scan(eIndex.FieldPointers()...)
+		if err != nil {
+			return nil, err
+		}
+
+		index, err := m.MapSourceIndexEntityToDomain(&eIndex)
+		if err != nil {
+			return nil, err
+		}
+
+		indexes = append(indexes, index)
+	}
+
+	return indexes, nil
 }

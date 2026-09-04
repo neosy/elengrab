@@ -1,6 +1,7 @@
 import * as constants from './constants.js';
 import storageState from './storage-state.js';
 import * as notify from './notifications.js';
+import { DOM_IDS, DOM_ELEMENTS, DOM_SELECTORS } from "./index.dom.js";
 
 export function applyGridView(isGridView) {
     document.body.classList.toggle(constants.CLASS_NAMES.gridView, isGridView);
@@ -142,4 +143,66 @@ export function initLazyImages({
     document.addEventListener("htmx:afterSwap", (event) => {
         observe(event.target);
     });
+
+    return { observe };
+}
+
+export function initViewModeBar({ lazyObservers }) {
+    const tabs = document.querySelector(DOM_SELECTORS.viewModeTabs);
+
+    if (!tabs) {
+        return;
+    }
+
+    tabs.addEventListener('click', (event) => {
+        const tab = event.target.closest(DOM_SELECTORS.viewModeTab);
+
+        if (!tab) {
+            return;
+        }
+
+        tabs.dataset.viewMode = tab.dataset.viewMode;
+
+        tabs.querySelectorAll(DOM_SELECTORS.viewModeTab).forEach((item) => {
+            const selected = item === tab;
+
+            item.classList.toggle('active', selected);
+            item.setAttribute('aria-selected', String(selected));
+        });
+
+        setViewMode(tab.dataset.viewMode);
+    });
+
+    async function setViewMode(viewMode) {
+        const items = document.getElementById(DOM_IDS.mediaResultItems);
+
+        if (!items) {
+            return;
+        }
+
+        const searchText = DOM_ELEMENTS.historySearchInput?.value ?? "";
+
+        const response = await fetch(constants.API_PATHS.downloaderItems, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                viewMode,
+                search: searchText,
+             }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Search failed: ${response.status}`);
+        }
+
+        items.innerHTML = await response.text();
+
+        htmx.process(items);
+
+        for (const observer of lazyObservers) {
+            observer.observe(items);
+        }
+    }
 }

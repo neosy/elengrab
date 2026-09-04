@@ -19,9 +19,6 @@ CREATE TABLE IF NOT EXISTS files (
     -- Title media
     media_title TEXT NOT NULL,
 
-    -- MediaTitleLower in lowercase for efficient case-insensitive searches
-    media_title_lower TEXT NOT NULL,
-
     -- Original description from the media source
     media_description_original TEXT NULL,
 
@@ -93,8 +90,6 @@ ON files(user_id);
 CREATE INDEX files_downloaded_created_sort_idx
 ON files(COALESCE(downloaded_at, created_at) DESC);
 
--- Create index for media_title, media_title_lower fields
+-- Create index for media_title fields
 CREATE INDEX IF NOT EXISTS files_media_title_idx
 ON files(media_title);
-CREATE INDEX IF NOT EXISTS files_media_title_lower_idx
-ON files(media_title_lower);

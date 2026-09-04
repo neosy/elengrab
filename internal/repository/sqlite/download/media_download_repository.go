@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"slices"
-	"strings"
 	"time"
 
 	"github.com/Masterminds/squirrel"
@@ -18,8 +17,6 @@ import (
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
-	"github.com/neosy/elengrab/internal/repository/sqlite/sqlutil"
-	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 )
 
 type MediaDownloadRepository struct {
@@ -27,20 +24,10 @@ type MediaDownloadRepository struct {
 	dbEntry persistence.DBEntry
 
 	// filters
-	filtersByName types.FiltersByName
-	queryOptions  mediaDownloadQueryOptions
+	queryOptions mediaDownloadQueryOptions
 
 	// options
 	retryOptions dbexec.RetryOptions
-}
-
-type mediaDownloadQueryOptions struct {
-	statuses       []dtypes.MediaDownloadStatus
-	beforeTime     *time.Time
-	limit          *uint64
-	partialHash    **string
-	visibility     *dtypes.QueryMediaVisibility
-	isGuestRequest bool
 }
 
 // NewMediaDownloadRepository returns a factory for creating media download repositories.
@@ -50,8 +37,7 @@ func NewMediaDownloadRepository(dbEntry persistence.DBEntry) persistence.MediaDo
 			mappers: mappers.NewMappers(),
 			dbEntry: dbEntry,
 
-			filtersByName: make(map[string]any),
-			queryOptions:  mediaDownloadQueryOptions{},
+			queryOptions: newMediaDownloadQueryOptions(),
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -90,8 +76,8 @@ func (r *MediaDownloadRepository) Save(ctx context.Context, download *ddownload.
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eDownload.Fields()
-	values := eDownload.Values()
+	fields := eDownload.InsertFields()
+	values := eDownload.InsertValues()
 
 	// If this is an update — add the UpdatedAt field with the current time
 	// if isUpd {
@@ -290,20 +276,20 @@ func (r *MediaDownloadRepository) FindByDownloadID(ctx context.Context, download
 		aliasTasks     = "t"
 	)
 
-	selectFields := append(eDownload.FieldsAllWithAlias(aliasDownloads), eTask.FieldsAllWithAlias(aliasTasks)...)
+	selectFields := append(eDownload.QueryFieldsWithAlias(aliasDownloads), eTask.QueryFieldsWithAlias(aliasTasks)...)
 
 	sqlWhere := squirrel.And{}
 
 	sqlWhere = append(sqlWhere,
 		squirrel.Eq{
-			eDownload.FieldNameWithAlias(&eDownload.DownloadID, aliasDownloads): downloadID.String(),
-			eDownload.FieldNameWithAlias(&eDownload.DeletedAt, aliasDownloads):  nil,
+			eDownload.FieldName(&eDownload.DownloadID, aliasDownloads): downloadID.String(),
+			eDownload.FieldName(&eDownload.DeletedAt, aliasDownloads):  nil,
 		},
 	)
 
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, squirrel.Eq{eDownload.FieldNameWithAlias(eDownload.FieldPointer(name), aliasDownloads): value})
+			sqlWhere = append(sqlWhere, filter.SqlConditionWithAlias(aliasDownloads))
 		}
 	}
 
@@ -355,7 +341,6 @@ func (r *MediaDownloadRepository) FindByDownloadID(ctx context.Context, download
 
 func (r *MediaDownloadRepository) iterateGetAll(
 	ctx context.Context,
-	sortOrderBy string,
 	fn func(*ddownload.MediaDownload) error,
 ) error {
 	var (
@@ -366,47 +351,50 @@ func (r *MediaDownloadRepository) iterateGetAll(
 		aliasTasks     = "t"
 	)
 
-	selectFields := append(eDownload.FieldsAllWithAlias(aliasDownloads), eTask.FieldsAllWithAlias(aliasTasks)...)
+	selectFields := append(eDownload.QueryFieldsWithAlias(aliasDownloads), eTask.QueryFieldsWithAlias(aliasTasks)...)
 
 	var conditions = squirrel.And{}
 	if len(r.queryOptions.statuses) > 0 {
 		statusStrings := r.downloadStatusesToStrings(r.queryOptions.statuses)
-		conditions = append(conditions, squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.Status, aliasDownloads): statusStrings})
+		conditions = append(conditions, squirrel.Eq{
+			eDownload.FieldName(&eDownload.Status, aliasDownloads): statusStrings,
+		})
+	}
+
+	if len(r.queryOptions.downloadIDs) > 0 {
+		conditions = append(conditions, squirrel.Eq{
+			eDownload.FieldName(&eDownload.DownloadID, aliasDownloads): r.queryOptions.downloadIDs,
+		})
 	}
 
 	var filterUserID string
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		switch name {
 		case "":
 			continue
-		case eDownload.FieldName(&eDownload.MediaTitleLower):
-			filter, ok := value.(string)
-			if !ok {
-				return fmt.Errorf("expected string, got %T (%v)", value, value)
-			}
-			conditions = append(conditions, sqlutil.Like(eDownload.FieldNameWithAlias(&eDownload.MediaTitleLower, aliasDownloads), filter))
 		case eDownload.FieldName(&eDownload.UserID):
-			userID, ok := value.(uuid.UUID)
+			userID, ok := filter.Condition().Value().(uuid.UUID)
 			if !ok {
-				return fmt.Errorf("expected uuid.UUID, got %T", value)
+				return fmt.Errorf("expected uuid.UUID, got %T", filter.Condition().Value())
 			}
 			filterUserID = userID.String()
 		default:
-			conditions = append(conditions, squirrel.Eq{eDownload.FieldNameWithAlias(eDownload.FieldPointer(name), aliasDownloads): value})
+			conditions = append(conditions, filter.SqlConditionWithAlias(aliasDownloads))
 		}
 	}
 
 	if r.queryOptions.Visibility != nil {
 		if *r.queryOptions.Visibility > dtypes.QueryMediaVisibilityAll {
 			sqlOr := squirrel.Or{
-				squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.UserID, aliasDownloads): nil},
-				squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.UserID, aliasDownloads): uuid.Nil},
-				squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.Visibility, aliasDownloads): dtypes.MediaVisibilityPublic.String()},
+				squirrel.Eq{eDownload.FieldName(&eDownload.UserID, aliasDownloads): nil},
+				squirrel.Eq{eDownload.FieldName(&eDownload.UserID, aliasDownloads): uuid.Nil},
+				squirrel.Eq{eDownload.FieldName(&eDownload.Visibility, aliasDownloads): dtypes.MediaVisibilityPublic.String()},
 			}
 			if filterUserID != "" && *r.queryOptions.Visibility == dtypes.QueryMediaVisibilityAuthenticated {
-				if !r.queryOptions.isGuestRequest {
+				if !r.queryOptions.IsGuestRequest {
 					sqlOr = append(sqlOr, squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.Visibility, aliasDownloads): dtypes.MediaVisibilityAuthenticated.String()})
 				}
+				sqlOr = append(sqlOr, squirrel.Eq{eDownload.FieldName(&eDownload.UserID, aliasDownloads): filterUserID})
 				filterUserID = ""
 			}
 			conditions = append(conditions, sqlOr)
@@ -414,40 +402,38 @@ func (r *MediaDownloadRepository) iterateGetAll(
 	}
 
 	if filterUserID != "" {
-		conditions = append(conditions, squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.UserID, aliasDownloads): filterUserID})
+		conditions = append(conditions, squirrel.Eq{eDownload.FieldName(&eDownload.UserID, aliasDownloads): filterUserID})
 	}
 
-	if r.queryOptions.Before != nil && !r.queryOptions.Before.IsZero() {
-		t := r.queryOptions.Before.Add(-1 * time.Nanosecond)
-		conditions = append(conditions, squirrel.Lt{eDownload.FieldNameWithAlias(&eDownload.CreatedAt, aliasDownloads): t})
-	}
 	if r.queryOptions.partialHash != nil {
+		fieldName := eDownload.FieldName(&eDownload.PartialHash, aliasDownloads)
 		if *r.queryOptions.partialHash == nil {
-			conditions = append(conditions, squirrel.Expr(eDownload.FieldNameWithAlias(&eDownload.PartialHash, aliasDownloads)+" IS NULL"))
+			conditions = append(conditions, squirrel.Expr(fieldName+" IS NULL"))
 		} else {
-			conditions = append(conditions, squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.PartialHash, aliasDownloads): **r.queryOptions.partialHash})
+			conditions = append(conditions, squirrel.Eq{fieldName: **r.queryOptions.partialHash})
 		}
 	}
+
 	if !r.queryOptions.includeDeleted {
-		conditions = append(conditions, squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.DeletedAt, aliasDownloads): nil})
+		conditions = append(conditions, squirrel.Eq{eDownload.FieldName(&eDownload.DeletedAt, aliasDownloads): nil})
 	}
 
-	sqlWhere := conditions
+	orderBys := r.queryOptions.OrderBys
+	if len(orderBys) == 0 {
+		orderBys = dbutils.SortBy(eDownload.FieldName(&eDownload.CreatedAt), dbutils.OrderDescending).List()
+	}
+	orderBys = orderBys.WithAlias(aliasDownloads)
 
-	// Create an ORDER BY clause based on fieldы with the specified sort order.
-	orderBy := dbutils.OrderBy(
-		dbutils.Flds{
-			eDownload.FieldNameWithAlias(&eDownload.CreatedAt, aliasDownloads): sortOrderBy,
-		})
+	sqlWhere := conditions
 
 	qb := squirrel.Select(selectFields...).
 		From(eDownload.TableName() + " AS " + aliasDownloads).
 		Where(sqlWhere).
-		OrderBy(orderBy).
+		OrderBy(orderBys.Query()).
 		LeftJoin(
 			eTask.TableName() + " AS " + aliasTasks +
-				" ON " + eTask.FieldNameWithAlias(&eTask.DownloadID, aliasTasks) +
-				" = " + eDownload.FieldNameWithAlias(&eDownload.DownloadID, aliasDownloads),
+				" ON " + eTask.FieldName(&eTask.DownloadID, aliasTasks) +
+				" = " + eDownload.FieldName(&eDownload.DownloadID, aliasDownloads),
 		).
 		PlaceholderFormat(squirrel.Dollar)
 
@@ -492,7 +478,41 @@ func (r *MediaDownloadRepository) iterateGetAll(
 }
 
 func (r *MediaDownloadRepository) IterateGetAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error {
-	return r.iterateGetAll(ctx, dbutils.OrderDesc, fn)
+	return r.iterateGetAll(ctx, fn)
+}
+
+func (r *MediaDownloadRepository) IterateGetByIDs(ctx context.Context, ids []uuid.UUID, fn func(*ddownload.MediaDownload) error) error {
+	r.queryOptions.downloadIDs = ids
+	return r.iterateGetAll(ctx, fn)
+}
+
+func (r *MediaDownloadRepository) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ddownload.MediaDownload, error) {
+	downloads := make([]*ddownload.MediaDownload, 0)
+
+	err := r.IterateGetByIDs(ctx, ids,
+		func(download *ddownload.MediaDownload) error {
+			downloads = append(downloads, download)
+			return nil
+		})
+	if err != nil {
+		return nil, err
+	}
+
+	downloadsByID := make(map[uuid.UUID]*ddownload.MediaDownload, len(downloads))
+	for _, download := range downloads {
+		downloadsByID[download.DownloadID] = download
+	}
+
+	downloadsSorted := make([]*ddownload.MediaDownload, 0, len(downloads))
+	for _, id := range ids {
+		download, exists := downloadsByID[id]
+		if !exists {
+			continue
+		}
+		downloadsSorted = append(downloadsSorted, download)
+	}
+
+	return downloadsSorted, nil
 }
 
 func (r *MediaDownloadRepository) GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error) {
@@ -513,18 +533,12 @@ func (r *MediaDownloadRepository) IterateFullNames(ctx context.Context, includeD
 		sqlWhere = append(sqlWhere, squirrel.Eq{eDownload.FieldName(&eDownload.DeletedAt): nil})
 	}
 
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		switch name {
 		case "":
 			continue
-		case eDownload.FieldName(&eDownload.MediaTitleLower):
-			filter, ok := value.(string)
-			if !ok {
-				return fmt.Errorf("expected string, got %T (%v)", value, value)
-			}
-			sqlWhere = append(sqlWhere, sqlutil.Like(eDownload.FieldName(&eDownload.MediaTitleLower), filter))
 		default:
-			sqlWhere = append(sqlWhere, squirrel.Eq{eDownload.FieldName(eDownload.FieldPointer(name)): value})
+			sqlWhere = append(sqlWhere, filter.SqlCondition())
 		}
 	}
 
@@ -577,7 +591,6 @@ func (r *MediaDownloadRepository) GetByStatuses(ctx context.Context, statuses []
 
 	err := r.iterateGetAll(
 		ctx,
-		dbutils.OrderAsc,
 		func(f *ddownload.MediaDownload) error {
 			downloads = append(downloads, f)
 			return nil
@@ -601,7 +614,6 @@ func (r *MediaDownloadRepository) GetByPartialHash(ctx context.Context, hash str
 
 	err := r.iterateGetAll(
 		ctx,
-		dbutils.OrderDesc,
 		func(f *ddownload.MediaDownload) error {
 			downloads = append(downloads, f)
 			return nil
@@ -617,14 +629,18 @@ func (r *MediaDownloadRepository) GetWithoutPartialHash(ctx context.Context) ([]
 	var (
 		h         *string
 		downloads = make([]*ddownload.MediaDownload, 0)
+		eDownload edownload.MediaDownload
 	)
 
 	r.queryOptions.partialHash = &h
 	r.queryOptions.includeDeleted = false
+	r.queryOptions.OrderBys = dbutils.SortBy(
+		eDownload.FieldName(&eDownload.CreatedAt),
+		dbutils.OrderAscending,
+	).List()
 
 	err := r.iterateGetAll(
 		ctx,
-		dbutils.OrderAsc,
 		func(f *ddownload.MediaDownload) error {
 			downloads = append(downloads, f)
 			return nil
@@ -648,14 +664,12 @@ func (r *MediaDownloadRepository) GetDuplicateHashes(ctx context.Context, scope 
 		},
 	}
 
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		switch name {
 		case "":
 			continue
-		case eDownload.FieldName(&eDownload.MediaTitleLower):
-			continue
 		default:
-			sqlWhere = append(sqlWhere, squirrel.Eq{eDownload.FieldName(eDownload.FieldPointer(name)): value})
+			sqlWhere = append(sqlWhere, filter.SqlCondition())
 		}
 	}
 
@@ -733,14 +747,12 @@ func (r *MediaDownloadRepository) GetDeleted(ctx context.Context, from, to *time
 		squirrel.NotEq{eDownload.FieldName(&eDownload.DeletedAt): nil},
 	}
 
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		switch name {
 		case "":
 			continue
-		case eDownload.FieldName(&eDownload.MediaTitleLower):
-			continue
 		default:
-			sqlWhere = append(sqlWhere, squirrel.Eq{eDownload.FieldName(eDownload.FieldPointer(name)): value})
+			sqlWhere = append(sqlWhere, filter.SqlCondition())
 		}
 	}
 
@@ -756,12 +768,18 @@ func (r *MediaDownloadRepository) GetDeleted(ctx context.Context, from, to *time
 		})
 	}
 
-	orderBy := dbutils.OrderBy(dbutils.Flds{eDownload.FieldName(&eDownload.DeletedAt): dbutils.OrderAsc})
+	orderBys := r.queryOptions.OrderBys
+	if len(orderBys) == 0 {
+		orderBys = dbutils.SortBy(
+			eDownload.FieldName(&eDownload.DeletedAt),
+			dbutils.OrderAscending,
+		).List()
+	}
 
-	sqlQuery, args, err := squirrel.Select(eDownload.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eDownload.QueryFields()...).
 		From(eDownload.TableName()).
 		Where(sqlWhere).
-		OrderBy(orderBy).
+		OrderBy(orderBys.Query()).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 
@@ -790,61 +808,6 @@ func (r *MediaDownloadRepository) GetDeleted(ctx context.Context, from, to *time
 	}
 
 	return downloads, nil
-}
-
-func (r *MediaDownloadRepository) FillEmptyMediaTitleLower(ctx context.Context) error {
-	var eDownload edownload.MediaDownload
-
-	sqlWhere := squirrel.And{
-		squirrel.Eq{eDownload.FieldName(&eDownload.MediaTitleLower): ""},
-	}
-
-	sqlQuery, args, err := squirrel.Select(eDownload.FieldsAll()...).
-		From(eDownload.TableName()).
-		Where(sqlWhere).
-		PlaceholderFormat(squirrel.Dollar).
-		ToSql()
-
-	if err != nil {
-		return fmt.Errorf("error generating SQL: %v", err)
-	}
-
-	// Execute the query
-	db := dbexec.Resolve(ctx, r.dbEntry)
-	rows, err := db.QueryContext(ctx, sqlQuery, args...)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	var downloads []*ddownload.MediaDownload
-	if rows != nil {
-		downloads, err = r.mappers.MapRowsToDownloads(rows)
-		if err != nil {
-			return err
-		}
-	}
-
-	for _, download := range downloads {
-		sqlQuery, args, err := squirrel.
-			Update(eDownload.TableName()).
-			SetMap(map[string]any{
-				eDownload.FieldName(&eDownload.MediaTitleLower): strings.ToLower(download.MediaTitle),
-			}).
-			Where(squirrel.Eq{eDownload.FieldName(&eDownload.DownloadID): download.DownloadID}).
-			PlaceholderFormat(squirrel.Dollar).
-			ToSql()
-		if err != nil {
-			return fmt.Errorf("error generating SQL: %v", err)
-		}
-
-		err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
-		if err != nil {
-			return fmt.Errorf("failed to save mediaDownload: %v", err)
-		}
-	}
-
-	return nil
 }
 
 func (r *MediaDownloadRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {

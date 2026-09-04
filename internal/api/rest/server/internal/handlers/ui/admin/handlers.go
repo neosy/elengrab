@@ -7,7 +7,6 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/admin/mappers"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/admin/validators"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
-	httptemplates "github.com/neosy/elengrab/internal/api/rest/server/templates"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	adminuc "github.com/neosy/elengrab/internal/app/usecases/admin"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -22,7 +21,7 @@ type AdminHandlers struct {
 	mappers    *mappers.Mappers
 	validators *validators.Validators
 
-	templates  *httptemplates.Templates
+	templates  *assets.Templates
 	assets     *assets.Assets
 	assetPaths paths.AssetPaths
 
@@ -37,7 +36,7 @@ type AdminHandlers struct {
 func NewAdminHandlers(
 	logger *slog.Logger,
 
-	templates *httptemplates.Templates,
+	templates *assets.Templates,
 	assets *assets.Assets,
 	assetPaths paths.AssetPaths,
 

@@ -8,7 +8,6 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	dlhandlers "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader"
-	httptemplates "github.com/neosy/elengrab/internal/api/rest/server/templates"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
@@ -28,7 +27,7 @@ func NewHandlers(
 	assets *assets.Assets,
 
 	usecases *usecases.Usecases,
-	templates *httptemplates.Templates,
+	templates *assets.Templates,
 
 	// Options
 	appMode dtypes.AppMode,

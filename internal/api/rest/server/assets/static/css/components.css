@@ -1,0 +1,34 @@
+/* components.css */
+
+.section-tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-tab {
+    padding: 6px 16px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: var(--section-tab-background);
+    color: var(--section-tab-color);
+
+    font-family: "Arial", sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20px;
+
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.section-tab:hover {
+    background: var(--section-tab-hover-background);
+}
+
+.section-tab.active {
+    background: var(--section-tab-active-background);
+    color: var(--section-tab-active-color);
+}

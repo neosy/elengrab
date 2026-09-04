@@ -23,10 +23,8 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-type requestFilters map[string]string
-
-func parseFilters(ctx *fasthttp.RequestCtx) requestFilters {
-	filters := make(requestFilters)
+func parseGetFilters(ctx *fasthttp.RequestCtx) (dtypes.QueryFiltersByName, error) {
+	filters := make(dtypes.QueryFiltersByName)
 
 	for key, value := range ctx.QueryArgs().All() {
 		k := string(key)
@@ -40,15 +38,21 @@ func parseFilters(ctx *fasthttp.RequestCtx) requestFilters {
 		}
 
 		// filter[name] → name
-		field := k[len(prefix) : len(k)-len(suffix)]
-		if field == "" {
+		name := k[len(prefix) : len(k)-len(suffix)]
+		if name == "" {
 			continue
 		}
 
-		filters[field] = v
+		filterName, err := dtypes.ParseQueryFilterName(name)
+		if err != nil {
+			return nil, err
+		}
+
+		filters.Add(filterName, v)
+
 	}
 
-	return filters
+	return filters, nil
 }
 
 func (h *DownloaderHandlers) redirectGuestIfAuthRequired(ctx *fasthttp.RequestCtx) bool {

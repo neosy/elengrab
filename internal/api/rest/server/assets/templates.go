@@ -1,4 +1,4 @@
-package httptemplates
+package assets
 
 import "html/template"
 
