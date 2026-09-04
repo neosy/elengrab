@@ -18,6 +18,7 @@ type MediaSourceIndexRepository interface {
 	Save(ctx context.Context, index *ddownload.MediaSourceIndex) error
 
 	UpdateOwner(ctx context.Context, fromID, toID uuid.UUID) error
+	FillEmptyMediaTitleLower(ctx context.Context) error
 
 	SoftDelete(ctx context.Context, downloadID uuid.UUID) error
 	HardDelete(ctx context.Context, downloadID uuid.UUID) error
@@ -29,5 +30,6 @@ type MediaSourceIndexRepository interface {
 	WithOptions(options dtypes.QueryMediaOptions) MediaSourceIndexRepository
 	WithDeleted() MediaSourceIndexRepository
 	WithUser(userID uuid.UUID) MediaSourceIndexRepository
-	WithFilters(filters map[string]any) MediaSourceIndexRepository
+	WithFilters(filters ...dtypes.QueryFilter) MediaSourceIndexRepository
+	WithOrderBy(orderBys ...dtypes.QueryOrderBy) MediaSourceIndexRepository
 }

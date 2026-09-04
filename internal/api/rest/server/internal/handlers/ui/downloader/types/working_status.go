@@ -1,4 +1,4 @@
-package dltypes
+package types
 
 import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"

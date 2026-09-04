@@ -26,20 +26,17 @@ func (e *MediaWatchStat) TableName() string {
 	return tablenames.MediaWatchStats
 }
 
-// FieldName field name from sql tag by structure field name
-// Example:
-// var ent <TableEntity>
-// ent.FieldName(&ent.SalesId)
-func (e *MediaWatchStat) FieldName(fieldPtr any) string {
-	return e.BaseEntity.FieldName(e, fieldPtr)
-}
-
-// FieldNameWithAlias field name with alieas from sql tag by structure field pointer
-// Example:
-// var ent <TableEntity>
-// ent.FieldName(ent, &ent.SalesId, "alias")
-func (e *MediaWatchStat) FieldNameWithAlias(fieldPtr any, alias string) string {
-	return e.BaseEntity.FieldNameWithAlias(e, fieldPtr, alias)
+// FieldName returns the field name from the SQL tag using a structure field name or pointer,
+// optionally prefixed with a table alias.
+//
+// Examples:
+//
+//	var entity <TableEntity>
+//	entity.FieldName("created_at", "")              // "created_at"
+//	entity.FieldName(&entity.CreatedAt, "")         // "created_at"
+//	entity.FieldName(&entity.CreatedAt, "users")    // "users.created_at"
+func (e *MediaWatchStat) FieldName(field any, alias ...string) string {
+	return e.BaseEntity.FieldName(e, field, alias...)
 }
 
 // FieldPointers returns a slice of pointers to all exported fields of the given struct.
@@ -54,13 +51,14 @@ func (e *MediaWatchStat) FieldPointer(fieldName string) any {
 	return ptr
 }
 
-// Values returns a list of values for fields that will be used for updates
-func (e *MediaWatchStat) Values() []any {
-	return e.BaseEntity.Values(e)
+// InsertValues returns values for fields included in insert operations.
+// Fields with the `insert:"false"` tag are excluded.
+func (e *MediaWatchStat) InsertValues() []any {
+	return e.BaseEntity.InsertValues(e)
 }
 
-// FieldsMap returns a map of field names to their corresponding values
+// InsertFieldValues returns a map of field names to their corresponding values
 // using the entity's Fields() and Values() methods, ready for UPDATE statements.
-func (e *MediaWatchStat) FieldsMap() map[string]any {
-	return e.BaseEntity.FieldsMap(e)
+func (e *MediaWatchStat) InsertFieldValues() map[string]any {
+	return e.BaseEntity.InsertFieldValues(e)
 }

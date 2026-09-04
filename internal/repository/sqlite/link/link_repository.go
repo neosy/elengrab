@@ -22,7 +22,7 @@ type LinkRepository struct {
 	mappers *mappers.Mappers
 	dbEntry persistence.DBEntry
 
-	filtersByName types.FiltersByName
+	queryOptions types.QueryOptions
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -35,7 +35,7 @@ func NewLinkRepository(dbEntry persistence.DBEntry) persistence.LinkRepositoryFa
 			mappers: mappers.NewMappers(),
 			dbEntry: dbEntry,
 
-			filtersByName: make(map[string]any),
+			queryOptions: types.NewQueryOptions(),
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -66,8 +66,8 @@ func (r *LinkRepository) save(ctx context.Context, link *dlink.Link) error {
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eLink.Fields()
-	values := eLink.Values()
+	fields := eLink.InsertFields()
+	values := eLink.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -148,13 +148,13 @@ func (r *LinkRepository) Find(ctx context.Context, linkID uuid.UUID) (*dlink.Lin
 	sqlWhere := squirrel.And{}
 	sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(&eLink.LinkID): linkID})
 
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(eLink.FieldPointer(name)): value})
+			sqlWhere = append(sqlWhere, filter.SqlCondition())
 		}
 	}
 
-	sqlQuery, args, err := squirrel.Select(eLink.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eLink.QueryFields()...).
 		From(eLink.TableName()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).
@@ -201,9 +201,9 @@ func (r *LinkRepository) Exists(ctx context.Context, linkID uuid.UUID) (bool, er
 	sqlWhere := squirrel.And{}
 	sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(&eLink.LinkID): linkID})
 
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(eLink.FieldPointer(name)): value})
+			sqlWhere = append(sqlWhere, filter.SqlCondition())
 		}
 	}
 
@@ -241,16 +241,18 @@ func (r *LinkRepository) FindLastByShortCode(ctx context.Context, shortCode stri
 	sqlWhere := squirrel.And{}
 	sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(&eLink.ShortCode): shortCode})
 
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(eLink.FieldPointer(name)): value})
+			sqlWhere = append(sqlWhere, filter.SqlCondition())
 		}
 	}
 
-	sqlQuery, args, err := squirrel.Select(eLink.FieldsAll()...).
+	orderBy := dbutils.SortBy(eLink.FieldName(&eLink.CreatedAt), dbutils.OrderDescending)
+
+	sqlQuery, args, err := squirrel.Select(eLink.QueryFields()...).
 		From(eLink.TableName()).
 		Where(sqlWhere).
-		OrderBy(dbutils.OrderBy(dbutils.Flds{eLink.FieldName(&eLink.CreatedAt): dbutils.OrderDesc})).
+		OrderBy(orderBy.Query()).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()
@@ -301,9 +303,9 @@ func (r *LinkRepository) ExistsActiveShortCode(ctx context.Context, shortCode st
 		},
 	}
 
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(eLink.FieldPointer(name)): value})
+			sqlWhere = append(sqlWhere, filter.SqlCondition())
 		}
 	}
 
@@ -337,7 +339,7 @@ func (r *LinkRepository) ExistsActiveShortCode(ctx context.Context, shortCode st
 func (r *LinkRepository) WithoutDeleted() persistence.LinkRepository {
 	var eLink elink.Link
 
-	r.filtersByName[eLink.FieldName(&eLink.DeletedAt)] = nil
+	r.queryOptions.Filters.Add(eLink.FieldName(&eLink.DeletedAt), nil)
 
 	return r
 }

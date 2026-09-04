@@ -12,6 +12,9 @@ export const DOM_CLASSES = {
 
     mediaResultRow: "media-result__row",
 
+    viewModeTabs: "view-mode-tabs",
+    viewModeTab: "view-mode-tab",
+
     mediaResultRowThumbnail: "media-result__row-thumbnail",
     mediaResultThumbnailPlayButton: "media-result__thumbnail-play-button",
     mediaResultRowThumbnailImageWrapper: "media-result__thumbnail-image__wrapper",
@@ -34,6 +37,10 @@ export const DOM_SELECTORS = Object.fromEntries(
         .map(([key, value]) => [key, `.${value}`])
 );
 
+export const DOM_IDS = {
+    mediaResultItems: 'media-result-items',
+}
+
 export const DOM_ELEMENTS = {
     grabForm: null,
     mediaURLInput: null,
@@ -43,9 +50,11 @@ export const DOM_ELEMENTS = {
     grabOptions: null,
 
     historySearchInputWrapper: null,
+    historySearchInput: null,
     historySearchClearButton: null,
 
     result: null,
+    mediaResultItems: null,
     
     resultInfo: null,
     resultInfoRow: null,
@@ -65,6 +74,7 @@ export function initDomElements() {
     DOM_ELEMENTS.grabOptions = document.getElementById("grabOptions");
 
     DOM_ELEMENTS.historySearchInputWrapper = document.getElementById("historySearchInputWrapper");
+    DOM_ELEMENTS.historySearchInput = document.getElementById("historySearchInput");
     DOM_ELEMENTS.historySearchClearButton = document.getElementById("historySearchClearButton");
 
     DOM_ELEMENTS.result = document.getElementById("media-result");

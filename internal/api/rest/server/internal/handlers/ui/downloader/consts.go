@@ -1,15 +1,6 @@
 package downloader
 
-import (
-	"time"
-)
-
 const (
-	dateFormate = time.RFC3339
-
-	loadHistoryLimit    = 20
-	preloadHistoryAfter = 19
-
 	formFieldLoginKey           = "login"
 	formFieldPasswordKey        = "password"
 	formFieldConfirmPasswordKey = "confirmPassword"
@@ -24,11 +15,13 @@ const (
 	textKey   = "text"
 	sourceKey = "source"
 
-	downloadIDKey    = "itemId"
-	beforeKey        = "before"
-	channelIDKey     = "channelId"
-	filterByTitleKey = "title"
-	searchKey        = "search"
-	shortCodeKey     = "shortCode"
-	redirectKey      = "redirect"
+	downloadIDKey   = "itemId"
+	channelIDKey    = "channelId"
+	searchKey       = "search"
+	shortCodeKey    = "shortCode"
+	redirectKey     = "redirect"
+	viewModeKey     = "viewMode"
+	lastIDKey       = "lastId"
+	lastCreateAtKey = "lastCreateAt"
+	lastViewsKey    = "lastViewsKey"
 )

@@ -24,6 +24,18 @@ export const STORAGE_KEYS = {
 export const ICON_PASTE = 'static/icons/action-paste-v2-icon.svg';
 export const ICON_CLEAR = 'static/icons/action-clear-icon.svg';
 
+// Internal API request paths.
+export const API_PATHS = {
+    downloaderItems: "/downloader/items",
+    downloaderSearch: "/downloader/search",
+}
+
+// Internal API request path templates.
+export const API_PATH_TEMPLATES = {
+    downloaderWatchTracking: "/downloader/items/{itemId}/watch-tracking",
+    downloaderWatchPosition: "/downloader/items/{itemId}/watch-position",
+}
+
 // Class names
 export const CLASS_NAMES = {
     gridView: "grid-view",
@@ -60,7 +72,7 @@ export const VIDEO_PREVIEW = {
 };
 
 export const DOM_IDS = {
-    rowTopPlaceholder: "row-top-placeholder",
+    mediaResultItems: "media-result-items",
     rowNoItems: "row-no-items",
 
     row: (id) => `row-${id}`,

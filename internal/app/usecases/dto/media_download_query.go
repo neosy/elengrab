@@ -1,14 +1,55 @@
 package dto
 
-import "time"
+import (
+	"maps"
+
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
+)
 
 type MediaDownloadFilters struct {
-	Title string
+	Search string
 }
 
 type MediaDownloadQuery struct {
-	Before time.Time
-	Limit  uint64
+	ViewMode dtypes.QueryMediaViewMode
+	Limit    uint64
 
-	Filters MediaDownloadFilters
+	LastRecord dtypes.QueryMediaDownloadCursor
+
+	Filters dtypes.QueryFiltersByName
+}
+
+func MediaDownloadQueryDefault(limit uint64) MediaDownloadQuery {
+	query := MediaDownloadQuery{
+		ViewMode: dtypes.QueryMediaViewModeDefault,
+		Limit:    limit,
+	}
+
+	query.Normalize()
+
+	return query
+}
+
+func BuildMediaDownloadQuery(query MediaDownloadQuery) MediaDownloadQuery {
+	return query.Copy()
+}
+
+func (q MediaDownloadQuery) Copy() MediaDownloadQuery {
+	query := q
+
+	query.Filters = maps.Clone(query.Filters)
+
+	query.Normalize()
+
+	return query
+}
+
+func (q *MediaDownloadQuery) Normalize() {
+	if !q.ViewMode.Exists() {
+		q.ViewMode = dtypes.QueryMediaViewModeDefault
+	}
+
+	if q.Limit == 0 {
+		q.Limit = 20
+	}
 }

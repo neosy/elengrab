@@ -96,7 +96,7 @@
     --video-preview-watch-progress-bg: rgba(128, 128, 128, 0.5);
     --video-preview-watch-progress-value-bg: #ff0033;
     --video-preview-watch-progress-buffer-bg: rgba(255, 255, 255, 0.35);
-    
+   
     --bg-auth-button: #007bff;
     --bg-auth-button-hover: #0056b3;
     --text-auth-button: white;
@@ -201,7 +201,7 @@
     --thumbnail-placeholder-bg: #2a2a2a;
 
     --history-loading-spinner-bg: #374151;
-    --history-loading-spinner-color: #9ca3af;    
+    --history-loading-spinner-color: #9ca3af;
 
     --bg-auth-button: #007bff;
     --bg-auth-button-hover: #0056b3;
@@ -229,3 +229,21 @@
     --scrollbar-thumb-bg: #606060;
     --scrollbar-thumb-hover-bg: #707070;
 }
+
+/* ------------------ components ------------------ */
+:root {
+    --section-tab-background: #f2f2f2;
+    --section-tab-color: #0f0f0f;
+    --section-tab-hover-background: #e5e5e5;
+    --section-tab-active-background: #0f0f0f;
+    --section-tab-active-color: #fff;
+}
+
+.dark {
+    --section-tab-background: #272727;
+    --section-tab-color: #f1f1f1;
+    --section-tab-hover-background: #3f3f3f;
+    --section-tab-active-background: #f1f1f1;
+    --section-tab-active-color: #0f0f0f;
+}
+/* ==================== components ==================== */

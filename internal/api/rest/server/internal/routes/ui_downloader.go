@@ -27,6 +27,7 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		{
 			g.HEAD(httppaths.MediaItemsPath, handlers.MediaItemsHandler)
 			g.GET(httppaths.MediaItemsPath, handlers.MediaItemsHandler)
+			g.POST(httppaths.MediaItemsPath, handlers.MediaItemsHandler)
 
 			g.GET(httppaths.EventsPath, handlers.EventsStreamHandler)
 

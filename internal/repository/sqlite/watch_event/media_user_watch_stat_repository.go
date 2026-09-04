@@ -12,7 +12,6 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
-	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 	ewatchevent "github.com/neosy/elengrab/internal/repository/sqlite/watch_event/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/watch_event/mappers"
 )
@@ -20,8 +19,6 @@ import (
 type MediaUserWatchStatRepository struct {
 	mappers *mappers.Mappers
 	dbEntry persistence.DBEntry
-
-	filtersByName types.FiltersByName
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -32,9 +29,7 @@ func NewMediaUserWatchStatRepository(dbEntry persistence.DBEntry) persistence.Me
 	return func() persistence.MediaUserWatchStatRepository {
 		return &MediaUserWatchStatRepository{
 			mappers: mappers.NewMappers(),
-			dbEntry:      dbEntry,
-
-			filtersByName: make(map[string]any),
+			dbEntry: dbEntry,
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -69,8 +64,8 @@ func (r *MediaUserWatchStatRepository) save(ctx context.Context, stat *ddownload
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eStat.Fields()
-	values := eStat.Values()
+	fields := eStat.InsertFields()
+	values := eStat.InsertValues()
 
 	// Build INSERT query
 	sqlBuilder := squirrel.
@@ -175,7 +170,7 @@ func (r *MediaUserWatchStatRepository) Find(ctx context.Context, downloadID uuid
 
 	// Build SELECT query
 	sqlBuilder := squirrel.
-		Select(eStat.FieldsAll()...).
+		Select(eStat.QueryFields()...).
 		From(eStat.TableName()).
 		Where(squirrel.Eq{
 			eStat.FieldName(&eStat.DownloadID): downloadID,
