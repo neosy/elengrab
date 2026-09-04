@@ -21,14 +21,14 @@ type (
 		AuthRegister string
 		AuthLogin    string
 
-		Downloader        string
-		AccountMenu       string
-		RowMenu           string
-		SettingsMenu      string
-		DownloaderHistory string
-		DownloaderGrab    string
-		DownloaderSearch  string
-		DownloaderEvents  string
+		Downloader       string
+		AccountMenu      string
+		RowMenu          string
+		SettingsMenu     string
+		DownloaderItems  string
+		DownloaderGrab   string
+		DownloaderSearch string
+		DownloaderEvents string
 	}
 )
 
@@ -45,14 +45,14 @@ var (
 		AuthRegister: httppaths.AuthRegisterPath,
 		AuthLogin:    httppaths.AuthLoginPath,
 
-		Downloader:        httppaths.DownloaderGroup,
-		AccountMenu:       httppaths.DownloaderAccountMenuPath,
-		SettingsMenu:      httppaths.DownloaderSettingsMenuPath,
-		RowMenu:           httppaths.DownloaderGroup + httppaths.MediaItemMenuPath,
-		DownloaderHistory: httppaths.DownloaderHistoryPath,
-		DownloaderGrab:    httppaths.DownloaderGrabPath,
-		DownloaderSearch:  httppaths.DownloaderSearchPath,
-		DownloaderEvents:  httppaths.DownloaderEventsPath,
+		Downloader:       httppaths.DownloaderGroup,
+		AccountMenu:      httppaths.DownloaderAccountMenuPath,
+		SettingsMenu:     httppaths.DownloaderSettingsMenuPath,
+		RowMenu:          httppaths.DownloaderGroup + httppaths.MediaItemMenuPath,
+		DownloaderItems:  httppaths.DownloaderItemsPath,
+		DownloaderGrab:   httppaths.DownloaderGrabPath,
+		DownloaderSearch: httppaths.DownloaderSearchPath,
+		DownloaderEvents: httppaths.DownloaderEventsPath,
 	}
 )
 
