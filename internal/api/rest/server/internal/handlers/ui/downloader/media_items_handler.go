@@ -16,7 +16,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) MediaHistoryHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) MediaItemsHandler(ctx *fasthttp.RequestCtx) {
 	var before = time.Now().UTC()
 
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
@@ -156,7 +156,7 @@ func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 	}
 
 	basePaths := paths.NewHttpPaths()
-	basePaths.DownloaderHistory += queryString
+	basePaths.DownloaderItems += queryString
 
 	extraData := make(map[string]any)
 	extraData[items.DisableHTMXEventKey] = true

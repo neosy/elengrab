@@ -20,34 +20,34 @@ const (
 	SettingsMenuPath = "/settings-menu"
 	GrabPath         = "/grab"
 	ShareTargetPath  = "/share-target"
-	HistoryPath      = "/history"
 	DownloadFilePath = "/download"
 	SearchPath       = "/search"
 	EventsPath       = "/events"
+	MediaItemsPath   = "/items"
 
 	// Downloader Paths
 	DownloaderAccountMenuPath  = DownloaderGroup + AccountMenuPath
 	DownloaderSettingsMenuPath = DownloaderGroup + SettingsMenuPath
 	DownloaderGrabPath         = DownloaderGroup + GrabPath
 	DownloaderShareTargetPath  = DownloaderGroup + ShareTargetPath
-	DownloaderHistoryPath      = DownloaderGroup + HistoryPath
+	DownloaderItemsPath        = DownloaderGroup + MediaItemsPath
 	DownloaderDownloadFilePath = DownloaderGroup + DownloadFilePath
 	DownloaderSearchPath       = DownloaderGroup + SearchPath
 	DownloaderEventsPath       = DownloaderGroup + EventsPath
 
 	// Paths items Downloader
-	MediaItemPath                = "/items/{itemId}"
-	MediaItemRowPath             = "/items/{itemId}/row"
-	MediaItemDownloadRepeatPath  = "/items/{itemId}/repeat"
-	MediaItemImagePath           = "/items/{itemId}/image"
-	MediaItemMenuPath            = "/items/{itemId}/menu"
-	MediaItemShortLinkPath       = "/items/{itemId}/short-link"
-	MediaItemStreamPath          = "/items/{itemId}/stream"
-	MediaItemWatchPath           = "/items/{itemId}/watch"
-	MediaItemEditPath            = "/items/{itemId}/edit"
-	MediaItemRefreshPath         = "/items/{itemId}/refresh"
-	MediaItemReWatchTrackingPath = "/items/{itemId}/watch-tracking"
-	MediaItemWatchPositionPath   = "/items/{itemId}/watch-position"
+	MediaItemPath                = MediaItemsPath + "/{itemId}"
+	MediaItemRowPath             = MediaItemsPath + "/{itemId}/row"
+	MediaItemDownloadRepeatPath  = MediaItemsPath + "/{itemId}/repeat"
+	MediaItemImagePath           = MediaItemsPath + "/{itemId}/image"
+	MediaItemMenuPath            = MediaItemsPath + "/{itemId}/menu"
+	MediaItemShortLinkPath       = MediaItemsPath + "/{itemId}/short-link"
+	MediaItemStreamPath          = MediaItemsPath + "/{itemId}/stream"
+	MediaItemWatchPath           = MediaItemsPath + "/{itemId}/watch"
+	MediaItemEditPath            = MediaItemsPath + "/{itemId}/edit"
+	MediaItemRefreshPath         = MediaItemsPath + "/{itemId}/refresh"
+	MediaItemReWatchTrackingPath = MediaItemsPath + "/{itemId}/watch-tracking"
+	MediaItemWatchPositionPath   = MediaItemsPath + "/{itemId}/watch-position"
 
 	// Paths channels in Downloader
 	ChannelAvatarPath = "/channels/{channelId}/avatar"
