@@ -17,7 +17,8 @@ func (m *migrations) rebuildWatchStatsOnce(ctx context.Context) (bool, error) {
 	)
 
 	rebuildWatchStatsOnceOnceSync.Do(func() {
-		ok, err = m.rebuildWatchStats(ctx)
+		err = m.rebuildWatchStats(ctx)
+		ok = err == nil
 		executed = true
 	})
 
@@ -28,7 +29,7 @@ func (m *migrations) rebuildWatchStatsOnce(ctx context.Context) (bool, error) {
 	return true, nil
 }
 
-func (m *migrations) rebuildWatchStats(ctx context.Context) (bool, error) {
+func (m *migrations) rebuildWatchStats(ctx context.Context) error {
 	m.Logger().Info("Rebuilding user watch statistics...")
 
 	err := m.Usecases().MediaWatch.RebuildWatchStats(ctx)
@@ -37,10 +38,10 @@ func (m *migrations) rebuildWatchStats(ctx context.Context) (bool, error) {
 			"Failed to rebuild user watch statistics",
 			"error", err,
 		)
-		return false, fmt.Errorf("errors in the migration process")
+		return fmt.Errorf("errors in the migration process")
 	}
 
 	m.Logger().Info("User watch statistics successfully rebuilt")
 
-	return true, nil
+	return nil
 }

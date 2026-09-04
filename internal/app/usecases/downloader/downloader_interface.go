@@ -110,4 +110,5 @@ type InternalDownloader interface {
 	// Usecases
 	MediaDownload() MediaDownload
 	MediaWatch() MediaWatch
+	SearchIndex() SearchIndex
 }

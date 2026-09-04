@@ -75,7 +75,7 @@ func (uc *MediaWatch) RebuildWatchStats(
 		}
 
 		// Update overall stats for the downloadID
-		err = uc.updateStats(ctx, downloadID, duration)
+		_, err = uc.updateStats(ctx, downloadID, duration)
 		if err != nil {
 			return err
 		}
