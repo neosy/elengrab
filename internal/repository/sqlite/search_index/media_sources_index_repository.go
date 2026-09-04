@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"time"
+	"strings"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -12,20 +12,19 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	esearchindex "github.com/neosy/elengrab/internal/repository/sqlite/search_index/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/search_index/mappers"
 	"github.com/neosy/elengrab/internal/repository/sqlite/sqlutil"
-	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 )
 
 type MediaSourceIndexRepository struct {
 	mappers *mappers.Mappers
-	dbEntry   persistence.DBEntry
+	dbEntry persistence.DBEntry
 
-	filtersByName types.FiltersByName
-	queryOptions  queryOptions
+	queryOptions queryOptions
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -36,9 +35,9 @@ func NewMediaSourceIndexRepository(dbEntry persistence.DBEntry) persistence.Medi
 	return func() persistence.MediaSourceIndexRepository {
 		return &MediaSourceIndexRepository{
 			mappers: mappers.NewMappers(),
-			dbEntry:   dbEntry,
+			dbEntry: dbEntry,
 
-			filtersByName: make(map[string]any),
+			queryOptions: newQueryOptions(),
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -69,8 +68,8 @@ func (r *MediaSourceIndexRepository) Save(ctx context.Context, index *ddownload.
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eIndex.Fields()
-	values := eIndex.Values()
+	fields := eIndex.InsertFields()
+	values := eIndex.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -217,13 +216,13 @@ func (r *MediaSourceIndexRepository) FindByDownloadID(ctx context.Context, downl
 		},
 	)
 
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(eIndex.FieldPointer(name)): value})
+			sqlWhere = append(sqlWhere, filter.SqlCondition())
 		}
 	}
 
-	sqlQuery, args, err := squirrel.Select(eIndex.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eIndex.QueryFields()...).
 		From(eIndex.TableName()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).
@@ -266,7 +265,6 @@ func (r *MediaSourceIndexRepository) FindByDownloadID(ctx context.Context, downl
 
 func (r *MediaSourceIndexRepository) iterateGetAll(
 	ctx context.Context,
-	sortOrderBy string,
 	fn func(*ddownload.MediaSourceIndex) error,
 ) error {
 	var eIndex esearchindex.MediaSourceIndex
@@ -275,25 +273,29 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 		filterUserID string
 		conditions   = squirrel.And{}
 	)
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		switch name {
 		case "":
 			continue
 		case eIndex.FieldName(&eIndex.TitleLower):
-			filter, ok := value.(string)
+			title, ok := filter.Condition().Value().(string)
 			if !ok {
-				return fmt.Errorf("expected string, got %T (%v)", value, value)
+				return fmt.Errorf("expected string, got %T (%v)", filter.Condition().Value(), filter.Condition().Value())
 			}
-			conditions = append(conditions, sqlutil.Like(eIndex.FieldName(&eIndex.TitleLower), filter))
+			conditions = append(conditions, sqlutil.Like(eIndex.FieldName(&eIndex.TitleLower), title))
 		case eIndex.FieldName(&eIndex.UserID):
-			userID, ok := value.(uuid.UUID)
+			userID, ok := filter.Condition().Value().(uuid.UUID)
 			if !ok {
-				return fmt.Errorf("expected uuid.UUID, got %T", value)
+				return fmt.Errorf("expected uuid.UUID, got %T", filter.Condition().Value())
 			}
 			filterUserID = userID.String()
 		default:
-			conditions = append(conditions, squirrel.Eq{eIndex.FieldName(eIndex.FieldPointer(name)): value})
+			conditions = append(conditions, squirrel.Eq{eIndex.FieldName(name): filter.Condition().Value()})
 		}
+	}
+
+	if text := uptr.Deref(r.queryOptions.SearchText); strings.TrimSpace(text) != "" {
+		conditions = append(conditions, sqlutil.Like(eIndex.FieldName(&eIndex.TitleLower), text))
 	}
 
 	if r.queryOptions.Visibility != nil {
@@ -315,26 +317,61 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.UserID): filterUserID})
 	}
 
-	if r.queryOptions.Before != nil && !r.queryOptions.Before.IsZero() {
-		t := r.queryOptions.Before.Add(-1 * time.Nanosecond)
-		conditions = append(conditions, squirrel.Lt{eIndex.FieldName(&eIndex.SourceCreatedAt): t})
-	}
 	if !r.queryOptions.includeDeleted {
 		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.DeletedAt): nil})
 	}
 
+	var orderBys dbutils.OrderByList
+
+	switch r.queryOptions.ViewMode {
+	case dtypes.QueryMediaViewModeNew:
+		orderBys = dbutils.SortBy(eIndex.FieldName(&eIndex.SourceCreatedAt), dbutils.OrderDescending).List()
+		if !r.queryOptions.LastRecord.CreatedAt.IsZero() {
+			conditions = append(conditions, squirrel.Lt{eIndex.FieldName(&eIndex.SourceCreatedAt): r.queryOptions.LastRecord.CreatedAt})
+		}
+	case dtypes.QueryMediaViewModeOld:
+		orderBys = dbutils.SortBy(eIndex.FieldName(&eIndex.SourceCreatedAt), dbutils.OrderAscending).List()
+		if !r.queryOptions.LastRecord.CreatedAt.IsZero() {
+			conditions = append(conditions, squirrel.Gt{eIndex.FieldName(&eIndex.SourceCreatedAt): r.queryOptions.LastRecord.CreatedAt})
+		}
+	case dtypes.QueryMediaViewModePopular:
+		orderBys = dbutils.SortBy(eIndex.FieldName(&eIndex.Views), dbutils.OrderDescending).List()
+		if !r.queryOptions.LastRecord.CreatedAt.IsZero() {
+			lastViews := r.queryOptions.LastRecord.Views
+			lastCreatedAt := r.queryOptions.LastRecord.CreatedAt
+			lastDownloadID := r.queryOptions.LastRecord.ID
+
+			condition := squirrel.Or{
+				squirrel.Lt{eIndex.FieldName(&eIndex.Views): lastViews},
+				squirrel.And{
+					squirrel.Eq{eIndex.FieldName(&eIndex.Views): lastViews},
+					squirrel.Lt{eIndex.FieldName(&eIndex.SourceCreatedAt): lastCreatedAt},
+				},
+				squirrel.And{
+					squirrel.Eq{eIndex.FieldName(&eIndex.Views): lastViews},
+					squirrel.Lt{eIndex.FieldName(&eIndex.SourceCreatedAt): lastCreatedAt},
+					squirrel.Lt{eIndex.FieldName(&eIndex.DownloadID): lastDownloadID},
+				},
+			}
+
+			conditions = append(conditions, condition)
+		}
+	}
+
 	sqlWhere := conditions
 
-	// Create an ORDER BY clause based on fieldы with the specified sort order.
-	orderBy := dbutils.OrderBy(
-		dbutils.Flds{
-			eIndex.FieldName(&eIndex.SourceCreatedAt): sortOrderBy,
-		})
+	if len(r.queryOptions.OrderBys) > 0 {
+		orderBys = append(orderBys, r.queryOptions.OrderBys...)
+	}
 
-	qb := squirrel.Select(eIndex.FieldsAll()...).
+	if len(orderBys) == 0 {
+		orderBys = dbutils.SortBy(eIndex.FieldName(&eIndex.SourceCreatedAt), dbutils.OrderDescending).List()
+	}
+
+	qb := squirrel.Select(eIndex.QueryFields()...).
 		From(eIndex.TableName()).
 		Where(sqlWhere).
-		OrderBy(orderBy).
+		OrderBy(orderBys.Query()).
 		PlaceholderFormat(squirrel.Dollar)
 
 	if r.queryOptions.Limit != nil && *r.queryOptions.Limit > 0 {
@@ -378,7 +415,62 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 }
 
 func (r *MediaSourceIndexRepository) IterateGetAll(ctx context.Context, fn func(*ddownload.MediaSourceIndex) error) error {
-	return r.iterateGetAll(ctx, dbutils.OrderDesc, fn)
+	return r.iterateGetAll(ctx, fn)
+}
+
+func (r *MediaSourceIndexRepository) FillEmptyMediaTitleLower(ctx context.Context) error {
+	var eIndex esearchindex.MediaSourceIndex
+
+	sqlWhere := squirrel.And{
+		squirrel.Eq{eIndex.FieldName(&eIndex.TitleLower): ""},
+	}
+
+	sqlQuery, args, err := squirrel.Select(eIndex.QueryFields()...).
+		From(eIndex.TableName()).
+		Where(sqlWhere).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+
+	if err != nil {
+		return fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	db := dbexec.Resolve(ctx, r.dbEntry)
+	rows, err := db.QueryContext(ctx, sqlQuery, args...)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	var indexes []*ddownload.MediaSourceIndex
+	if rows != nil {
+		indexes, err = r.mappers.MapRowsToSourceIndexes(rows)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, index := range indexes {
+		sqlQuery, args, err := squirrel.
+			Update(eIndex.TableName()).
+			SetMap(map[string]any{
+				eIndex.FieldName(&eIndex.TitleLower): strings.ToLower(index.Title),
+			}).
+			Where(squirrel.Eq{eIndex.FieldName(&eIndex.DownloadID): index.DownloadID}).
+			PlaceholderFormat(squirrel.Dollar).
+			ToSql()
+		if err != nil {
+			return fmt.Errorf("error generating SQL: %v", err)
+		}
+
+		err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
+		if err != nil {
+			return fmt.Errorf("failed to save mediaDownload: %v", err)
+		}
+	}
+
+	return nil
 }
 
 func (r *MediaSourceIndexRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {

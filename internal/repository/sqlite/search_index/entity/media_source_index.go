@@ -15,13 +15,13 @@ type MediaSourceIndex struct {
 	DownloadID uuid.UUID `db:"download_id"`
 
 	// User identifier
-	UserID *uuid.UUID `db:"user_id"`
+	UserID *uuid.UUID `db:"user_id" pfield:"userID"`
 
 	// Media title
 	Title string `db:"title"`
 
 	// Media title in lowercase for efficient case-insensitive searches
-	TitleLower string `db:"title_lower"`
+	TitleLower string `db:"title_lower" pfield:"title"`
 
 	// Description media
 	Description *string `db:"description"`
@@ -33,13 +33,19 @@ type MediaSourceIndex struct {
 	Visibility string `db:"visibility"`
 
 	// Number of completed views
-	Views int `db:"views"`
+	Views int `db:"views" pfield:"views"`
 
 	// Media source creation timestamp
-	SourceCreatedAt time.Time `db:"source_created_at"`
+	SourceCreatedAt time.Time `db:"source_created_at" pfield:"createdAt"`
 
 	// Timestamp when the record was soft deleted
 	DeletedAt *time.Time `db:"deleted_at" insert:"false"`
+}
+
+var mediaSourceIndexMeta dbentity.EntityMetadata
+
+func init() {
+	mediaSourceIndexMeta = dbentity.NewEntityMetadata(MediaSourceIndex{}.BaseEntity)
 }
 
 // TableName returns the table name
@@ -47,20 +53,17 @@ func (e *MediaSourceIndex) TableName() string {
 	return tablenames.MediaSourcesIndex
 }
 
-// FieldName field name from sql tag by structure field name
-// Example:
-// var ent <TableEntity>
-// ent.FieldName(&ent.SalesId)
-func (e *MediaSourceIndex) FieldName(fieldPtr any) string {
-	return e.BaseEntity.FieldName(e, fieldPtr)
-}
-
-// FieldNameWithAlias field name with alieas from sql tag by structure field pointer
-// Example:
-// var ent <TableEntity>
-// ent.FieldName(ent, &ent.SalesId, "alias")
-func (e *MediaSourceIndex) FieldNameWithAlias(fieldPtr any, alias string) string {
-	return e.BaseEntity.FieldNameWithAlias(e, fieldPtr, alias)
+// FieldName returns the field name from the SQL tag using a structure field name or pointer,
+// optionally prefixed with a table alias.
+//
+// Examples:
+//
+//	var entity <TableEntity>
+//	entity.FieldName("created_at", "")              // "created_at"
+//	entity.FieldName(&entity.CreatedAt, "")         // "created_at"
+//	entity.FieldName(&entity.CreatedAt, "users")    // "users.created_at"
+func (e *MediaSourceIndex) FieldName(field any, alias ...string) string {
+	return e.BaseEntity.FieldName(e, field, alias...)
 }
 
 // FieldPointers returns a slice of pointers to all exported fields of the given struct.
@@ -75,13 +78,44 @@ func (e *MediaSourceIndex) FieldPointer(fieldName string) any {
 	return ptr
 }
 
-// Values returns a list of values for fields that will be used for updates
-func (e *MediaSourceIndex) Values() []any {
-	return e.BaseEntity.Values(e)
+// PaginateFieldNameFromPointer returns the field name with alias from the pagination tag.
+// Example:
+//
+//	var ent <TableEntity>
+//	fieldName := ent.PaginateFieldName(&view.SomeField)
+func (e *MediaSourceIndex) PaginateFieldNameFromPointer(fieldPtr any) string {
+	return e.BaseEntity.PaginateFieldNameFromPointer(e, fieldPtr)
 }
 
-// FieldsMap returns a map of field names to their corresponding values
-// using the entity's Fields() and Values() methods, ready for UPDATE statements.
-func (e *MediaSourceIndex) FieldsMap() map[string]any {
-	return e.BaseEntity.FieldsMap(e)
+// InsertFields returns fields included in insert operations.
+// Fields with the `insert:"false"` tag are excluded.
+func (e *MediaSourceIndex) InsertFields() []string {
+	return mediaSourceIndexMeta.InsertFields()
+}
+
+// QueryFields returns a list of fields that will be used for queries
+func (e *MediaSourceIndex) QueryFields() []string {
+	return mediaSourceIndexMeta.QueryFields()
+}
+
+// QueryFieldsWithAlias returns a list of fields with alias that will be used for queries
+func (e *MediaSourceIndex) QueryFieldsWithAlias(alias string) []string {
+	return e.BaseEntity.FieldsWithAlias(e.QueryFields(), alias)
+}
+
+// PaginationFieldNames returns a map from pagination field names to their corresponding database column names.
+// It uses the `pfield` tag to determine the pagination field names.
+func (e *MediaSourceIndex) PaginationFieldNames() map[string]string {
+	return mediaSourceIndexMeta.PaginationFieldNames()
+}
+
+// InsertValues returns values for fields included in insert operations.
+// Fields with the `insert:"false"` tag are excluded.
+func (e *MediaSourceIndex) InsertValues() []any {
+	return e.BaseEntity.InsertValues(e)
+}
+
+// FieldValues returns a map of field names to their corresponding values
+func (e *MediaSourceIndex) InsertFieldValues() map[string]any {
+	return e.FieldValues(e.InsertFields(), e.InsertValues())
 }

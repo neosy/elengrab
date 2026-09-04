@@ -12,7 +12,6 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
-	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 	ewatchevent "github.com/neosy/elengrab/internal/repository/sqlite/watch_event/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/watch_event/mappers"
 )
@@ -20,8 +19,6 @@ import (
 type MediaUserWatchPositionRepository struct {
 	mappers *mappers.Mappers
 	dbEntry persistence.DBEntry
-
-	filtersByName types.FiltersByName
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -33,8 +30,6 @@ func NewMediaUserWatchPositionRepository(dbEntry persistence.DBEntry) persistenc
 		return &MediaUserWatchPositionRepository{
 			mappers: mappers.NewMappers(),
 			dbEntry: dbEntry,
-
-			filtersByName: make(map[string]any),
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -69,8 +64,8 @@ func (r *MediaUserWatchPositionRepository) save(ctx context.Context, position *d
 	}
 
 	// Get the list of fields and values for insertion
-	fields := ePosition.Fields()
-	values := ePosition.Values()
+	fields := ePosition.InsertFields()
+	values := ePosition.InsertValues()
 
 	// Build INSERT query
 	sqlBuilder := squirrel.
@@ -145,7 +140,7 @@ func (r *MediaUserWatchPositionRepository) Find(
 
 	// Build SELECT query
 	sqlBuilder := squirrel.
-		Select(ePosition.FieldsAll()...).
+		Select(ePosition.QueryFields()...).
 		From(ePosition.TableName()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).

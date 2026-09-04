@@ -14,15 +14,13 @@ import (
 	eauth "github.com/neosy/elengrab/internal/repository/sqlite/auth/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/auth/mappers"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
-	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 )
 
 type RoleRepository struct {
 	mappers *mappers.Mappers
 	dbEntry persistence.DBEntry
 
-	filtersByName types.FiltersByName
-	queryOptions  queryOptions
+	queryOptions queryOptions
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -35,7 +33,7 @@ func NewRoleRepository(dbEntry persistence.DBEntry) persistence.RoleRepositoryFa
 			mappers: mappers.NewMappers(),
 			dbEntry: dbEntry,
 
-			filtersByName: make(map[string]any),
+			queryOptions: newQueryOptions(),
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -66,8 +64,8 @@ func (r *RoleRepository) Save(ctx context.Context, role *dauth.Role) error {
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eRole.Fields()
-	values := eRole.Values()
+	fields := eRole.InsertFields()
+	values := eRole.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -94,7 +92,7 @@ func (r *RoleRepository) Save(ctx context.Context, role *dauth.Role) error {
 func (r *RoleRepository) Find(ctx context.Context, roleID string) (*dauth.Role, error) {
 	var eRole eauth.Role
 
-	sqlQuery, args, err := squirrel.Select(eRole.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eRole.QueryFields()...).
 		From(eRole.TableName()).
 		Where(squirrel.Eq{eRole.FieldName(&eRole.RoleID): roleID}).
 		PlaceholderFormat(squirrel.Dollar).
@@ -179,7 +177,7 @@ func (r *RoleRepository) GetAll(ctx context.Context) ([]*dauth.Role, error) {
 	roles := make([]*dauth.Role, 0)
 
 	err := r.iterateGetAll(
-		ctx, dbutils.OrderAsc,
+		ctx,
 		func(role *dauth.Role) error {
 			roles = append(roles, role)
 			return nil
@@ -193,20 +191,19 @@ func (r *RoleRepository) GetAll(ctx context.Context) ([]*dauth.Role, error) {
 }
 
 func (r *RoleRepository) IterateGetAll(ctx context.Context, fn func(*dauth.Role) error) error {
-	return r.iterateGetAll(ctx, dbutils.OrderAsc, fn)
+	return r.iterateGetAll(ctx, fn)
 }
 
 func (r *RoleRepository) iterateGetAll(
 	ctx context.Context,
-	sortOrderBy string,
 	fn func(*dauth.Role) error,
 ) error {
 	var eRole eauth.Role
 
 	var sqlWhere = squirrel.And{}
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, squirrel.Eq{eRole.FieldName(eRole.FieldPointer(name)): value})
+			sqlWhere = append(sqlWhere, filter.SqlCondition())
 		}
 	}
 
@@ -214,16 +211,15 @@ func (r *RoleRepository) iterateGetAll(
 		sqlWhere = append(sqlWhere, squirrel.NotEq{eRole.FieldName(&eRole.RoleID): dtypes.UserRoleGuest.String()})
 	}
 
-	// Create an ORDER BY clause based on fieldы with the specified sort order.
-	orderBy := dbutils.OrderBy(
-		dbutils.Flds{
-			eRole.FieldName(&eRole.RoleID): sortOrderBy,
-		})
+	orderBys := r.queryOptions.OrderBys
+	if len(orderBys) == 0 {
+		orderBys = dbutils.SortBy(eRole.FieldName(&eRole.RoleID), dbutils.OrderAscending).List()
+	}
 
-	qb := squirrel.Select(eRole.FieldsAll()...).
+	qb := squirrel.Select(eRole.QueryFields()...).
 		From(eRole.TableName()).
 		Where(sqlWhere).
-		OrderBy(orderBy).
+		OrderBy(orderBys.Query()).
 		PlaceholderFormat(squirrel.Dollar)
 
 	if r.queryOptions.Limit != nil && *r.queryOptions.Limit > 0 {
@@ -265,7 +261,7 @@ func (r *RoleRepository) iterateGetAll(
 	return nil
 }
 
-func (r *RoleRepository) WithFilters(filters map[string]any) persistence.RoleRepository {
+func (r *RoleRepository) WithFilters(filters map[string]dbutils.FilterConditioner) persistence.RoleRepository {
 	if len(filters) == 0 {
 		return r
 	}
@@ -278,10 +274,10 @@ func (r *RoleRepository) WithFilters(filters map[string]any) persistence.RoleRep
 		}
 	)
 
-	for name, value := range filters {
+	for name, condition := range filters {
 		fieldName, exists := fieldNameByAllowedFilter[name]
 		if exists {
-			r.filtersByName[fieldName] = value
+			r.queryOptions.Filters.Add(fieldName, condition)
 		}
 
 	}

@@ -59,8 +59,8 @@ func (r *YoutubeChannelRepository) Save(ctx context.Context, channel *dmedia.You
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eChannel.Fields()
-	values := eChannel.Values()
+	fields := eChannel.InsertFields()
+	values := eChannel.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -87,7 +87,7 @@ func (r *YoutubeChannelRepository) Save(ctx context.Context, channel *dmedia.You
 func (r *YoutubeChannelRepository) FindByChannelID(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, error) {
 	var ent emedia.YoutubeChannel
 
-	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(ent.QueryFields()...).
 		From(ent.TableName()).
 		Where(squirrel.Eq{ent.FieldName(&ent.ChannelID): channelID}).
 		PlaceholderFormat(squirrel.Dollar).

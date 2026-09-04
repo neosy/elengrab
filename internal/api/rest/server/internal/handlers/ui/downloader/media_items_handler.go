@@ -3,39 +3,154 @@ package downloader
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/items"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
-	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/consts"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
+	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) MediaItemsHandler(ctx *fasthttp.RequestCtx) {
-	var before = time.Now().UTC()
+	if ctx.IsHead() {
+		ctx.SetStatusCode(fasthttp.StatusOK)
+		return
+	}
+
+	if ctx.IsGet() {
+		h.mediaItemsGet(ctx)
+		return
+	}
+
+	if ctx.IsPost() {
+		h.mediaItemsPost(ctx)
+		return
+	}
+
+	ctx.SetStatusCode(fasthttp.StatusMethodNotAllowed)
+}
+
+func (h *DownloaderHandlers) mediaItemsGet(ctx *fasthttp.RequestCtx) {
+	var (
+		viewMode     = dtypes.QueryMediaViewModeDefault
+		lastID       uuid.UUID
+		lastCreateAt time.Time
+		lastViews    uint32
+	)
 
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
-	beforeStr := string(ctx.QueryArgs().Peek(beforeKey))
-	if beforeStr != "" {
+	viewModeStr := string(ctx.QueryArgs().Peek(viewModeKey))
+	if viewModeStr != "" {
 		var err error
-		before, err = time.Parse(dateFormate, beforeStr)
+		viewMode, err = dtypes.ParseQueryMediaViewMode(viewModeStr)
 		if err != nil {
-			ctx.SetStatusCode(fasthttp.StatusOK)
-			ctx.SetBodyString("")
+			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 			return
 		}
 	}
 
-	filters := parseFilters(ctx)
+	lastIDStr := string(ctx.QueryArgs().Peek(lastIDKey))
+	if lastIDStr != "" {
+		var err error
+		lastID, err = idcodec.DecodeUUIDBase64URL(lastIDStr)
+		if err != nil {
+			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+			return
+		}
+	}
+
+	lastCreateAtStr := string(ctx.QueryArgs().Peek(lastCreateAtKey))
+	if lastCreateAtStr != "" {
+		var err error
+		lastCreateAt, err = time.Parse(consts.DateFormate, lastCreateAtStr)
+		if err != nil {
+			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+			return
+		}
+	}
+
+	lastViewsStr := string(ctx.QueryArgs().Peek(lastViewsKey))
+	if lastViewsStr != "" {
+		views, err := strconv.Atoi(lastViewsStr)
+		if err != nil {
+			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+			return
+		}
+		lastViews = uint32(views)
+	}
+
+	filters, err := parseGetFilters(ctx)
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		return
+	}
+
+	query := udto.BuildMediaDownloadQuery(
+		udto.MediaDownloadQuery{
+			ViewMode: viewMode,
+			Limit:    consts.LoadHistoryLimit,
+			LastRecord: dtypes.QueryMediaDownloadCursor{
+				ID:        lastID,
+				CreatedAt: lastCreateAt,
+				Views:     lastViews,
+			},
+			Filters: filters,
+		},
+	)
 
 	var bodyBuffer bytes.Buffer
-	err := h.getDownloadsHistory(ctx, &bodyBuffer, ctxUser, before, filters)
+	err = h.listDownloadsItems(ctx, &bodyBuffer, ctxUser, query)
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		return
+	}
+
+	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetBody(bodyBuffer.Bytes())
+}
+
+func (h *DownloaderHandlers) mediaItemsPost(ctx *fasthttp.RequestCtx) {
+	ctxUser := policy.ResolveUserOrAnonym(ctx)
+
+	var postReq dto.MediaItemsRequest
+	err := json.Unmarshal(ctx.PostBody(), &postReq)
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		return
+	}
+
+	err = h.validators.Validate.Struct(postReq)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		return
+	}
+
+	query, err := h.mappers.MapMediaItemsRequestToQuery(postReq)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		return
+	}
+
+	var bodyBuffer bytes.Buffer
+	err = h.listDownloadsItems(ctx, &bodyBuffer, ctxUser, query)
 	if err != nil {
 		ctx.SetStatusCode(fasthttp.StatusOK)
 		ctx.SetBodyString("")
@@ -46,26 +161,14 @@ func (h *DownloaderHandlers) MediaItemsHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetBody(bodyBuffer.Bytes())
 }
 
-func (h *DownloaderHandlers) getDownloadsHistory(
+func (h *DownloaderHandlers) listDownloadsItems(
 	ctx context.Context,
 	buf *bytes.Buffer,
 	authCtx dauth.AuthContext,
-	before time.Time,
-	filters requestFilters,
+	query udto.MediaDownloadQuery,
 ) error {
-	var filterByTitle string
-	if filters != nil {
-		filterByTitle = filters["title"]
-	}
+	query.Limit++
 
-	// We upload one more line to see if we need to show "Upload more"
-	query := dto.MediaDownloadQuery{
-		Before: before,
-		Limit:  loadHistoryLimit + 1,
-		Filters: dto.MediaDownloadFilters{
-			Title: filterByTitle,
-		},
-	}
 	downloads, err := h.downloader.ListDownloadInfo(ctx, authCtx, query)
 	if err != nil {
 		return err
@@ -75,15 +178,18 @@ func (h *DownloaderHandlers) getDownloadsHistory(
 		return nil
 	}
 
-	loadNextHistory := len(downloads) > loadHistoryLimit
+	loadNextHistory := len(downloads) > consts.LoadHistoryLimit
 
 	// If there are more items than the limit, we show only the limited number of items and a "Load more"
 	lines := downloads
-	if len(downloads) > loadHistoryLimit {
-		lines = downloads[:loadHistoryLimit]
+	if len(downloads) > consts.LoadHistoryLimit {
+		lines = downloads[:consts.LoadHistoryLimit]
 	}
 
-	before = lines[len(lines)-1].CreatedAt
+	lastLine := lines[len(lines)-1]
+	lastDownloadID := lastLine.DownloadID
+	lastCreatedAt := lastLine.CreatedAt
+	lastViews := lastLine.ViewCount
 
 	for i, downloadInfo := range lines {
 		row := h.renderMediaItemRow(
@@ -111,8 +217,12 @@ func (h *DownloaderHandlers) getDownloadsHistory(
 			continue
 		}
 
-		if loadNextHistory && i == preloadHistoryAfter-1 {
-			h.renderRowShouldLoadHistory(buf, before, filters)
+		if loadNextHistory && i == consts.PreloadHistoryAfter-1 {
+			query := udto.BuildMediaDownloadQuery(query)
+			query.LastRecord.ID = lastDownloadID
+			query.LastRecord.CreatedAt = lastCreatedAt
+			query.LastRecord.Views = lastViews
+			h.renderRowShouldLoadHistory(buf, query)
 		}
 	}
 
@@ -141,18 +251,37 @@ func (h *DownloaderHandlers) genRowLoadHistory(buf *bytes.Buffer) error {
 
 func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 	buf *bytes.Buffer,
-	before time.Time,
-	filters requestFilters,
+	query udto.MediaDownloadQuery,
 ) error {
-	if before.IsZero() {
+	if query.LastRecord.CreatedAt.IsZero() {
 		return nil
 	}
 
-	queryString := fmt.Sprintf("?before=%s", before.Format(dateFormate))
+	queryString := fmt.Sprintf("?%s=%s", viewModeKey, query.ViewMode.String())
+	queryString += fmt.Sprintf("&%s=%s", lastIDKey, idcodec.EncodeUUIDBase64URL(query.LastRecord.ID))
+	queryString += fmt.Sprintf("&%s=%s", lastCreateAtKey, query.LastRecord.CreatedAt.Format(consts.DateFormate))
+	queryString += fmt.Sprintf("&%s=%d", lastViewsKey, query.LastRecord.Views)
 
-	if filters != nil {
-		filterByTitle := filters[filterByTitleKey]
-		queryString += fmt.Sprintf("&filter[%s]=%s", filterByTitleKey, filterByTitle)
+	getSearchText := func(filters dtypes.QueryFiltersByName) types.SearchText {
+		if len(filters) == 0 {
+			return ""
+		}
+
+		filter, exists := filters[dtypes.QueryFilterNameSearch]
+		if !exists {
+			return ""
+		}
+
+		txt, ok := filter.Condition().Value().(string)
+		if !ok {
+			return ""
+		}
+
+		return types.SearchText(txt)
+	}
+
+	if text := getSearchText(query.Filters); text.IsValidate() {
+		queryString += fmt.Sprintf("&filter[%s]=%s", searchKey, text.String())
 	}
 
 	basePaths := paths.NewHttpPaths()

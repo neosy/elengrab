@@ -1,4 +1,4 @@
-package httptemplates
+package assets
 
 import (
 	"fmt"
@@ -10,8 +10,9 @@ import (
 var tmplPaths = [][]string{
 	{"templates", "layouts", "*.html"},
 	{"templates", "components", "*.html"},
-	{"templates", "components", "admin", "*.html"},
 	{"templates", "components", "menus", "*.html"},
+	{"templates", "components", "admin", "*.html"},
+	{"templates", "components", "media-result", "*.html"},
 	{"templates", "components", "rows", "*.html"},
 	{"templates", "components", "watch", "*.html"},
 }

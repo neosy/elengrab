@@ -1,14 +1,4 @@
-import { MEDIA_WATCH } from './constants.js';
-
-const WATCH_TRACKING_URL_TEMPLATE = "/downloader/items/{itemId}/watch-tracking";
-const WATCH_POSITION_URL_TEMPLATE = "/downloader/items/{itemId}/watch-position";
-
-function getWatchPositionUrl(itemId) {
-    return WATCH_POSITION_URL_TEMPLATE.replace(
-        "{itemId}",
-        itemId
-    );
-}
+import { MEDIA_WATCH, API_PATH_TEMPLATES } from './constants.js';
 
 export async function getWatchPosition(itemId) {
     if (!itemId) return 0;
@@ -31,6 +21,13 @@ export async function getWatchPosition(itemId) {
     } catch (err) {
         console.error("Failed to get watch position", err);
         return 0;
+    }
+
+    function getWatchPositionUrl(itemId) {
+        return API_PATH_TEMPLATES.downloaderWatchPosition.replace(
+            "{itemId}",
+            itemId
+        );
     }
 }
 
@@ -72,7 +69,7 @@ export class MediaWatchTracker {
             return null;
         }
 
-        return WATCH_TRACKING_URL_TEMPLATE.replace(
+        return API_PATH_TEMPLATES.downloaderWatchTracking.replace(
             "{itemId}",
             this.itemId
         );

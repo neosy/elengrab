@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"mime"
 	"strconv"
-	"time"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/clientcap"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
@@ -13,6 +12,8 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/items"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/consts"
+	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -23,8 +24,10 @@ import (
 )
 
 func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, authCtx dauth.AuthContext) {
+	query := udto.MediaDownloadQueryDefault(consts.LoadHistoryLimit)
+
 	var rowsBuf bytes.Buffer
-	err := h.getDownloadsHistory(ctx, &rowsBuf, authCtx, time.Now().UTC(), nil)
+	err := h.listDownloadsItems(ctx, &rowsBuf, authCtx, query)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

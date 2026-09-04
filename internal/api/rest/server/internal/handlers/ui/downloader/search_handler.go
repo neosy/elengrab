@@ -3,31 +3,57 @@ package downloader
 import (
 	"bytes"
 	"html/template"
-	"time"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/items"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/consts"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
+	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
-	filters := make(requestFilters)
+	filters := make(dtypes.QueryFiltersByName)
 
-	filterByTitle := string(ctx.PostArgs().Peek(searchKey))
-	if filterByTitle != "" {
-		filters[filterByTitleKey] = filterByTitle
+	var viewMode = dtypes.QueryMediaViewModeDefault
+
+	viewModeStr := string(ctx.PostArgs().Peek(viewModeKey))
+	if viewModeStr != "" {
+		var err error
+		viewMode, err = dtypes.ParseQueryMediaViewMode(viewModeStr)
+		if err != nil {
+			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+			return
+		}
 	}
 
+	searchText := types.SearchText(ctx.PostArgs().Peek(searchKey))
+	if searchText.IsLongEnough() {
+		if err := searchText.Validate(); err != nil {
+			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+			return
+		}
+
+		filters.Add(dtypes.QueryFilterNameSearch, searchText.String())
+	}
+
+	query := udto.MediaDownloadQueryDefault(consts.LoadHistoryLimit)
+	query.ViewMode = viewMode
+	query.Filters = filters
+
 	var rowsBuf bytes.Buffer
-	err := h.getDownloadsHistory(ctx, &rowsBuf, authCtx, time.Now().UTC(), filters)
+	err := h.listDownloadsItems(ctx, &rowsBuf, authCtx, query)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -43,7 +69,7 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 
 	var bodyBuffer bytes.Buffer
 	if err := h.templates.Base.ExecuteTemplate(&bodyBuffer, components.ResultRowsKey, pageData); err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
+		fasthttpx.WriteErrorx(ctx, errInternal(err))
 		return
 	}
 
