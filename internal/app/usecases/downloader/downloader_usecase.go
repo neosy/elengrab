@@ -184,8 +184,9 @@ func NewDownloader(
 
 		watchEventDispatcher,
 
-		downloader.broadcastWatchStatsUpdatedToAuth,
-		downloader.broadcastWatchPositionUpdatedToAuth,
+		downloader.onWatchUserStatsUpdated,
+		downloader.onWatchStatsUpdated,
+		downloader.onWatchUserPositionUpdated,
 	)
 
 	download := mediadownload.NewMediaDownload(
