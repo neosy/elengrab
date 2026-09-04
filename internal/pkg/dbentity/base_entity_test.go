@@ -297,7 +297,7 @@ func TestBaseEntityFieldsMap(t *testing.T) {
 		Internal:  "internal",
 	}
 
-	got := base.FieldsMap(&ent)
+	got := base.FieldValues(&ent)
 
 	want := map[string]any{
 		"id":       42,

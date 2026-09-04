@@ -80,10 +80,10 @@ func (e *MediaUserWatchChunk) Values() []any {
 	return e.BaseEntity.Values(e)
 }
 
-// FieldsMap returns a map of field names to their corresponding values
+// FieldValues returns a map of field names to their corresponding values
 // using the entity's Fields() and Values() methods, ready for UPDATE statements.
-func (e *MediaUserWatchChunk) FieldsMap() map[string]any {
-	return e.BaseEntity.FieldsMap(e)
+func (e *MediaUserWatchChunk) FieldValues() map[string]any {
+	return e.BaseEntity.FieldValues(e)
 }
 
 func (e *MediaUserWatchChunk) ConflictColumnsSQL() string {

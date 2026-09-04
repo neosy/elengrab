@@ -105,7 +105,7 @@ func (r *UserRepository) Update(ctx context.Context, user *dauth.User) error {
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
 		Update(eUser.TableName()).
-		SetMap(eUser.FieldsMap()).
+		SetMap(eUser.FieldValues()).
 		Where(squirrel.Eq{eUser.FieldName(&eUser.UserID): eUser.UserID}).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()

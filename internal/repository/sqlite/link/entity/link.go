@@ -86,8 +86,8 @@ func (e *Link) Values() []any {
 	return e.BaseEntity.Values(e)
 }
 
-// FieldsMap returns a map of field names to their corresponding values
+// FieldValues returns a map of field names to their corresponding values
 // using the entity's Fields() and Values() methods, ready for UPDATE statements.
-func (e *Link) FieldsMap() map[string]any {
-	return e.BaseEntity.FieldsMap(e)
+func (e *Link) FieldValues() map[string]any {
+	return e.BaseEntity.FieldValues(e)
 }

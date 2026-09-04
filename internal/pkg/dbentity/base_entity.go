@@ -44,7 +44,7 @@ func (e *BaseEntity[T]) PaginateFieldName(structPtr *T, fieldPtr any) string {
 // FieldsAll returns a list of fields that will be used for queries
 func (e *BaseEntity[T]) FieldsAll() []string {
 	var ent T
-	return etags.Fields(&ent, etags.TagNameSelect)
+	return etags.FieldNames(&ent, etags.TagNameSelect)
 }
 
 // SearchableFields returns a list of fields explicitly marked as searchable
@@ -69,7 +69,7 @@ func (e *BaseEntity[T]) FieldsAllWithAlias(alias string) []string {
 // where the tag 'insert' tag is not explicitly set to "false".
 func (e *BaseEntity[T]) Fields() []string {
 	var ent T
-	return etags.FieldsExceptFalseTag(&ent, etags.TagNameInsert)
+	return etags.FieldNamesExceptFalseTag(&ent, etags.TagNameInsert)
 }
 
 // Values returns field values allowed for insert or update operations
@@ -89,9 +89,9 @@ func (e *BaseEntity[T]) FieldPointer(structPtr *T, fieldName string) (any, error
 	return reflection.StructFieldPointer(structPtr, fieldName, etags.ColumnTagName().String())
 }
 
-// FieldsMap returns a map of field names to their corresponding values
+// FieldValues returns a map of field names to their corresponding values
 // using the entity's Fields() and Values() methods, ready for UPDATE statements.
-func (e *BaseEntity[T]) FieldsMap(structPtr *T) map[string]any {
+func (e *BaseEntity[T]) FieldValues(structPtr *T) map[string]any {
 	fields := e.Fields()
 	values := e.Values(structPtr)
 
@@ -101,4 +101,18 @@ func (e *BaseEntity[T]) FieldsMap(structPtr *T) map[string]any {
 	}
 
 	return m
+}
+
+// FieldNamesByTag returns a map that maps field names from the specified tag
+// to their corresponding database column names.
+//
+// For example, given the field:
+//
+//	SourceCreatedAt time.Time `db:"created_at" pfield:"createdAt"`
+//
+// calling FieldNamesByTag with the "pfield" tag returns:
+//
+//	map[string]string{"createdAt": "created_at"}
+func (e *BaseEntity[T]) FieldNamesByTag(structPtr *T, tag etags.TagName) map[string]string {
+	return etags.FieldNamesByTags(structPtr, tag, etags.ColumnTagName())
 }

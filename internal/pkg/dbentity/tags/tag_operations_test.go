@@ -19,7 +19,7 @@ type testEntity struct {
 func TestFields(t *testing.T) {
 	ent := testEntity{}
 
-	got := Fields(ent, TagNameSelect)
+	got := FieldNames(ent, TagNameSelect)
 	want := []string{"id", "name", "password", "created_at"}
 
 	if !reflect.DeepEqual(got, want) {
@@ -76,7 +76,7 @@ func TestFieldsExceptFalseTag(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := FieldsExceptFalseTag(tt.ent, TagNameSelect)
+			got := FieldNamesExceptFalseTag(tt.ent, TagNameSelect)
 
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("FieldsExceptFalseTag() = %v, want %v", got, tt.want)
