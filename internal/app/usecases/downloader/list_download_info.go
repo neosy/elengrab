@@ -19,40 +19,36 @@ func (uc *downloader) ListDownloadInfo(
 	authCtx dauth.AuthContext,
 	query dto.MediaDownloadQuery,
 ) ([]*dto.MediaDownloadInfo, error) {
-	options := dtypes.QueryMediaOptions{
-		QueryOptions: dtypes.QueryOptions{
-			Before: new(query.Before),
-			Limit:  new(query.Limit),
-		},
-	}
+	var options dtypes.QueryMediaOptions
 
-	filters := make(map[dtypes.QueryFilterName]any)
+	options.Before = new(query.Before)
+	options.Limit = new(query.Limit)
+
 	if uc.authz.ShouldRestrictDownloads(authCtx.RoleIDs) {
-		filters[dtypes.QueryFilterNameUserID] = authCtx.UserID
+		options.Filters.Add(dtypes.QueryFilterNameUserID, authCtx.UserID)
 		if authCtx.IsUser() {
 			options.Visibility = new(dtypes.QueryMediaVisibilityAuthenticated)
 		}
 	}
 
 	if query.Filters.Title != "" {
-		filters[dtypes.QueryFilterNameTitle] = query.Filters.Title
+		options.Filters.Add(dtypes.QueryFilterNameTitle, query.Filters.Title)
 	}
 
-	return uc.listDownloadInfo(ctx, authCtx, options, filters, withAuth(authCtx))
+	return uc.listDownloadInfo(ctx, authCtx, options, withAuth(authCtx))
 }
 
 func (uc *downloader) listDownloadInfo(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	queryOptions dtypes.QueryMediaOptions,
-	filters map[dtypes.QueryFilterName]any,
 	opts ...callOption,
 ) ([]*dto.MediaDownloadInfo, error) {
 	var (
 		mu sync.Mutex
 	)
 
-	downloadIDs, err := uc.searchIndex.GetDownloadIDsFromMediaSourceIndex(ctx, &queryOptions, filters)
+	downloadIDs, err := uc.searchIndex.GetDownloadIDsFromMediaSourceIndex(ctx, &queryOptions)
 	if err != nil {
 		return nil, err
 	}

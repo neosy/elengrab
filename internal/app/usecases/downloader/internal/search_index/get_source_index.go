@@ -15,15 +15,13 @@ func (u *SearchIndex) IterateGetSourceIndexes(ctx context.Context, fn func(*ddow
 func (u *SearchIndex) GetSourceIndexes(
 	ctx context.Context,
 	queryOptions *dtypes.QueryMediaOptions,
-	filters map[dtypes.QueryFilterName]any,
 ) ([]*ddownload.MediaSourceIndex, error) {
-	return u.searchIndex.GetAll(ctx, queryOptions, filters)
+	return u.searchIndex.GetAll(ctx, queryOptions)
 }
 
 func (u *SearchIndex) GetDownloadIDsFromMediaSourceIndex(
 	ctx context.Context,
 	queryOptions *dtypes.QueryMediaOptions,
-	filters map[dtypes.QueryFilterName]any,
 ) ([]uuid.UUID, error) {
-	return u.searchIndex.GetDownloadIDs(ctx, queryOptions, filters)
+	return u.searchIndex.GetDownloadIDs(ctx, queryOptions)
 }

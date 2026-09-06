@@ -78,8 +78,8 @@ func (e *User) InsertValues() []any {
 	return e.BaseEntity.InsertValues(e)
 }
 
-// FieldValues returns a map of field names to their corresponding values
+// InsertFieldValues returns a map of field names to their corresponding values
 // using the entity's Fields() and Values() methods, ready for UPDATE statements.
-func (e *User) FieldValues() map[string]any {
-	return e.BaseEntity.FieldValues(e)
+func (e *User) InsertFieldValues() map[string]any {
+	return e.BaseEntity.InsertFieldValues(e)
 }

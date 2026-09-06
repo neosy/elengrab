@@ -77,10 +77,10 @@ func (e *MediaUserWatchStat) InsertValues() []any {
 	return e.BaseEntity.InsertValues(e)
 }
 
-// FieldValues returns a map of field names to their corresponding values
+// InsertFieldValues returns a map of field names to their corresponding values
 // using the entity's Fields() and Values() methods, ready for UPDATE statements.
-func (e *MediaUserWatchStat) FieldValues() map[string]any {
-	return e.BaseEntity.FieldValues(e)
+func (e *MediaUserWatchStat) InsertFieldValues() map[string]any {
+	return e.BaseEntity.InsertFieldValues(e)
 }
 
 func (e *MediaUserWatchStat) ConflictFields() []string {

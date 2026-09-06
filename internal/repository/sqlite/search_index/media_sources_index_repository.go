@@ -17,15 +17,13 @@ import (
 	esearchindex "github.com/neosy/elengrab/internal/repository/sqlite/search_index/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/search_index/mappers"
 	"github.com/neosy/elengrab/internal/repository/sqlite/sqlutil"
-	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 )
 
 type MediaSourceIndexRepository struct {
 	mappers *mappers.Mappers
 	dbEntry persistence.DBEntry
 
-	filtersByName types.FiltersByName
-	queryOptions  queryOptions
+	queryOptions queryOptions
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -38,7 +36,7 @@ func NewMediaSourceIndexRepository(dbEntry persistence.DBEntry) persistence.Medi
 			mappers: mappers.NewMappers(),
 			dbEntry: dbEntry,
 
-			filtersByName: make(map[string]any),
+			queryOptions: newQueryOptions(),
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -217,9 +215,9 @@ func (r *MediaSourceIndexRepository) FindByDownloadID(ctx context.Context, downl
 		},
 	)
 
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(eIndex.FieldPointer(name)): value})
+			sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(eIndex.FieldPointer(name)): filter.Value})
 		}
 	}
 
@@ -266,7 +264,6 @@ func (r *MediaSourceIndexRepository) FindByDownloadID(ctx context.Context, downl
 
 func (r *MediaSourceIndexRepository) iterateGetAll(
 	ctx context.Context,
-	sortOrderBy string,
 	fn func(*ddownload.MediaSourceIndex) error,
 ) error {
 	var eIndex esearchindex.MediaSourceIndex
@@ -275,24 +272,24 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 		filterUserID string
 		conditions   = squirrel.And{}
 	)
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		switch name {
 		case "":
 			continue
 		case eIndex.FieldName(&eIndex.TitleLower):
-			filter, ok := value.(string)
+			title, ok := filter.Value.(string)
 			if !ok {
-				return fmt.Errorf("expected string, got %T (%v)", value, value)
+				return fmt.Errorf("expected string, got %T (%v)", filter.Value, filter.Value)
 			}
-			conditions = append(conditions, sqlutil.Like(eIndex.FieldName(&eIndex.TitleLower), filter))
+			conditions = append(conditions, sqlutil.Like(eIndex.FieldName(&eIndex.TitleLower), title))
 		case eIndex.FieldName(&eIndex.UserID):
-			userID, ok := value.(uuid.UUID)
+			userID, ok := filter.Value.(uuid.UUID)
 			if !ok {
-				return fmt.Errorf("expected uuid.UUID, got %T", value)
+				return fmt.Errorf("expected uuid.UUID, got %T", filter.Value)
 			}
 			filterUserID = userID.String()
 		default:
-			conditions = append(conditions, squirrel.Eq{eIndex.FieldName(eIndex.FieldPointer(name)): value})
+			conditions = append(conditions, squirrel.Eq{eIndex.FieldName(eIndex.FieldPointer(name)): filter.Value})
 		}
 	}
 
@@ -326,15 +323,15 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 	sqlWhere := conditions
 
 	// Create an ORDER BY clause based on fieldы with the specified sort order.
-	orderBy := dbutils.OrderBy(
-		dbutils.Flds{
-			eIndex.FieldName(&eIndex.SourceCreatedAt): sortOrderBy,
-		})
+	orderBys := r.queryOptions.OrderBys
+	if len(orderBys) == 0 {
+		orderBys = dbutils.SortBy(eIndex.FieldName(&eIndex.SourceCreatedAt), dbutils.OrderDescending).List()
+	}
 
 	qb := squirrel.Select(eIndex.QueryFields()...).
 		From(eIndex.TableName()).
 		Where(sqlWhere).
-		OrderBy(orderBy).
+		OrderBy(orderBys.Query()).
 		PlaceholderFormat(squirrel.Dollar)
 
 	if r.queryOptions.Limit != nil && *r.queryOptions.Limit > 0 {
@@ -354,7 +351,7 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 		return err
 	}
 	defer rows.Close()
-
+ 
 	if rows != nil {
 		for rows.Next() {
 			err := rows.Scan(eIndex.FieldPointers()...)
@@ -378,7 +375,7 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 }
 
 func (r *MediaSourceIndexRepository) IterateGetAll(ctx context.Context, fn func(*ddownload.MediaSourceIndex) error) error {
-	return r.iterateGetAll(ctx, dbutils.OrderDesc, fn)
+	return r.iterateGetAll(ctx, fn)
 }
 
 func (r *MediaSourceIndexRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {

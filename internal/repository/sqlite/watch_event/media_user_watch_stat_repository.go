@@ -12,7 +12,6 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
-	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 	ewatchevent "github.com/neosy/elengrab/internal/repository/sqlite/watch_event/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/watch_event/mappers"
 )
@@ -20,8 +19,6 @@ import (
 type MediaUserWatchStatRepository struct {
 	mappers *mappers.Mappers
 	dbEntry persistence.DBEntry
-
-	filtersByName types.FiltersByName
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -33,8 +30,6 @@ func NewMediaUserWatchStatRepository(dbEntry persistence.DBEntry) persistence.Me
 		return &MediaUserWatchStatRepository{
 			mappers: mappers.NewMappers(),
 			dbEntry: dbEntry,
-
-			filtersByName: make(map[string]any),
 
 			// options
 			retryOptions: dbexec.RetryOptions{

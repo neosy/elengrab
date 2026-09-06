@@ -7,7 +7,6 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	"github.com/neosy/elengrab/internal/ports/persistence"
@@ -21,8 +20,7 @@ type MediaWatchEventRepository struct {
 	mappers *mappers.Mappers
 	dbEntry persistence.DBEntry
 
-	filtersByName types.FiltersByName
-	queryOptions  dtypes.QueryOptions
+	queryOptions types.QueryOptions
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -35,7 +33,7 @@ func NewMediaWatchEventRepository(dbEntry persistence.DBEntry) persistence.Media
 			mappers: mappers.NewMappers(),
 			dbEntry: dbEntry,
 
-			filtersByName: make(map[string]any),
+			queryOptions: types.NewQueryOptions(),
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -120,34 +118,33 @@ func (r *MediaWatchEventRepository) DeleteByDownloadID(ctx context.Context, down
 }
 
 func (r *MediaWatchEventRepository) IterateAll(ctx context.Context, fn func(*ddownload.MediaWatchEvent) error) error {
-	return r.iterateGetAll(ctx, dbutils.OrderAsc, fn)
+	return r.iterateGetAll(ctx, fn)
 }
 
 func (r *MediaWatchEventRepository) iterateGetAll(
 	ctx context.Context,
-	sortOrderBy string,
 	fn func(*ddownload.MediaWatchEvent) error,
 ) error {
 	var eEvent ewatchevent.MediaWatchEvent
 
 	var sqlWhere = squirrel.And{}
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, squirrel.Eq{eEvent.FieldName(eEvent.FieldPointer(name)): value})
+			sqlWhere = append(sqlWhere, squirrel.Eq{eEvent.FieldName(eEvent.FieldPointer(name)): filter.Value})
 		}
 	}
 
 	// Create an ORDER BY clause based on fieldы with the specified sort order.
-	orderBy := dbutils.OrderBy(
-		dbutils.Flds{
-			eEvent.FieldName(&eEvent.CreatedAt): sortOrderBy,
-		})
+	orderBys := r.queryOptions.OrderBys
+	if len(orderBys) == 0 {
+		orderBys = dbutils.SortBy(eEvent.FieldName(&eEvent.CreatedAt), dbutils.OrderAscending).List()
+	}
 
 	qb := squirrel.
 		Select(eEvent.QueryFields()...).
 		From(eEvent.TableName()).
 		Where(sqlWhere).
-		OrderBy(orderBy).
+		OrderBy(orderBys.Query()).
 		PlaceholderFormat(squirrel.Dollar)
 
 	if r.queryOptions.Limit != nil && *r.queryOptions.Limit > 0 {
@@ -194,7 +191,7 @@ func (r *MediaWatchEventRepository) iterateGetAll(
 func (r *MediaWatchEventRepository) WithUserID() persistence.MediaWatchEventRepository {
 	var eEvent ewatchevent.MediaWatchEvent
 
-	r.filtersByName[eEvent.FieldName(&eEvent.UserID)] = nil
+	r.queryOptions.Filters.Add(eEvent.FieldName(&eEvent.UserID), nil)
 
 	return r
 }

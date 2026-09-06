@@ -1,13 +1,13 @@
 package dtypes
 
-type QueryOrder uint8
+import "github.com/neosy/elengrab/internal/pkg/dbutils"
 
-const (
-	QueryOrderAsc QueryOrder = iota
-	QueryOrderDesc
+type (
+	QueryOrder   = dbutils.OrderDirection
+	QueryOrderBy = dbutils.OrderBy
 )
 
-type QueryOrderBy struct {
-	Field QueryFieldName
-	Order QueryOrder
-}
+const (
+	QueryOrderAsc  dbutils.OrderDirection = dbutils.OrderAscending
+	QueryOrderDesc dbutils.OrderDirection = dbutils.OrderDescending
+)

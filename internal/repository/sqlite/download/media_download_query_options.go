@@ -7,10 +7,11 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
+	"github.com/neosy/elengrab/internal/repository/sqlite/types"
 )
 
 type mediaDownloadQueryOptions struct {
-	dtypes.QueryMediaOptions
+	types.QueryMediaOptions
 
 	includeDeleted bool
 	statuses       []dtypes.MediaDownloadStatus
@@ -22,6 +23,12 @@ type mediaDownloadQueryOptions struct {
 type queryArgs struct {
 	Placeholder string
 	Values      []any
+}
+
+func newMediaDownloadQueryOptions() mediaDownloadQueryOptions {
+	return mediaDownloadQueryOptions{
+		QueryMediaOptions: types.NewQueryMediaOptions(),
+	}
 }
 
 func (o *mediaDownloadQueryOptions) downloadIDsQuery() queryArgs {
@@ -72,7 +79,7 @@ func (r *MediaDownloadRepository) WithUser(userID uuid.UUID) persistence.MediaDo
 	if userID == uuid.Nil {
 		r.queryOptions.Visibility = new(dtypes.QueryMediaVisibilityPublic)
 	} else {
-		r.filtersByName[eDownload.FieldName(&eDownload.UserID)] = userID
+		r.queryOptions.Filters.Add(eDownload.FieldName(&eDownload.UserID), userID)
 	}
 
 	return r
@@ -101,9 +108,9 @@ func (r *MediaDownloadRepository) WithFilters(filters map[dtypes.QueryFilterName
 					r.queryOptions.Visibility = new(dtypes.QueryMediaVisibilityPublic)
 					continue
 				}
-				r.filtersByName[fieldName] = value
+				r.queryOptions.Filters.Add(fieldName, value)
 			default:
-				r.filtersByName[fieldName] = value
+				r.queryOptions.Filters.Add(fieldName, value)
 			}
 			continue
 		}

@@ -3,9 +3,13 @@ package dbentity
 import (
 	"reflect"
 	"testing"
+
+	etags "github.com/neosy/elengrab/internal/pkg/dbentity/tags"
+	"github.com/stretchr/testify/require"
 )
 
 type testEntity struct {
+	BaseEntity[testEntity]
 	ID        int    `db:"id" select:"true" insert:"true" issearch:"true" pfield:"id"`
 	Name      string `db:"name" select:"true" insert:"true" issearch:"true" pfield:"name"`
 	Email     string `db:"email" select:"true" insert:"false"`
@@ -14,11 +18,8 @@ type testEntity struct {
 	Internal  string `select:"true" insert:"false"`
 }
 
-type testEntityBase = BaseEntity[testEntity]
-
 func TestBaseEntityFieldName(t *testing.T) {
 	ent := testEntity{}
-	base := testEntityBase{}
 
 	tests := []struct {
 		name     string
@@ -44,7 +45,7 @@ func TestBaseEntityFieldName(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := base.FieldName(&ent, tt.fieldPtr)
+			got := ent.FieldName(&ent, tt.fieldPtr)
 
 			if got != tt.want {
 				t.Errorf("FieldName() = %q, want %q", got, tt.want)
@@ -55,7 +56,6 @@ func TestBaseEntityFieldName(t *testing.T) {
 
 func TestBaseEntityFieldNameWithAlias(t *testing.T) {
 	ent := testEntity{}
-	base := testEntityBase{}
 
 	tests := []struct {
 		name  string
@@ -85,7 +85,7 @@ func TestBaseEntityFieldNameWithAlias(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := base.FieldNameWithAlias(&ent, tt.field, tt.alias)
+			got := ent.FieldNameWithAlias(&ent, tt.field, tt.alias)
 
 			if got != tt.want {
 				t.Errorf("FieldNameWithAlias() = %q, want %q", got, tt.want)
@@ -96,7 +96,6 @@ func TestBaseEntityFieldNameWithAlias(t *testing.T) {
 
 func TestBaseEntityPaginateFieldName(t *testing.T) {
 	ent := testEntity{}
-	base := testEntityBase{}
 
 	tests := []struct {
 		name  string
@@ -122,7 +121,7 @@ func TestBaseEntityPaginateFieldName(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := base.PaginateFieldName(&ent, tt.field)
+			got := ent.PaginateFieldName(&ent, tt.field)
 
 			if got != tt.want {
 				t.Errorf("PaginateFieldName() = %q, want %q", got, tt.want)
@@ -132,9 +131,9 @@ func TestBaseEntityPaginateFieldName(t *testing.T) {
 }
 
 func TestBaseEntityQueryFields(t *testing.T) {
-	base := testEntityBase{}
+	ent := testEntity{}
 
-	got := base.QueryFields()
+	got := ent.QueryFields()
 
 	want := []string{
 		"id",
@@ -149,9 +148,9 @@ func TestBaseEntityQueryFields(t *testing.T) {
 }
 
 func TestBaseEntitySearchableFields(t *testing.T) {
-	base := testEntityBase{}
+	ent := testEntity{}
 
-	got := base.SearchableFields()
+	got := ent.SearchableFields()
 
 	want := []string{
 		"id",
@@ -164,9 +163,9 @@ func TestBaseEntitySearchableFields(t *testing.T) {
 }
 
 func TestBaseEntityQueryFieldsWithAlias(t *testing.T) {
-	base := testEntityBase{}
+	ent := testEntity{}
 
-	got := base.QueryFieldsWithAlias("e")
+	got := ent.QueryFieldsWithAlias("e")
 
 	want := []string{
 		"e.id",
@@ -181,9 +180,9 @@ func TestBaseEntityQueryFieldsWithAlias(t *testing.T) {
 }
 
 func TestBaseEntityFields(t *testing.T) {
-	base := testEntityBase{}
+	ent := testEntity{}
 
-	got := base.InsertFields()
+	got := ent.InsertFields()
 
 	want := []string{
 		"id",
@@ -197,8 +196,6 @@ func TestBaseEntityFields(t *testing.T) {
 }
 
 func TestBaseEntityValues(t *testing.T) {
-	base := testEntityBase{}
-
 	ent := testEntity{
 		ID:        42,
 		Name:      "John",
@@ -208,7 +205,7 @@ func TestBaseEntityValues(t *testing.T) {
 		Internal:  "internal",
 	}
 
-	got := base.InsertValues(&ent)
+	got := ent.InsertValues(&ent)
 
 	want := []any{
 		42,
@@ -222,11 +219,9 @@ func TestBaseEntityValues(t *testing.T) {
 }
 
 func TestBaseEntityFieldPointers(t *testing.T) {
-	base := testEntityBase{}
-
 	ent := testEntity{}
 
-	got, err := base.FieldPointers(&ent)
+	got, err := ent.FieldPointers(&ent)
 	if err != nil {
 		t.Fatalf("FieldPointers() error = %v", err)
 	}
@@ -245,8 +240,6 @@ func TestBaseEntityFieldPointers(t *testing.T) {
 }
 
 func TestBaseEntityFieldPointer(t *testing.T) {
-	base := testEntityBase{}
-
 	ent := testEntity{}
 
 	tests := []struct {
@@ -273,7 +266,7 @@ func TestBaseEntityFieldPointer(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := base.FieldPointer(&ent, tt.fieldName)
+			got, err := ent.FieldPointer(&ent, tt.fieldName)
 			if err != nil {
 				t.Fatalf("FieldPointer() error = %v", err)
 			}
@@ -285,9 +278,7 @@ func TestBaseEntityFieldPointer(t *testing.T) {
 	}
 }
 
-func TestBaseEntityFieldsMap(t *testing.T) {
-	base := testEntityBase{}
-
+func TestBaseEntityInsertFieldValues(t *testing.T) {
 	ent := testEntity{
 		ID:        42,
 		Name:      "John",
@@ -297,7 +288,7 @@ func TestBaseEntityFieldsMap(t *testing.T) {
 		Internal:  "internal",
 	}
 
-	got := base.FieldValues(&ent)
+	got := ent.InsertFieldValues(&ent)
 
 	want := map[string]any{
 		"id":       42,
@@ -306,6 +297,53 @@ func TestBaseEntityFieldsMap(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("FieldsMap() = %v, want %v", got, want)
+		t.Errorf("InsertFieldValues() = %v, want %v", got, want)
 	}
+}
+
+func TestBaseEntity_InsertFieldValues(t *testing.T) {
+	entity := testEntity{
+		ID:        123,
+		Name:      "John",
+		Email:     "john@example.com",
+		Password:  "secret",
+		CreatedAt: "2026-01-01",
+		Internal:  "internal",
+	}
+
+	got := entity.BaseEntity.InsertFieldValues(&entity)
+
+	want := map[string]any{
+		"id":       123,
+		"name":     "John",
+		"password": "secret",
+	}
+
+	require.Equal(t, want, got)
+}
+
+func TestBaseEntity_FieldNamesByTag(t *testing.T) {
+	var entity testEntity
+
+	got := entity.BaseEntity.FieldNamesByTag(etags.TagNamePaginationField)
+
+	want := map[string]string{
+		"id":   "id",
+		"name": "name",
+	}
+
+	require.Equal(t, want, got)
+}
+
+func TestBaseEntity_PaginationFieldNames(t *testing.T) {
+	var entity testEntity
+
+	got := entity.BaseEntity.PaginationFieldNames()
+
+	want := map[string]string{
+		"id":   "id",
+		"name": "name",
+	}
+
+	require.Equal(t, want, got)
 }

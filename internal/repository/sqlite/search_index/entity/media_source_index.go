@@ -1,8 +1,6 @@
 package esearchindex
 
 import (
-	"maps"
-	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,13 +15,13 @@ type MediaSourceIndex struct {
 	DownloadID uuid.UUID `db:"download_id"`
 
 	// User identifier
-	UserID *uuid.UUID `db:"user_id"`
+	UserID *uuid.UUID `db:"user_id" pfield:"userID"`
 
 	// Media title
 	Title string `db:"title"`
 
 	// Media title in lowercase for efficient case-insensitive searches
-	TitleLower string `db:"title_lower"`
+	TitleLower string `db:"title_lower" pfield:"title"`
 
 	// Description media
 	Description *string `db:"description"`
@@ -44,22 +42,10 @@ type MediaSourceIndex struct {
 	DeletedAt *time.Time `db:"deleted_at" insert:"false"`
 }
 
-type mediaSourceIndexMetadata struct {
-	queryFields          []string
-	insertFields         []string
-	paginationFieldNames map[string]string
-}
+var mediaSourceIndexMeta dbentity.EntityMetadata
 
-var mediaSourceIndexMeta = newMediaSourceIndexMetadata()
-
-func newMediaSourceIndexMetadata() mediaSourceIndexMetadata {
-	var entity MediaSourceIndex
-
-	return mediaSourceIndexMetadata{
-		queryFields:          entity.BaseEntity.QueryFields(),
-		insertFields:         entity.BaseEntity.InsertFields(),
-		paginationFieldNames: entity.BaseEntity.PaginationFieldNames(&entity),
-	}
+func init() {
+	mediaSourceIndexMeta = dbentity.NewEntityMetadata(MediaSourceIndex{}.BaseEntity)
 }
 
 // TableName returns the table name
@@ -107,24 +93,23 @@ func (e *MediaSourceIndex) PaginateFieldName(fieldPtr any) string {
 // InsertFields returns fields included in insert operations.
 // Fields with the `insert:"false"` tag are excluded.
 func (e *MediaSourceIndex) InsertFields() []string {
-	return slices.Clone(mediaSourceIndexMeta.insertFields)
+	return mediaSourceIndexMeta.InsertFields()
 }
 
 // QueryFields returns a list of fields that will be used for queries
 func (e *MediaSourceIndex) QueryFields() []string {
-	return slices.Clone(mediaSourceIndexMeta.queryFields)
+	return mediaSourceIndexMeta.QueryFields()
 }
 
 // QueryFieldsWithAlias returns a list of fields with alias that will be used for queries
 func (e *MediaSourceIndex) QueryFieldsWithAlias(alias string) []string {
-	fields := e.QueryFields()
+	return e.BaseEntity.FieldsWithAlias(e.QueryFields(), alias)
+}
 
-	withAlias := make([]string, len(fields))
-	for i, f := range fields {
-		withAlias[i] = alias + "." + f
-	}
-
-	return withAlias
+// PaginationFieldNames returns a map from pagination field names to their corresponding database column names.
+// It uses the `pfield` tag to determine the pagination field names.
+func (e *MediaSourceIndex) PaginationFieldNames() map[string]string {
+	return mediaSourceIndexMeta.PaginationFieldNames()
 }
 
 // InsertValues returns values for fields included in insert operations.
@@ -134,13 +119,6 @@ func (e *MediaSourceIndex) InsertValues() []any {
 }
 
 // FieldValues returns a map of field names to their corresponding values
-// using the entity's Fields() and Values() methods, ready for UPDATE statements.
-func (e *MediaSourceIndex) FieldValues() map[string]any {
-	return e.BaseEntity.FieldValues(e)
-}
-
-// PaginationFieldNames returns a map from pagination field names to their corresponding database column names.
-// It uses the `pfield` tag to determine the pagination field names.
-func (e *MediaSourceIndex) PaginationFieldNames() map[string]string {
-	return maps.Clone(mediaSourceIndexMeta.paginationFieldNames)
+func (e *MediaSourceIndex) InsertFieldValues() map[string]any {
+	return e.FieldValues(e.InsertFields(), e.InsertValues())
 }

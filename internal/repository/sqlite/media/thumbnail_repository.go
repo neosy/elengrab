@@ -259,13 +259,15 @@ func (r *ThumbnailRepository) FindByMediaIDBest(
 			ELSE 5
 		END`
 
+	orderBy := dbutils.SortBy(ent.FieldName(&ent.Version), dbutils.OrderDescending)
+
 	// Build SQL query
 	sqlQuery, args, err := squirrel.Select(ent.QueryFields()...).
 		From(ent.TableName()).
 		Where(sqlWehere).
 		OrderBy(
 			sqlOrderVariant,
-			dbutils.OrderBy(dbutils.Flds{ent.FieldName(&ent.Version): dbutils.OrderDesc}),
+			orderBy.Query(),
 		).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).

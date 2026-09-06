@@ -81,10 +81,10 @@ func (e *MediaUserWatchChunk) InsertValues() []any {
 	return e.BaseEntity.InsertValues(e)
 }
 
-// FieldValues returns a map of field names to their corresponding values
+// InsertFieldValues returns a map of field names to their corresponding values
 // using the entity's Fields() and Values() methods, ready for UPDATE statements.
-func (e *MediaUserWatchChunk) FieldValues() map[string]any {
-	return e.BaseEntity.FieldValues(e)
+func (e *MediaUserWatchChunk) InsertFieldValues() map[string]any {
+	return e.BaseEntity.InsertFieldValues(e)
 }
 
 func (e *MediaUserWatchChunk) ConflictColumnsSQL() string {

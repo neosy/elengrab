@@ -78,8 +78,8 @@ func (e *LinkClick) InsertValues() []any {
 	return e.BaseEntity.InsertValues(e)
 }
 
-// FieldValues returns a map of field names to their corresponding values
+// InsertFieldValues returns a map of field names to their corresponding values
 // using the entity's Fields() and Values() methods, ready for UPDATE statements.
-func (e *LinkClick) FieldValues() map[string]any {
-	return e.BaseEntity.FieldValues(e)
+func (e *LinkClick) InsertFieldValues() map[string]any {
+	return e.BaseEntity.InsertFieldValues(e)
 }

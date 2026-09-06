@@ -28,7 +28,7 @@ type UserRepository interface {
 
 	IterateGetAll(ctx context.Context, fn func(*dauth.User) error) error
 
-	WithFilters(filtersByName map[string]any) UserRepository
+	WithFilters(filtersByName ...dtypes.QueryFilter) UserRepository
 	WithoutDeleted() UserRepository
 	WithoutGuest() UserRepository
 }

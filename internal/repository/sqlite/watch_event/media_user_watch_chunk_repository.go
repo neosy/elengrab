@@ -8,7 +8,6 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
@@ -21,8 +20,7 @@ type MediaUserWatchChunkRepository struct {
 	mappers *mappers.Mappers
 	dbEntry persistence.DBEntry
 
-	filtersByName types.FiltersByName
-	queryOptions  dtypes.QueryOptions
+	queryOptions types.QueryOptions
 
 	// options
 	retryOptions dbexec.RetryOptions
@@ -35,7 +33,7 @@ func NewMediaUserWatchChunkRepository(dbEntry persistence.DBEntry) persistence.M
 			mappers: mappers.NewMappers(),
 			dbEntry: dbEntry,
 
-			filtersByName: make(map[string]any),
+			queryOptions: types.NewQueryOptions(),
 
 			// options
 			retryOptions: dbexec.RetryOptions{
@@ -195,10 +193,10 @@ func (r *MediaUserWatchChunkRepository) IterateDownloadUsers(
 	var eChunk ewatchevent.MediaUserWatchChunk
 
 	var sqlWhere = squirrel.And{}
-	for name, value := range r.filtersByName {
+	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
 			sqlWhere = append(sqlWhere, squirrel.Eq{
-				eChunk.FieldName(eChunk.FieldPointer(name)): value,
+				eChunk.FieldName(eChunk.FieldPointer(name)): filter.Value,
 			})
 		}
 	}
@@ -372,7 +370,7 @@ func (r *MediaUserWatchChunkRepository) CountUserViews(
 func (r *MediaUserWatchChunkRepository) WithUserID() persistence.MediaUserWatchChunkRepository {
 	var eChunk ewatchevent.MediaUserWatchChunk
 
-	r.filtersByName[eChunk.FieldName(&eChunk.UserID)] = nil
+	r.queryOptions.Filters.Add(eChunk.FieldName(&eChunk.UserID), nil)
 
 	return r
 }

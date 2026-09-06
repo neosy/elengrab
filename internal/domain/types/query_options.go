@@ -2,6 +2,8 @@ package dtypes
 
 import (
 	"time"
+
+	"github.com/neosy/elengrab/internal/pkg/dbutils"
 )
 
 type QueryOptions struct {
@@ -10,7 +12,8 @@ type QueryOptions struct {
 	Limit  *uint64
 	Offset *uint64
 
-	OrderBy []QueryOrderBy
+	Filters  QueryFiltersList
+	OrderBys dbutils.OrderByList
 }
 
 type QueryMediaOptions struct {

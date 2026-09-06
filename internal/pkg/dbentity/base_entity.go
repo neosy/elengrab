@@ -53,16 +53,19 @@ func (e *BaseEntity[T]) SearchableFields() []string {
 	return etags.FieldsWithTrueTag(&ent, etags.TagNameIsSearch)
 }
 
-// QueryFieldsWithAlias returns a list of fields with alias that will be used for queries
-func (e *BaseEntity[T]) QueryFieldsWithAlias(alias string) []string {
-	fields := e.QueryFields()
-
+// FieldsWithAlias returns a list of fields with alias
+func (e *BaseEntity[T]) FieldsWithAlias(fields []string, alias string) []string {
 	withAlias := make([]string, len(fields))
-	for i, f := range fields {
-		withAlias[i] = alias + "." + f
+	for i, field := range fields {
+		withAlias[i] = alias + "." + field
 	}
 
 	return withAlias
+}
+
+// QueryFieldsWithAlias returns a list of fields with alias that will be used for queries
+func (e *BaseEntity[T]) QueryFieldsWithAlias(alias string) []string {
+	return e.FieldsWithAlias(e.QueryFields(), alias)
 }
 
 // InsertFields returns fields included in insert operations.
@@ -90,17 +93,20 @@ func (e *BaseEntity[T]) FieldPointer(structPtr *T, fieldName string) (any, error
 }
 
 // FieldValues returns a map of field names to their corresponding values
-// for fields included in insert operations.
-func (e *BaseEntity[T]) FieldValues(structPtr *T) map[string]any {
-	fields := e.InsertFields()
-	values := e.InsertValues(structPtr)
-
+func (e *BaseEntity[T]) FieldValues(fields []string, values []any) map[string]any {
 	m := make(map[string]any, len(fields))
+
 	for i, f := range fields {
 		m[f] = values[i]
 	}
 
 	return m
+}
+
+// InsertFieldValues returns a map of field names to their corresponding values
+// for fields included in insert operations.
+func (e *BaseEntity[T]) InsertFieldValues(structPtr *T) map[string]any {
+	return e.FieldValues(e.InsertFields(), e.InsertValues(structPtr))
 }
 
 // FieldNamesByTag returns a map that maps field names from the specified tag
@@ -113,8 +119,9 @@ func (e *BaseEntity[T]) FieldValues(structPtr *T) map[string]any {
 // calling FieldNamesByTag with the "pfield" tag returns:
 //
 //	map[string]string{"createdAt": "created_at"}
-func (e *BaseEntity[T]) FieldNamesByTag(structPtr *T, tag etags.TagName) map[string]string {
-	return etags.FieldNamesByTags(structPtr, tag, etags.ColumnTagName())
+func (e *BaseEntity[T]) FieldNamesByTag(tag etags.TagName) map[string]string {
+	var ent T
+	return etags.FieldNamesByTags(&ent, tag, etags.ColumnTagName())
 }
 
 // PaginationFieldNames returns a map from pagination field names to their corresponding database column names.
@@ -127,6 +134,7 @@ func (e *BaseEntity[T]) FieldNamesByTag(structPtr *T, tag etags.TagName) map[str
 // calling PaginationFieldNames returns:
 //
 //	map[string]string{"createdAt": "created_at"}
-func (e *BaseEntity[T]) PaginationFieldNames(structPtr *T) map[string]string {
-	return etags.FieldNamesByTags(structPtr, etags.TagNamePaginationField, etags.ColumnTagName())
+func (e *BaseEntity[T]) PaginationFieldNames() map[string]string {
+	var ent T
+	return etags.FieldNamesByTags(&ent, etags.TagNamePaginationField, etags.ColumnTagName())
 }

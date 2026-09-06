@@ -53,7 +53,6 @@ func (u *MediaSourceIndex) IterateGetAll(ctx context.Context, fn func(*ddownload
 func (u *MediaSourceIndex) GetAll(
 	ctx context.Context,
 	queryOptions *dtypes.QueryMediaOptions,
-	filters map[dtypes.QueryFilterName]any,
 ) ([]*ddownload.MediaSourceIndex, error) {
 	repo := u.indexRepo()
 
@@ -61,8 +60,8 @@ func (u *MediaSourceIndex) GetAll(
 		repo = repo.WithOptions(*queryOptions)
 	}
 
-	if len(filters) > 0 {
-		repo = repo.WithFilters(filters)
+	if len(queryOptions.Filters) > 0 {
+		repo = repo.WithFilters(queryOptions.Filters...)
 	}
 
 	var indexes []*ddownload.MediaSourceIndex
@@ -80,7 +79,7 @@ func (u *MediaSourceIndex) GetAll(
 		u.logger.Warn(
 			"Failed to get sourceIndexes",
 			"queryOptions", options,
-			"filters", filters,
+			"filters", queryOptions.Filters,
 			"error", err)
 		return nil, err
 	}
@@ -91,9 +90,8 @@ func (u *MediaSourceIndex) GetAll(
 func (u *MediaSourceIndex) GetDownloadIDs(
 	ctx context.Context,
 	queryOptions *dtypes.QueryMediaOptions,
-	filters map[dtypes.QueryFilterName]any,
 ) ([]uuid.UUID, error) {
-	indexes, err := u.GetAll(ctx, queryOptions, filters)
+	indexes, err := u.GetAll(ctx, queryOptions)
 	if err != nil {
 		return nil, err
 	}

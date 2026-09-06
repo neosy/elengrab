@@ -253,8 +253,13 @@ func (u *MediaDownload) IterateGetByIDs(
 	return nil
 }
 
-func (u *MediaDownload) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ddownload.MediaDownload, error) {
-	downloads, err := u.downloadRepo().GetByIDs(ctx, ids)
+func (u *MediaDownload) GetByIDs(
+	ctx context.Context,
+	ids []uuid.UUID,
+) ([]*ddownload.MediaDownload, error) {
+	repo := u.downloadRepo()
+
+	downloads, err := repo.GetByIDs(ctx, ids)
 	if err != nil {
 		u.logger.Warn(
 			"Failed to get mediaDownload",
