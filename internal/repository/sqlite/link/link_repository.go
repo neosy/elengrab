@@ -66,8 +66,8 @@ func (r *LinkRepository) save(ctx context.Context, link *dlink.Link) error {
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eLink.Fields()
-	values := eLink.Values()
+	fields := eLink.InsertFields()
+	values := eLink.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -154,7 +154,7 @@ func (r *LinkRepository) Find(ctx context.Context, linkID uuid.UUID) (*dlink.Lin
 		}
 	}
 
-	sqlQuery, args, err := squirrel.Select(eLink.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eLink.QueryFields()...).
 		From(eLink.TableName()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).
@@ -247,7 +247,7 @@ func (r *LinkRepository) FindLastByShortCode(ctx context.Context, shortCode stri
 		}
 	}
 
-	sqlQuery, args, err := squirrel.Select(eLink.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eLink.QueryFields()...).
 		From(eLink.TableName()).
 		Where(sqlWhere).
 		OrderBy(dbutils.OrderBy(dbutils.Flds{eLink.FieldName(&eLink.CreatedAt): dbutils.OrderDesc})).

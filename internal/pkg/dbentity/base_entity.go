@@ -41,8 +41,8 @@ func (e *BaseEntity[T]) PaginateFieldName(structPtr *T, fieldPtr any) string {
 	return name
 }
 
-// FieldsAll returns a list of fields that will be used for queries
-func (e *BaseEntity[T]) FieldsAll() []string {
+// QueryFields returns a list of fields that will be used for queries
+func (e *BaseEntity[T]) QueryFields() []string {
 	var ent T
 	return etags.FieldNames(&ent, etags.TagNameSelect)
 }
@@ -53,9 +53,9 @@ func (e *BaseEntity[T]) SearchableFields() []string {
 	return etags.FieldsWithTrueTag(&ent, etags.TagNameIsSearch)
 }
 
-// FieldsAllWithAlias returns a list of fields with alias that will be used for queries
-func (e *BaseEntity[T]) FieldsAllWithAlias(alias string) []string {
-	fields := e.FieldsAll()
+// QueryFieldsWithAlias returns a list of fields with alias that will be used for queries
+func (e *BaseEntity[T]) QueryFieldsWithAlias(alias string) []string {
+	fields := e.QueryFields()
 
 	withAlias := make([]string, len(fields))
 	for i, f := range fields {
@@ -65,16 +65,16 @@ func (e *BaseEntity[T]) FieldsAllWithAlias(alias string) []string {
 	return withAlias
 }
 
-// Fields returns a list of fields allowed for insert or update operations
-// where the tag 'insert' tag is not explicitly set to "false".
-func (e *BaseEntity[T]) Fields() []string {
+// InsertFields returns fields included in insert operations.
+// Fields with the `insert:"false"` tag are excluded.
+func (e *BaseEntity[T]) InsertFields() []string {
 	var ent T
 	return etags.FieldNamesExceptFalseTag(&ent, etags.TagNameInsert)
 }
 
-// Values returns field values allowed for insert or update operations
-// where the tag 'insert' tag is not explicitly set to "false".
-func (e *BaseEntity[T]) Values(structPtr *T) []any {
+// InsertValues returns values for fields included in insert operations.
+// Fields with the `insert:"false"` tag are excluded.
+func (e *BaseEntity[T]) InsertValues(structPtr *T) []any {
 	return etags.ValuesExceptFalseTag(structPtr, etags.TagNameInsert)
 }
 
@@ -90,10 +90,10 @@ func (e *BaseEntity[T]) FieldPointer(structPtr *T, fieldName string) (any, error
 }
 
 // FieldValues returns a map of field names to their corresponding values
-// using the entity's Fields() and Values() methods, ready for UPDATE statements.
+// for fields included in insert operations.
 func (e *BaseEntity[T]) FieldValues(structPtr *T) map[string]any {
-	fields := e.Fields()
-	values := e.Values(structPtr)
+	fields := e.InsertFields()
+	values := e.InsertValues(structPtr)
 
 	m := make(map[string]any, len(fields))
 	for i, f := range fields {
@@ -115,4 +115,18 @@ func (e *BaseEntity[T]) FieldValues(structPtr *T) map[string]any {
 //	map[string]string{"createdAt": "created_at"}
 func (e *BaseEntity[T]) FieldNamesByTag(structPtr *T, tag etags.TagName) map[string]string {
 	return etags.FieldNamesByTags(structPtr, tag, etags.ColumnTagName())
+}
+
+// PaginationFieldNames returns a map from pagination field names to their corresponding database column names.
+// It uses the `pfield` tag to determine the pagination field names.
+//
+// For example, given the field:
+//
+//	SourceCreatedAt time.Time `db:"created_at" pfield:"createdAt"`
+//
+// calling PaginationFieldNames returns:
+//
+//	map[string]string{"createdAt": "created_at"}
+func (e *BaseEntity[T]) PaginationFieldNames(structPtr *T) map[string]string {
+	return etags.FieldNamesByTags(structPtr, etags.TagNamePaginationField, etags.ColumnTagName())
 }

@@ -67,8 +67,8 @@ func (r *UserRepository) Insert(ctx context.Context, user *dauth.User) error {
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eUser.Fields()
-	values := eUser.Values()
+	fields := eUser.InsertFields()
+	values := eUser.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -240,7 +240,7 @@ func (r *UserRepository) findByFieldName(ctx context.Context, fieldName string, 
 	)
 
 	selectFields := append(
-		eUser.FieldsAllWithAlias(aliasUsers),
+		eUser.QueryFieldsWithAlias(aliasUsers),
 		"GROUP_CONCAT("+eUserRole.FieldNameWithAlias(&eUserRole.RoleID, aliasUserRoles)+") AS roles",
 	)
 
@@ -325,7 +325,7 @@ func (r *UserRepository) iterateGetAll(
 	)
 
 	selectFields := append(
-		eUser.FieldsAllWithAlias(aliasUsers),
+		eUser.QueryFieldsWithAlias(aliasUsers),
 		"GROUP_CONCAT("+eUserRole.FieldNameWithAlias(&eUserRole.RoleID, aliasUserRoles)+") AS roles",
 	)
 

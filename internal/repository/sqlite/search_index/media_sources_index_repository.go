@@ -22,7 +22,7 @@ import (
 
 type MediaSourceIndexRepository struct {
 	mappers *mappers.Mappers
-	dbEntry   persistence.DBEntry
+	dbEntry persistence.DBEntry
 
 	filtersByName types.FiltersByName
 	queryOptions  queryOptions
@@ -36,7 +36,7 @@ func NewMediaSourceIndexRepository(dbEntry persistence.DBEntry) persistence.Medi
 	return func() persistence.MediaSourceIndexRepository {
 		return &MediaSourceIndexRepository{
 			mappers: mappers.NewMappers(),
-			dbEntry:   dbEntry,
+			dbEntry: dbEntry,
 
 			filtersByName: make(map[string]any),
 
@@ -69,8 +69,8 @@ func (r *MediaSourceIndexRepository) Save(ctx context.Context, index *ddownload.
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eIndex.Fields()
-	values := eIndex.Values()
+	fields := eIndex.InsertFields()
+	values := eIndex.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -223,7 +223,7 @@ func (r *MediaSourceIndexRepository) FindByDownloadID(ctx context.Context, downl
 		}
 	}
 
-	sqlQuery, args, err := squirrel.Select(eIndex.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eIndex.QueryFields()...).
 		From(eIndex.TableName()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).
@@ -331,7 +331,7 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 			eIndex.FieldName(&eIndex.SourceCreatedAt): sortOrderBy,
 		})
 
-	qb := squirrel.Select(eIndex.FieldsAll()...).
+	qb := squirrel.Select(eIndex.QueryFields()...).
 		From(eIndex.TableName()).
 		Where(sqlWhere).
 		OrderBy(orderBy).

@@ -32,7 +32,7 @@ func NewMediaUserWatchStatRepository(dbEntry persistence.DBEntry) persistence.Me
 	return func() persistence.MediaUserWatchStatRepository {
 		return &MediaUserWatchStatRepository{
 			mappers: mappers.NewMappers(),
-			dbEntry:      dbEntry,
+			dbEntry: dbEntry,
 
 			filtersByName: make(map[string]any),
 
@@ -69,8 +69,8 @@ func (r *MediaUserWatchStatRepository) save(ctx context.Context, stat *ddownload
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eStat.Fields()
-	values := eStat.Values()
+	fields := eStat.InsertFields()
+	values := eStat.InsertValues()
 
 	// Build INSERT query
 	sqlBuilder := squirrel.
@@ -175,7 +175,7 @@ func (r *MediaUserWatchStatRepository) Find(ctx context.Context, downloadID uuid
 
 	// Build SELECT query
 	sqlBuilder := squirrel.
-		Select(eStat.FieldsAll()...).
+		Select(eStat.QueryFields()...).
 		From(eStat.TableName()).
 		Where(squirrel.Eq{
 			eStat.FieldName(&eStat.DownloadID): downloadID,

@@ -66,8 +66,8 @@ func (r *RoleRepository) Save(ctx context.Context, role *dauth.Role) error {
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eRole.Fields()
-	values := eRole.Values()
+	fields := eRole.InsertFields()
+	values := eRole.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -94,7 +94,7 @@ func (r *RoleRepository) Save(ctx context.Context, role *dauth.Role) error {
 func (r *RoleRepository) Find(ctx context.Context, roleID string) (*dauth.Role, error) {
 	var eRole eauth.Role
 
-	sqlQuery, args, err := squirrel.Select(eRole.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eRole.QueryFields()...).
 		From(eRole.TableName()).
 		Where(squirrel.Eq{eRole.FieldName(&eRole.RoleID): roleID}).
 		PlaceholderFormat(squirrel.Dollar).
@@ -220,7 +220,7 @@ func (r *RoleRepository) iterateGetAll(
 			eRole.FieldName(&eRole.RoleID): sortOrderBy,
 		})
 
-	qb := squirrel.Select(eRole.FieldsAll()...).
+	qb := squirrel.Select(eRole.QueryFields()...).
 		From(eRole.TableName()).
 		Where(sqlWhere).
 		OrderBy(orderBy).

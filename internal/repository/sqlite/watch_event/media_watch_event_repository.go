@@ -70,8 +70,8 @@ func (r *MediaWatchEventRepository) save(ctx context.Context, event *ddownload.M
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eEvent.Fields()
-	values := eEvent.Values()
+	fields := eEvent.InsertFields()
+	values := eEvent.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -144,7 +144,7 @@ func (r *MediaWatchEventRepository) iterateGetAll(
 		})
 
 	qb := squirrel.
-		Select(eEvent.FieldsAll()...).
+		Select(eEvent.QueryFields()...).
 		From(eEvent.TableName()).
 		Where(sqlWhere).
 		OrderBy(orderBy).

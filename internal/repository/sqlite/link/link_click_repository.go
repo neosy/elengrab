@@ -60,8 +60,8 @@ func (r *LinkClickRepository) save(ctx context.Context, linkClick *dlink.LinkCli
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eLinkClick.Fields()
-	values := eLinkClick.Values()
+	fields := eLinkClick.InsertFields()
+	values := eLinkClick.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -88,7 +88,7 @@ func (r *LinkClickRepository) save(ctx context.Context, linkClick *dlink.LinkCli
 func (r *LinkClickRepository) Find(ctx context.Context, linkClickID uuid.UUID) (*dlink.LinkClick, error) {
 	var eLinkClick elink.LinkClick
 
-	sqlQuery, args, err := squirrel.Select(eLinkClick.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eLinkClick.QueryFields()...).
 		From(eLinkClick.TableName()).
 		Where(squirrel.Eq{eLinkClick.FieldName(&eLinkClick.LinkClickID): linkClickID}).
 		PlaceholderFormat(squirrel.Dollar).

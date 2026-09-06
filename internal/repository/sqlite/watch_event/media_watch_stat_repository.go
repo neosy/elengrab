@@ -69,8 +69,8 @@ func (r *MediaWatchStatRepository) save(ctx context.Context, stat *ddownload.Med
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eStat.Fields()
-	values := eStat.Values()
+	fields := eStat.InsertFields()
+	values := eStat.InsertValues()
 
 	// Build INSERT query
 	sqlBuilder := squirrel.
@@ -148,7 +148,7 @@ func (r *MediaWatchStatRepository) Find(ctx context.Context, downloadID uuid.UUI
 
 	// Build SELECT query
 	sqlBuilder := squirrel.
-		Select(eStat.FieldsAll()...).
+		Select(eStat.QueryFields()...).
 		From(eStat.TableName()).
 		Where(squirrel.Eq{eStat.FieldName(&eStat.DownloadID): downloadID}).
 		PlaceholderFormat(squirrel.Dollar).

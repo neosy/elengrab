@@ -60,8 +60,8 @@ func (r *UserRoleRepository) Save(ctx context.Context, userRole *dauth.UserRole)
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eUserRole.Fields()
-	values := eUserRole.Values()
+	fields := eUserRole.InsertFields()
+	values := eUserRole.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -124,7 +124,7 @@ func (r *UserRoleRepository) Find(
 ) (*dauth.UserRole, error) {
 	var eUserRole eauth.UserRole
 
-	sqlQuery, args, err := squirrel.Select(eUserRole.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eUserRole.QueryFields()...).
 		From(eUserRole.TableName()).
 		Where(
 			squirrel.And{

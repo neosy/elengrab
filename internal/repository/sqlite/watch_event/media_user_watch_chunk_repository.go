@@ -58,8 +58,8 @@ func (r *MediaUserWatchChunkRepository) AddChunkQty(ctx context.Context, chunk *
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eChunk.Fields()
-	values := eChunk.Values()
+	fields := eChunk.InsertFields()
+	values := eChunk.InsertValues()
 
 	qtyFieldName := eChunk.FieldName(&eChunk.Qty)
 
@@ -98,7 +98,7 @@ func (r *MediaUserWatchChunkRepository) AddChunkQtyBatch(ctx context.Context, ch
 
 	var eChunkTmpl ewatchevent.MediaUserWatchChunk
 
-	fields := eChunkTmpl.Fields()
+	fields := eChunkTmpl.InsertFields()
 
 	// Build INSERT query
 	sqlBuilder := squirrel.
@@ -116,7 +116,7 @@ func (r *MediaUserWatchChunkRepository) AddChunkQtyBatch(ctx context.Context, ch
 			return err
 		}
 
-		sqlBuilder = sqlBuilder.Values(eChunk.Values()...)
+		sqlBuilder = sqlBuilder.Values(eChunk.InsertValues()...)
 	}
 
 	qtyFieldName := eChunkTmpl.FieldName(&eChunkTmpl.Qty)

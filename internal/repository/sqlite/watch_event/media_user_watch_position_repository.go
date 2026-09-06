@@ -69,8 +69,8 @@ func (r *MediaUserWatchPositionRepository) save(ctx context.Context, position *d
 	}
 
 	// Get the list of fields and values for insertion
-	fields := ePosition.Fields()
-	values := ePosition.Values()
+	fields := ePosition.InsertFields()
+	values := ePosition.InsertValues()
 
 	// Build INSERT query
 	sqlBuilder := squirrel.
@@ -145,7 +145,7 @@ func (r *MediaUserWatchPositionRepository) Find(
 
 	// Build SELECT query
 	sqlBuilder := squirrel.
-		Select(ePosition.FieldsAll()...).
+		Select(ePosition.QueryFields()...).
 		From(ePosition.TableName()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).

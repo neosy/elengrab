@@ -131,10 +131,10 @@ func TestBaseEntityPaginateFieldName(t *testing.T) {
 	}
 }
 
-func TestBaseEntityFieldsAll(t *testing.T) {
+func TestBaseEntityQueryFields(t *testing.T) {
 	base := testEntityBase{}
 
-	got := base.FieldsAll()
+	got := base.QueryFields()
 
 	want := []string{
 		"id",
@@ -144,7 +144,7 @@ func TestBaseEntityFieldsAll(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("FieldsAll() = %v, want %v", got, want)
+		t.Errorf("QueryFields() = %v, want %v", got, want)
 	}
 }
 
@@ -163,10 +163,10 @@ func TestBaseEntitySearchableFields(t *testing.T) {
 	}
 }
 
-func TestBaseEntityFieldsAllWithAlias(t *testing.T) {
+func TestBaseEntityQueryFieldsWithAlias(t *testing.T) {
 	base := testEntityBase{}
 
-	got := base.FieldsAllWithAlias("e")
+	got := base.QueryFieldsWithAlias("e")
 
 	want := []string{
 		"e.id",
@@ -176,14 +176,14 @@ func TestBaseEntityFieldsAllWithAlias(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("FieldsAllWithAlias() = %v, want %v", got, want)
+		t.Errorf("QueryFieldsWithAlias() = %v, want %v", got, want)
 	}
 }
 
 func TestBaseEntityFields(t *testing.T) {
 	base := testEntityBase{}
 
-	got := base.Fields()
+	got := base.InsertFields()
 
 	want := []string{
 		"id",
@@ -192,7 +192,7 @@ func TestBaseEntityFields(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Fields() = %v, want %v", got, want)
+		t.Errorf("InsertFields() = %v, want %v", got, want)
 	}
 }
 
@@ -208,7 +208,7 @@ func TestBaseEntityValues(t *testing.T) {
 		Internal:  "internal",
 	}
 
-	got := base.Values(&ent)
+	got := base.InsertValues(&ent)
 
 	want := []any{
 		42,
@@ -217,7 +217,7 @@ func TestBaseEntityValues(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Values() = %v, want %v", got, want)
+		t.Errorf("InsertValues() = %v, want %v", got, want)
 	}
 }
 

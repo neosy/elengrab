@@ -60,8 +60,8 @@ func (r *SiteLogoRepository) Save(ctx context.Context, logo *dmedia.SiteLogo) er
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eLogo.Fields()
-	values := eLogo.Values()
+	fields := eLogo.InsertFields()
+	values := eLogo.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -89,7 +89,7 @@ func (r *SiteLogoRepository) FindByLogoID(ctx context.Context, logoID uuid.UUID)
 	var ent emedia.SiteLogo
 
 	// Build SQL query
-	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(ent.QueryFields()...).
 		From(ent.TableName()).
 		Where(squirrel.Eq{ent.FieldName(&ent.LogoID): logoID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
@@ -165,7 +165,7 @@ func (r *SiteLogoRepository) FindBySiteURL(ctx context.Context, siteURL string) 
 	var ent emedia.SiteLogo
 
 	// Build SQL query
-	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(ent.QueryFields()...).
 		From(ent.TableName()).
 		Where(squirrel.Eq{ent.FieldName(&ent.SiteURL): siteURL}).
 		PlaceholderFormat(squirrel.Dollar).

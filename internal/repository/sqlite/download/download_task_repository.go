@@ -66,8 +66,8 @@ func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.Downl
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eTask.Fields()
-	values := eTask.Values()
+	fields := eTask.InsertFields()
+	values := eTask.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -123,7 +123,7 @@ func (r *DownloadTaskRepository) UpdateStatusToNew(ctx context.Context) error {
 func (r *DownloadTaskRepository) FindByTaskID(ctx context.Context, taskID uuid.UUID) (*ddownload.DownloadTask, error) {
 	var ent edownload.DownloadTask
 
-	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(ent.QueryFields()...).
 		From(ent.TableName()).
 		Where(squirrel.Eq{ent.FieldName(&ent.TaskID): taskID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
@@ -167,7 +167,7 @@ func (r *DownloadTaskRepository) FindByTaskID(ctx context.Context, taskID uuid.U
 func (r *DownloadTaskRepository) FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.DownloadTask, error) {
 	var ent edownload.DownloadTask
 
-	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(ent.QueryFields()...).
 		From(ent.TableName()).
 		Where(squirrel.Eq{ent.FieldName(&ent.DownloadID): downloadID.String()}).
 		PlaceholderFormat(squirrel.Dollar).

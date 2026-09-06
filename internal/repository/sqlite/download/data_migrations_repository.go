@@ -59,8 +59,8 @@ func (r *DataMigrationRepository) Save(ctx context.Context, migration *ddownload
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eMigration.Fields()
-	values := eMigration.Values()
+	fields := eMigration.InsertFields()
+	values := eMigration.InsertValues()
 
 	// Generate SQL query with upsert logic
 	sqlQuery, args, err := squirrel.
@@ -89,7 +89,7 @@ func (r *DataMigrationRepository) Find(
 	var ent edownload.DataMigration
 
 	// Build SQL query
-	sqlQuery, args, err := squirrel.Select(ent.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(ent.QueryFields()...).
 		From(ent.TableName()).
 		Where(squirrel.Eq{ent.FieldName(&ent.MigrationID): migrationID}).
 		PlaceholderFormat(squirrel.Dollar).

@@ -81,8 +81,8 @@ func (r *MediaDownloadRepository) Save(ctx context.Context, download *ddownload.
 	}
 
 	// Get the list of fields and values for insertion
-	fields := eDownload.Fields()
-	values := eDownload.Values()
+	fields := eDownload.InsertFields()
+	values := eDownload.InsertValues()
 
 	// If this is an update — add the UpdatedAt field with the current time
 	// if isUpd {
@@ -281,7 +281,7 @@ func (r *MediaDownloadRepository) FindByDownloadID(ctx context.Context, download
 		aliasTasks     = "t"
 	)
 
-	selectFields := append(eDownload.FieldsAllWithAlias(aliasDownloads), eTask.FieldsAllWithAlias(aliasTasks)...)
+	selectFields := append(eDownload.QueryFieldsWithAlias(aliasDownloads), eTask.QueryFieldsWithAlias(aliasTasks)...)
 
 	sqlWhere := squirrel.And{}
 
@@ -357,7 +357,7 @@ func (r *MediaDownloadRepository) iterateGetAll(
 		aliasTasks     = "t"
 	)
 
-	selectFields := append(eDownload.FieldsAllWithAlias(aliasDownloads), eTask.FieldsAllWithAlias(aliasTasks)...)
+	selectFields := append(eDownload.QueryFieldsWithAlias(aliasDownloads), eTask.QueryFieldsWithAlias(aliasTasks)...)
 
 	var conditions = squirrel.And{}
 	if len(r.queryOptions.statuses) > 0 {
@@ -775,7 +775,7 @@ func (r *MediaDownloadRepository) GetDeleted(ctx context.Context, from, to *time
 
 	orderBy := dbutils.OrderBy(dbutils.Flds{eDownload.FieldName(&eDownload.DeletedAt): dbutils.OrderAsc})
 
-	sqlQuery, args, err := squirrel.Select(eDownload.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eDownload.QueryFields()...).
 		From(eDownload.TableName()).
 		Where(sqlWhere).
 		OrderBy(orderBy).
@@ -816,7 +816,7 @@ func (r *MediaDownloadRepository) FillEmptyMediaTitleLower(ctx context.Context) 
 		squirrel.Eq{eDownload.FieldName(&eDownload.MediaTitleLower): ""},
 	}
 
-	sqlQuery, args, err := squirrel.Select(eDownload.FieldsAll()...).
+	sqlQuery, args, err := squirrel.Select(eDownload.QueryFields()...).
 		From(eDownload.TableName()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).

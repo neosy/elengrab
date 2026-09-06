@@ -41,9 +41,10 @@ func (e *DownloadTask) FieldNameWithAlias(fieldPtr any, alias string) string {
 	return e.BaseEntity.FieldNameWithAlias(e, fieldPtr, alias)
 }
 
-// Values returns a list of values for fields that will be used for updates
-func (e *DownloadTask) Values() []any {
-	return e.BaseEntity.Values(e)
+// InsertValues returns values for fields included in insert operations.
+// Fields with the `insert:"false"` tag are excluded.
+func (e *DownloadTask) InsertValues() []any {
+	return e.BaseEntity.InsertValues(e)
 }
 
 // FieldPointers returns a slice of pointers to all exported fields of the given struct.

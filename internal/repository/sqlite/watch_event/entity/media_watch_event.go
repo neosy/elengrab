@@ -66,9 +66,10 @@ func (e *MediaWatchEvent) FieldPointer(fieldName string) any {
 	return ptr
 }
 
-// Values returns a list of values for fields that will be used for updates
-func (e *MediaWatchEvent) Values() []any {
-	return e.BaseEntity.Values(e)
+// InsertValues returns values for fields included in insert operations.
+// Fields with the `insert:"false"` tag are excluded.
+func (e *MediaWatchEvent) InsertValues() []any {
+	return e.BaseEntity.InsertValues(e)
 }
 
 // FieldValues returns a map of field names to their corresponding values
