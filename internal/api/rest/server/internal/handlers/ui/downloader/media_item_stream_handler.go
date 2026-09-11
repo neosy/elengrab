@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -20,7 +21,7 @@ func (h *DownloaderHandlers) MediaItemStreamHandler(ctx *fasthttp.RequestCtx) {
 	// Get user ID from context
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
-	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
+	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
 	if !ok || downloadIDStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return
@@ -36,7 +37,7 @@ func (h *DownloaderHandlers) MediaItemStreamHandler(ctx *fasthttp.RequestCtx) {
 }
 
 func (h *DownloaderHandlers) StreamShortCodeHandler(ctx *fasthttp.RequestCtx) {
-	shortCode, ok := ctx.UserValue(shortCodeKey).(string)
+	shortCode, ok := ctx.UserValue(qkeys.ShortCodeKey.String()).(string)
 	if !ok || shortCode == "" {
 		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("shortCode is required", fasthttp.StatusBadRequest))
 		return

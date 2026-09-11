@@ -10,6 +10,8 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
@@ -53,6 +55,21 @@ func parseGetFilters(ctx *fasthttp.RequestCtx) (dtypes.QueryFiltersByName, error
 	}
 
 	return filters, nil
+}
+
+func parseGetSearchParameters(ctx *fasthttp.RequestCtx) (*types.SearchParameters, error) {
+	searchParametersStr := string(ctx.QueryArgs().Peek(qkeys.SearchParametersKey.String()))
+
+	if searchParametersStr == "" {
+		return nil, nil
+	}
+
+	searchParameters, err := types.ParseEncodedSearchParameters(searchParametersStr)
+	if err != nil {
+		return nil, err
+	}
+
+	return searchParameters, nil
 }
 
 func (h *DownloaderHandlers) redirectGuestIfAuthRequired(ctx *fasthttp.RequestCtx) bool {

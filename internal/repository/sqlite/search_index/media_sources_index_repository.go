@@ -327,18 +327,20 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 	case dtypes.QueryMediaViewModeNew:
 		orderBys = dbutils.SortBy(eIndex.FieldName(&eIndex.SourceCreatedAt), dbutils.OrderDescending).List()
 		if !r.queryOptions.LastRecord.CreatedAt.IsZero() {
-			conditions = append(conditions, squirrel.Lt{eIndex.FieldName(&eIndex.SourceCreatedAt): r.queryOptions.LastRecord.CreatedAt})
+			lastCreatedAt := r.queryOptions.LastRecord.CreatedAt.UTC()
+			conditions = append(conditions, squirrel.Lt{eIndex.FieldName(&eIndex.SourceCreatedAt): lastCreatedAt})
 		}
 	case dtypes.QueryMediaViewModeOld:
 		orderBys = dbutils.SortBy(eIndex.FieldName(&eIndex.SourceCreatedAt), dbutils.OrderAscending).List()
 		if !r.queryOptions.LastRecord.CreatedAt.IsZero() {
-			conditions = append(conditions, squirrel.Gt{eIndex.FieldName(&eIndex.SourceCreatedAt): r.queryOptions.LastRecord.CreatedAt})
+			lastCreatedAt := r.queryOptions.LastRecord.CreatedAt.UTC()
+			conditions = append(conditions, squirrel.Gt{eIndex.FieldName(&eIndex.SourceCreatedAt): lastCreatedAt})
 		}
 	case dtypes.QueryMediaViewModePopular:
 		orderBys = dbutils.SortBy(eIndex.FieldName(&eIndex.Views), dbutils.OrderDescending).List()
 		if !r.queryOptions.LastRecord.CreatedAt.IsZero() {
 			lastViews := r.queryOptions.LastRecord.Views
-			lastCreatedAt := r.queryOptions.LastRecord.CreatedAt
+			lastCreatedAt := r.queryOptions.LastRecord.CreatedAt.UTC()
 			lastDownloadID := r.queryOptions.LastRecord.ID
 
 			condition := squirrel.Or{
