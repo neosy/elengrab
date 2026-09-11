@@ -34,7 +34,7 @@
 - Fixed media download updates to correctly apply changes using the latest download data. [L120]
 
 ### 📦 Build
-- Updated Go to 1.26.6.
+- Updated Go to 1.27.1.
 
 ### ⚙️ Config
 - Disabled the per-IP connection limit to support deployments behind reverse proxies. [L124]
