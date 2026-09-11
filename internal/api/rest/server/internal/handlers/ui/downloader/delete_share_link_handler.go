@@ -3,6 +3,7 @@ package downloader
 import (
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
@@ -10,7 +11,7 @@ import (
 )
 
 func (h *DownloaderHandlers) DeleteShareLinkHandler(ctx *fasthttp.RequestCtx) {
-	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
+	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
 	if !ok || downloadIDStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return

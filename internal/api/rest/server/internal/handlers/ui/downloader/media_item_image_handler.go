@@ -8,6 +8,7 @@ import (
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
@@ -20,7 +21,7 @@ import (
 func (h *DownloaderHandlers) MediaItemImageHandler(ctx *fasthttp.RequestCtx) {
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
-	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
+	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
 	if !ok || downloadIDStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return
@@ -33,7 +34,7 @@ func (h *DownloaderHandlers) MediaItemImageHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	args := ctx.QueryArgs()
-	argImageSource := string(args.Peek(sourceKey))
+	argImageSource := string(args.Peek(qkeys.SourceKey.String()))
 	argImageSource = strings.TrimSpace(argImageSource)
 
 	var imageSources []dtypes.ImageSource

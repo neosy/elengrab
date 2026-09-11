@@ -5,6 +5,7 @@ import (
 
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
@@ -15,7 +16,7 @@ func (h *DownloaderHandlers) DownloadFileHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
 	// Get the file name from the query parameter
-	downloadIDStr := string(ctx.QueryArgs().Peek(downloadIDKey))
+	downloadIDStr := string(ctx.QueryArgs().Peek(qkeys.DownloadIDKey.String()))
 	if downloadIDStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return

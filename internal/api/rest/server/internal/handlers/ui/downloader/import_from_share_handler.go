@@ -5,6 +5,7 @@ import (
 
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -21,9 +22,9 @@ func (h *DownloaderHandlers) ImportFromShareHandler(ctx *fasthttp.RequestCtx) {
 
 	args := ctx.QueryArgs()
 
-	url := string(args.Peek(urlKey))
+	url := string(args.Peek(qkeys.UrlKey.String()))
 	if url == "" {
-		url = string(args.Peek(textKey))
+		url = string(args.Peek(qkeys.TextKey.String()))
 	}
 
 	url = strings.TrimSpace(url)

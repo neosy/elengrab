@@ -2,12 +2,13 @@ package downloader
 
 import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) GetChannelAvatarHandler(ctx *fasthttp.RequestCtx) {
-	channelID, ok := ctx.UserValue(channelIDKey).(string)
+	channelID, ok := ctx.UserValue(qkeys.ChannelIDKey.String()).(string)
 	if !ok || channelID != "" {
 		channelInfo, _ := h.downloader.FindYoutubeChannelInfo(ctx, channelID)
 

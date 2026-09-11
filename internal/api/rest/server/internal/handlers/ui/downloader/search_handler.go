@@ -10,6 +10,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/consts"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -26,7 +27,7 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 
 	var viewMode = dtypes.QueryMediaViewModeDefault
 
-	viewModeStr := string(ctx.PostArgs().Peek(viewModeKey))
+	viewModeStr := string(ctx.PostArgs().Peek(qkeys.ViewModeKey.String()))
 	if viewModeStr != "" {
 		var err error
 		viewMode, err = dtypes.ParseQueryMediaViewMode(viewModeStr)
@@ -36,7 +37,7 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	searchText := types.SearchText(ctx.PostArgs().Peek(searchKey))
+	searchText := types.SearchText(ctx.PostArgs().Peek(qkeys.SearchKey.String()))
 	if searchText.IsLongEnough() {
 		if err := searchText.Validate(); err != nil {
 			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))

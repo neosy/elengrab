@@ -9,6 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/middleware/auth"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
@@ -51,7 +52,7 @@ func (h *DownloaderHandlers) AuthLoginPageHandler(ctx *fasthttp.RequestCtx) {
 	baseValues := pages.NewBaseValues()
 	baseValues.Title = pages.PageAuthLoginTitle
 
-	redirectPath := string(ctx.QueryArgs().Peek(redirectKey))
+	redirectPath := string(ctx.QueryArgs().Peek(qkeys.RedirectKey.String()))
 	if redirectPath == "" {
 		redirectPath = httppaths.IndexPath
 	}
