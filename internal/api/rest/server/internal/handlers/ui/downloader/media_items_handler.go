@@ -5,10 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strconv"
-	"time"
+	"strings"
 
-	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/items"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
@@ -16,6 +14,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/consts"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -24,7 +23,6 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
-	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
@@ -49,52 +47,15 @@ func (h *DownloaderHandlers) MediaItemsHandler(ctx *fasthttp.RequestCtx) {
 
 func (h *DownloaderHandlers) mediaItemsGet(ctx *fasthttp.RequestCtx) {
 	var (
-		viewMode     = dtypes.QueryMediaViewModeDefault
-		lastID       uuid.UUID
-		lastCreateAt time.Time
-		lastViews    uint32
+		searchParameters *types.SearchParameters
 	)
 
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
-	viewModeStr := string(ctx.QueryArgs().Peek(viewModeKey))
-	if viewModeStr != "" {
-		var err error
-		viewMode, err = dtypes.ParseQueryMediaViewMode(viewModeStr)
-		if err != nil {
-			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
-			return
-		}
-	}
-
-	lastIDStr := string(ctx.QueryArgs().Peek(lastIDKey))
-	if lastIDStr != "" {
-		var err error
-		lastID, err = idcodec.DecodeUUIDBase64URL(lastIDStr)
-		if err != nil {
-			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
-			return
-		}
-	}
-
-	lastCreateAtStr := string(ctx.QueryArgs().Peek(lastCreateAtKey))
-	if lastCreateAtStr != "" {
-		var err error
-		lastCreateAt, err = time.Parse(consts.DateFormate, lastCreateAtStr)
-		if err != nil {
-			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
-			return
-		}
-	}
-
-	lastViewsStr := string(ctx.QueryArgs().Peek(lastViewsKey))
-	if lastViewsStr != "" {
-		views, err := strconv.Atoi(lastViewsStr)
-		if err != nil {
-			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
-			return
-		}
-		lastViews = uint32(views)
+	searchParameters, err := parseGetSearchParameters(ctx)
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		return
 	}
 
 	filters, err := parseGetFilters(ctx)
@@ -103,14 +64,20 @@ func (h *DownloaderHandlers) mediaItemsGet(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	lastQueryCursor, err := searchParameters.ParseLastCursor()
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		return
+	}
+
 	query := udto.BuildMediaDownloadQuery(
 		udto.MediaDownloadQuery{
-			ViewMode: viewMode,
+			ViewMode: lastQueryCursor.ViewMode,
 			Limit:    consts.LoadHistoryLimit,
 			LastRecord: dtypes.QueryMediaDownloadCursor{
-				ID:        lastID,
-				CreatedAt: lastCreateAt,
-				Views:     lastViews,
+				ID:        lastQueryCursor.LastID,
+				CreatedAt: lastQueryCursor.LastCreateAt,
+				Views:     lastQueryCursor.LastViews,
 			},
 			Filters: filters,
 		},
@@ -178,7 +145,7 @@ func (h *DownloaderHandlers) listDownloadsItems(
 		return nil
 	}
 
-	loadNextHistory := len(downloads) > consts.LoadHistoryLimit
+	shouldLoadNextHistory  := len(downloads) > consts.LoadHistoryLimit
 
 	// If there are more items than the limit, we show only the limited number of items and a "Load more"
 	lines := downloads
@@ -217,7 +184,7 @@ func (h *DownloaderHandlers) listDownloadsItems(
 			continue
 		}
 
-		if loadNextHistory && i == consts.PreloadHistoryAfter-1 {
+		if shouldLoadNextHistory  && i == consts.PreloadHistoryAfter-1 {
 			query := udto.BuildMediaDownloadQuery(query)
 			query.LastRecord.ID = lastDownloadID
 			query.LastRecord.CreatedAt = lastCreatedAt
@@ -226,7 +193,7 @@ func (h *DownloaderHandlers) listDownloadsItems(
 		}
 	}
 
-	if loadNextHistory {
+	if shouldLoadNextHistory  {
 		h.genRowLoadHistory(buf)
 	}
 
@@ -241,7 +208,7 @@ func (h *DownloaderHandlers) genRowLoadHistory(buf *bytes.Buffer) error {
 		Extra: extraData,
 	}
 
-	err := h.templates.Base.ExecuteTemplate(buf, components.ResultLoadHistory, pageData)
+	err := h.templates.Base.ExecuteTemplate(buf, components.ResultLoadHistoryKey, pageData)
 	if err != nil {
 		return errInternal(err)
 	}
@@ -256,11 +223,6 @@ func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 	if query.LastRecord.CreatedAt.IsZero() {
 		return nil
 	}
-
-	queryString := fmt.Sprintf("?%s=%s", viewModeKey, query.ViewMode.String())
-	queryString += fmt.Sprintf("&%s=%s", lastIDKey, idcodec.EncodeUUIDBase64URL(query.LastRecord.ID))
-	queryString += fmt.Sprintf("&%s=%s", lastCreateAtKey, query.LastRecord.CreatedAt.Format(consts.DateFormate))
-	queryString += fmt.Sprintf("&%s=%d", lastViewsKey, query.LastRecord.Views)
 
 	getSearchText := func(filters dtypes.QueryFiltersByName) types.SearchText {
 		if len(filters) == 0 {
@@ -280,9 +242,25 @@ func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 		return types.SearchText(txt)
 	}
 
+	var queryParameters []string
+
 	if text := getSearchText(query.Filters); text.IsValidate() {
-		queryString += fmt.Sprintf("&filter[%s]=%s", searchKey, text.String())
+		queryParameters = append(queryParameters, fmt.Sprintf("filter[%s]=%s", qkeys.SearchKey.String(), text.String()))
 	}
+
+	lastCursor := types.MediaQueryCursor{
+		ViewMode:     query.ViewMode,
+		LastID:       query.LastRecord.ID,
+		LastCreateAt: query.LastRecord.CreatedAt,
+		LastViews:    query.LastRecord.Views,
+	}
+
+	searchParameters := types.NewSearchParameters()
+	searchParameters.Add(qkeys.LastCursorKey, lastCursor.Encode())
+
+	queryParameters = append(queryParameters, searchParameters.QueryParameter())
+
+	queryString := "?" + strings.Join(queryParameters, "&")
 
 	basePaths := paths.NewHttpPaths()
 	basePaths.DownloaderItems += queryString

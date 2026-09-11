@@ -5,6 +5,7 @@ import (
 
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
@@ -20,7 +21,7 @@ func (h *DownloaderHandlers) WatchPageByDownloadIDHandler(ctx *fasthttp.RequestC
 
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
-	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
+	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
 	if !ok || downloadIDStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return

@@ -7,6 +7,7 @@ import (
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
@@ -18,7 +19,7 @@ func (h *DownloaderHandlers) MediaItemWatchTrackingHandler(ctx *fasthttp.Request
 	// Get user ID from context
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
-	downloadIDStr, ok := ctx.UserValue(downloadIDKey).(string)
+	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
 	if !ok || downloadIDStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return

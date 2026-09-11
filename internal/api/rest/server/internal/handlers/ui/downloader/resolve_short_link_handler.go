@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"github.com/google/uuid"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
@@ -10,7 +11,7 @@ import (
 )
 
 func (h *DownloaderHandlers) ResolveShortLinkHandler(ctx *fasthttp.RequestCtx) {
-	shortCode, ok := ctx.UserValue(shortCodeKey).(string)
+	shortCode, ok := ctx.UserValue(qkeys.ShortCodeKey.String()).(string)
 	if !ok || shortCode == "" {
 		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("shortCode is required", fasthttp.StatusBadRequest))
 		return
