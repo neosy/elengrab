@@ -49,9 +49,6 @@
 - Fixed guest records created with Authenticated visibility instead of Private visibility. [L128]
 - Allowed regular users to access media with Authenticated visibility. [L128]
 
-### ⚙️ Config
-- Disabled the per-IP connection limit to support deployments behind reverse proxies. [L124]
-
 ---
 
 ## v0.24.2 — 2026-08-13

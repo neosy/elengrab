@@ -9,8 +9,6 @@ type QueryOptions struct {
 	Limit  *uint64
 	Offset *uint64
 
-	// CreatedAtFilter *dbutils.DateFilter
-
 	Filters  dbutils.FiltersByField
 	OrderBys dbutils.OrderByList
 }
