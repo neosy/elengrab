@@ -20,14 +20,15 @@ func (uc *Downloader) ListDownloadInfo(
 	query dto.MediaDownloadQuery,
 ) ([]*dto.MediaDownloadInfo, error) {
 	options := dtypes.QueryOptions{
-		Before: new(query.Before),
-		Limit:  new(query.Limit),
+		Before:         new(query.Before),
+		Limit:          new(query.Limit),
+		IsGuestRequest: authCtx.IsGuest(),
 	}
 
 	filters := make(map[string]any)
 	if uc.authz.ShouldRestrictDownloads(authCtx.RoleIDs) {
 		filters[dtypes.QueryFilterNameUserID] = authCtx.UserID
-		if authCtx.IsUser() {
+		if authCtx.IsRegularUser() {
 			options.MediaVisibility = new(dtypes.QueryMediaVisibilityAuthenticated)
 		}
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/pool_jobs"
+	iconfig "github.com/neosy/elengrab/internal/config"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -57,9 +58,9 @@ func (uc *Downloader) ScheduleDownload(
 
 	options.Filename = &filename
 
-	var mediaVisibility dtypes.MediaVisibility
-	if authCtx.UserID != uuid.Nil {
-		mediaVisibility = dtypes.MediaVisibilityAuthenticated
+	mediaVisibility := iconfig.InitialMediaVisibility()
+	if authCtx.UserID == uuid.Nil {
+		mediaVisibility = dtypes.MediaVisibilityPublic
 	}
 
 	err := uc.download.Create(

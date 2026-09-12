@@ -36,11 +36,12 @@ type MediaDownloadRepository struct {
 }
 
 type mediaDownloadQueryOptions struct {
-	statuses    []dtypes.MediaDownloadStatus
-	beforeTime  *time.Time
-	limit       *uint64
-	partialHash **string
-	visibility  *dtypes.QueryMediaVisibility
+	statuses       []dtypes.MediaDownloadStatus
+	beforeTime     *time.Time
+	limit          *uint64
+	partialHash    **string
+	visibility     *dtypes.QueryMediaVisibility
+	isGuestRequest bool
 }
 
 func (o *mediaDownloadQueryOptions) copy() mediaDownloadQueryOptions {
@@ -113,6 +114,8 @@ func (r *MediaDownloadRepository) WithOptions(options dtypes.QueryOptions) persi
 	if options.MediaVisibility != nil {
 		cloneRepo.queryOptions.visibility = options.MediaVisibility
 	}
+
+	cloneRepo.queryOptions.isGuestRequest = options.IsGuestRequest
 
 	return cloneRepo
 }
@@ -524,6 +527,9 @@ func (r *MediaDownloadRepository) iterateGetAll(
 				squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.Visibility, aliasDownloads): dtypes.MediaVisibilityPublic.String()},
 			}
 			if filterUserID != "" && *r.queryOptions.visibility == dtypes.QueryMediaVisibilityAuthenticated {
+				if !r.queryOptions.isGuestRequest {
+					sqlOr = append(sqlOr, squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.Visibility, aliasDownloads): dtypes.MediaVisibilityAuthenticated.String()})
+				}
 				sqlOr = append(sqlOr, squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.UserID, aliasDownloads): filterUserID})
 				filterUserID = ""
 			}
