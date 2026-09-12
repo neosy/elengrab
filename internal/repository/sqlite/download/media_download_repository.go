@@ -392,7 +392,7 @@ func (r *MediaDownloadRepository) iterateGetAll(
 			}
 			if filterUserID != "" && *r.queryOptions.Visibility == dtypes.QueryMediaVisibilityAuthenticated {
 				if !r.queryOptions.IsGuestRequest {
-					sqlOr = append(sqlOr, squirrel.Eq{eDownload.FieldNameWithAlias(&eDownload.Visibility, aliasDownloads): dtypes.MediaVisibilityAuthenticated.String()})
+					sqlOr = append(sqlOr, squirrel.Eq{eDownload.FieldName(&eDownload.Visibility, aliasDownloads): dtypes.MediaVisibilityAuthenticated.String()})
 				}
 				sqlOr = append(sqlOr, squirrel.Eq{eDownload.FieldName(&eDownload.UserID, aliasDownloads): filterUserID})
 				filterUserID = ""
