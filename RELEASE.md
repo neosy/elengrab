@@ -1,5 +1,14 @@
 # Releases
 
+## v0.24.3 — 2026-09-12
+
+### 🐛 Fix
+- Fixed public media disappearing when creating a record in guest mode. [L128]
+- Fixed guest records created with Authenticated visibility instead of Private visibility. [L128]
+- Allowed regular users to access media with Authenticated visibility. [L128]
+
+---
+
 ## v0.24.2 — 2026-08-13
 
 ### ⚙️ Config

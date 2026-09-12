@@ -137,6 +137,10 @@ func (d *MediaDownload) NormalizeForSave() {
 	if d.MediaDescription != nil {
 		*d.MediaDescription = stringx.Truncate(*d.MediaDescription, MediaDescriptionMaxLength)
 	}
+
+	if (d.UserID == nil || *d.UserID == uuid.Nil) && d.Visibility == dtypes.MediaVisibilityPrivate {
+		d.Visibility = dtypes.MediaVisibilityPublic
+	}
 }
 
 func (d *MediaDownload) Validate() error {

@@ -49,6 +49,7 @@ var (
 
 	mediaVisibilityByAppMode = map[AppMode]MediaVisibility{
 		AppModePublic: MediaVisibilityPublic,
+		AppModeGuest:  MediaVisibilityAuthenticated,
 	}
 )
 

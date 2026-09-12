@@ -71,3 +71,9 @@ func (u *AuthContext) IsUser() bool {
 func (u *AuthContext) IsAdmin() bool {
 	return u.UserType() == dtypes.UserTypeAdmin
 }
+
+// IsRegularUser reports whether the authentication context belongs to a regular or guest user.
+// Anonymous and admin authentication contexts are not considered regular users.
+func (u *AuthContext) IsRegularUser() bool {
+	return u.IsUser() || u.IsGuest()
+}
