@@ -7,6 +7,7 @@
 - Added transaction support to the cache package, allowing multiple write operations to be executed under a single lock. [L115]
 - Added media sorting options (Newest, Popular, Oldest). Closes #450
 - Encode URL parameters into a compact `sp` parameter. [L127]
+- Added media search by description. [L130]
 
 ### 🖥️ UI / Frontend
 - Reordered favicon declarations to prioritize larger image sizes for better favicon selection in Google Search Console. [L116]

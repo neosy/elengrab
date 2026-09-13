@@ -295,7 +295,11 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 	}
 
 	if text := uptr.Deref(r.queryOptions.SearchText); strings.TrimSpace(text) != "" {
-		conditions = append(conditions, sqlutil.Like(eIndex.FieldName(&eIndex.TitleLower), text))
+		text = strings.ToLower(text)
+		conditions = append(conditions, squirrel.Or{
+			sqlutil.Like(eIndex.FieldName(&eIndex.TitleLower), text),
+			sqlutil.Like(eIndex.FieldName(&eIndex.DescriptionLower), text),
+		})
 	}
 
 	if r.queryOptions.Visibility != nil {
