@@ -1,8 +1,6 @@
 package searchindex
 
 import (
-	"strings"
-
 	"github.com/google/uuid"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
@@ -71,8 +69,11 @@ func (r *MediaSourceIndexRepository) WithFilters(filters ...dtypes.QueryFilter) 
 		switch filter.Name {
 		case dtypes.QueryFilterNameSearch:
 			text, ok := filter.Value().(string)
-			if ok && strings.TrimSpace(text) != "" {
-				r.queryOptions.SearchText = &text
+			if ok {
+				text = dtypes.SearchText(text).Normalize().String()
+				if text != "" {
+					r.queryOptions.SearchText = &text
+				}
 			}
 			continue
 		}
