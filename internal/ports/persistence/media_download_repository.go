@@ -47,6 +47,7 @@ type MediaDownloadRepository interface {
 	WithUser(userID uuid.UUID) MediaDownloadRepository
 	WithDeleted() MediaDownloadRepository
 	WithFilters(filters ...dtypes.QueryFilter) MediaDownloadRepository
+	WithOrderBy(orderBys ...dtypes.QueryOrderBy) MediaDownloadRepository
 }
 
 type MediaDownloadCacheRepository interface {

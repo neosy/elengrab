@@ -63,7 +63,7 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		g = nfasthttp.NewRouterGroup(httppaths.DownloaderGroup, r.router)
 		g.Use(middlewareError, r.middlewares.Auth.AuthOrGuest)
 		{
-			g.POST(httppaths.GrabPath, handlers.ImportMediaByURLHandler)
+			g.POST(httppaths.GrabPath, handlers.QueueMediaDownloadByURLHandler)
 			g.GET(httppaths.ShareTargetPath, handlers.ImportFromShareHandler)
 			g.DELETE(httppaths.MediaItemPath, handlers.MediaItemDeleteHandler)
 			g.POST(httppaths.MediaItemDownloadRepeatPath, handlers.RetryImportMediaHandler)

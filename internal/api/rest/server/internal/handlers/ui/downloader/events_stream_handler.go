@@ -96,14 +96,14 @@ func (h *DownloaderHandlers) sendPing(w *bufio.Writer) error {
 }
 
 func (h *DownloaderHandlers) handleEvent(
-	ctx context.Context,
+	ctx *fasthttp.RequestCtx,
 	w *bufio.Writer,
 	authCtx dauth.AuthContext,
 	event ucdto.BroadcastEvent,
 ) {
 	switch event.Type {
 	case ucdto.BroadcastEventTypeDownloadAdd:
-		h.handleDownloadAdd(w, event)
+		h.handleDownloadAdd(ctx, w, event)
 	case ucdto.BroadcastEventTypeDownloadUpdate:
 		h.handleDownloadUpdate(ctx, w, event)
 	case ucdto.BroadcastEventTypeDownloadPatch:
@@ -123,13 +123,16 @@ func (h *DownloaderHandlers) handleEvent(
 	}
 }
 
-func (h *DownloaderHandlers) handleDownloadAdd(w *bufio.Writer, event ucdto.BroadcastEvent) {
-	downloadInfo, ok := event.Data.(*ucdto.ScheduleDownloadResponse)
+func (h *DownloaderHandlers) handleDownloadAdd(ctx *fasthttp.RequestCtx, w *bufio.Writer, event ucdto.BroadcastEvent) {
+	downloadInfo, ok := event.Data.(*ucdto.MediaDownloadInfo)
 	if !ok {
 		return
 	}
 
-	buf := h.renderMediaItemRowPlaceholder(downloadInfo, false)
+	buf, err := h.renderMediaItemRowPlaceholder(ctx, downloadInfo)
+	if err != nil {
+		return
+	}
 
 	html := strings.TrimSpace(buf.String())
 

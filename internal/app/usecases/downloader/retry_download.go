@@ -61,5 +61,5 @@ func (uc *downloader) RetryDownload(
 
 	uc.broadcastDownloadUpdate(ctx, downloadID)
 
-	return uc.findActualDownloadInfoByDownload(ctx, download)
+	return uc.resolveActualDownloadInfoByDownload(ctx, download)
 }

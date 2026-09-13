@@ -101,11 +101,11 @@ func (uc *downloader) findActualDownloadInfo(
 		return nil, nil
 	}
 
-	return uc.findActualDownloadInfoByDownload(ctx, download, opts...)
+	return uc.resolveActualDownloadInfoByDownload(ctx, download, opts...)
 }
 
-// findActualDownloadInfoByDownload retrieves the actual download information based on the provided download.
-func (uc *downloader) findActualDownloadInfoByDownload(
+// resolveActualDownloadInfoByDownload retrieves the actual download information based on the provided download.
+func (uc *downloader) resolveActualDownloadInfoByDownload(
 	ctx context.Context,
 	download *ddownload.MediaDownload,
 	opts ...callOption,
