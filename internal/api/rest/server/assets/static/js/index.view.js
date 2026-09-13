@@ -147,7 +147,12 @@ export function initLazyImages({
     return { observe };
 }
 
-export function initViewModeBar({ lazyObservers }) {
+/**
+ * @param {Object} options
+ * @param {IntersectionObserver[]} options.lazyObservers
+ * @param {() => void} options.refreshVideoPreview
+ */
+export function initViewModeBar({ lazyObservers, refreshVideoPreview }) {
     const tabs = document.querySelector(DOM_SELECTORS.viewModeTabs);
 
     if (!tabs) {
@@ -204,5 +209,7 @@ export function initViewModeBar({ lazyObservers }) {
         for (const observer of lazyObservers) {
             observer.observe(items);
         }
+
+        refreshVideoPreview();
     }
 }

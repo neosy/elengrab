@@ -36,6 +36,7 @@
 - Fixed media download updates to correctly apply changes using the latest download data. [L120]
 - Fixed media download status display in the web interface when downloading media by URL. [L129]
 - Fixed field initialization for newly added downloads. [L129]
+- Fixed video preview not starting automatically after switching media view modes. [L131]
 
 ### 📦 Build
 - Updated Go to 1.27.1.
