@@ -319,33 +319,39 @@ export function initVideoPreviewScroll(container, elementClassName, thumbClassNa
         return;
     }
 
-    const onScroll = () => {
-        if (!isMobileScreen()) {
-            return;
-        }
+    const refreshPreview = () => {
+        updateVideoPreview(container, elementClassName, thumbClassName);
+    };    
 
-        if (previewState.currentItemId) {
-            const element = document.getElementById(
-                DOM_IDS.row(previewState.currentItemId)
-            );
-
-            if (!element || !isElementInViewport(element)) {
-                hideVideoPreview();
-            }
-        }
-
-        clearTimeout(previewState.scrollTimer);
-
-        previewState.scrollTimer = setTimeout(() => {
-            updateCenteredPreview(container, elementClassName, thumbClassName);
-        }, 120);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("scroll", refreshPreview, { passive: true });
+    window.addEventListener("resize", refreshPreview);
 
     // We launch it immediately after opening the page.
-    onScroll();
+    refreshPreview();
+
+    return refreshPreview;
+}
+
+function updateVideoPreview(container, elementClassName, thumbClassName) {
+    if (!isMobileScreen()) {
+        return;
+    }
+
+    if (previewState.currentItemId) {
+        const element = document.getElementById(
+            DOM_IDS.row(previewState.currentItemId)
+        );
+
+        if (!element || !isElementInViewport(element)) {
+            hideVideoPreview();
+        }
+    }
+
+    clearTimeout(previewState.scrollTimer);
+
+    previewState.scrollTimer = setTimeout(() => {
+        updateCenteredPreview(container, elementClassName, thumbClassName);
+    }, 120);
 }
 
 function isElementInViewport(element) {
