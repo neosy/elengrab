@@ -33,6 +33,8 @@
 
 ### 🐛 Fix
 - Fixed media download updates to correctly apply changes using the latest download data. [L120]
+- Fixed media download status display in the web interface when downloading media by URL. [L129]
+- Fixed field initialization for newly added downloads. [L129]
 
 ### 📦 Build
 - Updated Go to 1.27.1.

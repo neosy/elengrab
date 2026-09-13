@@ -68,6 +68,15 @@ func (uc *downloader) listDownloadInfo(
 		return nil, err
 	}
 
+	for i, d := range downloads {
+		if d.Status.IsProcessing() {
+			state, _ := uc.download.FindState(ctx, d.DownloadID)
+			if state != nil {
+				downloads[i] = state.Download
+			}
+		}
+	}
+
 	downloadsCount := len(downloads)
 
 	if downloadsCount == 0 {
@@ -94,7 +103,7 @@ func (uc *downloader) listDownloadInfo(
 		job := workerpool.NewSimpleJob(
 			download.DownloadID.String(), "findDownloadInfo",
 			func(ctx context.Context, workerID uint64) error {
-				resp, err := uc.findActualDownloadInfoByDownload(ctx, download, opts...)
+				resp, err := uc.resolveActualDownloadInfoByDownload(ctx, download, opts...)
 				if err != nil {
 					uc.logger.Warn(
 						"Failed to load download info",

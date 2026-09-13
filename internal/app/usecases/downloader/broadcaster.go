@@ -16,34 +16,26 @@ func (uc *downloader) Broadcaster() *broadcaster.Broadcaster {
 	return uc.broadcaster
 }
 
-func (uc *downloader) broadcastDownloadAdd(download *ddownload.MediaDownload) {
-	if download == nil {
+func (uc *downloader) broadcastDownloadAdd(downloadInfo *dto.MediaDownloadInfo) {
+	if downloadInfo == nil {
 		return
 	}
 
-	resp := &dto.ScheduleDownloadResponse{
-		URL:        download.MediaURL,
-		DownloadID: download.DownloadID,
-		Status:     download.Status,
-		MediaTitle: download.MediaTitle,
-		Format:     download.Ext,
-	}
-
-	if download.UserID == nil || *download.UserID == uuid.Nil {
-		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadAdd, resp)
+	if downloadInfo.UserID == nil || *downloadInfo.UserID == uuid.Nil {
+		uc.broadcaster.Broadcast(dto.BroadcastEventTypeDownloadAdd, downloadInfo)
 		return
 	}
 
-	if download.Visibility == dtypes.MediaVisibilityPublic {
+	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
-			eventkey.NewEventKeyUserID(*download.UserID),
+			eventkey.NewEventKeyUserID(*downloadInfo.UserID),
 			dto.BroadcastEventTypeDownloadAdd,
-			resp,
+			downloadInfo,
 		)
 		return
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(*download.UserID, dto.BroadcastEventTypeDownloadAdd, resp)
+	uc.broadcaster.BroadcastToUsersWithAccess(*downloadInfo.UserID, dto.BroadcastEventTypeDownloadAdd, downloadInfo)
 }
 
 func (uc *downloader) broadcastDownloadUpdate(

@@ -11,7 +11,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) ImportMediaByURLHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) QueueMediaDownloadByURLHandler(ctx *fasthttp.RequestCtx) {
 	authCtx, err := policy.ResolveUserOrFallback(ctx, h.appMode)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)

@@ -102,7 +102,9 @@ func (uc *downloader) ScheduleDownload(
 		download = tmpDownload
 	}
 
-	uc.broadcastDownloadAdd(download)
+	downloadInfo, _ := uc.resolveActualDownloadInfoByDownload(ctx, download)
+
+	uc.broadcastDownloadAdd(downloadInfo)
 
 	return &dto.ScheduleDownloadResponse{
 		URL:        url,
