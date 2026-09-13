@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM_ELEMENTS.result,
         DOM_CLASSES.mediaResultRow, DOM_CLASSES.mediaResultRowThumbnailImageWrapper
     );
-    videoPreview.initVideoPreviewScroll(
+    const refreshVideoPreview = videoPreview.initVideoPreviewScroll(
         DOM_ELEMENTS.result,
         DOM_CLASSES.mediaResultRow, DOM_CLASSES.mediaResultRowThumbnailImageWrapper
     );
@@ -370,6 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
             thumbnailLazyImages,
             avatarLazyImages,
         ],
+        refreshVideoPreview,
     });
 
     // Create SSE connection
