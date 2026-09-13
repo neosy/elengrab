@@ -40,7 +40,7 @@ func (h *DownloaderHandlers) MediaItemRowHandler(ctx *fasthttp.RequestCtx) {
 		},
 	)
 	if row.err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		nfasthttp.WriteErrorx(ctx, row.err)
 		return
 	}
 	if row.httpStatus == fasthttp.StatusNoContent {

@@ -50,6 +50,12 @@ var (
 		MediaDownloadStatusRefreshing: {},
 	}
 
+	processingStatusesByStatus = map[MediaDownloadStatus]struct{}{
+		MediaDownloadStatusNew:     {},
+		MediaDownloadStatusPending: {},
+		MediaDownloadStatusWorking: {},
+	}
+
 	completedStatuses = []MediaDownloadStatus{
 		MediaDownloadStatusDone,
 		MediaDownloadStatusRefreshing,
@@ -70,6 +76,12 @@ func (v MediaDownloadStatus) String() string {
 // IsReady returns true when the download status indicates that the media is ready for use.
 func (v MediaDownloadStatus) IsReady() bool {
 	_, exists := completedStatusesByStatus[v]
+	return exists
+}
+
+// IsProcessing returns true when the download status indicates that the media is being processed.
+func (v MediaDownloadStatus) IsProcessing() bool {
+	_, exists := processingStatusesByStatus[v]
 	return exists
 }
 

@@ -8,6 +8,10 @@ type (
 )
 
 const (
-	QueryOrderAsc  dbutils.OrderDirection = dbutils.OrderAscending
-	QueryOrderDesc dbutils.OrderDirection = dbutils.OrderDescending
+	QueryOrderAsc  = dbutils.OrderAscending
+	QueryOrderDesc = dbutils.OrderDescending
+)
+
+var (
+	QuerySortBy = dbutils.SortBy
 )

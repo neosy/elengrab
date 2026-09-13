@@ -170,7 +170,10 @@ func (uc *MediaDownload) GetAll(
 }
 
 func (uc *MediaDownload) GetByStatus(ctx context.Context, status dtypes.MediaDownloadStatus) ([]*ddownload.MediaDownload, error) {
-	download, err := uc.downloadRepo().GetByStatus(ctx, status)
+	repo := uc.downloadRepo()
+	repo = repo.WithOrderBy(dtypes.QuerySortBy(dtypes.QueryFilterNameCreatedAt.String(), dtypes.QueryOrderAsc))
+
+	download, err := repo.GetByStatus(ctx, status)
 	if err != nil {
 		uc.logger.Warn("Failed to get downloads", "error", err)
 		return nil, err

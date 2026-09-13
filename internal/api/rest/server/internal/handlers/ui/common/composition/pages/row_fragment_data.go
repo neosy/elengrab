@@ -90,7 +90,6 @@ type (
 		WatchedIcon   template.HTML
 
 		IsItemHTMXOptionRepeat bool
-		PageHasDivItems        bool
 		ResultRowFade          string
 		ResultRowStatusTitle   string
 		ResultMediaUrlFade     string

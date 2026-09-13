@@ -29,6 +29,7 @@ type renderMediaItemRowParams struct {
 	downloadInfo    *dto.MediaDownloadInfo
 	isDownloadEvent bool
 	lazyLoadImages  bool
+	ResultRowFade   string
 }
 
 func (h *DownloaderHandlers) renderMediaItemRow(
@@ -123,10 +124,11 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		isPortrait = params.downloadInfo.ThumbnalIsPortrait
 	}
 
+	encodedDownloadID := idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID)
 	visibility := h.getVisibilityResponse(params.downloadInfo)
 
 	data := pages.RowFragmentValues{
-		DownloadID:      idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID),
+		DownloadID:      encodedDownloadID,
 		DownloadStatus:  params.downloadInfo.Status.String(),
 		WorkingStatus:   dltypes.MapUsecaseWorkingStatusToUI(params.downloadInfo.WorkingStatus).String(),
 		Visibility:      params.downloadInfo.Visibility.String(),
@@ -173,9 +175,9 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		StreamURL:   streamURL,
 		DeleteURL:   httppaths.BuildMediaItemPath(params.downloadInfo.DownloadID),
 
-		ItemID:     idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID),
-		RowID:      "row-" + idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID),
-		ProgressID: "progress-" + idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID),
+		ItemID:     encodedDownloadID,
+		RowID:      "row-" + encodedDownloadID,
+		ProgressID: "progress-" + encodedDownloadID,
 
 		IsItemHTMXOptionRepeat: isGrabResultItemHTMXOptionRepeat,
 		IsDownloadEvent:        params.isDownloadEvent,
@@ -196,6 +198,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		DownloaderResultItemStatusIcon:     icons.DownloaderIconByStatus(params.downloadInfo.Status).FileRaw(),
 		DownloaderResultItemDeleteIcon:     icons.DownloadDeleteIcon.FileRaw(),
 
+		ResultRowFade:      params.ResultRowFade,
 		ResultMediaUrlFade: "",
 		ResultSizeFade:     "",
 		ResultFormatFade:   "",
