@@ -145,7 +145,7 @@ func (h *DownloaderHandlers) listDownloadsItems(
 		return nil
 	}
 
-	shouldLoadNextHistory  := len(downloads) > consts.LoadHistoryLimit
+	shouldLoadNextHistory := len(downloads) > consts.LoadHistoryLimit
 
 	// If there are more items than the limit, we show only the limited number of items and a "Load more"
 	lines := downloads
@@ -184,7 +184,7 @@ func (h *DownloaderHandlers) listDownloadsItems(
 			continue
 		}
 
-		if shouldLoadNextHistory  && i == consts.PreloadHistoryAfter-1 {
+		if shouldLoadNextHistory && i == consts.PreloadHistoryAfter-1 {
 			query := udto.BuildMediaDownloadQuery(query)
 			query.LastRecord.ID = lastDownloadID
 			query.LastRecord.CreatedAt = lastCreatedAt
@@ -193,7 +193,7 @@ func (h *DownloaderHandlers) listDownloadsItems(
 		}
 	}
 
-	if shouldLoadNextHistory  {
+	if shouldLoadNextHistory {
 		h.genRowLoadHistory(buf)
 	}
 
@@ -224,7 +224,7 @@ func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 		return nil
 	}
 
-	getSearchText := func(filters dtypes.QueryFiltersByName) types.SearchText {
+	getSearchText := func(filters dtypes.QueryFiltersByName) dtypes.SearchText {
 		if len(filters) == 0 {
 			return ""
 		}
@@ -239,7 +239,7 @@ func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 			return ""
 		}
 
-		return types.SearchText(txt)
+		return dtypes.SearchText(txt)
 	}
 
 	var queryParameters []string

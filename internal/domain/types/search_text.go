@@ -1,4 +1,4 @@
-package types
+package dtypes
 
 import (
 	"errors"
@@ -34,4 +34,13 @@ func (text SearchText) IsValidate() bool {
 
 func (text SearchText) String() string {
 	return strings.TrimSpace(string(text))
+}
+
+func (v SearchText) Normalize() SearchText {
+	text := strings.TrimSpace(v.String())
+
+	// Replace multiple spaces with a single space
+	text = strings.Join(strings.Fields(text), " ")
+
+	return SearchText(text)
 }
