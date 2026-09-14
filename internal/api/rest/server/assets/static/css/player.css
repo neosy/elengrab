@@ -1,6 +1,6 @@
 /* ── Video player ────────────────────────────────────────────────────────────── */
 
-#media-player-overlay {
+.media-player__video {
     display: none;
     position: fixed;
 
@@ -12,7 +12,7 @@
     background: rgba(0,0,0,0.82);
 }
 
-.player-wrapper-modern {
+.media-player__video .media-player__wrapper {
     position: relative;
 
     width: 90vw;
@@ -22,7 +22,7 @@
     margin: 4vh auto;
 }
 
-.player-wrapper-modern video {
+.media-player__wrapper video {
     display: block;
 
     width: 100%;
@@ -37,76 +37,94 @@
 }
 
 /* Modern close button */
-.player-close-modern {
+.media-player__video .media-player__close {
     position: absolute;
+    z-index: 10;
+
     top: 16px;
     right: 16px;
     width: 40px;
     height: 40px;
+
+    border: none;
     border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+
     background: rgba(0,0,0,0.35);
     color: #fff;
+
     font-size: 32px;
     line-height: 40px;
     text-align: center;
-    border: none;
+
     cursor: pointer;
-    z-index: 10;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
     transition: all 0.3s ease;
 }
 
-.player-close-modern:hover {
-    /* transform: scale(1.1); */
+.media-player__video.show-controls .media-player__close {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.media-player__close:hover {
     transform: rotate(90deg);
 }
 
 /* ── Audio player bar ────────────────────────────────────────────────────────── */
-#audio-bar {
+.media-player__audio {
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 10000;
 }
 
-.audio-player-bar {
+.media-player__audio .media-player__wrapper {
+    display: flex;
     position: fixed;
+
+    justify-content: center;
+
     bottom: 0;
     left: 0;
     right: 0;
+
+    padding: 10px 40px;
+
     pointer-events: auto;
+
     background: var(--main-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    padding: 10px 40px;
+
     box-shadow: 0 -6px 20px rgba(0,0,0,0.6);
-    display: flex;
-    justify-content: center;
 }
 
-.audio-player-bar audio {
+.media-player__wrapper audio {
     width: 100%;
     max-width: 860px;
     outline: none;
 }
 
-.audio-close-btn {
+.media-player__audio .media-player__close {
     position: absolute;
+
     top: 8px;
     right: 12px;
     width: 28px;
     height: 28px;
+
+    border: none;
     border-radius: 50%;
+
     background: var(--bg-button);
     color: var(--text-primary);
+
     font-size: 22px;
     line-height: 26px;
     text-align: center;
-    border: none;
+
     cursor: pointer;
     transition: all 0.3s ease;
-}
-
-.audio-close-btn:hover {
-    transform: rotate(90deg);
 }

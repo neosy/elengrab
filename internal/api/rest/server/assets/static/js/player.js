@@ -6,6 +6,26 @@
 import * as watchAPI from './watch-api.js';
 import { CLASS_NAMES, MEDIA_WATCH, VIDEO_PREVIEW } from './constants.js';
 
+export const LOCAL_CLASS_NAMES = {
+    mediaResultPlayButton: "media-result__play-button",
+    mediaResultRow: "media-result__row",
+
+    mediaPlayerWrapper: "media-player__wrapper",
+    mediaPlayerClose: "media-player__close",
+    showControls: "show-controls",
+
+    mediaPlayerVideo: "media-player__video",
+    mediaPlayerAudio: "media-player__audio",
+
+    audioPlaying: "audio-playing",
+};
+
+export const LOCAL_CLASS_SELECTORS = Object.fromEntries(
+    Object.entries(LOCAL_CLASS_NAMES)
+        .filter(([, value]) => typeof value === "string")
+        .map(([key, value]) => [key, `.${value}`])
+);
+
 let watchTracker = null;
 let player = null
 
@@ -24,34 +44,40 @@ async function destroyWatchTracker() {
     watchTracker = null;
 }
 
-export function initPlayer() {
-    const overlay           = document.getElementById("media-player-overlay");
-    const videoWrapper      = document.getElementById("media-player__wrapper");
-    let   audioBarContainer = document.getElementById("audio-bar");
+/**
+ * @param {HTMLElement} playerContainer Media player container.
+ */
+export function initPlayer(playerContainer) {
+    if (!playerContainer) return;
+
+    const videoContainer = playerContainer.querySelector(LOCAL_CLASS_SELECTORS.mediaPlayerVideo);
+    const audioContainer = playerContainer.querySelector(LOCAL_CLASS_SELECTORS.mediaPlayerAudio);
+
+    if (!videoContainer || !audioContainer) return;
+    
     const playerHash        = "#player"
     let isOpenVideoPlayer   = false;
-
-    if (!overlay || !videoWrapper) return;
+    let cleanupControls = null;
 
     // Create audio container if missing
-    if (!audioBarContainer) {
-        audioBarContainer = document.createElement("div");
-        audioBarContainer.id = "audio-bar";
-        document.body.appendChild(audioBarContainer);
+    if (!audioContainer) {
+        audioContainer = document.createElement("div");
+        audioContainer.className = LOCAL_CLASS_NAMES.mediaPlayerAudio;
+        playerContainer.appendChild(audioContainer);
     }
 
     // Force initial hidden state
-    overlay.style.display = "none";
+    videoContainer.style.display = "none";
 
     initWatchTracker();
 
     document.addEventListener("click", async (event) => {
-        const playBtn = event.target.closest(".media-result__play-button");
+        const playBtn = event.target.closest(LOCAL_CLASS_SELECTORS.mediaResultPlayButton);
         if (!playBtn) return;
 
         if (isOpenVideoPlayer) return;
 
-        const row = playBtn.closest(".media-result__row");
+        const row = playBtn.closest(LOCAL_CLASS_SELECTORS.mediaResultRow);
         if (!row) return;
 
         const itemId = row.dataset.itemId;
@@ -71,81 +97,72 @@ export function initPlayer() {
         }
 
         // Clean previous players
-        videoWrapper.innerHTML = "";
-        audioBarContainer.innerHTML = "";
+        videoContainer.innerHTML = "";
+        audioContainer.innerHTML = "";
 
-        let element;
         if (isAudio) {
-            element = document.createElement("audio");
+            player = document.createElement("audio");
         } else {
-            element = document.createElement("video");
-            element.style.background = "black";
+            player = document.createElement("video");
+            player.style.background = "black";
             // Disable Picture-in-Picture
-            element.disablePictureInPicture = true;
+            player.disablePictureInPicture = true;
         }
 
-        player = element;
+        player.controls = true;
+        player.autoplay = true;
+        player.loop = shouldLoop;
 
-        element.controls = true;
-        element.autoplay = true;
-        element.loop = shouldLoop;
-
-        element.addEventListener("loadedmetadata", () => {
+        player.addEventListener("loadedmetadata", () => {
             if (positionMs > 0) {
-                element.currentTime = positionMs / 1000;
+                player.currentTime = positionMs / 1000;
             }
         }, { once: true });        
 
-        element.src = mediaURL;
+        player.src = mediaURL;
+
+        isOpenVideoPlayer = true
 
         if (isAudio) {
             // Audio → bottom fixed bar
-            const bar = document.createElement("div");
-            bar.className = "audio-player-bar";
+            const wrapper = document.createElement("div");
+            wrapper.className = LOCAL_CLASS_NAMES.mediaPlayerWrapper;
 
             const closeBtn = document.createElement("button");
-            closeBtn.className = "audio-close-btn";
+            closeBtn.className = LOCAL_CLASS_NAMES.mediaPlayerClose;
             closeBtn.innerHTML = "×";
             closeBtn.setAttribute("aria-label", "Close audio player");
             closeBtn.onclick = closePlayer;
 
-            bar.appendChild(closeBtn);
-            bar.appendChild(element);
-            audioBarContainer.appendChild(bar);
+            wrapper.appendChild(closeBtn);
+            audioContainer.appendChild(wrapper);
 
-            element.focus({ preventScroll: true });
+            player.focus({ preventScroll: true });
 
-            overlay.style.display = "none !important";   // forceful hide
+            videoContainer.style.display = "none !important";   // forceful hide
             document.body.style.overflow = "";
-            document.body.classList.add("audio-playing");
+            document.body.classList.add(LOCAL_CLASS_NAMES.audioPlaying);
         } else {
             document.documentElement.classList.add(CLASS_NAMES.ui.blockingActive);
             
-            isOpenVideoPlayer = true
             location.hash = playerHash
 
             // Video → centered overlay
             const wrapper = document.createElement("div");
-            wrapper.className = "player-wrapper-modern";
+            wrapper.className = LOCAL_CLASS_NAMES.mediaPlayerWrapper;
 
-            const closeBtn = document.createElement("button");
-            closeBtn.className = "player-close-modern";
-            closeBtn.innerHTML = "×";
-            closeBtn.setAttribute("aria-label", "Close player");
-            closeBtn.onclick = closePlayer;
+            wrapper.appendChild(player);
+            videoContainer.appendChild(wrapper);
 
-            wrapper.appendChild(closeBtn);
-            wrapper.appendChild(element);
-            videoWrapper.appendChild(wrapper);
+            cleanupControls = initVideoControls();
 
-            overlay.style.display = "flex";
-            document.body.style.overflow = "hidden";
+            videoContainer.style.display = "flex";
 
-            element.focus({ preventScroll: true });
+            player.focus({ preventScroll: true });
         }
 
         if (itemId) {
-            initWatchTracker(element, itemId)
+            initWatchTracker(player, itemId)
         }
     });
 
@@ -156,10 +173,10 @@ export function initPlayer() {
         const el = e.target;
         if (!(el instanceof Element)) return;
 
-        const playBtn = el.closest(".media-result__play-button");
+        const playBtn = el.closest(LOCAL_CLASS_SELECTORS.mediaResultPlayButton);
         if (!playBtn) return;
 
-        const row = playBtn.closest(".media-result__row");
+        const row = playBtn.closest(LOCAL_CLASS_SELECTORS.mediaResultRow);
         const isAudio = row.dataset.isAudio === "true";
 
         if (isAudio) return; // To open in new tab only applies to videos
@@ -172,8 +189,8 @@ export function initPlayer() {
     });
 
     // Close overlay on background click (video only)
-    overlay.addEventListener("click", (event) => {
-        if (event.target === overlay) closePlayer();
+    videoContainer.addEventListener("click", (event) => {
+        if (event.target === videoContainer) closePlayer();
     });
 
     // Global ESC handler
@@ -202,20 +219,77 @@ export function initPlayer() {
             if (!player.paused) {
                 await player.pause();
             }
-            player = null;
         }
 
-        isOpenVideoPlayer = false
+        isOpenVideoPlayer = false;
+
         history.replaceState(null, "", location.pathname + location.search);
 
-        videoWrapper.innerHTML = "";
-        if (audioBarContainer) audioBarContainer.innerHTML = "";
-        overlay.style.display = "none";
+        cleanupControls?.();
+        cleanupControls = null;
+
+        player = null;
+
+        if (videoContainer) videoContainer.innerHTML = "";
+        if (audioContainer) audioContainer.innerHTML = "";
+        videoContainer.style.display = "none";
         document.body.style.overflow = "";
-        document.body.classList.remove("audio-playing");
+        document.body.classList.remove(LOCAL_CLASS_NAMES.audioPlaying);
 
         document.documentElement.classList.remove(CLASS_NAMES.ui.blockingActive);
 
         destroyWatchTracker();
+    }
+    
+    function initVideoControls() {
+        const wrapper = videoContainer.querySelector(LOCAL_CLASS_SELECTORS.mediaPlayerWrapper);
+
+        if (!wrapper) return;
+
+        let controlsTimeout;
+
+        const closeBtn = document.createElement("button");
+        closeBtn.className = LOCAL_CLASS_NAMES.mediaPlayerClose;
+        closeBtn.innerHTML = "×";
+        closeBtn.setAttribute("aria-label", "Close player");
+        closeBtn.onclick = closePlayer;
+
+        wrapper.appendChild(closeBtn);
+
+        const showControls = () => {
+            if (!isOpenVideoPlayer) {
+                return;
+            }
+
+            videoContainer.classList.add(LOCAL_CLASS_NAMES.showControls);
+
+            clearTimeout(controlsTimeout);
+
+            controlsTimeout = setTimeout(() => {
+                videoContainer.classList.remove(LOCAL_CLASS_NAMES.showControls);
+            }, 3000);
+        };
+
+        videoContainer.addEventListener("mouseenter", showControls);
+        player.addEventListener("mousemove", showControls);
+        player.addEventListener("play", showControls);
+        player.addEventListener("pause", showControls);
+        player.addEventListener("click", showControls);
+        player.addEventListener("touchstart", showControls);
+
+        showControls();
+        
+        return () => {
+            videoContainer.removeEventListener("mouseenter", showControls);
+            player.removeEventListener("mousemove", showControls);
+            player.removeEventListener("play", showControls);
+            player.removeEventListener("pause", showControls);
+            player.removeEventListener("click", showControls);
+            player.removeEventListener("touchstart", showControls);
+
+            clearTimeout(controlsTimeout);
+
+            videoContainer.classList.remove(LOCAL_CLASS_NAMES.showControls);
+        };
     }
 }
