@@ -39,10 +39,6 @@
     {{- template "grab-form" . }}
     {{- end }}
     {{- template "media-result" . }}
-    <div id="media-player-overlay">
-        <div id="media-player__wrapper"></div>
-    </div>
-    <div id="audio-bar"></div>
   </main>
 {{- end }}
 
@@ -73,4 +69,5 @@
     {{- template "menu-overlay" . }}
     {{- template "notification-area" . }}
     {{- template "video-preview" . }}
+    {{- template "media-player" . }}
 {{- end }}

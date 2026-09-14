@@ -18,6 +18,7 @@
 
 ### 🎨 Style
 - Updated the add media icon and changed the plus color. [L121]
+- Added automatic hiding and showing of the player close button during inactivity. [L133]
 
 ### 🧩 Refactor
 - Renamed /account paths to /auth. [L113]
@@ -31,6 +32,7 @@
 - Split downloader interfaces into dedicated API, maintenance, and worker contracts. [#450]
 - Reworked SQLite repositories. [#450]
 - Renamed downloader history path from /downloader/history to /downloader/items. [#450]
+- Refactored media player JavaScript code. [L133]
 
 ### 🐛 Fix
 - Fixed media download updates to correctly apply changes using the latest download data. [L120]
