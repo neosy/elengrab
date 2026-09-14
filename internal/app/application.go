@@ -53,8 +53,6 @@ const (
 
 	// Update interval for site logo information
 	logoUpdateInterval = 24 * time.Hour
-	// Update interval for channel information
-	channelUpdateInterval = 30 * 24 * time.Hour
 
 	// Cache cleanup intervals
 	cleanMediaDownloadCacheInterval         = 30 * time.Minute
@@ -62,7 +60,7 @@ const (
 	cleanMediaUserWatchStatCacheInterval    = 1 * time.Hour
 	cleanMediaWatchStatCacheInterval        = 1 * time.Hour
 	cleanMediaUserWatchPostionCacheInterval = 1 * time.Hour
-	cleanYoutubeChannelCacheInterval        = 5 * time.Hour
+	cleanChannelCacheInterval               = 5 * time.Hour
 	cleanSiteLogoCacheInterval              = 23 * time.Hour
 	cleanThumbnailCacheInterval             = 23 * time.Hour
 	cleanThumbnailFileCacheInterval         = 1 * time.Hour
@@ -203,9 +201,9 @@ func (a *Application) initialize() error {
 
 			MediaSourceIndex: slRepositories.MediaSourceIndex,
 
-			YoutubeChannel: slRepositories.YoutubeChannel,
-			SiteLogo:       slRepositories.SiteLogo,
-			Thumbnail:      slRepositories.Thumbnail,
+			Channel:   slRepositories.Channel,
+			SiteLogo:  slRepositories.SiteLogo,
+			Thumbnail: slRepositories.Thumbnail,
 
 			User:        slRepositories.User,
 			Role:        slRepositories.Role,
@@ -221,7 +219,7 @@ func (a *Application) initialize() error {
 			MediaUserWatchStatCache:     inMemoryRepositories.MediaUserWatchStat,
 			MediaWatchStatCache:         inMemoryRepositories.MediaWatchStat,
 			MediaUserWatchPositionCache: inMemoryRepositories.MediaUserWatchPosition,
-			YoutubeChannelCache:         inMemoryRepositories.YoutubeChannel,
+			ChannelCache:                inMemoryRepositories.Channel,
 			SiteLogoCache:               inMemoryRepositories.SiteLogo,
 			ThumbnailCache:              inMemoryRepositories.Thumbnail,
 			ThumbnailFileCache:          inMemoryRepositories.ThumbnailFile,
@@ -256,8 +254,7 @@ func (a *Application) initialize() error {
 
 		DeleteDuplicatesUniquenessScope: dtypes.MustParseUniquenessScope(a.cfg.Elengrab.DeleteDuplicatesUniquenessScope),
 
-		LogoUpdateInterval:    logoUpdateInterval,
-		ChannelUpdateInterval: channelUpdateInterval,
+		LogoUpdateInterval: logoUpdateInterval,
 
 		DefaultAdminLogin:    a.cfg.Elengrab.AdminLogin,
 		DefaultAdminPassword: a.cfg.Elengrab.AdminPassword,
@@ -274,7 +271,7 @@ func (a *Application) initialize() error {
 		MediaUserWatchStatCache:     inMemoryRepositories.MediaUserWatchStat,
 		MediaWatchStatCache:         inMemoryRepositories.MediaWatchStat,
 		MediaUserWatchPositionCache: inMemoryRepositories.MediaUserWatchPosition,
-		YoutubeChannelCache:         inMemoryRepositories.YoutubeChannel,
+		ChannelCache:                inMemoryRepositories.Channel,
 		SiteLogoCache:               inMemoryRepositories.SiteLogo,
 		ThumbnailCache:              inMemoryRepositories.Thumbnail,
 		ThumbnailFileCache:          inMemoryRepositories.ThumbnailFile,
@@ -301,7 +298,7 @@ func (a *Application) initialize() error {
 		CleanMediaUserWatchStatCacheInterval:     cleanMediaUserWatchStatCacheInterval,
 		CleanMediaWatchStatCacheInterval:         cleanMediaWatchStatCacheInterval,
 		CleanMediaUserWatchPositionCacheInterval: cleanMediaUserWatchPostionCacheInterval,
-		CleanYoutubeChannelCacheInterval:         cleanYoutubeChannelCacheInterval,
+		CleanChannelCacheInterval:                cleanChannelCacheInterval,
 		CleanSiteLogoCacheInterval:               cleanSiteLogoCacheInterval,
 		CleanThumbnailCacheInterval:              cleanThumbnailCacheInterval,
 		CleanThumbnailFileCacheInterval:          cleanThumbnailFileCacheInterval,
@@ -503,7 +500,7 @@ func (a *Application) initInMemoryRepositories() *inmemoryrep.Repositories {
 		MediaUserWatchStatCacheTTL:     mediaUserWatchStatCacheTTL,
 		MediaWatchStatCacheTTL:         mediaWatchStatCacheTTL,
 		MediaUserWatchPositionCacheTTL: mediaUserWatchPositionCacheTTL,
-		YoutubeChannelCacheTTL:         youtubeChannelCacheTTL,
+		ChannelCacheTTL:                youtubeChannelCacheTTL,
 		SiteLogoCacheTTL:               siteLogoCacheTTL,
 		ThumbnailCacheTTL:              thumbnailCacheTTL,
 		ThumbnailFileCacheTTL:          thumbnailFileCacheTTL,

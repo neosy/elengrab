@@ -1,37 +1,25 @@
 package dtypes
 
-type Channel struct {
-	URL    string
-	Title  string
-	Avatar *ChannelAvatar
+type ChannelSource struct {
+	URL string
+
+	ChannelID string
+	Platform  string
+
+	Host string
+
+	Title string
+
+	Image *ChannelImage
 }
 
-type ChannelAvatar struct {
-	ImageURL    string
-	ImageRAW    []byte
-	ImageFormat ImageFormat
-}
-
-func (c *Channel) Copy() *Channel {
+func (c *ChannelSource) Clone() *ChannelSource {
 	if c == nil {
 		return nil
 	}
 
 	channel := *c
-	channel.Avatar = c.Avatar.Copy()
+	channel.Image = c.Image.Clone()
 
 	return &channel
-}
-
-func (a *ChannelAvatar) Copy() *ChannelAvatar {
-	if a == nil {
-		return nil
-	}
-
-	avatar := *a
-	// Deep copy of ImageRAW
-	avatar.ImageRAW = make([]byte, len(a.ImageRAW))
-	copy(avatar.ImageRAW, a.ImageRAW)
-
-	return &avatar
 }

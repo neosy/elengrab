@@ -7,26 +7,35 @@ import (
 	tablenames "github.com/neosy/elengrab/internal/repository/sqlite/media/table_names"
 )
 
-type YoutubeChannel struct {
-	dbentity.BaseEntity[YoutubeChannel]
+type Channel struct {
+	dbentity.BaseEntity[Channel]
 
 	// Unique ID for the channel
 	ChannelID string `db:"channel_id"`
+
+	// Platform identifier
+	Platform string `db:"platform"`
+
+	// Host from which the platform was detected
+	Host string `db:"host"`
+
+	// External channel identifier
+	ExternalID string `db:"external_id"`
 
 	// Site URL
 	ChannelURL string `db:"channel_url"`
 
 	// Title of the channel
-	ChannelTitle string `db:"channel_title"`
+	Title string `db:"channel_title"`
 
 	// URL of the channel avatar
-	ImageURL string `db:"image_url"`
+	ImageURL *string `db:"image_url"`
 
 	// Raw image data (binary)
 	ImageRaw []byte `db:"image_raw"`
 
 	// Format of the image (jpg, png, webp)
-	ImageFormat string `db:"image_format"`
+	ImageFormat *string `db:"image_format"`
 
 	// Timestamp when the record was created
 	CreatedAt time.Time `db:"created_at" insert:"false"`
@@ -36,8 +45,8 @@ type YoutubeChannel struct {
 }
 
 // TableName returns the table name
-func (e *YoutubeChannel) TableName() string {
-	return tablenames.YoutubeChannels
+func (e *Channel) TableName() string {
+	return tablenames.Channels
 }
 
 // FieldName returns the field name from the SQL tag using a structure field name or pointer,
@@ -49,18 +58,18 @@ func (e *YoutubeChannel) TableName() string {
 //	entity.FieldName("created_at", "")              // "created_at"
 //	entity.FieldName(&entity.CreatedAt, "")         // "created_at"
 //	entity.FieldName(&entity.CreatedAt, "users")    // "users.created_at"
-func (e *YoutubeChannel) FieldName(field any, alias ...string) string {
+func (e *Channel) FieldName(field any, alias ...string) string {
 	return e.BaseEntity.FieldName(e, field, alias...)
 }
 
 // InsertValues returns values for fields included in insert operations.
 // Fields with the `insert:"false"` tag are excluded.
-func (e *YoutubeChannel) InsertValues() []any {
+func (e *Channel) InsertValues() []any {
 	return e.BaseEntity.InsertValues(e)
 }
 
 // FieldPointers returns a slice of pointers to all exported fields of the given struct.
-func (e *YoutubeChannel) FieldPointers() []any {
+func (e *Channel) FieldPointers() []any {
 	ptrs, _ := e.BaseEntity.FieldPointers(e)
 	return ptrs
 }

@@ -9,13 +9,14 @@ import (
 
 func (h *DownloaderHandlers) GetChannelAvatarHandler(ctx *fasthttp.RequestCtx) {
 	channelID, ok := ctx.UserValue(qkeys.ChannelIDKey.String()).(string)
+	platform, ok := ctx.UserValue(qkeys.ChannelPlatformKey.String()).(string)
 	if !ok || channelID != "" {
-		channelInfo, _ := h.downloader.FindYoutubeChannelInfo(ctx, channelID)
+		channelInfo, _ := h.downloader.FindChannelInfo(ctx, channelID, platform)
 
-		if channelInfo != nil && len(channelInfo.ImageRaw) > 0 {
-			ctx.SetContentType(httpx.ContentTypeByExt(channelInfo.ImageFormat.String()))
+		if channelInfo != nil && channelInfo.Image.IsValid() {
+			ctx.SetContentType(httpx.ContentTypeByExt(channelInfo.Image.Format.String()))
 			ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
-			ctx.SetBody(channelInfo.ImageRaw)
+			ctx.SetBody(channelInfo.Image.Raw)
 			ctx.SetStatusCode(fasthttp.StatusOK)
 			return
 		}

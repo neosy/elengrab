@@ -4,6 +4,7 @@ import (
 	"html/template"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 // Row fragment
@@ -30,8 +31,8 @@ type (
 		DownloadRowPath    string
 		DownloadRepeatPath string
 
-		YoutubeChannelID string
-		AvatarTitle      string
+		Channel     dtypes.ExternalChannelKey
+		AvatarTitle string
 
 		ThumbnailID         string
 		ThumbnailIsPortrait bool

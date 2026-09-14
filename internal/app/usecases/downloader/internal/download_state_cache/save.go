@@ -65,7 +65,7 @@ func (uc *DownloadStateCache) SaveByDownload(ctx context.Context, download *ddow
 	state := &ddownload.DownloadState{
 		DownloadID: download.DownloadID,
 		TaskID:     taskId,
-		Download:   download.Copy(),
+		Download:   download.Clone(),
 	}
 
 	oldState, _ := uc.stateCacheRep.FindByDownloadID(ctx, download.DownloadID)

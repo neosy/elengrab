@@ -9,7 +9,7 @@ import (
 )
 
 // Cache is a generic in-memory cache that maps keys of type K to Items of type T.
-// It uses a copier function to create safe copies of values before storing them.
+// It uses a cloner function to create safe copies of values before storing them.
 type Cache[K comparable, T any] struct {
 	// shards holds the internal sharded mapping from keys to items.
 	shards []*shard[K, T]
@@ -17,8 +17,8 @@ type Cache[K comparable, T any] struct {
 	// count is the number of shards used for distribution.
 	count uint64
 
-	// copier is a function used to copy values before storing them in the cache.
-	copier CacheCopier[T]
+	// cloner is a function used to copy values before storing them in the cache.
+	cloner CacheCloner[T]
 
 	// NegativeTTL is a special duration value that indicates a negative cache entry.
 	// When a lookup results in a cache miss, the cache can store a negative entry
@@ -26,16 +26,16 @@ type Cache[K comparable, T any] struct {
 	NegativeTTL NegativeTTL
 }
 
-// NewCache creates a new Cache instance with the provided copier function.
+// NewCache creates a new Cache instance with the provided cloner function.
 //
-// The returned Cache uses the supplied copier to create copies of values when
+// The returned Cache uses the supplied cloner to create copies of values when
 // necessary (for example, during Get operations when returning a value to the
 // caller without exposing internal references).
 //
 // Parameters:
 //   - K: the type of keys (must be comparable)
 //   - T: the type of values stored in the cache
-//   - copier: a function that takes a pointer to T and returns a pointer
+//   - cloner: a function that takes a pointer to T and returns a pointer
 //     to a deep copy of that value
 //
 // The internal shards are initialized with make() and will grow as needed.
@@ -43,12 +43,12 @@ type Cache[K comparable, T any] struct {
 //
 // Example usage:
 //
-//	copier := func(p *User) *User {
+//	cloner := func(p *User) *User {
 //	    cp := *p
 //	    return &cp
 //	}
-//	cache := NewCache[string, User](copier)
-func NewCache[K comparable, T any](shardCount int, copier CacheCopier[T]) Cache[K, T] {
+//	cache := NewCache[string, User](cloner)
+func NewCache[K comparable, T any](shardCount int, cloner CacheCloner[T]) Cache[K, T] {
 	if shardCount <= 0 {
 		shardCount = defaultShardCount
 	}
@@ -61,33 +61,33 @@ func NewCache[K comparable, T any](shardCount int, copier CacheCopier[T]) Cache[
 	return Cache[K, T]{
 		shards: shards,
 		count:  uint64(shardCount),
-		copier: copier,
+		cloner: cloner,
 	}
 }
 
-// NewCacheWithDeaultCopier creates a new Cache that uses the default copier
-// implementation (DefaultCopier), which relies on the Copy() method defined
+// NewCacheWithDeaultCloner creates a new Cache that uses the default cloner
+// implementation (DefaultCloner), which relies on the Clone() method defined
 // on the pointer type *T.
 //
 // This is a convenience constructor for the most common case where the type T
-// provides a pointer receiver method Copy() *T. It eliminates the need to
-// explicitly pass a copier function.
+// provides a pointer receiver method Clone() *T. It eliminates the need to
+// explicitly pass a cloner function.
 //
 // Type parameters:
 //   - K:   the type of the cache keys (must be comparable)
 //   - T:   the type of the cached values
 //   - PT:  the pointer type (*T or a type with underlying type *T) that
-//     satisfies the copyable constraint
+//     satisfies the clonable constraint
 //
 // Example usage:
 //
-//	cache := NewCacheWithDeaultCopier[uint64, User, *User]()
+//	cache := NewCacheWithDeaultCloner[uint64, User, *User]()
 //
-// Note: The type *T (or equivalent) must implement the Copy() method.
+// Note: The type *T (or equivalent) must implement the Clone() method.
 //
 //	The implementation should handle nil pointers appropriately.
-func NewCacheWithDeaultCopier[K comparable, T any, PT copyable[T]]() Cache[K, T] {
-	return NewCache[K](defaultShardCount, DefaultCopier[T, PT]())
+func NewCacheWithDeaultCloner[K comparable, T any, PT clonable[T]]() Cache[K, T] {
+	return NewCache[K](defaultShardCount, DefaultCloner[T, PT]())
 }
 
 // negativeTTL returns the NegativeTTL function to use for this cache.
@@ -117,18 +117,18 @@ func (c *Cache[K, T]) Save(key K, value *T, ttl time.Duration) {
 func (c *Cache[K, T]) SaveWithNow(key K, value *T, ttl time.Duration, now time.Time) {
 	s := c.getShard(key)
 
-	var valueCopy *T
+	var valueClone *T
 	if value != nil {
-		if c.copier == nil {
-			valueCopy = iptr.Copy(value)
+		if c.cloner == nil {
+			valueClone = iptr.Clone(value)
 		} else {
-			valueCopy = c.copier(value)
+			valueClone = c.cloner(value)
 		}
 	}
 
 	expiresAt := time.Time{}
 	if ttl > 0 {
-		if valueCopy == nil {
+		if valueClone == nil {
 			expiresAt = now.Add(c.negativeTTL()(ttl))
 		} else {
 			expiresAt = now.Add(ttl)
@@ -136,12 +136,12 @@ func (c *Cache[K, T]) SaveWithNow(key K, value *T, ttl time.Duration, now time.T
 	}
 
 	var cacheStatus = CacheStatusHit
-	if valueCopy == nil {
+	if valueClone == nil {
 		cacheStatus = CacheStatusNegativeHit
 	}
 
 	s.cache[key] = &Item[T]{
-		value:     valueCopy,
+		value:     valueClone,
 		status:    cacheStatus,
 		expiresAt: expiresAt,
 	}
@@ -154,7 +154,7 @@ func (c *Cache[K, T]) Delete(key K) {
 }
 
 // FindWithStatus returns the cached value for the given key, or nil if not found or expired.
-// An optional copy function can be used to return a copy of the value.
+// An optional clone function can be used to return a copy of the value.
 func (c *Cache[K, T]) FindWithStatus(key K) (*T, CacheStatus) {
 	return c.FindWithStatusNow(key, time.Now().UTC())
 }
@@ -175,12 +175,12 @@ func (c *Cache[K, T]) FindWithStatusNow(key K, now time.Time) (*T, CacheStatus) 
 		return nil, CacheStatusMiss
 	}
 
-	valueCopy := item.value
-	if c.copier != nil && valueCopy != nil {
-		valueCopy = c.copier(item.value)
+	valueClone := item.value
+	if c.cloner != nil && valueClone != nil {
+		valueClone = c.cloner(item.value)
 	}
 
-	return valueCopy, item.status
+	return valueClone, item.status
 }
 
 // Find returns the cached value for the given key, or nil if not found or expired.
@@ -237,7 +237,7 @@ func hashKey[K comparable](key K) uint64 {
 	default:
 		// fallback for rare types
 		h := fnv.New64a()
-		h.Write([]byte(fmt.Sprint(v)))
+		h.Write(fmt.Append(nil, v))
 		return h.Sum64()
 	}
 }

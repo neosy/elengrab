@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/channel"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_executor/mappers"
 	mediadownload "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download"
 	downloadstatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download_status"
 	siteicon "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon"
 	iconfetcher "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon_fetcher"
-	ytchannel "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/youtube_channel"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
@@ -39,15 +39,14 @@ type Executor struct {
 	downloadStatus  *downloadstatus.MediaDownloadStatus
 	siteIcon        *siteicon.SiteIcon
 	siteIconFetcher *iconfetcher.SiteIconFetcher
-	ytChannel       *ytchannel.YoutubeChannel
+	channel         *channel.Channel
 	thumbnail       thumbnail.Thumbnail
 
 	// Broadcaster
 	broadcaster Broadcaster
 
 	// Options
-	logoUpdateInterval    time.Duration
-	channelUpdateInterval time.Duration
+	logoUpdateInterval time.Duration
 }
 
 func NewExecutor(
@@ -65,7 +64,7 @@ func NewExecutor(
 	download *mediadownload.MediaDownload,
 	downloadStatus *downloadstatus.MediaDownloadStatus,
 	siteIcon *siteicon.SiteIcon,
-	ytChannel *ytchannel.YoutubeChannel,
+	channel *channel.Channel,
 	thumbnail thumbnail.Thumbnail,
 
 	// Broadcaster
@@ -73,7 +72,6 @@ func NewExecutor(
 
 	// Options
 	logoUpdateInterval time.Duration,
-	channelUpdateInterval time.Duration,
 ) *Executor {
 	return &Executor{
 		appCtx:  appCtx,
@@ -92,14 +90,13 @@ func NewExecutor(
 		downloadStatus:  downloadStatus,
 		siteIcon:        siteIcon,
 		siteIconFetcher: iconfetcher.NewSiteIconFetcher(logger),
-		ytChannel:       ytChannel,
+		channel:         channel,
 		thumbnail:       thumbnail,
 
 		// Broadcaster
 		broadcaster: broadcaster,
 
 		// Options
-		logoUpdateInterval:    logoUpdateInterval,
-		channelUpdateInterval: channelUpdateInterval,
+		logoUpdateInterval: logoUpdateInterval,
 	}
 }

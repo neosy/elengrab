@@ -46,7 +46,7 @@ type MediaDownload struct {
 	MediaDescriptionOriginal *string
 
 	// Channel ID
-	ChannelID *string
+	ChannelID uuid.UUID
 
 	// Original file name
 	FileName string
@@ -95,24 +95,23 @@ func (f *MediaDownload) IsYouTube() bool {
 	return hostdetect.YouTube(f.MediaURL)
 }
 
-func (src *MediaDownload) Copy() *MediaDownload {
+func (src *MediaDownload) Clone() *MediaDownload {
 	if src == nil {
 		return nil
 	}
 
 	copy := *src
 
-	copy.UserID = uptr.Copy(src.UserID)
-	copy.MediaDescription = uptr.Copy(src.MediaDescription)
-	copy.MediaDescriptionOriginal = uptr.Copy(src.MediaDescriptionOriginal)
-	copy.ChannelID = uptr.Copy(src.ChannelID)
-	copy.FileSize = uptr.Copy(src.FileSize)
-	copy.PartialHash = uptr.Copy(src.PartialHash)
-	copy.MediaInfo = src.MediaInfo.Copy()
-	copy.ErrorMessage = uptr.Copy(src.ErrorMessage)
-	copy.DownloadedAt = uptr.Copy(src.DownloadedAt)
-	copy.DeletedAt = uptr.Copy(src.DeletedAt)
-	copy.DownloadTask = src.DownloadTask.Copy()
+	copy.UserID = uptr.Clone(src.UserID)
+	copy.MediaDescription = uptr.Clone(src.MediaDescription)
+	copy.MediaDescriptionOriginal = uptr.Clone(src.MediaDescriptionOriginal)
+	copy.FileSize = uptr.Clone(src.FileSize)
+	copy.PartialHash = uptr.Clone(src.PartialHash)
+	copy.MediaInfo = src.MediaInfo.Clone()
+	copy.ErrorMessage = uptr.Clone(src.ErrorMessage)
+	copy.DownloadedAt = uptr.Clone(src.DownloadedAt)
+	copy.DeletedAt = uptr.Clone(src.DeletedAt)
+	copy.DownloadTask = src.DownloadTask.Clone()
 
 	return &copy
 }

@@ -155,9 +155,19 @@ func (r *Repository[T]) CleanExpired(ctx context.Context, fnClean func() error) 
 	return fnClean()
 }
 
-// CopyAdapter converts a copy function into a CacheCopier that ignores its input.
-func (r *Repository[T]) CopyAdapter(makeCopy func() *T) CacheCopier[T] {
-	return func(*T) *T { return makeCopy() }
+// Clear clears repository data using the provided clear function.
+func (r *Repository[T]) Clear(ctx context.Context, fnClear func() error) error {
+	if !isTransactionContext(ctx) {
+		r.mu.Lock()
+		defer r.mu.Unlock()
+	}
+
+	return fnClear()
+}
+
+// CloneAdapter converts a clone function into a CacheCloner that ignores its input.
+func (r *Repository[T]) CloneAdapter(makeClone func() *T) CacheCloner[T] {
+	return func(*T) *T { return makeClone() }
 }
 
 // Transaction executes fn under a repository-wide write lock.

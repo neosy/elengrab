@@ -45,6 +45,14 @@ func (e *Executor) FetchInfo(
 		if first != "" {
 			info.Title = first
 		}
+
+		if info.ChannelID == "" && info.Channel != "" {
+			info.ChannelID = info.Channel
+		}
+
+		if info.ChannelUrl == "" && info.Channel != "" {
+			info.ChannelUrl = fmt.Sprintf("https://www.instagram.com/%s/", info.Channel)
+		}
 	}
 
 	return info, nil

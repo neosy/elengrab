@@ -19,8 +19,8 @@ type SiteLogoRepository struct {
 // newSiteLogoRepository returns a new object for the repository
 func newSiteLogoRepository(ttl time.Duration) *SiteLogoRepository {
 	r := &SiteLogoRepository{
-		cacheByLogoID:  memsimple.NewCacheWithDeaultCopier[uuid.UUID, dmedia.SiteLogo, *dmedia.SiteLogo](),
-		cacheBySiteURL: memsimple.NewCacheWithDeaultCopier[string, dmedia.SiteLogo, *dmedia.SiteLogo](),
+		cacheByLogoID:  memsimple.NewCacheWithDeaultCloner[uuid.UUID, dmedia.SiteLogo, *dmedia.SiteLogo](),
+		cacheBySiteURL: memsimple.NewCacheWithDeaultCloner[string, dmedia.SiteLogo, *dmedia.SiteLogo](),
 	}
 	r.Repository.Init(ttl)
 	return r
@@ -53,8 +53,26 @@ func (r *SiteLogoRepository) Save(ctx context.Context, logo *dmedia.SiteLogo) er
 	return r.Repository.Save(ctx, save)
 }
 
+// SaveNegative saves a negative entry for a given logoID to the repository.
+func (r *SiteLogoRepository) SaveNegative(ctx context.Context, logoID uuid.UUID) error {
+	if logoID == uuid.Nil {
+		return nil
+	}
+
+	save := func() error {
+		r.cacheByLogoID.Save(
+			logoID,
+			nil,
+			r.TTL(),
+		)
+		return nil
+	}
+
+	return r.Repository.Save(ctx, save)
+}
+
 // SaveNegative saves a negative entry for a given site URL to the repository.
-func (r *SiteLogoRepository) SaveNegative(ctx context.Context, siteURL string) error {
+func (r *SiteLogoRepository) SaveNegativeBySiteURL(ctx context.Context, siteURL string) error {
 	if siteURL == "" {
 		return nil
 	}
@@ -71,14 +89,15 @@ func (r *SiteLogoRepository) SaveNegative(ctx context.Context, siteURL string) e
 	return r.Repository.Save(ctx, save)
 }
 
-func (r *SiteLogoRepository) Delete(ctx context.Context, logoID uuid.UUID, siteURL string) error {
+func (r *SiteLogoRepository) Delete(ctx context.Context, logoID uuid.UUID) error {
 	fnDelete := func() error {
-		if logoID != uuid.Nil {
+		logo := r.cacheByLogoID.Find(logoID)
+
+		if logo != nil {
+			r.cacheBySiteURL.Delete(logo.SiteURL)
 			r.cacheByLogoID.Delete(logoID)
 		}
-		if siteURL != "" {
-			r.cacheBySiteURL.Delete(siteURL)
-		}
+
 		return nil
 	}
 	return r.Repository.Delete(ctx, fnDelete)

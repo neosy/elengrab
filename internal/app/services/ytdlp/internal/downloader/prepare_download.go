@@ -70,9 +70,9 @@ func (d *Downloader) prepareDownload(
 		fileSize = &tmpSize
 	}
 
-	var channelID *string
+	var channelID string
 	if downloadPlan.ExtractInfo.ChannelID != "" {
-		channelID = &downloadPlan.ExtractInfo.ChannelID
+		channelID = downloadPlan.ExtractInfo.ChannelID
 	}
 
 	meta := &idto.DownloadMeta{

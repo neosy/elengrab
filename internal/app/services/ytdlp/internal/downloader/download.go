@@ -131,7 +131,7 @@ func (d *Downloader) Download(
 	// Returns a channel from which the avatar can be read once the goroutine completes.
 	if options.DownloadChannelAvatar {
 		wg.Go(func() {
-			channel := d.fetchAndBuildChannelAvatar(meta.CopyMeta())
+			channel := d.fetchAndBuildChannel(meta.CopyMeta())
 			if channel != nil {
 				meta.Lock()
 				meta.Meta.Channel = channel
@@ -158,7 +158,7 @@ func (d *Downloader) Download(
 	})
 
 	out, err := d.downloadWithStrategies(
-		ctx, url, meta.CopyMeta(), execOptions.Copy(),
+		ctx, url, meta.CopyMeta(), execOptions.Clone(),
 		func(progress dservices.DownloaderProgress) {
 			meta.Lock()
 			meta.Meta.Progress = &progress

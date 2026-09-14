@@ -898,6 +898,10 @@ img[data-src] {
     --icon-visibility-font-size: 1.4em;
 }
 
+.visibility--authenticated {
+    --icon-visibility-font-size: 1.2em;
+}
+
 .media-result__content-visibility {
     display: inline-flex;
 

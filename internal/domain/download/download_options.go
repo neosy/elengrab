@@ -32,20 +32,20 @@ type DownloadOptions struct {
 	AudioQuality *string `json:"audio_quality,omitempty"`
 }
 
-func (src *DownloadOptions) Copy() *DownloadOptions {
+func (src *DownloadOptions) Clone() *DownloadOptions {
 	if src == nil {
 		return nil
 	}
 
 	copy := *src
 
-	copy.VideoFormat = uptr.Copy(src.VideoFormat)
-	copy.VideoCodec = uptr.Copy(src.VideoCodec)
-	copy.VideoResolution = uptr.Copy(src.VideoResolution)
-	copy.AudioFormat = uptr.Copy(src.AudioFormat)
-	copy.Filename = uptr.Copy(src.Filename)
-	copy.VideoQuality = uptr.Copy(src.VideoQuality)
-	copy.AudioQuality = uptr.Copy(src.AudioQuality)
+	copy.VideoFormat = uptr.Clone(src.VideoFormat)
+	copy.VideoCodec = uptr.Clone(src.VideoCodec)
+	copy.VideoResolution = uptr.Clone(src.VideoResolution)
+	copy.AudioFormat = uptr.Clone(src.AudioFormat)
+	copy.Filename = uptr.Clone(src.Filename)
+	copy.VideoQuality = uptr.Clone(src.VideoQuality)
+	copy.AudioQuality = uptr.Clone(src.AudioQuality)
 
 	return &copy
 }

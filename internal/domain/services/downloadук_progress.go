@@ -22,6 +22,6 @@ func (p DownloaderProgress) Percent() float64 {
 	return float64(p.DownloadedBytes) / float64(p.TotalBytes) * 100
 }
 
-func (src *DownloaderProgress) Copy() *DownloaderProgress {
-	return uptr.Copy(src)
+func (src *DownloaderProgress) Clone() *DownloaderProgress {
+	return uptr.Clone(src)
 }

@@ -5,47 +5,47 @@ import (
 	"strings"
 )
 
-type isHost func(rawURL string) bool
+type isPlatform func(rawURL string) bool
 
 var (
-	YouTube = makeIsHost("youtube.com", map[string]struct{}{
+	YouTube = makeIsPlatform("youtube.com", map[string]struct{}{
 		"youtube.com": {}, "www.youtube.com": {}, "m.youtube.com": {},
 		"youtu.be": {}, "www.youtu.be": {}, "music.youtube.com": {},
 	})
 
-	Twitch = makeIsHost("twitch.tv", map[string]struct{}{
+	Twitch = makeIsPlatform("twitch.tv", map[string]struct{}{
 		"twitch.tv": {}, "www.twitch.tv": {}, "m.twitch.tv": {},
 		"clips.twitch.tv": {}, "player.twitch.tv": {},
 	})
 
-	Vimeo = makeIsHost("vimeo.com", map[string]struct{}{
+	Vimeo = makeIsPlatform("vimeo.com", map[string]struct{}{
 		"vimeo.com": {}, "www.vimeo.com": {}, "player.vimeo.com": {},
 	})
 
-	TikTok = makeIsHost("tiktok.com", map[string]struct{}{
+	TikTok = makeIsPlatform("tiktok.com", map[string]struct{}{
 		"tiktok.com": {}, "www.tiktok.com": {}, "m.tiktok.com": {},
 		"vm.tiktok.com": {},
 	})
 
-	Facebook = makeIsHost("facebook.com", map[string]struct{}{
+	Facebook = makeIsPlatform("facebook.com", map[string]struct{}{
 		"facebook.com": {}, "www.facebook.com": {},
 		"m.facebook.com": {}, "fb.watch": {},
 	})
 
-	Instagram = makeIsHost("instagram.com", map[string]struct{}{
+	Instagram = makeIsPlatform("instagram.com", map[string]struct{}{
 		"instagram.com": {}, "www.instagram.com": {}, "m.instagram.com": {},
 		"instagr.am":      {},
 		"l.instagram.com": {},
 		"www.instagr.am":  {},
 	})
 
-	Rutube = makeIsHost("rutube.ru", map[string]struct{}{
+	Rutube = makeIsPlatform("rutube.ru", map[string]struct{}{
 		"rutube.ru": {}, "www.rutube.ru": {}, "m.rutube.ru": {},
 		"rutube.su": {}, "www.rutube.su": {},
 	})
 )
 
-func makeIsHost(rootDomain string, urls map[string]struct{}) isHost {
+func makeIsPlatform(rootDomain string, urls map[string]struct{}) isPlatform {
 	return func(rawURL string) bool {
 		u, err := url.Parse(rawURL)
 		if err != nil {

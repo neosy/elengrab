@@ -25,7 +25,9 @@ type SiteLogoCacheRepository interface {
 	memory.CacheRepository
 
 	Save(ctx context.Context, logo *dmedia.SiteLogo) error
-	SaveNegative(ctx context.Context, siteURL string) error
+	SaveNegative(ctx context.Context, logoID uuid.UUID) error
+	SaveNegativeBySiteURL(ctx context.Context, siteURL string) error
+	Delete(ctx context.Context, logoID uuid.UUID) error
 
 	FindByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia.SiteLogo, error)
 	ExistsByLogoID(ctx context.Context, logoID uuid.UUID) (bool, error)

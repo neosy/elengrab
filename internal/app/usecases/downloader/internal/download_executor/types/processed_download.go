@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/google/uuid"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
@@ -19,7 +20,7 @@ type ProcessedDownload struct {
 
 	PartialHash *string
 
-	ChannelID *string
+	ChannelID uuid.UUID
 
 	MediaInfo *dtypes.MediaInfo
 }

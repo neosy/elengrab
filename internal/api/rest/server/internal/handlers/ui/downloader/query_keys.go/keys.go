@@ -9,6 +9,7 @@ var (
 
 	DownloadIDKey       = Keys.add("itemId", "id")
 	ChannelIDKey        = Keys.add("channelId", "cid")
+	ChannelPlatformKey  = Keys.add("platform", "cpl")
 	SearchKey           = Keys.add("search", "s")
 	ShortCodeKey        = Keys.add("shortCode", "sc")
 	RedirectKey         = Keys.add("redirect", "r")
