@@ -55,8 +55,8 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	}
 
 	var youtubeChannelID string
-	if params.downloadInfo.ChannelID != nil && params.downloadInfo.IsYouTube() {
-		youtubeChannelID = *params.downloadInfo.ChannelID
+	if params.downloadInfo.YouTubeChannelID != nil && params.downloadInfo.IsYouTube() {
+		youtubeChannelID = *params.downloadInfo.YouTubeChannelID
 	}
 
 	var thumbnailID string

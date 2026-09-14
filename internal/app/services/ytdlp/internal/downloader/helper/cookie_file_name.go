@@ -17,9 +17,9 @@ func CookieFileNameFromURL(rawURL string) (string, error) {
 	}
 
 	var cookieName string
-	host := hostdetect.Detect(rawURL)
-	if host != dtypes.MediaHostNone {
-		cookieName = host.String()
+	platform := hostdetect.Detect(rawURL)
+	if platform != dtypes.MediaPlatformNone {
+		cookieName = platform.String()
 	}
 
 	if cookieName == "" {

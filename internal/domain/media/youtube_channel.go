@@ -36,6 +36,7 @@ type YoutubeChannel struct {
 
 func (c *YoutubeChannel) InitFromChannel(channel *dtypes.Channel) {
 	if channel != nil {
+		c.ChannelID = c.ChannelID
 		c.ChannelURL = channel.URL
 		c.ChannelTitle = channel.Title
 		if channel.Avatar != nil {

@@ -1,8 +1,14 @@
 package dtypes
 
 type Channel struct {
-	URL    string
-	Title  string
+	URL string
+
+	Platform MediaPlatform
+	Host     string
+
+	ChannelID string
+	Title     string
+
 	Avatar *ChannelAvatar
 }
 

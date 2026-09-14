@@ -10,7 +10,9 @@ func (m *Mappers) MapProcessedDownloadToMediaDownload(
 	out *ddownload.MediaDownload,
 	processed *types.ProcessedDownload,
 ) {
-	out.ChannelID = processed.ChannelID
+	if processed.YouTubeChannelID != "" {
+		out.YouTubeChannelID = &processed.YouTubeChannelID
+	}
 
 	if out.MediaTitle == out.MediaTitleOriginal {
 		out.MediaTitle = processed.MediaTitle

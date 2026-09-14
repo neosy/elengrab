@@ -45,8 +45,8 @@ type MediaDownload struct {
 	// Original description from the media source
 	MediaDescriptionOriginal *string
 
-	// Channel ID
-	ChannelID *string
+	// YouTube channel ID
+	YouTubeChannelID *string
 
 	// Original file name
 	FileName string
@@ -105,7 +105,7 @@ func (src *MediaDownload) Copy() *MediaDownload {
 	copy.UserID = uptr.Copy(src.UserID)
 	copy.MediaDescription = uptr.Copy(src.MediaDescription)
 	copy.MediaDescriptionOriginal = uptr.Copy(src.MediaDescriptionOriginal)
-	copy.ChannelID = uptr.Copy(src.ChannelID)
+	copy.YouTubeChannelID = uptr.Copy(src.YouTubeChannelID)
 	copy.FileSize = uptr.Copy(src.FileSize)
 	copy.PartialHash = uptr.Copy(src.PartialHash)
 	copy.MediaInfo = src.MediaInfo.Copy()

@@ -105,8 +105,8 @@ func (h *DownloaderHandlers) renderWatchPage(
 
 	imageData := h.thumbnailImageData(ctx, downloadInfo.MediaInfo)
 
-	if imageData == nil && downloadInfo.ChannelID != nil && downloadInfo.IsYouTube() {
-		channel, _ := h.downloader.FindYoutubeChannelInfo(ctx, *downloadInfo.ChannelID)
+	if imageData == nil && downloadInfo.YouTubeChannelID != nil && downloadInfo.IsYouTube() {
+		channel, _ := h.downloader.FindYoutubeChannelInfo(ctx, *downloadInfo.YouTubeChannelID)
 		if channel != nil && len(channel.ImageRaw) > 0 {
 			imageData = channel.ImageData()
 		}

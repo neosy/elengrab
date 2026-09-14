@@ -133,8 +133,8 @@ func (uc *downloader) resolveActualDownloadInfoByDownload(
 	}
 
 	var avatarTitle string
-	if download.ChannelID != nil && download.IsYouTube() {
-		channel, _ := uc.ytChannel.FindByChannelID(ctx, *download.ChannelID)
+	if download.YouTubeChannelID != nil && download.IsYouTube() {
+		channel, _ := uc.ytChannel.FindByChannelID(ctx, *download.YouTubeChannelID)
 		if channel != nil {
 			avatarTitle = channel.ChannelTitle
 		}

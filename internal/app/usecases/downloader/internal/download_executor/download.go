@@ -90,20 +90,18 @@ func (uc *Executor) processDownloadResults(
 		}
 
 		// Adding a record to the YouTube Channel table
-		if lastResult.ChannelID != nil && lastResult.Channel != nil {
+		if lastResult.ChannelID != "" && lastResult.Channel != nil && lastResult.Channel.Platform == dtypes.MediaPlatformYouTube {
 			channelProcess.Do(func() {
-				channel, _ := uc.ytChannel.FindByChannelID(ctx, *lastResult.ChannelID)
-				if channel != nil {
-					if time.Since(channel.UpdatedAt) > uc.channelUpdateInterval {
-						channel.InitFromChannel(lastResult.Channel)
-						uc.ytChannel.Update(ctx, channel)
+				youTubeChannel, _ := uc.ytChannel.FindByChannelID(ctx, lastResult.ChannelID)
+				if youTubeChannel != nil {
+					if time.Since(youTubeChannel.UpdatedAt) > uc.channelUpdateInterval {
+						youTubeChannel.InitFromChannel(lastResult.Channel)
+						uc.ytChannel.Update(ctx, youTubeChannel)
 					}
 				} else {
-					channel := &dmedia.YoutubeChannel{
-						ChannelID: *lastResult.ChannelID,
-					}
-					channel.InitFromChannel(lastResult.Channel)
-					uc.ytChannel.Create(ctx, channel)
+					youTubeChannel := &dmedia.YoutubeChannel{}
+					youTubeChannel.InitFromChannel(lastResult.Channel)
+					uc.ytChannel.Create(ctx, youTubeChannel)
 				}
 			})
 		}

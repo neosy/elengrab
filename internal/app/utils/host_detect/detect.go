@@ -3,23 +3,23 @@ package hostdetect
 import dtypes "github.com/neosy/elengrab/internal/domain/types"
 
 var matchers = []struct {
-	host   dtypes.MediaHost
-	isHost isHost
+	platform   dtypes.MediaPlatform
+	isPlatform isPlatform
 }{
-	{dtypes.MediaHostYouTube, YouTube},
-	{dtypes.MediaHostFacebook, Facebook},
-	{dtypes.MediaHostInstagram, Instagram},
-	{dtypes.MediaHostTwitch, Twitch},
-	{dtypes.MediaHostVimeo, Vimeo},
-	{dtypes.MediaHostTikTok, TikTok},
-	{dtypes.MediaHostRutube, Rutube},
+	{dtypes.MediaPlatformYouTube, YouTube},
+	{dtypes.MediaPlatformFacebook, Facebook},
+	{dtypes.MediaPlatformInstagram, Instagram},
+	{dtypes.MediaPlatformTwitch, Twitch},
+	{dtypes.MediaPlatformVimeo, Vimeo},
+	{dtypes.MediaPlatformTikTok, TikTok},
+	{dtypes.MediaPlatformRutube, Rutube},
 }
 
-func Detect(rawURL string) dtypes.MediaHost {
+func Detect(rawURL string) dtypes.MediaPlatform {
 	for _, m := range matchers {
-		if m.isHost(rawURL) {
-			return m.host
+		if m.isPlatform(rawURL) {
+			return m.platform
 		}
 	}
-	return dtypes.MediaHostNone
+	return dtypes.MediaPlatformNone
 }

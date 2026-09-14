@@ -18,7 +18,7 @@ type MediaDownload struct {
 	MediaTitle               string     `db:"media_title"`
 	MediaDescriptionOriginal *string    `db:"media_description_original"`
 	MediaDescription         *string    `db:"media_description"`
-	ChannelID                *string    `db:"channel_id"`
+	YouTubeChannelID         *string    `db:"channel_id"`
 	FileName                 string     `db:"file_name"`
 	Ext                      string     `db:"ext"`
 	FileFullName             string     `db:"full_name"`

@@ -2,71 +2,93 @@ package downloader
 
 import (
 	"encoding/json"
+	"net/url"
 	"time"
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
+	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
-func (d *Downloader) fetchAndBuildChannelAvatar(meta *idto.DownloadMeta) *dtypes.Channel {
+func (d *Downloader) fetchAndBuildChannel(meta *idto.DownloadMeta) *dtypes.Channel {
 	if meta.ChannelURL == "" {
 		return nil
 	}
 
-	startTime := time.Now()
-	avatarSources, err := d.fetchChannelAvatar(meta.ChannelURL)
-	elapsed := time.Since(startTime)
+	parsedURL, err := url.Parse(meta.ChannelURL)
 	if err != nil {
-		d.logger.Debug("Failed to get channel avatar", "channelURL", meta.ChannelURL, "error", err)
-		return nil
-	}
-	if len(avatarSources) == 0 {
-		d.logger.Debug("Avatar not found", "channelURL", meta.ChannelURL)
 		return nil
 	}
 
-	src := avatarSources[0]
-	if len(src.Raw) == 0 {
-		d.logger.Debug("Avatar image not found", "channelURL", meta.ChannelURL)
-		return nil
+	host := parsedURL.Host
+
+	var (
+		avatarSources []idto.AvatarSource
+		elapsed       time.Duration
+	)
+
+	channel := &dtypes.Channel{
+		URL: meta.ChannelURL,
+
+		Platform: hostdetect.Detect(meta.ChannelURL),
+		Host:     host,
+
+		ChannelID: meta.ChannelID,
+		Title:     meta.ChannelTitle,
 	}
+
+	if hostdetect.YouTube(meta.ChannelURL) {
+		var err error
+		startTime := time.Now()
+		avatarSources, err = d.fetchYoutubeChannelAvatar(meta.ChannelURL)
+		elapsed = time.Since(startTime)
+		if err != nil {
+			d.logger.Debug("Failed to get channel avatar", "channelURL", meta.ChannelURL, "error", err)
+		}
+	}
+
+	if len(avatarSources) == 0 {
+		d.logger.Debug("Avatar image not found", "channelURL", meta.ChannelURL)
+		return channel
+	}
+
+	avatarSource := &avatarSources[0]
 
 	d.logger.Info(
-		"YouTube channel avatar fetched",
+		"Channel avatar fetched",
+		"host", hostdetect.Detect(meta.ChannelURL).String(),
 		"channelURL", meta.ChannelURL,
 		"elapsed", uformat.DurationFormat(elapsed),
 	)
 
-	imageFormat, err := dtypes.ParseImageFormat(src.Format)
+	imageFormat, err := dtypes.ParseImageFormat(avatarSource.Format)
 	if err != nil {
 		d.logger.Warn(
 			"Failed to parse image format",
-			"format", src.Format,
+			"format", avatarSource.Format,
 			"error", err,
 		)
-		return nil
+		return channel
 	}
 
-	return &dtypes.Channel{
-		URL:   meta.ChannelURL,
-		Title: meta.ChannelTitle,
-		Avatar: &dtypes.ChannelAvatar{
-			ImageURL:    src.URL,
-			ImageRAW:    src.Raw,
-			ImageFormat: imageFormat,
-		},
+	channel.Avatar = &dtypes.ChannelAvatar{
+		ImageURL:    avatarSource.URL,
+		ImageRAW:    avatarSource.Raw,
+		ImageFormat: imageFormat,
 	}
+
+	return channel
 }
 
 // fetchChannelAvatar fetches the HTML of a YouTube channel page,
 // extracts the avatar JSON block, and returns all avatar URLs.
 // url: full URL of the YouTube channel
-func (d *Downloader) fetchChannelAvatar(url string) ([]idto.AvatarSource, error) {
+func (d *Downloader) fetchYoutubeChannelAvatar(url string) ([]idto.AvatarSource, error) {
 	body, err := nfasthttp.GetHTML(
 		url,
 		nfasthttp.ClientOptionWithreadBufferSize(64*1024),
@@ -85,23 +107,29 @@ func (d *Downloader) fetchChannelAvatar(url string) ([]idto.AvatarSource, error)
 		return nil, err
 	}
 
-	var sources []idto.AvatarSource
+	var sources, loadedSources []idto.AvatarSource
 	if err := json.Unmarshal([]byte(jsonArray), &sources); err != nil {
 		return nil, err
 	}
 
-	for i, src := range sources {
+	for _, src := range sources {
 		raw, format, err := nfasthttp.GetImage(
 			src.URL,
 			nfasthttp.ClientOptionWithreadBufferSize(64*1024),
 			nfasthttp.ClientOptionWithTimeout(consts.ChannelAvatarTimeout),
 		)
-		if err != nil {
+		if err != nil || len(raw) == 0 {
 			continue
 		}
-		sources[i].Raw = raw
-		sources[i].Format = format
+
+		loadedSources = append(loadedSources,
+			idto.AvatarSource{
+				URL:    src.URL,
+				Raw:    raw,
+				Format: format,
+			},
+		)
 	}
 
-	return sources, nil
+	return loadedSources, nil
 }

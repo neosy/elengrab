@@ -41,7 +41,7 @@ func (m *Mappers) MapDownloadResultToProcessedDownload(
 
 		PartialHash: result.PartialHash,
 
-		ChannelID: result.ChannelID,
+		YouTubeChannelID: result.ChannelID,
 
 		MediaInfo: mediaInfo,
 	}
@@ -62,8 +62,8 @@ func (m *Mappers) MapDownloaderResultToState(
 	}
 	out.Download.MediaDescriptionOriginal = result.MediaDescription
 
-	if result.ChannelID != nil && result.Channel != nil {
-		out.Download.ChannelID = result.ChannelID
+	if result.ChannelID != "" {
+		out.Download.YouTubeChannelID = &result.ChannelID
 	}
 
 	out.Download.Ext = result.FileExt

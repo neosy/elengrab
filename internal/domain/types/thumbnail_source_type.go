@@ -50,13 +50,13 @@ var (
 		"upload":      ThumbnailSourceTypeUpload,
 	}
 
-	mapMediaHostToThumbnailSourceType = map[MediaHost]ThumbnailSourceType{
-		MediaHostYouTube:   ThumbnailSourceTypeYouTube,
-		MediaHostVimeo:     ThumbnailSourceTypeVimeo,
-		MediaHostInstagram: ThumbnailSourceTypeInstagram,
-		MediaHostTwitch:    ThumbnailSourceTypeTwitch,
-		MediaHostTikTok:    ThumbnailSourceTypeTikTok,
-		MediaHostRutube:    ThumbnailSourceTypeRutube,
+	mapMediaPlatformToThumbnailSourceType = map[MediaPlatform]ThumbnailSourceType{
+		MediaPlatformYouTube:   ThumbnailSourceTypeYouTube,
+		MediaPlatformVimeo:     ThumbnailSourceTypeVimeo,
+		MediaPlatformInstagram: ThumbnailSourceTypeInstagram,
+		MediaPlatformTwitch:    ThumbnailSourceTypeTwitch,
+		MediaPlatformTikTok:    ThumbnailSourceTypeTikTok,
+		MediaPlatformRutube:    ThumbnailSourceTypeRutube,
 	}
 )
 
@@ -91,6 +91,6 @@ func ValidateThumbnailSourceType(fl validator.FieldLevel) bool {
 	return err == nil
 }
 
-func MapMediaHostToThumbnailSourceType(mediaHost MediaHost) ThumbnailSourceType {
-	return mapMediaHostToThumbnailSourceType[mediaHost]
+func MapMediaPlatformToThumbnailSourceType(mediaHost MediaPlatform) ThumbnailSourceType {
+	return mapMediaPlatformToThumbnailSourceType[mediaHost]
 }

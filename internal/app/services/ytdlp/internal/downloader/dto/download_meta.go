@@ -16,7 +16,7 @@ type DownloadMeta struct {
 	FileExt             string
 	FileFullName        string
 	FileSize            *int64
-	ChannelID           *string
+	ChannelID           string
 	ChannelURL          string
 	ChannelTitle        string
 	MediaInfo           *dservices.MediaInfo
@@ -57,7 +57,6 @@ func (m *SafeDownloadMeta) CopyMeta() *DownloadMeta {
 
 	metaCopy := *m.Meta
 	metaCopy.FileSize = uptr.Copy(m.Meta.FileSize)
-	metaCopy.ChannelID = uptr.Copy(m.Meta.ChannelID)
 	metaCopy.MediaInfo = m.Meta.MediaInfo.Copy()
 	metaCopy.Channel = m.Meta.Channel.Copy()
 	metaCopy.Progress = uptr.Copy(m.Meta.Progress)

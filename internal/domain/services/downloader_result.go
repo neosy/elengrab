@@ -7,8 +7,6 @@ import (
 type DownloaderResult struct {
 	Error error
 
-	ChannelID *string
-
 	MediaTitle       string
 	MediaDescription *string
 
@@ -31,7 +29,8 @@ type DownloaderResult struct {
 	PartialHash *string
 
 	// Channel
-	Channel *dtypes.Channel
+	ChannelID string
+	Channel   *dtypes.Channel
 
 	// MediaInfo holds media metadata.
 	MediaInfo *MediaInfo
@@ -69,8 +68,7 @@ func (r *DownloaderResult) MetadataChanged(last *DownloaderResult) bool {
 	isChanged := false
 
 	isChanged = isChanged ||
-		(r.ChannelID != nil && last.ChannelID == nil) ||
-		(r.ChannelID != nil && last.ChannelID != nil && *r.ChannelID != *last.ChannelID) ||
+		(r.ChannelID != last.ChannelID) ||
 		(r.Channel != nil && last.Channel == nil) ||
 		(r.MediaTitle != last.MediaTitle) ||
 		(r.MediaDescription != nil && last.MediaDescription == nil) ||

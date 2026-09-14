@@ -78,8 +78,8 @@ func (uc *downloader) getDownloadImageAvatar(
 	ctx context.Context,
 	downloadInfo *dto.MediaDownloadInfo,
 ) (*dtypes.ImageData, error) {
-	if downloadInfo.ChannelID != nil && downloadInfo.IsYouTube() {
-		channel, _ := uc.FindYoutubeChannelInfo(ctx, *downloadInfo.ChannelID)
+	if downloadInfo.YouTubeChannelID != nil && downloadInfo.IsYouTube() {
+		channel, _ := uc.FindYoutubeChannelInfo(ctx, *downloadInfo.YouTubeChannelID)
 		if channel != nil && len(channel.ImageRaw) > 0 {
 			return &dtypes.ImageData{
 				Raw:    channel.ImageRaw,

@@ -19,7 +19,7 @@ type ProcessedDownload struct {
 
 	PartialHash *string
 
-	ChannelID *string
+	YouTubeChannelID string
 
 	MediaInfo *dtypes.MediaInfo
 }

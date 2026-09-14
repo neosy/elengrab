@@ -25,8 +25,8 @@ type MediaDownloadInfo struct {
 	Status        dtypes.MediaDownloadStatus
 	WorkingStatus WorkingStatus
 
-	ChannelID   *string
-	AvatarTitle string
+	YouTubeChannelID *string
+	AvatarTitle      string
 
 	ThumbnalIsPortrait bool
 
@@ -77,7 +77,7 @@ func (downloadInfo *MediaDownloadInfo) ImageMetaHash(withValues ...any) string {
 		downloadInfo.UpdatedAt,
 		downloadInfo.Status.String(),
 		downloadInfo.WorkingStatus.String(),
-		downloadInfo.ChannelID,
+		downloadInfo.YouTubeChannelID,
 	}
 
 	if downloadInfo.MediaInfo != nil {
