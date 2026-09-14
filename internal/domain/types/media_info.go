@@ -64,16 +64,16 @@ type AudioInfo struct {
 	SampleRate *int `json:"sampleRate,omitempty"`
 }
 
-func (m *MediaInfo) Copy() *MediaInfo {
+func (m *MediaInfo) Clone() *MediaInfo {
 	if m == nil {
 		return nil
 	}
 
 	info := *m
-	info.VideoInfo = uptr.Copy(m.VideoInfo)
-	info.AudioInfo = uptr.Copy(m.AudioInfo)
-	info.ThumbnailID = uptr.Copy(m.ThumbnailID)
-	info.FrameThumbnailID = uptr.Copy(m.FrameThumbnailID)
+	info.VideoInfo = uptr.Clone(m.VideoInfo)
+	info.AudioInfo = uptr.Clone(m.AudioInfo)
+	info.ThumbnailID = uptr.Clone(m.ThumbnailID)
+	info.FrameThumbnailID = uptr.Clone(m.FrameThumbnailID)
 
 	return &info
 }
@@ -159,14 +159,14 @@ func (v *VideoInfo) AspectRatio() float64 {
 	return float64(v.Width) / float64(v.Height)
 }
 
-func (vi *VideoInfo) Copy() *VideoInfo {
+func (vi *VideoInfo) Clone() *VideoInfo {
 	if vi == nil {
 		return nil
 	}
 	return new(*vi)
 }
 
-func (ai *AudioInfo) Copy() *AudioInfo {
+func (ai *AudioInfo) Clone() *AudioInfo {
 	if ai == nil {
 		return nil
 	}

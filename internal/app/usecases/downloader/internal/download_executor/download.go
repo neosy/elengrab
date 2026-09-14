@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"sync"
-	"time"
 
+	"github.com/google/uuid"
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_executor/types"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
@@ -56,6 +56,7 @@ func (uc *Executor) processDownloadResults(
 
 		channelProcess, thumbnailProcess sync.Once
 		thumbnailIDs                     types.ThumbnailIDs
+		channelID                        uuid.UUID
 	)
 
 	for r := range resultCh {
@@ -72,7 +73,7 @@ func (uc *Executor) processDownloadResults(
 			)
 			if lastResult != nil {
 				state, _ := uc.download.FindState(ctx, task.DownloadID)
-				return uc.mappers.MapDownloadResultToProcessedDownload(lastResult, state, thumbnailIDs), r.Error
+				return uc.mappers.MapDownloadResultToProcessedDownload(lastResult, state, channelID, thumbnailIDs), r.Error
 			}
 			return nil, r.Error
 		}
@@ -90,20 +91,26 @@ func (uc *Executor) processDownloadResults(
 		}
 
 		// Adding a record to the YouTube Channel table
-		if lastResult.ChannelID != nil && lastResult.Channel != nil {
+		if lastResult.Channel != nil {
 			channelProcess.Do(func() {
-				channel, _ := uc.ytChannel.FindByChannelID(ctx, *lastResult.ChannelID)
+				channelSource := lastResult.Channel
+				channel, _ := uc.channel.FindByExternalChannelIDNoCache(ctx, channelSource.ChannelID, channelSource.Platform)
 				if channel != nil {
-					if time.Since(channel.UpdatedAt) > uc.channelUpdateInterval {
-						channel.InitFromChannel(lastResult.Channel)
-						uc.ytChannel.Update(ctx, channel)
+					if !channel.EqualSource(lastResult.Channel) {
+						channel.InitFromSource(lastResult.Channel)
+						uc.channel.Update(ctx, channel)
 					}
 				} else {
-					channel := &dmedia.YoutubeChannel{
-						ChannelID: *lastResult.ChannelID,
+					newChannel := dmedia.NewChannelFromSource(lastResult.Channel)
+					err := uc.channel.Create(ctx, newChannel)
+
+					if err == nil {
+						channel, _ = uc.channel.FindByChannelID(ctx, newChannel.ChannelID)
 					}
-					channel.InitFromChannel(lastResult.Channel)
-					uc.ytChannel.Create(ctx, channel)
+				}
+
+				if channel != nil {
+					channelID = channel.ChannelID
 				}
 			})
 		}
@@ -130,7 +137,7 @@ func (uc *Executor) processDownloadResults(
 					if lastResult.MediaInfo != nil {
 						mediaInfo = uc.mappers.MapMediaInfoDomain(lastResult.MediaInfo, thumbnailIDs)
 					}
-					uc.mappers.MapDownloaderResultToState(state, lastResult, mediaInfo)
+					uc.mappers.MapDownloaderResultToState(state, lastResult, mediaInfo, channelID)
 				}
 				return nil
 			},
@@ -171,5 +178,5 @@ func (uc *Executor) processDownloadResults(
 
 	state, _ := uc.download.FindState(ctx, task.DownloadID)
 
-	return uc.mappers.MapDownloadResultToProcessedDownload(lastResult, state, thumbnailIDs), nil
+	return uc.mappers.MapDownloadResultToProcessedDownload(lastResult, state, channelID, thumbnailIDs), nil
 }

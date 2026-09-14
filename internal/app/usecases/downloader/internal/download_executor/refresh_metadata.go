@@ -43,7 +43,7 @@ func (uc *Executor) collectMetadata(
 	patch := &refreshMetadataPatch{}
 
 	if media.MediaInfo != nil {
-		patch.mediaInfo = *media.MediaInfo.Copy()
+		patch.mediaInfo = *media.MediaInfo.Clone()
 		mediaInfo := dtypes.NewMediaInfo(media.Ext)
 
 		if media.MediaInfo.Format != mediaInfo.Format && mediaInfo.Format != dtypes.FileFormatNone {

@@ -22,7 +22,7 @@ const (
 	defaultCleanMediaUserWatchStatCacheInterval     = 1 * time.Hour
 	defaultCleanMediaWatchStatCacheInterval         = 1 * time.Hour
 	defaultCleanMediaUserWatchPositionCacheInterval = 1 * time.Hour
-	defaultCleanYoutubeChannelCacheInterval         = 6 * time.Hour
+	defaultCleanChannelCacheInterval                = 6 * time.Hour
 	defaultCleanSiteLogoCacheInterval               = 24 * time.Hour
 	defaultCleanThumbnailCacheInterval              = 24 * time.Hour
 	defaultCleanThumbnailFileCacheInterval          = 1 * time.Hour
@@ -42,7 +42,7 @@ type Dependencies struct {
 	MediaUserWatchStatCache     persistence.MediaUserWatchStatCacheRepository
 	MediaWatchStatCache         persistence.MediaWatchStatCacheRepository
 	MediaUserWatchPositionCache persistence.MediaUserWatchPositionCacheRepository
-	YoutubeChannelCache         persistence.YoutubeChannelCacheRepository
+	ChannelCache                persistence.ChannelCacheRepository
 	SiteLogoCache               persistence.SiteLogoCacheRepository
 	ThumbnailCache              persistence.ThumbnailCacheRepository
 	ThumbnailFileCache          persistence.ThumbnailFileCacheRepository
@@ -65,7 +65,7 @@ type Dependencies struct {
 	DeleteFailedDownloadsInterval  time.Duration
 
 	// caches
-	CleanYoutubeChannelCacheInterval         time.Duration
+	CleanChannelCacheInterval                time.Duration
 	CleanMediaDownloadCacheInterval          time.Duration
 	CleanDownloadStateCacheInterval          time.Duration
 	CleanMediaUserWatchStatCacheInterval     time.Duration
@@ -136,8 +136,8 @@ func Initialize(logger *slog.Logger, deps *Dependencies, ws *workers.Workers) {
 	))
 
 	ws.Add(workers.NewWorker(
-		cachejobs.NewCleanCacheJob(ws.Logger(), deps.YoutubeChannelCache),
-		workers.WithIntervalFallback(deps.CleanYoutubeChannelCacheInterval, defaultCleanYoutubeChannelCacheInterval),
+		cachejobs.NewCleanCacheJob(ws.Logger(), deps.ChannelCache),
+		workers.WithIntervalFallback(deps.CleanChannelCacheInterval, defaultCleanChannelCacheInterval),
 	))
 
 	ws.Add(workers.NewWorker(

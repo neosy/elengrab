@@ -9,24 +9,20 @@ import (
 	"github.com/neosy/elengrab/internal/app/utils/hash"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/neosy/elengrab/internal/pkg/stringx"
 )
 
-var displayedVisibilities = map[dtypes.MediaVisibility]struct{}{
-	dtypes.MediaVisibilityPrivate: {},
-	dtypes.MediaVisibilityPublic:  {},
-}
-
 type MediaDownloadInfo struct {
 	DownloadID    uuid.UUID
 	Status        dtypes.MediaDownloadStatus
 	WorkingStatus WorkingStatus
 
-	ChannelID   *string
-	AvatarTitle string
+	Channel      *dmedia.Channel
+	ChannelTitle string
 
 	ThumbnalIsPortrait bool
 
@@ -78,7 +74,11 @@ func (downloadInfo *MediaDownloadInfo) ImageMetaHash(withValues ...any) string {
 		downloadInfo.UpdatedAt,
 		downloadInfo.Status.String(),
 		downloadInfo.WorkingStatus.String(),
-		downloadInfo.ChannelID,
+	}
+
+	if downloadInfo.Channel != nil {
+		values = append(values, downloadInfo.Channel.ExternalID)
+		values = append(values, downloadInfo.Channel.Platform)
 	}
 
 	if downloadInfo.MediaInfo != nil {
@@ -171,9 +171,4 @@ func (info *MediaDownloadInfo) IsAudioOnly() bool {
 
 func (info *MediaDownloadInfo) ViewCountText() string {
 	return fmt.Sprintf("%s views", humanize.CompactNumber(info.ViewCount))
-}
-
-func (info *MediaDownloadInfo) ShouldShowVisibility() bool {
-	_, exists := displayedVisibilities[info.Visibility]
-	return exists
 }

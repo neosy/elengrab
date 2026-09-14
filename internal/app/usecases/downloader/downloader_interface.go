@@ -59,8 +59,8 @@ type DownloaderAPI interface {
 	Broadcaster() *broadcaster.Broadcaster
 	NotifyDownloadUpdated(ctx context.Context, downloadID uuid.UUID)
 	NotifyDownloadChanged(ctx context.Context, req dto.MediaDownloadChanged)
-	FindYoutubeChannelInfo(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, error)
-	GetYoutubeChannelInfo(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, error)
+	FindChannelInfo(ctx context.Context, channelID string, platform string) (*dmedia.Channel, error)
+	GetChannelInfo(ctx context.Context, channelID string, platform string) (*dmedia.Channel, error)
 	CheckDownloadVisibilityAccess(ctx context.Context, authCtx dauth.AuthContext, downloadID uuid.UUID) error
 	GetDownloadInfo(ctx context.Context, authCtx dauth.AuthContext, downloadID uuid.UUID) (*dto.MediaDownloadInfo, error)
 	GetDownloadInfoUnrestricted(ctx context.Context, downloadID uuid.UUID) (*dto.MediaDownloadInfo, error)
@@ -112,4 +112,5 @@ type InternalDownloader interface {
 	MediaDownload() MediaDownload
 	MediaWatch() MediaWatch
 	SearchIndex() SearchIndex
+	Channel() Channel
 }

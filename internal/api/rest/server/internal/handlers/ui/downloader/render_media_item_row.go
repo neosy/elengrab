@@ -54,9 +54,9 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		}
 	}
 
-	var youtubeChannelID string
-	if params.downloadInfo.ChannelID != nil && params.downloadInfo.IsYouTube() {
-		youtubeChannelID = *params.downloadInfo.ChannelID
+	var extChannelKey dtypes.ExternalChannelKey
+	if params.downloadInfo.Channel != nil {
+		extChannelKey = params.downloadInfo.Channel.ExternalChannelKey()
 	}
 
 	var thumbnailID string
@@ -125,7 +125,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	}
 
 	encodedDownloadID := idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID)
-	visibility := h.getVisibilityResponse(params.downloadInfo)
+	visibility := h.buildVisibilityResponse(params.downloadInfo)
 
 	data := pages.RowFragmentValues{
 		DownloadID:      encodedDownloadID,
@@ -136,8 +136,8 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		IsReady:         params.downloadInfo.Status.IsReady(),
 		HasShareLink:    h.hasShareLink(ctx, params.downloadInfo.DownloadID),
 
-		YoutubeChannelID: youtubeChannelID,
-		AvatarTitle:      params.downloadInfo.AvatarTitle,
+		Channel:      extChannelKey,
+		ChannelTitle: params.downloadInfo.ChannelTitle,
 
 		LazyLoadImages: params.lazyLoadImages,
 

@@ -35,17 +35,17 @@ func (s *DownloadState) InitFromMediaDownload(download *MediaDownload) {
 }
 
 // Copy creates a deep copy of the DownloadState.
-func (src *DownloadState) Copy() *DownloadState {
+func (src *DownloadState) Clone() *DownloadState {
 	if src == nil {
 		return nil
 	}
 
 	copy := *src
 
-	copy.UserID = uptr.Copy(src.UserID)
-	copy.TaskID = uptr.Copy(src.TaskID)
-	copy.Download = src.Download.Copy()
-	copy.Progress = src.Progress.Copy()
+	copy.UserID = uptr.Clone(src.UserID)
+	copy.TaskID = uptr.Clone(src.TaskID)
+	copy.Download = src.Download.Clone()
+	copy.Progress = src.Progress.Clone()
 
 	return &copy
 

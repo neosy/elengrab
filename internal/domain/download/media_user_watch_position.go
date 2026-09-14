@@ -39,7 +39,7 @@ func (p *MediaUserWatchPosition) Validate() error {
 	return nil
 }
 
-func (src *MediaUserWatchPosition) Copy() *MediaUserWatchPosition {
+func (src *MediaUserWatchPosition) Clone() *MediaUserWatchPosition {
 	if src == nil {
 		return nil
 	}

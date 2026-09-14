@@ -1,6 +1,7 @@
 package mappers
 
 import (
+	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_executor/types"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/helper"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -11,6 +12,7 @@ import (
 func (m *Mappers) MapDownloadResultToProcessedDownload(
 	result *dservices.DownloaderResult,
 	state *ddownload.DownloadState,
+	channelID uuid.UUID,
 	thumbnailIDs types.ThumbnailIDs,
 ) *types.ProcessedDownload {
 	title := result.MediaTitle
@@ -41,7 +43,7 @@ func (m *Mappers) MapDownloadResultToProcessedDownload(
 
 		PartialHash: result.PartialHash,
 
-		ChannelID: result.ChannelID,
+		ChannelID: channelID,
 
 		MediaInfo: mediaInfo,
 	}
@@ -51,6 +53,7 @@ func (m *Mappers) MapDownloaderResultToState(
 	out *ddownload.DownloadState,
 	result *dservices.DownloaderResult,
 	mediaInfo *dtypes.MediaInfo,
+	channelID uuid.UUID,
 ) {
 	if out.Download.MediaTitle == out.Download.MediaTitleOriginal {
 		out.Download.MediaTitle = result.MediaTitle
@@ -62,9 +65,7 @@ func (m *Mappers) MapDownloaderResultToState(
 	}
 	out.Download.MediaDescriptionOriginal = result.MediaDescription
 
-	if result.ChannelID != nil && result.Channel != nil {
-		out.Download.ChannelID = result.ChannelID
-	}
+	out.Download.ChannelID = channelID
 
 	out.Download.Ext = result.FileExt
 

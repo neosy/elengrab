@@ -104,7 +104,7 @@ func (m *migrations) fillMediaInfo(ctx context.Context) (bool, error) {
 
 		var thumbnailID, frameThumbnailID *uuid.UUID
 		if imageData != nil {
-			sourceType := hostdetect.Detect(media.MediaURL).ThumbnailSourceType()
+			sourceType := hostdetect.DetectPlatformType(media.MediaURL).ThumbnailSourceType()
 			if sourceType == dtypes.ThumbnailSourceTypeNone {
 				sourceType = dtypes.ThumbnailSourceTypeExternal
 			}

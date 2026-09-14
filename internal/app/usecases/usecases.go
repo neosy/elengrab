@@ -51,8 +51,7 @@ type Dependencies struct {
 
 	DeleteDuplicatesUniquenessScope dtypes.UniquenessScope
 
-	LogoUpdateInterval    time.Duration
-	ChannelUpdateInterval time.Duration
+	LogoUpdateInterval time.Duration
 
 	DefaultAdminLogin    string
 	DefaultAdminPassword string
@@ -78,9 +77,9 @@ type DepRepositories struct {
 
 	MediaSourceIndex persistence.MediaSourceIndexRepositoryFactory
 
-	YoutubeChannel persistence.YoutubeChannelRepositoryFactory
-	SiteLogo       persistence.SiteLogoRepositoryFactory
-	Thumbnail      persistence.ThumbnailRepositoryFactory
+	Channel   persistence.ChannelRepositoryFactory
+	SiteLogo  persistence.SiteLogoRepositoryFactory
+	Thumbnail persistence.ThumbnailRepositoryFactory
 
 	Link      persistence.LinkRepositoryFactory
 	LinkClick persistence.LinkClickRepositoryFactory
@@ -91,7 +90,7 @@ type DepRepositories struct {
 	MediaUserWatchStatCache     persistence.MediaUserWatchStatCacheRepository
 	MediaWatchStatCache         persistence.MediaWatchStatCacheRepository
 	MediaUserWatchPositionCache persistence.MediaUserWatchPositionCacheRepository
-	YoutubeChannelCache         persistence.YoutubeChannelCacheRepository
+	ChannelCache                persistence.ChannelCacheRepository
 	SiteLogoCache               persistence.SiteLogoCacheRepository
 	ThumbnailCache              persistence.ThumbnailCacheRepository
 	ThumbnailFileCache          persistence.ThumbnailFileCacheRepository
@@ -156,7 +155,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 		deps.Repositories.MediaWatchStat,
 		deps.Repositories.MediaUserWatchPosition,
 		deps.Repositories.MediaSourceIndex,
-		deps.Repositories.YoutubeChannel,
+		deps.Repositories.Channel,
 		deps.Repositories.SiteLogo,
 
 		// in memory
@@ -165,7 +164,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 		deps.Repositories.MediaUserWatchStatCache,
 		deps.Repositories.MediaWatchStatCache,
 		deps.Repositories.MediaUserWatchPositionCache,
-		deps.Repositories.YoutubeChannelCache,
+		deps.Repositories.ChannelCache,
 		deps.Repositories.SiteLogoCache,
 
 		// storages
@@ -189,7 +188,6 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 		deps.AppMode,
 		deps.DeleteDuplicatesUniquenessScope,
 		deps.LogoUpdateInterval,
-		deps.ChannelUpdateInterval,
 	)
 
 	return &Usecases{

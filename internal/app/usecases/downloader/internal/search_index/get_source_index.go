@@ -8,8 +8,8 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-func (u *SearchIndex) IterateGetSourceIndexes(ctx context.Context, fn func(*ddownload.MediaSourceIndex) error) error {
-	return u.searchIndex.IterateGetAll(ctx, fn)
+func (u *SearchIndex) IterateSourceIndexes(ctx context.Context, fn func(*ddownload.MediaSourceIndex) error) error {
+	return u.searchIndex.IterateAll(ctx, fn)
 }
 
 func (u *SearchIndex) GetSourceIndexes(

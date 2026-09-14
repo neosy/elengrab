@@ -7,6 +7,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/broadcaster"
+	uchannel "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/channel"
 	dlexecutor "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_executor"
 	dlstate "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_state_cache"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task"
@@ -16,7 +17,6 @@ import (
 	mediawatch "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch"
 	searchindex "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/search_index"
 	siteicon "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon"
-	ytchannel "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/youtube_channel"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/mappers"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
@@ -47,7 +47,7 @@ type downloader struct {
 	dlTask         *dltask.DownloadTask
 	downloadStatus *downloadstatus.MediaDownloadStatus
 	dlTaskStatus   *dltasktatus.DownloadTaskStatus
-	ytChannel      *ytchannel.YoutubeChannel
+	channel        *uchannel.Channel
 	siteIcon       *siteicon.SiteIcon
 	authz          *authz.Authorization
 	mediaWatch     *mediawatch.MediaWatch
@@ -84,7 +84,7 @@ func NewDownloader(
 	watchStatRepo persistence.MediaWatchStatRepositoryFactory,
 	userWatchPositionRepo persistence.MediaUserWatchPositionRepositoryFactory,
 	sourceIndexRepo persistence.MediaSourceIndexRepositoryFactory,
-	ytChannelRepo persistence.YoutubeChannelRepositoryFactory,
+	ytChannelRepo persistence.ChannelRepositoryFactory,
 	siteLogoRepo persistence.SiteLogoRepositoryFactory,
 
 	// in memory
@@ -93,7 +93,7 @@ func NewDownloader(
 	mediaUserWatchStatCacheRep persistence.MediaUserWatchStatCacheRepository,
 	mediaWatchStatCacheRep persistence.MediaWatchStatCacheRepository,
 	mediaUserWatchPositionCacheRep persistence.MediaUserWatchPositionCacheRepository,
-	ytChannelCacheRep persistence.YoutubeChannelCacheRepository,
+	ytChannelCacheRep persistence.ChannelCacheRepository,
 	siteLogoCacheRep persistence.SiteLogoCacheRepository,
 
 	// storages
@@ -117,7 +117,6 @@ func NewDownloader(
 	appMode dtypes.AppMode,
 	deleteDuplicatesUniquenessScope dtypes.UniquenessScope,
 	logoUpdateInterval time.Duration,
-	channelUpdateInterval time.Duration,
 ) *downloader {
 	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRep)
 	dlTask := dltask.NewDownloadTask(logger, dlTaskRepo, dlStateCache)
@@ -126,7 +125,7 @@ func NewDownloader(
 	authz := authz.NewAuthorization(logger, appMode)
 
 	siteIcon := siteicon.NewSiteIcon(logger, siteLogoRepo, siteLogoCacheRep)
-	ytChannel := ytchannel.NewYoutubeChannel(logger, ytChannelRepo, ytChannelCacheRep)
+	channel := uchannel.NewChannel(logger, ytChannelRepo, ytChannelCacheRep)
 
 	searchIndex := searchindex.NewSearchIndex(logger, sourceIndexRepo)
 
@@ -151,7 +150,7 @@ func NewDownloader(
 		// Internal
 		dlTask:       dlTask,
 		dlTaskStatus: dlTaskStatus,
-		ytChannel:    ytChannel,
+		channel:      channel,
 		siteIcon:     siteIcon,
 		authz:        authz,
 
@@ -220,7 +219,7 @@ func NewDownloader(
 		download,
 		downloadStatus,
 		siteIcon,
-		ytChannel,
+		channel,
 		thumbnail,
 
 		// Broadcaster
@@ -231,7 +230,6 @@ func NewDownloader(
 
 		// Options
 		logoUpdateInterval,
-		channelUpdateInterval,
 	)
 
 	// Internal

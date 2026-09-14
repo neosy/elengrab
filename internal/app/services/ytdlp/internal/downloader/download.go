@@ -12,6 +12,8 @@ import (
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	"github.com/neosy/elengrab/internal/app/utils/hash"
+	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
+	"github.com/neosy/elengrab/internal/app/utils/siteimage/channels"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -129,9 +131,20 @@ func (d *Downloader) Download(
 
 	// Start asynchronous fetching of the channel avatar.
 	// Returns a channel from which the avatar can be read once the goroutine completes.
-	if options.DownloadChannelAvatar {
+	if options.DownloadChannelImage {
+		var opts []channels.FetchOption
+
+		opts = append(opts, idto.DefaultRequestOptions().ChannelFetchOption())
+
+		if dlOptions.AllowCookies() && hostdetect.Instagram(meta.Meta.ChannelURL) {
+			cookies, _ := helper.ParseCookiesFile(dlOptions.CookieFilePath)
+			if len(cookies) > 0 {
+				opts = append(opts, channels.FetchOptionsWithCookies(cookies))
+			}
+		}
+
 		wg.Go(func() {
-			channel := d.fetchAndBuildChannelAvatar(meta.CopyMeta())
+			channel := d.fetchAndBuildChannel(ctx, meta.CopyMeta(), opts...)
 			if channel != nil {
 				meta.Lock()
 				meta.Meta.Channel = channel
@@ -145,9 +158,9 @@ func (d *Downloader) Download(
 	wg.Go(func() {
 		ctx, cancel := context.WithTimeout(ctx, 8*time.Second)
 		defer cancel()
-		imgData := d.extractThumbnailFromURL(
+		imgData, _ := d.FetchThumbnail(
 			ctx, url,
-			idto.DefaultRequestOptions(), // Not needed, loading from cache.
+			idto.DefaultRequestOptions(),
 		)
 		if imgData != nil {
 			meta.Lock()
@@ -158,7 +171,7 @@ func (d *Downloader) Download(
 	})
 
 	out, err := d.downloadWithStrategies(
-		ctx, url, meta.CopyMeta(), execOptions.Copy(),
+		ctx, url, meta.CopyMeta(), execOptions.Clone(),
 		func(progress dservices.DownloaderProgress) {
 			meta.Lock()
 			meta.Meta.Progress = &progress
