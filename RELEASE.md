@@ -1,5 +1,12 @@
 # Releases
 
+## v0.25.2 — 2026-09-14
+
+### 🐛 Fix
+- Fixed media view mode sorting and pagination order. [L138]
+
+---
+
 ## v0.25.1 — 2026-09-14
 
 ### 🐛 Fix
