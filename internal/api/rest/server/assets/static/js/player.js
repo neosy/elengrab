@@ -134,7 +134,9 @@ export function initPlayer(playerContainer) {
             closeBtn.setAttribute("aria-label", "Close audio player");
             closeBtn.onclick = closePlayer;
 
+            wrapper.appendChild(player);
             wrapper.appendChild(closeBtn);
+
             audioContainer.appendChild(wrapper);
 
             player.focus({ preventScroll: true });

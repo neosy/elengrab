@@ -1,5 +1,12 @@
 # Releases
 
+## v0.25.3 — 2026-09-14
+
+### 🐛 Fix
+- Fixed audio player panel not being displayed. [L141]
+
+---
+
 ## v0.25.2 — 2026-09-14
 
 ### 🐛 Fix
