@@ -64,22 +64,32 @@ func (h *DownloaderHandlers) mediaItemsGet(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	lastQueryCursor, err := searchParameters.ParseLastCursor()
-	if err != nil {
-		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
-		return
+	viewMode := dtypes.QueryMediaViewModeDefault
+	lastRecord := dtypes.QueryMediaDownloadCursor{}
+
+	if searchParameters != nil {
+		lastQueryCursor, err := searchParameters.ParseLastCursor()
+		if err != nil {
+			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+			return
+		}
+
+		if lastQueryCursor != nil {
+			viewMode = lastQueryCursor.ViewMode
+			lastRecord = dtypes.QueryMediaDownloadCursor{
+				ID:        lastQueryCursor.LastID,
+				CreatedAt: lastQueryCursor.LastCreateAt,
+				Views:     lastQueryCursor.LastViews,
+			}
+		}
 	}
 
 	query := udto.BuildMediaDownloadQuery(
 		udto.MediaDownloadQuery{
-			ViewMode: lastQueryCursor.ViewMode,
-			Limit:    consts.LoadHistoryLimit,
-			LastRecord: dtypes.QueryMediaDownloadCursor{
-				ID:        lastQueryCursor.LastID,
-				CreatedAt: lastQueryCursor.LastCreateAt,
-				Views:     lastQueryCursor.LastViews,
-			},
-			Filters: filters,
+			ViewMode:   viewMode,
+			Limit:      consts.LoadHistoryLimit,
+			LastRecord: lastRecord,
+			Filters:    filters,
 		},
 	)
 
