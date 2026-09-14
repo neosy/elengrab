@@ -20,7 +20,7 @@ type AssetFileRepository struct {
 // newAssetFileRepository returns a new object for the repository
 func newAssetFileRepository(ttl time.Duration) *AssetFileRepository {
 	r := &AssetFileRepository{
-		cacheByPath: memsimple.NewCacheWithDeaultCopier[string, dtypes.AssetFile, *dtypes.AssetFile](),
+		cacheByPath: memsimple.NewCacheWithDeaultCloner[string, dtypes.AssetFile, *dtypes.AssetFile](),
 	}
 	r.Repository.Init(ttl)
 	return r

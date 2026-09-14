@@ -26,8 +26,9 @@ var (
 	ErrThumbnailIdIsRequired  = errorx.NewMessage("thumbnailId is required", exceptions.INVALID_REQUEST)
 	ErrThumbnailIdIsIncorrect = errorx.NewMessage("thumbnailId is incorrect", exceptions.INVALID_REQUEST)
 
-	ErrChannelIsRequired  = errorx.NewMessage("channelId is required", exceptions.INVALID_REQUEST)
-	ErrChannelIsIncorrect = errorx.NewMessage("channelId is incorrect", exceptions.INVALID_REQUEST)
+	ErrChannelIsRequired         = errorx.NewMessage("channelId is required", exceptions.INVALID_REQUEST)
+	ErrChannelIsIncorrect        = errorx.NewMessage("channelId is incorrect", exceptions.INVALID_REQUEST)
+	ErrChannelPlatformIsRequired = errorx.NewMessage("platform for channel is required", exceptions.INVALID_REQUEST)
 
 	ErrURLIsRequired = errorx.New("url is required", exceptions.INVALID_REQUEST, errorx.WithErrorMessage("URL is required"))
 	ErrInvalidURL    = errorx.NewMessage("invalid URL", exceptions.INVALID_REQUEST)

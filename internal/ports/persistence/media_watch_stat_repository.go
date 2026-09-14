@@ -33,4 +33,5 @@ type MediaWatchStatCacheRepository interface {
 	Exists(ctx context.Context, downloadID uuid.UUID) (bool, error)
 
 	CleanExpired(context.Context) error
+	Clear(ctx context.Context) error
 }

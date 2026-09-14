@@ -18,7 +18,7 @@ type MediaWatchStatRepository struct {
 // newMediaWatchStatRepository returns a new object for the repository
 func newMediaWatchStatRepository(ttl time.Duration) *MediaWatchStatRepository {
 	r := &MediaWatchStatRepository{
-		cacheByDownloadID: memsimple.NewCacheWithDeaultCopier[uuid.UUID, ddownload.MediaWatchStat, *ddownload.MediaWatchStat](),
+		cacheByDownloadID: memsimple.NewCacheWithDeaultCloner[uuid.UUID, ddownload.MediaWatchStat, *ddownload.MediaWatchStat](),
 	}
 	r.Repository.Init(ttl)
 	return r
@@ -102,4 +102,14 @@ func (r *MediaWatchStatRepository) CleanExpired(ctx context.Context) error {
 	}
 	// Call the base repository's CleanExpired method with the custom clean function.
 	return r.Repository.CleanExpired(ctx, clean)
+}
+
+// Clear clears all entries from the cache.
+func (r *MediaWatchStatRepository) Clear(ctx context.Context) error {
+	clear := func() error {
+		r.cacheByDownloadID.Clear()
+		return nil
+	}
+
+	return r.Repository.Clear(ctx, clear)
 }

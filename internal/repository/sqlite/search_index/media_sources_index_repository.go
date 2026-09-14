@@ -263,7 +263,7 @@ func (r *MediaSourceIndexRepository) FindByDownloadID(ctx context.Context, downl
 	return index, nil
 }
 
-func (r *MediaSourceIndexRepository) iterateGetAll(
+func (r *MediaSourceIndexRepository) iterateAll(
 	ctx context.Context,
 	fn func(*ddownload.MediaSourceIndex) error,
 ) error {
@@ -407,12 +407,12 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 				return err
 			}
 
-			download, err := r.mappers.MapSourceIndexEntityToDomain(&eIndex)
+			index, err := r.mappers.MapSourceIndexEntityToDomain(&eIndex)
 			if err != nil {
 				return err
 			}
 
-			err = fn(download)
+			err = fn(index)
 			if err != nil {
 				return err
 			}
@@ -422,8 +422,8 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 	return nil
 }
 
-func (r *MediaSourceIndexRepository) IterateGetAll(ctx context.Context, fn func(*ddownload.MediaSourceIndex) error) error {
-	return r.iterateGetAll(ctx, fn)
+func (r *MediaSourceIndexRepository) IterateAll(ctx context.Context, fn func(*ddownload.MediaSourceIndex) error) error {
+	return r.iterateAll(ctx, fn)
 }
 
 func (r *MediaSourceIndexRepository) FillEmptyMediaTitleLower(ctx context.Context) error {

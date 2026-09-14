@@ -11,7 +11,7 @@ type benchUser struct {
 	Age  int
 }
 
-func (u *benchUser) Copy() *benchUser {
+func (u *benchUser) Clone() *benchUser {
 	if u == nil {
 		return nil
 	}
@@ -21,7 +21,7 @@ func (u *benchUser) Copy() *benchUser {
 
 // BenchmarkCache_Save measures the performance of saving items to the cache.
 func BenchmarkCache_Save(b *testing.B) {
-	cache := NewCacheWithDeaultCopier[uint64, benchUser, *benchUser]()
+	cache := NewCacheWithDeaultCloner[uint64, benchUser, *benchUser]()
 
 	user := &benchUser{ID: 1, Name: "Benchmark User", Age: 30}
 
@@ -32,7 +32,7 @@ func BenchmarkCache_Save(b *testing.B) {
 }
 
 func BenchmarkCache_SaveWithNow(b *testing.B) {
-	cache := NewCacheWithDeaultCopier[uint64, benchUser, *benchUser]()
+	cache := NewCacheWithDeaultCloner[uint64, benchUser, *benchUser]()
 
 	user := &benchUser{ID: 1, Name: "Benchmark User", Age: 30}
 
@@ -46,7 +46,7 @@ func BenchmarkCache_SaveWithNow(b *testing.B) {
 
 // BenchmarkCache_Find measures the performance of finding existing (hit) items.
 func BenchmarkCache_FindHit(b *testing.B) {
-	cache := NewCacheWithDeaultCopier[uint64, benchUser, *benchUser]()
+	cache := NewCacheWithDeaultCloner[uint64, benchUser, *benchUser]()
 
 	now := time.Now().UTC()
 
@@ -65,7 +65,7 @@ func BenchmarkCache_FindHit(b *testing.B) {
 
 // BenchmarkCache_FindMiss measures the performance of cache misses.
 func BenchmarkCache_FindMiss(b *testing.B) {
-	cache := NewCacheWithDeaultCopier[uint64, benchUser, *benchUser]()
+	cache := NewCacheWithDeaultCloner[uint64, benchUser, *benchUser]()
 
 	b.ResetTimer()
 	for i := range b.N {
@@ -74,7 +74,7 @@ func BenchmarkCache_FindMiss(b *testing.B) {
 }
 
 func BenchmarkCache_FindMissWithNow(b *testing.B) {
-	cache := NewCacheWithDeaultCopier[uint64, benchUser, *benchUser]()
+	cache := NewCacheWithDeaultCloner[uint64, benchUser, *benchUser]()
 
 	now := time.Now().UTC()
 
@@ -86,7 +86,7 @@ func BenchmarkCache_FindMissWithNow(b *testing.B) {
 
 // BenchmarkCache_FindWithStatus measures the performance of FindWithStatus on hits.
 func BenchmarkCache_FindWithStatus(b *testing.B) {
-	cache := NewCacheWithDeaultCopier[uint64, benchUser, *benchUser]()
+	cache := NewCacheWithDeaultCloner[uint64, benchUser, *benchUser]()
 
 	for i := range 10000 {
 		cache.Save(uint64(i), &benchUser{ID: uint64(i)}, 30*time.Minute)
@@ -99,7 +99,7 @@ func BenchmarkCache_FindWithStatus(b *testing.B) {
 }
 
 func BenchmarkCache_FindWithStatusNow(b *testing.B) {
-	cache := NewCacheWithDeaultCopier[uint64, benchUser, *benchUser]()
+	cache := NewCacheWithDeaultCloner[uint64, benchUser, *benchUser]()
 
 	now := time.Now().UTC()
 
@@ -117,7 +117,7 @@ func BenchmarkCache_FindWithStatusNow(b *testing.B) {
 
 // BenchmarkCache_Exists measures the performance of existence checks.
 func BenchmarkCache_Exists(b *testing.B) {
-	cache := NewCacheWithDeaultCopier[uint64, benchUser, *benchUser]()
+	cache := NewCacheWithDeaultCloner[uint64, benchUser, *benchUser]()
 
 	for i := range 10000 {
 		cache.Save(uint64(i), &benchUser{ID: uint64(i)}, 30*time.Minute)
@@ -131,7 +131,7 @@ func BenchmarkCache_Exists(b *testing.B) {
 
 // BenchmarkCache_CleanExpired measures the performance of cleaning expired items.
 func BenchmarkCache_CleanExpired(b *testing.B) {
-	cache := NewCacheWithDeaultCopier[uint64, benchUser, *benchUser]()
+	cache := NewCacheWithDeaultCloner[uint64, benchUser, *benchUser]()
 
 	baseNow := time.Now().UTC()
 
@@ -149,8 +149,7 @@ func BenchmarkCache_CleanExpired(b *testing.B) {
 
 	cleanNow := time.Now().UTC()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		cache.CleanExpiredWithNow(cleanNow)
 	}
 }
@@ -164,7 +163,7 @@ type benchRepository struct {
 
 func newBenchRepository() *benchRepository {
 	r := &benchRepository{
-		cache: NewCacheWithDeaultCopier[uint64, benchUser, *benchUser](),
+		cache: NewCacheWithDeaultCloner[uint64, benchUser, *benchUser](),
 	}
 
 	r.Repository.Init(30 * time.Minute)
@@ -177,7 +176,6 @@ func BenchmarkRepository_MixedWorkload(b *testing.B) {
 
 	for i := range 10000 {
 		key := uint64(i)
-
 		_ = repo.Save(b.Context(), func() error {
 			repo.cache.Save(
 				key,
@@ -192,32 +190,23 @@ func BenchmarkRepository_MixedWorkload(b *testing.B) {
 	b.ResetTimer()
 
 	b.RunParallel(func(pb *testing.PB) {
-
 		counter := uint64(0)
-
 		for pb.Next() {
-
 			key := counter % 10000
-
 			if counter%10 == 0 {
-
 				_ = repo.Save(b.Context(), func() error {
 					repo.cache.Save(
 						key,
 						&benchUser{ID: key},
 						repo.TTL(),
 					)
-
 					return nil
 				})
-
 			} else {
-
 				_, _ = repo.Find(b.Context(), func() (*benchUser, error) {
 					return repo.cache.Find(key), nil
 				})
 			}
-
 			counter++
 		}
 	})

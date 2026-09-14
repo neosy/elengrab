@@ -1,7 +1,7 @@
 {{- define "media-result-row-content" }}
                     <div class="media-result__row-content">
                         <div class="media-result__content-main">
-                            <span class="media-result__avatar" title="{{ .Values.AvatarTitle }}">
+                            <span class="media-result__avatar" title="{{ .Values.ChannelTitle }}">
                                 <img class="media-result__avatar-image" {{ if .Values.LazyLoadImages }}data-src{{ else }}src{{ end }}="{{ .Values.ImageURL }}" alt="Channel avatar">
                                 <img class="media-result__avatar-image--avatar" {{ if .Values.LazyLoadImages }}data-src{{ else }}src{{ end }}="{{ .Values.ImageAvatarURL }}" alt="Channel avatar">
                                 {{- if eq .Values.DownloadStatus "done" }}

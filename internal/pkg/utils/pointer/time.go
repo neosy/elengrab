@@ -6,5 +6,5 @@ import "time"
 
 // TimeDuration returns a pointer to the provided time Duration.
 func TimeDuration(t time.Duration) *time.Duration {
-	return &t
+	return new(t)
 }

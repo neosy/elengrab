@@ -36,14 +36,14 @@ type MediaSourceIndex struct {
 }
 
 // Copy creates a copy of the MediaSourceIndex object
-func (src *MediaSourceIndex) Copy() *MediaSourceIndex {
+func (src *MediaSourceIndex) Clone() *MediaSourceIndex {
 	if src == nil {
 		return nil
 	}
 
 	copy := new(*src)
-	copy.UserID = uptr.Copy(src.UserID)
-	copy.Description = uptr.Copy(src.Description)
+	copy.UserID = uptr.Clone(src.UserID)
+	copy.Description = uptr.Clone(src.Description)
 
 	return copy
 }

@@ -28,6 +28,7 @@ type MediaDownloadRepository interface {
 		newStatus dtypes.MediaDownloadStatus,
 	) error
 	UpdateOwner(ctx context.Context, fromID, toID uuid.UUID) error
+	UpdateChannelID(ctx context.Context, oldChannelID string, newChannelID uuid.UUID) error
 
 	FindByDownloadID(ctx context.Context, DownloadID uuid.UUID) (*ddownload.MediaDownload, error)
 	IterateGetAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error

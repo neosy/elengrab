@@ -10,7 +10,7 @@ import (
 // parseAudioFromFFprobe parses an FFprobe "stream" line into AudioInfo.
 func (info *info) parseAudioFromFFprobe(stream ffprobeStream, srcAudioInfo *dtypes.AudioInfo) *dtypes.AudioInfo {
 	var (
-		audioInfo = srcAudioInfo.Copy()
+		audioInfo = srcAudioInfo.Clone()
 	)
 
 	if audioInfo == nil {
@@ -48,7 +48,7 @@ func (info *info) parseAudioFromFFmppeg(line string, srcAudioInfo *dtypes.AudioI
 
 	var (
 		infoSetter audioInfoSetter
-		audioInfo  = srcAudioInfo.Copy()
+		audioInfo  = srcAudioInfo.Clone()
 	)
 
 	if audioInfo == nil {

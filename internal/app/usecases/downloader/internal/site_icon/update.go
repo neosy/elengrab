@@ -18,5 +18,5 @@ func (uc *SiteIcon) Update(ctx context.Context, logo *dmedia.SiteLogo) error {
 		return err
 	}
 
-	return err
+	return nil
 }

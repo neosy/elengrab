@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
@@ -27,6 +28,11 @@ func (m *Mappers) MapDownloadDomainToEntity(download *ddownload.MediaDownload) (
 		downloadedAt = uptr.String(download.DownloadedAt.Format(dbutils.SQLiteDateTimeFormat))
 	}
 
+	var channelID *string
+	if download.ChannelID != uuid.Nil {
+		channelID = new(download.ChannelID.String())
+	}
+
 	return &edownload.MediaDownload{
 		DownloadID:               download.DownloadID,
 		UserID:                   download.UserID,
@@ -36,7 +42,7 @@ func (m *Mappers) MapDownloadDomainToEntity(download *ddownload.MediaDownload) (
 		MediaTitle:               download.MediaTitle,
 		MediaDescriptionOriginal: download.MediaDescriptionOriginal,
 		MediaDescription:         download.MediaDescription,
-		ChannelID:                download.ChannelID,
+		ChannelID:                channelID,
 		FileName:                 download.FileName,
 		Ext:                      download.Ext,
 		FileFullName:             download.FileFullName,
@@ -66,6 +72,14 @@ func (m *Mappers) MapDownloadEntityToDomain(eDownload *edownload.MediaDownload, 
 			if mediaInfo.VideoInfo != nil {
 				mediaInfo.VideoInfo.Codec = dtypes.MustParseVideoCodec(string(mediaInfo.VideoInfo.Codec))
 			}
+		}
+	}
+
+	var channelID uuid.UUID
+	if eDownload.ChannelID != nil && *eDownload.ChannelID != "" {
+		id, err := uuid.Parse(*eDownload.ChannelID)
+		if err == nil {
+			channelID = id
 		}
 	}
 
@@ -101,7 +115,7 @@ func (m *Mappers) MapDownloadEntityToDomain(eDownload *edownload.MediaDownload, 
 		MediaTitle:               eDownload.MediaTitle,
 		MediaDescriptionOriginal: eDownload.MediaDescriptionOriginal,
 		MediaDescription:         eDownload.MediaDescription,
-		ChannelID:                eDownload.ChannelID,
+		ChannelID:                channelID,
 		FileName:                 eDownload.FileName,
 		Ext:                      eDownload.Ext,
 		FileFullName:             eDownload.FileFullName,

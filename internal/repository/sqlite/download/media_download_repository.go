@@ -182,6 +182,34 @@ func (r *MediaDownloadRepository) UpdateOwner(ctx context.Context, fromID, toID 
 	return nil
 }
 
+func (r *MediaDownloadRepository) UpdateChannelID(ctx context.Context, oldChannelID string, newChannelID uuid.UUID) error {
+	if oldChannelID == newChannelID.String() {
+		return nil
+	}
+
+	var eDownload edownload.MediaDownload
+
+	// Generate SQL query with upsert logic
+	sqlQuery, args, err := squirrel.
+		Update(eDownload.TableName()).
+		Set(eDownload.FieldName(&eDownload.ChannelID), newChannelID.String()).
+		Where(squirrel.Eq{eDownload.FieldName(&eDownload.ChannelID): oldChannelID}).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+	// If SQL generation failed — return an error
+	if err != nil {
+		return fmt.Errorf("failed to build SQL: %w", err)
+	}
+
+	// Execute the query
+	err = dbexec.ExecContext(ctx, r.dbEntry, sqlQuery, args, r.retryOptions)
+	if err != nil {
+		return fmt.Errorf("failed to save Channel: %v", err)
+	}
+
+	return nil
+}
+
 func (r *MediaDownloadRepository) SoftDelete(ctx context.Context, downloadID uuid.UUID) error {
 	var eDownload edownload.MediaDownload
 

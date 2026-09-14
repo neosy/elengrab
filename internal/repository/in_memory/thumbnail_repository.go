@@ -21,7 +21,7 @@ type ThumbnailRepository struct {
 // newThumbnailRepository returns a new object for the repository
 func newThumbnailRepository(ttl time.Duration) *ThumbnailRepository {
 	r := &ThumbnailRepository{
-		cacheByThumbnailID: memsimple.NewCacheWithDeaultCopier[uuid.UUID, dmedia.Thumbnail, *dmedia.Thumbnail](),
+		cacheByThumbnailID: memsimple.NewCacheWithDeaultCloner[uuid.UUID, dmedia.Thumbnail, *dmedia.Thumbnail](),
 	}
 	r.Repository.Init(ttl)
 	return r

@@ -17,7 +17,7 @@ type ImageData struct {
 	Raw []byte
 }
 
-func (d *ImageData) Copy() *ImageData {
+func (d *ImageData) Clone() *ImageData {
 	if d == nil {
 		return nil
 	}

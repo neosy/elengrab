@@ -142,17 +142,17 @@ func (t *Thumbnail) ImageDataWithSourceURL() *dtypes.ImageData {
 	return t.ImageData(url)
 }
 
-func (t *Thumbnail) Copy() *Thumbnail {
+func (t *Thumbnail) Clone() *Thumbnail {
 	if t == nil {
 		return nil
 	}
 
 	thumbnailCopy := *t
 
-	thumbnailCopy.Width = uptr.Copy(t.Width)
-	thumbnailCopy.Height = uptr.Copy(t.Height)
-	thumbnailCopy.SourceID = uptr.Copy(t.SourceID)
-	thumbnailCopy.SourceURL = uptr.Copy(t.SourceURL)
+	thumbnailCopy.Width = uptr.Clone(t.Width)
+	thumbnailCopy.Height = uptr.Clone(t.Height)
+	thumbnailCopy.SourceID = uptr.Clone(t.SourceID)
+	thumbnailCopy.SourceURL = uptr.Clone(t.SourceURL)
 	thumbnailCopy.ImageRaw = bytes.Clone(t.ImageRaw)
 
 	return &thumbnailCopy

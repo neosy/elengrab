@@ -18,7 +18,7 @@ type MediaDownloadRepository struct {
 // newMediaDownloadRepository returns a new object for the repository
 func newMediaDownloadRepository(ttl time.Duration) *MediaDownloadRepository {
 	r := &MediaDownloadRepository{
-		cacheByDownloadID: memsimple.NewCacheWithDeaultCopier[uuid.UUID, ddownload.MediaDownload, *ddownload.MediaDownload](),
+		cacheByDownloadID: memsimple.NewCacheWithDeaultCloner[uuid.UUID, ddownload.MediaDownload, *ddownload.MediaDownload](),
 	}
 	r.Repository.Init(ttl)
 	return r

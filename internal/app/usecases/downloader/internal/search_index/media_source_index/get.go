@@ -40,8 +40,8 @@ func (uc *MediaSourceIndex) GetByDownload(
 	return download, nil
 }
 
-func (u *MediaSourceIndex) IterateGetAll(ctx context.Context, fn func(*ddownload.MediaSourceIndex) error) error {
-	err := u.indexRepo().IterateGetAll(ctx, fn)
+func (u *MediaSourceIndex) IterateAll(ctx context.Context, fn func(*ddownload.MediaSourceIndex) error) error {
+	err := u.indexRepo().IterateAll(ctx, fn)
 	if err != nil {
 		u.logger.Warn("Failed to get sourceIndex", "error", err)
 		return err
@@ -66,7 +66,7 @@ func (u *MediaSourceIndex) GetAll(
 
 	var indexes []*ddownload.MediaSourceIndex
 
-	err := repo.IterateGetAll(ctx, func(index *ddownload.MediaSourceIndex) error {
+	err := repo.IterateAll(ctx, func(index *ddownload.MediaSourceIndex) error {
 		indexes = append(indexes, index)
 		return nil
 	})

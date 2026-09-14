@@ -11,7 +11,7 @@ func NonZeroString(v string) *string {
 	if v == "" {
 		return nil
 	}
-	return &v
+	return new(v)
 }
 
 // NonZeroUuid returns a pointer to v, or nil if v is zero.
@@ -19,7 +19,7 @@ func NonZeroUuid(v uuid.UUID) *uuid.UUID {
 	if v == uuid.Nil {
 		return nil
 	}
-	return &v
+	return new(v)
 }
 
 // NonZero returns a pointer to v if it is not the zero value of its type,
@@ -29,5 +29,5 @@ func NonZero[T any](v T) *T {
 	if reflect.ValueOf(v).IsZero() {
 		return nil
 	}
-	return &v
+	return new(v)
 }

@@ -40,6 +40,7 @@ func NewMigrations(
 			MediaDownload: deps.Usecases.Downloader.MediaDownload(),
 			MediaWatch:    deps.Usecases.Downloader.MediaWatch(),
 			SearchIndex:   deps.Usecases.Downloader.SearchIndex(),
+			Channel: deps.Usecases.Downloader.Channel(),
 
 			DownloadMigration: dlmigration.NewDownloadMigration(logger, downloadMigrationRepo),
 			Thumbnail:         deps.Usecases.Thumbnail,

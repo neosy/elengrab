@@ -16,6 +16,8 @@ func (r *ThumbnailRepository) Delete(ctx context.Context, thumbID uuid.UUID) err
 		return err
 	}
 
+	r.cacheRepo.Delete(ctx, thumbID)
+
 	return nil
 }
 

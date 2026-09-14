@@ -90,7 +90,7 @@ func (e *Executor) FetchInfoWithBestFormat(
 		return nil, err
 	}
 
-	bestInfo := uptr.Copy(info)
+	bestInfo := uptr.Clone(info)
 	bestInfo.Formats = bestFormats
 
 	return bestInfo, nil

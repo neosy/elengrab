@@ -13,7 +13,7 @@ type thumbnailRawFile struct {
 	Data []byte
 }
 
-func (f *thumbnailRawFile) Copy() *thumbnailRawFile {
+func (f *thumbnailRawFile) Clone() *thumbnailRawFile {
 	if f == nil {
 		return nil
 	}
@@ -35,7 +35,7 @@ type ThumbnailFileRepository struct {
 // newThumbnailFileRepository returns a new object for the repository
 func newThumbnailFileRepository(ttl time.Duration) *ThumbnailFileRepository {
 	r := &ThumbnailFileRepository{
-		cacheByFileID: memsimple.NewCacheWithDeaultCopier[uuid.UUID, thumbnailRawFile, *thumbnailRawFile](),
+		cacheByFileID: memsimple.NewCacheWithDeaultCloner[uuid.UUID, thumbnailRawFile, *thumbnailRawFile](),
 	}
 	r.Repository.Init(ttl)
 	return r

@@ -177,11 +177,11 @@ func (uc *downloader) resolveActualDownloadInfoByDownload(
 		}
 	}
 
-	var avatarTitle string
-	if download.ChannelID != nil && download.IsYouTube() {
-		channel, _ := uc.ytChannel.FindByChannelID(ctx, *download.ChannelID)
+	var channelTitle string
+	if download.ChannelID != uuid.Nil {
+		channel, _ := uc.channel.FindByChannelID(ctx, download.ChannelID)
 		if channel != nil {
-			avatarTitle = channel.ChannelTitle
+			channelTitle = channel.Title
 		}
 	}
 
@@ -189,8 +189,8 @@ func (uc *downloader) resolveActualDownloadInfoByDownload(
 	siteLogo, _ := uc.siteIcon.FindBySiteURL(ctx, httpx.BaseURL(download.MediaURL))
 	if siteLogo != nil {
 		hasSiteIcon = true
-		if avatarTitle == "" {
-			avatarTitle = siteLogo.SiteTitle
+		if channelTitle == "" {
+			channelTitle = siteLogo.SiteTitle
 		}
 	}
 
@@ -220,9 +220,10 @@ func (uc *downloader) resolveActualDownloadInfoByDownload(
 		watched, _ = uc.mediaWatch.HasUserWatched(ctx, download.DownloadID, authCtx.UserID)
 	}
 
+	channel, _ := uc.channel.FindByChannelID(ctx, download.ChannelID)
+
 	mappingData := &dto.MediaDownloadInfoMappingData{
-		UserLogin:   login,
-		AvatarTitle: avatarTitle,
+		UserLogin: login,
 
 		ViewCount: viewCount,
 
@@ -231,6 +232,9 @@ func (uc *downloader) resolveActualDownloadInfoByDownload(
 
 		HasSiteIcon:         hasSiteIcon,
 		ThumbnailIsPortrait: isPortrait,
+
+		Channel:      channel,
+		ChannelTitle: channelTitle,
 
 		Progress: dlProgress,
 	}
