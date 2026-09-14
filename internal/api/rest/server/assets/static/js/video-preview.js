@@ -35,7 +35,7 @@ const cssClassNames = {
     soundOn: "video-preview__sound-on",
     previewPlaying: VIDEO_PREVIEW.previewPlayingClassName,
 
-    rowRefreshing: "row--refreshing",
+    rowRefreshing: CLASS_NAMES.row.rowRefreshing,
 };
 
 const cssVarNames = {
