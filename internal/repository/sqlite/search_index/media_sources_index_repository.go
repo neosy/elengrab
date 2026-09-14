@@ -342,6 +342,8 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 		}
 	case dtypes.QueryMediaViewModePopular:
 		orderBys = dbutils.SortBy(eIndex.FieldName(&eIndex.Views), dbutils.OrderDescending).List()
+		orderBys.Add(eIndex.FieldName(&eIndex.SourceCreatedAt), dbutils.OrderDescending)
+		orderBys.Add(eIndex.FieldName(&eIndex.DownloadID), dbutils.OrderDescending)
 		if !r.queryOptions.LastRecord.CreatedAt.IsZero() {
 			lastViews := r.queryOptions.LastRecord.Views
 			lastCreatedAt := r.queryOptions.LastRecord.CreatedAt.UTC()
@@ -355,7 +357,7 @@ func (r *MediaSourceIndexRepository) iterateGetAll(
 				},
 				squirrel.And{
 					squirrel.Eq{eIndex.FieldName(&eIndex.Views): lastViews},
-					squirrel.Lt{eIndex.FieldName(&eIndex.SourceCreatedAt): lastCreatedAt},
+					squirrel.Eq{eIndex.FieldName(&eIndex.SourceCreatedAt): lastCreatedAt},
 					squirrel.Lt{eIndex.FieldName(&eIndex.DownloadID): lastDownloadID},
 				},
 			}
