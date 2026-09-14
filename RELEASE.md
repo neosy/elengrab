@@ -1,6 +1,14 @@
 # Releases
 
-## v0.25.0 — 2026-09-15
+## v0.25.1 — 2026-09-14
+
+### 🐛 Fix
+- Fixed DownloadId is required error when refreshing media information. [L135]
+- Fixed spinner layer rendering when refreshing media information. [L135]
+
+---
+
+## v0.25.0 — 2026-09-14
 
 ### ✨ Features
 - Added the ability to edit download cards while the download is in progress. [L115]
