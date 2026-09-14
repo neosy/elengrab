@@ -13,7 +13,6 @@
 - Reordered favicon declarations to prioritize larger image sizes for better favicon selection in Google Search Console. [L116]
 - Added SVG versions of the favicon and logo. [L117]
 - Updated favicon links to use `favicon.svg`. [L117]
-- Reordered favicon links. [L117]
 - Replaced PNG logo images with `logo.svg`. [L117]
 
 ### 🎨 Style
