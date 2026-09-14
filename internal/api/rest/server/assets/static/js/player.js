@@ -49,6 +49,8 @@ export function initPlayer() {
         const playBtn = event.target.closest(".media-result__play-button");
         if (!playBtn) return;
 
+        if (isOpenVideoPlayer) return;
+
         const row = playBtn.closest(".media-result__row");
         if (!row) return;
 
@@ -111,6 +113,8 @@ export function initPlayer() {
             bar.appendChild(element);
             audioBarContainer.appendChild(bar);
 
+            element.focus({ preventScroll: true });
+
             overlay.style.display = "none !important";   // forceful hide
             document.body.style.overflow = "";
             document.body.classList.add("audio-playing");
@@ -136,6 +140,8 @@ export function initPlayer() {
 
             overlay.style.display = "flex";
             document.body.style.overflow = "hidden";
+
+            element.focus({ preventScroll: true });
         }
 
         if (itemId) {

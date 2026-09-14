@@ -37,6 +37,8 @@
 - Fixed media download status display in the web interface when downloading media by URL. [L129]
 - Fixed field initialization for newly added downloads. [L129]
 - Fixed video preview not starting automatically after switching media view modes. [L131]
+- Fixed video playback restarting when pressing Space to pause. [L132]
+- Removed the focus outline around the video player. [L132]
 
 ### 📦 Build
 - Updated Go to 1.27.1.
