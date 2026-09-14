@@ -28,9 +28,9 @@ type DownloadStateRepository struct {
 // newDownloadStateRepository returns a new object for the repository
 func newDownloadStateRepository(ttl time.Duration) *DownloadStateRepository {
 	r := &DownloadStateRepository{
-		cacheByDownloadID:       memsimple.NewCacheWithDeaultCopier[uuid.UUID, ddownload.DownloadState, *ddownload.DownloadState](),
-		cacheByUserIDDownloadID: memsimple.NewCacheWithDeaultCopier[userIDDownloadIDKey, ddownload.DownloadState, *ddownload.DownloadState](),
-		cacheByTaskID:           memsimple.NewCacheWithDeaultCopier[uuid.UUID, ddownload.DownloadState, *ddownload.DownloadState](),
+		cacheByDownloadID:       memsimple.NewCacheWithDeaultCloner[uuid.UUID, ddownload.DownloadState, *ddownload.DownloadState](),
+		cacheByUserIDDownloadID: memsimple.NewCacheWithDeaultCloner[userIDDownloadIDKey, ddownload.DownloadState, *ddownload.DownloadState](),
+		cacheByTaskID:           memsimple.NewCacheWithDeaultCloner[uuid.UUID, ddownload.DownloadState, *ddownload.DownloadState](),
 	}
 	r.Repository.Init(ttl)
 	return r

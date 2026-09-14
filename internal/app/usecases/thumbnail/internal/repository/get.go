@@ -30,11 +30,12 @@ func (r *ThumbnailRepository) FindByThumbID(ctx context.Context, thumbID uuid.UU
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
-	if thumbnail != nil {
-		r.cacheRepo.Save(ctx, thumbnail)
-	} else {
+	if thumbnail == nil {
 		r.cacheRepo.SaveNegative(ctx, thumbID)
+		return nil, nil
 	}
+
+	r.cacheRepo.Save(ctx, thumbnail)
 
 	return thumbnail, nil
 }

@@ -23,3 +23,7 @@ func (uc *MediaDownload) UpdateUser(ctx context.Context, fromID, toID uuid.UUID)
 	})
 
 }
+
+func (uc *MediaDownload) UpdateChannelID(ctx context.Context, oldChannelID string, newChannelID uuid.UUID) error {
+	return uc.downloadRepo().UpdateChannelID(ctx, oldChannelID, newChannelID)
+}

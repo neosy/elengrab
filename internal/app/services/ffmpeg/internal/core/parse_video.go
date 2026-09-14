@@ -10,7 +10,7 @@ import (
 // parseVideoFromFFprobe parses an FFprobe "stream" line into VideoInfo.
 func (info *info) parseVideoFromFFprobe(stream ffprobeStream, srcVideoInfo *dtypes.VideoInfo) *dtypes.VideoInfo {
 	var (
-		videoInfo = srcVideoInfo.Copy()
+		videoInfo = srcVideoInfo.Clone()
 	)
 
 	if videoInfo == nil {
@@ -53,7 +53,7 @@ func (info *info) parseVideoFromFFmppeg(line string, srcVideoInfo *dtypes.VideoI
 
 	var (
 		infoSetter videoInfoSetter
-		videoInfo  = srcVideoInfo.Copy()
+		videoInfo  = srcVideoInfo.Clone()
 	)
 
 	if videoInfo == nil {

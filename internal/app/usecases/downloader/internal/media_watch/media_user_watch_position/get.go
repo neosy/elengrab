@@ -45,11 +45,12 @@ func (uc *MediaUserWatchPosition) Find(
 		return nil, errorx.Errorf("failed to find media watch positions: %w", err, exceptionx.ERROR)
 	}
 
-	if position != nil {
-		uc.positionCacheRep.Save(ctx, position)
-	} else {
+	if position == nil {
 		uc.positionCacheRep.SaveNegative(ctx, downloadID, userID, sessionID)
+		return nil, nil
 	}
+
+	uc.positionCacheRep.Save(ctx, position)
 
 	return position, nil
 }

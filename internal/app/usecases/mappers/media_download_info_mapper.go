@@ -40,8 +40,8 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 		Status:        download.Status,
 		WorkingStatus: workingStatus,
 
-		ChannelID:   download.ChannelID,
-		AvatarTitle: mappingData.AvatarTitle,
+		Channel:      mappingData.Channel,
+		ChannelTitle: mappingData.ChannelTitle,
 
 		MediaURL: download.MediaURL,
 

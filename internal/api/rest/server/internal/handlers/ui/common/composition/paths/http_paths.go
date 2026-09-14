@@ -10,13 +10,13 @@ const (
 
 type (
 	HttpPaths struct {
-		StaticImages          string
-		StaticIcons           string
-		StaticCss             string
-		StaticJs              string
-		StaticPwa             string
-		StaticThumbnails      string
-		StaticYoutubeChannels string
+		StaticImages     string
+		StaticIcons      string
+		StaticCss        string
+		StaticJs         string
+		StaticPwa        string
+		StaticThumbnails string
+		StaticChannels   string
 
 		AuthRegister string
 		AuthLogin    string
@@ -34,13 +34,13 @@ type (
 
 var (
 	httpPathsDefault = HttpPaths{
-		StaticImages:          httppaths.StaticImagesGroup,
-		StaticIcons:           httppaths.StaticIconsGroup,
-		StaticCss:             httppaths.StaticCssGroup,
-		StaticJs:              httppaths.StaticJsGroup,
-		StaticPwa:             httppaths.StaticPwaGroup,
-		StaticThumbnails:      httppaths.StaticThumbnailsGroup,
-		StaticYoutubeChannels: httppaths.StaticYoutubeChannelsGroup,
+		StaticImages:     httppaths.StaticImagesGroup,
+		StaticIcons:      httppaths.StaticIconsGroup,
+		StaticCss:        httppaths.StaticCssGroup,
+		StaticJs:         httppaths.StaticJsGroup,
+		StaticPwa:        httppaths.StaticPwaGroup,
+		StaticThumbnails: httppaths.StaticThumbnailsGroup,
+		StaticChannels:   httppaths.StaticChannelsGroup,
 
 		AuthRegister: httppaths.AuthRegisterPath,
 		AuthLogin:    httppaths.AuthLoginPath,
@@ -84,6 +84,6 @@ func ThumbnailPath(id string) string {
 	return httppaths.StaticThumbnailsGroup + "/" + id
 }
 
-func YoutubeChannelPath(channelId string) string {
-	return httppaths.StaticYoutubeChannelsGroup + "/" + channelId
+func ChannelImagePath(channelId, platform string) string {
+	return httppaths.BuildChannelImagePath(channelId, platform)
 }

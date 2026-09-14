@@ -61,20 +61,20 @@ func (m MediaInfo) NewMediaInfoDomain() *dtypes.MediaInfo {
 		DurationText: durationText,
 		DurationMs:   m.Duration.Milliseconds(),
 
-		VideoInfo: uptr.Copy(m.VideoInfo),
-		AudioInfo: uptr.Copy(m.AudioInfo),
+		VideoInfo: uptr.Clone(m.VideoInfo),
+		AudioInfo: uptr.Clone(m.AudioInfo),
 	}
 }
 
-func (m *MediaInfo) Copy() *MediaInfo {
+func (m *MediaInfo) Clone() *MediaInfo {
 	if m == nil {
 		return nil
 	}
 
 	info := *m
 
-	info.VideoInfo = uptr.Copy(m.VideoInfo)
-	info.AudioInfo = uptr.Copy(m.AudioInfo)
+	info.VideoInfo = uptr.Clone(m.VideoInfo)
+	info.AudioInfo = uptr.Clone(m.AudioInfo)
 
 	return &info
 }

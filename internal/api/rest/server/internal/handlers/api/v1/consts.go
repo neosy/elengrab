@@ -7,4 +7,5 @@ const (
 
 	itemIDKey    = "itemId"
 	channelIDKey = "channelId"
+	platformKey  = "platform"
 )

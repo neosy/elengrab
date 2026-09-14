@@ -34,7 +34,7 @@ func (c *MediaUserWatchStat) Validate() error {
 	return nil
 }
 
-func (src *MediaUserWatchStat) Copy() *MediaUserWatchStat {
+func (src *MediaUserWatchStat) Clone() *MediaUserWatchStat {
 	if src == nil {
 		return nil
 	}

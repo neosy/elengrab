@@ -11,6 +11,7 @@ type Usecases struct {
 	MediaDownload downloader.MediaDownload
 	MediaWatch    downloader.MediaWatch
 	SearchIndex   downloader.SearchIndex
+	Channel       downloader.Channel
 
 	DownloadMigration *dlmigration.DownloadMigration
 	Thumbnail         thumbnail.Thumbnail

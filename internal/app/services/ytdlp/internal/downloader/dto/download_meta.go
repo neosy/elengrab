@@ -16,13 +16,13 @@ type DownloadMeta struct {
 	FileExt             string
 	FileFullName        string
 	FileSize            *int64
-	ChannelID           *string
+	ChannelID           string
 	ChannelURL          string
 	ChannelTitle        string
 	MediaInfo           *dservices.MediaInfo
 	Thumbnail           *dtypes.ImageData
 	ThumbnailVideoFrame *dtypes.ImageData
-	Channel             *dtypes.Channel
+	Channel             *dtypes.ChannelSource
 	Progress            *dservices.DownloaderProgress
 }
 
@@ -56,13 +56,12 @@ func (m *SafeDownloadMeta) CopyMeta() *DownloadMeta {
 	}
 
 	metaCopy := *m.Meta
-	metaCopy.FileSize = uptr.Copy(m.Meta.FileSize)
-	metaCopy.ChannelID = uptr.Copy(m.Meta.ChannelID)
-	metaCopy.MediaInfo = m.Meta.MediaInfo.Copy()
-	metaCopy.Channel = m.Meta.Channel.Copy()
-	metaCopy.Progress = uptr.Copy(m.Meta.Progress)
-	metaCopy.Thumbnail = m.Meta.Thumbnail.Copy()
-	metaCopy.ThumbnailVideoFrame = m.Meta.ThumbnailVideoFrame.Copy()
+	metaCopy.FileSize = uptr.Clone(m.Meta.FileSize)
+	metaCopy.MediaInfo = m.Meta.MediaInfo.Clone()
+	metaCopy.Channel = m.Meta.Channel.Clone()
+	metaCopy.Progress = uptr.Clone(m.Meta.Progress)
+	metaCopy.Thumbnail = m.Meta.Thumbnail.Clone()
+	metaCopy.ThumbnailVideoFrame = m.Meta.ThumbnailVideoFrame.Clone()
 
 	return &metaCopy
 }
@@ -76,7 +75,6 @@ func (m *SafeDownloadMeta) InitialResult() *dservices.DownloaderResult {
 	}
 
 	return &dservices.DownloaderResult{
-		ChannelID:           meta.ChannelID,
 		MediaTitle:          meta.Title,
 		MediaDescription:    uptr.NonZeroString(meta.Description),
 		Filename:            meta.FileName,

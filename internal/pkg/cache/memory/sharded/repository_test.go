@@ -220,19 +220,19 @@ func TestConcurrentWrites(t *testing.T) {
 	}
 }
 
-// TestCopier ensures copier function is applied.
-func TestCopier(t *testing.T) {
+// TestCloner ensures cloner function is applied.
+func TestCloner(t *testing.T) {
 	type User struct {
 		Name string
 	}
 
-	copier := func(u *User) *User {
+	cloner := func(u *User) *User {
 		if u == nil {
 			return nil
 		}
 
 		cp := *u
-		cp.Name = "copied"
+		cp.Name = "cloned"
 
 		return &cp
 	}
@@ -240,7 +240,7 @@ func TestCopier(t *testing.T) {
 	repo := &Repository[User]{}
 	repo.Init(time.Minute)
 
-	cache := NewCache[int, User](16, copier)
+	cache := NewCache[int, User](16, cloner)
 
 	u := User{Name: "original"}
 
@@ -256,8 +256,8 @@ func TestCopier(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if got == nil || got.Name != "copied" {
-		t.Fatalf("expected copied value, got %+v", got)
+	if got == nil || got.Name != "cloned" {
+		t.Fatalf("expected cloned value, got %+v", got)
 	}
 }
 

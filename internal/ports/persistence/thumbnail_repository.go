@@ -33,6 +33,7 @@ type ThumbnailCacheRepository interface {
 
 	Save(ctx context.Context, thumbnail *dmedia.Thumbnail) error
 	SaveNegative(ctx context.Context, thumbID uuid.UUID) error
+	Delete(ctx context.Context, thumbID uuid.UUID) error
 
 	FindByThumbnailID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, memsimple.CacheStatus, error)
 	ExistsByThumbnailID(ctx context.Context, thumbID uuid.UUID) (bool, error)

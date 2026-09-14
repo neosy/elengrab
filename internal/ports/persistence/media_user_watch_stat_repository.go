@@ -35,4 +35,5 @@ type MediaUserWatchStatCacheRepository interface {
 	Exists(ctx context.Context, downloadID, userID uuid.UUID) (bool, memsimple.CacheStatus, error)
 
 	CleanExpired(context.Context) error
+	Clear(ctx context.Context) error
 }

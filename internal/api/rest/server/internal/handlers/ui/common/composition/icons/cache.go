@@ -17,8 +17,8 @@ type iconEntry struct {
 	raw template.HTML
 }
 
-func (icon *iconEntry) Copy() *iconEntry {
-	return uptr.Copy(icon)
+func (icon *iconEntry) Clone() *iconEntry {
+	return uptr.Clone(icon)
 }
 
 type iconRepository struct {
@@ -29,7 +29,7 @@ type iconRepository struct {
 // newIconRepository returns a new object for the repository
 func newIconRepository(ttl time.Duration) *iconRepository {
 	r := &iconRepository{
-		cache: memsimple.NewCacheWithDeaultCopier[string, iconEntry, *iconEntry](),
+		cache: memsimple.NewCacheWithDeaultCloner[string, iconEntry, *iconEntry](),
 	}
 	r.Repository.Init(ttl)
 	return r

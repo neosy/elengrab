@@ -14,7 +14,7 @@ type testUser struct {
 	Name string
 }
 
-func (u *testUser) Copy() *testUser {
+func (u *testUser) Clone() *testUser {
 	if u == nil {
 		return nil
 	}
@@ -124,7 +124,7 @@ func TestItem_ValidAt_ExpiredAt(t *testing.T) {
 // ====================== Cache ======================
 
 func TestNewCache(t *testing.T) {
-	copier := func(u *testUser) *testUser {
+	cloner := func(u *testUser) *testUser {
 		if u == nil {
 			return nil
 		}
@@ -132,19 +132,19 @@ func TestNewCache(t *testing.T) {
 		return &cp
 	}
 
-	cache := NewCache[string, testUser](copier)
+	cache := NewCache[string, testUser](cloner)
 	assert.NotNil(t, cache.cache)
-	assert.NotNil(t, cache.copier)
+	assert.NotNil(t, cache.cloner)
 }
 
-func TestNewCacheWithDefaultCopier(t *testing.T) {
-	cache := NewCacheWithDeaultCopier[uint64, testUser, *testUser]()
+func TestNewCacheWithDefaultCloner(t *testing.T) {
+	cache := NewCacheWithDeaultCloner[uint64, testUser, *testUser]()
 	assert.NotNil(t, cache.cache)
-	assert.NotNil(t, cache.copier)
+	assert.NotNil(t, cache.cloner)
 }
 
 func TestCache_Save_And_Find(t *testing.T) {
-	cache := NewCacheWithDeaultCopier[uint64, testUser, *testUser]()
+	cache := NewCacheWithDeaultCloner[uint64, testUser, *testUser]()
 
 	user := &testUser{ID: 42, Name: "Alice"}
 
@@ -170,7 +170,7 @@ func TestCache_Save_And_Find(t *testing.T) {
 }
 
 func TestCache_FindWithStatus(t *testing.T) {
-	cache := NewCacheWithDeaultCopier[uint64, testUser, *testUser]()
+	cache := NewCacheWithDeaultCloner[uint64, testUser, *testUser]()
 
 	cache.Save(1, &testUser{ID: 1}, 0)
 	val, status := cache.FindWithStatus(1)
@@ -184,7 +184,7 @@ func TestCache_FindWithStatus(t *testing.T) {
 }
 
 func TestCache_Exists(t *testing.T) {
-	cache := NewCacheWithDeaultCopier[uint64, testUser, *testUser]()
+	cache := NewCacheWithDeaultCloner[uint64, testUser, *testUser]()
 
 	assert.False(t, cache.Exists(1))
 
@@ -201,7 +201,7 @@ func TestCache_Exists(t *testing.T) {
 }
 
 func TestCache_Expiration(t *testing.T) {
-	cache := NewCacheWithDeaultCopier[uint64, testUser, *testUser]()
+	cache := NewCacheWithDeaultCloner[uint64, testUser, *testUser]()
 
 	cache.Save(1, &testUser{ID: 1}, 50*time.Millisecond)
 
@@ -215,7 +215,7 @@ func TestCache_Expiration(t *testing.T) {
 
 func TestCache_CleanExpired(t *testing.T) {
 	synctest.Test(t, func(t *testing.T) {
-		cache := NewCacheWithDeaultCopier[uint64, testUser, *testUser]()
+		cache := NewCacheWithDeaultCloner[uint64, testUser, *testUser]()
 
 		cache.Save(1, &testUser{ID: 1}, 0)              // never expires
 		cache.Save(2, &testUser{ID: 2}, 10*time.Second) // will expire
@@ -240,7 +240,7 @@ func TestCache_CleanExpired(t *testing.T) {
 }
 
 func TestCache_Delete(t *testing.T) {
-	cache := NewCacheWithDeaultCopier[uint64, testUser, *testUser]()
+	cache := NewCacheWithDeaultCloner[uint64, testUser, *testUser]()
 
 	cache.Save(1, &testUser{ID: 1}, 0)
 	assert.True(t, cache.Exists(1))

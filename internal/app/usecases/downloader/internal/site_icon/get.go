@@ -28,6 +28,11 @@ func (uc *SiteIcon) FindByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
 
+	if logo == nil {
+		uc.logoCacheRep.SaveNegative(ctx, logoID)
+		return nil, nil
+	}
+
 	err = uc.logoCacheRep.Save(ctx, logo)
 	if err != nil {
 		uc.logger.Warn("Failed to insert siteLogo cache", "error", err)
@@ -89,7 +94,7 @@ func (uc *SiteIcon) FindBySiteURL(ctx context.Context, siteURL string) (*dmedia.
 	}
 
 	if logo == nil {
-		err = uc.logoCacheRep.SaveNegative(ctx, siteURL)
+		err = uc.logoCacheRep.SaveNegativeBySiteURL(ctx, siteURL)
 		return nil, nil
 	}
 

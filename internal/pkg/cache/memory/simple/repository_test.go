@@ -145,18 +145,18 @@ func TestRepository_CleanExpired(t *testing.T) {
 	assert.True(t, called)
 }
 
-func TestRepository_CopyAdapter(t *testing.T) {
+func TestRepository_CloneAdapter(t *testing.T) {
 	var repo Repository[testValue]
 
 	expected := &testValue{
 		ID: 5,
 	}
 
-	copier := repo.CopyAdapter(func() *testValue {
+	cloner := repo.CloneAdapter(func() *testValue {
 		return expected
 	})
 
-	result := copier(nil)
+	result := cloner(nil)
 
 	assert.Equal(t, expected, result)
 }

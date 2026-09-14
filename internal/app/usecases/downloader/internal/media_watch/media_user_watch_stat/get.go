@@ -37,11 +37,12 @@ func (uc *MediaUserWatchStat) Find(
 		return nil, errorx.Errorf("failed to find media user watch statistics: %w", err, exceptionx.ERROR)
 	}
 
-	if stat != nil {
-		uc.statCacheRep.Save(ctx, stat)
-	} else {
+	if stat == nil {
 		uc.statCacheRep.SaveNegative(ctx, downloadID, userID)
+		return nil, nil
 	}
+
+	uc.statCacheRep.Save(ctx, stat)
 
 	return stat, nil
 }

@@ -28,7 +28,7 @@ func (r *routes) registerStatic(handlers *static.StaticHandlers) {
 		g.HEAD(httppaths.PwaFilesPath, handlers.StaticPwaHandler)
 		g.GET(httppaths.ThumbnailPath, handlers.ThumbnailHandler)
 		g.HEAD(httppaths.ThumbnailPath, handlers.ThumbnailHandler)
-		g.GET(httppaths.YoutubeChannelPath, handlers.YoutubeChannelHandler)
-		g.HEAD(httppaths.YoutubeChannelPath, handlers.YoutubeChannelHandler)
+		g.GET(httppaths.ChannelImagePath, handlers.ChannelImageHandler)
+		g.HEAD(httppaths.ChannelImagePath, handlers.ChannelImageHandler)
 	}
 }

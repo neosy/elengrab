@@ -21,12 +21,15 @@ type MediaDownload interface {
 		userID *uuid.UUID, downloadID uuid.UUID,
 		mutate func(mediaInfo *dtypes.MediaInfo),
 	) error
+	UpdateChannelID(ctx context.Context, oldChannelID string, newChannelID uuid.UUID) error
 
 	FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.MediaDownload, error)
 	GetAllFullNames(ctx context.Context) (map[string]struct{}, error)
 	GetAllFullNamesWithDeleted(ctx context.Context) (map[string]struct{}, error)
 	IterateGetAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error
 	IterateGetAllWithDeleted(ctx context.Context, fn func(*ddownload.MediaDownload) error) error
+
+	Tx(ctx context.Context, fn func(ctx context.Context) error) error
 }
 
 type mediaDownload struct {

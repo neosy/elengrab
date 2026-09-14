@@ -36,11 +36,11 @@ func (uc *downloader) GetDownloadImage(
 	for _, src := range sources {
 		switch src {
 		case dtypes.ImageSourceThumbnail:
-			imageData, err = uc.getDownloadImageThumbnail(ctx, downloadInfo.MediaInfo)
+			imageData, err = uc.getDownloadThumbnailImage(ctx, downloadInfo.MediaInfo)
 		case dtypes.ImageSourceAvatar:
-			imageData, err = uc.getDownloadImageAvatar(ctx, downloadInfo)
+			imageData, err = uc.getDownloadChannelImage(ctx, downloadInfo)
 		case dtypes.ImageSourceSite:
-			imageData, err = uc.getDownloadImageSite(ctx, downloadInfo)
+			imageData, err = uc.getDownloadSiteImage(ctx, downloadInfo)
 		}
 		if err == nil {
 			break
@@ -58,7 +58,7 @@ func (uc *downloader) GetDownloadImage(
 	return imageData, nil
 }
 
-func (uc *downloader) getDownloadImageThumbnail(
+func (uc *downloader) getDownloadThumbnailImage(
 	ctx context.Context,
 	mediaInfo *dtypes.MediaInfo,
 ) (*dtypes.ImageData, error) {
@@ -74,24 +74,18 @@ func (uc *downloader) getDownloadImageThumbnail(
 	return nil, errorx.NewHTTPMessage("thumbnail not found", http.StatusNotFound)
 }
 
-func (uc *downloader) getDownloadImageAvatar(
-	ctx context.Context,
+func (uc *downloader) getDownloadChannelImage(
+	_ context.Context,
 	downloadInfo *dto.MediaDownloadInfo,
 ) (*dtypes.ImageData, error) {
-	if downloadInfo.ChannelID != nil && downloadInfo.IsYouTube() {
-		channel, _ := uc.FindYoutubeChannelInfo(ctx, *downloadInfo.ChannelID)
-		if channel != nil && len(channel.ImageRaw) > 0 {
-			return &dtypes.ImageData{
-				Raw:    channel.ImageRaw,
-				Format: channel.ImageFormat,
-			}, nil
-		}
+	if downloadInfo.Channel != nil && downloadInfo.Channel.HasImage() {
+		return downloadInfo.Channel.ImageData(), nil
 	}
 
 	return nil, errorx.NewHTTPMessage("avatar not found", http.StatusNotFound)
 }
 
-func (uc *downloader) getDownloadImageSite(
+func (uc *downloader) getDownloadSiteImage(
 	ctx context.Context,
 	downloadInfo *dto.MediaDownloadInfo,
 ) (*dtypes.ImageData, error) {

@@ -20,6 +20,8 @@ func (uc *SiteIcon) Create(ctx context.Context, logo *dmedia.SiteLogo) error {
 		logo.LogoID = uuid.New()
 	}
 
+	defer uc.logoCacheRep.Delete(ctx, logo.LogoID)
+
 	// Attempt to insert the site logo into the repository
 	err := uc.logoRepo().Insert(ctx, logo)
 	if err != nil {
@@ -29,19 +31,6 @@ func (uc *SiteIcon) Create(ctx context.Context, logo *dmedia.SiteLogo) error {
 			"error", err,
 		)
 		return err
-	}
-
-	logo, _ = uc.logoRepo().FindByLogoID(ctx, logo.LogoID)
-	if logo != nil {
-		err := uc.logoCacheRep.Save(ctx, logo)
-		if err != nil {
-			uc.logger.Error(
-				"Failed to save siteLogo cache",
-				"logoURL", logo.ImageURL,
-				"error", err,
-			)
-			return err
-		}
 	}
 
 	return nil

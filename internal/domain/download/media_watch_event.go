@@ -68,15 +68,15 @@ func (e *MediaWatchEvent) Validate() error {
 	return nil
 }
 
-func (e *MediaWatchEvent) Copy() *MediaWatchEvent {
+func (e *MediaWatchEvent) Clone() *MediaWatchEvent {
 	if e == nil {
 		return nil
 	}
 
 	copy := *e
 
-	copy.UserID = uptr.Copy(e.UserID)
-	copy.SessionID = uptr.Copy(e.SessionID)
+	copy.UserID = uptr.Clone(e.UserID)
+	copy.SessionID = uptr.Clone(e.SessionID)
 
 	return &copy
 }

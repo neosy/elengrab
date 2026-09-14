@@ -28,12 +28,15 @@ func (uc *MediaDownload) Create(ctx context.Context, download *ddownload.MediaDo
 	err := uc.downloadRepo().Tx(ctx, func(ctx context.Context) error {
 		err := uc.downloadRepo().Insert(ctx, download)
 		if err != nil {
+			uc.downloadCacheRep.Delete(ctx, download.DownloadID)
 			uc.logger.Warn(
 				"Failed to insert record into repository",
 				"error", err,
 			)
 			return errorx.Errorf("failed to insert download: %w", err, exceptionx.ERROR)
 		}
+
+		uc.downloadCacheRep.Delete(ctx, download.DownloadID)
 
 		download, err = uc.GetByDownloadID(ctx, download.DownloadID)
 		if err != nil {

@@ -14,6 +14,8 @@ func (r *ThumbnailRepository) Insert(ctx context.Context, thumbnail *dmedia.Thum
 		return apperrors.ErrFuncParamNullPointer
 	}
 
+	defer r.cacheRepo.Delete(ctx, thumbnail.ThumbID)
+
 	err := r.repo().Insert(ctx, thumbnail)
 	if err != nil {
 		r.logger.Warn(
@@ -27,11 +29,6 @@ func (r *ThumbnailRepository) Insert(ctx context.Context, thumbnail *dmedia.Thum
 			"error", err,
 		)
 		return err
-	}
-
-	thumbnail, _ = r.repo().FindByThumbID(ctx, thumbnail.ThumbID)
-	if thumbnail != nil {
-		r.cacheRepo.Save(ctx, thumbnail)
 	}
 
 	return nil

@@ -25,7 +25,7 @@ type MediaSourceIndexRepository interface {
 	Restore(ctx context.Context, downloadID uuid.UUID) error
 
 	FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.MediaSourceIndex, error)
-	IterateGetAll(ctx context.Context, fn func(*ddownload.MediaSourceIndex) error) error
+	IterateAll(ctx context.Context, fn func(*ddownload.MediaSourceIndex) error) error
 
 	WithOptions(options dtypes.QueryMediaOptions) MediaSourceIndexRepository
 	WithDeleted() MediaSourceIndexRepository

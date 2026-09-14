@@ -11,14 +11,14 @@ const (
 	// Groups
 	StaticGroup = "/static"
 
-	StaticCssGroup             = StaticGroup + "/css"
-	StaticFontsGroup           = StaticGroup + "/fonts"
-	StaticJsGroup              = StaticGroup + "/js"
-	StaticImagesGroup          = StaticGroup + "/images"
-	StaticIconsGroup           = StaticGroup + "/icons"
-	StaticPwaGroup             = StaticGroup + "/pwa"
-	StaticThumbnailsGroup      = StaticGroup + "/thumbnails"
-	StaticYoutubeChannelsGroup = StaticGroup + "/ytchannels"
+	StaticCssGroup        = StaticGroup + "/css"
+	StaticFontsGroup      = StaticGroup + "/fonts"
+	StaticJsGroup         = StaticGroup + "/js"
+	StaticImagesGroup     = StaticGroup + "/images"
+	StaticIconsGroup      = StaticGroup + "/icons"
+	StaticPwaGroup        = StaticGroup + "/pwa"
+	StaticThumbnailsGroup = StaticGroup + "/thumbnails"
+	StaticChannelsGroup   = StaticGroup + "/channels"
 
 	// Path files
 	CssFilesPath        = "/css/{filepath:*}"
@@ -29,7 +29,8 @@ const (
 	JsFilesPath         = "/js/{filepath:*}"
 	PwaFilesPath        = "/pwa/{filepath:*}"
 	ThumbnailPath       = "/thumbnails/{thumbnailId}"
-	YoutubeChannelPath  = "/ytchannels/{channelId}"
+	ChannelIDImagePath  = "/channels/{channelId}/image"
+	ChannelImagePath    = "/channels/{platform}/{channelId}/image"
 )
 
 func BuildThumbnailPath(thumbID uuid.UUID) string {
@@ -43,4 +44,10 @@ func BuildImagePath(fileName string) string {
 
 func BuildIconPath(fileName string) string {
 	return StaticGroup + strings.Replace(IconFilesPath, "{filepath:*}", fileName, 1)
+}
+
+func BuildChannelImagePath(channelID, platform string) string {
+	path := strings.Replace(ChannelImagePath, "{platform}", platform, 1)
+	path = strings.Replace(path, "{channelId}", channelID, 1)
+	return StaticGroup + path
 }

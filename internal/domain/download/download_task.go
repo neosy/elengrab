@@ -37,16 +37,16 @@ type DownloadTask struct {
 	UpdatedAt time.Time
 }
 
-func (src *DownloadTask) Copy() *DownloadTask {
+func (src *DownloadTask) Clone() *DownloadTask {
 	if src == nil {
 		return nil
 	}
 
 	copy := *src
 
-	copy.Options = src.Options.Copy()
-	copy.WorkerID = uptr.Copy(src.WorkerID)
-	copy.JobID = uptr.Copy(src.JobID)
+	copy.Options = src.Options.Clone()
+	copy.WorkerID = uptr.Clone(src.WorkerID)
+	copy.JobID = uptr.Clone(src.JobID)
 
 	return &copy
 }

@@ -25,8 +25,9 @@ var (
 	DownloadDeleteIcon     = newIcon("DownloadDeleteIconName", "download-delete-icon.svg")
 	DownloadRefreshingIcon = newIcon("DownloadRefreshingIconName", "refresh-icon.svg")
 
-	MediaPublicIcon  = newIcon("DownloadPublicIconName", "public-people.svg")
-	MediaPrivateIcon = newIcon("DownloadPrivateIconName", "private-lock.svg")
+	MediaPublicIcon        = newIcon("MediaPublicIconName", "visibility-public-people.svg")
+	MediaAuthenticatedIcon = newIcon("MediaAuthenticatedIconName", "visibility-authenticated-user-icon.svg")
+	MediaPrivateIcon       = newIcon("MediaPrivateIconName", "visibility-private-lock.svg")
 
 	MediaAudioIcon     = newIcon("DownloadMusicIconName", "music-note-icon.svg")
 	MediaShareLinkIcon = newIcon("DownloadShareLinkIconName", "link-icon.svg")

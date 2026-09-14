@@ -1,8 +1,7 @@
 package apiv1
 
 import (
-	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
+	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
@@ -12,11 +11,17 @@ func (h *V1Handlers) GetChannelByID(ctx *fasthttp.RequestCtx) {
 
 	channelID := string(args.Peek(channelIDKey))
 	if channelID == "" {
-		nfasthttp.WriteErrorx(ctx, errorx.New("channelID is required", exceptionx.WRONG_DATA))
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrChannelIsRequired)
 		return
 	}
 
-	channel, err := h.downloader.GetYoutubeChannelInfo(ctx, channelID)
+	platform := string(args.Peek(platformKey))
+	if platform == "" {
+		nfasthttp.WriteErrorx(ctx, apierrors.ErrChannelPlatformIsRequired)
+		return
+	}
+
+	channel, err := h.downloader.GetChannelInfo(ctx, channelID, platform)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

@@ -23,7 +23,7 @@ func NewAssetFile(filePath string, hash string, data []byte) *AssetFile {
 	}
 }
 
-func (f *AssetFile) Copy() *AssetFile {
+func (f *AssetFile) Clone() *AssetFile {
 	if f == nil {
 		return nil
 	}

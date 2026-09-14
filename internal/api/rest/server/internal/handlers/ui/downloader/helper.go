@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/consts"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
@@ -149,7 +150,7 @@ func stripUUIDFromIDPath(path string) uuid.UUID {
 }
 
 func mediaSourceFromURL(mediaURL string) string {
-	source := hostdetect.Detect(mediaURL).Title()
+	source := hostdetect.DetectPlatformType(mediaURL).Title()
 	if source != "" {
 		return source
 	}
@@ -172,9 +173,14 @@ func (h *DownloaderHandlers) buildMediaWatchURL(downloadID uuid.UUID) string {
 		httppaths.BuildMediaItemWatchPath(downloadID)
 }
 
-func (h *DownloaderHandlers) getVisibilityResponse(info *ucdto.MediaDownloadInfo) *dto.VisibilityResponse {
+func shouldShowVisibility(visibility dtypes.MediaVisibility) bool {
+	_, exists := consts.DisplayedVisibilities[visibility]
+	return exists
+}
+
+func (h *DownloaderHandlers) buildVisibilityResponse(info *ucdto.MediaDownloadInfo) *dto.VisibilityResponse {
 	response := &dto.VisibilityResponse{
-		Visible: info.ShouldShowVisibility(),
+		Visible: shouldShowVisibility(info.Visibility),
 		Value:   info.Visibility.String(),
 		Label:   info.Visibility.Label(),
 	}
@@ -182,7 +188,8 @@ func (h *DownloaderHandlers) getVisibilityResponse(info *ucdto.MediaDownloadInfo
 	switch info.Visibility {
 	case dtypes.MediaVisibilityPrivate:
 		response.Icon = icons.MediaPrivateIcon.FileRaw()
-
+	case dtypes.MediaVisibilityAuthenticated:
+		response.Icon = icons.MediaAuthenticatedIcon.FileRaw()
 	case dtypes.MediaVisibilityPublic:
 		response.Icon = icons.MediaPublicIcon.FileRaw()
 	}

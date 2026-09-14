@@ -30,5 +30,7 @@ func (uc *MediaUserWatchStat) DeleteAll(ctx context.Context) error {
 		return err
 	}
 
+	uc.statCacheRep.Clear(ctx)
+
 	return nil
 }

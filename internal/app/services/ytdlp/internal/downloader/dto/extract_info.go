@@ -30,9 +30,11 @@ type ExtractInfo struct {
 	Title        string               `json:"title"`
 	Description  string               `json:"description"`
 	Extractor    string               `json:"extractor"`
+	Channel      string               `json:"channel"`
 	ChannelID    string               `json:"channel_id"`
 	ChannelUrl   string               `json:"channel_url"`
 	ChannelTitle string               `json:"uploader"`
+	Thumbnail    string               `json:"thumbnail"`
 	Duration     float64              `json:"duration"`
 	Formats      []ExtractMediaFormat `json:"formats"`
 }

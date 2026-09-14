@@ -102,7 +102,7 @@ func (r *Repository[T]) CleanExpired(fnClean func() error) error {
 	return fnClean()
 }
 
-// CopyAdapter converts a copy function into a CacheCopier that ignores its input.
-func (r *Repository[T]) CopyAdapter(makeCopy func() *T) CacheCopier[T] {
-	return func(*T) *T { return makeCopy() }
+// CloneAdapter converts a clone function into a CacheCloner that ignores its input.
+func (r *Repository[T]) CloneAdapter(makeClone func() *T) CacheCloner[T] {
+	return func(*T) *T { return makeClone() }
 }

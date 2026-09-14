@@ -80,4 +80,7 @@ func (e *Executor) watchProgress(
 				SpeedBytesPerSec: speed,
 			})
 	}
+
+	if err := scanner.Err(); err != nil {
+	}
 }

@@ -25,7 +25,7 @@ func (u *link) click(
 	linkClickDraft *dlink.LinkClick,
 ) (*dlink.Link, error) {
 	// Copy the draft to avoid modifying the original
-	linkClick := uptr.Copy(linkClickDraft)
+	linkClick := uptr.Clone(linkClickDraft)
 
 	// Extract shortCode from the provided URL
 	shortCode := dlink.GetShortCodeFromURL(linkClick.ShortURL)

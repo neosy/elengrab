@@ -75,7 +75,7 @@ func (u *User) CreateGuest(ctx context.Context) (uuid.UUID, error) {
 }
 
 func (u *User) CreateAdmin(ctx context.Context, req *idto.CreateUserRequest) (uuid.UUID, error) {
-	newReq := uptr.Copy(req)
+	newReq := uptr.Clone(req)
 	if newReq.Login == "" {
 		newReq.Login = dtypes.UserRoleAdmin.Login()
 	}

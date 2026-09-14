@@ -13,7 +13,7 @@ type Repositories struct {
 	MediaUserWatchStat     persistence.MediaUserWatchStatCacheRepository
 	MediaWatchStat         persistence.MediaWatchStatCacheRepository
 	MediaUserWatchPosition persistence.MediaUserWatchPositionCacheRepository
-	YoutubeChannel         persistence.YoutubeChannelCacheRepository
+	Channel                persistence.ChannelCacheRepository
 	SiteLogo               persistence.SiteLogoCacheRepository
 	Thumbnail              persistence.ThumbnailCacheRepository
 	ThumbnailFile          persistence.ThumbnailFileCacheRepository
@@ -26,7 +26,7 @@ type Dependencies struct {
 	MediaUserWatchStatCacheTTL     time.Duration
 	MediaWatchStatCacheTTL         time.Duration
 	MediaUserWatchPositionCacheTTL time.Duration
-	YoutubeChannelCacheTTL         time.Duration
+	ChannelCacheTTL                time.Duration
 	SiteLogoCacheTTL               time.Duration
 	ThumbnailCacheTTL              time.Duration
 	ThumbnailFileCacheTTL          time.Duration
@@ -41,7 +41,7 @@ func New(deps Dependencies) *Repositories {
 		MediaUserWatchStat:     newMediaUserWatchStatRepository(deps.MediaUserWatchStatCacheTTL),
 		MediaWatchStat:         newMediaWatchStatRepository(deps.MediaWatchStatCacheTTL),
 		MediaUserWatchPosition: newMediaUserWatchPositionRepository(deps.MediaUserWatchPositionCacheTTL),
-		YoutubeChannel:         newYoutubeChannelRepository(deps.YoutubeChannelCacheTTL),
+		Channel:                newChannelRepository(deps.ChannelCacheTTL),
 		SiteLogo:               newSiteLogoRepository(deps.SiteLogoCacheTTL),
 		Thumbnail:              newThumbnailRepository(deps.ThumbnailCacheTTL),
 		ThumbnailFile:          newThumbnailFileRepository(deps.ThumbnailFileCacheTTL),

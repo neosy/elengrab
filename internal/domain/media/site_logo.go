@@ -69,7 +69,7 @@ func (l *SiteLogo) ImageData() *dtypes.ImageData {
 	}
 }
 
-func (src *SiteLogo) Copy() *SiteLogo {
+func (src *SiteLogo) Clone() *SiteLogo {
 	if src == nil {
 		return nil
 	}

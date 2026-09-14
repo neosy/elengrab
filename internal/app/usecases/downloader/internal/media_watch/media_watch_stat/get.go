@@ -33,11 +33,12 @@ func (uc *MediaWatchStat) Find(ctx context.Context, downloadID uuid.UUID) (*ddow
 		return nil, errorx.Errorf("failed to find media watch statistics: %w", err, exceptionx.ERROR)
 	}
 
-	if stat != nil {
-		uc.statCacheRep.Save(ctx, stat)
-	} else {
+	if stat == nil {
 		uc.statCacheRep.SaveNegative(ctx, downloadID)
+		return nil, nil
 	}
+
+	uc.statCacheRep.Save(ctx, stat)
 
 	return stat, nil
 }

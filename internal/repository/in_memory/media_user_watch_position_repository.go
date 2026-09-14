@@ -38,7 +38,7 @@ func buildMediaUserWatchPositionKey(downloadID uuid.UUID, userID uuid.UUID, sess
 // newMediaUserWatchPositionRepository returns a new object for the repository
 func newMediaUserWatchPositionRepository(ttl time.Duration) *MediaUserWatchPositionRepository {
 	r := &MediaUserWatchPositionRepository{
-		cache: memsimple.NewCacheWithDeaultCopier[string, ddownload.MediaUserWatchPosition, *ddownload.MediaUserWatchPosition](),
+		cache: memsimple.NewCacheWithDeaultCloner[string, ddownload.MediaUserWatchPosition, *ddownload.MediaUserWatchPosition](),
 	}
 	r.Repository.Init(ttl)
 	return r

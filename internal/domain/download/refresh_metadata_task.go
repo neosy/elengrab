@@ -22,15 +22,15 @@ type RefreshMetadataTask struct {
 	JobID *uuid.UUID
 }
 
-func (src *RefreshMetadataTask) Copy() *RefreshMetadataTask {
+func (src *RefreshMetadataTask) Clone() *RefreshMetadataTask {
 	if src == nil {
 		return nil
 	}
 
 	copy := *src
 
-	copy.WorkerID = uptr.Copy(src.WorkerID)
-	copy.JobID = uptr.Copy(src.JobID)
+	copy.WorkerID = uptr.Clone(src.WorkerID)
+	copy.JobID = uptr.Clone(src.JobID)
 
 	return &copy
 }

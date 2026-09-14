@@ -32,9 +32,9 @@ type Repositories struct {
 	MediaWatchStat         persistence.MediaWatchStatRepositoryFactory
 	MediaUserWatchPosition persistence.MediaUserWatchPositionRepositoryFactory
 
-	YoutubeChannel persistence.YoutubeChannelRepositoryFactory
-	SiteLogo       persistence.SiteLogoRepositoryFactory
-	Thumbnail      persistence.ThumbnailRepositoryFactory
+	Channel   persistence.ChannelRepositoryFactory
+	SiteLogo  persistence.SiteLogoRepositoryFactory
+	Thumbnail persistence.ThumbnailRepositoryFactory
 
 	Link      persistence.LinkRepositoryFactory
 	LickClick persistence.LinkClickRepositoryFactory
@@ -98,9 +98,9 @@ func New(dbEntries []persistence.DBEntry) *Repositories {
 
 		MediaSourceIndex: searchindex.NewMediaSourceIndexRepository(searchIndexEntry),
 
-		YoutubeChannel: media.NewYoutubeChannelRepository(mediaEntry),
-		SiteLogo:       media.NewSiteLogoRepository(mediaEntry),
-		Thumbnail:      media.NewThumbnailRepository(mediaEntry),
+		Channel:   media.NewChannelRepository(mediaEntry),
+		SiteLogo:  media.NewSiteLogoRepository(mediaEntry),
+		Thumbnail: media.NewThumbnailRepository(mediaEntry),
 
 		Link:      link.NewLinkRepository(linkEntry),
 		LickClick: link.NewLinkClickRepository(linkEntry),

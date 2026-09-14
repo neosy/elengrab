@@ -10,13 +10,13 @@ type DownloadExecOptions struct {
 	Args                []string
 }
 
-func (o *DownloadExecOptions) Copy() *DownloadExecOptions {
+func (o *DownloadExecOptions) Clone() *DownloadExecOptions {
 	if o == nil {
 		return nil
 	}
 
 	options := *o
-	options.ExtractorArgs = uptr.Copy(options.ExtractorArgs)
+	options.ExtractorArgs = uptr.Clone(options.ExtractorArgs)
 	options.Args = o.CopyArgs()
 
 	return &options

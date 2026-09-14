@@ -30,7 +30,7 @@ func (c *MediaWatchStat) Validate() error {
 	return nil
 }
 
-func (src *MediaWatchStat) Copy() *MediaWatchStat {
+func (src *MediaWatchStat) Clone() *MediaWatchStat {
 	if src == nil {
 		return nil
 	}

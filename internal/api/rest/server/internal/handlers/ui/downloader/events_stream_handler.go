@@ -212,7 +212,7 @@ func (h *DownloaderHandlers) handleDownloadPatch(ctx context.Context, w *bufio.W
 
 	data := h.mappers.MapMediaDownloadChangedToEventResponse(
 		downloadChanged,
-		h.getVisibilityResponse,
+		h.buildVisibilityResponse,
 		func(downloadID uuid.UUID) bool {
 			return h.hasShareLink(ctx, downloadID)
 		},
