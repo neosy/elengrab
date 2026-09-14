@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
@@ -68,13 +69,21 @@ func (d *Downloader) fetchYouTubeShortThumbnail(ctx context.Context, mediaURL st
 		return nil, err
 	}
 
-	imageURL := fmt.Sprintf("https://i.ytimg.com/vi/%s/oar2.jpg", youtubeShortID)
-	imageData, err := helper.FetchImage(ctx, imageURL, options)
-	if err != nil {
-		return nil, err
+	var lastErr error
+
+	urls := consts.ShortYoutubeThumbnailURLTemplates()
+	for _, url := range urls {
+		imageURL := fmt.Sprintf(url, youtubeShortID)
+
+		imageData, err := helper.FetchImage(ctx, imageURL, options)
+		if imageData != nil {
+			return imageData, nil
+		}
+
+		lastErr = err
 	}
 
-	return imageData, nil
+	return nil, lastErr
 }
 
 func (d *Downloader) fetchYouTubeThumbnail(ctx context.Context, mediaURL string, options idto.RequestOptions) (*dtypes.ImageData, error) {
