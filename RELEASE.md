@@ -1,5 +1,12 @@
 # Releases
 
+## v0.25.4 — 2026-09-14
+
+### 🐛 Hotfix
+- Fixed a panic when loading media items without search parameters. [L142]
+
+---
+
 ## v0.25.3 — 2026-09-14
 
 ### 🐛 Fix
