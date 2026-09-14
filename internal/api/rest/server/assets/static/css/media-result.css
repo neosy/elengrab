@@ -498,6 +498,8 @@ img[data-src] {
 .media-result__thumbnail-overlay {
     display: none;
     position: absolute;
+    z-index: 2;
+
     inset: 0;
     align-items: center;
     justify-content: center;
@@ -509,8 +511,8 @@ img[data-src] {
 }
 
 .media-result__refreshing-icon {
-    color: var(--text-light);
     z-index: 1;
+    color: var(--text-light);
 }
 
 .media-result__refreshing-icon-bg {

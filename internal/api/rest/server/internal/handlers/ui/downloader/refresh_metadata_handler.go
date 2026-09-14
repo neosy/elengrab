@@ -16,7 +16,7 @@ func (h *DownloaderHandlers) RefreshMetadataByDownloadIDHandler(ctx *fasthttp.Re
 		return
 	}
 
-	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String).(string)
+	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
 	if !ok || downloadIDStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return
