@@ -23,6 +23,13 @@
 
 ## v0.25.2 — 2026-09-14
 
+### ✨ Features
+- Added a dedicated thumbnail source for YouTube Shorts. [L139]
+
+---
+
+## v0.25.2 — 2026-09-14
+
 ### 🐛 Fix
 - Fixed media view mode sorting and pagination order. [L138]
 

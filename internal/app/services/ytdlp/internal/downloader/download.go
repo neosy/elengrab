@@ -59,8 +59,7 @@ func (d *Downloader) Download(
 	url = strings.TrimSpace(url)
 
 	// Prepare download options with defaults and user overrides
-	dlOptions :=
-		helper.PrepareDownloadOptions(url, d.serviceOptions, options)
+	dlOptions := helper.PrepareDownloadOptions(url, d.serviceOptions, options)
 
 	// Try to fetch the title fast
 	startTime := time.Now()
