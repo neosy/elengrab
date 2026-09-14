@@ -1,3 +1,5 @@
+import { CLASS_NAMES } from './constants.js';
+
 export const DOM_CSS_VAR_NAMES = {
     watchProgress: "--watch-progress",
 };
@@ -7,7 +9,7 @@ export const DOM_CLASS_PREFIXES = {
 };
 
 export const DOM_CLASSES = {
-    rowRefreshing: "row--refreshing",
+    rowRefreshing: CLASS_NAMES.row.rowRefreshing,
     rowRemoving: "row--removing",
 
     mediaResultRow: "media-result__row",

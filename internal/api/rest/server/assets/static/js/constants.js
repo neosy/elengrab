@@ -42,6 +42,10 @@ export const CLASS_NAMES = {
     listView: "list-view",
     isSearch: "is-search",
 
+    row: {
+        rowRefreshing: "row--refreshing",
+    },
+
     rowStatus: {
         success: "success",
         inProgress: "inprogress",
