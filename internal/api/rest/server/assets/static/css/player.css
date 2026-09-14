@@ -1,31 +1,39 @@
 /* ── Video player ────────────────────────────────────────────────────────────── */
 
 #media-player-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.82);
     display: none;
+    position: fixed;
+
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    
+    inset: 0;
+    background: rgba(0,0,0,0.82);
 }
 
 .player-wrapper-modern {
     position: relative;
+
     width: 90vw;
     max-width: 1280px;
     max-height: 92vh;
+
     margin: 4vh auto;
 }
 
 .player-wrapper-modern video {
+    display: block;
+
     width: 100%;
     height: auto;
     max-height: 88vh;
+
     border-radius: 10px;
+
     background: #000;
-    display: block;
     object-fit: contain;
+    outline: none;
 }
 
 /* Modern close button */
