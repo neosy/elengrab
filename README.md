@@ -81,7 +81,8 @@ The project is fully written in **Go**, with a frontend built using plain **HTML
 * Task queue for media processing.
 * Concurrent processing of multiple tasks.
 * Instant addition and removal of tasks from the queue.
-* Built-in media search.
+* Built-in media search by title and description.
+* **Media sorting by Newest, Popular, and Oldest.**
 * **In-browser video and audio playback.**
 * **Video thumbnails and media type indicators.**
 * **Video preview on desktop and mobile devices.**
