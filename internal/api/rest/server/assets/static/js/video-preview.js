@@ -34,6 +34,8 @@ const cssClassNames = {
     soundOff: "video-preview__sound-off",
     soundOn: "video-preview__sound-on",
     previewPlaying: VIDEO_PREVIEW.previewPlayingClassName,
+
+    rowRefreshing: "row--refreshing",
 };
 
 const cssVarNames = {
@@ -207,6 +209,9 @@ export async function showVideoPreview(thumbnail, videoUrl, itemId) {
 
     const itemEl = document.getElementById(DOM_IDS.row(itemId));
     if (itemEl) {
+        const isPreviewBlocked = itemEl.classList.contains(cssClassNames.rowRefreshing);
+        if (isPreviewBlocked) return;
+
         itemEl.classList.add(cssClassNames.previewPlaying);
     }
 

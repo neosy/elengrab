@@ -5,6 +5,7 @@
 ### 🐛 Fix
 - Fixed DownloadId is required error when refreshing media information. [L135]
 - Fixed spinner layer rendering when refreshing media information. [L135]
+- Prevented media preview from starting while media information is being refreshed. [L136]
 
 ---
 
