@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMenu();
     
     // Init inline media player
-    initPlayer();
+    initPlayer(DOM_ELEMENTS.mediaPlayer);
 
     // Init settiongs action button
     actionButton.initInputSettingsButton(DOM_ELEMENTS.inputActionSettingsBtn, DOM_ELEMENTS.grabOptionsCollapse, DOM_ELEMENTS.grabOptions);

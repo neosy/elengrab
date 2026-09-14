@@ -60,6 +60,8 @@ export const DOM_ELEMENTS = {
     resultInfoRow: null,
     resultInfoFailed: null,
 
+    mediaPlayer: null,
+
     sysInfoServerStatusDot: null,
     sysInfoDiskFree: null,
     sysInfoDiskUsed: null,
@@ -82,6 +84,8 @@ export function initDomElements() {
     DOM_ELEMENTS.resultInfo = document.getElementById("result-info");
     DOM_ELEMENTS.resultInfoRow = document.getElementById("result-info-row");
     DOM_ELEMENTS.resultInfoFailed = document.getElementById("result-info-failed");
+
+    DOM_ELEMENTS.mediaPlayer = document.getElementById("media-player");
 
     DOM_ELEMENTS.sysInfoServerStatusDot = document.getElementById("server-status-dot");
     DOM_ELEMENTS.sysInfoDiskFree = document.getElementById("disk-free");
