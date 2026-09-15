@@ -14,7 +14,7 @@ func (uc *downloader) RetryDownload(
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) (*dto.MediaDownloadInfo, error) {
-	err := uc.validateWriteOperation(authCtx)
+	err := uc.validateWriteOperationAccess(authCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func (uc *downloader) RetryDownload(
 			return err
 		}
 
-		err = uc.validateDownloadWriteAccess(authCtx, download)
+		err = uc.validateDownloadEditAccess(authCtx, download)
 		if err != nil {
 			return err
 		}

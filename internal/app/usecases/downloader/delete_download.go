@@ -24,7 +24,7 @@ func (uc *downloader) DeleteDownload(
 		fileFullName            string
 	)
 
-	err := uc.validateWriteOperation(authCtx)
+	err := uc.validateWriteOperationAccess(authCtx)
 	if err != nil {
 		return err
 	}

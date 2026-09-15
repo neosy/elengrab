@@ -12,7 +12,7 @@ func (uc *downloader) PatchMediaDownload(
 	authCtx dauth.AuthContext,
 	req dto.PatchMediaDownloadRequest,
 ) error {
-	err := uc.validateWriteOperation(authCtx)
+	err := uc.validateWriteOperationAccess(authCtx)
 	if err != nil {
 		return err
 	}

@@ -1,5 +1,13 @@
 # Releases
 
+## v0.26.0 — 2026-09-30
+
+### ✨ Features
+- Added a thumbnail source for YouTube Shorts. [L139]
+- Restricted guests from editing or deleting public media created by other guests. Closes #511
+
+---
+
 ## v0.25.5 — 2026-09-17
 
 ### 🐛 Fix

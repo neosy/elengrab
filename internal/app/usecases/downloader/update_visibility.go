@@ -15,7 +15,7 @@ func (uc *downloader) UpdateVisibility(
 	downloadID uuid.UUID,
 	visibility dtypes.MediaVisibility,
 ) error {
-	err := uc.validateWriteOperation(authCtx)
+	err := uc.validateWriteOperationAccess(authCtx)
 	if err != nil {
 		return err
 	}

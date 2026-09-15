@@ -13,7 +13,7 @@ import (
 	"github.com/neosy/elengrab/internal/exceptions"
 )
 
-func (uc *downloader) CanAddMediaDownload(authCtx dauth.AuthContext) bool {
+func (uc *downloader) CanCreateMediaDownload(authCtx dauth.AuthContext) bool {
 	if iconfig.DemoMode() {
 		return false
 	}
@@ -29,19 +29,8 @@ func (uc *downloader) CanAddMediaDownload(authCtx dauth.AuthContext) bool {
 	return false
 }
 
-func (uc *downloader) HasWriteOperation(authCtx dauth.AuthContext) bool {
-	if iconfig.DemoMode() {
-		return false
-	}
-
-	if !uc.authz.HasWriteAllAccess(authCtx.RoleIDs) && authz.IsAnonymous(authCtx.RoleIDs) {
-		return false
-	}
-
-	return true
-}
-
-func (uc *downloader) validateWriteOperation(authCtx dauth.AuthContext) error {
+// validateWriteOperationAccess validates whether the user is allowed to perform write operations.
+func (uc *downloader) validateWriteOperationAccess(authCtx dauth.AuthContext) error {
 	if uc.demoMode {
 		uc.broadcastNotification(
 			authCtx.EventKey(),
@@ -52,7 +41,7 @@ func (uc *downloader) validateWriteOperation(authCtx dauth.AuthContext) error {
 		return exceptions.DEMO_MODE_RESTRICTION.NewErrorx()
 	}
 
-	if !uc.authz.HasWriteAllAccess(authCtx.RoleIDs) && authz.IsAnonymous(authCtx.RoleIDs) {
+	if !uc.authz.HasFullAccess(authCtx.RoleIDs) && authz.IsAnonymous(authCtx.RoleIDs) {
 		uc.broadcastNotification(
 			authCtx.EventKey(),
 			dto.BroadcastNotificationModuleResultRow,
@@ -65,8 +54,15 @@ func (uc *downloader) validateWriteOperation(authCtx dauth.AuthContext) error {
 	return nil
 }
 
-func (uc *downloader) validateDownloadWriteAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
-	if uc.authz.HasWriteAllAccess(authCtx.RoleIDs) {
+func (uc *downloader) validateDownloadEditAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
+	if iconfig.DemoMode() {
+		return ierrors.ErrDemoModeAccessDenied
+	}
+
+	if !slices.Contains(dtypes.MediaDownloadEditableStatuses(), download.Status) {
+		return ierrors.ErrAccessDenied
+	}
+	if uc.authz.HasFullAccess(authCtx.RoleIDs) {
 		return nil
 	}
 
@@ -81,13 +77,25 @@ func (uc *downloader) validateDownloadWriteAccess(authCtx dauth.AuthContext, dow
 	return ierrors.ErrAccessDenied
 }
 
-func (uc *downloader) validateDownloadEditAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
-	if !slices.Contains(dtypes.MediaDownloadEditableStatuses(), download.Status) {
-		return ierrors.ErrAccessDenied
+func (uc *downloader) validateDownloadDeleteAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
+	if iconfig.DemoMode() {
+		return ierrors.ErrDemoModeAccessDenied
 	}
-	return uc.validateDownloadWriteAccess(authCtx, download)
+
+	return uc.validateDownloadEditAccess(authCtx, download)
 }
 
-func (uc *downloader) validateDownloadDeleteAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
-	return uc.validateDownloadWriteAccess(authCtx, download)
+// HasWriteOperationAccess reports whether the user is allowed to perform operations other than read-only access.
+func (uc *downloader) HasWriteOperationAccess(authCtx dauth.AuthContext) bool {
+	return uc.validateWriteOperationAccess(authCtx) == nil
+}
+
+// HasDownloadEditAccess reports whether the user is allowed to edit the specified download.
+func (uc *downloader) HasDownloadEditAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) bool {
+	return uc.validateDownloadEditAccess(authCtx, download) == nil
+}
+
+// HasDownloadDeleteAccess reports whether the user is allowed to delete the specified download.
+func (uc *downloader) HasDownloadDeleteAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) bool {
+	return uc.validateDownloadDeleteAccess(authCtx, download) == nil
 }
