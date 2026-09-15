@@ -18,7 +18,11 @@ type rowMenuAction struct {
 	icon               icons.Icon
 	visibleStatuses    []dtypes.MediaDownloadStatus
 	disallowRefreshing bool
-	requireWriteAccess bool
+
+	requireVisibilityPublic             bool
+	requireVisibilityPublicOrEditAccess bool
+	requireEditAccess                   bool
+	requireDeleteAccess                 bool
 }
 
 const (
@@ -31,177 +35,167 @@ const (
 
 var rowMenuActions = []rowMenuAction{
 	{
-		menuAction: menuAction{
-			RenderType: renderTypeLink,
-			Action:     "watch",
-			Title:      "Watch",
-			Link: linkOptions{
-				URL:          httppaths.DownloaderGroup + httppaths.MediaItemWatchPath,
-				NewTab:       false,
-				replaceInURL: RowMenuActionItemIDKey,
-			},
+		RenderType: renderTypeLink,
+		Action:     "watch",
+		Title:      "Watch",
+		Link: linkOptions{
+			URL:          httppaths.DownloaderGroup + httppaths.MediaItemWatchPath,
+			NewTab:       false,
+			replaceInURL: RowMenuActionItemIDKey,
 		},
-		icon:               icons.DownloaderRowMenuPlayIcon,
-		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
-		requireWriteAccess: false,
+
+		icon:                icons.DownloaderRowMenuPlayIcon,
+		visibleStatuses:     dtypes.MediaDownloadCompletedStatuses(),
+		requireEditAccess:   false,
+		requireDeleteAccess: false,
 	},
 
 	{
-		menuAction: menuAction{
-			RenderType: renderTypeLink,
-			Action:     "open-original",
-			Title:      "Open original in new tab",
-			Link: linkOptions{
-				URL:          RowMenuActionURLKey,
-				NewTab:       true,
-				replaceInURL: RowMenuActionURLKey,
-			},
+		RenderType: renderTypeLink,
+		Action:     "open-original",
+		Title:      "Open original in new tab",
+		Link: linkOptions{
+			URL:          RowMenuActionURLKey,
+			NewTab:       true,
+			replaceInURL: RowMenuActionURLKey,
 		},
-		icon:               icons.DownloaderRowMenuExternalLinkIcon,
-		requireWriteAccess: false,
+
+		icon:                icons.DownloaderRowMenuExternalLinkIcon,
+		requireEditAccess:   false,
+		requireDeleteAccess: false,
 	},
 
 	{
-		menuAction: menuAction{
-			RenderType: renderTypeAction,
-			Action:     rowMenuActionErrorInfo,
-			Title:      "Error Information",
-		},
-		icon:               icons.DownloaderRowMenuUpdateErrorInfoIcon,
-		visibleStatuses:    []dtypes.MediaDownloadStatus{dtypes.MediaDownloadStatusFailed},
-		requireWriteAccess: true,
+		RenderType: renderTypeAction,
+		Action:     rowMenuActionErrorInfo,
+		Title:      "Error Information",
+
+		icon:                icons.DownloaderRowMenuUpdateErrorInfoIcon,
+		visibleStatuses:     []dtypes.MediaDownloadStatus{dtypes.MediaDownloadStatusFailed},
+		requireEditAccess:   true,
+		requireDeleteAccess: false,
 	},
 
 	{
-		menuAction: menuAction{
-			RenderType: renderTypeDivider,
-		},
+		RenderType: renderTypeDivider,
 	},
 
 	{
-		menuAction: menuAction{
-			RenderType: renderTypeAction,
-			Action:     "share-link",
-			Title:      "Share link",
-			Link: linkOptions{
-				URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
-				replaceInURL: RowMenuActionItemIDKey,
-			},
+		RenderType: renderTypeAction,
+		Action:     "share-link",
+		Title:      "Share link",
+		Link: linkOptions{
+			URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
+			replaceInURL: RowMenuActionItemIDKey,
 		},
-		icon:               icons.DownloaderRowMenuShareLinkIcon,
-		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
-		requireWriteAccess: true,
+
+		icon:                                icons.DownloaderRowMenuShareLinkIcon,
+		visibleStatuses:                     dtypes.MediaDownloadCompletedStatuses(),
+		requireVisibilityPublicOrEditAccess: true,
 	},
 
 	{
-		menuAction: menuAction{
-			RenderType: renderTypeAction,
-			Action:     rowMenuActionCreateLink,
-			Title:      "Create short link",
-			Link: linkOptions{
-				URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
-				replaceInURL: RowMenuActionItemIDKey,
-			},
+		RenderType: renderTypeAction,
+		Action:     rowMenuActionCreateLink,
+		Title:      "Create short link",
+		Link: linkOptions{
+			URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
+			replaceInURL: RowMenuActionItemIDKey,
 		},
-		icon:               icons.DownloaderRowMenuCopyLinkIcon,
-		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
-		requireWriteAccess: true,
+
+		icon:                                icons.DownloaderRowMenuCopyLinkIcon,
+		visibleStatuses:                     dtypes.MediaDownloadCompletedStatuses(),
+		requireVisibilityPublicOrEditAccess: true,
 	},
 
 	{
-		menuAction: menuAction{
-			RenderType: renderTypeAction,
-			Action:     rowMenuActionCopyLink,
-			Title:      "Copy short link",
-			Link: linkOptions{
-				URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
-				replaceInURL: RowMenuActionItemIDKey,
-			},
+		RenderType: renderTypeAction,
+		Action:     rowMenuActionCopyLink,
+		Title:      "Copy short link",
+		Link: linkOptions{
+			URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
+			replaceInURL: RowMenuActionItemIDKey,
 		},
-		icon:               icons.DownloaderRowMenuCopyLinkIcon,
-		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
-		requireWriteAccess: false,
+
+		icon:            icons.DownloaderRowMenuCopyLinkIcon,
+		visibleStatuses: dtypes.MediaDownloadCompletedStatuses(),
 	},
 
 	{
-		menuAction: menuAction{
-			RenderType: renderTypeAction,
-			Action:     rowMenuActionDeleteLink,
-			Title:      "Delete short link",
-			Link: linkOptions{
-				URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
-				replaceInURL: RowMenuActionItemIDKey,
-			},
+		RenderType: renderTypeAction,
+		Action:     rowMenuActionDeleteLink,
+		Title:      "Delete short link",
+		Link: linkOptions{
+			URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
+			replaceInURL: RowMenuActionItemIDKey,
 		},
-		icon:               icons.DownloaderRowMenuDeleteLinkIcon,
-		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
-		requireWriteAccess: true,
+
+		icon:              icons.DownloaderRowMenuDeleteLinkIcon,
+		visibleStatuses:   dtypes.MediaDownloadCompletedStatuses(),
+		requireEditAccess: true,
 	},
 
 	{
-		menuAction: menuAction{
-			RenderType: renderTypeDivider,
-		},
+		RenderType: renderTypeDivider,
 	},
 
 	{
-		menuAction: menuAction{
-			RenderType: renderTypeAction,
-			Action:     "refresh",
-			Title:      "Refresh Media Information",
-			Link: linkOptions{
-				URL:          httppaths.DownloaderGroup + httppaths.MediaItemRefreshPath,
-				NewTab:       false,
-				replaceInURL: RowMenuActionItemIDKey,
-			},
+		RenderType: renderTypeAction,
+		Action:     "refresh",
+		Title:      "Refresh Media Information",
+		Link: linkOptions{
+			URL:          httppaths.DownloaderGroup + httppaths.MediaItemRefreshPath,
+			NewTab:       false,
+			replaceInURL: RowMenuActionItemIDKey,
 		},
-		icon:               icons.DownloaderRowMenuUpdateMetadataIcon,
-		visibleStatuses:    dtypes.MediaDownloadCompletedStatuses(),
-		disallowRefreshing: true,
-		requireWriteAccess: true,
+
+		icon:                icons.DownloaderRowMenuUpdateMetadataIcon,
+		visibleStatuses:     dtypes.MediaDownloadCompletedStatuses(),
+		disallowRefreshing:  true,
+		requireEditAccess:   true,
+		requireDeleteAccess: false,
 	},
 
 	{
-		menuAction: menuAction{
-			RenderType: renderTypeLink,
-			Action:     "edit",
-			Title:      "Edit",
-			Link: linkOptions{
-				URL:          httppaths.DownloaderGroup + httppaths.MediaItemEditPath,
-				NewTab:       false,
-				replaceInURL: RowMenuActionItemIDKey,
-			},
+		RenderType: renderTypeLink,
+		Action:     "edit",
+		Title:      "Edit",
+		Link: linkOptions{
+			URL:          httppaths.DownloaderGroup + httppaths.MediaItemEditPath,
+			NewTab:       false,
+			replaceInURL: RowMenuActionItemIDKey,
 		},
-		icon:               icons.DownloaderRowMenuEditIcon,
-		visibleStatuses:    dtypes.MediaDownloadEditableStatuses(),
-		requireWriteAccess: true,
+
+		icon:                icons.DownloaderRowMenuEditIcon,
+		visibleStatuses:     dtypes.MediaDownloadEditableStatuses(),
+		requireEditAccess:   true,
+		requireDeleteAccess: false,
 	},
 
 	{
-		menuAction: menuAction{
-			RenderType: renderTypeDivider,
-		},
+		RenderType: renderTypeDivider,
 	},
 
 	{
-		menuAction: menuAction{
-			RenderType: renderTypeAction,
-			Action:     "delete",
-			Title:      "Delete",
-			Link: linkOptions{
-				URL:          httppaths.DownloaderGroup + httppaths.MediaItemPath,
-				replaceInURL: RowMenuActionItemIDKey,
-			},
+		RenderType: renderTypeAction,
+		Action:     "delete",
+		Title:      "Delete",
+		Link: linkOptions{
+			URL:          httppaths.DownloaderGroup + httppaths.MediaItemPath,
+			replaceInURL: RowMenuActionItemIDKey,
 		},
-		icon:               icons.DownloaderRowMenuDeleteIcon,
-		requireWriteAccess: true,
+
+		icon:                icons.DownloaderRowMenuDeleteIcon,
+		requireEditAccess:   false,
+		requireDeleteAccess: true,
 	},
 }
 
 func RowMenuActions(
 	mapReplaceUrl map[string]string,
 	status dtypes.MediaDownloadStatus,
-	hasWriteAccess bool,
+	hasEditAccess bool,
+	hasDeleteAccess bool,
 	opts ...MenuActionOption,
 ) []rowMenuAction {
 	actions := make([]rowMenuAction, 0, len(rowMenuActions))
@@ -219,8 +213,22 @@ func RowMenuActions(
 			continue
 		}
 
-		if a.requireWriteAccess && !hasWriteAccess {
+		if a.requireEditAccess && !hasEditAccess {
 			continue
+		}
+
+		if a.requireDeleteAccess && !hasDeleteAccess {
+			continue
+		}
+
+		if a.requireVisibilityPublic && options.Visibility != dtypes.MediaVisibilityPublic {
+			continue
+		}
+
+		if a.requireVisibilityPublicOrEditAccess {
+			if !hasEditAccess && options.Visibility != dtypes.MediaVisibilityPublic {
+				continue
+			}
 		}
 
 		switch a.Action {

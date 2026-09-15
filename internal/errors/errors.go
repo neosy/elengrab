@@ -7,8 +7,9 @@ import (
 )
 
 var (
-	ErrUnauthorized = errorx.NewMessage("Authentication required", exceptionx.UNAUTHORIZED)
-	ErrAccessDenied = errorx.NewMessage("Access denied", exceptionx.FORBIDDEN)
+	ErrUnauthorized         = errorx.NewMessage("Authentication required", exceptionx.UNAUTHORIZED)
+	ErrAccessDenied         = errorx.NewMessage("Access denied", exceptionx.FORBIDDEN)
+	ErrDemoModeAccessDenied = errorx.NewMessage("Access denied in demo mode", exceptionx.FORBIDDEN)
 
 	ErrFuncParamNullPointer = exceptions.FUNCTION_PARAMETER_NULL_POINTER.NewErrorx(
 		errorx.WithErrorMessage("Something went wrong"),

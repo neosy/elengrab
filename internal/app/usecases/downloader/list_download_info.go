@@ -113,7 +113,8 @@ func (uc *downloader) listDownloadInfo(
 					return nil
 				}
 
-				resp.HasWriteAccess = uc.HasWriteOperation(authCtx)
+				resp.HasEditAccess = uc.HasDownloadEditAccess(authCtx, download)
+				resp.HasDeleteAccess = uc.HasDownloadDeleteAccess(authCtx, download)
 
 				mu.Lock()
 				downloadsInfoByID[download.DownloadID] = resp

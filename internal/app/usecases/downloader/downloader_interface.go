@@ -75,8 +75,8 @@ type DownloaderAPI interface {
 	) ([]*dto.MediaDownloadInfo, error)
 	PatchMediaDownload(ctx context.Context, authCtx dauth.AuthContext, req dto.PatchMediaDownloadRequest) error
 	DeleteDownload(ctx context.Context, authCtx dauth.AuthContext, downloadID uuid.UUID) error
-	HasWriteOperation(authCtx dauth.AuthContext) bool
-	CanAddMediaDownload(authCtx dauth.AuthContext) bool
+	HasWriteOperationAccess(authCtx dauth.AuthContext) bool
+	CanCreateMediaDownload(authCtx dauth.AuthContext) bool
 	GetLastWatchPosition(ctx context.Context, authCtx dauth.AuthContext, downloadID uuid.UUID) (time.Duration, error)
 	ScheduleDownload(
 		ctx context.Context,

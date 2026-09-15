@@ -28,9 +28,9 @@ func (a *Authorization) HasCreateAccess(roles dtypes.UserRoleIDs) bool {
 	return roles.HasAnyRoleID(dtypes.UserRoleAdmin, dtypes.UserRoleViewerAll)
 }
 
-// HasWriteAllAccess reports whether the user has full write access,
+// HasFullAccess reports whether the user has full access,
 // including creating, updating, and deleting records.
-func (a *Authorization) HasWriteAllAccess(roles dtypes.UserRoleIDs) bool {
+func (a *Authorization) HasFullAccess(roles dtypes.UserRoleIDs) bool {
 	if iconfig.DemoMode() {
 		return false
 	}

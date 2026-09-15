@@ -33,7 +33,8 @@ func (uc *downloader) GetDownloadInfo(
 		return nil, ierrors.ErrAccessDenied
 	}
 
-	resp.HasWriteAccess = uc.HasWriteOperation(authCtx)
+	resp.HasEditAccess = uc.HasDownloadEditAccess(authCtx, resp.MediaDownload)
+	resp.HasDeleteAccess = uc.HasDownloadDeleteAccess(authCtx, resp.MediaDownload)
 
 	return resp, nil
 }

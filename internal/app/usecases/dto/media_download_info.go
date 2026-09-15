@@ -62,7 +62,8 @@ type MediaDownloadInfo struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	HasWriteAccess bool
+	HasEditAccess   bool
+	HasDeleteAccess bool
 
 	MediaDownload *ddownload.MediaDownload
 }

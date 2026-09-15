@@ -49,10 +49,12 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 			menu.RowMenuActionURLKey:    downloadInfo.MediaURL,
 		},
 		downloadInfo.Status,
-		downloadInfo.HasWriteAccess,
+		downloadInfo.HasEditAccess,
+		downloadInfo.HasDeleteAccess,
 		menu.WithErrorText(errorMessage),
 		menu.WithShareLink(link),
 		menu.WithMetadata(downloadInfo.MediaInfo != nil),
+		menu.WithVisibility(downloadInfo.Visibility),
 	)
 
 	pageData := pages.PageFragmentData{

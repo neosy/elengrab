@@ -24,8 +24,8 @@ type (
 		ShowHistorySearch   bool
 		UserMenuAvatarTitle string
 
-		HasCreateAccess bool
-		HasWriteAccess  bool
+		HasCreateAccess         bool
+		HasWriteOperationAccess bool
 
 		DiskFree string
 		DiskUsed string

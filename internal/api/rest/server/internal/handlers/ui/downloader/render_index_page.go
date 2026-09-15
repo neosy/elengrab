@@ -112,8 +112,8 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, authCtx d
 			UserMenuDownloadButtonIcon: icons.UserMenuDownloadIcon.FileRaw(),
 			ShowHistorySearch:          true,
 			UserMenuAvatarTitle:        userMenuAvatarTitle,
-			HasCreateAccess:            h.downloader.CanAddMediaDownload(authCtx),
-			HasWriteAccess:             h.downloader.HasWriteOperation(authCtx),
+			HasCreateAccess:            h.downloader.CanCreateMediaDownload(authCtx),
+			HasWriteOperationAccess:    h.downloader.HasWriteOperationAccess(authCtx),
 			DiskFree:                   humanize.Bytes(int64(systemInfo.DiskFree)),
 			DiskUsed:                   humanize.Bytes(int64(systemInfo.DiskUsed)),
 			GrabForm: pages.IndexGrabForm{

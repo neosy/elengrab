@@ -40,7 +40,7 @@ func (uc *downloader) ScheduleRefreshMetadata(
 		return exceptions.UNAUTHORIZED.NewErrorx()
 	}
 
-	err := uc.validateWriteOperation(authCtx)
+	err := uc.validateWriteOperationAccess(authCtx)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func (uc *downloader) ScheduleRefreshMetadata(
 		return err
 	}
 
-	err = uc.validateDownloadWriteAccess(authCtx, download)
+	err = uc.validateDownloadEditAccess(authCtx, download)
 	if err != nil {
 		return err
 	}
