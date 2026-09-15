@@ -115,7 +115,7 @@ func (h *DownloaderHandlers) handleEvent(
 	case ucdto.BroadcastEventTypeDownloadStartRefreshing:
 		h.handleStartRefreshing(w, event)
 	case ucdto.BroadcastEventTypeSystemInfoUpdate:
-		if h.downloader.HasWriteOperation(authCtx) {
+		if h.downloader.HasWriteOperationAccess(authCtx) {
 			h.handleSystemInfoUpdate(w, event)
 		}
 	case ucdto.BroadcastEventTypeNotification:

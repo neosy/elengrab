@@ -877,7 +877,7 @@ img[data-src] {
     white-space: nowrap;
 }
 
-.media-result__title-meta > :not(.hidden) + :not(.hidden)::before {
+.media-result__title-meta > :not(.hidden):has(~ :not(.hidden))::after {
     display: inline-block;
 
     width: 4px;

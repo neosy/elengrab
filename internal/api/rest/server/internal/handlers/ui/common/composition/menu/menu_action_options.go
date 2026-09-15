@@ -1,11 +1,15 @@
 package menu
 
-import dlink "github.com/neosy/elengrab/internal/domain/link"
+import (
+	dlink "github.com/neosy/elengrab/internal/domain/link"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
+)
 
 type MenuActionOptions struct {
 	ErrorText    string
 	HasMetadata  bool
 	HasShareLink bool
+	Visibility   dtypes.MediaVisibility
 }
 
 type MenuActionOption func(*MenuActionOptions)
@@ -39,5 +43,11 @@ func WithShareLink(link *dlink.Link) MenuActionOption {
 func WithMetadata(metadataAvailable bool) MenuActionOption {
 	return func(m *MenuActionOptions) {
 		m.HasMetadata = metadataAvailable
+	}
+}
+
+func WithVisibility(visibility dtypes.MediaVisibility) MenuActionOption {
+	return func(m *MenuActionOptions) {
+		m.Visibility = visibility
 	}
 }
