@@ -51,7 +51,7 @@
       </a>
     </div>
     <div class="footer__disk-volume">
-      {{- if .Values.HasWriteAccess  }}
+      {{- if .Values.HasWriteOperationAccess  }}
       Free: <span id="disk-free">{{ .Values.DiskFree }}</span> |
       Used: <span id="disk-used">{{ .Values.DiskUsed }}</span>
       {{- end }}
