@@ -1,6 +1,6 @@
 # Releases
 
-## v0.26.0 — 2026-10-15
+## v0.26.0 — 2026-09-30
 
 ### ✨ Features
 - Added a thumbnail source for YouTube Shorts. [L139]
