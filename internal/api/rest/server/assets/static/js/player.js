@@ -75,7 +75,7 @@ export function initPlayer(playerContainer) {
         const playBtn = event.target.closest(LOCAL_CLASS_SELECTORS.mediaResultPlayButton);
         if (!playBtn) return;
 
-        if (isOpenVideoPlayer) return;
+        if (isOpenVideoPlayer) await closePlayer();
 
         const row = playBtn.closest(LOCAL_CLASS_SELECTORS.mediaResultRow);
         if (!row) return;

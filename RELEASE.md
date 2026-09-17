@@ -1,5 +1,12 @@
 # Releases
 
+## v0.25.5 — 2026-09-17
+
+### 🐛 Fix
+- Fixed an issue where another media player could not be opened while a player was already playing. [L144]
+
+---
+
 ## v0.25.4 — 2026-09-14
 
 ### 🐛 Hotfix
