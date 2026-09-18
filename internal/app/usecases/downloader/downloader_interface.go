@@ -61,6 +61,7 @@ type DownloaderAPI interface {
 	NotifyDownloadChanged(ctx context.Context, req dto.MediaDownloadChanged)
 	FindYoutubeChannelInfo(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, error)
 	GetYoutubeChannelInfo(ctx context.Context, channelID string) (*dmedia.YoutubeChannel, error)
+	CheckDownloadVisibilityAccess(ctx context.Context, authCtx dauth.AuthContext, downloadID uuid.UUID) error
 	GetDownloadInfo(ctx context.Context, authCtx dauth.AuthContext, downloadID uuid.UUID) (*dto.MediaDownloadInfo, error)
 	GetDownloadInfoUnrestricted(ctx context.Context, downloadID uuid.UUID) (*dto.MediaDownloadInfo, error)
 	GetDownloadInfoForEdit(

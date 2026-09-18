@@ -2,6 +2,7 @@ package downloader
 
 import (
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
@@ -11,6 +12,8 @@ import (
 )
 
 func (h *DownloaderHandlers) CreateShareLinkHandler(ctx *fasthttp.RequestCtx) {
+	authCtx := policy.ResolveUserOrAnonym(ctx)
+
 	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
 	if !ok || downloadIDStr == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
@@ -20,6 +23,12 @@ func (h *DownloaderHandlers) CreateShareLinkHandler(ctx *fasthttp.RequestCtx) {
 	downloadID, err := idcodec.DecodeUUIDBase64URL(downloadIDStr)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
+		return
+	}
+
+	err = h.downloader.CheckDownloadVisibilityAccess(ctx, authCtx, downloadID)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 

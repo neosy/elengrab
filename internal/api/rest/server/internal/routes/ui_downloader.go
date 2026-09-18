@@ -52,6 +52,7 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 
 			g.HEAD(httppaths.MediaItemShortLinkPath, handlers.GetShareLinkHandler)
 			g.GET(httppaths.MediaItemShortLinkPath, handlers.GetShareLinkHandler)
+			g.POST(httppaths.MediaItemShortLinkPath, handlers.CreateShareLinkHandler)
 
 			g.HEAD(httppaths.MediaItemWatchPositionPath, handlers.GetLastWatchPositionHandler)
 			g.GET(httppaths.MediaItemWatchPositionPath, handlers.GetLastWatchPositionHandler)
@@ -80,7 +81,6 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		g = nfasthttp.NewRouterGroup(httppaths.DownloaderGroup, r.router)
 		g.Use(middlewareError, r.middlewares.Auth.RequireAuthMode)
 		{
-			g.POST(httppaths.MediaItemShortLinkPath, handlers.CreateShareLinkHandler)
 			g.DELETE(httppaths.MediaItemShortLinkPath, handlers.DeleteShareLinkHandler)
 		}
 

@@ -14,6 +14,28 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
+// CheckDownloadVisibilityAccess checks whether the user can view the download based on its visibility.
+func (uc *downloader) CheckDownloadVisibilityAccess(
+	ctx context.Context,
+	authCtx dauth.AuthContext,
+	downloadID uuid.UUID,
+) error {
+	resp, err := uc.findActualDownloadInfo(ctx, downloadID, withAuth(authCtx))
+	if err != nil {
+		uc.logger.Error("Failed get download info", "error", err)
+		return err
+	}
+	if resp == nil {
+		return apperrors.ErrDownloadNotFound
+	}
+
+	if !uc.authz.HasMediaViewAccess(authCtx, resp.MediaDownload) {
+		return ierrors.ErrAccessDenied
+	}
+
+	return nil
+}
+
 // GetDownloadInfo retrieves download information by download ID for a specific user.
 func (uc *downloader) GetDownloadInfo(
 	ctx context.Context,
