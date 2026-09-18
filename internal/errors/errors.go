@@ -1,15 +1,24 @@
 package ierrors
 
 import (
+	"net/http"
+
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
 var (
-	ErrUnauthorized         = errorx.NewMessage("Authentication required", exceptionx.UNAUTHORIZED)
-	ErrAccessDenied         = errorx.NewMessage("Access denied", exceptionx.FORBIDDEN)
-	ErrDemoModeAccessDenied = errorx.NewMessage("Access denied in demo mode", exceptionx.FORBIDDEN)
+	ErrUnauthorized             = errorx.NewMessage("Authentication required", exceptionx.UNAUTHORIZED)
+	ErrAccessDenied             = errorx.NewMessage("Access denied", exceptionx.FORBIDDEN)
+	ErrDemoModeAccessDenied     = errorx.NewMessage("Access denied in demo mode", exceptionx.FORBIDDEN)
+	
+	ErrMediaDownloadNotEditable = errorx.NewMessage(
+		"Media download cannot be edited in its current status",
+		errorx.WithHttpStatus(http.StatusConflict))
+	ErrMediaDownloadNotRetryable = errorx.NewMessage(
+		"Media download cannot be retried in its current status",
+		errorx.WithHttpStatus(http.StatusConflict))
 
 	ErrFuncParamNullPointer = exceptions.FUNCTION_PARAMETER_NULL_POINTER.NewErrorx(
 		errorx.WithErrorMessage("Something went wrong"),
