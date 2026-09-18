@@ -9,8 +9,6 @@
 
 ### 🧩 Refactor
 - Refactored channel information storage to support multiple media sources and preserve channel data when an image is unavailable [L140].
-
-### 🧩 Refactor
 - Refactored MediaDownload retrieval and view access methods. [L147]
 
 ### 🐛 Fix
