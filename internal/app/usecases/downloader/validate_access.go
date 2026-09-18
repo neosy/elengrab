@@ -54,14 +54,18 @@ func (uc *downloader) validateWriteOperationAccess(authCtx dauth.AuthContext) er
 	return nil
 }
 
-func (uc *downloader) validateDownloadEditAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
-	if iconfig.DemoMode() {
-		return ierrors.ErrDemoModeAccessDenied
+func (uc *downloader) validateDownloadEditableStatus(download *ddownload.MediaDownload) error {
+	if !slices.Contains(dtypes.MediaDownloadEditableStatuses(), download.Status) {
+		return ierrors.ErrMediaDownloadNotEditable
 	}
 
-	if !slices.Contains(dtypes.MediaDownloadEditableStatuses(), download.Status) {
-		return ierrors.ErrAccessDenied
-	}
+	return nil
+}
+
+func (uc *downloader) validateDownloadUserAccess(
+	authCtx dauth.AuthContext,
+	download *ddownload.MediaDownload,
+) error {
 	if uc.authz.HasFullAccess(authCtx.RoleIDs) {
 		return nil
 	}
@@ -77,12 +81,36 @@ func (uc *downloader) validateDownloadEditAccess(authCtx dauth.AuthContext, down
 	return ierrors.ErrAccessDenied
 }
 
+func (uc *downloader) validateDownloadEditAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
+	if iconfig.DemoMode() {
+		return ierrors.ErrDemoModeAccessDenied
+	}
+
+	if err := uc.validateDownloadEditableStatus(download); err != nil {
+		return err
+	}
+
+	return uc.validateDownloadUserAccess(authCtx, download)
+}
+
 func (uc *downloader) validateDownloadDeleteAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
 	if iconfig.DemoMode() {
 		return ierrors.ErrDemoModeAccessDenied
 	}
 
-	return uc.validateDownloadEditAccess(authCtx, download)
+	return uc.validateDownloadUserAccess(authCtx, download)
+}
+
+func (uc *downloader) validateDownloadRetryAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
+	if iconfig.DemoMode() {
+		return ierrors.ErrDemoModeAccessDenied
+	}
+
+	if download.Status != dtypes.MediaDownloadStatusFailed {
+		return ierrors.ErrMediaDownloadNotEditable
+	}
+
+	return uc.validateDownloadUserAccess(authCtx, download)
 }
 
 // HasWriteOperationAccess reports whether the user is allowed to perform operations other than read-only access.

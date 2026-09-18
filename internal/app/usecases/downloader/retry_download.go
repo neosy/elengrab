@@ -25,7 +25,7 @@ func (uc *downloader) RetryDownload(
 			return err
 		}
 
-		err = uc.validateDownloadEditAccess(authCtx, download)
+		err = uc.validateDownloadRetryAccess(authCtx, download)
 		if err != nil {
 			return err
 		}

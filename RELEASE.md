@@ -6,6 +6,10 @@
 - Added a thumbnail source for YouTube Shorts. [L139]
 - Restricted guests from editing or deleting public media created by other guests. Closes #511
 
+
+### 🐛 Fix
+- Fixed access validation for retrying failed downloads. [L145]
+
 ---
 
 ## v0.25.5 — 2026-09-17
