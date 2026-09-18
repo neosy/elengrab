@@ -14,26 +14,63 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
 
+func (uc *downloader) findActualDownload(
+	ctx context.Context,
+	downloadID uuid.UUID,
+) (*ddownload.MediaDownload, error) {
+	var download *ddownload.MediaDownload
+
+	if downloadID == uuid.Nil {
+		uc.logger.Warn("Id for the DownloadID field is not defined")
+		return nil, apperrors.ErrDownloadIDIsNil
+	}
+
+	state, _ := uc.download.FindState(ctx, downloadID)
+	if state != nil && state.Download != nil {
+		download = state.Download
+	}
+
+	if download == nil {
+		var err error
+		download, err = uc.download.FindByDownloadID(ctx, downloadID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return download, nil
+}
+
+func (uc *downloader) getActualDownloadWithViewAccess(
+	ctx context.Context,
+	authCtx dauth.AuthContext,
+	downloadID uuid.UUID,
+) (*ddownload.MediaDownload, error) {
+	download, err := uc.findActualDownload(ctx, downloadID)
+	if err != nil {
+		return nil, err
+	}
+
+	if download == nil {
+		return nil, apperrors.ErrDownloadNotFound
+	}
+
+	if !uc.authz.HasMediaViewAccess(authCtx, download) {
+		return nil, ierrors.ErrAccessDenied
+	}
+
+	return download, nil
+}
+
 // CheckDownloadVisibilityAccess checks whether the user can view the download based on its visibility.
 func (uc *downloader) CheckDownloadVisibilityAccess(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) error {
-	resp, err := uc.findActualDownloadInfo(ctx, downloadID, withAuth(authCtx))
-	if err != nil {
-		uc.logger.Error("Failed get download info", "error", err)
-		return err
-	}
-	if resp == nil {
-		return apperrors.ErrDownloadNotFound
-	}
+	_, err := uc.getActualDownloadWithViewAccess(ctx, authCtx, downloadID)
 
-	if !uc.authz.HasMediaViewAccess(authCtx, resp.MediaDownload) {
-		return ierrors.ErrAccessDenied
-	}
-
-	return nil
+	return err
 }
 
 // GetDownloadInfo retrieves download information by download ID for a specific user.
@@ -42,23 +79,23 @@ func (uc *downloader) GetDownloadInfo(
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) (*dto.MediaDownloadInfo, error) {
-	resp, err := uc.findActualDownloadInfo(ctx, downloadID, withAuth(authCtx))
+	downloadInfo, err := uc.findActualDownloadInfo(ctx, downloadID, withAuth(authCtx))
 	if err != nil {
 		uc.logger.Error("Failed get download info", "error", err)
 		return nil, err
 	}
-	if resp == nil {
+	if downloadInfo == nil {
 		return nil, apperrors.ErrDownloadNotFound
 	}
 
-	if !uc.authz.HasMediaViewAccess(authCtx, resp.MediaDownload) {
+	if !uc.authz.HasMediaViewAccess(authCtx, downloadInfo.MediaDownload) {
 		return nil, ierrors.ErrAccessDenied
 	}
 
-	resp.HasEditAccess = uc.HasDownloadEditAccess(authCtx, resp.MediaDownload)
-	resp.HasDeleteAccess = uc.HasDownloadDeleteAccess(authCtx, resp.MediaDownload)
+	downloadInfo.HasEditAccess = uc.HasDownloadEditAccess(authCtx, downloadInfo.MediaDownload)
+	downloadInfo.HasDeleteAccess = uc.HasDownloadDeleteAccess(authCtx, downloadInfo.MediaDownload)
 
-	return resp, nil
+	return downloadInfo, nil
 }
 
 func (uc *downloader) GetDownloadInfoUnrestricted(
@@ -100,24 +137,9 @@ func (uc *downloader) findActualDownloadInfo(
 	downloadID uuid.UUID,
 	opts ...callOption,
 ) (*dto.MediaDownloadInfo, error) {
-	var download *ddownload.MediaDownload
-
-	if downloadID == uuid.Nil {
-		uc.logger.Warn("Id for the DownloadID field is not defined")
-		return nil, apperrors.ErrDownloadIDIsNil
-	}
-
-	state, _ := uc.download.FindState(ctx, downloadID)
-	if state != nil && state.Download != nil {
-		download = state.Download
-	}
-
-	if download == nil {
-		var err error
-		download, err = uc.download.FindByDownloadID(ctx, downloadID)
-		if err != nil {
-			return nil, err
-		}
+	download, err := uc.findActualDownload(ctx, downloadID)
+	if err != nil {
+		return nil, err
 	}
 
 	if download == nil {

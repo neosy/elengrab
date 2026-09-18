@@ -6,6 +6,8 @@
 - Added a thumbnail source for YouTube Shorts. [L139]
 - Restricted guests from editing or deleting public media created by other guests. Closes #511
 
+### 🧩 Refactor
+- Refactored MediaDownload retrieval and view access methods. [L147]
 
 ### 🐛 Fix
 - Fixed access validation for retrying failed downloads. [L145]
