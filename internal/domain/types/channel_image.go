@@ -5,16 +5,7 @@ import (
 	"errors"
 )
 
-type ChannelImage struct {
-	// URL of the image channel avatar
-	URL string
-
-	// Raw image data (binary)
-	Raw []byte
-
-	// Format of the image (jpg, png, webp)
-	Format ImageFormat
-}
+type ChannelImage ImageData
 
 func (i *ChannelImage) Equal(other *ChannelImage) bool {
 	if i == nil || other == nil {

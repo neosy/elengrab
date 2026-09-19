@@ -5,11 +5,12 @@
 ### ✨ Features
 - Added a thumbnail source for YouTube Shorts. [L139]
 - Restricted guests from editing or deleting public media created by other guests. Closes #511
-- Added Instagram channel avatar fetching [L140].
+- Added Instagram channel avatar fetching. [L140]
 
 ### 🧩 Refactor
-- Refactored channel information storage to support multiple media sources and preserve channel data when an image is unavailable [L140].
+- Refactored channel information storage to support multiple media sources and preserve channel data when an image is unavailable. [L140]
 - Refactored MediaDownload retrieval and view access methods. [L147]
+- Refactored video thumbnail and channel image fetching. [L140]
 
 ### 🐛 Fix
 - Fixed access validation for retrying failed downloads. [L145]

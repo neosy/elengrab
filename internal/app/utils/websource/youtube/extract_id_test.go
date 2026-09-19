@@ -1,4 +1,4 @@
-package helper
+package youtube
 
 import "testing"
 
@@ -67,7 +67,7 @@ func TestExtractYouTubeID(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotID, err := ExtractYouTubeID(tt.rawURL)
+			gotID, err := ExtractID(tt.rawURL)
 
 			if tt.wantErr {
 				if err == nil {

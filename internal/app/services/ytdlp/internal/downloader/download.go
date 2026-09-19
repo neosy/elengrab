@@ -129,9 +129,9 @@ func (d *Downloader) Download(
 
 	// Start asynchronous fetching of the channel avatar.
 	// Returns a channel from which the avatar can be read once the goroutine completes.
-	if options.DownloadChannelAvatar {
+	if options.DownloadChannelImage {
 		wg.Go(func() {
-			channel := d.fetchAndBuildChannel(meta.CopyMeta())
+			channel := d.fetchAndBuildChannel(ctx, meta.CopyMeta(), idto.DefaultRequestOptions())
 			if channel != nil {
 				meta.Lock()
 				meta.Meta.Channel = channel
@@ -145,9 +145,9 @@ func (d *Downloader) Download(
 	wg.Go(func() {
 		ctx, cancel := context.WithTimeout(ctx, 8*time.Second)
 		defer cancel()
-		imgData := d.extractThumbnailFromURL(
+		imgData, _ := d.FetchThumbnail(
 			ctx, url,
-			idto.DefaultRequestOptions(), // Not needed, loading from cache.
+			idto.DefaultRequestOptions(),
 		)
 		if imgData != nil {
 			meta.Lock()

@@ -1,4 +1,4 @@
-package helper
+package htmlparser
 
 import (
 	"fmt"
@@ -12,7 +12,9 @@ import (
 //
 //	exemple key: `"decoratedAvatarViewModel":{"avatar":{"avatarViewModel":{"image":{"sources":[`
 //	include the opening bracket '['
-func ExtractJSONArray(html, key string) (string, error) {
+func ExtractJSONArray(body []byte, key string) (string, error) {
+	html := string(body)
+
 	start := strings.Index(html, key)
 	if start == -1 {
 		return "", errorx.Errorf("json: key %q not found", key)

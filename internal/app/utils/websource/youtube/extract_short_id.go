@@ -1,4 +1,4 @@
-package helper
+package youtube
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 )
 
-func ExtractYouTubeShortID(rawURL string) (string, error) {
+func ExtractShortID(rawURL string) (string, error) {
 	if !hostdetect.YouTube(rawURL) {
 		return "", fmt.Errorf("not a youtube url")
 	}

@@ -2,29 +2,14 @@ package downloader
 
 import (
 	"context"
-	"fmt"
 	"time"
 
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
-	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
+	"github.com/neosy/elengrab/internal/app/utils/siteimage/thumbnails"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
-
-func (d *Downloader) extractThumbnailFromURL(
-	ctx context.Context,
-	mediaURL string,
-	options idto.RequestOptions,
-) *dtypes.ImageData {
-	imageData, err := d.FetchThumbnail(ctx, mediaURL, options)
-	if err != nil {
-		return nil
-	}
-
-	return imageData
-}
 
 func (d *Downloader) ExtractThumbnailURL(
 	ctx context.Context,
@@ -63,64 +48,14 @@ func (d *Downloader) ExtractThumbnailURL(
 	return imageURL, nil
 }
 
-func (d *Downloader) fetchYouTubeShortThumbnail(ctx context.Context, mediaURL string, options idto.RequestOptions) (*dtypes.ImageData, error) {
-	youtubeShortID, err := helper.ExtractYouTubeShortID(mediaURL)
-	if err != nil {
-		return nil, err
-	}
-
-	var lastErr error
-
-	urls := consts.ShortYoutubeThumbnailURLTemplates()
-	for _, url := range urls {
-		imageURL := fmt.Sprintf(url, youtubeShortID)
-
-		imageData, err := helper.FetchImage(ctx, imageURL, options)
-		if imageData != nil {
-			return imageData, nil
-		}
-
-		lastErr = err
-	}
-
-	return nil, lastErr
-}
-
-func (d *Downloader) fetchYouTubeThumbnail(ctx context.Context, mediaURL string, options idto.RequestOptions) (*dtypes.ImageData, error) {
-	youtubeID, err := helper.ExtractYouTubeID(mediaURL)
-	if err != nil {
-		return nil, err
-	}
-
-	// https://img.youtube.com/vi/<id>/maxresdefault.jpg		- Maximum Resolution / Max Resolution
-	// https://img.youtube.com/vi/<id>/hqdefault.jpg			- High Quality
-	// https://img.youtube.com/vi/<id>/mqdefault.jpg			- Medium Quality
-	// https://img.youtube.com/vi/<id>/default.jpg				- Default Quality / Standard Thumbnail
-	// https://img.youtube.com/vi/<id>/sddefault.jpg			- Standard Definition
-	imageURL := fmt.Sprintf("https://img.youtube.com/vi/%s/hqdefault.jpg", youtubeID)
-	imageData, err := helper.FetchImage(ctx, imageURL, options)
-	if err != nil {
-		return nil, err
-	}
-
-	return imageData, nil
-}
-
 func (d *Downloader) FetchThumbnail(
 	ctx context.Context,
 	mediaURL string,
 	options idto.RequestOptions,
 ) (*dtypes.ImageData, error) {
-	if hostdetect.YouTube(mediaURL) {
-		imageData, _ := d.fetchYouTubeThumbnail(ctx, mediaURL, options)
-		if imageData != nil {
-			return imageData, nil
-		}
-
-		imageData, _ = d.fetchYouTubeShortThumbnail(ctx, mediaURL, options)
-		if imageData != nil {
-			return imageData, nil
-		}
+	images, _ := thumbnails.FetchImages(ctx, mediaURL, options.ThumbnailFetchOptions())
+	if len(images) != 0 && images[0] != nil {
+		return images[0], nil
 	}
 
 	imageURL, err := d.ExtractThumbnailURL(ctx, mediaURL, options)

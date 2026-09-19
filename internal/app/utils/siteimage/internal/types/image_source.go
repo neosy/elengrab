@@ -1,6 +1,6 @@
-package idto
+package types
 
-type AvatarSource struct {
+type ImageSource struct {
 	URL    string `json:"url"`
 	Format string
 	Raw    []byte
