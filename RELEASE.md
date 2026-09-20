@@ -6,6 +6,7 @@
 - Added a thumbnail source for YouTube Shorts. [L139]
 - Restricted guests from editing or deleting public media created by other guests. Closes #511
 - Added Instagram channel info fetching. [L140]
+- Added configurable default visibility for new media via `ELENGRAB_BEHAVIOR_NEW_MEDIA_VISIBILITY`. Closes #515
 
 ### 🖥️ UI / Frontend
 - Improved guest author display with `Guest #ID` and `Guest (You)` labels. [L148]

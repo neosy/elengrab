@@ -118,8 +118,19 @@ type ElengrabConfig struct {
 	// Enables the use of cookies when downloading media.
 	AllowCookies bool `env:"ALLOW_COOKIES" envDefault:"false"`
 
+	// Behavior configuration.
+	Behavior ElengrabBehaviorConfig `envPrefix:"BEHAVIOR_"`
+
 	// Maintenance task configuration.
 	Maintenance ElengrabMaintenanceConfig `envPrefix:"MAINTENANCE_"`
+}
+
+// ElengrabMediaConfig contains media configuration.
+type ElengrabBehaviorConfig struct {
+	// Visibility assigned to new media.
+	// Supported values: private, authenticated, public.
+	// If not set, visibility is determined by the application mode.
+	NewMediaVisibility string `env:"NEW_MEDIA_VISIBILITY" envDefault:""`
 }
 
 // ElengrabMaintenanceConfig contains configuration for periodic maintenance tasks.
@@ -187,7 +198,7 @@ func New() (*Config, error) {
 		}
 	}
 
-	startupInfo = newStartupInfo(c)
+	startupInfo = newRuntimeInfo(c)
 
 	return c, nil
 }
