@@ -12,6 +12,7 @@ import (
 	dltypes "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
@@ -30,6 +31,8 @@ type renderMediaItemRowParams struct {
 	isDownloadEvent bool
 	lazyLoadImages  bool
 	ResultRowFade   string
+
+	AuthCtx dauth.AuthContext
 }
 
 func (h *DownloaderHandlers) renderMediaItemRow(
@@ -183,7 +186,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		IsDownloadEvent:        params.isDownloadEvent,
 		ResultRowStatusTitle:   params.downloadInfo.StatusText,
 
-		UserName: params.downloadInfo.UserLogin,
+		UserName: params.downloadInfo.UserDisplayName(params.AuthCtx.UserID),
 
 		RefreshingIcon:            icons.DownloadRefreshingIcon.FileRaw(),
 		MetaUserNameSeparatorIcon: icons.DownloadMetaUserNameSeparatorIcon.FileRaw(),

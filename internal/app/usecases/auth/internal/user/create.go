@@ -19,6 +19,11 @@ import (
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
+const (
+	guestLoginPattern = "u-%s%s"
+	userLoginPattern  = "u-%s%s"
+)
+
 func (u *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption) (uuid.UUID, error) {
 	if user == nil {
 		u.logger.Warn("Nil pointer in function")
@@ -70,7 +75,15 @@ func (u *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption)
 }
 
 func (u *User) CreateGuest(ctx context.Context) (uuid.UUID, error) {
-	req := &idto.CreateUserRequest{}
+	guestLogin, err := u.genGuestLogin()
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	req := &idto.CreateUserRequest{
+		Login: guestLogin,
+	}
+
 	return u.CreateUser(ctx, req)
 }
 
@@ -133,5 +146,18 @@ func (u *User) genLogin() (dtypes.Login, error) {
 
 	ts := strconv.FormatInt(time.Now().UTC().Unix(), 36)
 
-	return dtypes.NewLogin(fmt.Sprintf("u-%s%s", ts, rndPart)), nil
+	return dtypes.NewLogin(fmt.Sprintf(userLoginPattern, ts, rndPart)), nil
+}
+
+func (u *User) genGuestLogin() (dtypes.Login, error) {
+	b := make([]byte, 4)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+
+	rndPart := strconv.FormatUint(uint64(binary.BigEndian.Uint32(b)), 36)
+	ts := strconv.FormatInt(time.Now().UTC().Unix(), 36)
+
+	return dtypes.NewLogin(fmt.Sprintf(guestLoginPattern, ts, rndPart)), nil
 }

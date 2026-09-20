@@ -5,12 +5,14 @@ import (
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 	ctx *fasthttp.RequestCtx,
+	authCtx dauth.AuthContext,
 	downloadInfo *ucdto.MediaDownloadInfo,
 ) (*bytes.Buffer, error) {
 	row := h.renderMediaItemRow(ctx, renderMediaItemRowParams{

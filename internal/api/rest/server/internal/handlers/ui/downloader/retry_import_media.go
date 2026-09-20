@@ -43,6 +43,7 @@ func (h *DownloaderHandlers) RetryImportMediaHandler(ctx *fasthttp.RequestCtx) {
 		ctx,
 		renderMediaItemRowParams{
 			downloadInfo: downloadInfo,
+			AuthCtx:      authCtx,
 		})
 	if row.err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
