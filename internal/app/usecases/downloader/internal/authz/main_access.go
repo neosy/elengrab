@@ -38,6 +38,7 @@ func (a *Authorization) HasFullAccess(roles dtypes.UserRoleIDs) bool {
 	if a.appMode == dtypes.AppModePublic {
 		return true
 	}
+
 	return roles.HasAnyRoleID(dtypes.UserRoleAdmin, dtypes.UserRoleViewerAll)
 }
 
