@@ -5,9 +5,11 @@ import (
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 type MediaDownloadInfoMappingData struct {
+	UserType  dtypes.UserType
 	UserLogin string
 
 	ViewCount uint32

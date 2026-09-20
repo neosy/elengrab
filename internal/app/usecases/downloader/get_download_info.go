@@ -10,6 +10,7 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 )
@@ -169,10 +170,14 @@ func (uc *downloader) resolveActualDownloadInfoByDownload(
 		dlProgress = state.Progress
 	}
 
-	var login string
+	var (
+		userType dtypes.UserType
+		login    string
+	)
 	if download.UserID != nil {
 		user, _ := uc.authSrv.FindByUserID(ctx, *download.UserID)
 		if user != nil {
+			userType = user.UserType()
 			login = user.Login.String()
 		}
 	}
@@ -223,6 +228,7 @@ func (uc *downloader) resolveActualDownloadInfoByDownload(
 	channel, _ := uc.channel.FindByChannelID(ctx, download.ChannelID)
 
 	mappingData := &dto.MediaDownloadInfoMappingData{
+		UserType:  userType,
 		UserLogin: login,
 
 		ViewCount: viewCount,

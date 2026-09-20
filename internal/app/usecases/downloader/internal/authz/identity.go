@@ -7,24 +7,26 @@ import (
 )
 
 func IsAnonymousByUserID(userID uuid.UUID) bool {
-	return userID == dauth.AnonymousUserID()
+	userType := dauth.ResolveUserType(userID, nil)
+	return userType == dtypes.UserTypeAnonymous
 }
 
-func IsAnonymous(roles dtypes.UserRoleIDs) bool {
-	return len(roles) == 0
+func IsAnonymous(roleIDs dtypes.UserRoleIDs) bool {
+	userType := dtypes.ResolveUserTypeByRoles(roleIDs)
+	return userType == dtypes.UserTypeAnonymous
 }
 
-func IsAdmin(roles dtypes.UserRoleIDs) bool {
-	return roles.HasRoleID(dtypes.UserRoleAdmin)
+func IsAdmin(roleIDs dtypes.UserRoleIDs) bool {
+	userType := dtypes.ResolveUserTypeByRoles(roleIDs)
+	return userType == dtypes.UserTypeAdmin
 }
 
-func IsGuest(roles dtypes.UserRoleIDs) bool {
-	if IsAdmin(roles) || IsUser(roles) {
-		return false
-	}
-	return roles.HasRoleID(dtypes.UserRoleGuest)
+func IsGuest(roleIDs dtypes.UserRoleIDs) bool {
+	userType := dtypes.ResolveUserTypeByRoles(roleIDs)
+	return userType == dtypes.UserTypeGuest
 }
 
-func IsUser(roles dtypes.UserRoleIDs) bool {
-	return !IsAnonymous(roles) && !IsGuest(roles)
+func IsUser(roleIDs dtypes.UserRoleIDs) bool {
+	userType := dtypes.ResolveUserTypeByRoles(roleIDs)
+	return userType == dtypes.UserTypeUser
 }

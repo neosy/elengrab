@@ -71,6 +71,7 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 		Visibility:           download.Visibility,
 
 		UserID:    download.UserID,
+		UserType:  mappingData.UserType,
 		UserLogin: strings.ToLower(mappingData.UserLogin),
 
 		CreatedAt: download.CreatedAt,

@@ -6,8 +6,6 @@ import (
 	eventkey "github.com/neosy/elengrab/internal/domain/types/event_key"
 )
 
-var AnonymousUserID = func() uuid.UUID { return uuid.Nil }
-
 type AuthContext struct {
 	UserID        uuid.UUID
 	AnonSessionID uuid.UUID
@@ -27,26 +25,11 @@ func AuthContextAnonymous(anonSessionID uuid.UUID) AuthContext {
 }
 
 func (u *AuthContext) UserType() dtypes.UserType {
-	if u == nil || u.UserID == AnonymousUserID() {
+	if u == nil {
 		return dtypes.UserTypeAnonymous
 	}
 
-	var uType dtypes.UserType = dtypes.UserTypeAnonymous
-
-	for _, r := range u.RoleIDs {
-		switch r {
-		case dtypes.UserRoleAdmin:
-			return dtypes.UserTypeAdmin
-		case dtypes.UserRoleGuest:
-			if uType < dtypes.UserTypeGuest {
-				uType = dtypes.UserTypeGuest
-			}
-		default:
-			uType = dtypes.UserTypeUser
-		}
-	}
-
-	return uType
+	return ResolveUserType(u.UserID, u.RoleIDs)
 }
 
 func (u *AuthContext) EventKey() eventkey.EventKey {

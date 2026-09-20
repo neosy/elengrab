@@ -7,6 +7,9 @@
 - Restricted guests from editing or deleting public media created by other guests. Closes #511
 - Added Instagram channel info fetching. [L140]
 
+### 🖥️ UI / Frontend
+- Improved guest author display with `Guest #ID` and `Guest (You)` labels. [L148]
+
 ### 🧩 Refactor
 - Refactored channel information storage to support multiple media sources and preserve channel data when an image is unavailable. [L140]
 - Refactored MediaDownload retrieval and view access methods. [L147]

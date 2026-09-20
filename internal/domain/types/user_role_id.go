@@ -125,3 +125,13 @@ func (roles UserRoleIDs) Strings() []string {
 func (roles UserRoleIDs) Join(sep string) string {
 	return strings.Join(roles.Strings(), sep)
 }
+
+func NewUserRoleIDs(roles []string) UserRoleIDs {
+	var roleIDs UserRoleIDs
+
+	for _, role := range roles {
+		roleIDs = append(roleIDs, UserRoleID(role))
+	}
+
+	return roleIDs
+}
