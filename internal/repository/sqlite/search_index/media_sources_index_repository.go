@@ -303,15 +303,21 @@ func (r *MediaSourceIndexRepository) iterateAll(
 	}
 
 	if r.queryOptions.Visibility != nil {
-		if *r.queryOptions.Visibility > dtypes.QueryMediaVisibilityAll {
+		queryVisibility := *r.queryOptions.Visibility
+		if queryVisibility > dtypes.QueryMediaVisibilityAll {
 			sqlOr := squirrel.Or{
 				squirrel.Eq{eIndex.FieldName(&eIndex.UserID): nil},
 				squirrel.Eq{eIndex.FieldName(&eIndex.UserID): uuid.Nil},
 				squirrel.Eq{eIndex.FieldName(&eIndex.Visibility): dtypes.MediaVisibilityPublic.String()},
 			}
-			if filterUserID != "" && *r.queryOptions.Visibility == dtypes.QueryMediaVisibilityAuthenticated {
-				sqlOr = append(sqlOr, squirrel.Eq{eIndex.FieldName(&eIndex.UserID): filterUserID})
-				filterUserID = ""
+			if queryVisibility == dtypes.QueryMediaVisibilityAuthenticated {
+				if !r.queryOptions.IsGuestRequest {
+					sqlOr = append(sqlOr, squirrel.Eq{eIndex.FieldName(&eIndex.Visibility): dtypes.MediaVisibilityAuthenticated.String()})
+				}
+				if filterUserID != "" {
+					sqlOr = append(sqlOr, squirrel.Eq{eIndex.FieldName(&eIndex.UserID): filterUserID})
+					filterUserID = ""
+				}
 			}
 			conditions = append(conditions, sqlOr)
 		}
