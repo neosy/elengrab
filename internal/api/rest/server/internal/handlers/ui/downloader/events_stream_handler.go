@@ -103,9 +103,9 @@ func (h *DownloaderHandlers) handleEvent(
 ) {
 	switch event.Type {
 	case ucdto.BroadcastEventTypeDownloadAdd:
-		h.handleDownloadAdd(ctx, w, event)
+		h.handleDownloadAdd(ctx, authCtx, w, event)
 	case ucdto.BroadcastEventTypeDownloadUpdate:
-		h.handleDownloadUpdate(ctx, w, event)
+		h.handleDownloadUpdate(ctx, authCtx, w, event)
 	case ucdto.BroadcastEventTypeDownloadPatch:
 		h.handleDownloadPatch(ctx, w, event)
 	case ucdto.BroadcastEventTypeDownloadDelete:
@@ -123,13 +123,18 @@ func (h *DownloaderHandlers) handleEvent(
 	}
 }
 
-func (h *DownloaderHandlers) handleDownloadAdd(ctx *fasthttp.RequestCtx, w *bufio.Writer, event ucdto.BroadcastEvent) {
+func (h *DownloaderHandlers) handleDownloadAdd(
+	ctx *fasthttp.RequestCtx,
+	authCtx dauth.AuthContext,
+	w *bufio.Writer,
+	event ucdto.BroadcastEvent,
+) {
 	downloadInfo, ok := event.Data.(*ucdto.MediaDownloadInfo)
 	if !ok {
 		return
 	}
 
-	buf, err := h.renderMediaItemRowPlaceholder(ctx, downloadInfo)
+	buf, err := h.renderMediaItemRowPlaceholder(ctx, authCtx, downloadInfo)
 	if err != nil {
 		return
 	}
@@ -154,7 +159,12 @@ func (h *DownloaderHandlers) handleDownloadAdd(ctx *fasthttp.RequestCtx, w *bufi
 	w.Flush()
 }
 
-func (h *DownloaderHandlers) handleDownloadUpdate(ctx context.Context, w *bufio.Writer, event ucdto.BroadcastEvent) {
+func (h *DownloaderHandlers) handleDownloadUpdate(
+	ctx context.Context,
+	authCtx dauth.AuthContext,
+	w *bufio.Writer,
+	event ucdto.BroadcastEvent,
+) {
 	downloadInfo, ok := event.Data.(*ucdto.MediaDownloadInfo)
 	if !ok {
 		return
@@ -165,6 +175,7 @@ func (h *DownloaderHandlers) handleDownloadUpdate(ctx context.Context, w *bufio.
 		renderMediaItemRowParams{
 			downloadInfo:    downloadInfo,
 			isDownloadEvent: true,
+			AuthCtx:         authCtx,
 		},
 	)
 	if row.err != nil {

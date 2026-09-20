@@ -45,3 +45,10 @@ func (u *User) Status() dtypes.UserStatus {
 	}
 	return dtypes.UserStatusActive
 }
+
+func (u *User) UserType() dtypes.UserType {
+	if u == nil {
+		return dtypes.UserTypeAnonymous
+	}
+	return ResolveUserType(u.UserID, dtypes.NewUserRoleIDs(u.RoleIDs))
+}

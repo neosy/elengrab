@@ -174,6 +174,7 @@ func (h *DownloaderHandlers) listDownloadsItems(
 			renderMediaItemRowParams{
 				downloadInfo:   downloadInfo,
 				lazyLoadImages: true,
+				AuthCtx:        authCtx,
 			},
 		)
 		if row.err != nil {
