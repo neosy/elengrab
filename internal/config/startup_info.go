@@ -15,14 +15,19 @@ type runtimeInfo struct {
 // startupInfo contains application settings initialized at startup.
 var startupInfo runtimeInfo
 
-// newStartupInfo creates runtime information from the application configuration.
-func newStartupInfo(c *Config) runtimeInfo {
+// newRuntimeInfo creates runtime information from the application configuration.
+func newRuntimeInfo(c *Config) runtimeInfo {
 	appMode := dtypes.MustParseAppMode(c.Elengrab.Mode)
+
+	mediaVisibility, err := dtypes.ParseMediaVisibility(c.Elengrab.Behavior.NewMediaVisibility)
+	if err != nil {
+		mediaVisibility = dtypes.MediaVisibilityByAppMode(appMode)
+	}
 
 	info := runtimeInfo{
 		appMode:                appMode,
 		demoMode:               c.Elengrab.DemoMode,
-		initialMediaVisibility: dtypes.MediaVisibilityByAppMode(appMode),
+		initialMediaVisibility: mediaVisibility,
 	}
 
 	return info
