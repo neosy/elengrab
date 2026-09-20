@@ -62,19 +62,11 @@ func (uc *downloader) validateDownloadEditableStatus(download *ddownload.MediaDo
 	return nil
 }
 
-func (uc *downloader) validateDownloadUserAccess(
+func (uc *downloader) validateDownloadViewAccess(
 	authCtx dauth.AuthContext,
 	download *ddownload.MediaDownload,
 ) error {
-	if uc.authz.HasFullAccess(authCtx.RoleIDs) {
-		return nil
-	}
-
-	if download.UserID == nil {
-		return nil
-	}
-
-	if *download.UserID == authCtx.UserID {
+	if uc.authz.HasMediaViewAccess(authCtx, download) {
 		return nil
 	}
 
@@ -90,7 +82,23 @@ func (uc *downloader) validateDownloadEditAccess(authCtx dauth.AuthContext, down
 		return err
 	}
 
-	return uc.validateDownloadUserAccess(authCtx, download)
+	if err := uc.validateDownloadViewAccess(authCtx, download); err != nil {
+		return err
+	}
+
+	if uc.authz.HasFullAccess(authCtx.RoleIDs) {
+		return nil
+	}
+
+	if download.UserID == nil || authz.IsAnonymous(authCtx.RoleIDs) {
+		return ierrors.ErrAccessDenied
+	}
+
+	if *download.UserID == authCtx.UserID {
+		return nil
+	}
+
+	return ierrors.ErrAccessDenied
 }
 
 func (uc *downloader) validateDownloadDeleteAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
@@ -98,7 +106,23 @@ func (uc *downloader) validateDownloadDeleteAccess(authCtx dauth.AuthContext, do
 		return ierrors.ErrDemoModeAccessDenied
 	}
 
-	return uc.validateDownloadUserAccess(authCtx, download)
+	if err := uc.validateDownloadViewAccess(authCtx, download); err != nil {
+		return err
+	}
+
+	if uc.authz.HasFullAccess(authCtx.RoleIDs) {
+		return nil
+	}
+
+	if download.UserID == nil || authz.IsAnonymous(authCtx.RoleIDs) {
+		return ierrors.ErrAccessDenied
+	}
+
+	if *download.UserID == authCtx.UserID {
+		return nil
+	}
+
+	return ierrors.ErrAccessDenied
 }
 
 func (uc *downloader) validateDownloadRetryAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
@@ -107,10 +131,10 @@ func (uc *downloader) validateDownloadRetryAccess(authCtx dauth.AuthContext, dow
 	}
 
 	if download.Status != dtypes.MediaDownloadStatusFailed {
-		return ierrors.ErrMediaDownloadNotEditable
+		return ierrors.ErrMediaDownloadNotRetryable
 	}
 
-	return uc.validateDownloadUserAccess(authCtx, download)
+	return uc.validateDownloadDeleteAccess(authCtx, download)
 }
 
 // HasWriteOperationAccess reports whether the user is allowed to perform operations other than read-only access.

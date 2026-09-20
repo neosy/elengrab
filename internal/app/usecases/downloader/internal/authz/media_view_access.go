@@ -33,6 +33,10 @@ func (a *Authorization) HasMediaViewAccess(authCtx dauth.AuthContext, media *ddo
 		return true
 	}
 
+	if media.UserID == nil {
+		return true
+	}
+
 	if media.UserID != nil && authCtx.UserID == *media.UserID {
 		return true
 	}
