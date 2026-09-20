@@ -29,6 +29,7 @@ func (r *MediaSourceIndexRepository) WithOptions(options dtypes.QueryMediaOption
 	r.queryOptions.LastRecord = options.LastRecord
 
 	r.queryOptions.Visibility = options.Visibility
+	r.queryOptions.IsGuestRequest = options.IsGuestRequest
 
 	if len(options.OrderBys) > 0 {
 		r.WithOrderBy(options.OrderBys...)

@@ -19,6 +19,7 @@
 - Fixed access validation for retrying failed downloads. [L145]
 - Fixed access validation when creating short links. [L146]
 - Corrected download view, edit, and delete access validation logic. [L149]
+- Included authenticated media in visibility queries. [L150]
 
 ---
 
