@@ -1,8 +1,6 @@
 package dto
 
 import (
-	"maps"
-
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
@@ -16,7 +14,7 @@ type MediaDownloadQuery struct {
 
 	LastRecord dtypes.QueryMediaDownloadCursor
 
-	Filters dtypes.QueryFiltersByName
+	Filters *dtypes.QueryFilters
 }
 
 func MediaDownloadQueryDefault(limit uint64) MediaDownloadQuery {
@@ -30,14 +28,10 @@ func MediaDownloadQueryDefault(limit uint64) MediaDownloadQuery {
 	return query
 }
 
-func BuildMediaDownloadQuery(query MediaDownloadQuery) MediaDownloadQuery {
-	return query.Copy()
-}
-
-func (q MediaDownloadQuery) Copy() MediaDownloadQuery {
+func (q MediaDownloadQuery) Clone() MediaDownloadQuery {
 	query := q
 
-	query.Filters = maps.Clone(query.Filters)
+	query.Filters = query.Filters.Clone()
 
 	query.Normalize()
 

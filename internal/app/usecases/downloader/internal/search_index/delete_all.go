@@ -7,13 +7,13 @@ import (
 )
 
 func (uc *SearchIndex) SoftDeleteMediaDownload(ctx context.Context, downloadID uuid.UUID) error {
-	return uc.searchIndex.Tx(ctx, func(ctx context.Context) error {
-		return uc.searchIndex.SoftDelete(ctx, downloadID)
+	return uc.sourceIndex.Tx(ctx, func(ctx context.Context) error {
+		return uc.sourceIndex.SoftDelete(ctx, downloadID)
 	})
 }
 
 func (uc *SearchIndex) HardDeleteMediaDownload(ctx context.Context, downloadID uuid.UUID) error {
-	return uc.searchIndex.Tx(ctx, func(ctx context.Context) error {
-		return uc.searchIndex.HardDelete(ctx, downloadID)
+	return uc.sourceIndex.Tx(ctx, func(ctx context.Context) error {
+		return uc.sourceIndex.HardDelete(ctx, downloadID)
 	})
 }

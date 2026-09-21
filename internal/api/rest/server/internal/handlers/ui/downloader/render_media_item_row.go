@@ -41,12 +41,12 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 ) renderMediaItemRowResponse {
 	var (
 		cacheChanged = struct {
-			youtubeChannelID bool
-			mediaTitle       bool
-			FileSize         bool
-			Format           bool
-			Status           bool
-			ProgressPercent  bool
+			channelID       bool
+			mediaTitle      bool
+			FileSize        bool
+			Format          bool
+			Status          bool
+			ProgressPercent bool
 		}{}
 	)
 
@@ -55,11 +55,6 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 			httpStatus: fasthttp.StatusInternalServerError,
 			err:        errorx.New("the request returned an empty"),
 		}
-	}
-
-	var extChannelKey dtypes.ExternalChannelKey
-	if params.downloadInfo.Channel != nil {
-		extChannelKey = params.downloadInfo.Channel.ExternalChannelKey()
 	}
 
 	var thumbnailID string
@@ -74,7 +69,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		params.downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
 			dtypes.ImageSourceThumbnail,
-			dtypes.ImageSourceAvatar,
+			dtypes.ImageSourceChannel,
 			dtypes.ImageSourceSite,
 		},
 	)
@@ -127,6 +122,11 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		isPortrait = params.downloadInfo.ThumbnalIsPortrait
 	}
 
+	channelPageData := pages.Channel{}
+	if params.downloadInfo.Channel != nil {
+		channelPageData = h.buildChannelPageData(ctx, params.downloadInfo.Channel.ChannelID)
+	}
+
 	encodedDownloadID := idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID)
 	visibility := h.buildVisibilityResponse(params.downloadInfo)
 
@@ -139,8 +139,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		IsReady:         params.downloadInfo.Status.IsReady(),
 		HasShareLink:    h.hasShareLink(ctx, params.downloadInfo.DownloadID),
 
-		Channel:      extChannelKey,
-		ChannelTitle: params.downloadInfo.ChannelTitle,
+		Channel: channelPageData,
 
 		LazyLoadImages: params.lazyLoadImages,
 

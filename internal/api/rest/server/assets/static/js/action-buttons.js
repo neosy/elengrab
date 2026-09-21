@@ -140,8 +140,14 @@ export function initInputClearButton(wrapper, btn) {
         input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
+    function clearInputOnly() {
+        input.value = '';
+        updateState();
+    }
+
     return {
-        clear
+        clear,
+        clearInputOnly,
     }  
 }
 

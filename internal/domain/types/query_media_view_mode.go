@@ -2,9 +2,11 @@ package dtypes
 
 import (
 	"errors"
+	"slices"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/neosy/elengrab/internal/pkg/stringx"
 )
 
 type QueryMediaViewMode string
@@ -30,11 +32,22 @@ var (
 		"popular": QueryMediaViewModePopular,
 		"old":     QueryMediaViewModeOld,
 	}
+
+	viewModeList = []QueryMediaViewMode{
+		QueryMediaViewModeNew,
+		QueryMediaViewModePopular,
+		QueryMediaViewModeOld,
+	}
 )
 
 // String returns the value as a string.
 func (v QueryMediaViewMode) String() string {
 	return string(v)
+}
+
+// Label returns the display label for the view mode.
+func (v QueryMediaViewMode) Label() string {
+	return stringx.Capitalize(string(v))
 }
 
 // Ptr returns the pointer.
@@ -62,4 +75,9 @@ func ParseQueryMediaViewMode(s string) (QueryMediaViewMode, error) {
 func ValidateQueryMediaViewMode(fl validator.FieldLevel) bool {
 	_, err := ParseQueryMediaViewMode(fl.Field().String())
 	return err == nil
+}
+
+// ViewModeList returns all available media view modes.
+func ViewModeList() []QueryMediaViewMode {
+	return slices.Clone(viewModeList)
 }

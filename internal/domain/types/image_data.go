@@ -1,6 +1,8 @@
 package dtypes
 
-import "bytes"
+import (
+	"bytes"
+)
 
 type ImageData struct {
 	// URL of the image
@@ -48,4 +50,13 @@ func (d *ImageData) Equal(other *ImageData) bool {
 
 func (d *ImageData) FullURL(baseURL string) string {
 	return baseURL + d.URL
+}
+
+func (i *ImageData) IsZero() bool {
+	if i == nil {
+		return true
+	}
+
+	return len(i.Raw) == 0 ||
+		!i.Format.Exists()
 }

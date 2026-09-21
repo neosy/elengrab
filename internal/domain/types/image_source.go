@@ -12,7 +12,7 @@ type ImageSource uint
 const (
 	ImageSourceNone ImageSource = iota
 	ImageSourceThumbnail
-	ImageSourceAvatar
+	ImageSourceChannel
 	ImageSourceSite
 
 	ImageSourceDefault = ImageSourceSite
@@ -21,13 +21,13 @@ const (
 var (
 	imageSourceMap = map[ImageSource]string{
 		ImageSourceThumbnail: "thumbnail",
-		ImageSourceAvatar:    "avatar",
+		ImageSourceChannel:   "channel",
 		ImageSourceSite:      "site",
 	}
 
 	parseImageSourceMap = map[string]ImageSource{
 		"thumbnail": ImageSourceThumbnail,
-		"avatar":    ImageSourceAvatar,
+		"channel":   ImageSourceChannel,
 		"site":      ImageSourceSite,
 	}
 )

@@ -11,6 +11,11 @@ import (
 )
 
 type SearchIndex interface {
+	IterateAllAndPatchChannelIDs(
+		ctx context.Context,
+		channelIDs map[uuid.UUID]uuid.UUID,
+	) error
+
 	Build(ctx context.Context) error
 }
 
@@ -40,7 +45,7 @@ func (u *searchIndex) UpdateViews(ctx context.Context, downloadID uuid.UUID, vie
 }
 
 func (u *searchIndex) Build(ctx context.Context) error {
-	return u.download.IterateGetAll(
+	return u.download.IterateAll(
 		ctx,
 		func(download *ddownload.MediaDownload) error {
 			if download == nil {

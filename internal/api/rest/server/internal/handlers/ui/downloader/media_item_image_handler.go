@@ -66,14 +66,14 @@ func (h *DownloaderHandlers) MediaItemImageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	hasAvatarOrSite := func() bool {
+	hasChannelOrSite := func() bool {
 		return slices.ContainsFunc(imageSources, func(v dtypes.ImageSource) bool {
-			return v == dtypes.ImageSourceAvatar || v == dtypes.ImageSourceSite
+			return v == dtypes.ImageSourceChannel || v == dtypes.ImageSourceSite
 		})
 	}
 
 	var defaultImageSVG template.HTML
-	if hasAvatarOrSite() {
+	if hasChannelOrSite() {
 		downloadInfo, _ := h.downloader.GetDownloadInfo(ctx, authCtx, downloadID)
 		if downloadInfo != nil && !downloadInfo.Status.IsReady() {
 			defaultImageSVG = icons.DownloadAvatarPlaceholderIcon.FileRaw()

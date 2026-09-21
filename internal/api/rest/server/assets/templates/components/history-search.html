@@ -4,14 +4,16 @@
                 <div class="history-search__input_wrapper" id="historySearchInputWrapper">
                     <input class="history-search__input"
                     id="historySearchInput"
-                    type="search" name="search"
+                    type="search" name="query"
                     placeholder="Search media"
                     maxlength="255"
                     autocomplete="off"
+                    value="{{ .Values.SearchQuery}}"
                     hx-post="{{ .BasePaths.DownloaderSearch }}"
-                    hx-trigger="input[this.value.length == 0 || this.value.length >= 2] changed delay:500ms, keyup[key=='Enter']"
+                    hx-trigger="input[isSearchQueryValid(this)] changed delay:500ms, keyup[key=='Enter']"
                     hx-target="#media-result-rows"
-                    hx-on::config-request="event.detail.parameters.viewMode = document.querySelector('.view-mode-tabs').dataset.viewMode"
+                    hx-on::config-request="configureSearch(event)"
+                    hx-on::after-request="handleSearchSuccess(event)"
                     hx-swap="outerHTML">
                     <button class="history-search__clear-button" id="historySearchClearButton" type="button">×</button>
                 </div>

@@ -8,7 +8,7 @@ import (
 
 func (uc *MediaSourceIndex) UpdateViews(ctx context.Context, downloadID uuid.UUID, views uint32) error {
 	return uc.Tx(ctx, func(ctx context.Context) error {
-		index, err := uc.FindByDownload(ctx, downloadID)
+		index, err := uc.FindByDownloadID(ctx, downloadID)
 		if err != nil {
 			return err
 		}

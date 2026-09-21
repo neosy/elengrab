@@ -10,7 +10,7 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
-func (uc *MediaSourceIndex) FindByDownload(
+func (uc *MediaSourceIndex) FindByDownloadID(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) (*ddownload.MediaSourceIndex, error) {
@@ -23,11 +23,11 @@ func (uc *MediaSourceIndex) FindByDownload(
 	return download, err
 }
 
-func (uc *MediaSourceIndex) GetByDownload(
+func (uc *MediaSourceIndex) GetByDownloadID(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) (*ddownload.MediaSourceIndex, error) {
-	download, err := uc.FindByDownload(ctx, downloadID)
+	download, err := uc.FindByDownloadID(ctx, downloadID)
 	if err != nil {
 		return nil, errorx.NewFromError(err, exceptionx.ERROR)
 	}
@@ -60,10 +60,6 @@ func (u *MediaSourceIndex) GetAll(
 		repo = repo.WithOptions(*queryOptions)
 	}
 
-	if len(queryOptions.Filters) > 0 {
-		repo = repo.WithFilters(queryOptions.Filters...)
-	}
-
 	var indexes []*ddownload.MediaSourceIndex
 
 	err := repo.IterateAll(ctx, func(index *ddownload.MediaSourceIndex) error {
@@ -71,7 +67,7 @@ func (u *MediaSourceIndex) GetAll(
 		return nil
 	})
 	if err != nil {
-		var options dtypes.QueryMediaOptions
+		options := dtypes.NewQueryMediaOptions()
 		if queryOptions != nil {
 			options = *queryOptions
 		}

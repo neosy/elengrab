@@ -88,9 +88,6 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		g = nfasthttp.NewRouterGroup(httppaths.DownloaderGroup, r.router)
 		g.Use(middlewareError, r.middlewares.Auth.AuthOrAnonym)
 		{
-			g.GET(httppaths.ChannelAvatarPath, handlers.GetChannelAvatarHandler)
-			g.HEAD(httppaths.ChannelAvatarPath, handlers.GetChannelAvatarHandler)
-
 			g.GET(httppaths.SettingsMenuPath, handlers.SettingsMenuHandler)
 
 			g.GET(httppaths.StreamShortCodePath, handlers.StreamShortCodeHandler)

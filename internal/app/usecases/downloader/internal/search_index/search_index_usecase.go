@@ -13,7 +13,7 @@ type SearchIndex struct {
 	mappers *mappers.Mappers
 
 	// Internal usecase
-	searchIndex *sourceindex.MediaSourceIndex
+	sourceIndex *sourceindex.MediaSourceIndex
 }
 
 func NewSearchIndex(
@@ -27,6 +27,6 @@ func NewSearchIndex(
 		mappers: mappers.NewMappers(),
 
 		// Internal usecase
-		searchIndex: sourceindex.NewMediaSourceIndex(logger, sourceIndexRepo),
+		sourceIndex: sourceindex.NewMediaSourceIndex(logger, sourceIndexRepo),
 	}
 }

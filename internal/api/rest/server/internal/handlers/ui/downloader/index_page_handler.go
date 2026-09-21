@@ -7,6 +7,9 @@ import (
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/pkg/debugx"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
@@ -29,5 +32,23 @@ func (h *DownloaderHandlers) IndexPageHandler(ctx *fasthttp.RequestCtx) {
 
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
-	h.renderIndexPage(ctx, ctxUser)
+	searchParameters, err := parseGetSearchParameters(ctx)
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		return
+	}
+
+	paramValues, err := searchParameters.ParseValues()
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		return
+	}
+
+	query, err := h.mappers.MapSearchParameterValuesToUsecaseQuery(&paramValues)
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		return
+	}
+
+	h.renderIndexPage(ctx, ctxUser, query)
 }

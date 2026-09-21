@@ -1,11 +1,11 @@
 {{- define "result-rows" }}
-          <div class="media-result__rows" id="media-result-rows">
+          <div class="media-result__rows" id="media-result-rows" data-has-search-filters="{{ .Values.HasSearchFilters }}" data-search-parameters-json="{{ .Values.SearchParametersJSON }}" data-search-parameters="{{ .Values.SearchParameters }}" data-channel-json="{{ .Values.ChannelJSON }}">
               <div class="media-result__row" style="display: none;"></div>
               <div class="media-result__items" id="media-result-items">
-                {{- if .Extra.ResultNoRows }}
+                {{- if .Values.ResultNoRows }}
                 <div class="media-result__row-no-items" id="row-no-items">No items</div>
                 {{- end }}
-                {{- .Extra.ResultRowsHTML }}
+                {{- .Values.ResultRowsHTML }}
               </div>
           </div>
 {{- end }}
