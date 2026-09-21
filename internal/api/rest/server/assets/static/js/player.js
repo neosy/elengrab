@@ -7,7 +7,7 @@ import * as watchAPI from './watch-api.js';
 import { CLASS_NAMES, MEDIA_WATCH, VIDEO_PREVIEW } from './constants.js';
 
 export const LOCAL_CLASS_NAMES = {
-    mediaResultPlayButton: "media-result__play-button",
+    mediaResultPlayButton: "media-play-button",
     mediaResultRow: "media-result__row",
 
     mediaPlayerWrapper: "media-player__wrapper",

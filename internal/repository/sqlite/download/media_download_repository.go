@@ -367,7 +367,7 @@ func (r *MediaDownloadRepository) FindByDownloadID(ctx context.Context, download
 	return download, nil
 }
 
-func (r *MediaDownloadRepository) iterateGetAll(
+func (r *MediaDownloadRepository) iterateAll(
 	ctx context.Context,
 	fn func(*ddownload.MediaDownload) error,
 ) error {
@@ -508,19 +508,19 @@ func (r *MediaDownloadRepository) iterateGetAll(
 	return nil
 }
 
-func (r *MediaDownloadRepository) IterateGetAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error {
-	return r.iterateGetAll(ctx, fn)
+func (r *MediaDownloadRepository) IterateAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error {
+	return r.iterateAll(ctx, fn)
 }
 
-func (r *MediaDownloadRepository) IterateGetByIDs(ctx context.Context, ids []uuid.UUID, fn func(*ddownload.MediaDownload) error) error {
+func (r *MediaDownloadRepository) IterateByIDs(ctx context.Context, ids []uuid.UUID, fn func(*ddownload.MediaDownload) error) error {
 	r.queryOptions.downloadIDs = ids
-	return r.iterateGetAll(ctx, fn)
+	return r.iterateAll(ctx, fn)
 }
 
 func (r *MediaDownloadRepository) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ddownload.MediaDownload, error) {
 	downloads := make([]*ddownload.MediaDownload, 0)
 
-	err := r.IterateGetByIDs(ctx, ids,
+	err := r.IterateByIDs(ctx, ids,
 		func(download *ddownload.MediaDownload) error {
 			downloads = append(downloads, download)
 			return nil
@@ -620,7 +620,7 @@ func (r *MediaDownloadRepository) GetByStatuses(ctx context.Context, statuses []
 	r.queryOptions.statuses = statuses
 	r.queryOptions.includeDeleted = false
 
-	err := r.iterateGetAll(
+	err := r.iterateAll(
 		ctx,
 		func(f *ddownload.MediaDownload) error {
 			downloads = append(downloads, f)
@@ -643,7 +643,7 @@ func (r *MediaDownloadRepository) GetByPartialHash(ctx context.Context, hash str
 	r.queryOptions.partialHash = &h
 	r.queryOptions.includeDeleted = false
 
-	err := r.iterateGetAll(
+	err := r.iterateAll(
 		ctx,
 		func(f *ddownload.MediaDownload) error {
 			downloads = append(downloads, f)
@@ -670,7 +670,7 @@ func (r *MediaDownloadRepository) GetWithoutPartialHash(ctx context.Context) ([]
 		dbutils.OrderAscending,
 	).List()
 
-	err := r.iterateGetAll(
+	err := r.iterateAll(
 		ctx,
 		func(f *ddownload.MediaDownload) error {
 			downloads = append(downloads, f)

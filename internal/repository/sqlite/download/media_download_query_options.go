@@ -59,8 +59,8 @@ func (r *MediaDownloadRepository) WithOptions(options dtypes.QueryMediaOptions) 
 		r.WithOrderBy(options.OrderBys...)
 	}
 
-	if len(options.Filters) > 0 {
-		r.WithFilters(options.Filters...)
+	if options.Filters != nil && options.Filters.Len() > 0 {
+		r.WithFilters(options.Filters.List()...)
 	}
 
 	return r

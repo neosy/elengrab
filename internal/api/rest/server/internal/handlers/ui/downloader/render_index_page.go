@@ -6,13 +6,14 @@ import (
 	"mime"
 	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/clientcap"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/images"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/items"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/consts"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -23,11 +24,13 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, authCtx dauth.AuthContext) {
-	query := udto.MediaDownloadQueryDefault(consts.LoadHistoryLimit)
-
+func (h *DownloaderHandlers) renderIndexPage(
+	ctx *fasthttp.RequestCtx,
+	authCtx dauth.AuthContext,
+	query udto.MediaDownloadQuery,
+) {
 	var rowsBuf bytes.Buffer
-	err := h.listDownloadsItems(ctx, &rowsBuf, authCtx, query)
+	err := h.renderDownloadItemList(ctx, &rowsBuf, authCtx, query)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -76,6 +79,16 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, authCtx d
 		Height: 720,
 	}
 
+	queryFilters := h.mappers.MapQueryFiltersDomainToFilters(query.Filters)
+
+	searchParameters := types.NewSearchParameters()
+	searchParameters.AddValues(query.ViewMode.String(), queryFilters, dtypes.QueryMediaDownloadCursor{})
+
+	channelHeaderPageData := pages.ChannelHeader{}
+	if channelID := searchParameters.FindChannelID(); channelID != uuid.Nil {
+		channelHeaderPageData = h.buildChannelHeaderPageData(ctx, channelID)
+	}
+
 	metaOgItems := make(pages.MetaOgItems, 0, 15)
 	metaOgItems.Add("site_name", iconfig.AppName)
 	metaOgItems.Add("type", "website")
@@ -95,8 +108,6 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, authCtx d
 	extraData := make(map[string]any)
 	extraData[items.UserAvatarIconKey] = icons.UserAvatarIconByType(authCtx.UserType()).FileRaw()
 	extraData[items.UserAvatarActionModeKey] = userAvatarActionMode
-	extraData[items.ResultNoRowsKey] = rowsBuf.Len() == 0
-	extraData[items.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
 
 	pageData := pages.IndexPageData{
 		BasePaths:  paths.NewHttpPaths(),
@@ -116,6 +127,22 @@ func (h *DownloaderHandlers) renderIndexPage(ctx *fasthttp.RequestCtx, authCtx d
 			HasWriteOperationAccess:    h.downloader.HasWriteOperationAccess(authCtx),
 			DiskFree:                   humanize.Bytes(int64(systemInfo.DiskFree)),
 			DiskUsed:                   humanize.Bytes(int64(systemInfo.DiskUsed)),
+
+			SearchQuery: query.Filters.GetStringValue(dtypes.QueryFilterNameSearchQuery),
+
+			ChannelHeader: channelHeaderPageData,
+			ChannelJSON:   string(channelHeaderPageData.JSON()),
+
+			ActiveViewMode: query.ViewMode.String(),
+			ViewModeTabs:   pages.BuildViewModeTabs(query.ViewMode),
+
+			HasSearchFilters:     searchParameters.QueryFilters().Len() != 0,
+			SearchParametersJSON: string(searchParameters.BuildJSON()),
+			SearchParameters:     template.HTML(searchParameters.EncodeShortQueryValue()),
+
+			ResultNoRows:   rowsBuf.Len() == 0,
+			ResultRowsHTML: template.HTML(rowsBuf.String()),
+
 			GrabForm: pages.IndexGrabForm{
 				InputPlaceholder:   pages.IndexGrabFormInputPlaceholder,
 				SettingsButtonIcon: icons.IndexGrabSettingsButtonIcon.FileRaw(),

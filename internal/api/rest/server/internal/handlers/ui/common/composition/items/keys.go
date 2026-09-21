@@ -14,7 +14,4 @@ const (
 	MenuActionsKey        = "MenuActions"
 
 	DisableHTMXEventKey = "DisableHTMXEvent"
-
-	ResultNoRowsKey   = "ResultNoRows"
-	ResultRowsHTMLKey = "ResultRowsHTML"
 )

@@ -22,6 +22,9 @@ type MediaSourceIndex struct {
 	// Description media
 	Description *string
 
+	// Channel ID
+	ChannelID uuid.UUID
+
 	// Visibility access level for media (public or private)
 	Visibility dtypes.MediaVisibility
 
@@ -60,6 +63,7 @@ func (index *MediaSourceIndex) InitFromMediaDownload(download *MediaDownload) {
 	index.Title = download.MediaTitle
 	index.Description = download.MediaDescription
 
+	index.ChannelID = download.ChannelID
 	index.Visibility = download.Visibility
 	index.SourceCreatedAt = download.CreatedAt
 }
@@ -68,5 +72,6 @@ func (index *MediaSourceIndex) NeedsUpdateFromMediaDownload(download *MediaDownl
 	return index.UserID != download.UserID ||
 		index.Title != download.MediaTitle ||
 		index.Description != download.MediaDescription ||
+		index.ChannelID != download.ChannelID ||
 		index.Visibility != download.Visibility
 }

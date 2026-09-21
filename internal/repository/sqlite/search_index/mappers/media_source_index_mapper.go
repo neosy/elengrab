@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/google/uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	esearchindex "github.com/neosy/elengrab/internal/repository/sqlite/search_index/entity"
@@ -15,6 +17,11 @@ func (m *Mappers) MapMediaSourceIndexDomainToEntity(index *ddownload.MediaSource
 		descriptionLower = strings.ToLower(*index.Description)
 	}
 
+	var channelID *uuid.UUID
+	if index.ChannelID != uuid.Nil {
+		channelID = &index.ChannelID
+	}
+
 	return &esearchindex.MediaSourceIndex{
 		DownloadID:       index.DownloadID,
 		UserID:           index.UserID,
@@ -22,8 +29,9 @@ func (m *Mappers) MapMediaSourceIndexDomainToEntity(index *ddownload.MediaSource
 		TitleLower:       strings.ToLower(index.Title),
 		Description:      index.Description,
 		DescriptionLower: descriptionLower,
-		Views:            int(index.Views),
+		ChannelID:        channelID,
 		Visibility:       index.Visibility.String(),
+		Views:            int(index.Views),
 		SourceCreatedAt:  index.SourceCreatedAt,
 	}, nil
 }
@@ -34,13 +42,19 @@ func (m *Mappers) MapSourceIndexEntityToDomain(index *esearchindex.MediaSourceIn
 		return nil, err
 	}
 
+	var channelID uuid.UUID
+	if index.ChannelID != nil {
+		channelID = *index.ChannelID
+	}
+
 	return &ddownload.MediaSourceIndex{
 		DownloadID:      index.DownloadID,
 		UserID:          index.UserID,
 		Title:           index.Title,
 		Description:     index.Description,
-		Views:           uint32(index.Views),
+		ChannelID:       channelID,
 		Visibility:      visibility,
+		Views:           uint32(index.Views),
 		SourceCreatedAt: index.SourceCreatedAt,
 		DeletedAt:       index.DeletedAt,
 	}, nil

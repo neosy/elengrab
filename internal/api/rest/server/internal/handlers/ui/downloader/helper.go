@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
+
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/consts"
@@ -26,12 +28,18 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func parseGetFilters(ctx *fasthttp.RequestCtx) (dtypes.QueryFiltersByName, error) {
-	filters := make(dtypes.QueryFiltersByName)
+func parseGetFilters(ctx *fasthttp.RequestCtx) (*dtypes.QueryFilters, error) {
+	filters := dtypes.NewQueryFilters()
 
 	for key, value := range ctx.QueryArgs().All() {
 		k := string(key)
 		v := string(value)
+
+		switch k {
+		case qkeys.SearchQueryKey.String():
+			filters.Add(dtypes.QueryFilterNameSearchQuery, v)
+			continue
+		}
 
 		prefix := "filter["
 		suffix := "]"
@@ -59,13 +67,31 @@ func parseGetFilters(ctx *fasthttp.RequestCtx) (dtypes.QueryFiltersByName, error
 }
 
 func parseGetSearchParameters(ctx *fasthttp.RequestCtx) (*types.SearchParameters, error) {
-	searchParametersStr := string(ctx.QueryArgs().Peek(qkeys.SearchParametersKey.String()))
+	searchParametersStr := string(ctx.QueryArgs().Peek(qkeys.SearchParametersKey.Short()))
+	if searchParametersStr == "" {
+		searchParametersStr = string(ctx.QueryArgs().Peek(qkeys.SearchParametersKey.String()))
+	}
 
 	if searchParametersStr == "" {
 		return nil, nil
 	}
 
-	searchParameters, err := types.ParseEncodedSearchParameters(searchParametersStr)
+	searchParameters, err := types.ParseEncodedSearchParamQueryString(searchParametersStr)
+	if err != nil {
+		return nil, err
+	}
+
+	return searchParameters, nil
+}
+
+func parsePostSearchParameters(ctx *fasthttp.RequestCtx) (*types.SearchParameters, error) {
+	queryString := ctx.PostArgs().String()
+
+	if queryString == "" {
+		return nil, nil
+	}
+
+	searchParameters, err := types.ParseSearchQueryString(queryString)
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +233,7 @@ func (h *DownloaderHandlers) buildMediaAvatarImageURL(downloadInfo *ucdto.MediaD
 		downloadInfo.DownloadID,
 		downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
-			dtypes.ImageSourceAvatar,
+			dtypes.ImageSourceChannel,
 			dtypes.ImageSourceSite,
 		},
 	)
@@ -223,4 +249,65 @@ func (h *DownloaderHandlers) buildMediaSiteImageURL(downloadInfo *ucdto.MediaDow
 		},
 	)
 	return url
+}
+
+func (h *DownloaderHandlers) buildChannelPageData(
+	ctx context.Context,
+	channelID uuid.UUID,
+) pages.Channel {
+	if channelID == uuid.Nil {
+		return pages.Channel{}
+	}
+
+	channel, _ := h.downloader.GetChannelByID(ctx, channelID)
+	if channel == nil {
+		return pages.Channel{}
+	}
+
+	encodeChannelID := idcodec.EncodeUUIDBase64URL(channelID)
+
+	searchParameters := types.NewSearchParameters()
+	searchParameters.Add(qkeys.ViewModeKey, dtypes.QueryMediaViewModeDefault.String())
+	searchParameters.Add(qkeys.ChannelIDKey, encodeChannelID)
+
+	channelURL := "/?" + searchParameters.EncodeShortQueryString()
+
+	return pages.Channel{
+		EncodedChannelID: encodeChannelID,
+		Title:            channel.Title,
+
+		URL:      channelURL,
+		ImageURL: httppaths.BuildChannelImagePath(channel.ExternalID, channel.Platform),
+
+		Ext: pages.ChannelExt{
+			ExtID:    channel.ExternalID,
+			Platform: channel.Platform,
+			URL:      channel.ChannelURL,
+		},
+	}
+}
+
+func (h *DownloaderHandlers) buildChannelHeaderPageData(ctx context.Context, channelID uuid.UUID) pages.ChannelHeader {
+	if channelID == uuid.Nil {
+		return pages.ChannelHeader{}
+	}
+
+	channel, _ := h.downloader.GetChannelByID(ctx, channelID)
+	if channel == nil {
+		return pages.ChannelHeader{}
+	}
+
+	return pages.ChannelHeader{
+		EncodedChannelID: idcodec.EncodeUUIDBase64URL(channelID),
+		Title:            channel.Title,
+
+		ImageURL: httppaths.BuildChannelImagePath(channel.ExternalID, channel.Platform),
+
+		Ext: pages.ChannelExt{
+			ExtID:    channel.ExternalID,
+			Platform: channel.Platform,
+			URL:      channel.ChannelURL,
+		},
+		Show: true,
+	}
 }

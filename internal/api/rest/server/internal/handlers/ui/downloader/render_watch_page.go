@@ -218,7 +218,7 @@ func (h *DownloaderHandlers) renderWatchPage(
 		downloadInfo.DownloadID,
 		downloadInfo.ImageMetaHash(),
 		[]dtypes.ImageSource{
-			dtypes.ImageSourceAvatar,
+			dtypes.ImageSourceChannel,
 			dtypes.ImageSourceSite,
 		},
 	)

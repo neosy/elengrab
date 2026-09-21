@@ -29,6 +29,9 @@ type MediaSourceIndex struct {
 	// Description media in lowercase for efficient case-insensitive searches
 	DescriptionLower string `db:"description_lower"`
 
+	// Channel ID
+	ChannelID *uuid.UUID `db:"channel_id" pfield:"channelId"`
+
 	// Visibility access level for media (public or private)
 	Visibility string `db:"visibility"`
 

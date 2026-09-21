@@ -49,9 +49,6 @@ const (
 	MediaItemReWatchTrackingPath = MediaItemsPath + "/{itemId}/watch-tracking"
 	MediaItemWatchPositionPath   = MediaItemsPath + "/{itemId}/watch-position"
 
-	// Paths channels in Downloader
-	ChannelAvatarPath = "/channels/{channelId}/avatar"
-
 	// Paths short links, e.g. /s/{shortCode}
 	ShortLinkPath       = "/{shortCode}"
 	StreamShortCodePath = "/stream/{shortCode}"

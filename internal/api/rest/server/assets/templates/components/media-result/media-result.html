@@ -5,9 +5,16 @@
               <span class="media-result_info-failed" id="result-info-failed"></span>
           </div>
         </div>
+        <div class="channel-header{{ if not .Values.ChannelHeader.Show }} hidden{{ end }}" id="chnnel-header">
+          <img class="channel-header-image{{ if not .Values.ChannelHeader.ImageURL }} hidden{{ end }}" id="chnnel-header-image" alt="Channel avatar" src="{{ .Values.ChannelHeader.ImageURL }}">
+          <div class="channel-header-content">
+            <span class="channel-header-title" id="chnnel-header-title">{{ .Values.ChannelHeader.Title }}</span>
+            <span class="channel-header-ext-id" id="chnnel-header-ext-id">@{{ .Values.ChannelHeader.Ext.ExtID }}</span>
+          </div>
+        </div>
         {{- template "view-mode-bar" . }}
         <div class="media-result__rows-wrapper">
-          {{- template "result-rows" . }}
+        {{- template "result-rows" . }}
         </div>
       </div>
 {{- end }}

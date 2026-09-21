@@ -76,13 +76,20 @@ export const VIDEO_PREVIEW = {
 };
 
 export const DOM_IDS = {
-    mediaResultItems: "media-result-items",
+    userRolesList: "userRolesList",
+
+    mediaResultRows: 'media-result-rows',
+    mediaResultItems: 'media-result-items',
     rowNoItems: "row-no-items",
 
     row: (id) => `row-${id}`,
     progress: (id) => `progress-${id}`,
 
-    userRolesList: "userRolesList",
-   
     rowUser: (id) => `row-user-${id}`,
+};
+
+export const URL_KEYS = {
+    query: 'query',
+    searchQuery: 'searchQuery',
+    searchParams: 'sp',
 };

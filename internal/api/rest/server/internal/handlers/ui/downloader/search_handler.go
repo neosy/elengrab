@@ -2,74 +2,68 @@ package downloader
 
 import (
 	"bytes"
-	"html/template"
+	"encoding/json"
 
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/items"
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/consts"
-	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
-	filters := make(dtypes.QueryFiltersByName)
+	query := udto.MediaDownloadQueryDefault(consts.LoadHistoryLimit)
 
-	var viewMode = dtypes.QueryMediaViewModeDefault
+	if string(ctx.Request.Header.ContentType()) == "application/json" {
+		var req dto.SearchRequest
 
-	viewModeStr := string(ctx.PostArgs().Peek(qkeys.ViewModeKey.String()))
-	if viewModeStr != "" {
-		var err error
-		viewMode, err = dtypes.ParseQueryMediaViewMode(viewModeStr)
+		err := json.Unmarshal(ctx.PostBody(), &req)
 		if err != nil {
 			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 			return
 		}
-	}
 
-	searchText := dtypes.SearchText(ctx.PostArgs().Peek(qkeys.SearchKey.String())).Normalize()
-	if searchText.IsLongEnough() {
-		if err := searchText.Validate(); err != nil {
-			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		err = h.validators.Validate.Struct(req)
+		if err != nil {
+			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 			return
 		}
 
-		filters.Add(dtypes.QueryFilterNameSearch, searchText.String())
-	}
+		query, err = h.mappers.MapSearchRequestToUsecaseQuery(req)
+		if err != nil {
+			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+			return
+		}
+	} else {
+		params, err := parsePostSearchParameters(ctx)
+		if err != nil {
+			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+			return
+		}
 
-	query := udto.MediaDownloadQueryDefault(consts.LoadHistoryLimit)
-	query.ViewMode = viewMode
-	query.Filters = filters
+		paramValues, err := params.ParseValues()
+		if err != nil {
+			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+			return
+		}
 
-	var rowsBuf bytes.Buffer
-	err := h.listDownloadsItems(ctx, &rowsBuf, authCtx, query)
-	if err != nil {
-		fasthttpx.WriteErrorx(ctx, err)
-		return
-	}
-
-	extraData := make(map[string]any)
-	extraData[items.ResultNoRowsKey] = rowsBuf.Len() == 0
-	extraData[items.ResultRowsHTMLKey] = template.HTML(rowsBuf.String())
-
-	pageData := pages.RowFragmentData{
-		BasePaths: paths.NewHttpPaths(),
-		Values:    &pages.RowFragmentValues{},
-		Extra:     extraData,
+		query, err = h.mappers.MapSearchParameterValuesToUsecaseQuery(&paramValues)
+		if err != nil {
+			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+			return
+		}
 	}
 
 	var bodyBuffer bytes.Buffer
-	if err := h.templates.Base.ExecuteTemplate(&bodyBuffer, components.ResultRowsKey, pageData); err != nil {
-		fasthttpx.WriteErrorx(ctx, errInternal(err))
+	err := h.renderDownloadRows(ctx, &bodyBuffer, authCtx, query)
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 

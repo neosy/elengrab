@@ -17,12 +17,21 @@ type (
 	}
 
 	IndexPageValues struct {
+		RowsFragmentValues
+
 		UserMenuSearchButtonIcon   template.HTML
 		UserMenuDownloadButtonIcon template.HTML
 		SearchBackArrowIcon        template.HTML
 
 		ShowHistorySearch   bool
 		UserMenuAvatarTitle string
+
+		SearchQuery string
+
+		ChannelHeader ChannelHeader
+
+		ActiveViewMode string
+		ViewModeTabs   []ViewModeTab
 
 		HasCreateAccess         bool
 		HasWriteOperationAccess bool

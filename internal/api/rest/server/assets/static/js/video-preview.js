@@ -324,8 +324,8 @@ export function initVideoPreviewScroll(container, elementClassName, thumbClassNa
         return;
     }
 
-    const refreshPreview = () => {
-        updateVideoPreview(container, elementClassName, thumbClassName);
+    const refreshPreview = (force=false) => {
+        updateVideoPreview(container, elementClassName, thumbClassName, force);
     };    
 
     window.addEventListener("scroll", refreshPreview, { passive: true });
@@ -337,7 +337,7 @@ export function initVideoPreviewScroll(container, elementClassName, thumbClassNa
     return refreshPreview;
 }
 
-function updateVideoPreview(container, elementClassName, thumbClassName) {
+function updateVideoPreview(container, elementClassName, thumbClassName, force=false) {
     if (!isMobileScreen()) {
         return;
     }
@@ -347,7 +347,7 @@ function updateVideoPreview(container, elementClassName, thumbClassName) {
             DOM_IDS.row(previewState.currentItemId)
         );
 
-        if (!element || !isElementInViewport(element)) {
+        if (force || !element || !isElementInViewport(element)) {
             hideVideoPreview();
         }
     }

@@ -19,7 +19,7 @@ func (uc *downloader) ListDownloadInfo(
 	authCtx dauth.AuthContext,
 	query dto.MediaDownloadQuery,
 ) ([]*dto.MediaDownloadInfo, error) {
-	var options dtypes.QueryMediaOptions
+	options := dtypes.NewQueryMediaOptions()
 
 	options.ViewMode = query.ViewMode
 	if !options.ViewMode.Exists() {
@@ -37,7 +37,7 @@ func (uc *downloader) ListDownloadInfo(
 		}
 	}
 
-	for _, filter := range query.Filters {
+	for _, filter := range query.Filters.List() {
 		options.Filters.Append(filter)
 	}
 

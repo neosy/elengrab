@@ -17,6 +17,8 @@ export const DOM_CLASSES = {
     viewModeTabs: "view-mode-tabs",
     viewModeTab: "view-mode-tab",
 
+    mediaExtChannelLinkButton: "channel-button--link",
+
     mediaResultRowThumbnail: "media-result__row-thumbnail",
     mediaResultThumbnailPlayButton: "media-result__thumbnail-play-button",
     mediaResultRowThumbnailImageWrapper: "media-result__thumbnail-image__wrapper",
@@ -25,7 +27,7 @@ export const DOM_CLASSES = {
     mediaResultRowThumbnailWatchProgress: "media-result__thumbnail-watch-progress",
     mediaResultRowThumbnailWatchProgressValue: "media-result__thumbnail-watch-progress-value",
 
-    mediaResultAvatar: "media-result__avatar",
+    mediaResultAvatar: "media-result__channel",
 
     mediaResultTitleLink: "media-result__title-link",
     mediaResultViewCount: "media-result__content-view-count",
@@ -39,10 +41,6 @@ export const DOM_SELECTORS = Object.fromEntries(
         .map(([key, value]) => [key, `.${value}`])
 );
 
-export const DOM_IDS = {
-    mediaResultItems: 'media-result-items',
-}
-
 export const DOM_ELEMENTS = {
     grabForm: null,
     mediaURLInput: null,
@@ -54,6 +52,13 @@ export const DOM_ELEMENTS = {
     historySearchInputWrapper: null,
     historySearchInput: null,
     historySearchClearButton: null,
+
+    channelHeader: {
+        header: null,
+        image: null,
+        title: null,
+        extId: null,
+    },
 
     result: null,
     mediaResultItems: null,
@@ -80,6 +85,13 @@ export function initDomElements() {
     DOM_ELEMENTS.historySearchInputWrapper = document.getElementById("historySearchInputWrapper");
     DOM_ELEMENTS.historySearchInput = document.getElementById("historySearchInput");
     DOM_ELEMENTS.historySearchClearButton = document.getElementById("historySearchClearButton");
+
+    DOM_ELEMENTS.channelHeader = {
+        header: document.getElementById("chnnel-header"),
+        image: document.getElementById("chnnel-header-image"),
+        title: document.getElementById("chnnel-header-title"),
+        extId: document.getElementById("chnnel-header-ext-id"),
+    }
 
     DOM_ELEMENTS.result = document.getElementById("media-result");
 

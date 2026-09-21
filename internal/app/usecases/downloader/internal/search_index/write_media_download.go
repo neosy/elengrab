@@ -17,7 +17,7 @@ func (uc *SearchIndex) CreateMediaDownload(ctx context.Context, download *ddownl
 
 	index.InitFromMediaDownload(download)
 
-	err := uc.searchIndex.Insert(ctx, index)
+	err := uc.sourceIndex.Insert(ctx, index)
 	if err != nil {
 		return err
 	}
@@ -31,8 +31,8 @@ func (uc *SearchIndex) SaveMediaDownload(ctx context.Context, download *ddownloa
 		return apperrors.ErrFuncParamNullPointer
 	}
 
-	return uc.searchIndex.Tx(ctx, func(ctx context.Context) error {
-		index, err := uc.searchIndex.FindByDownload(ctx, download.DownloadID)
+	return uc.sourceIndex.Tx(ctx, func(ctx context.Context) error {
+		index, err := uc.sourceIndex.FindByDownloadID(ctx, download.DownloadID)
 		if err != nil {
 			return err
 		}
@@ -47,7 +47,7 @@ func (uc *SearchIndex) SaveMediaDownload(ctx context.Context, download *ddownloa
 
 		index.InitFromMediaDownload(download)
 
-		err = uc.searchIndex.Update(ctx, index)
+		err = uc.sourceIndex.Update(ctx, index)
 		if err != nil {
 			return err
 		}

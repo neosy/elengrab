@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
@@ -26,7 +26,7 @@ func (uc *downloader) GetDownloadImage(
 	if len(sources) == 0 {
 		sources = []dtypes.ImageSource{
 			dtypes.ImageSourceThumbnail,
-			dtypes.ImageSourceAvatar,
+			dtypes.ImageSourceChannel,
 			dtypes.ImageSourceSite,
 		}
 	}
@@ -37,10 +37,10 @@ func (uc *downloader) GetDownloadImage(
 		switch src {
 		case dtypes.ImageSourceThumbnail:
 			imageData, err = uc.getDownloadThumbnailImage(ctx, downloadInfo.MediaInfo)
-		case dtypes.ImageSourceAvatar:
-			imageData, err = uc.getDownloadChannelImage(ctx, downloadInfo)
+		case dtypes.ImageSourceChannel:
+			imageData, err = uc.GetChannelImage(ctx, downloadInfo.Channel)
 		case dtypes.ImageSourceSite:
-			imageData, err = uc.getDownloadSiteImage(ctx, downloadInfo)
+			imageData, err = uc.GetSiteImage(ctx, downloadInfo.MediaURL)
 		}
 		if err == nil {
 			break
@@ -74,22 +74,22 @@ func (uc *downloader) getDownloadThumbnailImage(
 	return nil, errorx.NewHTTPMessage("thumbnail not found", http.StatusNotFound)
 }
 
-func (uc *downloader) getDownloadChannelImage(
+func (uc *downloader) GetChannelImage(
 	_ context.Context,
-	downloadInfo *dto.MediaDownloadInfo,
+	channel *dmedia.Channel,
 ) (*dtypes.ImageData, error) {
-	if downloadInfo.Channel != nil && downloadInfo.Channel.HasImage() {
-		return downloadInfo.Channel.ImageData(), nil
+	if channel != nil && channel.HasImage() {
+		return channel.ImageData(), nil
 	}
 
 	return nil, errorx.NewHTTPMessage("avatar not found", http.StatusNotFound)
 }
 
-func (uc *downloader) getDownloadSiteImage(
+func (uc *downloader) GetSiteImage(
 	ctx context.Context,
-	downloadInfo *dto.MediaDownloadInfo,
+	url string,
 ) (*dtypes.ImageData, error) {
-	logo, err := uc.siteIcon.GetBySiteURL(ctx, httpx.BaseURL(downloadInfo.MediaURL))
+	logo, err := uc.siteIcon.GetBySiteURL(ctx, httpx.BaseURL(url))
 	if err != nil {
 		return nil, errorx.Errorf("avatar not found: %w", err)
 	}

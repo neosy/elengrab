@@ -35,8 +35,8 @@ func (r *MediaSourceIndexRepository) WithOptions(options dtypes.QueryMediaOption
 		r.WithOrderBy(options.OrderBys...)
 	}
 
-	if len(options.Filters) > 0 {
-		r.WithFilters(options.Filters...)
+	if options.Filters != nil && options.Filters.Len() > 0 {
+		r.WithFilters(options.Filters.List()...)
 	}
 
 	return r
@@ -68,7 +68,7 @@ func (r *MediaSourceIndexRepository) WithFilters(filters ...dtypes.QueryFilter) 
 
 	for _, filter := range filters {
 		switch filter.Name {
-		case dtypes.QueryFilterNameSearch:
+		case dtypes.QueryFilterNameSearchQuery:
 			text, ok := filter.Value().(string)
 			if ok {
 				text = dtypes.SearchText(text).Normalize().String()
