@@ -33,9 +33,9 @@ func (m *Mappers) MapMediaItemsRequestToQuery(req dto.MediaItemsRequest) (udto.M
 		}
 	}
 
-	filters := make(dtypes.QueryFiltersByName)
-	if req.Search != "" {
-		filters.Add(dtypes.QueryFilterNameSearch, req.Search)
+	filters := dtypes.NewQueryFilters()
+	if req.SearchQuery != "" {
+		filters.Add(dtypes.QueryFilterNameSearchQuery, req.SearchQuery)
 	}
 
 	query := udto.MediaDownloadQuery{
@@ -51,5 +51,5 @@ func (m *Mappers) MapMediaItemsRequestToQuery(req dto.MediaItemsRequest) (udto.M
 		Filters: filters,
 	}
 
-	return udto.BuildMediaDownloadQuery(query), nil
+	return query.Clone(), nil
 }

@@ -1,14 +1,24 @@
 package dtypes
 
-import "github.com/neosy/elengrab/internal/pkg/dbutils"
+import (
+	"maps"
+	"slices"
+	"sync"
+
+	"github.com/neosy/elengrab/internal/pkg/dbutils"
+)
 
 type QueryFilter struct {
 	Name      QueryFilterName
 	condition dbutils.FilterConditioner
 }
 
-type QueryFiltersByName map[QueryFilterName]QueryFilter
-type QueryFiltersList []QueryFilter
+type QueryFilters struct {
+	mu sync.RWMutex
+
+	list   []QueryFilter
+	byName map[QueryFilterName]QueryFilter
+}
 
 func NewQueryFilter(name QueryFilterName, condition dbutils.FilterConditioner) QueryFilter {
 	if condition == nil {
@@ -18,6 +28,12 @@ func NewQueryFilter(name QueryFilterName, condition dbutils.FilterConditioner) Q
 	return QueryFilter{
 		Name:      name,
 		condition: condition,
+	}
+}
+
+func NewQueryFilters() *QueryFilters {
+	return &QueryFilters{
+		byName: make(map[QueryFilterName]QueryFilter),
 	}
 }
 
@@ -32,12 +48,21 @@ func (f QueryFilter) Value() any {
 	return f.condition.Value()
 }
 
-func (filters *QueryFiltersList) Append(filter QueryFilter) QueryFilter {
-	*filters = append(*filters, filter)
-	return filter
+func (filters *QueryFilters) Append(filter QueryFilter) *QueryFilters {
+	if filters == nil {
+		return nil
+	}
+
+	filters.mu.Lock()
+	defer filters.mu.Unlock()
+
+	filters.list = append(filters.list, filter)
+	filters.byName[filter.Name] = filter
+
+	return filters
 }
 
-func (filters *QueryFiltersList) Add(name QueryFilterName, value any) QueryFilter {
+func (filters *QueryFilters) Add(name QueryFilterName, value any) QueryFilter {
 	if filters == nil {
 		return QueryFilter{}
 	}
@@ -47,38 +72,85 @@ func (filters *QueryFiltersList) Add(name QueryFilterName, value any) QueryFilte
 		condition: dbutils.NewFilterCondition(value, dbutils.FilterOperatorEq),
 	}
 
-	*filters = append(*filters, filter)
+	filters.Append(filter)
 
 	return filter
 }
 
-func (filters QueryFiltersByName) Add(name QueryFilterName, value any) QueryFilter {
+func (filters *QueryFilters) List() []QueryFilter {
 	if filters == nil {
-		return QueryFilter{}
+		return nil
 	}
 
-	filter := QueryFilter{
-		Name:      name,
-		condition: dbutils.NewFilterCondition(value, dbutils.FilterOperatorEq),
-	}
+	filters.mu.RLock()
+	defer filters.mu.RUnlock()
 
-	filters[name] = filter
-
-	return filter
+	return slices.Clone(filters.list)
 }
 
-func (filters QueryFiltersByName) List() QueryFiltersList {
-	list := make(QueryFiltersList, len(filters))
-	for _, filter := range filters {
-		list = append(list, filter)
+func (filters *QueryFilters) Len() int {
+	if filters == nil {
+		return 0
 	}
-	return list
+
+	filters.mu.RLock()
+	defer filters.mu.RUnlock()
+
+	return len(filters.list)
 }
 
-func (filters QueryFiltersList) FiltersByName() QueryFiltersByName {
-	filtersByName := make(QueryFiltersByName, len(filters))
-	for _, filter := range filters {
-		filtersByName[filter.Name] = filter
+func (filters *QueryFilters) Clone() *QueryFilters {
+	if filters == nil {
+		return nil
 	}
-	return filtersByName
+
+	filters.mu.RLock()
+	defer filters.mu.RUnlock()
+
+	return &QueryFilters{
+		list:   slices.Clone(filters.list),
+		byName: maps.Clone(filters.byName),
+	}
+}
+
+func (filters *QueryFilters) Find(name QueryFilterName) (QueryFilter, bool) {
+	if filters == nil {
+		return QueryFilter{}, false
+	}
+
+	filter, exists := filters.byName[name]
+
+	return filter, exists
+}
+
+func (filters *QueryFilters) GetValue(name QueryFilterName) any {
+	if filters == nil {
+		return nil
+	}
+
+	filter, exists := filters.byName[name]
+
+	if !exists {
+		return nil
+	}
+
+	return filter.Value()
+}
+
+func (filters *QueryFilters) GetStringValue(name QueryFilterName) string {
+	if filters == nil {
+		return ""
+	}
+
+	value := filters.GetValue(name)
+	if value == nil {
+		return ""
+	}
+
+	strValue, ok := value.(string)
+	if !ok {
+		return ""
+	}
+
+	return strValue
 }

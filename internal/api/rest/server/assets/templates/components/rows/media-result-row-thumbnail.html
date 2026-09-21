@@ -4,7 +4,7 @@
                         {{- $cssClass = " thumbnail--portrait" -}}
                     {{- end -}}
                     <div class="media-result__row-thumbnail full-bleed{{ $cssClass }}">
-                        <button class="media-result__thumbnail-play-button media-result__play-button" data-watch-url="{{ .Values.WatchURL }}">
+                        <button class="media-result__thumbnail-play-button media-play-button" data-watch-url="{{ .Values.WatchURL }}">
                             <div class="media-result__thumbnail-bg">
                                 {{- if .Values.LazyLoadImages }}
                                 <div class="media-result__thumbnail-placeholder"></div>

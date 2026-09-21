@@ -17,6 +17,9 @@ CREATE TABLE media_sources_index (
     -- Description media in lowercase for efficient case-insensitive searches
     description_lower TEXT NOT NULL,
 
+    -- Internal channel identifier
+    channel_id TEXT NULL,
+
     -- Visibility access level for media (public, authenticated or private)
     visibility TEXT NOT NULL,
 
@@ -41,3 +44,6 @@ CREATE INDEX media_sources_index_visibility_views_idx
 
 CREATE INDEX media_sources_index_user_id_source_created_at_idx
     ON media_sources_index (user_id, source_created_at);
+
+CREATE INDEX media_sources_index_channel_id_source_created_at_idx
+    ON media_sources_index (channel_id, source_created_at);

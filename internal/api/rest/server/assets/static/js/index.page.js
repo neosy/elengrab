@@ -7,13 +7,15 @@ import * as rowEventHandlers from './index.sse.events.js';
 import { initPlayer } from './player.js';
 import * as tooltip from './tooltip.js';
 import { initIndexMenus as initMenu } from './index.menu-configs.js';
-import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
+import { SELECT_NAMES, COOKIE_NAMES, DOM_IDS, URL_KEYS } from './constants.js';
 import * as notify from './notifications.js';
 import * as view from './index.view.js';
 import * as videoPreview from './video-preview.js';
 
 // Global variables
 let globalEventSource = null;
+let searchInputClearButton = null;
+let searching = null;
 
 // -------------------------------------------------------------
 // Function: setupQualityFormatLogic
@@ -336,8 +338,8 @@ document.addEventListener('DOMContentLoaded', () => {
     actionButton.initInputPasteClearButton(grabURLInput, grabInputActionBtn);
 
     // Init search elements
-    const searchInputClearButton = actionButton.initInputClearButton(DOM_ELEMENTS.historySearchInputWrapper, DOM_ELEMENTS.historySearchClearButton);
-    view.initSearching(searchInputClearButton.clear);
+    searchInputClearButton = actionButton.initInputClearButton(DOM_ELEMENTS.historySearchInputWrapper, DOM_ELEMENTS.historySearchClearButton);
+    searching = view.initSearching(searchInputClearButton.clear);
 
     // Init header user menu elements
     view.initHeaderUserMenu();
@@ -366,15 +368,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize view mode bar
     view.initViewModeBar({
-        lazyObservers: [
-            thumbnailLazyImages,
-            avatarLazyImages,
-        ],
-        refreshVideoPreview,
+        getSearchParameters,
+        onSuccess: (rows) => {
+            refreshVideoPreview(true);
+            setSearchParametersInUrl();
+
+            const lazyObservers= [
+                thumbnailLazyImages,
+                avatarLazyImages,
+            ];
+
+            for (const observer of lazyObservers) {
+                observer.observe(rows);
+            }
+        },
+    });
+
+    // Initialize the external channel link button
+    view.initExtChannelLink({
+        getSearchParameters,
+        onSuccess: (rows) => {
+            refreshVideoPreview(true);
+
+            searchInputClearButton.clearInputOnly();
+            setSearchParametersInUrl();
+            updateChannelHeader();
+
+            const lazyObservers= [
+                thumbnailLazyImages,
+                avatarLazyImages,
+            ];
+
+            for (const observer of lazyObservers) {
+                observer.observe(rows);
+            }
+        },
     });
 
     // Create SSE connection
-    var sse = null;
+    let sse = null;
     window.addEventListener('pageshow', () => {
         if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
             sse = createSSEConnection();
@@ -406,3 +438,117 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('load', () => {
     window.scrollTo(0, 0);
 });
+
+function getSearchParameters() {
+    const viewModeTabs = document.querySelector(DOM_SELECTORS.viewModeTabs)
+
+    let params = {
+        viewMode: viewModeTabs.dataset.viewMode,
+    }
+
+    const rows = document.getElementById(DOM_IDS.mediaResultRows);
+    if (rows && rows.dataset.searchParametersJson) {
+        const searchParameters = JSON.parse(rows.dataset.searchParametersJson);
+        const channelId = searchParameters.channelId;
+
+        if (channelId) {
+            params.channelId = channelId;
+        }
+    }
+
+    return params
+}
+
+function getSearchValues() {
+    let values = {
+        query: DOM_ELEMENTS.historySearchInput.value,
+        hasSearchFilters: false,
+        encodeParams: null,
+    }
+
+    const rows = document.getElementById(DOM_IDS.mediaResultRows);
+    if (rows) {
+        values.hasSearchFilters = rows.dataset.hasSearchFilters === "true";
+        if (rows.dataset.searchParameters) {
+            values.encodeParams = rows.dataset.searchParameters; 
+        }
+    }
+
+    return values;
+}
+
+function configureSearch(event) {
+    Object.assign(event.detail.parameters, getSearchParameters())
+}
+
+function isSearchQueryValid(input) {
+    return input.value.length === 0 || input.value.length >= 2
+}
+
+function hasSearchParametersForUrl() {
+    const values = getSearchValues();
+
+    if (values.query || values.hasSearchFilters) {
+        return true
+    }
+
+    return false
+}
+
+function setSearchParametersInUrl() {
+    const values = getSearchValues();
+    const url = new URL(window.location.href);
+
+    url.searchParams.delete(URL_KEYS.searchQuery);
+    url.searchParams.delete(URL_KEYS.searchParams);
+
+    if (!hasSearchParametersForUrl()) {
+        window.history.replaceState(null, '', url);
+        return;
+    }
+
+    if (values.query) {
+        url.searchParams.set(URL_KEYS.searchQuery, values.query);
+    }
+
+    if (values.encodeParams) {
+        url.searchParams.set(URL_KEYS.searchParams, values.encodeParams);
+    }
+
+    window.history.replaceState(null, '', url);
+}
+
+function handleSearchSuccess(event) {
+    setSearchParametersInUrl();
+}
+
+function updateChannelHeader() {
+    const channelEl = DOM_ELEMENTS.channelHeader;
+
+    const rows = document.getElementById(DOM_IDS.mediaResultRows);
+    if (!rows) {
+        channelEl.header.classList.toggle('hidden', true);
+        return;
+    }
+    
+    const channel = JSON.parse(rows.dataset.channelJson);
+    if (!channel) {
+        channelEl.header.classList.toggle('hidden', true);
+        return;
+    }
+
+    channelEl.header.classList.toggle('hidden', !channel.show);
+
+    if (!channel.show) return;
+
+    channelEl.image.classList.toggle('hidden', channel.imageUrl === "");
+    channelEl.image.src = channel.imageUrl;
+    channelEl.title.textContent  = channel.title;
+    channelEl.extId.textContent = `@${channel.ext.extId}`;
+}
+
+window.configureSearch = function (event) {
+    configureSearch(event)
+}
+window.isSearchQueryValid = isSearchQueryValid
+window.handleSearchSuccess = handleSearchSuccess

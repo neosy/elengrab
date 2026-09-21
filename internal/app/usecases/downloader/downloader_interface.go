@@ -61,6 +61,7 @@ type DownloaderAPI interface {
 	NotifyDownloadChanged(ctx context.Context, req dto.MediaDownloadChanged)
 	FindChannelInfo(ctx context.Context, channelID string, platform string) (*dmedia.Channel, error)
 	GetChannelInfo(ctx context.Context, channelID string, platform string) (*dmedia.Channel, error)
+	GetChannelByID(ctx context.Context, channelID uuid.UUID) (*dmedia.Channel, error)
 	CheckDownloadVisibilityAccess(ctx context.Context, authCtx dauth.AuthContext, downloadID uuid.UUID) error
 	GetDownloadInfo(ctx context.Context, authCtx dauth.AuthContext, downloadID uuid.UUID) (*dto.MediaDownloadInfo, error)
 	GetDownloadInfoUnrestricted(ctx context.Context, downloadID uuid.UUID) (*dto.MediaDownloadInfo, error)
@@ -101,6 +102,8 @@ type DownloaderAPI interface {
 		downloadID uuid.UUID,
 		sources []dtypes.ImageSource,
 	) (*dtypes.ImageData, error)
+	GetChannelImage(ctx context.Context, channel *dmedia.Channel) (*dtypes.ImageData, error)
+	GetSiteImage(ctx context.Context, url string) (*dtypes.ImageData, error)
 	TrackMediaWatchEvent(ctx context.Context, authCtx dauth.AuthContext, req dto.TrackMediaWatchEventRequest) error
 	SystemInfo() dto.SystemInfoResponse
 }

@@ -7,33 +7,32 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-type MediaQueryCursor struct {
-	ViewMode     dtypes.QueryMediaViewMode
-	LastID       uuid.UUID
-	LastCreateAt time.Time
-	LastViews    uint32
+type MediaQueryCursor dtypes.QueryMediaDownloadCursor
+
+func (cursor MediaQueryCursor) IsZero() bool {
+	return cursor.ID == uuid.Nil &&
+		cursor.CreatedAt.IsZero() &&
+		cursor.Views == 0
 }
 
-func (cursor *MediaQueryCursor) Encode() string {
+func (cursor MediaQueryCursor) Encode() string {
 	var lastID string
-	if cursor.LastID != uuid.Nil {
-		lastID = cursor.LastID.String()
+	if cursor.ID != uuid.Nil {
+		lastID = cursor.ID.String()
 	}
 
 	var lastCreateAt string
-	if !cursor.LastCreateAt.IsZero() {
-		lastCreateAt = strconv.FormatInt(cursor.LastCreateAt.UTC().UnixMilli(), 10)
+	if !cursor.CreatedAt.IsZero() {
+		lastCreateAt = strconv.FormatInt(cursor.CreatedAt.UTC().UnixMilli(), 10)
 	}
 
 	values := []string{
-		cursor.ViewMode.String(),
 		lastID,
 		lastCreateAt,
-		strconv.Itoa(int(cursor.LastViews)),
+		strconv.Itoa(int(cursor.Views)),
 	}
 
 	valuesString := strings.Join(values, ",")
@@ -43,42 +42,34 @@ func (cursor *MediaQueryCursor) Encode() string {
 
 func DecodeMediaQueryCursor(value string) (*MediaQueryCursor, error) {
 	values := strings.Split(value, ",")
-	if len(values) != 4 {
+	if len(values) != 3 {
 		return nil, fmt.Errorf("invalid cursor format: expected 4 values, got %d", len(values))
 	}
 
 	var (
-		viewMode     = dtypes.QueryMediaViewModeDefault
 		lastID       uuid.UUID
 		lastCreateAt time.Time
 		lastViews    uint32
 		err          error
 	)
 
-	if values[0] != "" {
-		viewMode, err = dtypes.ParseQueryMediaViewMode(values[0])
+	if value := values[0]; value != "" {
+		lastID, err = uuid.Parse(value)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	if values[1] != "" {
-		lastID, err = uuid.Parse(values[1])
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if values[2] != "" {
-		timestamp, err := strconv.ParseInt(values[2], 10, 64)
+	if value := values[1]; value != "" {
+		timestamp, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			return nil, err
 		}
 		lastCreateAt = time.UnixMilli(timestamp).UTC()
 	}
 
-	if values[3] != "" {
-		views, err := strconv.Atoi(values[3])
+	if value := values[2]; value != "" {
+		views, err := strconv.Atoi(value)
 		if err != nil {
 			return nil, err
 		}
@@ -86,9 +77,12 @@ func DecodeMediaQueryCursor(value string) (*MediaQueryCursor, error) {
 	}
 
 	return &MediaQueryCursor{
-		ViewMode:     viewMode,
-		LastID:       lastID,
-		LastCreateAt: lastCreateAt,
-		LastViews:    lastViews,
+		ID:        lastID,
+		CreatedAt: lastCreateAt,
+		Views:     lastViews,
 	}, nil
+}
+
+func (cursor MediaQueryCursor) DomainCursor() dtypes.QueryMediaDownloadCursor {
+	return dtypes.QueryMediaDownloadCursor(cursor)
 }

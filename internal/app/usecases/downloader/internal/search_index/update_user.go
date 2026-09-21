@@ -7,7 +7,7 @@ import (
 )
 
 func (uc *SearchIndex) UpdateUser(ctx context.Context, fromID, toID uuid.UUID) error {
-	err := uc.searchIndex.UpdateUser(ctx, fromID, toID)
+	err := uc.sourceIndex.UpdateUser(ctx, fromID, toID)
 	if err != nil {
 		return err
 	}

@@ -1,10 +1,9 @@
 package static
 
 import (
-	"net/http"
-
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/valyala/fasthttp"
@@ -29,13 +28,28 @@ func (h *StaticHandlers) ChannelImageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	if !channel.HasImage() {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("channel image not found", http.StatusNotFound))
+	var image *dtypes.ImageData
+
+	if channel.HasImage() {
+		image = (*dtypes.ImageData)(channel.Image)
+	}
+
+	if image.IsZero() {
+		image, _ = h.downloader.GetSiteImage(ctx, channel.ChannelURL)
+	}
+
+	if !image.IsZero() {
+		ctx.SetContentType(httpx.ContentTypeByExt(image.Format.String()))
+		ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
+		ctx.SetBody(image.Raw)
+		ctx.SetStatusCode(fasthttp.StatusOK)
 		return
 	}
 
-	ctx.SetContentType(httpx.ContentTypeByExt(channel.Image.Format.String()))
+	defaultAvatarSVG := icons.MediaDefaultIcon.FileRaw()
+
+	ctx.SetContentType("image/svg+xml")
 	ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
-	ctx.SetBody(channel.Image.Raw)
+	ctx.SetBody([]byte(defaultAvatarSVG))
 	ctx.SetStatusCode(fasthttp.StatusOK)
 }

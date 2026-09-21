@@ -92,14 +92,14 @@ func (uc *MediaDownload) GetByDownloadID(
 	return download, nil
 }
 
-func (uc *MediaDownload) iterateGetAll(ctx context.Context, includeDeleted bool, fn func(*ddownload.MediaDownload) error) error {
+func (uc *MediaDownload) iterateAll(ctx context.Context, includeDeleted bool, fn func(*ddownload.MediaDownload) error) error {
 	repo := uc.downloadRepo()
 
 	if includeDeleted {
 		repo = repo.WithDeleted()
 	}
 
-	err := repo.IterateGetAll(ctx, fn)
+	err := repo.IterateAll(ctx, fn)
 	if err != nil {
 		uc.logger.Warn("Failed to get downloads", "error", err)
 		return err
@@ -108,12 +108,12 @@ func (uc *MediaDownload) iterateGetAll(ctx context.Context, includeDeleted bool,
 	return nil
 }
 
-func (uc *MediaDownload) IterateGetAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error {
-	return uc.iterateGetAll(ctx, false, fn)
+func (uc *MediaDownload) IterateAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error {
+	return uc.iterateAll(ctx, false, fn)
 }
 
-func (uc *MediaDownload) IterateGetAllWithDeleted(ctx context.Context, fn func(*ddownload.MediaDownload) error) error {
-	return uc.iterateGetAll(ctx, true, fn)
+func (uc *MediaDownload) IterateAllWithDeleted(ctx context.Context, fn func(*ddownload.MediaDownload) error) error {
+	return uc.iterateAll(ctx, true, fn)
 }
 
 func (uc *MediaDownload) GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error) {
@@ -129,7 +129,6 @@ func (uc *MediaDownload) GetAllFullNames(ctx context.Context, includeDeleted boo
 func (uc *MediaDownload) GetAll(
 	ctx context.Context,
 	queryOptions *dtypes.QueryMediaOptions,
-	filters dtypes.QueryFiltersByName,
 ) ([]*ddownload.MediaDownload, error) {
 	repo := uc.downloadRepo()
 
@@ -137,18 +136,14 @@ func (uc *MediaDownload) GetAll(
 		repo = repo.WithOptions(*queryOptions)
 	}
 
-	if filters != nil {
-		repo = repo.WithFilters(filters.List()...)
-	}
-
 	var downloads []*ddownload.MediaDownload
 
-	err := repo.IterateGetAll(ctx, func(download *ddownload.MediaDownload) error {
+	err := repo.IterateAll(ctx, func(download *ddownload.MediaDownload) error {
 		downloads = append(downloads, download)
 		return nil
 	})
 	if err != nil {
-		var options dtypes.QueryMediaOptions
+		options := dtypes.NewQueryMediaOptions()
 		if queryOptions != nil {
 			options = *queryOptions
 		}
@@ -156,7 +151,6 @@ func (uc *MediaDownload) GetAll(
 		uc.logger.Warn(
 			"Failed to get downloads",
 			"queryOptions", options,
-			"filters", filters,
 			"error", err,
 		)
 
@@ -235,12 +229,12 @@ func (uc *MediaDownload) GetDeleted(ctx context.Context, from, to *time.Time) ([
 	return downloads, nil
 }
 
-func (u *MediaDownload) IterateGetByIDs(
+func (u *MediaDownload) IterateByIDs(
 	ctx context.Context,
 	ids []uuid.UUID,
 	fn func(*ddownload.MediaDownload) error,
 ) error {
-	err := u.downloadRepo().IterateGetByIDs(ctx, ids, fn)
+	err := u.downloadRepo().IterateByIDs(ctx, ids, fn)
 	if err != nil {
 		u.logger.Warn(
 			"Failed to get mediaDownload",

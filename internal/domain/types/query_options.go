@@ -8,7 +8,7 @@ type QueryOptions struct {
 	Limit  *uint64
 	Offset *uint64
 
-	Filters  QueryFiltersList
+	Filters  *QueryFilters
 	OrderBys dbutils.OrderByList
 }
 
@@ -20,4 +20,16 @@ type QueryMediaOptions struct {
 
 	Visibility     *QueryMediaVisibility
 	IsGuestRequest bool
+}
+
+func NewQueryOptions() QueryOptions {
+	return QueryOptions{
+		Filters: NewQueryFilters(),
+	}
+}
+
+func NewQueryMediaOptions() QueryMediaOptions {
+	return QueryMediaOptions{
+		Filters: NewQueryFilters(),
+	}
 }

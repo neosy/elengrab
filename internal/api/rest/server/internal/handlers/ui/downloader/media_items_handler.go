@@ -58,43 +58,20 @@ func (h *DownloaderHandlers) mediaItemsGet(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	filters, err := parseGetFilters(ctx)
+	searchParmValues, err := searchParameters.ParseValues()
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 		return
 	}
 
-	viewMode := dtypes.QueryMediaViewModeDefault
-	lastRecord := dtypes.QueryMediaDownloadCursor{}
-
-	if searchParameters != nil {
-		lastQueryCursor, err := searchParameters.ParseLastCursor()
-		if err != nil {
-			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
-			return
-		}
-
-		if lastQueryCursor != nil {
-			viewMode = lastQueryCursor.ViewMode
-			lastRecord = dtypes.QueryMediaDownloadCursor{
-				ID:        lastQueryCursor.LastID,
-				CreatedAt: lastQueryCursor.LastCreateAt,
-				Views:     lastQueryCursor.LastViews,
-			}
-		}
+	query, err := h.mappers.MapSearchParameterValuesToUsecaseQuery(&searchParmValues)
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		return
 	}
 
-	query := udto.BuildMediaDownloadQuery(
-		udto.MediaDownloadQuery{
-			ViewMode:   viewMode,
-			Limit:      consts.LoadHistoryLimit,
-			LastRecord: lastRecord,
-			Filters:    filters,
-		},
-	)
-
 	var bodyBuffer bytes.Buffer
-	err = h.listDownloadsItems(ctx, &bodyBuffer, ctxUser, query)
+	err = h.renderDownloadItemList(ctx, &bodyBuffer, ctxUser, query)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 		return
@@ -127,7 +104,7 @@ func (h *DownloaderHandlers) mediaItemsPost(ctx *fasthttp.RequestCtx) {
 	}
 
 	var bodyBuffer bytes.Buffer
-	err = h.listDownloadsItems(ctx, &bodyBuffer, ctxUser, query)
+	err = h.renderDownloadItemList(ctx, &bodyBuffer, ctxUser, query)
 	if err != nil {
 		ctx.SetStatusCode(fasthttp.StatusOK)
 		ctx.SetBodyString("")
@@ -138,7 +115,7 @@ func (h *DownloaderHandlers) mediaItemsPost(ctx *fasthttp.RequestCtx) {
 	ctx.SetBody(bodyBuffer.Bytes())
 }
 
-func (h *DownloaderHandlers) listDownloadsItems(
+func (h *DownloaderHandlers) renderDownloadItemList(
 	ctx context.Context,
 	buf *bytes.Buffer,
 	authCtx dauth.AuthContext,
@@ -196,10 +173,11 @@ func (h *DownloaderHandlers) listDownloadsItems(
 		}
 
 		if shouldLoadNextHistory && i == consts.PreloadHistoryAfter-1 {
-			query := udto.BuildMediaDownloadQuery(query)
+			query := query.Clone()
 			query.LastRecord.ID = lastDownloadID
 			query.LastRecord.CreatedAt = lastCreatedAt
 			query.LastRecord.Views = lastViews
+
 			h.renderRowShouldLoadHistory(buf, query)
 		}
 	}
@@ -235,12 +213,12 @@ func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 		return nil
 	}
 
-	getSearchText := func(filters dtypes.QueryFiltersByName) dtypes.SearchText {
-		if len(filters) == 0 {
+	getSearchText := func(filters *dtypes.QueryFilters) dtypes.SearchText {
+		if filters.Len() == 0 {
 			return ""
 		}
 
-		filter, exists := filters[dtypes.QueryFilterNameSearch]
+		filter, exists := filters.Find(dtypes.QueryFilterNameSearchQuery)
 		if !exists {
 			return ""
 		}
@@ -254,22 +232,16 @@ func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 	}
 
 	var queryParameters []string
-
 	if text := getSearchText(query.Filters); text.IsValidate() {
-		queryParameters = append(queryParameters, fmt.Sprintf("filter[%s]=%s", qkeys.SearchKey.String(), text.String()))
+		queryParameters = append(queryParameters, fmt.Sprintf("%s=%s", qkeys.SearchQueryKey.String(), text.String()))
 	}
 
-	lastCursor := types.MediaQueryCursor{
-		ViewMode:     query.ViewMode,
-		LastID:       query.LastRecord.ID,
-		LastCreateAt: query.LastRecord.CreatedAt,
-		LastViews:    query.LastRecord.Views,
-	}
+	queryFilters := h.mappers.MapQueryFiltersDomainToFilters(query.Filters)
 
 	searchParameters := types.NewSearchParameters()
-	searchParameters.Add(qkeys.LastCursorKey, lastCursor.Encode())
+	searchParameters.AddValues(query.ViewMode.String(), queryFilters, query.LastRecord)
 
-	queryParameters = append(queryParameters, searchParameters.QueryParameter())
+	queryParameters = append(queryParameters, searchParameters.EncodeShortQueryString())
 
 	queryString := "?" + strings.Join(queryParameters, "&")
 

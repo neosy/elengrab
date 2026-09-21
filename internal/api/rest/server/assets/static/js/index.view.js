@@ -1,18 +1,19 @@
-import * as constants from './constants.js';
+import {CLASS_NAMES, DOM_IDS, STORAGE_KEYS, API_PATHS} from './constants.js';
 import storageState from './storage-state.js';
 import * as notify from './notifications.js';
-import { DOM_IDS, DOM_ELEMENTS, DOM_SELECTORS } from "./index.dom.js";
+import { DOM_ELEMENTS, DOM_SELECTORS } from "./index.dom.js";
+import { isMobileScreen } from "./browser.js";
 
 export function applyGridView(isGridView) {
-    document.body.classList.toggle(constants.CLASS_NAMES.gridView, isGridView);
-    document.body.classList.toggle(constants.CLASS_NAMES.listView, !isGridView);
+    document.body.classList.toggle(CLASS_NAMES.gridView, isGridView);
+    document.body.classList.toggle(CLASS_NAMES.listView, !isGridView);
 }
 
 export function toggleGridView() {
-    const current = storageState.get(constants.STORAGE_KEYS.settingsGridView, true);
+    const current = storageState.get(STORAGE_KEYS.settingsGridView, true);
     const next = !current;
 
-    storageState.set(constants.STORAGE_KEYS.settingsGridView, next);
+    storageState.set(STORAGE_KEYS.settingsGridView, next);
 
     applyGridView(next);
 
@@ -20,7 +21,7 @@ export function toggleGridView() {
 }
 
 export function initGridView() {
-    const isGridView = storageState.get(constants.STORAGE_KEYS.settingsGridView, true);
+    const isGridView = storageState.get(STORAGE_KEYS.settingsGridView, true);
 
     applyGridView(isGridView);
 
@@ -28,7 +29,7 @@ export function initGridView() {
 }
 
 export function getGridView() {
-    return storageState.get(constants.STORAGE_KEYS.settingsGridView, true);
+    return storageState.get(STORAGE_KEYS.settingsGridView, true);
 }
 
 export function initSearching(clear) {
@@ -46,6 +47,15 @@ export function initSearching(clear) {
     backBtn.addEventListener('click', () => {
         closeSearching(header, clear);
     });
+
+    if (isMobileScreen() && searchInput.value !== "") {
+        header.classList.toggle(CLASS_NAMES.isSearch, true);
+    }
+
+    return {
+        open: openSearching,
+        close: closeSearching,
+    }
 }
 
 export function initHeaderUserMenu() {
@@ -60,12 +70,12 @@ export function initHeaderUserMenu() {
 }
 
 function openSearching(header, input) {
-    header.classList.toggle(constants.CLASS_NAMES.isSearch, true);
+    header.classList.toggle(CLASS_NAMES.isSearch, true);
     input.focus();
 }
 
 function closeSearching(header, clear) {
-    header.classList.toggle(constants.CLASS_NAMES.isSearch, false);
+    header.classList.toggle(CLASS_NAMES.isSearch, false);
     clear();
 }
 
@@ -149,10 +159,13 @@ export function initLazyImages({
 
 /**
  * @param {Object} options
- * @param {IntersectionObserver[]} options.lazyObservers
- * @param {() => void} options.refreshVideoPreview
+ * @param {() => Object} options.getSearchParameters
+ * @param {() => void} options.onSuccess
  */
-export function initViewModeBar({ lazyObservers, refreshVideoPreview }) {
+export function initViewModeBar({
+    getSearchParameters,
+    onSuccess,
+}) {
     const tabs = document.querySelector(DOM_SELECTORS.viewModeTabs);
 
     if (!tabs) {
@@ -175,41 +188,91 @@ export function initViewModeBar({ lazyObservers, refreshVideoPreview }) {
             item.setAttribute('aria-selected', String(selected));
         });
 
-        setViewMode(tab.dataset.viewMode);
+        setViewMode();
     });
 
-    async function setViewMode(viewMode) {
-        const items = document.getElementById(DOM_IDS.mediaResultItems);
+    async function setViewMode() {
+        const rows = document.getElementById(DOM_IDS.mediaResultRows);
 
-        if (!items) {
+        if (!rows) {
             return;
         }
 
         const searchText = DOM_ELEMENTS.historySearchInput?.value ?? "";
 
-        const response = await fetch(constants.API_PATHS.downloaderItems, {
+        const searchParameters = {
+            query: searchText,
+            ...getSearchParameters(),
+        };
+
+        const response = await fetch(API_PATHS.downloaderSearch, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ 
-                viewMode,
-                search: searchText,
-             }),
+            body: JSON.stringify(searchParameters),
         });
 
         if (!response.ok) {
             throw new Error(`Search failed: ${response.status}`);
         }
 
-        items.innerHTML = await response.text();
+        rows.outerHTML = await response.text();
 
-        htmx.process(items);
+        const newRows = document.getElementById(DOM_IDS.mediaResultRows);
 
-        for (const observer of lazyObservers) {
-            observer.observe(items);
+        htmx.process(newRows);
+
+        onSuccess(newRows);
+    }
+}
+
+export function initExtChannelLink({
+    getSearchParameters,
+    onSuccess,
+}) {
+    document.addEventListener("click", async (event) => {
+        const linkBtn = event.target.closest(DOM_SELECTORS.mediaExtChannelLinkButton);
+        if (!linkBtn || linkBtn.dataset.channelId === '') return;
+
+        const channelId = linkBtn.dataset.channelId;
+
+        click(channelId);
+    })
+
+    async function click(channelId) {
+        const rows = document.getElementById(DOM_IDS.mediaResultRows);
+
+        if (!rows) {
+            return;
         }
 
-        refreshVideoPreview();
+        const searchParameters = {
+            ...getSearchParameters(),
+            
+            channelId: channelId,
+        };
+
+        const response = await fetch(API_PATHS.downloaderSearch, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(searchParameters),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Search failed: ${response.status}`);
+        }
+
+        rows.outerHTML = await response.text();
+
+        const newRows = document.getElementById(DOM_IDS.mediaResultRows);
+
+        htmx.process(newRows);
+
+        window.scrollTo(0, 0);
+
+        onSuccess(newRows);
     }
 }

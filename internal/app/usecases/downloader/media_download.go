@@ -26,8 +26,8 @@ type MediaDownload interface {
 	FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.MediaDownload, error)
 	GetAllFullNames(ctx context.Context) (map[string]struct{}, error)
 	GetAllFullNamesWithDeleted(ctx context.Context) (map[string]struct{}, error)
-	IterateGetAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error
-	IterateGetAllWithDeleted(ctx context.Context, fn func(*ddownload.MediaDownload) error) error
+	IterateAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error
+	IterateAllWithDeleted(ctx context.Context, fn func(*ddownload.MediaDownload) error) error
 
 	Tx(ctx context.Context, fn func(ctx context.Context) error) error
 }
