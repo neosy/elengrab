@@ -161,7 +161,7 @@ func (sp *SearchParameters) EncodeShortQueryValue() string {
 func (sp *SearchParameters) EncodeShortQueryString() string {
 	return fmt.Sprintf(
 		"%s=%s",
-		qkeys.SearchParametersKey.String(),
+		qkeys.SearchParametersKey.Short(),
 		sp.EncodeShortQueryValue(),
 	)
 }
