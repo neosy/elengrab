@@ -313,10 +313,16 @@ function updateVideoPreviewDuration() {
 }
 
 function formatDuration(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const sec = (seconds % 60).toString().padStart(2, "0");
 
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+    return days > 0 
+        ? `${days}:${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${sec}` 
+        : hours > 0 
+            ? `${hours}:${minutes.toString().padStart(2, "0")}:${sec}`
+            : `${minutes}:${sec}`;
 }
 
 export function initVideoPreviewScroll(container, elementClassName, thumbClassName) {
