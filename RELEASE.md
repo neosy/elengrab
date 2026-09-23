@@ -22,6 +22,7 @@
 - Fixed access validation when creating short links. [L146]
 - Corrected download view, edit, and delete access validation logic. [L149]
 - Included authenticated media in visibility queries. [L150]
+- **Preview Display:** Fixed an issue where the time / timestamp was rendered incorrectly on the preview card. [L152]
 
 ---
 
