@@ -21,7 +21,7 @@ func (uc *Executor) ExecuteRefreshMetadataTask(
 		return uc.failRefreshMetadataTask(ctx, workerID, task, err)
 	}
 
-	err = uc.applyMetadataPatch(ctx, media, metadataPatch)
+	err = uc.applyMetadataPatch(ctx, media.DownloadID, metadataPatch)
 	if err != nil {
 		return uc.failRefreshMetadataTask(ctx, workerID, task, err)
 	}

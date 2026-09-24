@@ -2,19 +2,25 @@ CREATE TABLE IF NOT EXISTS channels (
     -- Internal channel identifier
     channel_id TEXT PRIMARY KEY,
 
+    -- External channel identifier
+    external_id TEXT NOT NULL,
+
     -- Platform identifier
     platform TEXT NOT NULL,
 
-    -- Host from which the platform was detected
-    host TEXT NOT NULL,
-
-    -- External channel identifier
-    external_id TEXT NOT NULL,
-   
     -- Site URL
     channel_url TEXT NOT NULL,
 
-    -- Title of the channel
+    -- Host from which the platform was detected
+    host TEXT NOT NULL,
+   
+    -- Channel username
+    username TEXT NOT NULL DEFAULT '',
+
+    -- Channel URL based on the username
+    username_url TEXT NOT NULL DEFAULT '',
+
+   -- Title of the channel
     channel_title TEXT NOT NULL,
 
     -- URL of the image channel avatar

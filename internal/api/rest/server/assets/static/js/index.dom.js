@@ -87,10 +87,10 @@ export function initDomElements() {
     DOM_ELEMENTS.historySearchClearButton = document.getElementById("historySearchClearButton");
 
     DOM_ELEMENTS.channelHeader = {
-        header: document.getElementById("chnnel-header"),
-        image: document.getElementById("chnnel-header-image"),
-        title: document.getElementById("chnnel-header-title"),
-        extId: document.getElementById("chnnel-header-ext-id"),
+        header: document.getElementById("channel-header"),
+        image: document.getElementById("channel-header-image"),
+        title: document.getElementById("channel-header-title"),
+        extId: document.getElementById("channel-header-ext-username"),
     }
 
     DOM_ELEMENTS.result = document.getElementById("media-result");

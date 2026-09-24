@@ -8,18 +8,23 @@ import (
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 )
 
-// GetInfo retrieves and parses video formats for the given URL.
-func (d *Downloader) FetchInfo(
+func (d *Downloader) FetchInfoWithBestFormat(
 	ctx context.Context,
-	url string,
+	mediaURL string,
+	format string,
 	options idto.RequestOptions,
 ) (*dservices.DownloaderMediaInfo, error) {
-	var cookieFileName string
-	if options.AllowCookies {
-		cookieFileName, _ = helper.CookieFilePathFromURL(url, d.serviceOptions.CookiesDir)
+	var cookieFilePath string
+	if options.AllowCookies && d.serviceOptions.AllowCookies {
+		cookieFilePath, _ = helper.CookieFilePathFromURL(mediaURL, d.serviceOptions.CookiesDir)
 	}
 
-	info, err := d.executor.FetchInfo(ctx, url, idto.WithUseCookies(cookieFileName))
+	info, err := d.executor.FetchInfoWithBestFormat(
+		ctx,
+		mediaURL,
+		format,
+		idto.WithUseCookies(cookieFilePath),
+	)
 	if err != nil {
 		return nil, err
 	}

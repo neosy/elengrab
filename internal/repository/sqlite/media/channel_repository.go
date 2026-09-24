@@ -281,6 +281,59 @@ func (r *ChannelRepository) ExistsByExternalChannelID(
 	return true, nil
 }
 
+func (r *ChannelRepository) GetIDs(ctx context.Context) ([]uuid.UUID, error) {
+	var eChannel emedia.Channel
+
+	orderBys := dbutils.SortBy(eChannel.FieldName(&eChannel.CreatedAt), dbutils.OrderAscending).List()
+
+	qb := squirrel.Select(eChannel.FieldName(&eChannel.ChannelID)).
+		From(eChannel.TableName()).
+		OrderBy(orderBys.Query()).
+		PlaceholderFormat(squirrel.Dollar)
+
+	sqlQuery, args, err := qb.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	db := dbexec.Resolve(ctx, r.dbEntry)
+	rows, err := db.QueryContext(ctx, sqlQuery, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	ids := make([]uuid.UUID, 0)
+
+	if rows != nil {
+		for rows.Next() {
+			var id string
+			err := rows.Scan(&id)
+			if err != nil {
+				return nil, err
+			}
+
+			if id == "" {
+				continue
+			}
+
+			channelID, err := uuid.Parse(id)
+			if err != nil {
+				return nil, err
+			}
+
+			ids = append(ids, channelID)
+		}
+	}
+
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	return ids, nil
+}
+
 func (r *ChannelRepository) IterateAll(ctx context.Context, fn func(*dmedia.Channel) error) error {
 	var eChannel emedia.Channel
 

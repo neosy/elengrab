@@ -26,17 +26,31 @@ type ExtractMediaFormat struct {
 }
 
 type ExtractInfo struct {
-	ID           string               `json:"id"`
-	Title        string               `json:"title"`
-	Description  string               `json:"description"`
-	Extractor    string               `json:"extractor"`
-	Channel      string               `json:"channel"`
-	ChannelID    string               `json:"channel_id"`
-	ChannelUrl   string               `json:"channel_url"`
-	ChannelTitle string               `json:"uploader"`
-	Thumbnail    string               `json:"thumbnail"`
-	Duration     float64              `json:"duration"`
-	Formats      []ExtractMediaFormat `json:"formats"`
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Extractor   string `json:"extractor"`
+
+	Channel    string `json:"channel"`
+	ChannelID  string `json:"channel_id"`
+	ChannelURL string `json:"channel_url"`
+
+	Uploader    string `json:"uploader"`
+	UploaderID  string `json:"uploader_id"`
+	UploaderURL string `json:"uploader_url"`
+
+	Thumbnail string               `json:"thumbnail"`
+	Duration  float64              `json:"duration"`
+	Formats   []ExtractMediaFormat `json:"formats"`
+
+	ParsedChannel ParsedChannel `json:"-"`
+}
+
+type ParsedChannel struct {
+	Username    string
+	UsernameURL string
+
+	Title string
 }
 
 func (f *ExtractMediaFormat) AudioCodec() dtypes.AudioCodec {

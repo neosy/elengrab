@@ -354,6 +354,7 @@ func (h *DownloaderHandlers) buildChannelHeaderPageData(ctx context.Context, cha
 			ExtID:    channel.ExternalID,
 			Platform: channel.Platform,
 			URL:      channel.ChannelURL,
+			Username: channel.Username,
 		},
 		Show: true,
 	}

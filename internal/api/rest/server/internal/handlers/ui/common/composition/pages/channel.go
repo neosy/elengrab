@@ -16,6 +16,7 @@ type ChannelExt struct {
 	ExtID    string `json:"extId"`
 	Platform string `json:"platform"`
 	URL      string `json:"url"`
+	Username string `json:"username"`
 }
 
 type ChannelHeader struct {

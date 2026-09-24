@@ -10,8 +10,8 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
+	extractinfo "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor/extract_info"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
-	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
@@ -38,22 +38,9 @@ func (e *Executor) FetchInfo(
 		}
 	}
 
-	info.ChannelTitle = strings.TrimSpace(info.ChannelTitle)
+	info.Uploader = strings.TrimSpace(info.Uploader)
 
-	if hostdetect.Instagram(url) && info.Description != "" {
-		first, _, _ := strings.Cut(info.Description, "\n")
-		if first != "" {
-			info.Title = first
-		}
-
-		if info.ChannelID == "" && info.Channel != "" {
-			info.ChannelID = info.Channel
-		}
-
-		if info.ChannelUrl == "" && info.Channel != "" {
-			info.ChannelUrl = fmt.Sprintf("https://www.instagram.com/%s/", info.Channel)
-		}
-	}
+	extractinfo.Process(url, info)
 
 	return info, nil
 }

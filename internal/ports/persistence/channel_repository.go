@@ -31,6 +31,8 @@ type ChannelRepository interface {
 		externalID string,
 		platform string,
 	) (bool, error)
+
+	GetIDs(ctx context.Context) ([]uuid.UUID, error)
 	IterateAll(ctx context.Context, fn func(*dmedia.Channel) error) error
 }
 

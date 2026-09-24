@@ -27,6 +27,11 @@ var (
 		"vm.tiktok.com": {},
 	})
 
+	X = makeIsPlatform("x.com", map[string]struct{}{
+		"x.com": {}, "www.x.com": {}, "mobile.x.com": {},
+		"twitter.com": {}, "www.twitter.com": {}, "mobile.twitter.com": {},
+	})
+
 	Facebook = makeIsPlatform("facebook.com", map[string]struct{}{
 		"facebook.com": {}, "www.facebook.com": {},
 		"m.facebook.com": {}, "fb.watch": {},
@@ -42,6 +47,12 @@ var (
 	Rutube = makeIsPlatform("rutube.ru", map[string]struct{}{
 		"rutube.ru": {}, "www.rutube.ru": {}, "m.rutube.ru": {},
 		"rutube.su": {}, "www.rutube.su": {},
+	})
+
+	VKVideo = makeIsPlatform("vkvideo.ru", map[string]struct{}{
+		"vkvideo.ru": {}, "www.vkvideo.ru": {},
+		"live.vkvideo.ru":    {},
+		"vksport.vkvideo.ru": {},
 	})
 )
 

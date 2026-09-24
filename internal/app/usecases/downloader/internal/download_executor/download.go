@@ -96,14 +96,21 @@ func (uc *Executor) processDownloadResults(
 				channelSource := lastResult.Channel
 				channel, _ := uc.channel.FindByExternalChannelIDNoCache(ctx, channelSource.ChannelID, channelSource.Platform)
 				if channel != nil {
-					if !channel.EqualSource(lastResult.Channel) {
-						channel.InitFromSource(lastResult.Channel)
-						uc.channel.Update(ctx, channel)
-					}
+					uc.channel.Patch(ctx, channel.ChannelID,
+						func(c *dmedia.Channel) error {
+							if c.EqualSource(channelSource) {
+								return nil
+							}
+
+							c.UpdateFromSource(channelSource)
+
+							return nil
+						},
+					)
 				} else {
 					newChannel := dmedia.NewChannelFromSource(lastResult.Channel)
-					err := uc.channel.Create(ctx, newChannel)
 
+					err := uc.channel.Create(ctx, newChannel)
 					if err == nil {
 						channel, _ = uc.channel.FindByChannelID(ctx, newChannel.ChannelID)
 					}

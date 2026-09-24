@@ -12,60 +12,59 @@ import (
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
-func (d *Downloader) fetchAndBuildChannel(
-	ctx context.Context,
-	meta *idto.DownloadMeta,
-	opts ...channels.FetchOption,
-) *dtypes.ChannelSource {
-	if meta == nil {
+func (d *Downloader) buildChannel(extractInfo *idto.ExtractInfo) *dtypes.ChannelSource {
+	if extractInfo == nil || extractInfo.ChannelURL == "" {
 		return nil
 	}
 
-	if meta.ChannelURL == "" {
-		return nil
-	}
-
-	parsedURL, err := url.Parse(meta.ChannelURL)
+	parsedURL, err := url.Parse(extractInfo.ChannelURL)
 	if err != nil {
 		return nil
 	}
 
-	host := parsedURL.Host
+	return &dtypes.ChannelSource{
+		ChannelID: extractInfo.ChannelID,
+		Platform:  hostdetect.DetectPlatformName(extractInfo.ChannelURL),
 
-	var (
-		elapsed time.Duration
-	)
+		URL:  extractInfo.ChannelURL,
+		Host: parsedURL.Host,
 
-	channel := &dtypes.ChannelSource{
-		URL: meta.ChannelURL,
+		Username:    extractInfo.ParsedChannel.Username,
+		UsernameURL: extractInfo.ParsedChannel.UsernameURL,
 
-		Platform: hostdetect.DetectPlatformType(meta.ChannelURL).String(),
-		Host:     host,
-
-		ChannelID: meta.ChannelID,
-		Title:     meta.ChannelTitle,
+		Title: extractInfo.ParsedChannel.Title,
 	}
+}
+
+func (d *Downloader) fetchChannelImage(
+	ctx context.Context,
+	channelURL string,
+	opts ...channels.FetchOption,
+) (*dtypes.ChannelImage, error) {
+	var elapsed time.Duration
 
 	startTime := time.Now()
-	channelImages, err := channels.FetchImages(ctx, meta.ChannelURL, opts...)
+	channelImages, err := channels.FetchImages(ctx, channelURL, opts...)
 	elapsed = time.Since(startTime)
 	if err != nil {
-		d.logger.Debug("Failed to get channel avatar", "channelURL", meta.ChannelURL, "error", err)
+		d.logger.Debug(
+			"Failed to get channel avatar",
+			"channelURL", channelURL,
+			"error", err,
+		)
+		return nil, err
 	}
 
 	if len(channelImages) == 0 {
-		d.logger.Debug("Channel image not found", "channelURL", meta.ChannelURL)
-		return channel
+		d.logger.Debug("Channel image not found", "channelURL", channelURL)
+		return nil, nil
 	}
 
 	d.logger.Info(
 		"Channel avatar fetched",
-		"host", hostdetect.DetectPlatformType(meta.ChannelURL).String(),
-		"channelURL", meta.ChannelURL,
+		"channelURL", channelURL,
 		"elapsed", uformat.DurationFormat(elapsed),
 	)
 
-	channel.Image = new(dtypes.ChannelImage(channelImages[0]))
-
-	return channel
+	return new(dtypes.ChannelImage(channelImages[0])), nil
 }

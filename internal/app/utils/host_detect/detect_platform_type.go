@@ -12,7 +12,9 @@ var matchers = []struct {
 	{dtypes.MediaPlatformTypeTwitch, Twitch},
 	{dtypes.MediaPlatformTypeVimeo, Vimeo},
 	{dtypes.MediaPlatformTypeTikTok, TikTok},
+	{dtypes.MediaPlatformTypeX, X},
 	{dtypes.MediaPlatformTypeRutube, Rutube},
+	{dtypes.MediaPlatformTypeVKVideo, VKVideo},
 }
 
 func DetectPlatformType(rawURL string) dtypes.MediaPlatformType {
