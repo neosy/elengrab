@@ -170,6 +170,10 @@ func (uc *Channel) GetByExternalChannelID(
 	return channel, nil
 }
 
+func (uc *Channel) GetAllIDs(ctx context.Context) ([]uuid.UUID, error) {
+	return uc.channelRepo().GetIDs(ctx)
+}
+
 func (uc *Channel) IterateAll(ctx context.Context, fn func(*dmedia.Channel) error) error {
 	return uc.channelRepo().IterateAll(ctx, fn)
 }

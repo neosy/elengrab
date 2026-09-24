@@ -9,21 +9,22 @@ import (
 )
 
 type DownloadMeta struct {
-	URL                 string
-	Title               string
-	Description         string
-	FileName            string
-	FileExt             string
-	FileFullName        string
-	FileSize            *int64
-	ChannelID           string
-	ChannelURL          string
-	ChannelTitle        string
-	MediaInfo           *dservices.MediaInfo
+	URL          string
+	Title        string
+	Description  string
+	FileName     string
+	FileExt      string
+	FileFullName string
+	FileSize     *int64
+
+	Channel *dtypes.ChannelSource
+
 	Thumbnail           *dtypes.ImageData
 	ThumbnailVideoFrame *dtypes.ImageData
-	Channel             *dtypes.ChannelSource
-	Progress            *dservices.DownloaderProgress
+
+	MediaInfo *dservices.MediaInfo
+
+	Progress *dservices.DownloaderProgress
 }
 
 type SafeDownloadMeta struct {
@@ -47,7 +48,7 @@ func (m *SafeDownloadMeta) RUnlock() {
 	m.mu.RUnlock()
 }
 
-func (m *SafeDownloadMeta) CopyMeta() *DownloadMeta {
+func (m *SafeDownloadMeta) CloneMeta() *DownloadMeta {
 	m.RLock()
 	defer m.RUnlock()
 
@@ -57,17 +58,20 @@ func (m *SafeDownloadMeta) CopyMeta() *DownloadMeta {
 
 	metaCopy := *m.Meta
 	metaCopy.FileSize = uptr.Clone(m.Meta.FileSize)
-	metaCopy.MediaInfo = m.Meta.MediaInfo.Clone()
+
 	metaCopy.Channel = m.Meta.Channel.Clone()
-	metaCopy.Progress = uptr.Clone(m.Meta.Progress)
+
 	metaCopy.Thumbnail = m.Meta.Thumbnail.Clone()
 	metaCopy.ThumbnailVideoFrame = m.Meta.ThumbnailVideoFrame.Clone()
+
+	metaCopy.MediaInfo = m.Meta.MediaInfo.Clone()
+	metaCopy.Progress = uptr.Clone(m.Meta.Progress)
 
 	return &metaCopy
 }
 
 func (m *SafeDownloadMeta) InitialResult() *dservices.DownloaderResult {
-	meta := m.CopyMeta()
+	meta := m.CloneMeta()
 
 	var ext = meta.FileExt
 	if ext == "" && meta.MediaInfo != nil && meta.MediaInfo.Format != dtypes.FileFormatNone {

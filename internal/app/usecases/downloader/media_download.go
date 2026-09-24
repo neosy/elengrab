@@ -24,8 +24,11 @@ type MediaDownload interface {
 	UpdateChannelID(ctx context.Context, oldChannelID string, newChannelID uuid.UUID) error
 
 	FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.MediaDownload, error)
+	FindLastByChannelID(ctx context.Context, channelID uuid.UUID) (*ddownload.MediaDownload, error)
+
 	GetAllFullNames(ctx context.Context) (map[string]struct{}, error)
 	GetAllFullNamesWithDeleted(ctx context.Context) (map[string]struct{}, error)
+
 	IterateAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error
 	IterateAllWithDeleted(ctx context.Context, fn func(*ddownload.MediaDownload) error) error
 

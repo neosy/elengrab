@@ -14,6 +14,8 @@ type Downloader interface {
 	FetchInfo(ctx context.Context, url string, opts ...ytdlpsrv.RequestOption) (*dservices.DownloaderMediaInfo, error)
 	FetchInfoWithBestFormat(ctx context.Context, url string, opts ...ytdlpsrv.RequestOption) (*dservices.DownloaderMediaInfo, error)
 
+	FetchChannelInfoWithCookieFallback(ctx context.Context, mediaURL string) (*dtypes.ChannelSource, error)
+
 	Download(ctx context.Context, url string, options *dservices.DownloadOptions) (<-chan *dservices.DownloaderResult, error)
 
 	ExtractThumbnailURL(ctx context.Context, mediaURL string, opts ...ytdlpsrv.RequestOption) (string, error)

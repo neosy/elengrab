@@ -27,12 +27,19 @@ func (m *Mappers) MapChannelDomainToEntity(channel *dmedia.Channel) (*emedia.Cha
 	}
 
 	return &emedia.Channel{
-		ChannelID:   channel.ChannelID.String(),
-		Platform:    channel.Platform,
-		Host:        channel.Host,
-		ExternalID:  channel.ExternalID,
-		ChannelURL:  channel.ChannelURL,
-		Title:       channel.Title,
+		ChannelID: channel.ChannelID.String(),
+
+		ExternalID: channel.ExternalID,
+		Platform:   channel.Platform,
+
+		ChannelURL: channel.ChannelURL,
+		Host:       channel.Host,
+
+		Username:    channel.Username,
+		UsernameURL: channel.UsernameURL,
+
+		Title: channel.Title,
+
 		ImageURL:    imageURL,
 		ImageRaw:    imageRAW,
 		ImageFormat: imageFormat,
@@ -66,14 +73,22 @@ func (m *Mappers) MapChannelEntityToDomain(eChannel *emedia.Channel) (*dmedia.Ch
 	}
 
 	return &dmedia.Channel{
-		ChannelID:  channelID,
-		Platform:   eChannel.Platform,
-		Host:       eChannel.Host,
+		ChannelID: channelID,
+
 		ExternalID: eChannel.ExternalID,
+		Platform:   eChannel.Platform,
+
 		ChannelURL: eChannel.ChannelURL,
-		Title:      eChannel.Title,
-		Image:      image,
-		CreatedAt:  eChannel.CreatedAt,
-		UpdatedAt:  eChannel.UpdatedAt,
+		Host:       eChannel.Host,
+
+		Username:    eChannel.Username,
+		UsernameURL: eChannel.UsernameURL,
+
+		Title: eChannel.Title,
+
+		Image: image,
+
+		CreatedAt: eChannel.CreatedAt,
+		UpdatedAt: eChannel.UpdatedAt,
 	}, nil
 }

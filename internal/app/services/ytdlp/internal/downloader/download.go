@@ -131,12 +131,12 @@ func (d *Downloader) Download(
 
 	// Start asynchronous fetching of the channel avatar.
 	// Returns a channel from which the avatar can be read once the goroutine completes.
-	if options.DownloadChannelImage {
+	if options.DownloadChannelImage && meta.Meta.Channel != nil {
 		var opts []channels.FetchOption
 
 		opts = append(opts, idto.DefaultRequestOptions().ChannelFetchOption())
 
-		if dlOptions.AllowCookies() && hostdetect.Instagram(meta.Meta.ChannelURL) {
+		if dlOptions.AllowCookies() && hostdetect.Instagram(meta.Meta.Channel.URL) {
 			cookies, _ := helper.ParseCookiesFile(dlOptions.CookieFilePath)
 			if len(cookies) > 0 {
 				opts = append(opts, channels.FetchOptionsWithCookies(cookies))
@@ -144,11 +144,16 @@ func (d *Downloader) Download(
 		}
 
 		wg.Go(func() {
-			channel := d.fetchAndBuildChannel(ctx, meta.CopyMeta(), opts...)
-			if channel != nil {
+			m := meta.CloneMeta()
+
+			image, _ := d.fetchChannelImage(ctx, m.Channel.URL, opts...)
+			if image != nil {
+				m.Channel.Image = image
+
 				meta.Lock()
-				meta.Meta.Channel = channel
+				meta.Meta.Channel = m.Channel
 				meta.Unlock()
+
 				sendData(meta.InitialResult())
 			}
 		})
@@ -171,7 +176,7 @@ func (d *Downloader) Download(
 	})
 
 	out, err := d.downloadWithStrategies(
-		ctx, url, meta.CopyMeta(), execOptions.Clone(),
+		ctx, url, meta.CloneMeta(), execOptions.Clone(),
 		func(progress dservices.DownloaderProgress) {
 			meta.Lock()
 			meta.Meta.Progress = &progress

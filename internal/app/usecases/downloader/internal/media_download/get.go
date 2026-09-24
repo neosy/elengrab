@@ -8,6 +8,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
+	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
@@ -264,4 +265,32 @@ func (u *MediaDownload) GetByIDs(
 	}
 
 	return downloads, nil
+}
+
+func (u *MediaDownload) FindLastByChannelID(
+	ctx context.Context,
+	channelID uuid.UUID,
+) (*ddownload.MediaDownload, error) {
+	repo := u.downloadRepo()
+
+	repo = repo.WithFilters(
+		dtypes.NewQueryFilter(
+			dtypes.QueryFilterNameChannelID,
+			dbutils.NewFilterConditionEq(channelID),
+		),
+	)
+
+	repo = repo.WithOrderBy(dtypes.QuerySortBy(dtypes.QueryFilterNameCreatedAt.String(), dbutils.OrderDescending))
+
+	var download *ddownload.MediaDownload
+
+	err := repo.IterateAll(ctx, func(d *ddownload.MediaDownload) error {
+		download = d
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return download, nil
 }

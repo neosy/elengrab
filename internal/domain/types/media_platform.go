@@ -17,7 +17,9 @@ const (
 	MediaPlatformTypeTwitch
 	MediaPlatformTypeTikTok
 	MediaPlatformTypeVimeo
+	MediaPlatformTypeX
 	MediaPlatformTypeRutube
+	MediaPlatformTypeVKVideo
 )
 
 var (
@@ -28,7 +30,9 @@ var (
 		MediaPlatformTypeTwitch:    "twitch",
 		MediaPlatformTypeTikTok:    "tiktok",
 		MediaPlatformTypeVimeo:     "vimeo",
+		MediaPlatformTypeX:         "x",
 		MediaPlatformTypeRutube:    "rutube",
+		MediaPlatformTypeVKVideo:   "vkvideo",
 	}
 
 	mapMediaPlatformTypeTitle = map[MediaPlatformType]string{
@@ -38,7 +42,9 @@ var (
 		MediaPlatformTypeTwitch:    "Twitch",
 		MediaPlatformTypeTikTok:    "TikTok",
 		MediaPlatformTypeVimeo:     "Vimeo",
+		MediaPlatformTypeX:         "X",
 		MediaPlatformTypeRutube:    "RuTube",
+		MediaPlatformTypeVKVideo:   "VK Видео",
 	}
 
 	mapParseMediaPlatformType = map[string]MediaPlatformType{
@@ -48,7 +54,9 @@ var (
 		"twitch":    MediaPlatformTypeTwitch,
 		"tiktok":    MediaPlatformTypeTikTok,
 		"vimeo":     MediaPlatformTypeVimeo,
+		"x":         MediaPlatformTypeX,
 		"rutube":    MediaPlatformTypeRutube,
+		"vkvideo":   MediaPlatformTypeVKVideo,
 	}
 )
 

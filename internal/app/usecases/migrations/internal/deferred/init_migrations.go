@@ -6,4 +6,5 @@ func (m *migrations) initMigrations() {
 	m.Add("04_fill_title_for_instagram", m.fillTitleForInstagram)
 	m.Add("05_fill_media_description", m.fillMediaDescription)
 	m.Add("06_fill_media_duration", m.fillMediaDuration)
+	m.Add("07_fill_channel_info", m.fill_channel_info)
 }

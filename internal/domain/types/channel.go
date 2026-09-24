@@ -1,12 +1,14 @@
 package dtypes
 
 type ChannelSource struct {
-	URL string
-
 	ChannelID string
 	Platform  string
 
+	URL  string
 	Host string
+
+	Username    string
+	UsernameURL string
 
 	Title string
 

@@ -23,6 +23,8 @@ type refreshMetadataPatch struct {
 	thumbnailData      *dtypes.ImageData
 	frameThumbnailData *dtypes.ImageData
 
+	channelID uuid.UUID
+
 	needPatch bool
 }
 
@@ -134,6 +136,48 @@ func (uc *Executor) collectMetadata(
 		}
 	}
 
+	channelSource, err := uc.downloaderSrv.FetchChannelInfoWithCookieFallback(ctx, media.MediaURL)
+	if err != nil {
+		uc.logger.Warn(
+			"Failed to fetch channel info",
+			"downloadID", media.DownloadID,
+			"mediaTitle", media.MediaTitle,
+			"mediaURL", media.MediaURL,
+			"error", err,
+		)
+	}
+
+	if channelSource != nil && channelSource.ChannelID != "" && channelSource.Platform != "" {
+		var channelID uuid.UUID
+		channel, _ := uc.channel.FindByExternalChannelIDNoCache(ctx, channelSource.ChannelID, channelSource.Platform)
+		if channel != nil {
+			channelID = channelID
+
+			uc.channel.Patch(ctx, channel.ChannelID,
+				func(c *dmedia.Channel) error {
+					if c.EqualSource(channelSource) {
+						return nil
+					}
+
+					c.UpdateFromSource(channelSource)
+
+					return nil
+				},
+			)
+		} else {
+			newChannel := dmedia.NewChannelFromSource(channelSource)
+			err := uc.channel.Create(ctx, newChannel)
+			if err == nil {
+				channelID = newChannel.ChannelID
+			}
+		}
+
+		if channelID != uuid.Nil && media.ChannelID == uuid.Nil {
+			patch.needPatch = true
+			patch.channelID = channelID
+		}
+	}
+
 	thumbnailData, err := uc.downloaderSrv.FetchThumbnail(
 		ctx, media.MediaURL,
 		ytdlpsrv.WithRequestTimeout(fetchImageTimeout),
@@ -184,11 +228,15 @@ func (uc *Executor) collectMetadata(
 
 func (uc *Executor) applyMetadataPatch(
 	ctx context.Context,
-	media *ddownload.MediaDownload,
+	downloadID uuid.UUID,
 	metadataPatch *refreshMetadataPatch,
 ) error {
-	if media == nil || metadataPatch == nil {
+	if downloadID != uuid.Nil && metadataPatch == nil {
 		return apperrors.ErrFuncParamNullPointer
+	}
+
+	if !metadataPatch.needPatch {
+		return nil
 	}
 
 	if metadataPatch.thumbnailData != nil {
@@ -239,6 +287,7 @@ func (uc *Executor) applyMetadataPatch(
 			}
 			d.MediaTitleOriginal = *metadataPatch.title
 		}
+
 		if metadataPatch.description != nil {
 			if helper.ValuesEqual(d.MediaDescription, d.MediaDescriptionOriginal) {
 				d.MediaDescription = metadataPatch.description
@@ -246,10 +295,14 @@ func (uc *Executor) applyMetadataPatch(
 			d.MediaDescriptionOriginal = metadataPatch.description
 		}
 
+		if metadataPatch.channelID != uuid.Nil {
+			d.ChannelID = metadataPatch.channelID
+		}
+
 		d.MediaInfo = &metadataPatch.mediaInfo
 
 		return nil
 	}
 
-	return uc.download.Patch(ctx, nil, media.DownloadID, patch)
+	return uc.download.Patch(ctx, nil, downloadID, patch)
 }
