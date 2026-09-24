@@ -13,13 +13,13 @@ type QueryFilter struct {
 }
 
 type QueryFilters struct {
-	list  []QueryFilter
-	byKey map[qkeys.QueryKey]QueryFilter
+	list        []QueryFilter
+	valuesByKey map[qkeys.QueryKey]string
 }
 
 func NewQueryFilters() *QueryFilters {
 	return &QueryFilters{
-		byKey: make(map[qkeys.QueryKey]QueryFilter),
+		valuesByKey: make(map[qkeys.QueryKey]string),
 	}
 }
 
@@ -29,7 +29,7 @@ func (filters *QueryFilters) Append(filter QueryFilter) *QueryFilters {
 	}
 
 	filters.list = append(filters.list, filter)
-	filters.byKey[filter.Key] = filter
+	filters.valuesByKey[filter.Key] = filter.Value
 
 	return filters
 }
@@ -71,8 +71,8 @@ func (filters *QueryFilters) Clone() *QueryFilters {
 	}
 
 	return &QueryFilters{
-		list:  slices.Clone(filters.list),
-		byKey: maps.Clone(filters.byKey),
+		list:        slices.Clone(filters.list),
+		valuesByKey: maps.Clone(filters.valuesByKey),
 	}
 }
 
@@ -81,9 +81,19 @@ func (filters *QueryFilters) Find(key qkeys.QueryKey) (QueryFilter, bool) {
 		return QueryFilter{}, false
 	}
 
-	filter, exists := filters.byKey[key]
+	value, exists := filters.valuesByKey[key]
 
-	return filter, exists
+	return QueryFilter{key, value}, exists
+}
+
+func (filters *QueryFilters) Exists(key qkeys.QueryKey) bool {
+	if filters == nil {
+		return false
+	}
+
+	_, exists := filters.valuesByKey[key]
+
+	return exists
 }
 
 func (filters *QueryFilters) GetValue(key qkeys.QueryKey) string {
@@ -91,11 +101,44 @@ func (filters *QueryFilters) GetValue(key qkeys.QueryKey) string {
 		return ""
 	}
 
-	filter, exists := filters.byKey[key]
+	value, exists := filters.valuesByKey[key]
 
 	if !exists {
 		return ""
 	}
 
-	return filter.Value
+	return value
+}
+
+func (filters *QueryFilters) QueryKeys() *qkeys.QueryKeys {
+	if filters == nil || filters.Len() == 0 {
+		return nil
+	}
+
+	keys := qkeys.NewQueryKeys()
+
+	for _, filter := range filters.list {
+		keys.Append(filter.Key)
+	}
+
+	return keys
+}
+
+// FilterByKeys filters the current collection and returns a new QueryFilters
+// containing only the filters whose keys exist in the provided keys registry.
+// Returns nil if either the current collection or the keys registry is nil.
+func (filters *QueryFilters) FilterByKeys(keys qkeys.QueryKeysRegistry) *QueryFilters {
+	if filters == nil || keys == nil {
+		return nil
+	}
+
+	outFilters := NewQueryFilters()
+
+	for _, filter := range filters.List() {
+		if keys.ExistsByKey(filter.Key) {
+			outFilters.Append(filter)
+		}
+	}
+
+	return outFilters
 }

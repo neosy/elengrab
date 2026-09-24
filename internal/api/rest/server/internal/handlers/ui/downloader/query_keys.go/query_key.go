@@ -9,7 +9,7 @@ func (k QueryKey) String() string {
 }
 
 func (k QueryKey) Short() string {
-	return Keys.ShortKeyByKey(k)
+	return Keys.FindShortKeyByKey(k)
 }
 
 func (k QueryKey) FilterName() dtypes.QueryFilterName {

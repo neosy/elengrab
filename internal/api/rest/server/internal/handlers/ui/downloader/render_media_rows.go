@@ -30,7 +30,7 @@ func (h *DownloaderHandlers) renderDownloadRows(
 	queryFilters := h.mappers.MapQueryFiltersDomainToFilters(query.Filters)
 
 	searchParameters := types.NewSearchParameters()
-	searchParameters.AddValues(query.ViewMode.String(), queryFilters, dtypes.QueryMediaDownloadCursor{})
+	searchParameters.AddValues(query.ViewMode, queryFilters, dtypes.QueryMediaDownloadCursor{})
 
 	channelHeaderPageData := pages.ChannelHeader{}
 	if channelID := searchParameters.FindChannelID(); channelID != uuid.Nil {

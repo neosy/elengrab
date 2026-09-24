@@ -36,6 +36,8 @@ func parseGetFilters(ctx *fasthttp.RequestCtx) (*dtypes.QueryFilters, error) {
 		v := string(value)
 
 		switch k {
+		case qkeys.SearchKey.String():
+			fallthrough
 		case qkeys.SearchQueryKey.String():
 			filters.Add(dtypes.QueryFilterNameSearchQuery, v)
 			continue
@@ -66,37 +68,77 @@ func parseGetFilters(ctx *fasthttp.RequestCtx) (*dtypes.QueryFilters, error) {
 	return filters, nil
 }
 
-func parseGetSearchParameters(ctx *fasthttp.RequestCtx) (*types.SearchParameters, error) {
-	searchParametersStr := string(ctx.QueryArgs().Peek(qkeys.SearchParametersKey.Short()))
-	if searchParametersStr == "" {
-		searchParametersStr = string(ctx.QueryArgs().Peek(qkeys.SearchParametersKey.String()))
-	}
-
-	if searchParametersStr == "" {
-		return nil, nil
-	}
-
-	searchParameters, err := types.ParseEncodedSearchParamQueryString(searchParametersStr)
-	if err != nil {
-		return nil, err
-	}
-
-	return searchParameters, nil
-}
-
-func parsePostSearchParameters(ctx *fasthttp.RequestCtx) (*types.SearchParameters, error) {
-	queryString := ctx.PostArgs().String()
-
+func parseSearchQueryString(queryString string) (*types.QueryFilters, error) {
 	if queryString == "" {
 		return nil, nil
 	}
 
-	searchParameters, err := types.ParseSearchQueryString(queryString)
-	if err != nil {
-		return nil, err
+	items := strings.Split(queryString, "&")
+	if len(items) == 0 {
+		return nil, nil
 	}
 
-	return searchParameters, nil
+	queryItems := types.NewQueryFilters()
+
+	for _, item := range items {
+		parts := strings.Split(item, "=")
+		if len(parts) != 2 {
+			continue
+		}
+
+		k, value := parts[0], parts[1]
+
+		key := qkeys.SearchQueryKeys.FindByShortKey(k)
+		if key == "" {
+			key = qkeys.SearchQueryKeys.FindByStringKey(k)
+		}
+
+		if key == "" {
+			continue
+		}
+
+		if !qkeys.SearchQueryKeys.ExistsByKey(key) {
+			continue
+		}
+
+		queryItems.Add(key, value)
+	}
+
+	if queryItems.Len() == 0 {
+		return nil, nil
+	}
+
+	return queryItems, nil
+}
+
+func (h *DownloaderHandlers) parseSearchQueryString(queryString string) (types.SearchValues, error) {
+	if queryString == "" {
+		return types.NewSearchValues(), nil
+	}
+
+	queryItems, err := parseSearchQueryString(queryString)
+	if err != nil {
+		return types.SearchValues{}, err
+	}
+
+	if queryItems.Len() == 0 {
+		return types.NewSearchValues(), nil
+	}
+
+	searchValues, err := h.mappers.MapSearchQueryToSearchValues(queryItems)
+	if err != nil {
+		return types.SearchValues{}, err
+	}
+
+	return searchValues, nil
+}
+
+func (h *DownloaderHandlers) parseSearchGetRequest(ctx *fasthttp.RequestCtx) (types.SearchValues, error) {
+	return h.parseSearchQueryString(ctx.QueryArgs().String())
+}
+
+func (h *DownloaderHandlers) parseSearchPostRequest(ctx *fasthttp.RequestCtx) (types.SearchValues, error) {
+	return h.parseSearchQueryString(ctx.PostArgs().String())
 }
 
 func (h *DownloaderHandlers) redirectGuestIfAuthRequired(ctx *fasthttp.RequestCtx) bool {

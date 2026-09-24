@@ -8,17 +8,31 @@ import (
 )
 
 type SearchParameterValues struct {
-	ViewMode   string
+	ViewMode   dtypes.QueryMediaViewMode
 	Filters    *QueryFilters
 	LastRecord dtypes.QueryMediaDownloadCursor
+}
+
+func NewSearchParameterValues() SearchParameterValues {
+	return SearchParameterValues{
+		ViewMode: dtypes.QueryMediaViewModeDefault,
+	}
+}
+
+func (v *SearchParameterValues) IsZero() bool {
+	if v == nil {
+		return true
+	}
+
+	return v.ViewMode == dtypes.QueryMediaViewModeNone &&
+		v.Filters.Len() == 0
 }
 
 func (v SearchParameterValues) BuildUsecaseQuery(filters *dtypes.QueryFilters) udto.MediaDownloadQuery {
 	viewMode := dtypes.QueryMediaViewModeDefault
 
-	mode, err := dtypes.ParseQueryMediaViewMode(v.ViewMode)
-	if err == nil {
-		viewMode = mode
+	if v.ViewMode != dtypes.QueryMediaViewModeNone {
+		viewMode = v.ViewMode
 	}
 
 	return udto.MediaDownloadQuery{
@@ -36,10 +50,8 @@ func (v SearchParameterValues) FilterValuesByKey() map[qkeys.QueryKey]string {
 
 	queryFilters := make(map[qkeys.QueryKey]string)
 
-	searchKeys := qkeys.SearchKeys()
-
 	for _, filter := range v.Filters.List() {
-		if searchKeys.ExistsByKey(filter.Key) {
+		if qkeys.SearchFilterKeys.ExistsByKey(filter.Key) {
 			queryFilters[filter.Key] = filter.Value
 		}
 	}

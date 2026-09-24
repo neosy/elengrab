@@ -46,25 +46,15 @@ func (h *DownloaderHandlers) MediaItemsHandler(ctx *fasthttp.RequestCtx) {
 }
 
 func (h *DownloaderHandlers) mediaItemsGet(ctx *fasthttp.RequestCtx) {
-	var (
-		searchParameters *types.SearchParameters
-	)
-
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
-	searchParameters, err := parseGetSearchParameters(ctx)
+	searchValues, err := h.parseSearchGetRequest(ctx)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 		return
 	}
 
-	searchParmValues, err := searchParameters.ParseValues()
-	if err != nil {
-		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
-		return
-	}
-
-	query, err := h.mappers.MapSearchParameterValuesToUsecaseQuery(&searchParmValues)
+	query, err := h.mappers.MapSearchValuesToUsecaseQuery(searchValues)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 		return
@@ -239,7 +229,7 @@ func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 	queryFilters := h.mappers.MapQueryFiltersDomainToFilters(query.Filters)
 
 	searchParameters := types.NewSearchParameters()
-	searchParameters.AddValues(query.ViewMode.String(), queryFilters, query.LastRecord)
+	searchParameters.AddValues(query.ViewMode, queryFilters, query.LastRecord)
 
 	queryParameters = append(queryParameters, searchParameters.EncodeShortQueryString())
 
