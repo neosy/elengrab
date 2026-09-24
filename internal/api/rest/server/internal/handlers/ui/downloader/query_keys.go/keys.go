@@ -2,24 +2,34 @@ package qkeys
 
 import dtypes "github.com/neosy/elengrab/internal/domain/types"
 
-var Keys = newQueryKeys()
+// keys holds the internal concrete implementation of the query keys.
+var keys = NewQueryKeys()
+
+// Keys is a globally accessible, interface-protected instance for key operations.
+var Keys QueryKeysRegistry = keys
 
 var (
-	UrlKey    = Keys.add("url", "u")
-	TextKey   = Keys.add("text", "t")
-	SourceKey = Keys.add("source", "src")
+	UrlKey    = keys.add("url", "u")
+	TextKey   = keys.add("text", "t")
+	SourceKey = keys.add("source", "src")
 
-	DownloadIDKey       = Keys.add("itemId", "id")
-	ChannelIDKey        = Keys.addWithName("channelId", "cid", dtypes.QueryFilterNameChannelID)
-	ChannelPlatformKey  = Keys.add("platform", "cpl")
-	SearchKey           = Keys.addWithName("query", "qr", dtypes.QueryFilterNameSearchQuery)
-	SearchQueryKey      = Keys.addWithName("searchQuery", "sq", dtypes.QueryFilterNameSearchQuery)
-	ShortCodeKey        = Keys.add("shortCode", "sc")
-	RedirectKey         = Keys.add("redirect", "r")
-	ViewModeKey         = Keys.add("viewMode", "vm")
-	LastIDKey           = Keys.add("lastId", "lid")
-	LastCreateAtKey     = Keys.add("lastCreateAt", "date")
-	LastViewsKey        = Keys.add("lastViews", "views")
-	SearchParametersKey = Keys.add("searchParameters", "sp")
-	LastCursorKey       = Keys.add("lastCursor", "lc")
+	DownloadIDKey = keys.add("itemId", "id")
+
+	ChannelIDKey       = keys.addWithName("channelId", "cid", dtypes.QueryFilterNameChannelID)
+	ChannelPlatformKey = keys.add("platform", "cpl")
+
+	SearchKey      = keys.addWithName("query", "qr", dtypes.QueryFilterNameSearchQuery)
+	SearchQueryKey = keys.addWithName("searchQuery", "sq", dtypes.QueryFilterNameSearchQuery)
+
+	ShortCodeKey = keys.add("shortCode", "sc")
+	RedirectKey  = keys.add("redirect", "r")
+
+	ViewModeKey = keys.add("viewMode", "vm")
+
+	SearchParametersKey = keys.add("searchParameters", "sp")
+
+	LastIDKey       = keys.add("lastId", "lid")
+	LastCreateAtKey = keys.add("lastCreateAt", "date")
+	LastViewsKey    = keys.add("lastViews", "views")
+	LastCursorKey   = keys.add("lastCursor", "lc")
 )

@@ -41,21 +41,15 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 			return
 		}
 	} else {
-		params, err := parsePostSearchParameters(ctx)
+		searchValues, err := h.parseSearchPostRequest(ctx)
 		if err != nil {
 			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 			return
 		}
 
-		paramValues, err := params.ParseValues()
+		query, err = h.mappers.MapSearchValuesToUsecaseQuery(searchValues)
 		if err != nil {
-			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
-			return
-		}
-
-		query, err = h.mappers.MapSearchParameterValuesToUsecaseQuery(&paramValues)
-		if err != nil {
-			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 			return
 		}
 	}

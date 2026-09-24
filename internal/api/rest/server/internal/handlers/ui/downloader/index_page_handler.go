@@ -32,19 +32,13 @@ func (h *DownloaderHandlers) IndexPageHandler(ctx *fasthttp.RequestCtx) {
 
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
-	searchParameters, err := parseGetSearchParameters(ctx)
+	searchValues, err := h.parseSearchGetRequest(ctx)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 		return
 	}
 
-	paramValues, err := searchParameters.ParseValues()
-	if err != nil {
-		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
-		return
-	}
-
-	query, err := h.mappers.MapSearchParameterValuesToUsecaseQuery(&paramValues)
+	query, err := h.mappers.MapSearchValuesToUsecaseQuery(searchValues)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 		return

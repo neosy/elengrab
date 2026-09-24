@@ -59,34 +59,36 @@ func (sp *SearchParameters) Add(key qkeys.QueryKey, value string) {
 }
 
 func (sp *SearchParameters) AddFromParmValues(values SearchParameterValues) {
-	viewMode := dtypes.QueryMediaViewModeDefault.String()
+	viewMode := dtypes.QueryMediaViewModeDefault
 
-	if values.ViewMode != "" {
+	if values.ViewMode != dtypes.QueryMediaViewModeNone {
 		viewMode = values.ViewMode
 	}
 
 	lastCursor := MediaQueryCursor(values.LastRecord)
 
-	sp.Add(qkeys.ViewModeKey, viewMode)
+	sp.Add(qkeys.ViewModeKey, viewMode.String())
 	if !lastCursor.IsZero() {
 		sp.Add(qkeys.LastCursorKey, lastCursor.Encode())
 	}
 
 	if values.Filters != nil {
-		for _, filter := range values.Filters.byKey {
-			sp.Add(filter.Key, filter.Value)
+		for key, value := range values.Filters.valuesByKey {
+			sp.Add(key, value)
 		}
 	}
 }
 
 func (sp *SearchParameters) AddValues(
-	viewMode string,
+	viewMode dtypes.QueryMediaViewMode,
 	filters *QueryFilters,
 	lastCursor dtypes.QueryMediaDownloadCursor,
 ) {
+	searchFiltes := filters.FilterByKeys(qkeys.SearchFilterKeys)
+
 	sp.AddFromParmValues(SearchParameterValues{
 		ViewMode:   viewMode,
-		Filters:    filters,
+		Filters:    searchFiltes,
 		LastRecord: lastCursor,
 	})
 }
@@ -166,39 +168,6 @@ func (sp *SearchParameters) EncodeShortQueryString() string {
 	)
 }
 
-func ParseEncodedSearchParamQueryString(queryString string) (*SearchParameters, error) {
-	queryString, err := idcodec.DecodeStringBase64URL(queryString)
-	if err != nil {
-		return nil, err
-	}
-
-	parameters := strings.Split(queryString, "&")
-	if len(parameters) == 0 {
-		return nil, nil
-	}
-
-	searchParameters := NewSearchParameters()
-
-	for _, p := range parameters {
-		parts := strings.SplitN(p, "=", 2)
-
-		if len(parts) != 2 {
-			return nil, fmt.Errorf("invalid search parameter: %s", p)
-		}
-
-		shortKey, value := parts[0], parts[1]
-
-		key := qkeys.Keys.FindByShortKey(shortKey)
-		if key == "" {
-			return nil, fmt.Errorf("unknown search parameter key: %s", shortKey)
-		}
-
-		searchParameters.Add(key, value)
-	}
-
-	return searchParameters, nil
-}
-
 func (sp *SearchParameters) ParseLastCursor() (*MediaQueryCursor, error) {
 	lastCursorKey, exists := sp.itemsByKey[qkeys.LastCursorKey]
 	if !exists {
@@ -215,7 +184,7 @@ func (sp *SearchParameters) ParseLastCursor() (*MediaQueryCursor, error) {
 
 func (sp *SearchParameters) ParseValues() (SearchParameterValues, error) {
 	values := SearchParameterValues{
-		ViewMode:   dtypes.QueryMediaViewModeDefault.String(),
+		ViewMode:   dtypes.QueryMediaViewModeDefault,
 		LastRecord: dtypes.QueryMediaDownloadCursor{},
 	}
 
@@ -223,13 +192,13 @@ func (sp *SearchParameters) ParseValues() (SearchParameterValues, error) {
 		return values, nil
 	}
 
-	mode, err := sp.FindViewMode()
+	viewMode, err := sp.FindViewMode()
 	if err != nil {
 		return values, err
 	}
 
-	if mode != dtypes.QueryMediaViewModeNone {
-		values.ViewMode = mode.String()
+	if viewMode != dtypes.QueryMediaViewModeNone {
+		values.ViewMode = viewMode
 	}
 
 	lastQueryCursor, err := sp.ParseLastCursor()
@@ -254,8 +223,7 @@ func (sp *SearchParameters) QueryFilters() *QueryFilters {
 	var filters *QueryFilters
 
 	for key, param := range sp.itemsByKey {
-		filterName := qkeys.Keys.FilterNameByKey(key)
-		if filterName == dtypes.QueryFilterNameNone {
+		if !qkeys.SearchFilterKeys.ExistsByKey(key) {
 			continue
 		}
 
@@ -288,37 +256,43 @@ func (sp *SearchParameters) BuildJSON() []byte {
 	return json
 }
 
-func ParseSearchQueryString(queryString string) (*SearchParameters, error) {
-	if queryString == "" {
+func ParseSearchEncodeQueryStringToParameters(query string) (*SearchParameters, error) {
+	queryString, err := idcodec.DecodeStringBase64URL(query)
+	if err != nil {
+		return nil, err
+	}
+
+	parameters := strings.Split(queryString, "&")
+	if len(parameters) == 0 {
 		return nil, nil
 	}
 
-	params := strings.Split(queryString, "&")
+	searchParameters := NewSearchParameters()
 
-	if len(params) == 0 {
-		return nil, nil
-	}
+	for _, p := range parameters {
+		parts := strings.SplitN(p, "=", 2)
 
-	searchParams := NewSearchParameters()
-
-	for _, p := range params {
-		parts := strings.Split(p, "=")
 		if len(parts) != 2 {
+			return nil, fmt.Errorf("invalid search parameter: %s", p)
+		}
+
+		k, value := parts[0], parts[1]
+
+		key := qkeys.Keys.FindByShortKey(k)
+		if key == "" {
+			key = qkeys.Keys.FindByStringKey(k)
+		}
+
+		if key == "" {
+			return nil, fmt.Errorf("unknown search parameter key: %s", k)
+		}
+
+		if !qkeys.SearchParameterKeys.ExistsByKey(key) {
 			continue
 		}
 
-		key, value := qkeys.QueryKey(parts[0]), parts[1]
-
-		if value == "" {
-			continue
-		}
-
-		if !qkeys.Keys.ExistsByKey(key) {
-			continue
-		}
-
-		searchParams.Add(key, value)
+		searchParameters.Add(key, value)
 	}
 
-	return searchParams, nil
+	return searchParameters, nil
 }
