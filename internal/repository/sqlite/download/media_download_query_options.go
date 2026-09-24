@@ -98,7 +98,8 @@ func (r *MediaDownloadRepository) WithFilters(filters ...dtypes.QueryFilter) per
 		eDownload edownload.MediaDownload
 
 		fieldNameByAllowedFilter = map[dtypes.QueryFilterName]string{
-			dtypes.QueryFilterNameUserID: eDownload.FieldName(&eDownload.UserID),
+			dtypes.QueryFilterNameUserID:    eDownload.FieldName(&eDownload.UserID),
+			dtypes.QueryFilterNameChannelID: eDownload.FieldName(&eDownload.ChannelID),
 		}
 	)
 

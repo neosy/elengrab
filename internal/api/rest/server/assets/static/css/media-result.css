@@ -316,7 +316,7 @@ img[data-src] {
     text-decoration: none;
 }
 
-.channel-header-ext-id {
+.channel-header-ext-username {
     max-width: clamp(100px, 80vw, 100%);
 
     font-size: clamp(14px, 3vw, 16px);

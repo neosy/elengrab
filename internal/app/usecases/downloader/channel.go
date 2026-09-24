@@ -9,6 +9,7 @@ import (
 )
 
 type Channel interface {
+	Create(ctx context.Context, channel *dmedia.Channel) error
 	Patch(
 		ctx context.Context,
 		channelID uuid.UUID,
@@ -16,6 +17,20 @@ type Channel interface {
 	) error
 	UpdateChannelID(ctx context.Context, oldChannelID, newChannelID uuid.UUID) error
 
+	FindByChannelIDNoCache(ctx context.Context, channelID uuid.UUID) (*dmedia.Channel, error)
+	FindByChannelID(ctx context.Context, channelID uuid.UUID) (*dmedia.Channel, error)
+	FindByExternalChannelIDNoCache(
+		ctx context.Context,
+		externalID string,
+		platform string,
+	) (*dmedia.Channel, error)
+	FindByExternalChannelID(
+		ctx context.Context,
+		externalID string,
+		platform string,
+	) (*dmedia.Channel, error)
+
+	GetAllIDs(ctx context.Context) ([]uuid.UUID, error)
 	IterateAll(ctx context.Context, fn func(*dmedia.Channel) error) error
 
 	Tx(ctx context.Context, fn func(ctx context.Context) error) error

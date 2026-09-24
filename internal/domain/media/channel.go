@@ -13,17 +13,23 @@ type Channel struct {
 	// Internal channel identifier
 	ChannelID uuid.UUID
 
+	// External channel identifier
+	ExternalID string
+
 	// Platform identifier
 	Platform string
+
+	// Channel URL
+	ChannelURL string
 
 	// Host from which the platform was detected
 	Host string
 
-	// External channel identifier
-	ExternalID string
+	// Channel username
+	Username string
 
-	// Channel URL
-	ChannelURL string
+	// Channel URL based on the username.
+	UsernameURL string
 
 	// Title of the channel
 	Title string
@@ -49,15 +55,55 @@ func NewChannelFromSource(source *dtypes.ChannelSource) *Channel {
 }
 
 func (c *Channel) InitFromSource(channel *dtypes.ChannelSource) {
-	if channel != nil {
+	if channel == nil {
+		return
+	}
+
+	c.ExternalID = channel.ChannelID
+	c.Platform = channel.Platform
+
+	c.ChannelURL = channel.URL
+	c.Host = channel.Host
+
+	c.Username = channel.Username
+	c.UsernameURL = channel.UsernameURL
+
+	c.Title = channel.Title
+
+	c.Image = channel.Image.Clone()
+}
+
+func (c *Channel) UpdateFromSource(channel *dtypes.ChannelSource) {
+	if channel == nil {
+		return
+	}
+
+	if channel.ChannelID != "" {
 		c.ExternalID = channel.ChannelID
+	}
+	if channel.Platform != "" {
 		c.Platform = channel.Platform
+	}
 
-		c.Host = channel.Host
-
+	if channel.URL != "" {
 		c.ChannelURL = channel.URL
-		c.Title = channel.Title
+	}
+	if channel.Host != "" {
+		c.Host = channel.Host
+	}
 
+	if channel.Username != "" {
+		c.Username = channel.Username
+	}
+	if channel.UsernameURL != "" {
+		c.UsernameURL = channel.UsernameURL
+	}
+
+	if channel.Title != "" {
+		c.Title = channel.Title
+	}
+
+	if channel.Image != nil {
 		c.Image = channel.Image.Clone()
 	}
 }
@@ -69,8 +115,10 @@ func (c *Channel) EqualSource(channel *dtypes.ChannelSource) bool {
 
 	return c.ExternalID == channel.ChannelID &&
 		c.Platform == channel.Platform &&
-		c.Host == channel.Host &&
 		c.ChannelURL == channel.URL &&
+		c.Host == channel.Host &&
+		c.Username == channel.Username &&
+		c.UsernameURL == channel.UsernameURL &&
 		c.Title == channel.Title &&
 		c.Image.Equal(channel.Image)
 }
@@ -96,20 +144,20 @@ func (c *Channel) Validate() error {
 		return errors.New("channel ID is empty")
 	}
 
-	if c.Platform == "" {
-		return errors.New("channel platform is empty")
-	}
-
-	if c.Host == "" {
-		return errors.New("channel host is empty")
-	}
-
 	if c.ExternalID == "" {
 		return errors.New("channel external ID is empty")
 	}
 
+	if c.Platform == "" {
+		return errors.New("channel platform is empty")
+	}
+
 	if c.ChannelURL == "" {
 		return errors.New("channel URL is empty")
+	}
+
+	if c.Host == "" {
+		return errors.New("channel host is empty")
 	}
 
 	return nil

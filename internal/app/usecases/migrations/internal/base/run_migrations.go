@@ -29,7 +29,7 @@ func (m *Migrations) RunMigrations(ctx context.Context) error {
 
 		done, err := migration.Run(ctx)
 		if err != nil {
-			m.logger.Warn("Failed data migration process '%s'", "id", migration.ID(), "error", err)
+			m.logger.Warn("Failed data migration process", "id", migration.ID(), "error", err)
 			hasError = true
 			continue
 		}

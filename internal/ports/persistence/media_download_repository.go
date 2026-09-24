@@ -31,13 +31,17 @@ type MediaDownloadRepository interface {
 	UpdateChannelID(ctx context.Context, oldChannelID string, newChannelID uuid.UUID) error
 
 	FindByDownloadID(ctx context.Context, DownloadID uuid.UUID) (*ddownload.MediaDownload, error)
+
 	IterateAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error
-	GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error)
 	IterateFullNames(ctx context.Context, includeDeleted bool, fn func(string) error) error
+	GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error)
+
 	IterateByIDs(ctx context.Context, ids []uuid.UUID, fn func(*ddownload.MediaDownload) error) error
 	GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ddownload.MediaDownload, error)
+
 	GetByStatus(ctx context.Context, status dtypes.MediaDownloadStatus) ([]*ddownload.MediaDownload, error)
 	GetByStatuses(ctx context.Context, statuses []dtypes.MediaDownloadStatus) ([]*ddownload.MediaDownload, error)
+
 	GetByPartialHash(ctx context.Context, hash string) ([]*ddownload.MediaDownload, error)
 	GetWithoutPartialHash(ctx context.Context) ([]*ddownload.MediaDownload, error)
 	GetDuplicateHashes(ctx context.Context, scope dtypes.UniquenessScope) ([]ddownload.DuplicateHashRow, error)

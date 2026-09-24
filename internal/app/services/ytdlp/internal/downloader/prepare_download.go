@@ -14,12 +14,12 @@ import (
 
 func (d *Downloader) prepareDownload(
 	ctx context.Context,
-	url string,
+	rawURL string,
 	options idto.DLOptions,
 ) (*idto.DownloadMeta, *idto.DownloadExecOptions, error) {
 	// Build yt-dlp arguments and get file extension and title
 	preparer := downloadpreparer.NewDownloadPreparer(d.executor.FetchInfoWithBestFormat)
-	downloadPlan, err := preparer.Prepare(ctx, url, options)
+	downloadPlan, err := preparer.Prepare(ctx, rawURL, options)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to build download arguments: %w", err)
 	}
@@ -30,7 +30,7 @@ func (d *Downloader) prepareDownload(
 	if title == "" {
 		title, err = d.executor.FetchTitle(
 			ctx,
-			url,
+			rawURL,
 			idto.WithUseCookies(options.CookieFilePathIfNeeded()),
 		)
 		if err != nil {
@@ -70,23 +70,20 @@ func (d *Downloader) prepareDownload(
 		fileSize = &tmpSize
 	}
 
-	var channelID string
-	if downloadPlan.ExtractInfo.ChannelID != "" {
-		channelID = downloadPlan.ExtractInfo.ChannelID
-	}
+	channel := d.buildChannel(downloadPlan.ExtractInfo)
 
 	meta := &idto.DownloadMeta{
-		URL:          url,
+		URL:          rawURL,
 		Title:        title,
 		Description:  downloadPlan.ExtractInfo.Description,
 		FileName:     fileName,
 		FileExt:      downloadPlan.FileExt,
 		FileFullName: fileFullName,
 		FileSize:     fileSize,
-		ChannelID:    channelID,
-		ChannelURL:   downloadPlan.ExtractInfo.ChannelUrl,
-		ChannelTitle: downloadPlan.ExtractInfo.ChannelTitle,
-		MediaInfo:    downloadPlan.MediaInfo,
+
+		Channel: channel,
+
+		MediaInfo: downloadPlan.MediaInfo,
 	}
 
 	execOptions := &idto.DownloadExecOptions{

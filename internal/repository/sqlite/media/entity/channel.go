@@ -13,17 +13,23 @@ type Channel struct {
 	// Unique ID for the channel
 	ChannelID string `db:"channel_id"`
 
+	// External channel identifier
+	ExternalID string `db:"external_id"`
+
 	// Platform identifier
 	Platform string `db:"platform"`
+
+	// Site URL
+	ChannelURL string `db:"channel_url"`
 
 	// Host from which the platform was detected
 	Host string `db:"host"`
 
-	// External channel identifier
-	ExternalID string `db:"external_id"`
+	// Channel username
+	Username string `db:"username"`
 
-	// Site URL
-	ChannelURL string `db:"channel_url"`
+	// Channel URL based on the username
+	UsernameURL string `db:"username_url"`
 
 	// Title of the channel
 	Title string `db:"channel_title"`
