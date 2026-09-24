@@ -17,6 +17,23 @@ type MediaDownloadQuery struct {
 	Filters *dtypes.QueryFilters
 }
 
+func NewMediaDownloadQuery(
+	viewMode dtypes.QueryMediaViewMode,
+	limit uint64,
+	lastRecord dtypes.QueryMediaDownloadCursor,
+) MediaDownloadQuery {
+	vMode := dtypes.QueryMediaViewModeDefault
+	if viewMode != dtypes.QueryMediaViewModeNone {
+		vMode = viewMode
+	}
+
+	return MediaDownloadQuery{
+		ViewMode:   vMode,
+		Limit:      limit,
+		LastRecord: lastRecord,
+	}
+}
+
 func MediaDownloadQueryDefault(limit uint64) MediaDownloadQuery {
 	query := MediaDownloadQuery{
 		ViewMode: dtypes.QueryMediaViewModeDefault,

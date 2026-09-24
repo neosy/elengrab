@@ -52,9 +52,9 @@ func (m *Mappers) MapQueryFiltersToDomain(filters *types.QueryFilters) (*dtypes.
 				return nil, err
 			}
 			newFilter.Add(filterName, id)
-		case qkeys.SearchQueryKey:
-			newFilter.Add(filterName, filter.Value)
 		case qkeys.SearchKey:
+			fallthrough
+		case qkeys.SearchQueryKey:
 			newFilter.Add(filterName, filter.Value)
 		}
 	}
