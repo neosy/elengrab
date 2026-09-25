@@ -49,10 +49,6 @@ func (f QueryFilter) Value() any {
 }
 
 func (filters *QueryFilters) Append(filter QueryFilter) *QueryFilters {
-	if filters == nil {
-		return nil
-	}
-
 	filters.mu.Lock()
 	defer filters.mu.Unlock()
 
@@ -63,10 +59,6 @@ func (filters *QueryFilters) Append(filter QueryFilter) *QueryFilters {
 }
 
 func (filters *QueryFilters) Add(name QueryFilterName, value any) QueryFilter {
-	if filters == nil {
-		return QueryFilter{}
-	}
-
 	filter := QueryFilter{
 		Name:      name,
 		condition: dbutils.NewFilterCondition(value, dbutils.FilterOperatorEq),
@@ -114,20 +106,12 @@ func (filters *QueryFilters) Clone() *QueryFilters {
 }
 
 func (filters *QueryFilters) Find(name QueryFilterName) (QueryFilter, bool) {
-	if filters == nil {
-		return QueryFilter{}, false
-	}
-
 	filter, exists := filters.byName[name]
 
 	return filter, exists
 }
 
 func (filters *QueryFilters) GetValue(name QueryFilterName) any {
-	if filters == nil {
-		return nil
-	}
-
 	filter, exists := filters.byName[name]
 
 	if !exists {
@@ -138,10 +122,6 @@ func (filters *QueryFilters) GetValue(name QueryFilterName) any {
 }
 
 func (filters *QueryFilters) GetStringValue(name QueryFilterName) string {
-	if filters == nil {
-		return ""
-	}
-
 	value := filters.GetValue(name)
 	if value == nil {
 		return ""

@@ -64,3 +64,11 @@ func (q *MediaDownloadQuery) Normalize() {
 		q.Limit = 20
 	}
 }
+
+func (q *MediaDownloadQuery) GetSearchQueryString() string {
+	if q.Filters.Len() == 0 {
+		return ""
+	}
+
+	return q.Filters.GetStringValue(dtypes.QueryFilterNameSearchQuery)
+}
