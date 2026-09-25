@@ -81,12 +81,17 @@ func parseSearchQueryString(queryString string) (*types.QueryFilters, error) {
 	queryItems := types.NewQueryFilters()
 
 	for _, item := range items {
-		parts := strings.Split(item, "=")
+		parts := strings.SplitN(item, "=", 2)
 		if len(parts) != 2 {
 			continue
 		}
 
-		k, value := parts[0], parts[1]
+		value, err := url.QueryUnescape(parts[1])
+		if err != nil {
+			return nil, err
+		}
+
+		k := parts[0]
 
 		key := qkeys.SearchQueryKeys.FindByShortKey(k)
 		if key == "" {

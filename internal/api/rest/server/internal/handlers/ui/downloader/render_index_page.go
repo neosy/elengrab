@@ -128,7 +128,7 @@ func (h *DownloaderHandlers) renderIndexPage(
 			DiskFree:                   humanize.Bytes(int64(systemInfo.DiskFree)),
 			DiskUsed:                   humanize.Bytes(int64(systemInfo.DiskUsed)),
 
-			SearchQuery: query.Filters.GetStringValue(dtypes.QueryFilterNameSearchQuery),
+			SearchQuery: query.GetSearchQueryString(),
 
 			ChannelHeader: channelHeaderPageData,
 			ChannelJSON:   string(channelHeaderPageData.JSON()),
