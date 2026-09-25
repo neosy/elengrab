@@ -5,6 +5,7 @@ import (
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 func (m *Mappers) MapSearchValuesToUsecaseQuery(values types.SearchValues) (udto.MediaDownloadQuery, error) {
@@ -15,7 +16,14 @@ func (m *Mappers) MapSearchValuesToUsecaseQuery(values types.SearchValues) (udto
 	)
 
 	qFilters := values.Parameters.Filters.Clone()
-	qFilters.Add(qkeys.SearchQueryKey, values.QueryText)
+
+	if qFilters == nil {
+		qFilters = types.NewQueryFilters()
+	}
+
+	if values.QueryText != "" {
+		qFilters.Add(qkeys.SearchQueryKey, values.QueryText)
+	}
 
 	filters, err := m.MapQueryFiltersToDomain(qFilters)
 	if err != nil {
@@ -53,6 +61,12 @@ func (m *Mappers) MapSearchQueryToSearchValues(queryItems *types.QueryFilters) (
 			}
 
 			searchValues.Parameters = parmValues
+		case qkeys.ViewModeKey:
+			viewMode, err := dtypes.ParseQueryMediaViewMode(item.Value)
+			if err != nil {
+				return types.SearchValues{}, err
+			}
+			searchValues.Parameters.ViewMode = viewMode
 		default:
 			if qkeys.SearchFilterKeys.ExistsByKey(item.Key) {
 				filters.Add(item.Key, item.Value)

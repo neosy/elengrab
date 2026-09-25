@@ -24,10 +24,6 @@ func NewQueryFilters() *QueryFilters {
 }
 
 func (filters *QueryFilters) Append(filter QueryFilter) *QueryFilters {
-	if filters == nil {
-		return nil
-	}
-
 	filters.list = append(filters.list, filter)
 	filters.valuesByKey[filter.Key] = filter.Value
 
@@ -35,10 +31,6 @@ func (filters *QueryFilters) Append(filter QueryFilter) *QueryFilters {
 }
 
 func (filters *QueryFilters) Add(key qkeys.QueryKey, value string) QueryFilter {
-	if filters == nil {
-		return QueryFilter{}
-	}
-
 	filter := QueryFilter{
 		Key:   key,
 		Value: value,
@@ -77,30 +69,18 @@ func (filters *QueryFilters) Clone() *QueryFilters {
 }
 
 func (filters *QueryFilters) Find(key qkeys.QueryKey) (QueryFilter, bool) {
-	if filters == nil {
-		return QueryFilter{}, false
-	}
-
 	value, exists := filters.valuesByKey[key]
 
 	return QueryFilter{key, value}, exists
 }
 
 func (filters *QueryFilters) Exists(key qkeys.QueryKey) bool {
-	if filters == nil {
-		return false
-	}
-
 	_, exists := filters.valuesByKey[key]
 
 	return exists
 }
 
 func (filters *QueryFilters) GetValue(key qkeys.QueryKey) string {
-	if filters == nil {
-		return ""
-	}
-
 	value, exists := filters.valuesByKey[key]
 
 	if !exists {
@@ -134,7 +114,7 @@ func (filters *QueryFilters) FilterByKeys(keys qkeys.QueryKeysRegistry) *QueryFi
 
 	outFilters := NewQueryFilters()
 
-	for _, filter := range filters.List() {
+	for _, filter := range filters.list {
 		if keys.ExistsByKey(filter.Key) {
 			outFilters.Append(filter)
 		}
