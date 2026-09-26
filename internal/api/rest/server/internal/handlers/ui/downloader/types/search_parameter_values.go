@@ -51,7 +51,7 @@ func (v SearchParameterValues) FilterValuesByKey() map[qkeys.QueryKey]string {
 	queryFilters := make(map[qkeys.QueryKey]string)
 
 	for _, filter := range v.Filters.List() {
-		if qkeys.SearchFilterKeys.ExistsByKey(filter.Key) {
+		if qkeys.SearchParameterFilterKeys.ExistsByKey(filter.Key) {
 			queryFilters[filter.Key] = filter.Value
 		}
 	}

@@ -24,6 +24,7 @@ func (m *Mappers) MapSearchRequestToSearchValues(
 	searchValues.Parameters.ViewMode = viewMode
 
 	filters := types.NewQueryFilters()
+	parmFilters := types.NewQueryFilters()
 
 	if queryText := dtypes.SearchText(req.QueryText).Normalize(); queryText.IsLongEnough() {
 		if err := queryText.Validate(); err != nil {
@@ -37,7 +38,11 @@ func (m *Mappers) MapSearchRequestToSearchValues(
 	}
 
 	if filters.Len() != 0 {
-		searchValues.Parameters.Filters = filters
+		searchValues.Filters = filters
+	}
+
+	if parmFilters.Len() != 0 {
+		searchValues.Parameters.Filters = parmFilters
 	}
 
 	return searchValues, nil

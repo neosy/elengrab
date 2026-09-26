@@ -84,7 +84,7 @@ func (sp *SearchParameters) AddValues(
 	filters *QueryFilters,
 	lastCursor dtypes.QueryMediaDownloadCursor,
 ) {
-	searchFiltes := filters.FilterByKeys(qkeys.SearchFilterKeys)
+	searchFiltes := filters.FilterByKeys(qkeys.SearchParameterFilterKeys)
 
 	sp.AddFromParmValues(SearchParameterValues{
 		ViewMode:   viewMode,
@@ -220,18 +220,18 @@ func (sp *SearchParameters) QueryFilters() *QueryFilters {
 		return nil
 	}
 
-	var filters *QueryFilters
+	filters := NewQueryFilters()
 
 	for key, param := range sp.itemsByKey {
-		if !qkeys.SearchFilterKeys.ExistsByKey(key) {
+		if !qkeys.SearchParameterFilterKeys.ExistsByKey(key) {
 			continue
 		}
 
-		if filters == nil {
-			filters = NewQueryFilters()
-		}
-
 		filters.Add(key, param.Value)
+	}
+
+	if filters.Len() == 0 {
+		return nil
 	}
 
 	return filters

@@ -12,7 +12,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) WatchPageByDownloadIDHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) MediaItemPageByDownloadIDHandler(ctx *fasthttp.RequestCtx) {
 	if ctx.IsHead() {
 		ctx.SetContentType(mime.TypeByExtension(".html"))
 		ctx.SetStatusCode(fasthttp.StatusOK)
@@ -35,7 +35,7 @@ func (h *DownloaderHandlers) WatchPageByDownloadIDHandler(ctx *fasthttp.RequestC
 
 	h.renderWatchPage(ctx,
 		renderWatchPageRequest{
-			pageURL:        httppaths.BuildMediaItemWatchPath(downloadID),
+			pageURL:        httppaths.BuildMediaItemPath(downloadID),
 			streamURLPath:  httppaths.BuildMediaItemStreamPath(downloadID),
 			downloadID:     downloadID,
 			showBackButton: true,

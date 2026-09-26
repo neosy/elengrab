@@ -1,8 +1,7 @@
-import {CLASS_NAMES, DOM_IDS, STORAGE_KEYS, API_PATHS} from './constants.js';
+import {CLASS_NAMES, STORAGE_KEYS, API_PATHS} from './constants.js';
 import storageState from './storage-state.js';
 import * as notify from './notifications.js';
-import { DOM_ELEMENTS, DOM_SELECTORS } from "./index.dom.js";
-import { isMobileScreen } from "./browser.js";
+import { DOM_ELEMENTS, CLASS_SELECTORS, DOM_IDS } from "./pages-list.dom.js";
 
 export function applyGridView(isGridView) {
     document.body.classList.toggle(CLASS_NAMES.gridView, isGridView);
@@ -32,34 +31,8 @@ export function getGridView() {
     return storageState.get(STORAGE_KEYS.settingsGridView, true);
 }
 
-export function initSearching(clear) {
-    const searchBtn = document.getElementById("userMenuSearchButton");
-    const backBtn = document.getElementById("historySearchBackButton");
-    const header = document.getElementById("header");
-    const searchInput = document.getElementById("historySearchInput");
-
-    if (!searchBtn || !header || !backBtn) return;
-
-    searchBtn.addEventListener('click', () => {
-        openSearching(header, searchInput);
-    });    
-
-    backBtn.addEventListener('click', () => {
-        closeSearching(header, clear);
-    });
-
-    if (isMobileScreen() && searchInput.value !== "") {
-        header.classList.toggle(CLASS_NAMES.isSearch, true);
-    }
-
-    return {
-        open: openSearching,
-        close: closeSearching,
-    }
-}
-
 export function initHeaderUserMenu() {
-    const btn = document.getElementById("userMenudownloadButton");
+    const btn = document.getElementById("headerActionsDownloadButton");
     const grabInput = document.getElementById("mediaURLInput");
 
     if (!btn) return;
@@ -67,16 +40,6 @@ export function initHeaderUserMenu() {
     btn.addEventListener('click', () => {
         selectGrabInput(grabInput);
     });    
-}
-
-function openSearching(header, input) {
-    header.classList.toggle(CLASS_NAMES.isSearch, true);
-    input.focus();
-}
-
-function closeSearching(header, clear) {
-    header.classList.toggle(CLASS_NAMES.isSearch, false);
-    clear();
 }
 
 function selectGrabInput(grabInput) {
@@ -159,21 +122,21 @@ export function initLazyImages({
 
 /**
  * @param {Object} options
- * @param {() => Object} options.getSearchParameters
+ * @param {() => Object} options.getSearchQueryValues
  * @param {() => void} options.onSuccess
  */
 export function initViewModeBar({
-    getSearchParameters,
+    getSearchQueryValues,
     onSuccess,
 }) {
-    const tabs = document.querySelector(DOM_SELECTORS.viewModeTabs);
+    const tabs = document.querySelector(CLASS_SELECTORS.viewModeTabs);
 
     if (!tabs) {
         return;
     }
 
     tabs.addEventListener('click', (event) => {
-        const tab = event.target.closest(DOM_SELECTORS.viewModeTab);
+        const tab = event.target.closest(CLASS_SELECTORS.viewModeTab);
 
         if (!tab) {
             return;
@@ -181,7 +144,7 @@ export function initViewModeBar({
 
         tabs.dataset.viewMode = tab.dataset.viewMode;
 
-        tabs.querySelectorAll(DOM_SELECTORS.viewModeTab).forEach((item) => {
+        tabs.querySelectorAll(CLASS_SELECTORS.viewModeTab).forEach((item) => {
             const selected = item === tab;
 
             item.classList.toggle('active', selected);
@@ -198,11 +161,8 @@ export function initViewModeBar({
             return;
         }
 
-        const searchText = DOM_ELEMENTS.historySearchInput?.value ?? "";
-
-        const searchParameters = {
-            query: searchText,
-            ...getSearchParameters(),
+        const searchQuery = {
+            ...getSearchQueryValues(),
         };
 
         const response = await fetch(API_PATHS.downloaderSearch, {
@@ -210,7 +170,7 @@ export function initViewModeBar({
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(searchParameters),
+            body: JSON.stringify(searchQuery),
         });
 
         if (!response.ok) {
@@ -228,11 +188,11 @@ export function initViewModeBar({
 }
 
 export function initExtChannelLink({
-    getSearchParameters,
+    getSearchQueryValues,
     onSuccess,
 }) {
     document.addEventListener("click", async (event) => {
-        const linkBtn = event.target.closest(DOM_SELECTORS.mediaExtChannelLinkButton);
+        const linkBtn = event.target.closest(CLASS_SELECTORS.mediaExtChannelLinkButton);
         if (!linkBtn || linkBtn.dataset.channelId === '') return;
 
         const channelId = linkBtn.dataset.channelId;
@@ -247,8 +207,8 @@ export function initExtChannelLink({
             return;
         }
 
-        const searchParameters = {
-            ...getSearchParameters(),
+        const searchQuery = {
+            ...getSearchQueryValues(),
             
             channelId: channelId,
         };
@@ -258,7 +218,7 @@ export function initExtChannelLink({
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(searchParameters),
+            body: JSON.stringify(searchQuery),
         });
 
         if (!response.ok) {

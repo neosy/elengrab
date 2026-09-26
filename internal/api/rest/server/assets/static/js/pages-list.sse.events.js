@@ -1,6 +1,6 @@
-import { DOM_CLASS_PREFIXES, DOM_CLASSES, DOM_SELECTORS, DOM_CSS_VAR_NAMES, DOM_ELEMENTS } from "./index.dom.js";
+import { CLASS_NAMES, CLASS_SELECTORS, DOM_IDS, DOM_ELEMENTS } from "./pages-list.dom.js";
 import * as notify from './notifications.js';
-import { DOM_IDS, VIDEO_PREVIEW } from './constants.js';
+import { CLASS_PREFIXES, VIDEO_PREVIEW } from './constants.js';
 
 // -------------------------------------------------------------
 // Handle row-add SSE event with multiple rows in one payload
@@ -88,7 +88,7 @@ export function handleRowPatch(event) {
         if (!el) return;
 
         if (data.title !== undefined && data.title !== "") {
-            const titleEl = el.querySelector(DOM_SELECTORS.mediaResultTitleLink);
+            const titleEl = el.querySelector(CLASS_SELECTORS.mediaResultTitleLink);
             if (titleEl) {
                 titleEl.textContent = data.title;
                 titleEl.title = data.title;
@@ -96,18 +96,18 @@ export function handleRowPatch(event) {
         }
 
         if (data.visibility !== undefined) {
-            const visibilityEl = el.querySelector(DOM_SELECTORS.mediaResultVisibility);
+            const visibilityEl = el.querySelector(CLASS_SELECTORS.mediaResultVisibility);
 
             if (visibilityEl) {
                 const oldClass = [...visibilityEl.classList]
-                    .find(className => className.startsWith(DOM_CLASS_PREFIXES.visibility));
+                    .find(className => className.startsWith(CLASS_PREFIXES.visibility));
 
                 if (oldClass) {
                     visibilityEl.classList.remove(oldClass);
                 }
 
                 visibilityEl.classList.toggle("hidden", !data.visibility.visible);
-                visibilityEl.classList.add(`${DOM_CLASS_PREFIXES.visibility}${data.visibility.value}`);
+                visibilityEl.classList.add(`${CLASS_PREFIXES.visibility}${data.visibility.value}`);
                 visibilityEl.dataset.tooltip = data.visibility.label;
                 visibilityEl.title = data.visibility.label;
                 visibilityEl.ariaLabel = data.visibility.label;
@@ -120,34 +120,34 @@ export function handleRowPatch(event) {
         }
 
         if (data.hasShareLink !== undefined) {
-            const linkEl = el.querySelector(DOM_SELECTORS.mediaResultShareLink);
+            const linkEl = el.querySelector(CLASS_SELECTORS.mediaResultShareLink);
             if (linkEl) {
                 linkEl.classList.toggle("hidden", !data.hasShareLink);
             }
         }
 
         if (data.watched !== undefined && data.watched) {
-            const watchedEl = el.querySelector(DOM_SELECTORS.mediaResultRowThumbnailWatched);
+            const watchedEl = el.querySelector(CLASS_SELECTORS.mediaResultRowThumbnailWatched);
             if (watchedEl) {
                 watchedEl.classList.remove("hidden");
             }
         }
 
         if (data.watchPercent !== undefined) {
-            const progressEl = el.querySelector(DOM_SELECTORS.mediaResultRowThumbnailWatchProgress);
-            const progressValueEl = el.querySelector(DOM_SELECTORS.mediaResultRowThumbnailWatchProgressValue);
+            const progressEl = el.querySelector(CLASS_SELECTORS.mediaResultRowThumbnailWatchProgress);
+            const progressValueEl = el.querySelector(CLASS_SELECTORS.mediaResultRowThumbnailWatchProgressValue);
             if (progressEl && progressValueEl) {
                 const watchPercent = Number(data.watchPercent);
                 progressEl.classList.toggle("hidden", watchPercent === 0);
                 progressValueEl.style.setProperty(
-                    DOM_CSS_VAR_NAMES.watchProgress,
+                    CLASS_SELECTORS.watchProgress,
                     `${watchPercent}%`,
                 );
             }
         }
 
         if (data.viewCount !== undefined) {
-            const viewCountEl = el.querySelector(DOM_SELECTORS.mediaResultViewCount);
+            const viewCountEl = el.querySelector(CLASS_SELECTORS.mediaResultViewCount);
             if (viewCountEl) {
                 viewCountEl.textContent = data.viewCount.text;
             }
@@ -169,7 +169,7 @@ export function handleRowStartRefreshing(event) {
         const el = document.getElementById(DOM_IDS.row(data.itemId));
         if (!el) return;
 
-        el.classList.add(DOM_CLASSES.rowRefreshing);
+        el.classList.add(CLASS_NAMES.row.rowRefreshing);
     } catch (err) {
         console.error(`SSE "${event.type}" handler error:`, err);
     }
@@ -193,7 +193,7 @@ export function handleRowDelete(event) {
         void el.offsetHeight;
 
         // Start animation by adding CSS class
-        el.classList.add(DOM_CLASSES.rowRemoving);
+        el.classList.add(CLASS_NAMES.rowRemoving);
 
         // Remove element after transition completes
         el.addEventListener('transitionend', () => {

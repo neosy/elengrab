@@ -6,6 +6,10 @@ var (
 		key:      "index-page",
 		fileName: "index.html",
 	}
+	ChannelPage = page{
+		key:      "channel-page",
+		fileName: "channel.html",
+	}
 	AuthRegisterPage = page{
 		key:      "auth-register-page",
 		fileName: "auth-register.html",
@@ -33,11 +37,16 @@ var (
 
 	pages = []page{
 		IndexPage,
+		ChannelPage,
+
 		AuthRegisterPage,
 		AuthLoginPage,
+
 		WatchPage,
 		EditMediaPage,
+
 		AdminPage,
+
 		ErrorPage,
 	}
 )

@@ -115,7 +115,7 @@ body {
     color: var(--page-text-secondary);
 }
 
-.user-menu {
+.header-actions {
     display: flex;
 
     width: auto;
@@ -128,7 +128,7 @@ body {
     z-index: 1000;
 }
 
-.user-menu > div {
+.header-actions > div {
     display: flex;
 
     width: auto;

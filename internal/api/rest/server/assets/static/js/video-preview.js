@@ -1,5 +1,5 @@
 import * as watchAPI from './watch-api.js';
-import { CLASS_NAMES, MEDIA_WATCH, VIDEO_PREVIEW, DOM_IDS } from './constants.js';
+import { CLASS_NAMES, MEDIA_WATCH, VIDEO_PREVIEW } from './constants.js';
 import { isMobileScreen } from './browser.js';
 
 const soundElements = {
@@ -35,13 +35,17 @@ const cssClassNames = {
     soundOn: "video-preview__sound-on",
     previewPlaying: VIDEO_PREVIEW.previewPlayingClassName,
 
-    rowRefreshing: CLASS_NAMES.row.rowRefreshing,
+    rowRefreshing: "row--refreshing",
 };
 
 const cssVarNames = {
     watchBuffer: "--video-preview-watch-buffer",
     watchProgress: "--video-preview-watch-progress"
 };
+
+const ids = {
+    row: (id) => `row-${id}`,
+}
 
 export function initVideoPreview() {
     previewElements.container = document.getElementById("video-preview-container");
@@ -207,7 +211,7 @@ export async function showVideoPreview(thumbnail, videoUrl, itemId) {
 
     previewState.ended = false;
 
-    const itemEl = document.getElementById(DOM_IDS.row(itemId));
+    const itemEl = document.getElementById(ids.row(itemId));
     if (itemEl) {
         const isPreviewBlocked = itemEl.classList.contains(cssClassNames.rowRefreshing);
         if (isPreviewBlocked) return;
@@ -253,7 +257,7 @@ export function hideVideoPreview() {
         return;
     }
 
-    const itemEl = document.getElementById(DOM_IDS.row(previewState.currentItemId));
+    const itemEl = document.getElementById(ids.row(previewState.currentItemId));
     if (itemEl) {
         itemEl.classList.remove(cssClassNames.previewPlaying);
     }
@@ -350,7 +354,7 @@ function updateVideoPreview(container, elementClassName, thumbClassName, force=f
 
     if (previewState.currentItemId) {
         const element = document.getElementById(
-            DOM_IDS.row(previewState.currentItemId)
+            ids.row(previewState.currentItemId)
         );
 
         if (force || !element || !isElementInViewport(element)) {

@@ -21,14 +21,22 @@ func (h *DownloaderHandlers) AccountMenuHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	extraData := make(map[string]any)
-	extraData[items.UserAvatarIconKey] = icons.UserAvatarIconByType(ctxUser.UserType()).FileRaw()
 	extraData[items.UserLoginKey] = stringx.Capitalize(ctxUser.Login)
 	extraData[items.UserEmailKey] = ctxUser.Email
 	extraData[items.AccountMenuActionsKey] = menu.NewAccountMenuActions(ctxUser)
 
-	pageData := pages.PageFragmentData{
+	type pageFragmentData struct {
+		pages.PageFragmentData
+		pages.UserAvatar
+	}
+
+	pageData := pageFragmentData{
 		BasePaths: paths.NewHttpPaths(),
 		Extra:     extraData,
+
+		UserAvatar: pages.UserAvatar{
+			Icon: icons.UserAvatarIconByType(ctxUser.UserType()).FileRaw(),
+		},
 	}
 
 	// Execute template

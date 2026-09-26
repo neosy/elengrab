@@ -39,7 +39,7 @@ var rowMenuActions = []rowMenuAction{
 		Action:     "watch",
 		Title:      "Watch",
 		Link: linkOptions{
-			URL:          httppaths.DownloaderGroup + httppaths.MediaItemWatchPath,
+			URL:          httppaths.DownloaderGroup + httppaths.MediaItemPath,
 			NewTab:       false,
 			replaceInURL: RowMenuActionItemIDKey,
 		},

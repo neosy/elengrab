@@ -1,0 +1,7 @@
+{{- define "header-actions-user-avatar" }}
+        <div class="header-actions__button-wrapper user-avatar no-select" id="user-avatar" data-action="{{ .Values.UserAvatar.ActionMode }}" title="{{ .Values.HeaderActionsAvatarTitle }}">
+          {{- if eq .Values.UserAvatar.ActionMode "login" }}<a href="{{ .BasePaths.AuthLogin }}">{{- end }}
+          {{- .Values.UserAvatar.Icon }}
+          {{- if eq .Values.UserAvatar.ActionMode "login" }}</a>{{- end }}
+        </div>
+{{- end }}

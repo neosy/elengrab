@@ -1,21 +1,35 @@
-import { DOM_ELEMENTS, DOM_CLASSES, initDomElements, DOM_SELECTORS } from "./index.dom.js";
 import * as utils from './utils.js';
 import * as cookie from './cookie.js';
 import * as browser from './browser.js';
 import * as actionButton from './action-buttons.js';
-import * as rowEventHandlers from './index.sse.events.js';
 import { initPlayer } from './player.js';
 import * as tooltip from './tooltip.js';
-import { initIndexMenus as initMenu } from './index.menu-configs.js';
-import { SELECT_NAMES, COOKIE_NAMES, DOM_IDS, URL_KEYS } from './constants.js';
-import * as notify from './notifications.js';
-import * as view from './index.view.js';
 import * as videoPreview from './video-preview.js';
+import * as common from "./common.js";
+import * as sseClient from "./sse.js";
+
+import * as rowEventHandlers from './pages-list.sse.events.js';
+import { initIndexMenus as initMenu } from './pages-list.menu-configs.js';
+import * as view from './pages-list.view.js';
+import * as search from './pages-list.search.js';
+import {  CLASS_NAMES, CLASS_SELECTORS, DOM_IDS, DOM_ELEMENTS, initDomElements } from "./index-page.dom.js";
+
+// -------------------------------------------------------------
+// Element selectors and cookie names
+// -------------------------------------------------------------
+export const SELECT_NAMES = {
+    qualityCodec: "quality-codec",
+    qualityResolution: "quality-resolution",
+    format: "format"
+};
+export const COOKIE_NAMES = {
+    qualityCodec: "select_quality_codec",
+    qualityResolution: "select_quality_resolution",
+    format: "select_format"
+};
 
 // Global variables
-let globalEventSource = null;
 let searchInputClearButton = null;
-let searching = null;
 
 // -------------------------------------------------------------
 // Function: setupQualityFormatLogic
@@ -86,103 +100,13 @@ function setupQualityFormatLogic() {
                 formatSelect.value = videoFormatDefault;
             }
         }
-        cookie.saveAllSelectsToCookie();
+        cookie.saveAllSelectsToCookie(SELECT_NAMES, COOKIE_NAMES);
     };
 
     updateFormatOptions();
 
     qualityCodecSelect.addEventListener("change", updateFormatOptions);
     formatSelect.addEventListener("change", updateFormatOptions);
-}
-
-function createSSEConnection() {
-    function setServerStatus(online) {
-        const el = DOM_ELEMENTS.sysInfoServerStatusDot
-        if (!el) return;
-
-        if (online) {
-            console.info("SSE connection opened");
-            el.classList.add("online");
-        } else {
-            console.warn("SSE connection closed");
-            el.classList.remove("online");
-        }
-    }
-
-    // Internal function to (re)connect
-    function connect() {
-        globalEventSource?.close();
-
-        globalEventSource = new EventSource("/downloader/events");
-
-        // Server is considered online when these events arrive
-        globalEventSource.addEventListener("connected", () => setServerStatus(true));
-        // globalEventSource.addEventListener("ping", () => setServerStatus(true));
-
-        // Business events
-        globalEventSource.addEventListener("row-add", rowEventHandlers.handleRowAdd);
-        globalEventSource.addEventListener("row-update", rowEventHandlers.handleRowUpdate);
-        globalEventSource.addEventListener("row-patch", rowEventHandlers.handleRowPatch);
-        globalEventSource.addEventListener("row-delete", rowEventHandlers.handleRowDelete);
-        globalEventSource.addEventListener("row-patch-field", rowEventHandlers.handleRowPatchField);
-        globalEventSource.addEventListener("row-start-refreshing", rowEventHandlers.handleRowStartRefreshing);
-        globalEventSource.addEventListener("system-info-update", rowEventHandlers.handleSystemInfoUpdate);
-        globalEventSource.addEventListener("notification", rowEventHandlers.handleNotification);
-
-        // Fallback: any default message marks server as online
-        globalEventSource.onmessage = () => setServerStatus(true);
-
-        // On error: mark offline and reconnect
-        globalEventSource.onerror = function(err) {
-            if (globalEventSource && globalEventSource.readyState !== EventSource.CLOSED) {
-                console.error("SSE connection lost:", err);
-                setServerStatus(false);
-                globalEventSource?.close();
-            }
-
-            // Reconnect after delay
-            setTimeout(connect, 5000);
-        };
-    }
-
-    // Initial connection
-    connect();
-
-    // Return only API to close connection from outside
-    return {
-        close: () => {
-            setServerStatus(false);
-            globalEventSource?.close();
-        }};
-}
-
-function initHeaderAutoHide() {
-    let lastScrollTop = 0;
-    let ticking = false;
-    const header = document.getElementById('header');
-    const hiddenClass = "header--hidden";
-
-    function updateHeader() {
-        const scrollTop = window.scrollY || document.documentElement.scrollTop;
-
-        if (scrollTop > lastScrollTop && scrollTop > 250) {
-            header.classList.add(hiddenClass);
-        } else {
-            header.classList.remove(hiddenClass);
-        }
-
-        lastScrollTop = Math.max(scrollTop, 0);
-        ticking = false;
-    }
-
-    function handleScroll() {
-        if (!ticking) {
-            requestAnimationFrame(updateHeader);
-            ticking = true;
-        }
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
 }
 
 // -------------------------------------------------------------
@@ -194,10 +118,6 @@ if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
 }
 
-// Apply persisted grid/list layout state on initial page load 
-view.initGridView();
-document.body.classList.add('layout-ready');
-
 document.addEventListener('DOMContentLoaded', () => {
     initDomElements();
 
@@ -207,18 +127,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const grabURLInput = DOM_ELEMENTS.mediaURLInput;
     const grabInputActionBtn = DOM_ELEMENTS.inputActionBtn;
 
-    // Sync selects with cookies
     cookie.setupCookieSelectSync(SELECT_NAMES.qualityCodec, COOKIE_NAMES.qualityCodec);
-    cookie.setupCookieSelectSync(SELECT_NAMES.qualityResolution, COOKIE_NAMES.qualityResolution);
+    cookie.setupCookieSelectSync(SELECT_NAMES.qualityResolution, COOKIE_NAMES.qualityResolution, true);
     cookie.setupCookieSelectSync(SELECT_NAMES.format, COOKIE_NAMES.format);
 
-    // TODO Disabled. Problems resetting the position when pressing Back
-    // Reload page if restored from bfcache (back/forward navigation)
-    // window.addEventListener('pageshow', (event) => {
-    //     if (event.persisted) {
-    //         window.location.reload();
-    //     }
-    // });
+    // Apply persisted grid/list layout state on initial page load 
+    view.initGridView();
+    document.body.classList.add('layout-ready');
 
     // Submit on Enter
     if (grabURLInput) {
@@ -260,13 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     } catch (e) {
                         // ignore non-JSON
                     }
-
-                    /// TODO Duplicate message output has been disabled.
-                    // notify.showErrorMessage(
-                    //     text,
-                    //     DOM_ELEMENTS.resultInfo,
-                    //     DOM_ELEMENTS.resultInfoFailed
-                    // );
                 }
 
                 return;
@@ -288,39 +196,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-
-    // Guest session created
-    htmx.on("guestCreated", (event) => {
-        if (event.detail.value === true) {
-            // Reload to apply new session (cookie)
-            window.location.reload();
-        }
-    });
-
-    document.body.addEventListener('htmx:responseError', function (event) {
-        const xhr = event.detail.xhr;
-
-        // --- Error handling (HTTP >= 400, except 503) ---
-        if (xhr.status >= 400 && xhr.status !== 503) {
-            try {
-                const data = JSON.parse(xhr.responseText);
-                if (data && typeof data === "object" && "message" in data) {
-                    notify.show(data.message, notify.notifyType.ERROR);
-                }
-            } catch (e) {
-                // ignore non-JSON
-            }
-        }
-    });
-
-    // Init quality/format sync
-    setupQualityFormatLogic();
+    // Initialize common page functionality
+    common.initHTMX();
 
     // Initialize viewport height sync (fixes mobile PWA viewport issues)
     browser.initViewportHeightVar();
 
     // Initialize header auto-hide on scroll
-    initHeaderAutoHide();
+    common.initHeaderAutoHide();
+
+    // Init quality/format sync
+    setupQualityFormatLogic();
 
     // Init tooltips
     tooltip.initTooltips();
@@ -338,8 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
     actionButton.initInputPasteClearButton(grabURLInput, grabInputActionBtn);
 
     // Init search elements
-    searchInputClearButton = actionButton.initInputClearButton(DOM_ELEMENTS.historySearchInputWrapper, DOM_ELEMENTS.historySearchClearButton);
-    searching = view.initSearching(searchInputClearButton.clear);
+    const searching = search.initSearching();
+    searchInputClearButton = searching.clearButton;
 
     // Init header user menu elements
     view.initHeaderUserMenu();
@@ -348,30 +234,30 @@ document.addEventListener('DOMContentLoaded', () => {
     videoPreview.initVideoPreview();
     videoPreview.initVideoPreviewHover(
         DOM_ELEMENTS.result,
-        DOM_CLASSES.mediaResultRow, DOM_CLASSES.mediaResultRowThumbnailImageWrapper
+        CLASS_NAMES.mediaResultRow, CLASS_NAMES.mediaResultRowThumbnailImageWrapper
     );
     const refreshVideoPreview = videoPreview.initVideoPreviewScroll(
         DOM_ELEMENTS.result,
-        DOM_CLASSES.mediaResultRow, DOM_CLASSES.mediaResultRowThumbnailImageWrapper
+        CLASS_NAMES.mediaResultRow, CLASS_NAMES.mediaResultRowThumbnailImageWrapper
     );
 
     // Lazy-load video thumbnails.
     const thumbnailLazyImages = view.initLazyImages({
-        containerSelector: DOM_SELECTORS.mediaResultThumbnailPlayButton,
-        placeholderSelector: DOM_SELECTORS.mediaResultThumbnailPlaceholder,
+        containerSelector: CLASS_SELECTORS.mediaResultThumbnailPlayButton,
+        placeholderSelector: CLASS_SELECTORS.mediaResultThumbnailPlaceholder,
     });
 
     // Lazy-load channel avatars.
     const avatarLazyImages = view.initLazyImages({
-        containerSelector: DOM_SELECTORS.mediaResultAvatar,
+        containerSelector: CLASS_SELECTORS.mediaResultAvatar,
     });
 
     // Initialize view mode bar
     view.initViewModeBar({
-        getSearchParameters,
+        getSearchQueryValues: search.getSearchQueryValues,
         onSuccess: (rows) => {
             refreshVideoPreview(true);
-            setSearchParametersInUrl();
+            search.setSearchParametersInUrl();
 
             const lazyObservers= [
                 thumbnailLazyImages,
@@ -386,13 +272,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize the external channel link button
     view.initExtChannelLink({
-        getSearchParameters,
+        getSearchQueryValues: search.getSearchQueryValues,
         onSuccess: (rows) => {
             refreshVideoPreview(true);
 
             searchInputClearButton.clearInputOnly();
-            setSearchParametersInUrl();
-            updateChannelHeader();
+            search.setSearchParametersInUrl();
 
             const lazyObservers= [
                 thumbnailLazyImages,
@@ -406,149 +291,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Create SSE connection
-    let sse = null;
-    window.addEventListener('pageshow', () => {
-        if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
-            sse = createSSEConnection();
-        }
-    });    
-
-    // Close SSE on page unload
-    window.addEventListener("beforeunload", () => {
-        if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
-            sse = createSSEConnection();
-        }
-    });
-
-    // ------------------------------------------------------------
-    // Reconnect SSE when tab becomes visible again
-    // (fixes lost Server-Sent Events after browser tab sleep,
-    // background throttling, or mobile suspension)
-    // ------------------------------------------------------------
-    document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "visible") {
-            if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
-                sse = createSSEConnection();
-            }
-        }
-    });
+    const sseEventHandlers = {
+        "row-add": rowEventHandlers.handleRowAdd,
+        "row-update": rowEventHandlers.handleRowUpdate,
+        "row-patch": rowEventHandlers.handleRowPatch,
+        "row-delete": rowEventHandlers.handleRowDelete,
+        "row-patch-field": rowEventHandlers.handleRowPatchField,
+        "row-start-refreshing": rowEventHandlers.handleRowStartRefreshing,
+        "system-info-update": rowEventHandlers.handleSystemInfoUpdate,
+        "notification": rowEventHandlers.handleNotification,
+    };    
+    sseClient.initSSE(sseEventHandlers);
 });
 
 // Force scroll to top after full page load
 window.addEventListener('load', () => {
     window.scrollTo(0, 0);
 });
-
-function getSearchParameters() {
-    const viewModeTabs = document.querySelector(DOM_SELECTORS.viewModeTabs)
-
-    let params = {
-        viewMode: viewModeTabs.dataset.viewMode,
-    }
-
-    const rows = document.getElementById(DOM_IDS.mediaResultRows);
-    if (rows && rows.dataset.searchParametersJson) {
-        const searchParameters = JSON.parse(rows.dataset.searchParametersJson);
-        const channelId = searchParameters.channelId;
-
-        if (channelId) {
-            params.channelId = channelId;
-        }
-    }
-
-    return params
-}
-
-function getSearchValues() {
-    let values = {
-        query: DOM_ELEMENTS.historySearchInput.value,
-        hasSearchFilters: false,
-        encodeParams: null,
-    }
-
-    const rows = document.getElementById(DOM_IDS.mediaResultRows);
-    if (rows) {
-        values.hasSearchFilters = rows.dataset.hasSearchFilters === "true";
-        if (rows.dataset.searchParameters) {
-            values.encodeParams = rows.dataset.searchParameters; 
-        }
-    }
-
-    return values;
-}
-
-function configureSearch(event) {
-    Object.assign(event.detail.parameters, getSearchParameters())
-}
-
-function isSearchQueryValid(input) {
-    return input.value.length === 0 || input.value.length >= 2
-}
-
-function hasSearchParametersForUrl() {
-    const values = getSearchValues();
-
-    if (values.query || values.hasSearchFilters) {
-        return true
-    }
-
-    return false
-}
-
-function setSearchParametersInUrl() {
-    const values = getSearchValues();
-    const url = new URL(window.location.href);
-
-    url.searchParams.delete(URL_KEYS.searchQuery);
-    url.searchParams.delete(URL_KEYS.searchParams);
-
-    if (!hasSearchParametersForUrl()) {
-        window.history.replaceState(null, '', url);
-        return;
-    }
-
-    if (values.query) {
-        url.searchParams.set(URL_KEYS.searchQuery, values.query);
-    }
-
-    if (values.encodeParams) {
-        url.searchParams.set(URL_KEYS.searchParams, values.encodeParams);
-    }
-
-    window.history.replaceState(null, '', url);
-}
-
-function handleSearchSuccess(event) {
-    setSearchParametersInUrl();
-}
-
-function updateChannelHeader() {
-    const channelEl = DOM_ELEMENTS.channelHeader;
-
-    const rows = document.getElementById(DOM_IDS.mediaResultRows);
-    if (!rows) {
-        channelEl.header.classList.toggle('hidden', true);
-        return;
-    }
-    
-    const channel = JSON.parse(rows.dataset.channelJson);
-    if (!channel) {
-        channelEl.header.classList.toggle('hidden', true);
-        return;
-    }
-
-    channelEl.header.classList.toggle('hidden', !channel.show);
-
-    if (!channel.show) return;
-
-    channelEl.image.classList.toggle('hidden', channel.imageUrl === "");
-    channelEl.image.src = channel.imageUrl;
-    channelEl.title.textContent  = channel.title;
-    channelEl.extId.textContent = `@${channel.ext.extId}`;
-}
-
-window.configureSearch = function (event) {
-    configureSearch(event)
-}
-window.isSearchQueryValid = isSearchQueryValid
-window.handleSearchSuccess = handleSearchSuccess
