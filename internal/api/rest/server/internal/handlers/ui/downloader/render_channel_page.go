@@ -38,7 +38,7 @@ func (h *DownloaderHandlers) renderChannelPage(
 
 	systemInfo := h.downloader.SystemInfo()
 
-	cssPaths, err := h.assetPaths.IndexPageCssPaths()
+	cssPaths, err := h.assetPaths.ChannelPageCssPaths()
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -46,7 +46,7 @@ func (h *DownloaderHandlers) renderChannelPage(
 
 	caps := clientcap.Detect(string(ctx.UserAgent()))
 
-	jsScripts, err := h.assetPaths.IndexPageJsPaths(caps.IsLegacyWebKit)
+	jsScripts, err := h.assetPaths.ChannelPageJsPaths(caps.IsLegacyWebKit)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -109,7 +109,7 @@ func (h *DownloaderHandlers) renderChannelPage(
 	extraData[items.UserAvatarIconKey] = icons.UserAvatarIconByType(authCtx.UserType()).FileRaw()
 	extraData[items.UserAvatarActionModeKey] = userAvatarActionMode
 
-	pageData := pages.IndexPageData{
+	pageData := pages.ChannelPageData{
 		BasePaths:  paths.NewHttpPaths(),
 		BaseValues: baseValues,
 		Paths: pages.PagePaths{
@@ -117,16 +117,16 @@ func (h *DownloaderHandlers) renderChannelPage(
 			JsScripts:   jsScripts,
 			PwaManifest: pwaManifestPath,
 		},
-		Values: pages.IndexPageValues{
+		Values: pages.ChannelPageValues{
 			HeaderActionsSearchButtonIcon:   icons.UserMenuSearchIcon.FileRaw(),
-			SearchBackArrowIcon:        icons.SearchBackArrowIcon.FileRaw(),
+			SearchBackArrowIcon:             icons.SearchBackArrowIcon.FileRaw(),
 			HeaderActionsDownloadButtonIcon: icons.UserMenuDownloadIcon.FileRaw(),
-			ShowHistorySearch:          true,
+			ShowHistorySearch:               true,
 			HeaderActionsAvatarTitle:        userMenuAvatarTitle,
-			HasCreateAccess:            h.downloader.CanCreateMediaDownload(authCtx),
-			HasWriteOperationAccess:    h.downloader.HasWriteOperationAccess(authCtx),
-			DiskFree:                   humanize.Bytes(int64(systemInfo.DiskFree)),
-			DiskUsed:                   humanize.Bytes(int64(systemInfo.DiskUsed)),
+			HasCreateAccess:                 h.downloader.CanCreateMediaDownload(authCtx),
+			HasWriteOperationAccess:         h.downloader.HasWriteOperationAccess(authCtx),
+			DiskFree:                        humanize.Bytes(int64(systemInfo.DiskFree)),
+			DiskUsed:                        humanize.Bytes(int64(systemInfo.DiskUsed)),
 
 			SearchQuery: query.GetSearchQueryString(),
 
@@ -143,12 +143,6 @@ func (h *DownloaderHandlers) renderChannelPage(
 			ResultNoRows:   rowsBuf.Len() == 0,
 			ResultRowsHTML: template.HTML(rowsBuf.String()),
 
-			GrabForm: pages.IndexGrabForm{
-				InputPlaceholder:   pages.IndexGrabFormInputPlaceholder,
-				SettingsButtonIcon: icons.IndexGrabSettingsButtonIcon.FileRaw(),
-				GetButtonTitle:     pages.IndexGrabGetButtonTitle,
-				GetButtonIcon:      icons.IndexGrabGetButtonIcon.FileRaw(),
-			},
 			VideoPreview: pages.VideoPreview{
 				SoundOnIcon:  icons.VideoPreviewSoundOnIcon.FileRaw(),
 				SoundOffIcon: icons.VideoPreviewSoundOffIcon.FileRaw(),
@@ -161,7 +155,7 @@ func (h *DownloaderHandlers) renderChannelPage(
 	ctx.SetContentType(mime.TypeByExtension(".html"))
 
 	// Execute template with PageTitle
-	if err := h.templates.Pages[pages.IndexPage.Key()].ExecuteTemplate(ctx, pages.IndexPage.Key(), pageData); err != nil {
+	if err := h.templates.Pages[pages.ChannelPage.Key()].ExecuteTemplate(ctx, pages.ChannelPage.Key(), pageData); err != nil {
 		nfasthttp.WriteErrorx(ctx, errInternal(err))
 		return
 	}
