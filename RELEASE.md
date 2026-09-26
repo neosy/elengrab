@@ -9,6 +9,7 @@
 - Added configurable default visibility for new media via `ELENGRAB_BEHAVIOR_NEW_MEDIA_VISIBILITY`. Closes #515
 - Added media filtering by channel. Closes #526
 - **Channel Data Migration:** Added a business logic migration to automatically populate missing or empty channel information. [L151]
+- Added dedicated pages for channel media resources. [L156]
 
 ### 🖥️ UI / Frontend
 - Improved guest author display with `Guest #ID` and `Guest (You)` labels. [L148]

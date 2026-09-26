@@ -1,9 +1,9 @@
-{{- define "index-page" }}
+{{- define "channel-page" }}
     {{- template "base" . }}
 {{- end }}
 
 {{- define "header-actions" }}
-  {{- template "header-actions-index" . }}
+  {{- template "header-actions-channel" . }}
 {{- end }}
 
 {{- define "header" }}
@@ -12,16 +12,13 @@
 
 {{- define "main" }}
   <main class="main">
-    {{- if .Values.HasCreateAccess  }}
-    {{- template "grab-form" . }}
-    {{- end }}
     {{- template "media-result" . }}
   </main>
 {{- end }}
 
 {{- define "footer" }}
   <footer class="footer">
-      {{- template "footer-content-index" . }}
+      {{- template "footer-content-channel" . }}
   </footer>
 {{- end }}
 

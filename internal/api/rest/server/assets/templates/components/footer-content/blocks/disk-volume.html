@@ -1,0 +1,8 @@
+{{- define "footer-content-disk-volume" }}
+        <div class="footer__disk-volume">
+            {{- if .Values.HasWriteOperationAccess  }}
+            Free: <span id="disk-free">{{ .Values.DiskFree }}</span> |
+            Used: <span id="disk-used">{{ .Values.DiskUsed }}</span>
+            {{- end }}
+        </div>
+{{- end }}

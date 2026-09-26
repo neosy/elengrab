@@ -24,7 +24,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) renderIndexPage(
+func (h *DownloaderHandlers) renderChannelPage(
 	ctx *fasthttp.RequestCtx,
 	authCtx dauth.AuthContext,
 	query udto.MediaDownloadQuery,

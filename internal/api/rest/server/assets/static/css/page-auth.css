@@ -10,7 +10,7 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.user-menu {
+.header-actions {
     display: flex;
     position: absolute;
     top: 16px;
@@ -19,7 +19,7 @@ body {
     gap: 8px;
 }
 
-.user-menu > div {
+.header-actions > div {
     display: flex;
     width: 40px;
     height: 40px;

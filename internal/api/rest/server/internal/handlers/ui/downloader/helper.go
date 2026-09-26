@@ -313,11 +313,7 @@ func (h *DownloaderHandlers) buildChannelPageData(
 
 	encodeChannelID := idcodec.EncodeUUIDBase64URL(channelID)
 
-	searchParameters := types.NewSearchParameters()
-	searchParameters.Add(qkeys.ViewModeKey, dtypes.QueryMediaViewModeDefault.String())
-	searchParameters.Add(qkeys.ChannelIDKey, encodeChannelID)
-
-	channelURL := "/?" + searchParameters.EncodeShortQueryString()
+	channelURL := httppaths.BuildChannelPath(channelID)
 
 	return pages.Channel{
 		EncodedChannelID: encodeChannelID,

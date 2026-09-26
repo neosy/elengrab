@@ -25,15 +25,8 @@ const (
 	EventsPath       = "/events"
 	MediaItemsPath   = "/items"
 
-	// Downloader Paths
-	DownloaderAccountMenuPath  = DownloaderGroup + AccountMenuPath
-	DownloaderSettingsMenuPath = DownloaderGroup + SettingsMenuPath
-	DownloaderGrabPath         = DownloaderGroup + GrabPath
-	DownloaderShareTargetPath  = DownloaderGroup + ShareTargetPath
-	DownloaderItemsPath        = DownloaderGroup + MediaItemsPath
-	DownloaderDownloadFilePath = DownloaderGroup + DownloadFilePath
-	DownloaderSearchPath       = DownloaderGroup + SearchPath
-	DownloaderEventsPath       = DownloaderGroup + EventsPath
+	// Paths Channels
+	ChannelsPath = "/channels"
 
 	// Paths items Downloader
 	MediaItemPath                = MediaItemsPath + "/{itemId}"
@@ -48,6 +41,20 @@ const (
 	MediaItemRefreshPath         = MediaItemsPath + "/{itemId}/refresh"
 	MediaItemReWatchTrackingPath = MediaItemsPath + "/{itemId}/watch-tracking"
 	MediaItemWatchPositionPath   = MediaItemsPath + "/{itemId}/watch-position"
+
+	// Paths channels Downloader
+	ChannelPath = ChannelsPath + "/{channelId}"
+
+	// Downloader Paths
+	DownloaderAccountMenuPath  = DownloaderGroup + AccountMenuPath
+	DownloaderSettingsMenuPath = DownloaderGroup + SettingsMenuPath
+	DownloaderGrabPath         = DownloaderGroup + GrabPath
+	DownloaderShareTargetPath  = DownloaderGroup + ShareTargetPath
+	DownloaderItemsPath        = DownloaderGroup + MediaItemsPath
+	DownloaderDownloadFilePath = DownloaderGroup + DownloadFilePath
+	DownloaderSearchPath       = DownloaderGroup + SearchPath
+	DownloaderEventsPath       = DownloaderGroup + EventsPath
+	DownloaderChannelsPath     = DownloaderGroup + ChannelsPath
 
 	// Paths short links, e.g. /s/{shortCode}
 	ShortLinkPath       = "/{shortCode}"
@@ -116,4 +123,13 @@ func BuildMediaItemImagePath(downloadID uuid.UUID, verHash string, sources []dty
 	}
 
 	return buildMediaItemPath(MediaItemImagePath, downloadID) + urlSufix
+}
+
+func buildChannelPath(path string, channelID uuid.UUID) string {
+	id := idcodec.EncodeUUIDBase64URL(channelID)
+	return DownloaderGroup + strings.Replace(path, "{channelId}", id, 1)
+}
+
+func BuildChannelPath(channelID uuid.UUID) string {
+	return buildChannelPath(ChannelPath, channelID)
 }

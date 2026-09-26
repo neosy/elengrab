@@ -19,15 +19,19 @@ var (
 		"variables.css",
 
 		"components.css",
+		"components-header.css",
+		"components-footer.css",
 		"player.css",
 		"video-preview.css",
 		"notifications.css",
 
+		"theme-switcher.css",
+
+		"pages-list.css",
+		"page-index.css",
+
 		"menu.css",
 		"menu-variants.css",
-
-		"theme-switcher.css",
-		"page-index.css",
 
 		"grab-form.css",
 		"media-result.css",

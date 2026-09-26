@@ -1,0 +1,16 @@
+{{- define "header-base" }}
+  <header class="header" id="header">
+    <div class="header__container" id="headerContainer">
+      <div class="header__left"></div>
+      <div class="header__content">
+        <a class="header__link" href="/">
+            <div class="header__logo-image">{{ .BaseValues.LogoIcon }}</div>
+            <h1 class="header__title">{{ .BaseValues.Header }}</h1>
+        </a>
+      </div>
+      <div class="header__right">
+        {{- block "header-actions" . }}{{- end }}
+      </div>
+    </div>
+  </header>
+{{- end }}

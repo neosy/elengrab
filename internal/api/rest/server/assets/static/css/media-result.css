@@ -125,6 +125,10 @@
     }
 }
 
+.grid-view {
+    --result-bg: var(--main-bg);
+}
+
 @media (min-width: 581px) {
     .grid-view .thumbnail--portrait * {
         --thumbnail-image-width: auto;
@@ -163,6 +167,7 @@
 @media (max-width: 768px) {
     :root {
         --media-result-rows-margin-top: 0;
+        --result-bg: var(--main-bg);
     }
 }
 
@@ -1461,6 +1466,12 @@ img[data-src] {
 
     .media-result__source {
         display: none;
+    }
+}
+
+@media (max-width: 580px) {
+    .media-result__row {
+        overflow: visible !important;
     }
 }
 

@@ -19,12 +19,12 @@ type (
 	IndexPageValues struct {
 		RowsFragmentValues
 
-		UserMenuSearchButtonIcon   template.HTML
-		UserMenuDownloadButtonIcon template.HTML
+		HeaderActionsSearchButtonIcon   template.HTML
+		HeaderActionsDownloadButtonIcon template.HTML
 		SearchBackArrowIcon        template.HTML
 
 		ShowHistorySearch   bool
-		UserMenuAvatarTitle string
+		HeaderActionsAvatarTitle string
 
 		SearchQuery string
 

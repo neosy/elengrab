@@ -32,3 +32,35 @@
     background: var(--section-tab-active-background);
     color: var(--section-tab-active-color);
 }
+
+.tooltip {
+    position: absolute;
+
+    background: var(--bg-tooltip);
+    color: var(--text-tooltip);
+    backdrop-filter: blur(6px);
+
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+
+    white-space: nowrap;
+    transform: translateX(-50%) scale(0.95);
+
+    opacity: 0;
+    transition: 
+        opacity .25s cubic-bezier(0.22, 1, 0.36, 1),
+        transform .25s cubic-bezier(0.22, 1, 0.36, 1);
+
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.tooltip.show {
+    opacity: 1;
+    transform: translate(-50%) scale(1);
+}
+
+.dark .tooltip {
+    border: 1px solid rgba(255, 255, 255, 0.35);
+}

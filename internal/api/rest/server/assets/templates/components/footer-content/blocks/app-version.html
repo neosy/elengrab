@@ -1,0 +1,8 @@
+{{- define "footer-content-app-version" }}
+        <div class="footer__app-version">
+          <span id="server-status-dot" class="server-status-dot"></span>
+          <a class="app-version__link" href="https://github.com/neosy/elengrab" target="_blank" title="View source code on GitHub">
+            v<span id="app-version">{{ .BaseValues.AppVersion }}</span>
+          </a>
+        </div>
+{{- end }}

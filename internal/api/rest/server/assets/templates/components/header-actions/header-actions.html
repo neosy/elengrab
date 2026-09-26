@@ -1,0 +1,22 @@
+{{- define "header-actions" }}
+      <div class="header-actions">
+        {{- template "theme-switcher" . }}
+      </div>
+{{- end }}
+
+{{- define "header-actions-index" }}
+      <div class="header-actions">
+        {{- template "header-actions-search" . }}
+        {{- template "header-actions-download" . }}
+        {{- template "theme-switcher" . }}
+        {{- template "header-actions-user-avatar" . }}
+      </div>
+{{- end }}
+
+{{- define "header-actions-channel" }}
+      <div class="header-actions">
+        {{- template "header-actions-search" . }}
+        {{- template "theme-switcher" . }}
+        {{- template "header-actions-user-avatar" . }}
+      </div>
+{{- end }}

@@ -1,0 +1,6 @@
+{{- define "header-actions-search" }}
+        <div class="header__search">{{ template "history-search" . }}</div>
+        <div class="header-actions__button-wrapper header-actions__search">
+          <button class="header-actions__button header-actions__search-button" id="headerActionsSearchButton" type="button" title="Open search">{{ .Values.HeaderActionsSearchButtonIcon }}</button>
+        </div>
+{{- end }}

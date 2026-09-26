@@ -33,7 +33,7 @@ export function getGridView() {
 }
 
 export function initSearching(clear) {
-    const searchBtn = document.getElementById("userMenuSearchButton");
+    const searchBtn = document.getElementById("headerActionsSearchButton");
     const backBtn = document.getElementById("historySearchBackButton");
     const header = document.getElementById("header");
     const searchInput = document.getElementById("historySearchInput");
@@ -59,7 +59,7 @@ export function initSearching(clear) {
 }
 
 export function initHeaderUserMenu() {
-    const btn = document.getElementById("userMenudownloadButton");
+    const btn = document.getElementById("headerActionsDownloadButton");
     const grabInput = document.getElementById("mediaURLInput");
 
     if (!btn) return;
