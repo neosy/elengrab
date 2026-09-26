@@ -11,7 +11,7 @@ import (
 var (
 	ErrorCssFileName cssFileName = "page-error.css"
 
-	indexPageCssPaths = cssFileNames{
+	pagesListCssPaths = cssFileNames{
 		"font-inter.css",
 		"base.css",
 		"interactions.css",
@@ -19,19 +19,36 @@ var (
 		"variables.css",
 
 		"components.css",
+		"components-header.css",
+		"components-footer.css",
 		"player.css",
 		"video-preview.css",
 		"notifications.css",
 
+		"theme-switcher.css",
+
+		"pages-list.css",
+
 		"menu.css",
 		"menu-variants.css",
 
-		"theme-switcher.css",
-		"page-index.css",
-
-		"grab-form.css",
 		"media-result.css",
 	}
+
+	indexPageCssPaths = append(
+		pagesListCssPaths,
+		cssFileNames{
+			"page-index.css",
+			"grab-form.css",
+		}...,
+	)
+
+	channelPageCssPaths = append(
+		pagesListCssPaths,
+		cssFileNames{
+			"page-channel.css",
+		}...,
+	)
 
 	adminPageCssPaths = cssFileNames{
 		"font-inter.css",

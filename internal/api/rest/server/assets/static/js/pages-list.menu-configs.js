@@ -2,7 +2,7 @@ import { CLASS_NAMES } from './constants.js';
 import * as share from './share.js';
 import { initMenu, DOM_CLASSES as MENU_CLASSES, positionFloatingMenu} from './menu.js';
 import * as notify from './notifications.js';
-import * as view from './index.view.js';
+import * as view from './pages-list.view.js';
 
 // Account menu config
 const accountMenuConfig = {
@@ -35,7 +35,7 @@ const settingsMenuConfig = {
 
   actions: {
     gridView(item) {
-      const isGridView = view.toggleGridView();
+      view.toggleGridView();
     }
   },
 
@@ -246,8 +246,15 @@ const rowMenuConfig = {
   }
 };
 
-// Initialize all menus
+// Initialize index page menus
 export function initIndexMenus() {
+  initMenu(accountMenuConfig);
+  initMenu(settingsMenuConfig);
+  initMenu(rowMenuConfig);
+}
+
+// Initialize channel page menus
+export function initChannelMenus() {
   initMenu(accountMenuConfig);
   initMenu(settingsMenuConfig);
   initMenu(rowMenuConfig);

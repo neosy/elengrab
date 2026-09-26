@@ -1,20 +1,5 @@
 // constants.js
 
-// -------------------------------------------------------------
-// Element selectors and cookie names
-// -------------------------------------------------------------
-export const SELECT_NAMES = {
-    qualityCodec: "quality-codec",
-    qualityResolution: "quality-resolution",
-    format: "format"
-};
-
-export const COOKIE_NAMES = {
-    qualityCodec: "select_quality_codec",
-    qualityResolution: "select_quality_resolution",
-    format: "select_format"
-};
-
 export const STORAGE_KEYS = {
     grabOptionsCollapsed: "grabOptionsCollapsed",
     settingsGridView: "settingsGridView",
@@ -36,15 +21,14 @@ export const API_PATH_TEMPLATES = {
     downloaderWatchPosition: "/downloader/items/{itemId}/watch-position",
 }
 
+export const CLASS_PREFIXES = {
+    visibility: "visibility--",
+}
+
 // Class names
 export const CLASS_NAMES = {
     gridView: "grid-view",
     listView: "list-view",
-    isSearch: "is-search",
-
-    row: {
-        rowRefreshing: "row--refreshing",
-    },
 
     rowStatus: {
         success: "success",
@@ -73,23 +57,4 @@ export const VIDEO_PREVIEW = {
     playerOpenedEventName: "video-preview-player-opened",
 
     previewPlayingClassName: "video-preview-playing",
-};
-
-export const DOM_IDS = {
-    userRolesList: "userRolesList",
-
-    mediaResultRows: 'media-result-rows',
-    mediaResultItems: 'media-result-items',
-    rowNoItems: "row-no-items",
-
-    row: (id) => `row-${id}`,
-    progress: (id) => `progress-${id}`,
-
-    rowUser: (id) => `row-user-${id}`,
-};
-
-export const URL_KEYS = {
-    query: 'query',
-    searchQuery: 'searchQuery',
-    searchParams: 'sp',
 };

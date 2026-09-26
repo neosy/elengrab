@@ -1,5 +1,4 @@
 import * as utils from './utils.js';
-import { SELECT_NAMES, COOKIE_NAMES } from './constants.js';
 
 // -------------------------------------------------------------
 // Cookie Helper Module
@@ -28,17 +27,17 @@ const cookie = (() => {
 // -------------------------------------------------------------
 // Save all select values to cookies
 // -------------------------------------------------------------
-export function saveAllSelectsToCookie() {
-    Object.entries(SELECT_NAMES).forEach(([key, name]) => {
+export function saveAllSelectsToCookie(names, cookieNames) {
+    Object.entries(names).forEach(([key, name]) => {
         const el = utils.getSelectByName(name);
-        if (el) cookie.set(COOKIE_NAMES[key], el.value);
+        if (el) cookie.set(cookieNames[key], el.value);
     });
 }
 
 // -------------------------------------------------------------
 // Restore select value from cookie
 // -------------------------------------------------------------
-export function setupCookieSelectSync(selectName, cookieName) {
+export function setupCookieSelectSync(selectName, cookieName, saveOnChange = false) {
     const selectElement = utils.getSelectByName(selectName);
     if (!selectElement) return;
 
@@ -48,8 +47,8 @@ export function setupCookieSelectSync(selectName, cookieName) {
         if (option) option.selected = true;
     }
 
-    // For resolution, save only its value on change
-    if (selectElement.name === SELECT_NAMES.qualityResolution) {
+    // Save the selected value on change when enabled
+    if (saveOnChange) {
         selectElement.addEventListener("change", () => {
             cookie.set(cookieName, selectElement.value);
         });

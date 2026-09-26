@@ -40,7 +40,7 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.user-menu {
+.header-actions {
     display: flex;
     position: absolute;
 
@@ -57,7 +57,7 @@ body {
     gap: 8px;
 }
 
-.user-menu > div {
+.header-actions > div {
     display: flex;
     width: 40px;
 
@@ -454,7 +454,7 @@ button {
 }
 
 @media (max-width: 1000px) {
-    .user-menu {
+    .header-actions {
         width: 98%;
         left: calc(50% - 8px);
         top: 10px;
@@ -528,7 +528,7 @@ button {
         padding: 0;
     }
 
-    .user-menu {
+    .header-actions {
         height: 45px;
         left: 50%;
         top: 0px;

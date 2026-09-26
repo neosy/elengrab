@@ -10,6 +10,12 @@ import (
 var tmplPaths = [][]string{
 	{"templates", "layouts", "*.html"},
 	{"templates", "components", "*.html"},
+	{"templates", "components", "header-content", "*.html"},
+	{"templates", "components", "header-content", "blocks", "*.html"},
+	{"templates", "components", "header-actions", "*.html"},
+	{"templates", "components", "header-actions", "blocks", "*.html"},
+	{"templates", "components", "footer-content", "*.html"},
+	{"templates", "components", "footer-content", "blocks", "*.html"},
 	{"templates", "components", "menus", "*.html"},
 	{"templates", "components", "admin", "*.html"},
 	{"templates", "components", "media-result", "*.html"},

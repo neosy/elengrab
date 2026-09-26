@@ -7,52 +7,24 @@ import (
 )
 
 // Index page
-type (
-	IndexPageData struct {
-		BasePaths  paths.HttpPaths
-		BaseValues baseValues
-		Paths      PagePaths
-		Values     IndexPageValues
-		Extra      map[string]any
-	}
+type IndexPageData struct {
+	BasePaths  paths.HttpPaths
+	BaseValues baseValues
+	Paths      PagePaths
+	Values     IndexPageValues
+	Extra      map[string]any
+}
 
-	IndexPageValues struct {
-		RowsFragmentValues
+type IndexPageValues struct {
+	PagesListValues
+	PagesFooterValues
 
-		UserMenuSearchButtonIcon   template.HTML
-		UserMenuDownloadButtonIcon template.HTML
-		SearchBackArrowIcon        template.HTML
+	GrabForm IndexGrabForm
+}
 
-		ShowHistorySearch   bool
-		UserMenuAvatarTitle string
-
-		SearchQuery string
-
-		ChannelHeader ChannelHeader
-
-		ActiveViewMode string
-		ViewModeTabs   []ViewModeTab
-
-		HasCreateAccess         bool
-		HasWriteOperationAccess bool
-
-		DiskFree string
-		DiskUsed string
-
-		GrabForm IndexGrabForm
-
-		VideoPreview VideoPreview
-	}
-
-	IndexGrabForm struct {
-		InputPlaceholder   string
-		GetButtonTitle     string
-		SettingsButtonIcon template.HTML
-		GetButtonIcon      template.HTML
-	}
-
-	VideoPreview struct {
-		SoundOnIcon  template.HTML
-		SoundOffIcon template.HTML
-	}
-)
+type IndexGrabForm struct {
+	InputPlaceholder   string
+	GetButtonTitle     string
+	SettingsButtonIcon template.HTML
+	GetButtonIcon      template.HTML
+}

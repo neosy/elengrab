@@ -5,10 +5,10 @@ import (
 	"context"
 	"html/template"
 
-	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -29,22 +29,19 @@ func (h *DownloaderHandlers) renderDownloadRows(
 
 	queryFilters := h.mappers.MapQueryFiltersDomainToFilters(query.Filters)
 
-	searchParameters := types.NewSearchParameters()
-	searchParameters.AddValues(query.ViewMode, queryFilters, dtypes.QueryMediaDownloadCursor{})
+	searchParam := types.NewSearchParameters()
+	searchParam.AddValues(query.ViewMode, queryFilters, dtypes.QueryMediaDownloadCursor{})
 
-	channelHeaderPageData := pages.ChannelHeader{}
-	if channelID := searchParameters.FindChannelID(); channelID != uuid.Nil {
-		channelHeaderPageData = h.buildChannelHeaderPageData(ctx, channelID)
-	}
+	searchFilters := queryFilters.FilterByKeys(qkeys.SearchFilterKeys)
+	searchParamFilters := searchParam.QueryFilters()
 
 	pageData := pages.RowsFragmentData{
 		BasePaths: paths.NewHttpPaths(),
 		Values: &pages.RowsFragmentValues{
-			HasSearchFilters:     searchParameters.QueryFilters().Len() != 0,
-			SearchParametersJSON: string(searchParameters.BuildJSON()),
-			SearchParameters:     template.HTML(searchParameters.EncodeShortQueryValue()),
-
-			ChannelJSON: string(channelHeaderPageData.JSON()),
+			HasSearchFilters:     searchFilters.Len() != 0 || searchParamFilters.Len() != 0,
+			SearchFiltersJSON:    string(searchFilters.BuildJSON()),
+			SearchParametersJSON: string(searchParam.BuildJSON()),
+			SearchParameters:     template.HTML(searchParam.EncodeShortQueryValue()),
 
 			ResultNoRows:   rowsBuf.Len() == 0,
 			ResultRowsHTML: template.HTML(rowsBuf.String()),

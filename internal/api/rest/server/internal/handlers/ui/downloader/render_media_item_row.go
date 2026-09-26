@@ -82,7 +82,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 
 	var watchURL, downloadURL, streamURL string
 	if params.downloadInfo.Status == dtypes.MediaDownloadStatusDone {
-		watchURL = httppaths.BuildMediaItemWatchPath(params.downloadInfo.DownloadID)
+		watchURL = httppaths.BuildMediaItemPath(params.downloadInfo.DownloadID)
 		downloadURL = httppaths.BuildMediaItemDownloadPath(params.downloadInfo.DownloadID)
 		streamURL = httppaths.BuildMediaItemStreamPath(params.downloadInfo.DownloadID)
 	}

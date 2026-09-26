@@ -1,6 +1,4 @@
-import { DOM_ELEMENTS, initDomElements } from "./admin.dom.js";
-import { DOM_IDS } from './constants.js';
-import * as utils from './utils.js';
+import { DOM_IDS, DOM_ELEMENTS, initDomElements } from "./admin-page.dom.js";
 import * as browser from './browser.js';
 import * as notify from './notifications.js';
 

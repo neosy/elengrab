@@ -4,9 +4,6 @@ const (
 	DownloadingProgressPercentKey = "ProgressPercent"
 	PathStreamKey                 = "PathStream"
 
-	UserAvatarIconKey       = "UserAvatarIcon"
-	UserAvatarActionModeKey = "UserAvatarActionMode"
-
 	UserLoginKey = "UserLogin"
 	UserEmailKey = "UserEmail"
 

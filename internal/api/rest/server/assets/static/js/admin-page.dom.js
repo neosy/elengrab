@@ -1,3 +1,8 @@
+export const DOM_IDS = {
+    userRolesList: "userRolesList",
+    rowUser: (id) => `row-user-${id}`,
+};
+
 export const DOM_ELEMENTS = {
     main: null,
 

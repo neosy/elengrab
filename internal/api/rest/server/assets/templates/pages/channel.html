@@ -1,0 +1,39 @@
+{{- define "channel-page" }}
+    {{- template "base" . }}
+{{- end }}
+
+{{- define "header-actions" }}
+  {{- template "channel-header-actions" . }}
+{{- end }}
+
+{{- define "header" }}
+  <header class="header" id="header">
+    {{- template "base-header-content" . }}
+  </header>
+{{- end }}
+
+{{- define "media-result-header" }}
+  {{- template "channel-media-result-header" . }}
+{{- end }}
+
+{{- define "main" }}
+  <main class="main">
+    {{- template "media-result" . }}
+  </main>
+{{- end }}
+
+{{- define "footer" }}
+  <footer class="footer">
+      {{- template "channel-footer-content" . }}
+  </footer>
+{{- end }}
+
+{{- define "overlays" }}
+    {{- template "account-menu" . }}
+    {{- template "settings-menu" . }}
+    {{- template "row-menu" . }}
+    {{- template "menu-overlay" . }}
+    {{- template "notification-area" . }}
+    {{- template "video-preview" . }}
+    {{- template "media-player" . }}
+{{- end }}

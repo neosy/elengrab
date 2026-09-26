@@ -1,6 +1,7 @@
 package types
 
 import (
+	"encoding/json"
 	"maps"
 	"slices"
 
@@ -121,4 +122,23 @@ func (filters *QueryFilters) FilterByKeys(keys qkeys.QueryKeysRegistry) *QueryFi
 	}
 
 	return outFilters
+}
+
+func (filters *QueryFilters) BuildJSON() []byte {
+	if filters == nil {
+		return nil
+	}
+
+	valuesByKey := make(map[string]string)
+
+	for _, filter := range filters.list {
+		valuesByKey[filter.Key.String()] = filter.Value
+	}
+
+	json, err := json.Marshal(valuesByKey)
+	if err != nil {
+		return nil
+	}
+
+	return json
 }

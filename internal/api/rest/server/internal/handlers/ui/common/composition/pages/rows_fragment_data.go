@@ -17,10 +17,9 @@ type (
 
 	RowsFragmentValues struct {
 		HasSearchFilters     bool
+		SearchFiltersJSON    string
 		SearchParametersJSON string
 		SearchParameters     template.HTML
-
-		ChannelJSON string
 
 		ResultNoRows   bool
 		ResultRowsHTML template.HTML

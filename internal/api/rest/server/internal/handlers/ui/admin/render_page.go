@@ -9,7 +9,6 @@ import (
 	navmenu "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/admin/nav_menu"
 	adminpages "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/admin/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/items"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
@@ -35,9 +34,6 @@ func (h *AdminHandlers) renderPage(ctx *fasthttp.RequestCtx, ctxUser dauth.AuthC
 
 	baseValues := pages.NewBaseValues()
 
-	extraData := make(map[string]any)
-	extraData[items.UserAvatarIconKey] = icons.UserAvatarIconByType(ctxUser.UserType()).FileRaw()
-
 	page := adminpages.PageByURI(string(ctx.RequestURI()), httppaths.AdminGroup)
 
 	pageData := pages.AdminPageData{
@@ -48,14 +44,19 @@ func (h *AdminHandlers) renderPage(ctx *fasthttp.RequestCtx, ctxUser dauth.AuthC
 			JsScripts: jsScripts,
 		},
 		Values: pages.AdminPageValues{
-			PageName:            page.Name.String(),
-			PageTitle:           page.Title,
-			IsPageLogoSymbol:    !page.HasIcon(),
-			PageLogoHTML:        page.LogoHTML(),
+			PageName:  page.Name.String(),
+			PageTitle: page.Title,
+
+			IsPageLogoSymbol: !page.HasIcon(),
+			PageLogoHTML:     page.LogoHTML(),
+
+			UserAvatar: pages.UserAvatar{
+				Icon: icons.UserAvatarIconByType(ctxUser.UserType()).FileRaw(),
+			},
+
 			NavMenu:             navmenu.NewMenuItems(page.Name),
 			ContentTemplateName: page.ContentTemplateName,
 		},
-		Extra: extraData,
 	}
 
 	buf, err := h.renderContent(ctx, page)

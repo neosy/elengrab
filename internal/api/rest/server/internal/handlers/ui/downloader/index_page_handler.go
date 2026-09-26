@@ -30,7 +30,7 @@ func (h *DownloaderHandlers) IndexPageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	ctxUser := policy.ResolveUserOrAnonym(ctx)
+	authCtx := policy.ResolveUserOrAnonym(ctx)
 
 	searchValues, err := h.parseSearchGetRequest(ctx)
 	if err != nil {
@@ -44,5 +44,5 @@ func (h *DownloaderHandlers) IndexPageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	h.renderIndexPage(ctx, ctxUser, query)
+	h.renderIndexPage(ctx, authCtx, query)
 }

@@ -18,6 +18,8 @@ type (
 	}
 
 	AdminPageValues struct {
+		UserAvatar
+
 		PageTitle        string
 		PageName         string
 		IsPageLogoSymbol bool

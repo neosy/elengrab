@@ -1,4 +1,4 @@
-import { DOM_ELEMENTS, initDomElements } from "./watch.dom.js";
+import { DOM_ELEMENTS, initDomElements } from "./watch-page.dom.js";
 import * as browser from './browser.js';
 import * as actionButton from './action-buttons.js';
 import * as watchAPI from './watch-api.js';

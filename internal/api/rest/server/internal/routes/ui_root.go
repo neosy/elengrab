@@ -24,6 +24,6 @@ func (r *routes) registerUIRoot(handlers *downloader.DownloaderHandlers) {
 
 		// /robots.txt
 		g.GET(httppaths.RootRobotsTxtPath, handlers.AssetRobotsHandler)
-		g.HEAD(httppaths.RootRobotsTxtPath, handlers.AssetRobotsHandler)
+		r.router.HEAD(httppaths.RootRobotsTxtPath, handlers.AssetRobotsHandler)
 	}
 }

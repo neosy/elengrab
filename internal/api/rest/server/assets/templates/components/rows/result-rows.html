@@ -1,5 +1,5 @@
 {{- define "result-rows" }}
-          <div class="media-result__rows" id="media-result-rows" data-has-search-filters="{{ .Values.HasSearchFilters }}" data-search-parameters-json="{{ .Values.SearchParametersJSON }}" data-search-parameters="{{ .Values.SearchParameters }}" data-channel-json="{{ .Values.ChannelJSON }}">
+          <div class="media-result__rows" id="media-result-rows" data-has-search-filters="{{ .Values.HasSearchFilters }}" data-search-filters-json="{{ .Values.SearchFiltersJSON }}" data-search-parameters-json="{{ .Values.SearchParametersJSON }}" data-search-parameters="{{ .Values.SearchParameters }}">
               <div class="media-result__row" style="display: none;"></div>
               <div class="media-result__items" id="media-result-items">
                 {{- if .Values.ResultNoRows }}
