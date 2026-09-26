@@ -3,11 +3,13 @@
 {{- end }}
 
 {{- define "header-actions" }}
-  {{- template "header-actions-channel" . }}
+  {{- template "channel-header-actions" . }}
 {{- end }}
 
 {{- define "header" }}
-  {{- template "header-base" . }}
+  <header class="header" id="header">
+    {{- template "base-header-content" . }}
+  </header>
 {{- end }}
 
 {{- define "main" }}
@@ -18,7 +20,7 @@
 
 {{- define "footer" }}
   <footer class="footer">
-      {{- template "footer-content-channel" . }}
+      {{- template "channel-footer-content" . }}
   </footer>
 {{- end }}
 

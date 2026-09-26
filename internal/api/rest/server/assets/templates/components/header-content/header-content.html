@@ -1,0 +1,9 @@
+{{- define "base-header-content" }}
+    <div class="header__container" id="headerContainer">
+      <div class="header__left"></div>
+      {{- block "header-logo" . }}{{- end }}
+      <div class="header__right">
+        {{- block "header-actions" . }}{{- end }}
+      </div>
+    </div>
+{{- end }}
