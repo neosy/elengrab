@@ -39,7 +39,7 @@ func (h *DownloaderHandlers) EditMediaPageByDownloadIDHandler(ctx *fasthttp.Requ
 
 	h.renderEditMediaPage(ctx,
 		renderEditMediaPageRequest{
-			pageURL:    httppaths.BuildMediaItemWatchPath(downloadID),
+			pageURL:    httppaths.BuildMediaItemPath(downloadID),
 			downloadID: downloadID,
 			authCtx:    authCtx,
 		},

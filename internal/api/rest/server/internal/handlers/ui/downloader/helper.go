@@ -243,7 +243,7 @@ func mediaSourceFromURL(mediaURL string) string {
 
 func (h *DownloaderHandlers) buildMediaWatchURL(downloadID uuid.UUID) string {
 	return strings.TrimSuffix(h.baseURL, "/") +
-		httppaths.BuildMediaItemWatchPath(downloadID)
+		httppaths.BuildMediaItemPath(downloadID)
 }
 
 func shouldShowVisibility(visibility dtypes.MediaVisibility) bool {
@@ -313,11 +313,7 @@ func (h *DownloaderHandlers) buildChannelPageData(
 
 	encodeChannelID := idcodec.EncodeUUIDBase64URL(channelID)
 
-	searchParameters := types.NewSearchParameters()
-	searchParameters.Add(qkeys.ViewModeKey, dtypes.QueryMediaViewModeDefault.String())
-	searchParameters.Add(qkeys.ChannelIDKey, encodeChannelID)
-
-	channelURL := "/?" + searchParameters.EncodeShortQueryString()
+	channelURL := httppaths.BuildChannelItemPath(channelID)
 
 	return pages.Channel{
 		EncodedChannelID: encodeChannelID,

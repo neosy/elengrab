@@ -44,8 +44,8 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 			g.HEAD(httppaths.MediaItemStreamPath, handlers.MediaItemStreamHandler)
 			g.GET(httppaths.MediaItemStreamPath, handlers.MediaItemStreamHandler)
 
-			g.HEAD(httppaths.MediaItemWatchPath, handlers.WatchPageByDownloadIDHandler)
-			g.GET(httppaths.MediaItemWatchPath, handlers.WatchPageByDownloadIDHandler)
+			g.HEAD(httppaths.MediaItemPath, handlers.MediaItemPageByDownloadIDHandler)
+			g.GET(httppaths.MediaItemPath, handlers.MediaItemPageByDownloadIDHandler)
 
 			g.HEAD(httppaths.DownloadFilePath, handlers.DownloadFileHandler)
 			g.GET(httppaths.DownloadFilePath, handlers.DownloadFileHandler)
@@ -94,6 +94,22 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 			g.HEAD(httppaths.StreamShortCodePath, handlers.StreamShortCodeHandler)
 		}
 
+	}
+
+	// Channels
+	{
+		// With middleware (error, auth or anonym)
+		g := nfasthttp.NewRouterGroup(httppaths.DownloaderGroup, r.router)
+		g.Use(middlewareError, r.middlewares.Auth.AuthOrAnonym)
+		{
+			g.GET(httppaths.ChannelItemPath, handlers.ChannelPageHandler)
+		}
+
+		// Without middleware
+		g = nfasthttp.NewRouterGroup(httppaths.DownloaderGroup, r.router)
+		{
+			g.HEAD(httppaths.ChannelItemPath, handlers.ChannelPageHandler)
+		}
 	}
 
 	// Short link

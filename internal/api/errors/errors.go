@@ -22,6 +22,9 @@ var (
 	ErrDownloadIDIsRequired  = errorx.NewMessage("downloadId is required", exceptions.INVALID_REQUEST)
 	ErrDownloadIDIsIncorrect = errorx.NewMessage("downloadId is incorrect", exceptions.INVALID_REQUEST)
 
+	ErrChannelIDIsRequired  = errorx.NewMessage("channelId is required", exceptions.INVALID_REQUEST)
+	ErrChannelIDIsIncorrect = errorx.NewMessage("channelId is incorrect", exceptions.INVALID_REQUEST)
+
 	ErrThumbnailNotFound      = ierrors.ErrThumbnailNotFound
 	ErrThumbnailIdIsRequired  = errorx.NewMessage("thumbnailId is required", exceptions.INVALID_REQUEST)
 	ErrThumbnailIdIsIncorrect = errorx.NewMessage("thumbnailId is incorrect", exceptions.INVALID_REQUEST)
