@@ -6,6 +6,7 @@ import (
 	"time"
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
+	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	"github.com/neosy/elengrab/internal/app/utils/siteimage/channels"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -41,6 +42,10 @@ func (d *Downloader) fetchChannelImage(
 	channelURL string,
 	opts ...channels.FetchOption,
 ) (*dtypes.ChannelImage, error) {
+	if channelURL == "" {
+		return nil, nil
+	}
+
 	var elapsed time.Duration
 
 	startTime := time.Now()
@@ -67,4 +72,18 @@ func (d *Downloader) fetchChannelImage(
 	)
 
 	return new(dtypes.ChannelImage(channelImages[0])), nil
+}
+
+func (d *Downloader) buildChannelFetchOptions(channelURL string, cookieFilePath string) []channels.FetchOption {
+	var opts []channels.FetchOption
+	opts = append(opts, idto.DefaultRequestOptions().ChannelFetchOption())
+
+	if cookieFilePath != "" && hostdetect.Instagram(channelURL) {
+		cookies, _ := helper.ParseCookiesFile(cookieFilePath)
+		if len(cookies) > 0 {
+			opts = append(opts, channels.FetchOptionsWithCookies(cookies))
+		}
+	}
+
+	return opts
 }

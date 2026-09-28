@@ -54,9 +54,11 @@ func (uc *Executor) processDownloadResults(
 	var (
 		lastResult, resultBeforeBroadcast, resultProgressBeforeBroadcast *dservices.DownloaderResult
 
-		channelProcess, thumbnailProcess sync.Once
-		thumbnailIDs                     types.ThumbnailIDs
-		channelID                        uuid.UUID
+		lastChannelSource *dtypes.ChannelSource
+
+		thumbnailProcess sync.Once
+		thumbnailIDs     types.ThumbnailIDs
+		channelID        uuid.UUID
 	)
 
 	for r := range resultCh {
@@ -91,35 +93,34 @@ func (uc *Executor) processDownloadResults(
 		}
 
 		// Adding a record to the YouTube Channel table
-		if lastResult.Channel != nil {
-			channelProcess.Do(func() {
-				channelSource := lastResult.Channel
-				channel, _ := uc.channel.FindByExternalChannelIDNoCache(ctx, channelSource.ChannelID, channelSource.Platform)
-				if channel != nil {
-					uc.channel.Patch(ctx, channel.ChannelID,
-						func(c *dmedia.Channel) error {
-							if c.EqualSource(channelSource) {
-								return nil
-							}
-
-							c.UpdateFromSource(channelSource)
-
+		if lastResult.Channel != nil && !lastChannelSource.Equal(lastResult.Channel) {
+			lastChannelSource = lastResult.Channel
+			channelSource := lastResult.Channel
+			channel, _ := uc.channel.FindByExternalChannelIDNoCache(ctx, channelSource.ChannelID, channelSource.Platform)
+			if channel != nil {
+				uc.channel.Patch(ctx, channel.ChannelID,
+					func(c *dmedia.Channel) error {
+						if c.EqualSource(channelSource) {
 							return nil
-						},
-					)
-				} else {
-					newChannel := dmedia.NewChannelFromSource(lastResult.Channel)
+						}
 
-					err := uc.channel.Create(ctx, newChannel)
-					if err == nil {
-						channel, _ = uc.channel.FindByChannelID(ctx, newChannel.ChannelID)
-					}
-				}
+						c.UpdateFromSource(channelSource)
 
-				if channel != nil {
-					channelID = channel.ChannelID
+						return nil
+					},
+				)
+			} else {
+				newChannel := dmedia.NewChannelFromSource(lastResult.Channel)
+
+				err := uc.channel.Create(ctx, newChannel)
+				if err == nil {
+					channel, _ = uc.channel.FindByChannelID(ctx, newChannel.ChannelID)
 				}
-			})
+			}
+
+			if channel != nil {
+				channelID = channel.ChannelID
+			}
 		}
 
 		if lastResult.Thumbnail != nil && thumbnailIDs.ThumbnailID == nil {
