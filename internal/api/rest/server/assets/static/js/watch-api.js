@@ -253,20 +253,6 @@ export class MediaWatchTracker {
         this.video.addEventListener("ended", this.onEnded);
         this.video.addEventListener("timeupdate", this.onTimeUpdate);
         this.video.addEventListener("seeked", this.onSeeked);
-
-        // [
-        //     "play",
-        //     "playing",
-        //     "pause",
-        //     "ended",
-        //     "seeking",
-        //     "seeked",
-        //     "timeupdate"
-        // ].forEach(name => {
-        //     this.video.addEventListener(name, () => {
-        //         console.log(name, this.video.currentTime);
-        //     });
-        // });        
     }
     
     async destroy() {

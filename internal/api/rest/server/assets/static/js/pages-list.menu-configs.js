@@ -136,7 +136,6 @@ const rowMenuConfig = {
       const res = await fetch(item.dataset.url, { method: 'POST' });
       if (!res.ok) {
         const data = await res.json();
-        console.info(data);
         if (data && typeof data === "object" && "message" in data) {
             notify.show(data.message, notify.notifyType.ERROR);
         }
@@ -161,7 +160,6 @@ const rowMenuConfig = {
       const res = await fetch(item.dataset.url, { method: 'GET' });
       if (!res.ok) {
         const data = await res.json();
-        console.info(data);
         if (data && typeof data === "object" && "message" in data) {
             notify.show(data.message, notify.notifyType.ERROR);
         }
@@ -185,7 +183,6 @@ const rowMenuConfig = {
       const res = await fetch(item.dataset.url, { method: 'DELETE' });
       if (!res.ok) {
         const data = await res.json();
-        console.info(data);
         if (data && typeof data === "object" && "message" in data) {
             notify.show(data.message, notify.notifyType.ERROR);
         }

@@ -11,6 +11,17 @@ const CLASS_NAMES = {
     rowRefreshing: "row--refreshing",
 };
 
+export const CLASS_SELECTORS = Object.fromEntries(
+    Object.entries(CLASS_NAMES)
+        .filter(([, value]) => typeof value === "string")
+        .map(([key, value]) => [key, `.${value}`])
+);
+
+const CSS_VARIABLE_NAMES = {
+    watchBuffer: "--video-preview-watch-buffer",
+    watchProgress: "--video-preview-watch-progress"
+};
+
 const DOM_IDS = {
     row: (id) => `row-${id}`,
 }
@@ -44,11 +55,6 @@ const PREVIEW_STATE = {
     watchTracker: null,
 };
 
-const cssVarNames = {
-    watchBuffer: "--video-preview-watch-buffer",
-    watchProgress: "--video-preview-watch-progress"
-};
-
 function initDomElements() {
     DOM_ELEMENTS.preview.container = document.getElementById("video-preview-container");
     DOM_ELEMENTS.preview.player = document.getElementById("video-preview-player");
@@ -59,8 +65,8 @@ function initDomElements() {
     const soundButton = document.getElementById("video-preview-sound");
     if (soundButton != null) {
         DOM_ELEMENTS.sound.button = soundButton;
-        DOM_ELEMENTS.sound.iconOff = soundButton.querySelector(`.${CLASS_NAMES.soundOff}`);
-        DOM_ELEMENTS.sound.iconOn = soundButton.querySelector(`.${CLASS_NAMES.soundOn}`);
+        DOM_ELEMENTS.sound.iconOff = soundButton.querySelector(CLASS_SELECTORS.soundOff);
+        DOM_ELEMENTS.sound.iconOn = soundButton.querySelector(CLASS_SELECTORS.soundOn);
     }
 }
 
@@ -320,7 +326,7 @@ function updateVideoPreviewDuration() {
         : 0;
 
         DOM_ELEMENTS.preview.progressBuffer.style.setProperty(
-            cssVarNames.watchBuffer,
+            CSS_VARIABLE_NAMES.watchBuffer,
             `${bufferPercent}%`
         );
     }
@@ -331,7 +337,7 @@ function updateVideoPreviewDuration() {
         : 0;
 
         DOM_ELEMENTS.preview.progressValue.style.setProperty(
-            cssVarNames.watchProgress,
+            CSS_VARIABLE_NAMES.watchProgress,
             `${progressPercent}%`
         );
     }

@@ -1,4 +1,4 @@
-import { CLASS_NAMES, CLASS_SELECTORS, DOM_IDS, DOM_ELEMENTS } from "./pages-list.dom.js";
+import { CLASS_NAMES, CLASS_SELECTORS, CSS_VARIABLE_NAMES, DOM_IDS, DOM_ELEMENTS } from "./pages-list.dom.js";
 import * as notify from './notifications.js';
 import { CLASS_PREFIXES, VIDEO_PREVIEW } from './constants.js';
 
@@ -140,7 +140,7 @@ export function handleRowPatch(event) {
                 const watchPercent = Number(data.watchPercent);
                 progressEl.classList.toggle("hidden", watchPercent === 0);
                 progressValueEl.style.setProperty(
-                    CLASS_SELECTORS.watchProgress,
+                    CSS_VARIABLE_NAMES.watchProgress,
                     `${watchPercent}%`,
                 );
             }
