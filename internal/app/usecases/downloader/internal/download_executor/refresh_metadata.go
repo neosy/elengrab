@@ -151,8 +151,6 @@ func (uc *Executor) collectMetadata(
 		var channelID uuid.UUID
 		channel, _ := uc.channel.FindByExternalChannelIDNoCache(ctx, channelSource.ChannelID, channelSource.Platform)
 		if channel != nil {
-			channelID = channelID
-
 			uc.channel.Patch(ctx, channel.ChannelID,
 				func(c *dmedia.Channel) error {
 					if c.EqualSource(channelSource) {

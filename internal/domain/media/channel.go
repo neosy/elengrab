@@ -73,38 +73,38 @@ func (c *Channel) InitFromSource(channel *dtypes.ChannelSource) {
 	c.Image = channel.Image.Clone()
 }
 
-func (c *Channel) UpdateFromSource(channel *dtypes.ChannelSource) {
-	if channel == nil {
+func (c *Channel) UpdateFromSource(source *dtypes.ChannelSource) {
+	if source == nil {
 		return
 	}
 
-	if channel.ChannelID != "" {
-		c.ExternalID = channel.ChannelID
+	if source.ChannelID != "" {
+		c.ExternalID = source.ChannelID
 	}
-	if channel.Platform != "" {
-		c.Platform = channel.Platform
-	}
-
-	if channel.URL != "" {
-		c.ChannelURL = channel.URL
-	}
-	if channel.Host != "" {
-		c.Host = channel.Host
+	if source.Platform != "" {
+		c.Platform = source.Platform
 	}
 
-	if channel.Username != "" {
-		c.Username = channel.Username
+	if source.URL != "" {
+		c.ChannelURL = source.URL
 	}
-	if channel.UsernameURL != "" {
-		c.UsernameURL = channel.UsernameURL
-	}
-
-	if channel.Title != "" {
-		c.Title = channel.Title
+	if source.Host != "" {
+		c.Host = source.Host
 	}
 
-	if channel.Image != nil {
-		c.Image = channel.Image.Clone()
+	if source.Username != "" {
+		c.Username = source.Username
+	}
+	if source.UsernameURL != "" {
+		c.UsernameURL = source.UsernameURL
+	}
+
+	if source.Title != "" {
+		c.Title = source.Title
+	}
+
+	if source.Image != nil {
+		c.Image = source.Image.Clone()
 	}
 }
 
