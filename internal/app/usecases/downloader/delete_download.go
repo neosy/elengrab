@@ -103,7 +103,7 @@ func (uc *downloader) DeleteDownload(
 			if err != nil {
 				uc.logger.Warn("Failed delete download", "filePath", uc.downloadsStorage.Path(fileFullName), "error", err)
 			}
-			uc.UpdateSystemInfo()
+			uc.UpdateSystemDiskInfo()
 		}()
 	}
 

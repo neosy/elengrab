@@ -1,0 +1,240 @@
+.modal-dialog {
+    box-sizing: border-box;
+    width: min(100%, 600px);
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    overflow-y: auto;
+
+    color: var(--dialog-text);
+    background: var(--dialog-bg);
+    border: 1px solid var(--dialog-border);
+    border-radius: 16px;
+
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.modal-dialog:focus {
+    outline: none;
+}
+
+.modal-dialog::backdrop {
+    background: rgb(0 0 0 / 50%);
+}
+
+.modal-dialog *,
+.modal-dialog *::before,
+.modal-dialog *::after {
+    box-sizing: border-box;
+}
+
+/* Header */
+
+.modal-dialog__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    min-height: 64px;
+    padding: 12px 20px;
+
+    border-bottom: 1px solid var(--dialog-border);
+}
+
+.modal-dialog__brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.modal-dialog__logo {
+    display: grid;
+    place-items: center;
+    flex: 0 0 32px;
+
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+
+    color: #ffffff;
+    background: linear-gradient(
+        135deg,
+        var(--dialog-logo-start),
+        #ef4444 48%,
+        var(--dialog-logo-end)
+    );
+
+    font-size: 23px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.modal-dialog__title {
+    margin: 0;
+    overflow: hidden;
+
+    color: var(--dialog-title);
+
+    font-size: 1.35rem;
+    font-weight: 600;
+
+    line-height: 1.3;
+    text-overflow: ellipsis;
+}
+
+/* Close button */
+
+.modal-dialog__close {
+    display: grid;
+    place-items: center;
+    flex: 0 0 40px;
+
+    width: 40px;
+    height: 40px;
+    padding: 0;
+
+    color: var(--dialog-muted);
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+
+    transition:
+        border-color 0.5s ease,
+        background-color 0.5s ease,
+        color 0.5s ease,
+        transform 0.5s ease;
+}
+
+.modal-dialog__close:hover {
+    color: var(--dialog-text);
+    background: var(--dialog-hover);
+}
+
+.modal-dialog__close:focus-visible {
+    outline: 2px solid var(--dialog-link);
+    outline-offset: 2px;
+}
+
+.modal-dialog__close svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+
+/* Content */
+
+.modal-dialog__body {
+    padding: 20px;
+}
+
+.modal-dialog__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 24px;
+    row-gap: 20px;
+
+    margin: 0;
+}
+
+.modal-dialog__item {
+    min-width: 0;
+}
+
+.modal-dialog__item dt {
+    margin: 0 0 2px;
+
+    color: var(--dialog-muted);
+
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.modal-dialog__item dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.modal-dialog__item a {
+    color: var(--dialog-link);
+    text-decoration: underline;
+    text-decoration-color: color-mix(
+        in srgb,
+        var(--dialog-link) 45%,
+        transparent
+    );
+    text-underline-offset: 3px;
+}
+
+.modal-dialog__item a:hover {
+    text-decoration-color: currentColor;
+}
+
+/* Footer */
+
+.modal-dialog__footer {
+    margin: 0 20px;
+    padding: 18px 0 20px;
+
+    color: var(--dialog-muted);
+    border-top: 1px solid var(--dialog-border);
+
+    font-size: 13px;
+    text-align: center;
+}
+
+/* Responsive layout */
+
+@media (max-width: 420px) {
+    .modal-dialog__header {
+        padding-inline: 16px;
+    }
+
+    .modal-dialog__body {
+        padding: 18px 16px;
+    }
+
+    .modal-dialog__grid {
+        column-gap: 16px;
+        row-gap: 18px;
+    }
+
+    .modal-dialog__footer {
+        margin-inline: 16px;
+    }
+}
+
+
+/* About Dialog */
+
+.modal-dialog__label.label--donate {
+    position: relative;
+}
+
+.label-icon--donate {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+
+    padding-left: 4px;
+
+    font-size: 1.4rem;
+}
+
+.about-dialog__footer strong {
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.about-dialog__footer a {
+    color: inherit;
+    text-decoration: none;
+}

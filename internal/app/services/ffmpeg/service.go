@@ -3,6 +3,7 @@ package ffmpegsrv
 import (
 	"log/slog"
 
+	"github.com/neosy/elengrab/internal/app/services/ffmpeg/internal/consts"
 	"github.com/neosy/elengrab/internal/app/services/ffmpeg/internal/core"
 	"github.com/neosy/elengrab/internal/app/services/ffmpeg/internal/utils"
 )
@@ -20,28 +21,28 @@ func NewFFmpegService(
 	logger *slog.Logger,
 	binDir string,
 ) (*FFmpegService, error) {
-	cmdFFmpegPath, err := utils.ResolveCmdPath(ffmpegName, binDir)
+	cmdFFmpegPath, err := utils.ResolveCmdPath(consts.FFmpegName, binDir)
 	if err != nil {
 		return nil, err
 	}
 
-	cmdFFprobePath, err := utils.ResolveCmdPath(ffprobeName, binDir)
+	cmdFFprobePath, err := utils.ResolveCmdPath(consts.FFprobeName, binDir)
 	if err != nil {
 		return nil, err
 	}
 
-	err = utils.CheckFFmpeg(ffmpegName)
+	err = utils.CheckFFmpeg(consts.FFmpegName)
 	if err != nil {
 		return nil, err
 	} else {
-		logger.Info("FFmpeg executable found in PATH", "executable", ffmpegName)
+		logger.Info("FFmpeg executable found in PATH", "executable", consts.FFmpegName)
 	}
 
-	err = utils.CheckFFprobe(ffprobeName)
+	err = utils.CheckFFprobe(consts.FFprobeName)
 	if err != nil {
 		return nil, err
 	} else {
-		logger.Info("FFprobe executable found in PATH", "executable", ffprobeName)
+		logger.Info("FFprobe executable found in PATH", "executable", consts.FFprobeName)
 	}
 
 	return &FFmpegService{

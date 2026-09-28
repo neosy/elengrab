@@ -1,0 +1,85 @@
+{{- define "about-dialog-content" }}
+  {{- with .Values.AboutDialog }}
+  <header class="modal-dialog__header">
+    <div class="modal-dialog__brand">
+      <span class="modal-dialog__logo" aria-hidden="true">{{ .LogoIcon }}</span>
+      <h2 class="modal-dialog__title" id="about-dialog-title">About</h2>
+    </div>
+
+    <button class="modal-dialog__close" type="button" aria-label="Close" data-dialog-close>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M18 6 6 18M6 6l12 12" />
+      </svg>
+    </button>
+  </header>
+
+  <div class="modal-dialog__body">
+    <dl class="modal-dialog__grid">
+      <div class="modal-dialog__item">
+        <dt class="modal-dialog__label">Elengrab</dt>
+        <dd class="modal-dialog__value">
+          {{- if .VersionLinkEnabled }}
+          <a href="https://github.com/neosy/elengrab/releases/tag/v{{ .Version }}" target="_blank" rel="noopener noreferrer">v{{ .Version }}</a>
+          {{- else }}
+          <span>v{{ .Version }}</span>
+          {{- end }}
+        </dd>
+      </div>
+
+      <div class="modal-dialog__item">
+        <dt class="modal-dialog__label">Go</dt>
+        <dd class="modal-dialog__value">{{ .GoVersion }}</dd>
+      </div>
+
+      <div class="modal-dialog__item">
+        <dt class="modal-dialog__label">yt-dlp</dt>
+        <dd class="modal-dialog__value">{{ if .YtDlpVersion }}{{ .YtDlpVersion }}{{ else }}-{{ end }}</dd>
+      </div>
+
+      <div class="modal-dialog__item">
+        <dt class="modal-dialog__label">FFmpeg</dt>
+        <dd class="modal-dialog__value">{{ if .FFmpegVersion }}{{ .FFmpegVersion }}{{ else }}-{{ end }}</dd>
+      </div>
+
+      <div class="modal-dialog__item">
+        <dt class="modal-dialog__label">Repository</dt>
+        <dd class="modal-dialog__value">
+          <a href="https://github.com/neosy/elengrab" target="_blank" rel="noopener noreferrer">neosy/elengrab</a>
+        </dd>
+      </div>
+
+      {{- if .DenoVersion }}
+      <div class="modal-dialog__item">
+        <dt class="modal-dialog__label">Deno</dt>
+        <dd class="modal-dialog__value">{{ .DenoVersion }}</dd>
+      </div>
+      {{- end }}
+
+      <div class="modal-dialog__item">
+        <dt class="modal-dialog__label">License</dt>
+        <dd class="modal-dialog__value">
+          <a href="https://github.com/neosy/elengrab/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">AGPL-3.0</a>
+        </dd>
+      </div>
+
+      <div class="modal-dialog__item">
+        <dt class="modal-dialog__label label--donate">
+          <span>Donate</span>
+          <span class="modal-dialog__label-icon label-icon--donate">{{ .DonateIcon }}</span>
+        </dt>
+        <dd class="modal-dialog__value">
+          <a href="https://n-hub.ru/donate" target="_blank" rel="noopener noreferrer">Support my work</a>
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <footer class="modal-dialog__footer about-dialog__footer">
+    A simple downloader for video and audio.<br>
+    Developed by 
+    <a href="https://n-hub.ru/" target="_blank" rel="noopener noreferrer">
+        <strong>Neosy</strong>
+    </a>
+  </footer>
+  {{- end }}
+{{- end }}
