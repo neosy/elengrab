@@ -209,6 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init quality/format sync
     setupQualityFormatLogic();
 
+    // Init dialogs
     dialog.initDialogs();
 
     // Init tooltips
