@@ -26,8 +26,6 @@ export const CLASS_NAMES = {
     row: {
         rowRefreshing: "row--refreshing",
     },
-
-    watchProgress: "watch-progress",
 };
 
 export const CLASS_SELECTORS = Object.fromEntries(
@@ -35,6 +33,10 @@ export const CLASS_SELECTORS = Object.fromEntries(
         .filter(([, value]) => typeof value === "string")
         .map(([key, value]) => [key, `.${value}`])
 );
+
+export const CSS_VARIABLE_NAMES = {
+    watchProgress: '--watch-progress',
+};
 
 export const DOM_IDS = {
     mediaResultRows: 'media-result-rows',
