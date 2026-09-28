@@ -23,6 +23,8 @@ type PagesListValues struct {
 	HasWriteOperationAccess bool
 
 	VideoPreview VideoPreview
+
+	AboutDialog AboutDialogValues
 }
 
 type UserAvatar struct {

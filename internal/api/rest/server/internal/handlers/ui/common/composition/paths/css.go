@@ -24,6 +24,7 @@ var (
 		"player.css",
 		"video-preview.css",
 		"notifications.css",
+		"dialog.css",
 
 		"theme-switcher.css",
 

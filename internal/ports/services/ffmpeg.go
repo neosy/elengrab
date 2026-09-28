@@ -10,6 +10,8 @@ import (
 )
 
 type FFMpeg interface {
+	GetFFmpegVersion(ctx context.Context) (string, error)
+
 	ExtractBestFrame(
 		ctx context.Context,
 		filePath string,

@@ -49,6 +49,7 @@ type DownloaderTask interface {
 		task *ddownload.RefreshMetadataTask,
 	) error
 
+	UpdateSystemDiskInfo()
 	UpdateSystemInfo()
 }
 

@@ -7,13 +7,13 @@
 - Restricted guests from editing or deleting public media created by other guests. Closes #511
 - Added Instagram channel info fetching. [L140]
 - Added configurable default visibility for new media via `ELENGRAB_BEHAVIOR_NEW_MEDIA_VISIBILITY`. Closes #515
-- Added media filtering by channel. Closes #526
-- **Channel Data Migration:** Added a business logic migration to automatically populate missing or empty channel information. [L151]
 - Added dedicated pages for channel media resources. [L156]
 - Simplified media item URLs by removing the redundant `/watch` path segment. [L156]
 
 ### 🖥️ UI / Frontend
 - Improved guest author display with `Guest #ID` and `Guest (You)` labels. [L148]
+- Added media filtering by channel. Closes #526
+- Added a version information window with application and dependency versions, repository. [L158]
 
 ### 🧩 Refactor
 - Refactored channel information storage to support multiple media sources and preserve channel data when an image is unavailable. [L140]
@@ -27,6 +27,9 @@
 - Included authenticated media in visibility queries. [L150]
 - **Preview Display:** Fixed an issue where the time / timestamp was rendered incorrectly on the preview card. [L152]
 - Disabled video preview initialization for list view items. [L157]
+
+### 📦 Chore
+- Channel Data Migration: Added a one-time migration to populate missing channel information after the channel data restructuring. [L151]
 
 ---
 

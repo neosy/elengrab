@@ -1,0 +1,8 @@
+{{- define "footer-content-version-about" }}
+        <div class="footer__app-version">
+          <span id="server-status-dot" class="server-status-dot"></span>
+          <a class="about__link" data-dialog-open="about-dialog">
+            v<span id="app-version">{{ .BaseValues.AppVersion }}</span>
+          </a>
+        </div>
+{{- end }}

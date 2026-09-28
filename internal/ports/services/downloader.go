@@ -9,6 +9,8 @@ import (
 )
 
 type Downloader interface {
+	GetVersion(ctx context.Context) (string, error)
+
 	FetchTitle(ctx context.Context, url string, opts ...ytdlpsrv.RequestOption) (string, error)
 
 	FetchInfo(ctx context.Context, url string, opts ...ytdlpsrv.RequestOption) (*dservices.DownloaderMediaInfo, error)
