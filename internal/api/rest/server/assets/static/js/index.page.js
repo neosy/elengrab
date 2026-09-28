@@ -1,12 +1,13 @@
 import * as utils from './utils.js';
 import * as cookie from './cookie.js';
 import * as browser from './browser.js';
-import * as actionButton from './action-buttons.js';
-import { initPlayer } from './player.js';
-import * as tooltip from './tooltip.js';
-import * as videoPreview from './video-preview.js';
 import * as common from "./common.js";
 import * as sseClient from "./sse.js";
+import * as dialog from "./dialog.js";
+import * as tooltip from './tooltip.js';
+import * as actionButton from './action-buttons.js';
+import { initPlayer } from './player.js';
+import * as videoPreview from './video-preview.js';
 
 import * as rowEventHandlers from './pages-list.sse.events.js';
 import { initIndexMenus as initMenu } from './pages-list.menu-configs.js';
@@ -207,6 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Init quality/format sync
     setupQualityFormatLogic();
+
+    dialog.initDialogs();
 
     // Init tooltips
     tooltip.initTooltips();

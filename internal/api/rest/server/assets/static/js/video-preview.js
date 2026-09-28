@@ -2,6 +2,19 @@ import * as watchAPI from './watch-api.js';
 import { CLASS_NAMES as CONST_CLASS_NAMES, MEDIA_WATCH, VIDEO_PREVIEW } from './constants.js';
 import { isMobileScreen } from './browser.js';
 
+const CLASS_NAMES = {
+    ...CONST_CLASS_NAMES,
+    soundOff: "video-preview__sound-off",
+    soundOn: "video-preview__sound-on",
+    previewPlaying: VIDEO_PREVIEW.previewPlayingClassName,
+
+    rowRefreshing: "row--refreshing",
+};
+
+const DOM_IDS = {
+    row: (id) => `row-${id}`,
+}
+
 const DOM_ELEMENTS = {
     sound: {
         button: null,
@@ -31,23 +44,10 @@ const PREVIEW_STATE = {
     watchTracker: null,
 };
 
-const CLASS_NAMES = {
-    ...CONST_CLASS_NAMES,
-    soundOff: "video-preview__sound-off",
-    soundOn: "video-preview__sound-on",
-    previewPlaying: VIDEO_PREVIEW.previewPlayingClassName,
-
-    rowRefreshing: "row--refreshing",
-};
-
 const cssVarNames = {
     watchBuffer: "--video-preview-watch-buffer",
     watchProgress: "--video-preview-watch-progress"
 };
-
-const DOM_IDS = {
-    row: (id) => `row-${id}`,
-}
 
 function initDomElements() {
     DOM_ELEMENTS.preview.container = document.getElementById("video-preview-container");
@@ -375,7 +375,7 @@ function updateVideoPreview(container, previewElementClassName, thumbClassName, 
 
     if (PREVIEW_STATE.currentItemId) {
         const element = document.getElementById(
-            ids.row(PREVIEW_STATE.currentItemId)
+            DOM_IDS.row(PREVIEW_STATE.currentItemId)
         );
 
         if (force || !element || !isElementInViewport(element)) {

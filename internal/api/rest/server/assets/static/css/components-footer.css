@@ -65,7 +65,13 @@
     color: var(--text-secondary);   
 }
 
-.app-version__link:hover {
+.about__link {
+    color: var(--text-secondary);   
+    cursor: pointer;
+}
+
+.app-version__link,
+.about__link:hover {
     color: var(--text-primary);   
 }
 

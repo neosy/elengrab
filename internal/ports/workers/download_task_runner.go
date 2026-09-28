@@ -9,5 +9,6 @@ import (
 type DownloadTaskRunner interface {
 	ExecuteDownloadTask(ctx context.Context, workerID uint64, task *ddownload.DownloadTask) error
 	ExecuteRefreshMetadataTask(ctx context.Context, workerID uint64, task *ddownload.RefreshMetadataTask) error
+	UpdateSystemDiskInfo()
 	UpdateSystemInfo()
 }

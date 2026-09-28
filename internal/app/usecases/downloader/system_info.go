@@ -1,8 +1,11 @@
 package downloader
 
 import (
+	"runtime"
+	"strings"
 	"sync"
 
+	denosrv "github.com/neosy/elengrab/internal/app/services/deno"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 )
 
@@ -21,7 +24,7 @@ func (uc *downloader) SystemInfo() dto.SystemInfoResponse {
 	return uc.systemInfoStore.read()
 }
 
-func (uc *downloader) UpdateSystemInfo() {
+func (uc *downloader) UpdateSystemDiskInfo() {
 	stats, err := uc.downloadsStorage.Stats()
 	if err != nil {
 		uc.logger.Warn("Failed to get storage stats", "error", err)
@@ -43,4 +46,26 @@ func (uc *downloader) UpdateSystemInfo() {
 		systemInfoOld.DiskUsed != uc.systemInfoStore.data.DiskUsed {
 		uc.broadcastSystemInfoUpdate()
 	}
+}
+func (uc *downloader) UpdateSystemVersionInfo() {
+	ytDlpVersion, _ := uc.downloaderSrv.GetVersion(uc.appCtx)
+	ffmpegVersion, _ := uc.ffmpegSrv.GetFFmpegVersion(uc.appCtx)
+
+	var denoVersion string
+	denoSrv, err := denosrv.NewDenoService(uc.logger, "")
+	if err == nil {
+		denoVersion, _ = denoSrv.GetVersion(uc.appCtx)
+	}
+
+	uc.systemInfoStore.mu.Lock()
+	uc.systemInfoStore.data.GoVersion = strings.TrimPrefix(runtime.Version(), "go")
+	uc.systemInfoStore.data.YtDlpVersion = ytDlpVersion
+	uc.systemInfoStore.data.FFmpegVersion = ffmpegVersion
+	uc.systemInfoStore.data.DenoVersion = denoVersion
+	uc.systemInfoStore.mu.Unlock()
+}
+
+func (uc *downloader) UpdateSystemInfo() {
+	uc.UpdateSystemDiskInfo()
+	uc.UpdateSystemVersionInfo()
 }
