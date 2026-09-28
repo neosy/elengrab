@@ -40,6 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize header auto-hide on scroll
     common.initHeaderAutoHide();
 
+    // Init dialogs
+    dialog.initDialogs();
+
     // Init tooltips
     tooltip.initTooltips();
 

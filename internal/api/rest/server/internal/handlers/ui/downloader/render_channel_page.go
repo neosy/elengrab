@@ -60,12 +60,15 @@ func (h *DownloaderHandlers) renderChannelPage(
 		}
 	}
 
+	systemInfo := h.downloader.SystemInfo()
+
 	baseValues := pages.NewBaseValues()
 	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(h.baseURL)
 
 	pagesListValues := pagesdata.BuildPagesListValues(authCtx, query, queryFilters, h.downloader)
 	pagesListValues.ResultNoRows = rowsBuf.Len() == 0
 	pagesListValues.ResultRowsHTML = template.HTML(rowsBuf.String())
+	pagesListValues.AboutDialog = h.mappers.MapSystemInfoToAboutDialogValues(systemInfo)
 
 	pageData := pages.ChannelPageData{
 		BasePaths:  paths.NewHttpPaths(),
