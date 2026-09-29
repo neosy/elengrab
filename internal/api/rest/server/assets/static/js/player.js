@@ -4,9 +4,11 @@
 // -------------------------------------------------------------
 
 import * as watchAPI from './watch-api.js';
-import { CLASS_NAMES, MEDIA_WATCH, VIDEO_PREVIEW } from './constants.js';
+import { CLASS_NAMES as CONST_CLASS_NAMES, MEDIA_WATCH, VIDEO_PREVIEW } from './constants.js';
 
-export const LOCAL_CLASS_NAMES = {
+export const CLASS_NAMES = {
+    ...CONST_CLASS_NAMES,
+
     mediaResultPlayButton: "media-play-button",
     mediaResultRow: "media-result__row",
 
@@ -18,16 +20,20 @@ export const LOCAL_CLASS_NAMES = {
     mediaPlayerAudio: "media-player__audio",
 
     audioPlaying: "audio-playing",
+    isAudioPaused: 'is-audio-paused',
+
+    audioPlayingOverlay: 'media-result__thumbnail-audio-overlay',
 };
 
-export const LOCAL_CLASS_SELECTORS = Object.fromEntries(
-    Object.entries(LOCAL_CLASS_NAMES)
+export const CLASS_SELECTORS = Object.fromEntries(
+    Object.entries(CLASS_NAMES)
         .filter(([, value]) => typeof value === "string")
         .map(([key, value]) => [key, `.${value}`])
 );
 
 let watchTracker = null;
-let player = null
+let player = null;
+let playingRow = null;
 
 function initWatchTracker(video, itemId) {
     if (!video) return;
@@ -50,8 +56,8 @@ async function destroyWatchTracker() {
 export function initPlayer(playerContainer) {
     if (!playerContainer) return;
 
-    const videoContainer = playerContainer.querySelector(LOCAL_CLASS_SELECTORS.mediaPlayerVideo);
-    const audioContainer = playerContainer.querySelector(LOCAL_CLASS_SELECTORS.mediaPlayerAudio);
+    const videoContainer = playerContainer.querySelector(CLASS_SELECTORS.mediaPlayerVideo);
+    const audioContainer = playerContainer.querySelector(CLASS_SELECTORS.mediaPlayerAudio);
 
     if (!videoContainer || !audioContainer) return;
     
@@ -62,7 +68,7 @@ export function initPlayer(playerContainer) {
     // Create audio container if missing
     if (!audioContainer) {
         audioContainer = document.createElement("div");
-        audioContainer.className = LOCAL_CLASS_NAMES.mediaPlayerAudio;
+        audioContainer.className = CLASS_NAMES.mediaPlayerAudio;
         playerContainer.appendChild(audioContainer);
     }
 
@@ -72,23 +78,23 @@ export function initPlayer(playerContainer) {
     initWatchTracker();
 
     document.addEventListener("click", async (event) => {
-        const playBtn = event.target.closest(LOCAL_CLASS_SELECTORS.mediaResultPlayButton);
+        const playBtn = event.target.closest(CLASS_SELECTORS.mediaResultPlayButton);
         if (!playBtn) return;
 
         if (isOpenVideoPlayer) await closePlayer();
 
-        const row = playBtn.closest(LOCAL_CLASS_SELECTORS.mediaResultRow);
-        if (!row) return;
+        playingRow = playBtn.closest(CLASS_SELECTORS.mediaResultRow);
+        if (!playingRow) return;
 
-        const itemId = row.dataset.itemId;
+        const itemId = playingRow.dataset.itemId;
 
-        const mediaURL = row.dataset.media;
+        const mediaURL = playingRow.dataset.media;
         if (!mediaURL) return;
 
         document.dispatchEvent(new Event(VIDEO_PREVIEW.playerOpenedEventName));
 
-        const isAudio = row.dataset.isAudio === "true";
-        const shouldLoop = row.dataset.loop === "true";
+        const isAudio = playingRow.dataset.isAudio === "true";
+        const shouldLoop = playingRow.dataset.loop === "true";
 
         let positionMs = await watchAPI.getWatchPosition(itemId);
 
@@ -126,10 +132,10 @@ export function initPlayer(playerContainer) {
         if (isAudio) {
             // Audio → bottom fixed bar
             const wrapper = document.createElement("div");
-            wrapper.className = LOCAL_CLASS_NAMES.mediaPlayerWrapper;
+            wrapper.className = CLASS_NAMES.mediaPlayerWrapper;
 
             const closeBtn = document.createElement("button");
-            closeBtn.className = LOCAL_CLASS_NAMES.mediaPlayerClose;
+            closeBtn.className = CLASS_NAMES.mediaPlayerClose;
             closeBtn.innerHTML = "×";
             closeBtn.setAttribute("aria-label", "Close audio player");
             closeBtn.onclick = closePlayer;
@@ -139,11 +145,14 @@ export function initPlayer(playerContainer) {
 
             audioContainer.appendChild(wrapper);
 
+            cleanupControls = initAudioControls();
+
             player.focus({ preventScroll: true });
 
             videoContainer.style.display = "none !important";   // forceful hide
             document.body.style.overflow = "";
-            document.body.classList.add(LOCAL_CLASS_NAMES.audioPlaying);
+            document.body.classList.add(CLASS_NAMES.audioPlaying);
+            showAudioPlayingIndicator(playingRow);
         } else {
             document.documentElement.classList.add(CLASS_NAMES.ui.blockingActive);
             
@@ -151,7 +160,7 @@ export function initPlayer(playerContainer) {
 
             // Video → centered overlay
             const wrapper = document.createElement("div");
-            wrapper.className = LOCAL_CLASS_NAMES.mediaPlayerWrapper;
+            wrapper.className = CLASS_NAMES.mediaPlayerWrapper;
 
             wrapper.appendChild(player);
             videoContainer.appendChild(wrapper);
@@ -175,10 +184,10 @@ export function initPlayer(playerContainer) {
         const el = e.target;
         if (!(el instanceof Element)) return;
 
-        const playBtn = el.closest(LOCAL_CLASS_SELECTORS.mediaResultPlayButton);
+        const playBtn = el.closest(CLASS_SELECTORS.mediaResultPlayButton);
         if (!playBtn) return;
 
-        const row = playBtn.closest(LOCAL_CLASS_SELECTORS.mediaResultRow);
+        const row = playBtn.closest(CLASS_SELECTORS.mediaResultRow);
         const isAudio = row.dataset.isAudio === "true";
 
         if (isAudio) return; // To open in new tab only applies to videos
@@ -230,28 +239,49 @@ export function initPlayer(playerContainer) {
         cleanupControls?.();
         cleanupControls = null;
 
+        hideAudioPlayingIndicator(playingRow);
+
         player = null;
+        playingRow = null;
 
         if (videoContainer) videoContainer.innerHTML = "";
         if (audioContainer) audioContainer.innerHTML = "";
         videoContainer.style.display = "none";
         document.body.style.overflow = "";
-        document.body.classList.remove(LOCAL_CLASS_NAMES.audioPlaying);
+        document.body.classList.remove(CLASS_NAMES.audioPlaying);
 
         document.documentElement.classList.remove(CLASS_NAMES.ui.blockingActive);
 
         destroyWatchTracker();
     }
+
+    function initAudioControls() {
+        const handlePlay = () => {
+            document.body.classList.remove(CLASS_NAMES.isAudioPaused);
+        };
+
+        const handlePause = () => {
+            document.body.classList.add(CLASS_NAMES.isAudioPaused);
+        };
+
+        player.addEventListener("play", handlePlay);
+        player.addEventListener("pause", handlePause);
+
+        return () => {
+            player.removeEventListener("play", handlePlay);
+            player.removeEventListener("pause", handlePause);
+        };
+    }
     
     function initVideoControls() {
-        const wrapper = videoContainer.querySelector(LOCAL_CLASS_SELECTORS.mediaPlayerWrapper);
+        const wrapper = videoContainer.querySelector(CLASS_SELECTORS.mediaPlayerWrapper);
 
         if (!wrapper) return;
 
         let controlsTimeout;
 
         const closeBtn = document.createElement("button");
-        closeBtn.className = LOCAL_CLASS_NAMES.mediaPlayerClose;
+        closeBtn.className = CLASS_NAMES.mediaPlayerClose;
         closeBtn.innerHTML = "×";
         closeBtn.setAttribute("aria-label", "Close player");
         closeBtn.onclick = closePlayer;
@@ -263,12 +293,12 @@ export function initPlayer(playerContainer) {
                 return;
             }
 
-            videoContainer.classList.add(LOCAL_CLASS_NAMES.showControls);
+            videoContainer.classList.add(CLASS_NAMES.showControls);
 
             clearTimeout(controlsTimeout);
 
             controlsTimeout = setTimeout(() => {
-                videoContainer.classList.remove(LOCAL_CLASS_NAMES.showControls);
+                videoContainer.classList.remove(CLASS_NAMES.showControls);
             }, 3000);
         };
 
@@ -291,7 +321,17 @@ export function initPlayer(playerContainer) {
 
             clearTimeout(controlsTimeout);
 
-            videoContainer.classList.remove(LOCAL_CLASS_NAMES.showControls);
+            videoContainer.classList.remove(CLASS_NAMES.showControls);
         };
+    }
+
+    function showAudioPlayingIndicator(row) {
+        const audioPlayingIndicator = row.querySelector(CLASS_SELECTORS.audioPlayingOverlay);
+        audioPlayingIndicator?.classList.remove('hidden');
+    }
+
+    function hideAudioPlayingIndicator(row) {
+        const audioPlayingIndicator = row.querySelector(CLASS_SELECTORS.audioPlayingOverlay);
+        audioPlayingIndicator?.classList.add('hidden');
     }
 }

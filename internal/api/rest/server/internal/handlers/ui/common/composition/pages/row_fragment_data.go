@@ -79,7 +79,9 @@ type (
 		DownloaderResultItemStatusIcon       template.HTML
 		DownloaderResultItemDeleteIcon       template.HTML
 		DownloaderResultItemStatusFailedIcon template.HTML
-		RefreshingIcon                       template.HTML
+
+		RefreshingIcon   template.HTML
+		AudioPlayingIcon template.HTML
 
 		MetaUserNameSeparatorIcon template.HTML
 		VisibilityIcon            template.HTML
