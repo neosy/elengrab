@@ -60,6 +60,8 @@ func (h *DownloaderHandlers) renderIndexPage(
 	pagesListValues.ResultNoRows = rowsBuf.Len() == 0
 	pagesListValues.ResultRowsHTML = template.HTML(rowsBuf.String())
 	pagesListValues.AboutDialog = h.mappers.MapSystemInfoToAboutDialogValues(systemInfo)
+	pagesListValues.AudioPlayingIcon = icons.MediaAudioPlayingIcon.FileRaw()
+	pagesListValues.AudioPauseIcon = icons.MediaAudioPauseIcon.FileRaw()
 
 	pageData := pages.IndexPageData{
 		BasePaths:  paths.NewHttpPaths(),

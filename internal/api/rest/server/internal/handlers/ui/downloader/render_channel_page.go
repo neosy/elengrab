@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/clientcap"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	pagesdata "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/pages_data"
@@ -69,6 +70,8 @@ func (h *DownloaderHandlers) renderChannelPage(
 	pagesListValues.ResultNoRows = rowsBuf.Len() == 0
 	pagesListValues.ResultRowsHTML = template.HTML(rowsBuf.String())
 	pagesListValues.AboutDialog = h.mappers.MapSystemInfoToAboutDialogValues(systemInfo)
+	pagesListValues.AudioPlayingIcon = icons.MediaAudioPlayingIcon.FileRaw()
+	pagesListValues.AudioPauseIcon = icons.MediaAudioPauseIcon.FileRaw()
 
 	pageData := pages.ChannelPageData{
 		BasePaths:  paths.NewHttpPaths(),
