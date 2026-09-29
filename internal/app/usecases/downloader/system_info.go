@@ -51,11 +51,7 @@ func (uc *downloader) UpdateSystemVersionInfo() {
 	ytDlpVersion, _ := uc.downloaderSrv.GetVersion(uc.appCtx)
 	ffmpegVersion, _ := uc.ffmpegSrv.GetFFmpegVersion(uc.appCtx)
 
-	var denoVersion string
-	denoSrv, err := denosrv.NewDenoService(uc.logger, "")
-	if err == nil {
-		denoVersion, _ = denoSrv.GetVersion(uc.appCtx)
-	}
+	denoVersion, _ := denosrv.GetVersion(uc.appCtx)
 
 	uc.systemInfoStore.mu.Lock()
 	uc.systemInfoStore.data.GoVersion = strings.TrimPrefix(runtime.Version(), "go")

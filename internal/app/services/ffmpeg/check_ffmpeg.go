@@ -1,0 +1,26 @@
+package ffmpegsrv
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+)
+
+func checkFFmpeg(cmdPath string) error {
+	fi, err := os.Stat(cmdPath)
+	if err != nil {
+		return err
+	}
+
+	if fi.IsDir() {
+		return fmt.Errorf("%q is a directory", cmdPath)
+	}
+
+	// Ensure ffmpeg is available in PATH
+	cmd := exec.Command(cmdPath, "-version")
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
+}

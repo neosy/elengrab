@@ -20,6 +20,7 @@
 - Refactored channel information storage to support multiple media sources and preserve channel data when an image is unavailable. [L140]
 - Refactored MediaDownload retrieval and view access methods. [L147]
 - Refactored video thumbnail and channel image fetching. [L140]
+- Refactored service initialization checks. [L161]
 
 ### 🐛 Fix
 - Fixed access validation for retrying failed downloads. [L145]

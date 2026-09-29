@@ -12,9 +12,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/neosy/elengrab/internal/app/services/internal/utils"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
 	dservices "github.com/neosy/elengrab/internal/domain/services"
 	"github.com/neosy/elengrab/internal/pkg/syncx"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"

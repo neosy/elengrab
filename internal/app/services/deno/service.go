@@ -2,10 +2,11 @@ package denosrv
 
 import (
 	"log/slog"
+	"path/filepath"
 
 	"github.com/neosy/elengrab/internal/app/services/deno/internal/consts"
 	"github.com/neosy/elengrab/internal/app/services/deno/internal/core"
-	"github.com/neosy/elengrab/internal/app/services/deno/internal/utils"
+	"github.com/neosy/elengrab/internal/app/services/internal/utils"
 )
 
 // DenoService represents a service for interacting with deno.
@@ -21,20 +22,23 @@ func NewDenoService(
 	logger *slog.Logger,
 	binDir string,
 ) (*DenoService, error) {
-	cmdDenoPath, err := utils.ResolveCmdPath(consts.DenoName, binDir)
+	denoPath, err := utils.ResolveCmdPath(consts.DenoName, binDir)
 	if err != nil {
 		return nil, err
 	}
 
-	err = utils.CheckDeno(consts.DenoName)
+	err = checkDeno(denoPath)
 	if err != nil {
 		return nil, err
-	} else {
-		logger.Info("Deno executable found in PATH", "executable", consts.DenoName)
 	}
+
+	logger.Info("Deno executable found",
+		"name", filepath.Base(denoPath),
+		"dir", filepath.Dir(denoPath),
+	)
 
 	return &DenoService{
 		logger: logger,
-		core:   core.NewDenoCore(logger, cmdDenoPath),
+		core:   core.NewDenoCore(logger, denoPath),
 	}, nil
 }
