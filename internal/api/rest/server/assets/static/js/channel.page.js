@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMenu();
     
     // Init inline media player
-    initPlayer(DOM_ELEMENTS.mediaPlayer);
+    initPlayer(DOM_ELEMENTS.mediaPlayer, CLASS_NAMES.mediaResultRowThumbnailImageWrapper);
 
     // Init search elements
     const searching = search.initSearching();

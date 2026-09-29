@@ -29,6 +29,7 @@ var (
 	DownloadRefreshingIcon = newIcon("DownloadRefreshingIconName", "refresh-icon.svg")
 
 	MediaAudioPlayingIcon = newIcon("MediaAudioPlayingIconName", "compact-disc-icon.svg")
+	MediaAudioPauseIcon   = newIcon("MediaAudioPauseIconName", "pause-icon.svg")
 
 	MediaPublicIcon        = newIcon("MediaPublicIconName", "visibility-public-people.svg")
 	MediaAuthenticatedIcon = newIcon("MediaAuthenticatedIconName", "visibility-authenticated-user-icon.svg")

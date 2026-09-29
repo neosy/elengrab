@@ -1,4 +1,12 @@
 {{- define "media-player" }}
+    <div class="media-player__audio-playing-overlay" id="media-player-audio-playing-overlay">
+        <div class="audio-playing-overlay__playing-icon">
+            {{ .Values.AudioPlayingIcon }}
+        </div>
+        <div class="audio-playing-overlay__pause-icon">
+            {{ .Values.AudioPauseIcon }}
+        </div>
+    </div>     
     <div class="media-player" id="media-player">
         <div class="media-player__video">
             <div class="media-player__wrapper"></div>

@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMenu();
     
     // Init inline media player
-    initPlayer(DOM_ELEMENTS.mediaPlayer);
+    initPlayer(DOM_ELEMENTS.mediaPlayer, CLASS_NAMES.mediaResultRowThumbnailImageWrapper);
 
     // Init settiongs action button
     actionButton.initInputSettingsButton(DOM_ELEMENTS.inputActionSettingsBtn, DOM_ELEMENTS.grabOptionsCollapse, DOM_ELEMENTS.grabOptions);

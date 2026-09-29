@@ -15,6 +15,7 @@
 - Added media filtering by channel. Closes #526
 - Added a version information window with application and dependency versions, repository. [L158]
 - Added a rotating disc indicator for currently playing audio. [L160]
+- Added a pause indicator for audio playback. [L162]
 
 ### 🧩 Refactor
 - Refactored channel information storage to support multiple media sources and preserve channel data when an image is unavailable. [L140]
