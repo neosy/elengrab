@@ -190,6 +190,8 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		RefreshingIcon:            icons.DownloadRefreshingIcon.FileRaw(),
 		MetaUserNameSeparatorIcon: icons.DownloadMetaUserNameSeparatorIcon.FileRaw(),
 
+		AudioPlayingIcon: icons.MediaAudioPlayingIcon.FileRaw(),
+
 		VisibilityIcon: visibility.Icon,
 
 		AudioIcon:     audioIcon,
