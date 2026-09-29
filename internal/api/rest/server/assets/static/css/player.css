@@ -133,15 +133,10 @@
 /* ─────── Audio playing overlay ────────────────────────────────────────────── */
 
 .media-player__audio-playing-overlay {
-    display: flex;
     position: absolute;
     z-index: 2;
 
-    width: 100%;
-    height: 100%;
-
-    align-items: center;
-    justify-content: center;
+    inset: 0;
 
     opacity: 0;
 
@@ -201,8 +196,8 @@ body.grid-view.is-audio-paused .audio-playing-overlay__playing-icon svg {
     display: flex;
     position: absolute;
 
-    width: 40%;
-    height: 40%;
+    width: 35%;
+    aspect-ratio: 1;
 
     inset: 0;
     margin: auto;
@@ -210,9 +205,16 @@ body.grid-view.is-audio-paused .audio-playing-overlay__playing-icon svg {
     align-items: center;
     justify-content: center;
 
-    opacity: 0;
+    padding: 3%;
+    box-sizing: border-box;
 
+    border-radius: 50%;
+    background: rgb(0 0 0 / 30%);
+
+    opacity: 0;
     transition: opacity 0.7s ease;
+
+    backdrop-filter: blur(2px);
 }
 
 .audio-playing-overlay__pause-icon svg {
