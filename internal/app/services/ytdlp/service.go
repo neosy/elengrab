@@ -2,11 +2,12 @@ package ytdlpsrv
 
 import (
 	"log/slog"
+	"path/filepath"
 
 	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
+	"github.com/neosy/elengrab/internal/app/services/internal/utils"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
 	nfile "github.com/neosy/elengrab/internal/pkg/filex"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
@@ -35,25 +36,33 @@ func NewYtDlpService(
 		return nil, err
 	}
 
+	err = checkYtDlp(cmdPath)
+	if err != nil {
+		return nil, err
+	}
+
 	options := NewServiceOptions()
 
 	for _, opt := range opts {
 		opt(&options)
 	}
 
-	_, err = utils.LookupExecutable(consts.DenoName)
+	denoPath, err := utils.ResolveCmdPath(consts.DenoName, binDir)
 	if err != nil {
 		if options.AllowCookies {
 			options.AllowCookies = false
 			logger.Warn(
-				"Deno executable not found in PATH",
-				"executable", consts.DenoName,
+				"Deno executable not found",
+				"name", consts.DenoName,
 				"error", err,
 			)
 			logger.Info("AllowCookies has been disabled")
 		}
 	} else {
-		logger.Info("Deno executable found in PATH", "executable", consts.DenoName)
+		logger.Info("Deno executable found",
+			"executable", filepath.Base(denoPath),
+			"dir", filepath.Dir(denoPath),
+		)
 	}
 
 	if options.AllowCookies && options.CookiesDir == "" {
