@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/neosy/elengrab/internal/app/services/internal/utils"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )

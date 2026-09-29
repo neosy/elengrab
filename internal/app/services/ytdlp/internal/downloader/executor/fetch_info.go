@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/neosy/elengrab/internal/app/services/internal/utils"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	extractinfo "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor/extract_info"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/utils"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
