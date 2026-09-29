@@ -23,5 +23,8 @@ type (
 
 		ResultNoRows   bool
 		ResultRowsHTML template.HTML
+
+		AudioPlayingIcon template.HTML
+		AudioPauseIcon   template.HTML
 	}
 )

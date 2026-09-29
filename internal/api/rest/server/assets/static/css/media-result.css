@@ -1459,56 +1459,6 @@ img[data-src] {
     }
 }
 
-.media-result__thumbnail-audio-overlay {
-    display: none;
-    position: absolute;
-    z-index: 2;
-
-    left: 10px;
-    bottom: 10px;
-
-    align-items: center;
-    justify-content: center;
-    
-    pointer-events: none;
-}
-
-.media-result__thumbnail-audio-overlay svg {
-    width: 60px;
-    height: 60px;
-
-    opacity: 0.9;
-}
-
-body.grid-view.audio-playing .media-result__thumbnail-audio-overlay {
-    display: flex;
-}
-
-body.grid-view.audio-playing .media-result__thumbnail-audio-overlay svg {
-    animation: media-result-audio-player-spin 2.4s linear infinite;
-    animation-play-state: running;
-}
-
-body.grid-view.is-audio-paused .media-result__thumbnail-audio-overlay svg {
-    animation-play-state: paused;
-}
-
-@keyframes media-result-audio-player-spin {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    body.grid-view.audio-playing .media-result__thumbnail-audio-overlay svg {
-        animation: none;
-    }
-}
-
 @media (max-width: 768px) {
     .media-result__row {
         width: 100%;
