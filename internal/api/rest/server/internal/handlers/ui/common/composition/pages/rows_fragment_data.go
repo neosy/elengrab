@@ -25,6 +25,7 @@ type (
 		ResultRowsHTML template.HTML
 
 		AudioPlayingIcon template.HTML
+		AudioPlayIcon    template.HTML
 		AudioPauseIcon   template.HTML
 	}
 )
