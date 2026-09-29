@@ -19,8 +19,8 @@ func (r *routes) registerUIRoot(handlers *downloader.DownloaderHandlers) {
 		r.router.HEAD(httppaths.IndexPath, handlers.IndexPageHandler)
 
 		// /favicon.ico
-		g.GET(httppaths.RootFaviconICOPath, handlers.AssetFabiconHandler)
-		r.router.HEAD(httppaths.RootFaviconICOPath, handlers.AssetFabiconHandler)
+		g.GET(httppaths.RootFaviconICOPath, handlers.AssetFaviconHandler)
+		r.router.HEAD(httppaths.RootFaviconICOPath, handlers.AssetFaviconHandler)
 
 		// /robots.txt
 		g.GET(httppaths.RootRobotsTxtPath, handlers.AssetRobotsHandler)

@@ -103,11 +103,6 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		g.Use(middlewareError, r.middlewares.Auth.AuthOrAnonym)
 		{
 			g.GET(httppaths.ChannelItemPath, handlers.ChannelPageHandler)
-		}
-
-		// Without middleware
-		g = nfasthttp.NewRouterGroup(httppaths.DownloaderGroup, r.router)
-		{
 			g.HEAD(httppaths.ChannelItemPath, handlers.ChannelPageHandler)
 		}
 	}
