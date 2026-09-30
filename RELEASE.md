@@ -1,5 +1,12 @@
 # Releases
 
+## v0.26.1 — 2026-10-02
+
+### 🧩 Refactor
+- Adjusted startup logging levels to avoid duplicate error messages and preserve detailed initialization context. [L164]
+
+---
+
 ## v0.26.0 — 2026-09-30
 
 ### ✨ Features
