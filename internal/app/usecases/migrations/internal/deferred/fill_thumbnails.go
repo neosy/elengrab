@@ -13,7 +13,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
+func (m *migrations) fillThumbnails(ctx context.Context) error {
 	const (
 		retryCountDefault = 3
 		retryDelayDefault = 5 * time.Second
@@ -83,11 +83,11 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 		},
 	)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	if len(medias) == 0 {
-		return true, nil
+		return nil
 	}
 
 	m.Logger().Debug("Found medias without thumbnails", "count", len(medias))
@@ -99,7 +99,7 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 
 		select {
 		case <-ctx.Done():
-			return false, fmt.Errorf("context canceled: %w", ctx.Err())
+			return fmt.Errorf("context canceled: %w", ctx.Err())
 		default:
 		}
 
@@ -143,8 +143,8 @@ func (m *migrations) fillThumbnails(ctx context.Context) (bool, error) {
 	}
 
 	if hasError {
-		return false, fmt.Errorf("errors in the migration process")
+		return fmt.Errorf("errors in the migration process")
 	}
 
-	return true, nil
+	return nil
 }

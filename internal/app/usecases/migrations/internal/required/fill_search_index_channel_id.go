@@ -12,20 +12,17 @@ var (
 	fillSearchIndexChannelIDOnceSync sync.Once
 )
 
-func (m *migrations) fillSearchIndexChannelIDOnce(ctx context.Context) (bool, error) {
-	var (
-		ok  bool
-		err error
-	)
+func (m *migrations) fillSearchIndexChannelIDOnce(ctx context.Context) error {
+	var err error
 
 	fillSearchIndexChannelIDOnceSync.Do(func() {
-		ok, err = m.fillSearchIndexChannelID(ctx)
+		err = m.fillSearchIndexChannelID(ctx)
 	})
 
-	return ok, err
+	return err
 }
 
-func (m *migrations) fillSearchIndexChannelID(ctx context.Context) (bool, error) {
+func (m *migrations) fillSearchIndexChannelID(ctx context.Context) error {
 	channelIDsByDownloadID := make(map[uuid.UUID]uuid.UUID)
 
 	err := m.Usecases().Downloader.MediaDownload().IterateAll(
@@ -36,13 +33,13 @@ func (m *migrations) fillSearchIndexChannelID(ctx context.Context) (bool, error)
 			return nil
 		})
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	err = m.Usecases().SearchIndex.IterateAllAndPatchChannelIDs(ctx, channelIDsByDownloadID)
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	return true, nil
+	return nil
 }

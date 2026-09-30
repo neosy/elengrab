@@ -10,23 +10,14 @@ var (
 	rebuildWatchStatsOnceOnceSync sync.Once
 )
 
-func (m *migrations) rebuildWatchStatsOnce(ctx context.Context) (bool, error) {
-	var (
-		ok, executed bool
-		err          error
-	)
+func (m *migrations) rebuildWatchStatsOnce(ctx context.Context) error {
+	var err error
 
 	rebuildWatchStatsOnceOnceSync.Do(func() {
 		err = m.rebuildWatchStats(ctx)
-		ok = err == nil
-		executed = true
 	})
 
-	if executed {
-		return ok, err
-	}
-
-	return true, nil
+	return err
 }
 
 func (m *migrations) rebuildWatchStats(ctx context.Context) error {

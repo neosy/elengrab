@@ -8,7 +8,7 @@ import (
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 
-func (m *migrations) fill_channel_info(ctx context.Context) (bool, error) {
+func (m *migrations) fill_channel_info(ctx context.Context) error {
 	channelIDs := make(map[uuid.UUID]struct{})
 	downloads := make([]*ddownload.MediaDownload, 0)
 
@@ -29,11 +29,11 @@ func (m *migrations) fill_channel_info(ctx context.Context) (bool, error) {
 		return nil
 	})
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	if len(downloads) == 0 {
-		return true, nil
+		return nil
 	}
 
 	updatedChannelIDs := make(map[uuid.UUID]struct{})
@@ -53,7 +53,7 @@ func (m *migrations) fill_channel_info(ctx context.Context) (bool, error) {
 		if channelID == uuid.Nil {
 			channel, err := m.Usecases().Channel.FindByExternalChannelIDNoCache(ctx, channelSource.ChannelID, channelSource.Platform)
 			if err != nil {
-				return false, err
+				return err
 			}
 
 			if channel != nil {
@@ -70,7 +70,7 @@ func (m *migrations) fill_channel_info(ctx context.Context) (bool, error) {
 
 			err := m.Usecases().Channel.Create(ctx, newChannel)
 			if err != nil {
-				return false, err
+				return err
 			}
 
 			channelID = newChannel.ChannelID
@@ -111,7 +111,7 @@ func (m *migrations) fill_channel_info(ctx context.Context) (bool, error) {
 				return nil
 			})
 			if err != nil {
-				return false, err
+				return err
 			}
 		}
 
@@ -131,11 +131,11 @@ func (m *migrations) fill_channel_info(ctx context.Context) (bool, error) {
 				},
 			)
 			if err != nil {
-				return false, err
+				return err
 			}
 		}
 
 	}
 
-	return true, nil
+	return nil
 }

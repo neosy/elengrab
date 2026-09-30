@@ -10,25 +10,17 @@ var (
 	changeWatchChunkSizeOnceSync sync.Once
 )
 
-func (m *migrations) changeWatchChunkSizeOnce(ctx context.Context) (bool, error) {
-	var (
-		ok, executed bool
-		err          error
-	)
+func (m *migrations) changeWatchChunkSizeOnce(ctx context.Context) error {
+	var err error
 
 	changeWatchChunkSizeOnceSync.Do(func() {
-		ok, err = m.changeWatchChunkSize(ctx)
-		executed = true
+		err = m.changeWatchChunkSize(ctx)
 	})
 
-	if executed {
-		return ok, err
-	}
-
-	return true, nil
+	return err
 }
 
-func (m *migrations) changeWatchChunkSize(ctx context.Context) (bool, error) {
+func (m *migrations) changeWatchChunkSize(ctx context.Context) error {
 	m.Logger().Info("Changing media watch chunk size...")
 
 	err := m.Usecases().MediaWatch.RebuildUserChunks(ctx)
@@ -37,10 +29,10 @@ func (m *migrations) changeWatchChunkSize(ctx context.Context) (bool, error) {
 			"Failed to rebuild media watch chunks",
 			"error", err,
 		)
-		return false, fmt.Errorf("errors in the migration process")
+		return fmt.Errorf("errors in the migration process")
 	}
 
 	m.Logger().Info("Media watch chunk size successfully changed")
 
-	return true, nil
+	return nil
 }
