@@ -9,23 +9,14 @@ var (
 	buildSearchIndexOnceSync sync.Once
 )
 
-func (m *migrations) buildSearchIndexOnce(ctx context.Context) (bool, error) {
-	var (
-		ok, executed bool
-		err          error
-	)
+func (m *migrations) buildSearchIndexOnce(ctx context.Context) error {
+	var err error
 
 	buildSearchIndexOnceSync.Do(func() {
 		err = m.buildSearchIndex(ctx)
-		ok = err == nil
-		executed = true
 	})
 
-	if executed {
-		return ok, err
-	}
-
-	return true, nil
+	return err
 }
 
 func (m *migrations) buildSearchIndex(ctx context.Context) error {
