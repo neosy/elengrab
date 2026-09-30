@@ -173,7 +173,7 @@ func (a *Application) initialize() error {
 	}
 	services, err := services.New(a.logger, srvDeps)
 	if err != nil {
-		a.logger.Error("Failed to initialize services", "err", err)
+		a.logger.Warn("Failed to initialize services", "err", err)
 		return err
 	}
 	a.Services = services
@@ -341,28 +341,28 @@ func (a *Application) RunRequiredMigrations() error {
 
 func (a *Application) StartBackground() error {
 	if err := a.DownloadWorkerPool.Start(a.ctx); err != nil {
-		a.logger.Error("Failed to start download worker pool", "err", err)
+		a.logger.Warn("Failed to start download worker pool", "err", err)
 		return err
 	}
 
 	if err := a.OperationWorkerPool.Start(a.ctx); err != nil {
-		a.logger.Error("Failed to start operation worker pool", "err", err)
+		a.logger.Warn("Failed to start operation worker pool", "err", err)
 		return err
 	}
 
 	if err := a.WatchEventWorkerPool.Start(a.ctx); err != nil {
-		a.logger.Error("Failed to start watch event worker pool", "err", err)
+		a.logger.Warn("Failed to start watch event worker pool", "err", err)
 		return err
 	}
 
 	// Initialize stuck download jobs
 	if err := a.Usecases.DownloaderMaintenance.ResetStuckJobs(a.ctx); err != nil {
-		a.logger.Error("Failed to init downloader", "err", err)
+		a.logger.Warn("Failed to init downloader", "err", err)
 		return err
 	}
 
 	if err := a.Workers.StartWorkers(a.ctx); err != nil {
-		a.logger.Error("Failed to run workers", "err", err)
+		a.logger.Warn("Failed to run workers", "err", err)
 		return err
 	}
 
@@ -549,7 +549,7 @@ func (a *Application) initStorages() (*fsstorage.Storages, error) {
 		mediaDir,
 	)
 	if err != nil {
-		a.logger.Error("Failed to initialize Storage", "error", err)
+		a.logger.Warn("Failed to initialize Storage", "error", err)
 		return nil, err
 	}
 	return storages, nil
