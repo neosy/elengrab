@@ -5,6 +5,9 @@
 ### 🧩 Refactor
 - Adjusted startup logging levels to avoid duplicate error messages and preserve detailed initialization context. [L164]
 
+### 🐛 Fix
+- SSE updates after returning to the media list with browser Back navigation.
+
 ### 📦 Build
 - Bundled FFmpeg and yt-dlp with Linux releases.
 - Added dependency licenses to release bundles.
