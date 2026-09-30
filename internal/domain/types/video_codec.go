@@ -10,7 +10,7 @@ import (
 type VideoCodec string
 
 const (
-	VideoCodecNone VideoCodec = "none"
+	VideoCodecNone VideoCodec = ""
 	VideoCodecBest VideoCodec = "best"
 	VideoCodecH264 VideoCodec = "h264"
 	VideoCodecH265 VideoCodec = "h265"

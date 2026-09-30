@@ -67,9 +67,6 @@ func (f *ExtractMediaFormat) AudioCodec() dtypes.AudioCodec {
 }
 
 func (f *ExtractMediaFormat) VideoCodec() dtypes.VideoCodec {
-	if f.VCodec == "" {
-		return dtypes.VideoCodecNone
-	}
 	if strings.HasPrefix(f.VCodec, "av01") {
 		return dtypes.VideoCodecAV1
 	}

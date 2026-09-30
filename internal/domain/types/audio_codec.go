@@ -10,7 +10,7 @@ import (
 type AudioCodec string
 
 const (
-	AudioCodecNone AudioCodec = "none"
+	AudioCodecNone AudioCodec = ""
 	AudioCodecMP3  AudioCodec = "mp3"
 	AudioCodecAAC  AudioCodec = "aac"
 	AudioCodecFLAC AudioCodec = "flac"
