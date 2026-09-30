@@ -1,9 +1,13 @@
 # Releases
 
-## v0.26.1 — 2026-10-02
+## v0.26.1 — 2026-09-30
 
 ### 🧩 Refactor
 - Adjusted startup logging levels to avoid duplicate error messages and preserve detailed initialization context. [L164]
+
+### 📦 Build
+- Bundled FFmpeg and yt-dlp with Linux releases.
+- Added dependency licenses to release bundles.
 
 ---
 
