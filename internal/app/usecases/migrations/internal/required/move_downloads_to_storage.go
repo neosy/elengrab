@@ -8,21 +8,21 @@ import (
 	nfile "github.com/neosy/elengrab/internal/pkg/filex"
 )
 
-func (m *migrations) moveDownloadsToStorage(ctx context.Context) (bool, error) {
+func (m *migrations) moveDownloadsToStorage(ctx context.Context) error {
 	fileNames, err := m.Usecases().MediaDownload.GetAllFullNamesWithDeleted(ctx)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	if len(fileNames) == 0 {
-		return false, nil
+		return nil
 	}
 
 	var hasErr = false
 	for fName := range fileNames {
 		select {
 		case <-ctx.Done():
-			return false, fmt.Errorf("context canceled: %w", ctx.Err())
+			return fmt.Errorf("context canceled: %w", ctx.Err())
 		default:
 		}
 
@@ -45,8 +45,8 @@ func (m *migrations) moveDownloadsToStorage(ctx context.Context) (bool, error) {
 	}
 
 	if hasErr {
-		return false, fmt.Errorf("errors in the migration process")
+		return fmt.Errorf("errors in the migration process")
 	}
 
-	return true, nil
+	return nil
 }

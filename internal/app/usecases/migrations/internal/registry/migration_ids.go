@@ -3,7 +3,7 @@ package registry
 import "context"
 
 type (
-	MigrationRunner func(context.Context) (bool, error)
+	MigrationRunner func(context.Context) error
 
 	MigrationID struct {
 		id  string
@@ -15,6 +15,6 @@ func (i *MigrationID) ID() string {
 	return i.id
 }
 
-func (i *MigrationID) Run(ctx context.Context) (bool, error) {
+func (i *MigrationID) Run(ctx context.Context) error {
 	return i.run(ctx)
 }

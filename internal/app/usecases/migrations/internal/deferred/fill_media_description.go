@@ -7,7 +7,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-func (m *migrations) fillMediaDescription(ctx context.Context) (bool, error) {
+func (m *migrations) fillMediaDescription(ctx context.Context) error {
 	medias, err := m.getAllDownloads(ctx, false,
 		func(download *ddownload.MediaDownload) bool {
 			if download.MediaDescription == nil || *download.MediaDescription == "" {
@@ -17,11 +17,11 @@ func (m *migrations) fillMediaDescription(ctx context.Context) (bool, error) {
 		},
 	)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	if len(medias) == 0 {
-		return true, nil
+		return nil
 	}
 
 	m.Logger().Debug("Found medias with empty description", "count", len(medias))
@@ -54,8 +54,8 @@ func (m *migrations) fillMediaDescription(ctx context.Context) (bool, error) {
 	}
 
 	if hasError {
-		return false, fmt.Errorf("errors in the migration process")
+		return fmt.Errorf("errors in the migration process")
 	}
 
-	return true, nil
+	return nil
 }

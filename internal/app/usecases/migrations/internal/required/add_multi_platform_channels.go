@@ -11,7 +11,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-func (m *migrations) addMultiPlatformChannels(ctx context.Context) (bool, error) {
+func (m *migrations) addMultiPlatformChannels(ctx context.Context) error {
 	m.Logger().Info("Adding support for multiple channel platforms...")
 
 	var channels []*dmedia.Channel
@@ -26,7 +26,7 @@ func (m *migrations) addMultiPlatformChannels(ctx context.Context) (bool, error)
 
 	if len(channels) == 0 {
 		m.Logger().Info("No channels found to update")
-		return true, nil
+		return nil
 	}
 
 	err := m.Usecases().Channel.Tx(ctx, func(ctx context.Context) error {
@@ -90,10 +90,10 @@ func (m *migrations) addMultiPlatformChannels(ctx context.Context) (bool, error)
 		return nil
 	})
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	m.Logger().Info("Added support for multiple channel platforms")
 
-	return true, nil
+	return nil
 }

@@ -30,6 +30,7 @@
 - Included authenticated media in visibility queries. [L150]
 - **Preview Display:** Fixed an issue where the time / timestamp was rendered incorrectly on the preview card. [L152]
 - Disabled video preview initialization for list view items. [L157]
+- Stopped migrations from continuing after errors and simplified migration handling by removing the completion status return value. [L163]
 
 ### 📦 Chore
 - Channel Data Migration: Added a one-time migration to populate missing channel information after the channel data restructuring. [L151]

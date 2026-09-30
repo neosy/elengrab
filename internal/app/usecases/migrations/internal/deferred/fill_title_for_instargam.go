@@ -8,7 +8,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-func (m *migrations) fillTitleForInstagram(ctx context.Context) (bool, error) {
+func (m *migrations) fillTitleForInstagram(ctx context.Context) error {
 	medias, err := m.getAllDownloads(ctx, false,
 		func(download *ddownload.MediaDownload) bool {
 			if hostdetect.Instagram(download.MediaURL) {
@@ -18,11 +18,11 @@ func (m *migrations) fillTitleForInstagram(ctx context.Context) (bool, error) {
 		},
 	)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	if len(medias) == 0 {
-		return true, nil
+		return nil
 	}
 
 	m.Logger().Debug("Found instagram medias", "count", len(medias))
@@ -58,8 +58,8 @@ func (m *migrations) fillTitleForInstagram(ctx context.Context) (bool, error) {
 	}
 
 	if hasError {
-		return false, fmt.Errorf("errors in the migration process")
+		return fmt.Errorf("errors in the migration process")
 	}
 
-	return true, nil
+	return nil
 }
