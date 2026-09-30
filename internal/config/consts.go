@@ -5,5 +5,5 @@ const (
 	AppName = "Elengrab"
 
 	// Application version.
-	AppVersion = "0.26.0"
+	AppVersion = "0.26.1b"
 )
