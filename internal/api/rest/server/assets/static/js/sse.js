@@ -17,7 +17,9 @@ export function initSSE(eventHandlers) {
     window.addEventListener("pageshow", connect);
 
     window.addEventListener("beforeunload", () => {
-        sse?.close();
+        if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
+            sse = createSSEConnection(eventHandlers);
+        }
     });
 
     document.addEventListener("visibilitychange", () => {
