@@ -13,7 +13,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     strategy:
       matrix:
@@ -92,6 +92,157 @@ jobs:
           cd cmd/server
           rsrc -ico icon.ico
           
+      - name: Download Linux dependencies
+        if: matrix.goos == 'linux'
+        shell: bash
+        run: |
+          case "${{ matrix.goarch }}" in
+            amd64)
+              FFMPEG_ARCHIVE="ffmpeg-master-latest-linux64-gpl.tar.xz"
+              YTDLP_BINARY="yt-dlp_linux"
+              ;;
+            arm64)
+              FFMPEG_ARCHIVE="ffmpeg-master-latest-linuxarm64-gpl.tar.xz"
+              YTDLP_BINARY="yt-dlp_linux_aarch64"
+              ;;
+            *)
+              echo "Unsupported Linux architecture: ${{ matrix.goarch }}"
+              exit 1
+              ;;
+          esac
+
+          FFMPEG_URL="https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/${FFMPEG_ARCHIVE}"
+          YTDLP_URL="https://github.com/yt-dlp/yt-dlp/releases/latest/download/${YTDLP_BINARY}"
+
+          TARGET_DIR="dist/${{ matrix.goos }}-${{ matrix.goarch }}"
+          LICENSE_DIR="${TARGET_DIR}/LICENSES"
+
+          mkdir -p "${TARGET_DIR}"
+          mkdir -p "${LICENSE_DIR}"
+
+          echo "Downloading FFmpeg..."
+          curl -L --fail --retry 3 \
+            -o /tmp/ffmpeg.tar.xz \
+            "${FFMPEG_URL}"
+
+          echo "Extracting FFmpeg..."
+          tar -xJf /tmp/ffmpeg.tar.xz -C /tmp
+
+          FFMPEG_DIR="$(find /tmp -maxdepth 1 -type d -name 'ffmpeg-*' | head -n 1)"
+
+          if [ -z "${FFMPEG_DIR}" ]; then
+            echo "FFmpeg directory not found."
+            exit 1
+          fi
+
+          cp "${FFMPEG_DIR}/bin/ffmpeg" "${TARGET_DIR}/ffmpeg"
+          cp "${FFMPEG_DIR}/bin/ffprobe" "${TARGET_DIR}/ffprobe"
+
+          echo "Downloading FFmpeg licenses..."
+          find "${FFMPEG_DIR}" -type f \
+            \( -iname 'LICENSE*' -o -iname 'COPYING*' -o -iname 'NOTICE*' \) \
+            -exec sh -c 'cp "$1" "'"${LICENSE_DIR}"'/ffmpeg-$(basename "$1")"' _ {} \;            
+
+          echo "Downloading yt-dlp..."
+          curl -L --fail --retry 3 \
+            -o "${TARGET_DIR}/yt-dlp" \
+            "${YTDLP_URL}"
+
+          chmod +x \
+            "${TARGET_DIR}/ffmpeg" \
+            "${TARGET_DIR}/ffprobe" \
+            "${TARGET_DIR}/yt-dlp"
+
+          YTDLP_VERSION="$(curl -fsSL --retry 3 --retry-delay 2 \
+            https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest |
+            sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p')"
+
+          if [ -z "${YTDLP_VERSION}" ]; then
+            echo "Unable to determine yt-dlp version."
+            exit 1
+          fi
+
+          echo "yt-dlp version: ${YTDLP_VERSION}"
+
+          echo "Downloading yt-dlp licenses..."
+          curl -L --fail --retry 3 \
+            -o "${LICENSE_DIR}/yt-dlp-LICENSE.txt" \
+            "https://raw.githubusercontent.com/yt-dlp/yt-dlp/${YTDLP_VERSION}/LICENSE"
+
+          curl -L --fail --retry 3 \
+            -o "${LICENSE_DIR}/yt-dlp-THIRD_PARTY_LICENSES.txt" \
+            "https://raw.githubusercontent.com/yt-dlp/yt-dlp/${YTDLP_VERSION}/THIRD_PARTY_LICENSES.txt"
+            
+          echo "Creating Elengrab license..."
+          cp LICENSE "${LICENSE_DIR}/elengrab-LICENSE.txt"
+
+      - name: Download Windows dependencies
+        if: matrix.goos == 'windows'
+        shell: bash
+        run: |
+          FFMPEG_ARCHIVE="ffmpeg-master-latest-win64-gpl.zip"
+          YTDLP_BINARY="yt-dlp.exe"
+
+          FFMPEG_URL="https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/${FFMPEG_ARCHIVE}"
+          YTDLP_URL="https://github.com/yt-dlp/yt-dlp/releases/latest/download/${YTDLP_BINARY}"
+
+          TARGET_DIR="dist/${{ matrix.goos }}-${{ matrix.goarch }}"
+          LICENSE_DIR="${TARGET_DIR}/LICENSES"
+
+          mkdir -p "${TARGET_DIR}"
+          mkdir -p "${LICENSE_DIR}"
+
+          echo "Downloading FFmpeg..."
+          curl -L --fail --retry 3 \
+            -o /tmp/ffmpeg.zip \
+            "${FFMPEG_URL}"
+
+          echo "Extracting FFmpeg..."
+          unzip -q /tmp/ffmpeg.zip -d /tmp
+
+          FFMPEG_DIR="$(find /tmp -maxdepth 1 -type d -name 'ffmpeg-*' | head -n 1)"
+
+          if [ -z "${FFMPEG_DIR}" ]; then
+            echo "FFmpeg directory not found."
+            exit 1
+          fi
+
+          cp "${FFMPEG_DIR}/bin/ffmpeg.exe" "${TARGET_DIR}/ffmpeg.exe"
+          cp "${FFMPEG_DIR}/bin/ffprobe.exe" "${TARGET_DIR}/ffprobe.exe"
+
+          echo "Downloading FFmpeg licenses..."
+          find "${FFMPEG_DIR}" -type f \
+            \( -iname 'LICENSE*' -o -iname 'COPYING*' -o -iname 'NOTICE*' \) \
+            -exec sh -c 'cp "$1" "'"${LICENSE_DIR}"'/ffmpeg-$(basename "$1")"' _ {} \;
+
+          echo "Downloading yt-dlp..."
+          curl -L --fail --retry 3 \
+            -o "${TARGET_DIR}/yt-dlp.exe" \
+            "${YTDLP_URL}"
+
+          YTDLP_VERSION="$(curl -fsSL --retry 3 --retry-delay 2 \
+            https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest |
+            sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p')"
+
+          if [ -z "${YTDLP_VERSION}" ]; then
+            echo "Unable to determine yt-dlp version."
+            exit 1
+          fi
+
+          echo "yt-dlp version: ${YTDLP_VERSION}"
+
+          echo "Downloading yt-dlp licenses..."
+          curl -L --fail --retry 3 \
+            -o "${LICENSE_DIR}/yt-dlp-LICENSE.txt" \
+            "https://raw.githubusercontent.com/yt-dlp/yt-dlp/${YTDLP_VERSION}/LICENSE"
+
+          curl -L --fail --retry 3 \
+            -o "${LICENSE_DIR}/yt-dlp-THIRD_PARTY_LICENSES.txt" \
+            "https://raw.githubusercontent.com/yt-dlp/yt-dlp/${YTDLP_VERSION}/THIRD_PARTY_LICENSES.txt"
+
+          echo "Creating Elengrab license..."
+          cp LICENSE "${LICENSE_DIR}/elengrab-LICENSE.txt"
+
       - name: Build
         run: |
           SUFFIX=""
@@ -101,7 +252,7 @@ jobs:
 
           TARGET_DIR="dist/${{ matrix.goos }}-${{ matrix.goarch }}"
           mkdir -p "${TARGET_DIR}"
-                    
+
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} CGO_ENABLED=0 \
             go build -tags embed_assets \
             -o "${TARGET_DIR}/elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.arch_name }}${{ matrix.ext }}" ./cmd/server
@@ -122,6 +273,40 @@ jobs:
             tar -czf elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.arch_name }}.tar.gz elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.arch_name }}${{ matrix.ext }}
           fi
 
+      - name: Create Linux bundle
+        if: matrix.goos == 'linux'
+        shell: bash
+        run: |
+          TARGET_DIR="dist/${{ matrix.goos }}-${{ matrix.goarch }}"
+          BINARY="elengrab-${{ matrix.os_name }}-${{ matrix.arch_name }}"
+          BUNDLE="elengrab-${{ matrix.os_name }}-${{ matrix.arch_name }}-bundle.tar.gz"
+
+          cd "${TARGET_DIR}"
+
+          tar -czf "${BUNDLE}" \
+            "${BINARY}" \
+            ffmpeg \
+            ffprobe \
+            yt-dlp \
+            LICENSES
+
+      - name: Create Windows bundle
+        if: matrix.goos == 'windows'
+        shell: bash
+        run: |
+          TARGET_DIR="dist/${{ matrix.goos }}-${{ matrix.goarch }}"
+          BINARY="elengrab-${{ steps.version.outputs.version }}-${{ matrix.os_name }}-${{ matrix.arch_name }}.exe"
+          BUNDLE="elengrab-${{ steps.version.outputs.version }}-${{ matrix.os_name }}-${{ matrix.arch_name }}-bundle.zip"          
+
+          cd "${TARGET_DIR}"
+
+          zip -r "${BUNDLE}" \
+            "${BINARY}" \
+            ffmpeg.exe \
+            ffprobe.exe \
+            yt-dlp.exe \
+            LICENSES
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
@@ -130,7 +315,7 @@ jobs:
 
   publish:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
 
@@ -209,13 +394,23 @@ jobs:
           path: dist/darwin-arm64
           
       - name: Publish Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.release_tag.outputs.tag }}
           name: ${{ steps.release_name.outputs.name }}
           body: ${{ steps.notes.outputs.BODY }}
           prerelease: ${{ github.event.inputs.prerelease }}
           draft: false
-          files: dist/**/*
+          files: |
+            dist/linux-amd64/elengrab-linux-amd64
+            dist/linux-amd64/elengrab-linux-*.gz
+            dist/linux-arm64/elengrab-linux-arm64
+            dist/linux-arm64/elengrab-linux-*.gz
+            dist/windows-amd64/elengrab-*.exe
+            dist/windows-amd64/elengrab-*.zip
+            dist/darwin-amd64/elengrab-*-mac-x64
+            dist/darwin-amd64/elengrab-*.zip
+            dist/darwin-arm64/elengrab-*-mac-arm64
+            dist/darwin-arm64/elengrab-*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
