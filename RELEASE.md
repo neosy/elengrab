@@ -17,6 +17,9 @@
 - Added a rotating disc indicator for currently playing audio. [L160]
 - Added a pause indicator for audio playback. [L162]
 
+### 🎨 Style
+- Fixed native audio player appearance in dark theme.
+
 ### 🧩 Refactor
 - Refactored channel information storage to support multiple media sources and preserve channel data when an image is unavailable. [L140]
 - Refactored MediaDownload retrieval and view access methods. [L147]

@@ -1,4 +1,13 @@
 /* /static/css/theme-switcher.css — compact sun/moon toggle button */
+
+html {
+    color-scheme: light;
+}
+
+html.dark {
+    color-scheme: dark;
+}
+
 .theme-switcher {
     display: flex;
 }
