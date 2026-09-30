@@ -10,7 +10,7 @@
 - Thumbnail extraction — fixed thumbnail extraction from audio files by correctly handling an empty media type instead of `none`.
 
 ### 📦 Build
-- Bundled FFmpeg and yt-dlp with Linux releases.
+- Bundled FFmpeg and yt-dlp with Linux and Windows releases.
 - Added dependency licenses to release bundles.
 
 ---
