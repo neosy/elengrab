@@ -7,6 +7,7 @@
 
 ### 🐛 Fix
 - SSE updates after returning to the media list with browser Back navigation.
+- Thumbnail extraction — fixed thumbnail extraction from audio files by correctly handling an empty media type instead of `none`.
 
 ### 📦 Build
 - Bundled FFmpeg and yt-dlp with Linux releases.
