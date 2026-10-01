@@ -2,6 +2,9 @@
 
 ## v0.26.3 — 2026-10-02
 
+### ✨ Features
+- Added support for loading ICO files as site logos.
+
 ### 📦 Build
 - Added curl_cffi dependency for yt-dlp browser impersonation support.
 
