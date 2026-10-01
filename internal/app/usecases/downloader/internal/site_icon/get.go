@@ -72,6 +72,20 @@ func (uc *SiteIcon) ExistsByLogoID(ctx context.Context, logoID uuid.UUID) (bool,
 	return exists, nil
 }
 
+func (uc *SiteIcon) FindBySiteURLWithoutCache(ctx context.Context, siteURL string) (*dmedia.SiteLogo, error) {
+	if siteURL == "" {
+		return nil, nil
+	}
+
+	logo, err := uc.logoRepo().FindBySiteURL(ctx, siteURL)
+	if err != nil {
+		uc.logger.Warn("Failed get siteLogo", "error", err)
+		return nil, errorx.NewFromError(err, exceptionx.ERROR)
+	}
+
+	return logo, nil
+}
+
 // FindBySiteURL
 // Record may not exist — caller decides what to do
 func (uc *SiteIcon) FindBySiteURL(ctx context.Context, siteURL string) (*dmedia.SiteLogo, error) {
@@ -87,10 +101,9 @@ func (uc *SiteIcon) FindBySiteURL(ctx context.Context, siteURL string) (*dmedia.
 		return nil, nil
 	}
 
-	logo, err := uc.logoRepo().FindBySiteURL(ctx, siteURL)
+	logo, err := uc.FindBySiteURLWithoutCache(ctx, siteURL)
 	if err != nil {
-		uc.logger.Warn("Failed get siteLogo", "error", err)
-		return nil, errorx.NewFromError(err, exceptionx.ERROR)
+		return nil, err
 	}
 
 	if logo == nil {

@@ -59,7 +59,14 @@ func (uc *Executor) processDownloadResults(
 		thumbnailProcess sync.Once
 		thumbnailIDs     types.ThumbnailIDs
 		channelID        uuid.UUID
+
+		fetchChannelSiteLogoOnce sync.Once
 	)
+
+	var wg sync.WaitGroup
+	defer func() {
+		wg.Wait()
+	}()
 
 	for r := range resultCh {
 		if r == nil {
@@ -92,10 +99,19 @@ func (uc *Executor) processDownloadResults(
 			thumbnailIDs.FrameThumbnailID = state.Download.MediaInfo.FrameThumbnailID
 		}
 
+		if lastResult.Channel != nil && lastResult.Channel.URL != "" {
+			fetchChannelSiteLogoOnce.Do(func() {
+				wg.Go(func() {
+					uc.fetchAndUpdateSiteLogo(ctx, lastResult.Channel.URL)
+				})
+			})
+		}
+
 		// Adding a record to the YouTube Channel table
 		if lastResult.Channel != nil && !lastChannelSource.Equal(lastResult.Channel) {
 			lastChannelSource = lastResult.Channel
 			channelSource := lastResult.Channel
+
 			channel, _ := uc.channel.FindByExternalChannelIDNoCache(ctx, channelSource.ChannelID, channelSource.Platform)
 			if channel != nil {
 				uc.channel.Patch(ctx, channel.ChannelID,
