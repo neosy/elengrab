@@ -1,5 +1,12 @@
 # Releases
 
+## v0.26.2 — 2026-10-01
+
+### 🐛 Fix
+- Fixed migration source path handling on Windows.
+
+---
+
 ## v0.26.1 — 2026-10-01
 
 ### 🧩 Refactor
