@@ -38,6 +38,10 @@ const DOM_ELEMENTS = {
         durationRemaining: null,
         progressValue: null,
         progressBuffer: null,
+
+        isAvailable() {
+            return Boolean(this.container && this.player);
+        },
     },
 }
 
@@ -50,9 +54,16 @@ const PREVIEW_STATE = {
     currentItemId: null,
     currentVideoUrl: null,
 
-    requestId: 0,
+    updateCenteredRequestId: 0,
+    showVideoPreviewRequestId: 0,
 
     watchTracker: null,
+
+    clear() {
+        clearTimeout(this.hoverTimer);
+        this.currentItemId = null;
+        this.currentVideoUrl = null;
+    },
 };
 
 function initDomElements() {
@@ -73,7 +84,7 @@ function initDomElements() {
 export function initVideoPreview() {
     initDomElements();
 
-    if (!DOM_ELEMENTS.preview.container || !DOM_ELEMENTS.preview.player) {
+    if (!DOM_ELEMENTS.preview.isAvailable()) {
         return;
     }
 
@@ -132,29 +143,28 @@ function setWatchTrackerItemId(itemId) {
     PREVIEW_STATE.watchTracker.setItemId(itemId);
 }
 
-export function initVideoPreviewHover(container, previewElementClassName, thumbClassName) {
-    if (!container) {
+export function initVideoPreviewHover(previewAreaContainer, previewContainerClassName, thumbClassName) {
+    if (!previewAreaContainer) {
         return;
     }
 
-    container.addEventListener("mouseover", async (event) => {
-        const el = event.target.closest(`.${previewElementClassName}`);
+    previewAreaContainer.addEventListener("mouseover", async (event) => {
+        const previewContainer = event.target.closest(`.${previewContainerClassName}`);
+        const thumbnailElement = previewContainer?.querySelector(`.${thumbClassName}`);
 
-        if (!shouldShowVideoPreview(el)) return;
-
-        if (!container.contains(el)) {
+        if (!thumbnailElement) {
             return;
         }
 
-        if (event.relatedTarget && el.contains(event.relatedTarget)) {
+        if (!shouldShowVideoPreview(previewContainer)) {
             return;
         }
 
-        const itemId = el.dataset.itemId;
+        if (!previewAreaContainer.contains(previewContainer)) {
+            return;
+        }
 
-        const thumbnail = el.querySelector(`.${thumbClassName}`);
-
-        if (!thumbnail) {
+        if (event.relatedTarget && previewContainer.contains(event.relatedTarget)) {
             return;
         }
 
@@ -166,34 +176,29 @@ export function initVideoPreviewHover(container, previewElementClassName, thumbC
             }
 
             showVideoPreview(
-                thumbnail,
-                el.dataset.media,
-                itemId
+                thumbnailElement,
+                previewContainer,
             );
         }, 300);
     });
 
-    container.addEventListener("mouseout", (event) => {
+    previewAreaContainer.addEventListener("mouseout", (event) => {
         if (isMobileScreen()) return;
 
-        const el = event.target.closest(`.${previewElementClassName}`);
+        const previewContainer = event.target.closest(`.${previewContainerClassName}`);
 
-        if (!el || !container.contains(el)) {
+        if (!previewContainer || !previewAreaContainer.contains(previewContainer)) {
             return;
         }
 
-        if (event.relatedTarget && el.contains(event.relatedTarget)) {
+        if (event.relatedTarget && previewContainer.contains(event.relatedTarget)) {
             return;
         }
 
-        PREVIEW_STATE.ended = false;
-
-        clearTimeout(PREVIEW_STATE.hoverTimer);
         hideVideoPreview();
     });
 
     document.addEventListener(VIDEO_PREVIEW.playerOpenedEventName, () => {
-        clearTimeout(PREVIEW_STATE.hoverTimer);
         hideVideoPreview();
     });
 
@@ -205,12 +210,12 @@ export function initVideoPreviewHover(container, previewElementClassName, thumbC
     DOM_ELEMENTS.preview.player.addEventListener("timeupdate", updateVideoPreviewDuration);
 }
 
-export function shouldShowVideoPreview(previewElement) {
+export function shouldShowVideoPreview(previewContainer) {
     if (isMobileScreen()) {
         return false;
     }
 
-    if (!previewElement) {
+    if (!previewContainer) {
         return false;
     }
 
@@ -218,23 +223,31 @@ export function shouldShowVideoPreview(previewElement) {
         return false;
     }
 
-    if (!previewElement.classList.contains(CLASS_NAMES.rowStatus.success)) {
+    if (!previewContainer.classList.contains(CLASS_NAMES.rowStatus.success)) {
         return false;
     }
 
-    if (previewElement.dataset.isAudio === "true") {
+    if (previewContainer.dataset.isAudio === "true") {
         return false;
     }
 
-    return Boolean(previewElement.dataset.itemId && previewElement.dataset.media);
+    return Boolean(previewContainer.dataset.itemId && previewContainer.dataset.media);
 }
 
-export async function showVideoPreview(thumbnail, videoUrl, itemId) {
-    if (!DOM_ELEMENTS.preview.container || !DOM_ELEMENTS.preview.player) {
+export async function showVideoPreview(thumbnailElement, previewContainer) {
+    const videoUrl = String(previewContainer.dataset.media)
+    const itemId = String(previewContainer.dataset.itemId)
+    const requestId = ++PREVIEW_STATE.showVideoPreviewRequestId;
+
+    if (!DOM_ELEMENTS.preview.isAvailable()) {
         return;
     }
 
     const positionMs = await watchAPI.getWatchPosition(itemId);
+
+    if (requestId !== PREVIEW_STATE.showVideoPreviewRequestId) {
+        return
+    }
 
     PREVIEW_STATE.ended = false;
 
@@ -246,7 +259,7 @@ export async function showVideoPreview(thumbnail, videoUrl, itemId) {
         itemEl.classList.add(CLASS_NAMES.previewPlaying);
     }
 
-    thumbnail.appendChild(DOM_ELEMENTS.preview.container);
+    thumbnailElement.appendChild(DOM_ELEMENTS.preview.container);
 
     setWatchTrackerItemId(itemId);
 
@@ -257,6 +270,10 @@ export async function showVideoPreview(thumbnail, videoUrl, itemId) {
         await new Promise(resolve => {
             DOM_ELEMENTS.preview.player.onloadedmetadata = resolve;
         });
+    }
+
+    if (requestId !== PREVIEW_STATE.showVideoPreviewRequestId) {
+        return
     }
 
     if (positionMs < MEDIA_WATCH.startThresholdMs) {
@@ -272,6 +289,12 @@ export async function showVideoPreview(thumbnail, videoUrl, itemId) {
 
     try {
         await DOM_ELEMENTS.preview.player.play();
+
+        if (!PREVIEW_STATE.currentItemId) {
+            hideVideoPreview();
+            return
+        }
+
         DOM_ELEMENTS.preview.container.hidden = false;
     } catch (error) {
         hideVideoPreview();
@@ -280,32 +303,21 @@ export async function showVideoPreview(thumbnail, videoUrl, itemId) {
 }
 
 export function hideVideoPreview() {
-    if (!DOM_ELEMENTS.preview.container || !DOM_ELEMENTS.preview.player) {
+    if (!DOM_ELEMENTS.preview.isAvailable()) {
         return;
     }
+
+    ++PREVIEW_STATE.showVideoPreviewRequestId;
 
     const itemEl = document.getElementById(DOM_IDS.row(PREVIEW_STATE.currentItemId));
     if (itemEl) {
         itemEl.classList.remove(CLASS_NAMES.previewPlaying);
     }
 
-    PREVIEW_STATE.currentItemId = null;
-
-    DOM_ELEMENTS.preview.player.pause();
+    PREVIEW_STATE.clear();
 
     DOM_ELEMENTS.preview.container.hidden = true;
-}
-
-function setVideoPreviewPosition(element) {
-    const rect = element.getBoundingClientRect();
-
-    DOM_ELEMENTS.preview.container.style.position = "fixed";
-
-    DOM_ELEMENTS.preview.container.style.left = `${rect.left}px`;
-    DOM_ELEMENTS.preview.container.style.top = `${rect.top}px`;
-
-    DOM_ELEMENTS.preview.container.style.width = `${rect.width}px`;
-    DOM_ELEMENTS.preview.container.style.height = `${rect.height}px`;
+    DOM_ELEMENTS.preview.player.pause();
 }
 
 function updateVideoPreviewDuration() {
@@ -356,13 +368,13 @@ function formatDuration(seconds) {
             : `${minutes}:${sec}`;
 }
 
-export function initVideoPreviewScroll(container, previewElementClassName, thumbClassName) {
+export function initVideoPreviewScroll(container, previewContainerClassName, thumbClassName) {
     if (!container) {
         return;
     }
 
     const refreshPreview = (force=false) => {
-        updateVideoPreview(container, previewElementClassName, thumbClassName, force);
+        updateVideoPreview(container, previewContainerClassName, thumbClassName, force);
     };    
 
     window.addEventListener("scroll", refreshPreview, { passive: true });
@@ -374,7 +386,7 @@ export function initVideoPreviewScroll(container, previewElementClassName, thumb
     return refreshPreview;
 }
 
-function updateVideoPreview(container, previewElementClassName, thumbClassName, force=false) {
+function updateVideoPreview(container, previewContainerClassName, thumbClassName, force=false) {
     if (!isMobileScreen()) {
         return;
     }
@@ -392,7 +404,7 @@ function updateVideoPreview(container, previewElementClassName, thumbClassName, 
     clearTimeout(PREVIEW_STATE.scrollTimer);
 
     PREVIEW_STATE.scrollTimer = setTimeout(() => {
-        updateCenteredPreview(container, previewElementClassName, thumbClassName);
+        updateCenteredPreview(container, previewContainerClassName, thumbClassName);
     }, 120);
 }
 
@@ -402,52 +414,51 @@ function isElementInViewport(element) {
     return rect.bottom > 0 && rect.top < window.innerHeight;
 }
 
-async function updateCenteredPreview(container, previewElementClassName, thumbClassName) {
-    const element = findCenteredElement(container, previewElementClassName);
+async function updateCenteredPreview(container, previewContainerClassName, thumbClassName) {
+    const previewContainer = findCenteredElement(container, previewContainerClassName);
 
-    if (!element) {
+    if (!previewContainer) {
         hideVideoPreview();
         return;
     }
 
-    if (!element.classList.contains(CLASS_NAMES.rowStatus.success)) {
+    if (!previewContainer.classList.contains(CLASS_NAMES.rowStatus.success)) {
         return;
     }
 
-    const itemId = element.dataset.itemId;
+    const itemId = previewContainer.dataset.itemId;
 
     if (itemId === PREVIEW_STATE.currentItemId) {
         return;
     }
 
-    const requestId = ++PREVIEW_STATE.requestId;
+    const requestId = ++PREVIEW_STATE.updateCenteredRequestId;
 
     hideVideoPreview();
 
     // While waiting for a response, the user has already scrolled through the list.
-    if (requestId !== PREVIEW_STATE.requestId) {
+    if (requestId !== PREVIEW_STATE.updateCenteredRequestId) {
         return;
     }
 
-    const thumbnail = element.querySelector(`.${thumbClassName}`);
+    const thumbnail = previewContainer.querySelector(`.${thumbClassName}`);
     if (!thumbnail) {
         return;
     }
 
     await showVideoPreview(
         thumbnail,
-        element.dataset.media,
-        itemId
+        previewContainer,
     );
 }
 
-function findCenteredElement(container, previewElementClassName) {
+function findCenteredElement(container, previewContainerClassName) {
     const viewportCenter = window.innerHeight / 2;
 
     let bestElement = null;
     let bestDistance = Number.MAX_VALUE;
 
-    const items = container.querySelectorAll(`.${previewElementClassName}`);
+    const items = container.querySelectorAll(`.${previewContainerClassName}`);
 
     for (const item of items) {
         if (item.dataset.isAudio === "true") {
