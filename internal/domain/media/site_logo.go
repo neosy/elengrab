@@ -41,6 +41,19 @@ func NewSiteLogo(siteURL string, siteTitle string, imgData *dtypes.ImageData) *S
 	return siteLogo
 }
 
+// Equal checks if two SiteLogo records are equal based on their fields.
+func (l *SiteLogo) Equal(other *SiteLogo) bool {
+	if l == nil || other == nil {
+		return l == other
+	}
+
+	return l.SiteURL == other.SiteURL &&
+		l.SiteTitle == other.SiteTitle &&
+		l.ImageURL == other.ImageURL &&
+		bytes.Equal(l.ImageRaw, other.ImageRaw) &&
+		l.ImageFormat == other.ImageFormat
+}
+
 // SetRequired sets the required fields for a SiteLogo record.
 func (l *SiteLogo) SetRequired(siteURL string, siteTitle string, imgData *dtypes.ImageData) {
 	l.SiteURL = siteURL

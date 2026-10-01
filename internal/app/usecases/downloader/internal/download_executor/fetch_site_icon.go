@@ -9,10 +9,10 @@ import (
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
-func (uc *Executor) fetchIcon(ctx context.Context, url string) error {
+func (uc *Executor) fetchAndUpdateSiteLogo(ctx context.Context, url string) error {
 	baseURL := httpx.BaseURL(url)
 
-	logo, err := uc.siteIcon.FindBySiteURL(ctx, baseURL)
+	logo, err := uc.siteIcon.FindBySiteURLWithoutCache(ctx, baseURL)
 	if err != nil {
 		return err
 	}
@@ -21,11 +21,36 @@ func (uc *Executor) fetchIcon(ctx context.Context, url string) error {
 		return nil
 	}
 
+	fetchedLogo, err := uc.fetchSiteLog(ctx, baseURL)
+	if err != nil {
+		return err
+	}
+
+	if fetchedLogo == nil {
+		return nil
+	}
+
+	if logo != nil {
+		if logo.Equal(fetchedLogo) {
+			return nil
+		}
+
+		logo.SetRequired(baseURL, fetchedLogo.SiteTitle, fetchedLogo.ImageData())
+
+		return uc.siteIcon.Update(ctx, logo)
+	}
+
+	logo = dmedia.NewSiteLogo(baseURL, fetchedLogo.SiteTitle, fetchedLogo.ImageData())
+
+	return uc.siteIcon.Create(ctx, logo)
+}
+
+func (uc *Executor) fetchSiteLog(ctx context.Context, url string) (*dmedia.SiteLogo, error) {
 	// Fetch the site title.
 	startTime := time.Now()
 	title, err := httpx.FetchTitle(
 		ctx,
-		baseURL,
+		url,
 		httpx.ClientOptionWithTimeout(getHTMLTimeout),
 		httpx.ClientOptionWithDefaultCookieJar(),
 	)
@@ -33,7 +58,7 @@ func (uc *Executor) fetchIcon(ctx context.Context, url string) error {
 	if err != nil {
 		uc.logger.Debug(
 			"Failed to fetch site title",
-			"baseURL", baseURL,
+			"url", url,
 			"elapsed", uformat.DurationFormat(elapsed),
 			"error", err)
 	}
@@ -41,48 +66,32 @@ func (uc *Executor) fetchIcon(ctx context.Context, url string) error {
 		uc.logger.Debug(
 			"Site title fetched",
 			"title", title,
-			"baseURL", baseURL,
+			"url", url,
 			"elapsed", uformat.DurationFormat(elapsed),
 		)
 	}
 
 	// Fetch the best icon.
 	startTime = time.Now()
-	image, err := uc.siteIconFetcher.FetchBestIcon(ctx, baseURL)
+	image, err := uc.siteIconFetcher.FetchBestIcon(ctx, url)
 	elapsed = time.Since(startTime)
 	if err != nil {
 		uc.logger.Warn(
 			"Failed to fetch icon",
-			"url", baseURL,
+			"url", url,
 			"elapsed", uformat.DurationFormat(elapsed),
 			"error", err,
 		)
-		return err
+		return nil, err
 	}
 	uc.logger.Debug(
 		"Best icon fetched",
-		"url", baseURL,
+		"url", url,
 		"elapsed", uformat.DurationFormat(elapsed),
 	)
 
-	// Update existing logo if it's outdated.
-	if logo != nil {
-		logo.SetRequired(baseURL, title, image)
-
-		err := uc.siteIcon.Update(ctx, logo)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
-
 	// Create new siteLogo
-	logo = dmedia.NewSiteLogo(baseURL, title, image)
+	logo := dmedia.NewSiteLogo(url, title, image)
 
-	err = uc.siteIcon.Create(ctx, logo)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return logo, nil
 }

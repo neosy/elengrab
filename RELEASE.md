@@ -7,8 +7,9 @@
 
 ### 🐛 Fix
 - SSE updates after returning to the media list with browser Back navigation.
-- Thumbnail extraction — fixed thumbnail extraction from audio files by correctly handling an empty media type instead of `none`.
-- Video preview — fixed an issue where a video preview could continue playing after the mouse cursor left the media item.
+- Thumbnail extraction - fixed thumbnail extraction from audio files by correctly handling an empty media type instead of `none`.
+- Video preview - fixed an issue where a video preview could continue playing after the mouse cursor left the media item.
+- Channel site logos - fixed site logo fetching for channels.
 
 ### 📦 Build
 - Bundled FFmpeg and yt-dlp with Linux and Windows releases.

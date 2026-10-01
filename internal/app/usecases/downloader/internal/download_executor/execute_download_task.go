@@ -35,7 +35,7 @@ func (uc *Executor) ExecuteDownloadTask(
 	}()
 
 	wg.Go(func() {
-		uc.fetchIcon(ctx, task.MediaUrl)
+		uc.fetchAndUpdateSiteLogo(ctx, task.MediaUrl)
 	})
 
 	resultCh, err := uc.startDownload(ctx, task)
