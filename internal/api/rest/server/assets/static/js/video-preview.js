@@ -298,7 +298,6 @@ export async function showVideoPreview(thumbnailElement, previewContainer) {
         DOM_ELEMENTS.preview.container.hidden = false;
     } catch (error) {
         hideVideoPreview();
-        console.debug("Video preview play failed", error);
     }
 }
 
@@ -373,8 +372,12 @@ export function initVideoPreviewScroll(container, previewContainerClassName, thu
         return;
     }
 
-    const refreshPreview = (force=false) => {
+    const refreshPreviewWithForce = (force=false) => {
         updateVideoPreview(container, previewContainerClassName, thumbClassName, force);
+    };    
+
+    const refreshPreview = () => {
+        refreshPreviewWithForce(false);
     };    
 
     window.addEventListener("scroll", refreshPreview, { passive: true });
@@ -383,7 +386,7 @@ export function initVideoPreviewScroll(container, previewContainerClassName, thu
     // We launch it immediately after opening the page.
     refreshPreview();
 
-    return refreshPreview;
+    return refreshPreviewWithForce;
 }
 
 function updateVideoPreview(container, previewContainerClassName, thumbClassName, force=false) {
@@ -392,10 +395,7 @@ function updateVideoPreview(container, previewContainerClassName, thumbClassName
     }
 
     if (PREVIEW_STATE.currentItemId) {
-        const element = document.getElementById(
-            DOM_IDS.row(PREVIEW_STATE.currentItemId)
-        );
-
+        const element = document.getElementById(DOM_IDS.row(PREVIEW_STATE.currentItemId));
         if (force || !element || !isElementInViewport(element)) {
             hideVideoPreview();
         }
