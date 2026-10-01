@@ -21,7 +21,7 @@ ARG APP_DIR=/app_n
 ARG INSTALL_DENO=false
 
     # Install packages
-RUN apk add --no-cache tzdata su-exec curl dcron python3 ffmpeg
+RUN apk add --no-cache tzdata su-exec curl dcron python3 py3-pip ffmpeg
 
     # Install yt-dlp dependencies
 RUN pip3 install --no-cache-dir --break-system-packages curl_cffi
