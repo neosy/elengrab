@@ -396,7 +396,9 @@ function updateVideoPreview(container, previewContainerClassName, thumbClassName
 
     if (PREVIEW_STATE.currentItemId) {
         const element = document.getElementById(DOM_IDS.row(PREVIEW_STATE.currentItemId));
-        if (force || !element || !isElementInViewport(element)) {
+
+        // Stop the current preview when less than 60% is visible.
+        if (force || !element || !isElementVisibleEnough(element)) {
             hideVideoPreview();
         }
     }
@@ -452,6 +454,22 @@ async function updateCenteredPreview(container, previewContainerClassName, thumb
     );
 }
 
+function isElementVisibleEnough(element, threshold = 0.6) {
+    const rect = element.getBoundingClientRect();
+
+    // Completely off-screen.
+    if (rect.bottom <= 0 || rect.top >= window.innerHeight) {
+        return false;
+    }
+
+    const visibleHeight =
+        Math.min(rect.bottom, window.innerHeight) -
+        Math.max(rect.top, 0);
+
+    // More than 60% visible.
+    return visibleHeight >= rect.height * threshold;
+}
+
 function findCenteredElement(container, previewContainerClassName) {
     const viewportCenter = window.innerHeight / 2;
 
@@ -467,17 +485,8 @@ function findCenteredElement(container, previewContainerClassName) {
 
         const rect = item.getBoundingClientRect();
 
-        // Completely off-screen.
-        if (rect.bottom <= 0 || rect.top >= window.innerHeight) {
-            continue;
-        }
-
-        // Less than 40% visible.
-        const visibleHeight =
-            Math.min(rect.bottom, window.innerHeight) -
-            Math.max(rect.top, 0);
-
-        if (visibleHeight < rect.height * 0.4) {
+        // Less than 60% visible.
+        if (!isElementVisibleEnough(item, 0.6)) {
             continue;
         }
 

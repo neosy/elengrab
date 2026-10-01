@@ -9,6 +9,7 @@
 - SSE updates after returning to the media list with browser Back navigation.
 - Thumbnail extraction - fixed thumbnail extraction from audio files by correctly handling an empty media type instead of `none`.
 - Video preview - fixed an issue where a video preview could continue playing after the mouse cursor left the media item.
+- Video preview — stopped playback when less than 60% of the media item is visible.
 - Channel site logos - fixed site logo fetching for channels.
 
 ### 📦 Build
