@@ -1,6 +1,6 @@
 # Releases
 
-## v0.26.1 — 2026-09-30
+## v0.26.1 — 2026-10-01
 
 ### 🧩 Refactor
 - Adjusted startup logging levels to avoid duplicate error messages and preserve detailed initialization context. [L164]
@@ -8,6 +8,7 @@
 ### 🐛 Fix
 - SSE updates after returning to the media list with browser Back navigation.
 - Thumbnail extraction — fixed thumbnail extraction from audio files by correctly handling an empty media type instead of `none`.
+- Video preview — fixed an issue where a video preview could continue playing after the mouse cursor left the media item.
 
 ### 📦 Build
 - Bundled FFmpeg and yt-dlp with Linux and Windows releases.

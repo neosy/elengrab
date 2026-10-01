@@ -1,5 +1,10 @@
 import { MEDIA_WATCH, API_PATH_TEMPLATES } from './constants.js';
 
+/**
+ * Gets the saved watch position for a media item.
+ *
+ * @param {string} itemId - Media item ID.
+ */
 export async function getWatchPosition(itemId) {
     if (!itemId) return 0;
 
