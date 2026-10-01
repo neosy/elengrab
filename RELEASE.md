@@ -1,5 +1,12 @@
 # Releases
 
+## v0.26.3 — 2026-10-02
+
+### 📦 Build
+- Added curl_cffi dependency for yt-dlp browser impersonation support.
+
+---
+
 ## v0.26.2 — 2026-10-01
 
 ### 🐛 Fix
