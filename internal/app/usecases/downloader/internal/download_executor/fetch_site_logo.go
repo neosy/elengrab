@@ -21,7 +21,7 @@ func (uc *Executor) fetchAndUpdateSiteLogo(ctx context.Context, url string) erro
 		return nil
 	}
 
-	fetchedLogo, err := uc.fetchSiteLog(ctx, baseURL)
+	fetchedLogo, err := uc.fetchSiteLogo(ctx, baseURL)
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func (uc *Executor) fetchAndUpdateSiteLogo(ctx context.Context, url string) erro
 	return uc.siteIcon.Create(ctx, logo)
 }
 
-func (uc *Executor) fetchSiteLog(ctx context.Context, url string) (*dmedia.SiteLogo, error) {
+func (uc *Executor) fetchSiteLogo(ctx context.Context, url string) (*dmedia.SiteLogo, error) {
 	// Fetch the site title.
 	startTime := time.Now()
 	title, err := httpx.FetchTitle(

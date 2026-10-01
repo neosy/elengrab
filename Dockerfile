@@ -23,6 +23,9 @@ ARG INSTALL_DENO=false
     # Install packages
 RUN apk add --no-cache tzdata su-exec curl dcron python3 ffmpeg
 
+    # Install yt-dlp dependencies
+RUN pip3 install --no-cache-dir --break-system-packages curl_cffi
+
     # Download and install yt-dlp binary
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
     && chmod a+rx /usr/local/bin/yt-dlp
