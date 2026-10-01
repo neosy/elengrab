@@ -106,6 +106,11 @@ func ExtensionByContentType(contentType string) string {
 		}
 	}
 
+	switch mediaType {
+	case "image/x-icon", "image/vnd.microsoft.icon":
+		return "ico"
+	}
+
 	exts, err := mime.ExtensionsByType(mediaType)
 	if err != nil || len(exts) == 0 {
 		return "" // unknown content type
