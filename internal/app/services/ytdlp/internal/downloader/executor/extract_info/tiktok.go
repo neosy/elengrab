@@ -13,7 +13,7 @@ func processTikTok(info *idto.ExtractInfo) {
 		info.ChannelURL = info.UploaderURL
 	}
 
-	info.ParsedChannel.Title = info.Uploader
-	info.ParsedChannel.Username = info.UploaderID
+	info.ParsedChannel.Title = info.Channel
+	info.ParsedChannel.Username = info.Uploader
 	info.ParsedChannel.UsernameURL = info.UploaderURL
 }
