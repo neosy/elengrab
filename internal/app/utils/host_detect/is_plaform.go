@@ -27,11 +27,6 @@ var (
 		"vm.tiktok.com": {},
 	})
 
-	X = makeIsPlatform("x.com", map[string]struct{}{
-		"x.com": {}, "www.x.com": {}, "mobile.x.com": {},
-		"twitter.com": {}, "www.twitter.com": {}, "mobile.twitter.com": {},
-	})
-
 	Facebook = makeIsPlatform("facebook.com", map[string]struct{}{
 		"facebook.com": {}, "www.facebook.com": {},
 		"m.facebook.com": {}, "fb.watch": {},
@@ -39,9 +34,17 @@ var (
 
 	Instagram = makeIsPlatform("instagram.com", map[string]struct{}{
 		"instagram.com": {}, "www.instagram.com": {}, "m.instagram.com": {},
-		"instagr.am":      {},
-		"l.instagram.com": {},
-		"www.instagr.am":  {},
+		"instagr.am": {}, "www.instagr.am": {}, "l.instagram.com": {},
+	})
+
+	X = makeIsPlatform("x.com", map[string]struct{}{
+		"x.com": {}, "www.x.com": {}, "mobile.x.com": {},
+		"twitter.com": {}, "www.twitter.com": {}, "mobile.twitter.com": {},
+	})
+
+	Reddit = makeIsPlatform("reddit.com", map[string]struct{}{
+		"reddit.com": {}, "www.reddit.com": {},
+		"old.reddit.com": {}, "sh.reddit.com": {},
 	})
 
 	Rutube = makeIsPlatform("rutube.ru", map[string]struct{}{

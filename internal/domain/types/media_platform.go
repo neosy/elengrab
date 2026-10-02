@@ -18,6 +18,7 @@ const (
 	MediaPlatformTypeTikTok
 	MediaPlatformTypeVimeo
 	MediaPlatformTypeX
+	MediaPlatformTypeReddit
 	MediaPlatformTypeRutube
 	MediaPlatformTypeVKVideo
 )
@@ -31,6 +32,7 @@ var (
 		MediaPlatformTypeTikTok:    "tiktok",
 		MediaPlatformTypeVimeo:     "vimeo",
 		MediaPlatformTypeX:         "x",
+		MediaPlatformTypeReddit:    "reddit",
 		MediaPlatformTypeRutube:    "rutube",
 		MediaPlatformTypeVKVideo:   "vkvideo",
 	}
@@ -43,6 +45,7 @@ var (
 		MediaPlatformTypeTikTok:    "TikTok",
 		MediaPlatformTypeVimeo:     "Vimeo",
 		MediaPlatformTypeX:         "X",
+		MediaPlatformTypeReddit:    "Reddit",
 		MediaPlatformTypeRutube:    "RuTube",
 		MediaPlatformTypeVKVideo:   "VK Видео",
 	}
@@ -55,6 +58,7 @@ var (
 		"tiktok":    MediaPlatformTypeTikTok,
 		"vimeo":     MediaPlatformTypeVimeo,
 		"x":         MediaPlatformTypeX,
+		"reddit":    MediaPlatformTypeReddit,
 		"rutube":    MediaPlatformTypeRutube,
 		"vkvideo":   MediaPlatformTypeVKVideo,
 	}

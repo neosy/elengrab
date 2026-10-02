@@ -8,7 +8,7 @@
 ### 🐛 Fix
 - Fixed TikTok channel username and title detection.
 - Stopped active video previews before updating media rows.
-- Fixed incomplete channel data loading for VK Video.
+- Fixed incomplete channel data loading for Reddit and VK Video.
 - Allowed saving channel information when the channel URL is unavailable.
 
 ### 📦 Build

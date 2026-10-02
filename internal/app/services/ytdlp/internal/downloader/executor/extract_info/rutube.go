@@ -7,7 +7,7 @@ import (
 )
 
 func processRuTube(info *idto.ExtractInfo) {
-	if info.ChannelID == "" && info.UploaderID != "" {
+	if info.ChannelID == "" {
 		info.ChannelID = info.UploaderID
 	}
 

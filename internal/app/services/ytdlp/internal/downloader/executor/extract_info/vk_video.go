@@ -13,8 +13,7 @@ func processVKVideo(mediaURL string, info *idto.ExtractInfo) {
 	}
 
 	if info.ChannelID != "" {
-		username := "club" + info.ChannelID
-		info.ParsedChannel.Username = username
+		info.ParsedChannel.Username = "club" + info.ChannelID
 	}
 
 	if info.ParsedChannel.Username != "" {
