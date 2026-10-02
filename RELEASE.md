@@ -5,6 +5,9 @@
 ### ✨ Features
 - Added support for loading ICO files as site logos.
 
+### 🧩 Refactor
+- Organized z-index ranges for UI components.
+
 ### 🐛 Fix
 - Fixed TikTok channel username and title detection.
 - Stopped active video previews before updating media rows.

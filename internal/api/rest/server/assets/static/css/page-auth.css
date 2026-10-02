@@ -15,7 +15,7 @@ body {
     position: absolute;
     top: 16px;
     right: 16px;
-    z-index: 1000;
+    z-index: 100;
     gap: 8px;
 }
 

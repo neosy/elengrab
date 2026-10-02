@@ -6,7 +6,7 @@
 
     align-items: center;
     justify-content: center;
-    z-index: 9999;
+    z-index: 200;
     
     inset: 0;
     background: rgba(0,0,0,0.82);
@@ -78,7 +78,7 @@
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 10000;
+    z-index: 200;
 }
 
 .media-player__audio .media-player__wrapper {

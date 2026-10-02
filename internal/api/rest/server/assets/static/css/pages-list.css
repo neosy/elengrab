@@ -86,7 +86,7 @@ html, body {
     height: var(--header-height);
     max-width: var(--header-max-width);
     width: var(--header-width);
-    z-index: 1000;
+    z-index: 100;
 
     position: fixed;
     top: 0;
