@@ -1,4 +1,4 @@
-import { ICON_PASTE, ICON_CLEAR, STORAGE_KEYS } from './constants.js';
+import { ICONS, STORAGE_KEYS } from './constants.js';
 import StorageState from './storage-state.js';
 
 // -------------------------------------------------------------
@@ -58,7 +58,7 @@ export async function updateInputPasteClearButton(input, btn) {
             btn.style.display = '';
         }
 
-        setIcon(btn, ICON_PASTE, 'Paste from clipboard');
+        setIcon(btn, ICONS.paste, 'Paste from clipboard');
         btn.dataset.state = 'paste';
 
         btn.onclick = async () => {
@@ -76,7 +76,7 @@ export async function updateInputPasteClearButton(input, btn) {
     } else {
         // Clear button
         btn.style.display = '';
-        setIcon(btn, ICON_CLEAR, 'Clear input');
+        setIcon(btn, ICONS.clear, 'Clear input');
         btn.dataset.state = 'clear';
 
         btn.onclick = () => {

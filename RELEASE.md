@@ -7,6 +7,7 @@
 
 ### 🐛 Fix
 - Fixed TikTok channel username and title detection.
+- Stopped active video previews before updating media rows.
 
 ### 📦 Build
 - Added curl_cffi dependency for yt-dlp browser impersonation support.
