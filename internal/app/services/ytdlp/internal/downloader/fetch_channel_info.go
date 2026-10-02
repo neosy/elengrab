@@ -45,7 +45,7 @@ func (d *Downloader) FetchChannelInfo(
 		return nil, nil
 	}
 
-	channel := d.buildChannel(info)
+	channel := d.buildChannel(mediaURL, info)
 
 	return channel, nil
 }
@@ -92,7 +92,7 @@ func (d *Downloader) FetchChannelInfoWithCookieFallback(
 		return nil, nil
 	}
 
-	channel := d.buildChannel(info)
+	channel := d.buildChannel(mediaURL, info)
 
 	if info.ChannelURL != "" {
 		cookieFilePath, _ := getCookieFilePath()

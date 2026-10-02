@@ -70,7 +70,7 @@ func (d *Downloader) prepareDownload(
 		fileSize = &tmpSize
 	}
 
-	channel := d.buildChannel(downloadPlan.ExtractInfo)
+	channel := d.buildChannel(rawURL, downloadPlan.ExtractInfo)
 
 	meta := &idto.DownloadMeta{
 		URL:          rawURL,

@@ -26,6 +26,18 @@ func (c *ChannelSource) Clone() *ChannelSource {
 	return &channel
 }
 
+func (c *ChannelSource) IsValid() bool {
+	if c == nil {
+		return false
+	}
+
+	if c.ChannelID == "" || c.Platform == "" || c.Host == "" {
+		return false
+	}
+
+	return true
+}
+
 func (c *ChannelSource) Equal(other *ChannelSource) bool {
 	if c == nil || other == nil {
 		return c == other
