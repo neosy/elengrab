@@ -108,7 +108,7 @@ func (uc *Executor) processDownloadResults(
 		}
 
 		// Adding a record to the YouTube Channel table
-		if lastResult.Channel != nil && !lastChannelSource.Equal(lastResult.Channel) {
+		if lastResult.Channel.IsValid() && !lastChannelSource.Equal(lastResult.Channel) {
 			lastChannelSource = lastResult.Channel
 			channelSource := lastResult.Channel
 

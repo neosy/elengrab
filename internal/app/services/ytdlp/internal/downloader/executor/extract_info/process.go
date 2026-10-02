@@ -6,8 +6,8 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-func Process(url string, info *idto.ExtractInfo) {
-	platformType := hostdetect.DetectPlatformType(url)
+func Process(mediaURL string, info *idto.ExtractInfo) {
+	platformType := hostdetect.DetectPlatformType(mediaURL)
 
 	switch platformType {
 	case dtypes.MediaPlatformTypeInstagram:
@@ -23,7 +23,7 @@ func Process(url string, info *idto.ExtractInfo) {
 	case dtypes.MediaPlatformTypeRutube:
 		processRuTube(info)
 	case dtypes.MediaPlatformTypeVKVideo:
-		processVKVideo(info)
+		processVKVideo(mediaURL, info)
 	default:
 		if info.ChannelURL == "" && info.UploaderURL != "" {
 			info.ChannelURL = info.UploaderURL

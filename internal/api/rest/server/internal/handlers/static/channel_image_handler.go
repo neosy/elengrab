@@ -34,8 +34,8 @@ func (h *StaticHandlers) ChannelImageHandler(ctx *fasthttp.RequestCtx) {
 		image = (*dtypes.ImageData)(channel.Image)
 	}
 
-	if image.IsZero() {
-		image, _ = h.downloader.GetSiteImage(ctx, channel.ChannelURL)
+	if image.IsZero() && channel.SiteURL() != "" {
+		image, _ = h.downloader.GetSiteImage(ctx, channel.SiteURL())
 	}
 
 	if !image.IsZero() {

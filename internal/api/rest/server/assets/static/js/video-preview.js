@@ -1,10 +1,10 @@
 import * as watchAPI from './watch-api.js';
-import { CLASS_NAMES as CONST_CLASS_NAMES, MEDIA_WATCH, VIDEO_PREVIEW, EVENT_NAMES } from './constants.js';
+import { CLASS_NAMES as CONST_CLASS_NAMES, MEDIA_WATCH, EVENT_NAMES } from './constants.js';
 import { isMobileScreen } from './browser.js';
 
 const CLASS_NAMES = {
     ...CONST_CLASS_NAMES,
-    
+
     soundOff: "video-preview__sound-off",
     soundOn: "video-preview__sound-on",
 

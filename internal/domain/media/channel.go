@@ -152,10 +152,6 @@ func (c *Channel) Validate() error {
 		return errors.New("channel platform is empty")
 	}
 
-	if c.ChannelURL == "" {
-		return errors.New("channel URL is empty")
-	}
-
 	if c.Host == "" {
 		return errors.New("channel host is empty")
 	}
@@ -203,4 +199,24 @@ func (c *Channel) PlatformType() dtypes.MediaPlatformType {
 	}
 
 	return platform
+}
+
+func (c *Channel) SiteURL() string {
+	if c == nil {
+		return ""
+	}
+
+	if c.ChannelURL != "" {
+		return c.ChannelURL
+	}
+
+	if c.UsernameURL != "" {
+		return c.UsernameURL
+	}
+
+	if c.Host != "" {
+		return "https://" + c.Host
+	}
+
+	return ""
 }

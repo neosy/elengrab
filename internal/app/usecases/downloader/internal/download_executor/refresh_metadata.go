@@ -147,7 +147,7 @@ func (uc *Executor) collectMetadata(
 		)
 	}
 
-	if channelSource != nil && channelSource.ChannelID != "" && channelSource.Platform != "" {
+	if channelSource.IsValid() {
 		var channelID uuid.UUID
 		channel, _ := uc.channel.FindByExternalChannelIDNoCache(ctx, channelSource.ChannelID, channelSource.Platform)
 		if channel != nil {
@@ -156,9 +156,7 @@ func (uc *Executor) collectMetadata(
 					if c.EqualSource(channelSource) {
 						return nil
 					}
-
 					c.UpdateFromSource(channelSource)
-
 					return nil
 				},
 			)

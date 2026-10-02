@@ -13,28 +13,57 @@ import (
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )
 
-func (d *Downloader) buildChannel(extractInfo *idto.ExtractInfo) *dtypes.ChannelSource {
-	if extractInfo == nil || extractInfo.ChannelURL == "" {
+func (d *Downloader) buildChannel(mediaURL string, extractInfo *idto.ExtractInfo) *dtypes.ChannelSource {
+	if extractInfo == nil {
 		return nil
 	}
 
-	parsedURL, err := url.Parse(extractInfo.ChannelURL)
-	if err != nil {
+	if extractInfo.ChannelURL == "" && mediaURL == "" {
 		return nil
 	}
 
-	return &dtypes.ChannelSource{
+	var platform string
+	if extractInfo.ChannelURL != "" {
+		platform = hostdetect.DetectPlatformName(extractInfo.ChannelURL)
+	} else {
+		platform = hostdetect.DetectPlatformName(mediaURL)
+	}
+
+	if platform == "" {
+		return nil
+	}
+
+	var channelHost string
+	if extractInfo.ChannelURL != "" {
+		parsedURL, err := url.Parse(extractInfo.ChannelURL)
+		if err == nil {
+			channelHost = parsedURL.Host
+		}
+	} else {
+		parsedURL, err := url.Parse(mediaURL)
+		if err == nil {
+			channelHost = parsedURL.Host
+		}
+	}
+
+	channelSource := &dtypes.ChannelSource{
 		ChannelID: extractInfo.ChannelID,
-		Platform:  hostdetect.DetectPlatformName(extractInfo.ChannelURL),
+		Platform:  platform,
 
 		URL:  extractInfo.ChannelURL,
-		Host: parsedURL.Host,
+		Host: channelHost,
 
 		Username:    extractInfo.ParsedChannel.Username,
 		UsernameURL: extractInfo.ParsedChannel.UsernameURL,
 
 		Title: extractInfo.ParsedChannel.Title,
 	}
+
+	if channelSource.IsValid() {
+		return channelSource
+	}
+
+	return nil
 }
 
 func (d *Downloader) fetchChannelImage(
