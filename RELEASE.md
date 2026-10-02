@@ -10,6 +10,7 @@
 - Stopped active video previews before updating media rows.
 - Fixed incomplete channel data loading for Reddit and VK Video.
 - Allowed saving channel information when the channel URL is unavailable.
+- Fixed audio player closing when opening the menu.
 
 ### 📦 Build
 - Added curl_cffi dependency for yt-dlp browser impersonation support.

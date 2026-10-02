@@ -94,7 +94,7 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
 
     if (!videoContainer || !audioContainer) return;
     
-    const playerHash        = "#player"
+    const videoPlayerHash        = "#player"
     let cleanupControls = null;
 
     // Create audio container if missing
@@ -207,7 +207,7 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
         } else {
             document.documentElement.classList.add(CLASS_NAMES.ui.blockingActive);
             
-            location.hash = playerHash
+            location.hash = videoPlayerHash
 
             // Video → centered overlay
             const wrapper = document.createElement("div");
@@ -257,17 +257,21 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
 
     // Global ESC handler
     document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && location.hash === playerHash) closePlayer();
+        if (event.key === "Escape" && location.hash === videoPlayerHash) closePlayer();
     });
 
-    if (location.hash === playerHash) {
+    if (location.hash === videoPlayerHash) {
         history.replaceState(null, "", location.pathname + location.search);
     }
 
     window.addEventListener('hashchange', syncPlayerWithHash);
 
     function syncPlayerWithHash() {
-        if (location.hash === playerHash) {
+        if (mediaPlayer.isAudio) {
+            return;
+        }
+
+        if (location.hash === videoPlayerHash) {
             return;
         }
 
