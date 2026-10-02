@@ -4,7 +4,7 @@
 // -------------------------------------------------------------
 
 import * as watchAPI from './watch-api.js';
-import { CLASS_NAMES as CONST_CLASS_NAMES, MEDIA_WATCH, VIDEO_PREVIEW } from './constants.js';
+import { CLASS_NAMES as CONST_CLASS_NAMES, MEDIA_WATCH, EVENT_NAMES } from './constants.js';
 
 export const CLASS_NAMES = {
     ...CONST_CLASS_NAMES,
@@ -133,9 +133,11 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
         const mediaURL = mediaPlayer.playingRow.dataset.media;
         if (!mediaURL) return;
 
-        document.dispatchEvent(new Event(VIDEO_PREVIEW.playerOpenedEventName));
-
         mediaPlayer.isAudio = mediaPlayer.playingRow.dataset.isAudio === "true";
+
+        if (!mediaPlayer.isAudio) {
+            document.dispatchEvent(new Event(EVENT_NAMES.videoPlayerOpened));
+        }
 
         const shouldLoop = mediaPlayer.playingRow.dataset.loop === "true";
 

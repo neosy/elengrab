@@ -5,9 +5,11 @@ export const STORAGE_KEYS = {
     settingsGridView: "settingsGridView",
 };
 
-// Action button icon URLs
-export const ICON_PASTE = 'static/icons/action-paste-v2-icon.svg';
-export const ICON_CLEAR = 'static/icons/action-clear-icon.svg';
+export const ICONS = {
+    // Action button icon URLs
+    paste: 'static/icons/action-paste-v2-icon.svg',
+    clear: 'static/icons/action-clear-icon.svg',
+};
 
 // Internal API request paths.
 export const API_PATHS = {
@@ -40,6 +42,13 @@ export const CLASS_NAMES = {
     },
 };
 
+export const EVENT_NAMES = {
+    videoPreviewStop: 'video-preview-stop',
+
+    // Event dispatched when the full video player is opened
+    videoPlayerOpened: "video-player-opened",
+};
+
 // Media watch constants
 export const MEDIA_WATCH = {
     // Minimum watched time from the beginning to restore playback position
@@ -50,11 +59,4 @@ export const MEDIA_WATCH = {
 
     // Maximum allowed watch interval duration (with playback speed tolerance)
     maxIntervalMs: 15500,
-};
-
-export const VIDEO_PREVIEW = {
-    // Event dispatched when the full video player is opened
-    playerOpenedEventName: "video-preview-player-opened",
-
-    previewPlayingClassName: "video-preview-playing",
 };

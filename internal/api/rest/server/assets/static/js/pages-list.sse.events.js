@@ -1,6 +1,6 @@
 import { CLASS_NAMES, CLASS_SELECTORS, CSS_VARIABLE_NAMES, DOM_IDS, DOM_ELEMENTS } from "./pages-list.dom.js";
 import * as notify from './notifications.js';
-import { CLASS_PREFIXES, VIDEO_PREVIEW } from './constants.js';
+import { CLASS_PREFIXES, EVENT_NAMES } from './constants.js';
 
 // -------------------------------------------------------------
 // Handle row-add SSE event with multiple rows in one payload
@@ -55,15 +55,14 @@ export function handleRowUpdate(event) {
         const el = document.getElementById(DOM_IDS.row(data.itemId));
         if (!el) return;
 
-        if (el.classList.contains(VIDEO_PREVIEW.previewPlayingClassName)) {
-            return;
-        }
-
         const temp = document.createElement("div");
         temp.innerHTML = data.html.trim();
 
         const newEl = temp.firstElementChild;
         if (!newEl) return;
+
+        // Stop the active video preview before replacing the media row.
+        document.dispatchEvent(new CustomEvent(EVENT_NAMES.videoPreviewStop));
 
         el.replaceWith(newEl);
 
@@ -151,10 +150,6 @@ export function handleRowPatch(event) {
             if (viewCountEl) {
                 viewCountEl.textContent = data.viewCount.text;
             }
-        }
-
-        if (el.classList.contains(VIDEO_PREVIEW.previewPlayingClassName)) {
-            return;
         }
     } catch (err) {
         console.error(`SSE "${event.type}" handler error:`, err);

@@ -1,12 +1,14 @@
 import * as watchAPI from './watch-api.js';
-import { CLASS_NAMES as CONST_CLASS_NAMES, MEDIA_WATCH, VIDEO_PREVIEW } from './constants.js';
+import { CLASS_NAMES as CONST_CLASS_NAMES, MEDIA_WATCH, VIDEO_PREVIEW, EVENT_NAMES } from './constants.js';
 import { isMobileScreen } from './browser.js';
 
 const CLASS_NAMES = {
     ...CONST_CLASS_NAMES,
+    
     soundOff: "video-preview__sound-off",
     soundOn: "video-preview__sound-on",
-    previewPlaying: VIDEO_PREVIEW.previewPlayingClassName,
+
+    previewPlaying: "video-preview-playing",
 
     rowRefreshing: "row--refreshing",
 };
@@ -94,6 +96,14 @@ export function initVideoPreview() {
     DOM_ELEMENTS.preview.player.playsInline = true;
 
     initWatchTracker(DOM_ELEMENTS.preview.player);
+
+    document.addEventListener(EVENT_NAMES.videoPreviewStop, () => {
+        hideVideoPreview();
+    });
+
+    document.addEventListener(EVENT_NAMES.videoPlayerOpened, () => {
+        hideVideoPreview();
+    });
 
     if (DOM_ELEMENTS.sound.button !== null) {
         DOM_ELEMENTS.sound.button.addEventListener("click", (event) => {
@@ -198,10 +208,6 @@ export function initVideoPreviewHover(previewAreaContainer, previewContainerClas
         hideVideoPreview();
     });
 
-    document.addEventListener(VIDEO_PREVIEW.playerOpenedEventName, () => {
-        hideVideoPreview();
-    });
-
     DOM_ELEMENTS.preview.player.addEventListener("ended", () => {
         PREVIEW_STATE.ended = true;
         hideVideoPreview();
@@ -253,8 +259,9 @@ export async function showVideoPreview(thumbnailElement, previewContainer) {
 
     const itemEl = document.getElementById(DOM_IDS.row(itemId));
     if (itemEl) {
-        const isPreviewBlocked = itemEl.classList.contains(CLASS_NAMES.rowRefreshing);
-        if (isPreviewBlocked) return;
+        if (itemEl.classList.contains(CLASS_NAMES.rowRefreshing)) {
+            return;
+        }
 
         itemEl.classList.add(CLASS_NAMES.previewPlaying);
     }
