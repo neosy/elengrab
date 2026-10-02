@@ -7,7 +7,6 @@ require (
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/fasthttp/router v1.5.4
-	github.com/fyne-io/image v0.1.1
 	github.com/go-playground/validator/v10 v10.30.4
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/golang-migrate/migrate/v4 v4.20.1
@@ -31,7 +30,6 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.15 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/jsummers/gobmp v0.0.0-20230614200233-a9de23ed2e25 // indirect
 	github.com/klauspost/compress v1.20.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
