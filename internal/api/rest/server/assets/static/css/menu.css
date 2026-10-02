@@ -65,7 +65,7 @@
     transition: var(--menu-transition);
     transform: var(--menu-transform);
 
-    z-index: 1200;
+    z-index: 510;
 }
 
 .menu-overlay {
@@ -76,7 +76,7 @@
     position: fixed;
 
     background: rgba(0,0,0,0.5);
-    z-index: 1100;
+    z-index: 500;
 }
 
 body.ui-blocking-active .menu-overlay--show {

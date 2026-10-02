@@ -161,7 +161,7 @@ body {
     display: var(--header-display);
     flex-direction: row;
     position: fixed;
-    z-index: 1000;
+    z-index: 100;
 
     top: 0;
     left: 0;

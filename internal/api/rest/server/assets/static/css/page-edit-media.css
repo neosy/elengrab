@@ -125,7 +125,7 @@ body {
     pointer-events: none;
     gap: 8px;
 
-    z-index: 1000;
+    z-index: 100;
 }
 
 .header-actions > div {
