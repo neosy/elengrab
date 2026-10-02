@@ -13,6 +13,7 @@ var matchers = []struct {
 	{dtypes.MediaPlatformTypeVimeo, Vimeo},
 	{dtypes.MediaPlatformTypeTikTok, TikTok},
 	{dtypes.MediaPlatformTypeX, X},
+	{dtypes.MediaPlatformTypeReddit, Reddit},
 	{dtypes.MediaPlatformTypeRutube, Rutube},
 	{dtypes.MediaPlatformTypeVKVideo, VKVideo},
 }

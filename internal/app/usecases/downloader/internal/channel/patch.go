@@ -12,7 +12,7 @@ func (uc *Channel) Patch(
 	channelID uuid.UUID,
 	mutate func(*dmedia.Channel) error,
 ) error {
-	return uc.Tx(ctx, func(ctx context.Context) error {
+	err := uc.Tx(ctx, func(ctx context.Context) error {
 		channel, err := uc.FindByChannelIDNoCache(ctx, channelID)
 		if err != nil {
 			return err
@@ -27,6 +27,13 @@ func (uc *Channel) Patch(
 			return err
 		}
 
+		uc.channelCacheRep.Delete(ctx, channel.ChannelID)
+
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

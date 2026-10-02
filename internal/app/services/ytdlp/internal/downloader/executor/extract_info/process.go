@@ -20,6 +20,8 @@ func Process(mediaURL string, info *idto.ExtractInfo) {
 		processTwitch(info)
 	case dtypes.MediaPlatformTypeX:
 		processX(info)
+	case dtypes.MediaPlatformTypeReddit:
+		processReddit(mediaURL, info)
 	case dtypes.MediaPlatformTypeRutube:
 		processRuTube(info)
 	case dtypes.MediaPlatformTypeVKVideo:

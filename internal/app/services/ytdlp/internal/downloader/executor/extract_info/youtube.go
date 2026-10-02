@@ -7,7 +7,7 @@ import (
 )
 
 func processYouTube(info *idto.ExtractInfo) {
-	if info.ChannelURL == "" && info.UploaderURL != "" {
+	if info.ChannelURL == "" {
 		info.ChannelURL = info.UploaderURL
 	}
 

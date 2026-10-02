@@ -151,7 +151,7 @@ func (uc *Executor) collectMetadata(
 		var channelID uuid.UUID
 		channel, _ := uc.channel.FindByExternalChannelIDNoCache(ctx, channelSource.ChannelID, channelSource.Platform)
 		if channel != nil {
-			uc.channel.Patch(ctx, channel.ChannelID,
+			err := uc.channel.Patch(ctx, channel.ChannelID,
 				func(c *dmedia.Channel) error {
 					if c.EqualSource(channelSource) {
 						return nil
@@ -160,6 +160,9 @@ func (uc *Executor) collectMetadata(
 					return nil
 				},
 			)
+			if err == nil {
+				channelID = channel.ChannelID
+			}
 		} else {
 			newChannel := dmedia.NewChannelFromSource(channelSource)
 			err := uc.channel.Create(ctx, newChannel)
@@ -168,7 +171,7 @@ func (uc *Executor) collectMetadata(
 			}
 		}
 
-		if channelID != uuid.Nil && media.ChannelID == uuid.Nil {
+		if channelID != uuid.Nil && media.ChannelID != channelID {
 			patch.needPatch = true
 			patch.channelID = channelID
 		}
