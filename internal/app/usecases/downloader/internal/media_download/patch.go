@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
 func (uc *MediaDownload) Patch(
@@ -15,9 +17,14 @@ func (uc *MediaDownload) Patch(
 	mutate func(*ddownload.MediaDownload) error,
 ) error {
 	return uc.Tx(ctx, func(ctx context.Context) error {
-		download, err := uc.GetByDownloadIDNoCache(ctx, downloadID)
+		download, err := uc.downloadRepo().WithDeleted().FindByDownloadID(ctx, downloadID)
 		if err != nil {
 			return err
+		}
+
+		if download == nil {
+			uc.logger.Warn("MediaDownload not found", "downloadID", downloadID)
+			return errorx.New("download not found", exceptionx.NOT_FOUND)
 		}
 
 		if err := mutate(download); err != nil {

@@ -3,12 +3,14 @@ package download
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"slices"
 	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
@@ -17,6 +19,8 @@ import (
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
+	"modernc.org/sqlite"
+	sqlite3 "modernc.org/sqlite/lib"
 )
 
 type MediaDownloadRepository struct {
@@ -95,6 +99,12 @@ func (r *MediaDownloadRepository) Save(ctx context.Context, download *ddownload.
 		ToSql()
 	// If SQL generation failed — return an error
 	if err != nil {
+		var sqliteErr *sqlite.Error
+		if errors.As(err, &sqliteErr) &&
+			sqliteErr.Code() == sqlite3.SQLITE_CONSTRAINT_UNIQUE {
+			return apperrors.ErrIDConflict
+		}
+
 		return fmt.Errorf("failed to build SQL: %w", err)
 	}
 
@@ -296,6 +306,16 @@ func (r *MediaDownloadRepository) Restore(ctx context.Context, downloadID uuid.U
 }
 
 func (r *MediaDownloadRepository) FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.MediaDownload, error) {
+	var eDownload edownload.MediaDownload
+	return r.findByUniqueField(ctx, eDownload.FieldName(&eDownload.DownloadID), downloadID.String())
+}
+
+func (r *MediaDownloadRepository) FindByDownloadCode(ctx context.Context, downloadCode string) (*ddownload.MediaDownload, error) {
+	var eDownload edownload.MediaDownload
+	return r.findByUniqueField(ctx, eDownload.FieldName(&eDownload.DownloadCode), downloadCode)
+}
+
+func (r *MediaDownloadRepository) findByUniqueField(ctx context.Context, fieldName, value string) (*ddownload.MediaDownload, error) {
 	var (
 		eDownload edownload.MediaDownload
 		eTask     edownload.DownloadTask
@@ -307,13 +327,11 @@ func (r *MediaDownloadRepository) FindByDownloadID(ctx context.Context, download
 	selectFields := append(eDownload.QueryFieldsWithAlias(aliasDownloads), eTask.QueryFieldsWithAlias(aliasTasks)...)
 
 	sqlWhere := squirrel.And{}
+	sqlWhere = append(sqlWhere, squirrel.Eq{eDownload.FieldName(fieldName, aliasDownloads): value})
 
-	sqlWhere = append(sqlWhere,
-		squirrel.Eq{
-			eDownload.FieldName(&eDownload.DownloadID, aliasDownloads): downloadID.String(),
-			eDownload.FieldName(&eDownload.DeletedAt, aliasDownloads):  nil,
-		},
-	)
+	if !r.queryOptions.includeDeleted {
+		sqlWhere = append(sqlWhere, squirrel.Eq{eDownload.FieldName(&eDownload.DeletedAt, aliasDownloads): nil})
+	}
 
 	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
@@ -365,6 +383,56 @@ func (r *MediaDownloadRepository) FindByDownloadID(ctx context.Context, download
 	}
 
 	return download, nil
+}
+
+func (r *MediaDownloadRepository) ExistsByDownloadID(ctx context.Context, downloadID uuid.UUID) (bool, error) {
+	var eDownload edownload.MediaDownload
+	return r.existsByUniqueField(ctx, eDownload.FieldName(&eDownload.DownloadID), downloadID.String())
+}
+
+func (r *MediaDownloadRepository) ExistsByDownloadCode(ctx context.Context, downloadCode string) (bool, error) {
+	var eDownload edownload.MediaDownload
+	return r.existsByUniqueField(ctx, eDownload.FieldName(&eDownload.DownloadCode), downloadCode)
+}
+
+func (r *MediaDownloadRepository) existsByUniqueField(ctx context.Context, fieldName, value string) (bool, error) {
+	var eDownload edownload.MediaDownload
+
+	sqlWhere := squirrel.And{}
+
+	sqlWhere = append(sqlWhere, squirrel.Eq{eDownload.FieldName(fieldName): value})
+
+	for name, filter := range r.queryOptions.Filters {
+		if name != "" {
+			sqlWhere = append(sqlWhere, filter.SqlCondition())
+		}
+	}
+
+	sqlQuery, args, err := squirrel.Select("1").
+		From(eDownload.TableName()).
+		Where(sqlWhere).
+		PlaceholderFormat(squirrel.Dollar).
+		Limit(1).
+		ToSql()
+
+	if err != nil {
+		return false, fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	db := dbexec.Resolve(ctx, r.dbEntry)
+
+	// Execute query and check if any row exists
+	var exists int
+	err = db.QueryRowContext(ctx, sqlQuery, args...).Scan(&exists)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (r *MediaDownloadRepository) iterateAll(

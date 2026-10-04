@@ -6,6 +6,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/usecases/migrations/internal/dependencies"
 	"github.com/neosy/elengrab/internal/app/usecases/migrations/internal/registry"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
@@ -40,12 +41,12 @@ func NewMigrations(
 	return migrations
 }
 
-func (m *Migrations) MarkMigration(ctx context.Context, migrationID string) error {
-	return m.usecases.DownloadMigration.MarkMigration(ctx, migrationID)
+func (m *Migrations) MarkMigration(ctx context.Context, migrationID string, migrationType dtypes.MigrationType) error {
+	return m.usecases.DownloadMigration.MarkMigration(ctx, migrationID, migrationType)
 }
 
-func (m *Migrations) Add(id string, run registry.MigrationRunner) {
-	m.migrationList.Add(id, run)
+func (m *Migrations) Add(id string, migrationType dtypes.MigrationType, run registry.MigrationRunner) {
+	m.migrationList.Add(id, migrationType, run)
 }
 
 func (m *Migrations) Logger() *slog.Logger {

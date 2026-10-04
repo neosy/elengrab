@@ -35,6 +35,7 @@ func (m *Mappers) MapDownloadDomainToEntity(download *ddownload.MediaDownload) (
 
 	return &edownload.MediaDownload{
 		DownloadID:               download.DownloadID,
+		DownloadCode:             download.DownloadCode,
 		UserID:                   download.UserID,
 		Status:                   download.Status.String(),
 		MediaURL:                 download.MediaURL,
@@ -108,6 +109,7 @@ func (m *Mappers) MapDownloadEntityToDomain(eDownload *edownload.MediaDownload, 
 
 	return &ddownload.MediaDownload{
 		DownloadID:               eDownload.DownloadID,
+		DownloadCode:             eDownload.DownloadCode,
 		UserID:                   eDownload.UserID,
 		Status:                   dtypes.MustParseMediaDownloadStatus(eDownload.Status),
 		MediaURL:                 eDownload.MediaURL,
