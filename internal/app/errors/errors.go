@@ -1,6 +1,8 @@
 package apperrors
 
 import (
+	"errors"
+
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -16,4 +18,6 @@ var (
 	ErrDownloadIDIsNil  = exceptions.DOWNLOAD_ID_IS_NIL.NewErrorx(
 		errorx.WithErrorMessage("Invalid request"),
 	).(errorx.Errorx)
+
+	ErrIDConflict = errors.New("id conflict")
 )
