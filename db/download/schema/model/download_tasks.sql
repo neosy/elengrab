@@ -3,15 +3,15 @@ CREATE TABLE IF NOT EXISTS download_tasks (
     task_id TEXT PRIMARY KEY,
     
     -- ID of the file to download
-    file_id TEXT NOT NULL,
+    download_id TEXT NOT NULL,
     
     -- Task status: pending, working, done, failed
     task_status TEXT NOT NULL DEFAULT 'new',
 
-    -- Youtube URL
-    youtube_url TEXT NOT NULL,
+    -- Media URL
+    media_url TEXT NOT NULL,
 
-	-- Youtube download options
+	-- Media download options
 	options TEXT NULL,
 
     -- ID of the worker currently processing the task
@@ -27,9 +27,9 @@ CREATE TABLE IF NOT EXISTS download_tasks (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- Foreign key to files
-    FOREIGN KEY (file_id) REFERENCES files(file_id) ON DELETE CASCADE
+    FOREIGN KEY (download_id) REFERENCES media_downloads(download_id) ON DELETE CASCADE
 );
 
--- Create an index on the file_id column for faster querying by file.
-CREATE INDEX IF NOT EXISTS download_tasks_file_id_idx
-ON download_tasks(file_id);
+-- Create an index on the download_id column for faster querying by download.
+CREATE INDEX IF NOT EXISTS download_tasks_download_id_idx
+ON download_tasks(download_id);
