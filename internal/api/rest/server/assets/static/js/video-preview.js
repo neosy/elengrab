@@ -272,11 +272,11 @@ export async function showVideoPreview(thumbnailElement, previewContainer) {
 
     if (PREVIEW_STATE.currentVideoUrl !== videoUrl) {
         PREVIEW_STATE.currentVideoUrl = videoUrl;
-        DOM_ELEMENTS.preview.player.src = videoUrl;
-
+        
         await new Promise(resolve => {
             DOM_ELEMENTS.preview.player.onloadedmetadata = resolve;
-        });
+            DOM_ELEMENTS.preview.player.src = videoUrl;
+        });        
     }
 
     if (requestId !== PREVIEW_STATE.showVideoPreviewRequestId) {
@@ -323,7 +323,10 @@ export function hideVideoPreview() {
     PREVIEW_STATE.clear();
 
     DOM_ELEMENTS.preview.container.hidden = true;
+
     DOM_ELEMENTS.preview.player.pause();
+    DOM_ELEMENTS.preview.player.removeAttribute('src');
+    DOM_ELEMENTS.preview.player.load();
 }
 
 function updateVideoPreviewDuration() {
