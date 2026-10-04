@@ -7,4 +7,5 @@ func (m *migrations) initMigrations() {
 	m.Add("04_build_search_index", m.buildSearchIndexOnce)
 	m.Add("05_add_multi_platform_channels", m.addMultiPlatformChannels)
 	m.Add("06_fill_search_index_channel_id", m.fillSearchIndexChannelID)
+	m.Add("07_fill_download_code", m.fillDownloadCode)
 }

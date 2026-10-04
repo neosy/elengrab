@@ -1,6 +1,7 @@
 package ddownload
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -23,6 +24,9 @@ const (
 type MediaDownload struct {
 	// Unique file identifier (UUID)
 	DownloadID uuid.UUID
+
+	// Unique short download code
+	DownloadCode string
 
 	// Associated user identifier (UUID)
 	UserID *uuid.UUID
@@ -166,6 +170,10 @@ func (d *MediaDownload) NormalizeForSave() {
 }
 
 func (d *MediaDownload) Validate() error {
+	if d.DownloadCode == "" {
+		return errors.New("download code is required")
+	}
+
 	if utf8.RuneCountInString(d.MediaTitle) > MediaTitleMaxLength {
 		return errorx.NewHTTPMessage("Title must not exceed 100 characters", http.StatusBadRequest)
 	}

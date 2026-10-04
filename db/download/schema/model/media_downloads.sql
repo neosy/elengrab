@@ -1,7 +1,10 @@
 -- table `media_downloads` will be added as parent (one source → multiple files).
 CREATE TABLE IF NOT EXISTS media_downloads (
-    -- Unique file identifier (UUID)
+    -- Unique media download identifier (UUID)
     download_id TEXT PRIMARY KEY,
+
+    -- Unique short download code
+    download_code TEXT NOT NULL UNIQUE,
 
     -- Associated user identifier (UUID)
     user_id TEXT NULL,

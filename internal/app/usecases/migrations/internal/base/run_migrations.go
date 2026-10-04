@@ -30,7 +30,7 @@ func (m *Migrations) RunMigrations(ctx context.Context) error {
 			return fmt.Errorf("run migration %s: %w", migration.ID(), err)
 		}
 
-		err = m.MarkMigration(ctx, migration.ID())
+		err = m.MarkMigration(ctx, migration.ID(), migration.MigrationType())
 		if err != nil {
 			return fmt.Errorf("mark migration %s: %w", migration.ID(), err)
 		}

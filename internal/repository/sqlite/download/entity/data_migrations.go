@@ -13,6 +13,9 @@ type DataMigration struct {
 	// Unique identifier of the migration (e.g. "backfill_user_status")
 	MigrationID string `db:"migration_id"`
 
+	//Migration execution type (e.g. "required", "deferred")
+	MigrationType string `db:"migration_type"`
+
 	// Optional human-readable description of what this migration does
 	Description *string `db:"description"`
 
