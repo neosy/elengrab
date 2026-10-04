@@ -10,7 +10,13 @@ import (
 
 type MediaDownload struct {
 	dbentity.BaseEntity[MediaDownload]
-	DownloadID               uuid.UUID  `db:"download_id"`
+
+	// Unique media download identifier (UUID)
+	DownloadID uuid.UUID `db:"download_id"`
+
+	// Unique short download code
+	DownloadCode string `db:"download_code"`
+
 	UserID                   *uuid.UUID `db:"user_id" pfield:"userID"`
 	Status                   string     `db:"file_status"`
 	MediaURL                 string     `db:"media_url"`

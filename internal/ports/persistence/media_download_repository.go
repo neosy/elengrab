@@ -30,7 +30,10 @@ type MediaDownloadRepository interface {
 	UpdateOwner(ctx context.Context, fromID, toID uuid.UUID) error
 	UpdateChannelID(ctx context.Context, oldChannelID string, newChannelID uuid.UUID) error
 
-	FindByDownloadID(ctx context.Context, DownloadID uuid.UUID) (*ddownload.MediaDownload, error)
+	FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.MediaDownload, error)
+	ExistsByDownloadID(ctx context.Context, downloadID uuid.UUID) (bool, error)
+	FindByDownloadCode(ctx context.Context, downloadCode string) (*ddownload.MediaDownload, error)
+	ExistsByDownloadCode(ctx context.Context, downloadCode string) (bool, error)
 
 	IterateAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error
 	IterateFullNames(ctx context.Context, includeDeleted bool, fn func(string) error) error
@@ -59,11 +62,14 @@ type MediaDownloadCacheRepository interface {
 	memory.CacheRepository
 
 	Save(ctx context.Context, media *ddownload.MediaDownload) error
-	SaveNegative(ctx context.Context, downloadID uuid.UUID) error
+	SaveNegative(ctx context.Context, downloadID uuid.UUID, downloadCode string) error
+	SaveNegativeByCode(ctx context.Context, downloadCode string) error
 	Delete(ctx context.Context, downloadID uuid.UUID) error
 
 	FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.MediaDownload, memsimple.CacheStatus, error)
-	ExistsByFileID(ctx context.Context, downloadID uuid.UUID) (bool, error)
+	ExistsByDownloadID(ctx context.Context, downloadID uuid.UUID) (bool, error)
+	FindByDownloadCode(ctx context.Context, downloadCode string) (*ddownload.MediaDownload, memsimple.CacheStatus, error)
+	ExistsByDownloadCode(ctx context.Context, downloadCode string) (bool, error)
 
 	CleanExpired(context.Context) error
 }

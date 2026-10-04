@@ -1,5 +1,7 @@
 package registry
 
+import dtypes "github.com/neosy/elengrab/internal/domain/types"
+
 type MigrationList struct {
 	items []*MigrationID
 }
@@ -8,10 +10,11 @@ func NewMigrationList() MigrationList {
 	return MigrationList{}
 }
 
-func (m *MigrationList) Add(id string, run MigrationRunner) {
+func (m *MigrationList) Add(id string, migrationType dtypes.MigrationType, run MigrationRunner) {
 	m.items = append(m.items, &MigrationID{
-		id:  id,
-		run: run,
+		id:            id,
+		migrationType: migrationType,
+		run:           run,
 	})
 }
 

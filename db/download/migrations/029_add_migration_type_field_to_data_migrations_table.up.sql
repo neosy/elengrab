@@ -1,0 +1,1 @@
+ALTER TABLE data_migrations ADD COLUMN migration_type TEXT NOT NULL DEFAULT '';

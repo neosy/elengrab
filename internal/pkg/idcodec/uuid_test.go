@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
 )
 
 func TestEncodeUUIDBase64URL(t *testing.T) {
@@ -117,4 +118,19 @@ func TestEncodeDecodeUUIDBase64URL(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestEncodeUUIDShortBase64URL(t *testing.T) {
+	id1 := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
+	id2 := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
+
+	result1 := EncodeUUIDShortBase64URL(id1)
+	result2 := EncodeUUIDShortBase64URL(id2)
+
+	require.Len(t, result1, 11)
+	require.Len(t, result2, 11)
+	require.Regexp(t, `^[A-Za-z0-9_-]{11}$`, result1)
+	require.Regexp(t, `^[A-Za-z0-9_-]{11}$`, result2)
+	require.NotEqual(t, result1, result2)
+	require.Equal(t, result1, EncodeUUIDShortBase64URL(id1))
 }

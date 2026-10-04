@@ -2,6 +2,9 @@ CREATE TABLE data_migrations (
     -- Unique identifier of the migration (e.g. "2026-05-03_backfill_user_status")
     migration_id TEXT PRIMARY KEY,
 
+    -- Migration execution type (e.g. "required", "deferred")
+    migration_type TEXT NOT NULL DEFAULT '',
+
     -- Optional human-readable description of what this migration does
     description TEXT NULL,
 
