@@ -58,7 +58,13 @@ const mediaPlayer = {
         this.isAudio = false;
         this.isOpen = false;
 
-        this.player = null;
+        if (this.player) {
+            this.player.pause();
+            this.player.removeAttribute('src');
+            this.player.load();
+            this.player.remove();
+            this.player = null;
+        }
 
         this.playingRow = null;
         this.rowItemId = "";
