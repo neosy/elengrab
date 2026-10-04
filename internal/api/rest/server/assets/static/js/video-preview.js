@@ -51,10 +51,9 @@ const PREVIEW_STATE = {
     hoverTimer: null,
     scrollTimer: null,
 
-    ended: false,
-
     currentItemId: null,
     currentVideoUrl: null,
+    currentEnded: false,
 
     updateCenteredRequestId: 0,
     showVideoPreviewRequestId: 0,
@@ -65,6 +64,7 @@ const PREVIEW_STATE = {
         clearTimeout(this.hoverTimer);
         this.currentItemId = null;
         this.currentVideoUrl = null;
+        this.currentEnded = false;
     },
 };
 
@@ -178,10 +178,15 @@ export function initVideoPreviewHover(previewAreaContainer, previewContainerClas
             return;
         }
 
+        const itemId = String(previewContainer.dataset.itemId)
+        if (itemId !== PREVIEW_STATE.currentItemId) {
+            PREVIEW_STATE.currentEnded = false;
+        }
+
         clearTimeout(PREVIEW_STATE.hoverTimer);
 
         PREVIEW_STATE.hoverTimer = setTimeout(async () => {
-            if (PREVIEW_STATE.ended) {
+            if (PREVIEW_STATE.currentEnded) {
                 return;
             }
 
@@ -209,7 +214,7 @@ export function initVideoPreviewHover(previewAreaContainer, previewContainerClas
     });
 
     DOM_ELEMENTS.preview.player.addEventListener("ended", () => {
-        PREVIEW_STATE.ended = true;
+        PREVIEW_STATE.currentEnded = true;
         hideVideoPreview();
     });
 
@@ -255,8 +260,6 @@ export async function showVideoPreview(thumbnailElement, previewContainer) {
         return
     }
 
-    PREVIEW_STATE.ended = false;
-
     const itemEl = document.getElementById(DOM_IDS.row(itemId));
     if (itemEl) {
         if (itemEl.classList.contains(CLASS_NAMES.rowRefreshing)) {
@@ -272,7 +275,7 @@ export async function showVideoPreview(thumbnailElement, previewContainer) {
 
     if (PREVIEW_STATE.currentVideoUrl !== videoUrl) {
         PREVIEW_STATE.currentVideoUrl = videoUrl;
-        
+
         await new Promise(resolve => {
             DOM_ELEMENTS.preview.player.onloadedmetadata = resolve;
             DOM_ELEMENTS.preview.player.src = videoUrl;
