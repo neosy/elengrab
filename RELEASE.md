@@ -13,6 +13,7 @@
 ### 🐛 Fix
 - Stop stale video streams when switching or closing video players. [L171]
 - Prevent inactive video streams from remaining open and causing request stalls. [L171]
+- Allow video previews to start after switching to another item when the previous preview has ended. [L172]
 
 ---
 
