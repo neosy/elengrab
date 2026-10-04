@@ -10,6 +10,10 @@
 - Renamed database columns file_id to download_id and youtube_url to media_url. [L169]
 - Updated related database indexes and foreign key references. [L169]
 
+### 🐛 Fix
+- Stop stale video streams when switching or closing video players. [L171]
+- Prevent inactive video streams from remaining open and causing request stalls. [L171]
+
 ---
 
 ## v0.26.3 — 2026-10-02
