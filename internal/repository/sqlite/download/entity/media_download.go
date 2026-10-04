@@ -10,7 +10,7 @@ import (
 
 type MediaDownload struct {
 	dbentity.BaseEntity[MediaDownload]
-	DownloadID               uuid.UUID  `db:"file_id"`
+	DownloadID               uuid.UUID  `db:"download_id"`
 	UserID                   *uuid.UUID `db:"user_id" pfield:"userID"`
 	Status                   string     `db:"file_status"`
 	MediaURL                 string     `db:"media_url"`

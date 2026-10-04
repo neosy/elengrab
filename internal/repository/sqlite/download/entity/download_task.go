@@ -10,9 +10,9 @@ import (
 type DownloadTask struct {
 	dbentity.BaseEntity[DownloadTask]
 	TaskID     sql.NullString `db:"task_id"`
-	DownloadID sql.NullString `db:"file_id"`
+	DownloadID sql.NullString `db:"download_id"`
 	Status     sql.NullString `db:"task_status"`
-	MediaUrl   sql.NullString `db:"youtube_url"`
+	MediaUrl   sql.NullString `db:"media_url"`
 	Options    sql.NullString `db:"options"`
 	WorkerID   sql.NullInt64  `db:"worker_id"`
 	JobID      sql.NullString `db:"job_id"`

@@ -1,8 +1,7 @@
--- TODO: Rename to `media_downloads`. 
--- New table `media_sources` will be added as parent (one source → multiple files).
-CREATE TABLE IF NOT EXISTS files (
+-- table `media_downloads` will be added as parent (one source → multiple files).
+CREATE TABLE IF NOT EXISTS media_downloads (
     -- Unique file identifier (UUID)
-    file_id TEXT PRIMARY KEY,
+    download_id TEXT PRIMARY KEY,
 
     -- Associated user identifier (UUID)
     user_id TEXT NULL,
@@ -69,27 +68,27 @@ CREATE TABLE IF NOT EXISTS files (
 );
 
 -- Index for faster querying by creation date
-CREATE INDEX IF NOT EXISTS files_created_at_idx
-ON files(created_at);
+CREATE INDEX IF NOT EXISTS media_downloads_created_at_idx
+ON media_downloads(created_at);
 
 -- Create index for partial_hash field.
-CREATE INDEX IF NOT EXISTS files_partial_hash_idx
-ON files(partial_hash);
+CREATE INDEX IF NOT EXISTS media_downloads_partial_hash_idx
+ON media_downloads(partial_hash);
 
 -- Create index for deleted_at field where it is null.
 -- This allows us to query only non-deleted records efficiently.
-CREATE INDEX files_deleted_at_null_idx
-ON files(deleted_at)
+CREATE INDEX IF NOT EXISTS media_downloads_deleted_at_null_idx
+ON media_downloads(deleted_at)
 WHERE deleted_at IS NULL;
 
 -- Create index for user_id field
-CREATE INDEX IF NOT EXISTS files_user_id_idx
-ON files(user_id);
+CREATE INDEX IF NOT EXISTS media_downloads_user_id_idx
+ON media_downloads(user_id);
 
 -- Create index for sorting by download or update time, prioritizing downloads if available.
-CREATE INDEX files_downloaded_created_sort_idx
-ON files(COALESCE(downloaded_at, created_at) DESC);
+CREATE INDEX IF NOT EXISTS media_downloads_downloaded_created_sort_idx
+ON media_downloads(COALESCE(downloaded_at, created_at) DESC);
 
 -- Create index for media_title fields
-CREATE INDEX IF NOT EXISTS files_media_title_idx
-ON files(media_title);
+CREATE INDEX IF NOT EXISTS media_downloads_media_title_idx
+ON media_downloads(media_title);
