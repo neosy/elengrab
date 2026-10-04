@@ -1,5 +1,14 @@
 # Releases
 
+## v0.27.0 — 2026-10-15
+
+### 🧩 Refactor
+- Renamed the files database table to media_downloads. [L169]
+- Renamed database columns file_id to download_id and youtube_url to media_url. [L169]
+- Updated related database indexes and foreign key references. [L169]
+
+---
+
 ## v0.26.3 — 2026-10-02
 
 ### ✨ Features

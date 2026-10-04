@@ -1,7 +1,7 @@
 package tablenames
 
 const (
-	Files          = "files"
+	Files          = "media_downloads"
 	DownloadTasks  = "download_tasks"
 	DataMigrations = "data_migrations"
 )
