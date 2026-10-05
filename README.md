@@ -24,6 +24,8 @@ The project is fully written in **Go**, with a frontend built using plain **HTML
   <a href="https://github.com/neosy/elengrab/releases/download/v0.26.3/elengrab-0.26.3-mac-x64"><img width="190" alt="Download for MacOS Intel" src="https://github.com/user-attachments/assets/b6b54f1e-0898-4f2f-ad28-6255af2a85f2" /></a>
 </p>
 
+For all other downloads, see the <a href="https://github.com/neosy/elengrab/releases/latest">latest release</a>.
+
 ### Screenshots of the interface
 <details>
 <summary><strong>Desktop — Light and dark themes</strong></summary>
