@@ -9,6 +9,7 @@
   <img width="1867" height="915" alt="elengrab_interface" src="https://github.com/user-attachments/assets/4eb2c205-0115-42bc-b40a-3e29e5bdb57f" />
 </p>
 
+
 # Elengrab
 
 **Fast cross-platform application for downloading and watching video and audio with flexible format and quality options. Integrates with media processing utilities such as [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://github.com/FFmpeg/FFmpeg). Supports downloading from more than 1,000 websites and platforms, including YouTube, Facebook, Instagram, Twitter/X, Twitch, Pinterest, Reddit, VK Video, Rutube, and more.**
@@ -16,6 +17,7 @@
 Elengrab provides a simple and very fast web interface for downloading and watching media directly in the browser, with a YouTube-like viewing experience, thumbnails, video previews, and a dedicated interface optimized for mobile devices. Supports Grid View, short links for sharing, and flexible playback options. On mobile devices, videos can be shared directly from apps such as YouTube and Instagram to Elengrab, where they are automatically picked up and downloaded.
 
 The project is fully written in **Go**, with a frontend built using plain **HTML** and **CSS**, **HTMX**, and vanilla **JavaScript** without external libraries. It can run as a single binary on Windows, Linux, and macOS, or in a lightweight Docker container for easy deployment. Elengrab also includes full **PWA** support, allowing it to be installed and used as a standalone application. Different operating modes allow you to enable authentication and use Elengrab as a full-featured web service accessible over the Internet. This makes it well suited for creating a fast-access home media service as well as a personal media service accessible from anywhere.
+
 
 ### Screenshots of the interface
 <details>
@@ -71,7 +73,6 @@ The project is fully written in **Go**, with a frontend built using plain **HTML
   </p>
 </details>
 
----
 
 ## Features
 
@@ -101,7 +102,6 @@ The project is fully written in **Go**, with a frontend built using plain **HTML
 * Cross-platform support: Windows, macOS, and Linux.
 * Docker support for easy deployment.
 
----
 
 ## Media Content
 
@@ -109,7 +109,6 @@ Elengrab is designed to work with video and audio content from a wide range of w
 
 Users are responsible for ensuring that their use of Elengrab and downloaded content complies with applicable laws, copyright requirements, and the terms of service of the respective platforms.
 
----
 
 ## Requirements
 
@@ -126,6 +125,7 @@ This configuration is suitable for low-resource servers. To limit concurrency, s
 ```
 ELENGRAB_DOWNLOAD_WORKERS=1
 ```
+
 
 ### Recommended
 
@@ -147,8 +147,6 @@ Resource usage increases with the number of concurrent workers. The number of co
 ELENGRAB_DOWNLOAD_WORKERS=3
 ```
 
----
-
 ## Quick Start
 ### Run docker with minimum settings
 
@@ -160,7 +158,6 @@ docker run -d \
   neosy/elengrab:latest
 ```
 
----
 
 ## Environment Variables
 
@@ -180,7 +177,7 @@ docker run -d \
 | `ELENGRAB_ALLOW_COOKIES` | `false` | Enables use of cookies for multimedia sources. Requires [Deno](https://github.com/denoland/deno). The `youtube.txt` file should be located in the directory specified by `ELENGRAB_COOKIES_DIR`. |
 | `ELENGRAB_MAINTENANCE_ENABLE_MOVE_UNMATCHED_FILES` | `false`   | Enables the periodic operation that moves files not present in the database tables from the download folder to the `.lost` folder. Default is `false` (disabled). |
 
----
+
 
 ## Volumes
 
@@ -192,7 +189,7 @@ docker run -d \
 | `cookies:/app_n/cookies`    | Stores cookie files used by the application (see `ELENGRAB_COOKIES_DIR`). |
 | `media:/app_n/media`    | Stores auxiliary media files such as thumbnails and other resources.    |
 
----
+
 
 ## Usage
 
@@ -202,21 +199,33 @@ Elengrab is distributed as a single binary for Windows, Linux, and macOS. Downlo
 
 Elengrab requires [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://github.com/FFmpeg/FFmpeg), which are not included in the standard releases.
 
-#### Windows
+### Platforms
+
+<details>
+<summary><strong>Windows</strong></summary>
 
 ##### Standard release
 
-Download the latest Windows release from the [GitHub Releases](https://github.com/neosy/elengrab/releases) page and run `elengrab.exe`.
+Download the latest Windows release from the [GitHub Releases](https://github.com/neosy/elengrab/releases/latest) page and run `elengrab.exe`.
 
 After starting Elengrab, open `http://localhost:8080` in your browser.
+
+---
 
 ##### Portable Windows package
 
 A portable Windows package containing the latest `elengrab.exe`, `yt-dlp.exe`, `ffmpeg.exe`, and `ffprobe.exe` is also available [here](https://nc.n-hub.ru/index.php/s/XyTm8HqginkwECT).
 
+The latest Windows bundle can be downloaded from the [latest Elengrab release](https://github.com/neosy/elengrab/releases/latest).
+
 After starting Elengrab, open `http://localhost:2380` in your browser.
 
-#### Linux
+---
+
+</details>
+<details>
+  
+<summary><strong>Linux</strong></summary>
 
 Download the latest Linux binary for your architecture from the [GitHub Releases](https://github.com/neosy/elengrab/releases) page.
 
@@ -231,7 +240,12 @@ Install [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://github.c
 
 After starting Elengrab, open `http://localhost:8080` in your browser.
 
-#### macOS
+---
+
+</details>
+<details>
+  
+<summary><strong>macOS</strong></summary>
 
 Download the latest macOS binary for your architecture from the [GitHub Releases](https://github.com/neosy/elengrab/releases) page.
 
@@ -248,7 +262,12 @@ After starting Elengrab, open `http://localhost:8080` in your browser.
 
 ---
 
-### Run Docker with default settings
+</details>
+
+### Docker
+
+<details>
+<summary><strong>Run Docker with default settings</strong></summary>
 
 ```
 docker run -d \
@@ -263,7 +282,10 @@ docker run -d \
 
 ---
 
-### Docker Compose
+</details>
+
+<details>
+<summary><strong>Docker Compose</strong></summary>
 
 Create a file `docker-compose.yml` with the following content:
 
@@ -297,7 +319,10 @@ After this, Elengrab will be accessible at http://localhost:8080
 
 ---
 
-### Docker Compose for Docker Swarm
+</details>
+
+<details>
+<summary><strong>Docker Compose for Docker Swarm</strong></summary>
 
 Create a file `docker-compose.yml` with the following content:
 
@@ -334,7 +359,7 @@ volumes:
 
 ---
 
-### Deploying in Docker Swarm
+#### Deploying in Docker Swarm
 
 1. Initialize Docker Swarm (if not already initialized):
 
@@ -356,15 +381,13 @@ docker service ls
 
 4. Access Elengrab at `http://<your-host-ip>:8080` and start managing your personal video and audio content.
 
----
+</details>
 
 ## Donations
 
 If you find Elengrab useful, you can support its development:
 
 **[Donate](https://n-hub.ru/donate)**
-
----
 
 # License
 
