@@ -204,21 +204,21 @@ Elengrab requires [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https:
 <details>
 <summary><strong>Windows</strong></summary>
 
+##### Portable Windows package
+
+The latest Windows bundle can be downloaded from the [latest Elengrab release](https://github.com/neosy/elengrab/releases/latest).
+
+A portable Windows package containing the latest `elengrab.exe`, `yt-dlp.exe`, `ffmpeg.exe`, and `ffprobe.exe` is also available [here](https://nc.n-hub.ru/index.php/s/XyTm8HqginkwECT).
+
+After starting Elengrab, open `http://localhost:2380` in your browser.
+
+---
+
 ##### Standard release
 
 Download the latest Windows release from the [GitHub Releases](https://github.com/neosy/elengrab/releases/latest) page and run `elengrab.exe`.
 
 After starting Elengrab, open `http://localhost:8080` in your browser.
-
----
-
-##### Portable Windows package
-
-A portable Windows package containing the latest `elengrab.exe`, `yt-dlp.exe`, `ffmpeg.exe`, and `ffprobe.exe` is also available [here](https://nc.n-hub.ru/index.php/s/XyTm8HqginkwECT).
-
-The latest Windows bundle can be downloaded from the [latest Elengrab release](https://github.com/neosy/elengrab/releases/latest).
-
-After starting Elengrab, open `http://localhost:2380` in your browser.
 
 ---
 
