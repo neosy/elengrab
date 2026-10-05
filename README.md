@@ -9,7 +9,6 @@
   <img width="1867" height="915" alt="elengrab_interface" src="https://github.com/user-attachments/assets/4eb2c205-0115-42bc-b40a-3e29e5bdb57f" />
 </p>
 
-
 # Elengrab
 
 **Fast cross-platform application for downloading and watching video and audio with flexible format and quality options. Integrates with media processing utilities such as [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://github.com/FFmpeg/FFmpeg). Supports downloading from more than 1,000 websites and platforms, including YouTube, Facebook, Instagram, Twitter/X, Twitch, Pinterest, Reddit, VK Video, Rutube, and more.**
@@ -18,6 +17,12 @@ Elengrab provides a simple and very fast web interface for downloading and watch
 
 The project is fully written in **Go**, with a frontend built using plain **HTML** and **CSS**, **HTMX**, and vanilla **JavaScript** without external libraries. It can run as a single binary on Windows, Linux, and macOS, or in a lightweight Docker container for easy deployment. Elengrab also includes full **PWA** support, allowing it to be installed and used as a standalone application. Different operating modes allow you to enable authentication and use Elengrab as a full-featured web service accessible over the Internet. This makes it well suited for creating a fast-access home media service as well as a personal media service accessible from anywhere.
 
+<p>
+  <a href="https://github.com/neosy/elengrab/releases/download/v0.26.3/elengrab-0.26.3-win-x64-bundle.zip"><img width="190" alt="Download for Windows" src="https://github.com/user-attachments/assets/b01534db-03cc-45e1-80d1-daf77a70da80" /></a>
+  <a href="https://github.com/neosy/elengrab/releases/latest/download/elengrab-linux-amd64-bundle.tar.gz"><img width="190" alt="Download_for_Linux_small" src="https://github.com/user-attachments/assets/85e83bd4-f7e4-43bd-b88d-d19689758f35" /></a>
+  <a href="https://github.com/neosy/elengrab/releases/download/v0.26.3/elengrab-0.26.3-mac-arm64"><img width="190" alt="Download for MacOS Silicon" src="https://github.com/user-attachments/assets/649f8a7a-9b44-4c5e-8683-2347b1f4d8fe" /></a>
+  <a href="https://github.com/neosy/elengrab/releases/download/v0.26.3/elengrab-0.26.3-mac-x64"><img width="190" alt="Download for MacOS Intel" src="https://github.com/user-attachments/assets/b6b54f1e-0898-4f2f-ad28-6255af2a85f2" /></a>
+</p>
 
 ### Screenshots of the interface
 <details>
