@@ -15,6 +15,9 @@
 - Prevent inactive video streams from remaining open and causing request stalls. [L171]
 - Allow video previews to start after switching to another item when the previous preview has ended. [L172]
 
+### 📦 Build
+- Removed version numbers from release artifact filenames.
+
 ---
 
 ## v0.26.3 — 2026-10-02

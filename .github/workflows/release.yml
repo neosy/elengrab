@@ -245,34 +245,24 @@ jobs:
 
       - name: Build
         run: |
-          SUFFIX=""
-          if [[ "${{ matrix.os_name }}" == "win" || "${{ matrix.os_name }}" == "mac" ]]; then
-            SUFFIX="-${{ steps.version.outputs.version }}"
-          fi
-
           TARGET_DIR="dist/${{ matrix.goos }}-${{ matrix.goarch }}"
           mkdir -p "${TARGET_DIR}"
 
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} CGO_ENABLED=0 \
             go build -tags embed_assets \
-            -o "${TARGET_DIR}/elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.arch_name }}${{ matrix.ext }}" ./cmd/server
+            -o "${TARGET_DIR}/elengrab-${{ matrix.os_name }}-${{ matrix.arch_name }}${{ matrix.ext }}" ./cmd/server
 
       - name: Archive
         run: |
-          SUFFIX=""
-          if [[ "${{ matrix.os_name }}" == "win" || "${{ matrix.os_name }}" == "mac" ]]; then
-            SUFFIX="-${{ steps.version.outputs.version }}"
-          fi
-
           TARGET_DIR="dist/${{ matrix.goos }}-${{ matrix.goarch }}"
           cd "${TARGET_DIR}"
 
           if [ "${{ matrix.archive }}" = "zip" ]; then
-            zip -r elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.arch_name }}.zip elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.arch_name }}${{ matrix.ext }}
+            zip -r elengrab-${{ matrix.os_name }}-${{ matrix.arch_name }}.zip elengrab-${{ matrix.os_name }}-${{ matrix.arch_name }}${{ matrix.ext }}
           else
-            tar -czf elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.arch_name }}.tar.gz elengrab${SUFFIX}-${{ matrix.os_name }}-${{ matrix.arch_name }}${{ matrix.ext }}
+            tar -czf elengrab-${{ matrix.os_name }}-${{ matrix.arch_name }}.tar.gz elengrab-${{ matrix.os_name }}-${{ matrix.arch_name }}${{ matrix.ext }}
           fi
-
+          
       - name: Create Linux bundle
         if: matrix.goos == 'linux'
         shell: bash
