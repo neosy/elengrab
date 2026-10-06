@@ -3,9 +3,9 @@ package httppaths
 // API v1
 const (
 	// Groups
-	APIV1YoutubeChannelClientGroup = "/api/v1/client/yt-channel"
+	APIV1ChannelClientGroup = "/api/v1/client/channels"
 
 	// Get youtube channel info
-	APIV1GetYoutubeChannelByIDPath   = "/{channelId}"
-	APIV1GetYoutubeChannelAvatarPath = "/{channelId}/avatar"
+	APIV1GetChannelByIDPath   = "/{channelId}"
+	APIV1GetChannelAvatarPath = "/{channelId}/avatar"
 )

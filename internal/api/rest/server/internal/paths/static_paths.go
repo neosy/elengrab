@@ -30,7 +30,7 @@ const (
 	PwaFilesPath        = "/pwa/{filepath:*}"
 	ThumbnailPath       = "/thumbnails/{thumbnailId}"
 	ChannelIDImagePath  = "/channels/{channelId}/image"
-	ChannelImagePath    = "/channels/{platform}/{channelId}/image"
+	ChannelImagePath    = "/channels/{platform}/{externalId}/image"
 )
 
 func BuildThumbnailPath(thumbID uuid.UUID) string {
@@ -46,8 +46,8 @@ func BuildIconPath(fileName string) string {
 	return StaticGroup + strings.Replace(IconFilesPath, "{filepath:*}", fileName, 1)
 }
 
-func BuildChannelImagePath(channelID, platform string) string {
+func BuildChannelImagePath(externalID, platform string) string {
 	path := strings.Replace(ChannelImagePath, "{platform}", platform, 1)
-	path = strings.Replace(path, "{channelId}", channelID, 1)
+	path = strings.Replace(path, "{externalId}", externalID, 1)
 	return StaticGroup + path
 }

@@ -6,14 +6,10 @@ import (
 	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
-	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	"github.com/neosy/elengrab/internal/pkg/errorx"
-	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
-	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
@@ -21,54 +17,20 @@ func (h *DownloaderHandlers) MediaItemStreamHandler(ctx *fasthttp.RequestCtx) {
 	// Get user ID from context
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
-	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
-	if !ok || downloadIDStr == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
-		return
-	}
-
-	downloadID, err := idcodec.DecodeUUIDBase64URL(downloadIDStr)
+	downloadID, err := h.extractDownloadID(ctx)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
 	h.stream(ctx, authCtx, downloadID, false)
 }
 
-func (h *DownloaderHandlers) StreamShortCodeHandler(ctx *fasthttp.RequestCtx) {
-	shortCode, ok := ctx.UserValue(qkeys.ShortCodeKey.String()).(string)
-	if !ok || shortCode == "" {
-		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("shortCode is required", fasthttp.StatusBadRequest))
-		return
-	}
-
-	link, err := h.linkWeb.GetLastByShortCode(ctx, shortCode)
+func (h *DownloaderHandlers) ShortLinkStreamHandler(ctx *fasthttp.RequestCtx) {
+	_, downloadID, err := h.resolveShortLinkToDownloadID(ctx, false)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
-	}
-
-	if link == nil {
-		nfasthttp.WriteErrorx(
-			ctx,
-			errorx.New(
-				"link not found",
-				exceptionx.NOT_FOUND,
-				exceptionx.NOT_FOUND.ErrorMessage(),
-			))
-		return
-	}
-
-	downloadID := stripUUIDFromIDPath(link.OriginalURL)
-	if downloadID == uuid.Nil {
-		nfasthttp.WriteErrorx(
-			ctx,
-			errorx.New(
-				"downloadID is incorrect",
-				exceptionx.WRONG_DATA,
-				exceptionx.WRONG_DATA.ErrorMessage(),
-			))
 	}
 
 	h.stream(ctx, dauth.AuthContext{}, downloadID, true)

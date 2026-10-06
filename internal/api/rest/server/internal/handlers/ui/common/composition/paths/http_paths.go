@@ -84,6 +84,6 @@ func ThumbnailPath(id string) string {
 	return httppaths.StaticThumbnailsGroup + "/" + id
 }
 
-func ChannelImagePath(channelId, platform string) string {
-	return httppaths.BuildChannelImagePath(channelId, platform)
+func ChannelImagePath(externalID, platform string) string {
+	return httppaths.BuildChannelImagePath(externalID, platform)
 }

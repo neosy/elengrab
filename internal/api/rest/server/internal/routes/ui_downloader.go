@@ -89,9 +89,6 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		g.Use(middlewareError, r.middlewares.Auth.AuthOrAnonym)
 		{
 			g.GET(httppaths.SettingsMenuPath, handlers.SettingsMenuHandler)
-
-			g.GET(httppaths.StreamShortCodePath, handlers.StreamShortCodeHandler)
-			g.HEAD(httppaths.StreamShortCodePath, handlers.StreamShortCodeHandler)
 		}
 
 	}
@@ -102,8 +99,8 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		g := nfasthttp.NewRouterGroup(httppaths.DownloaderGroup, r.router)
 		g.Use(middlewareError, r.middlewares.Auth.AuthOrAnonym)
 		{
-			g.GET(httppaths.ChannelItemPath, handlers.ChannelPageHandler)
-			g.HEAD(httppaths.ChannelItemPath, handlers.ChannelPageHandler)
+			g.GET(httppaths.ChannelPath, handlers.ChannelPageHandler)
+			g.HEAD(httppaths.ChannelPath, handlers.ChannelPageHandler)
 		}
 	}
 
@@ -115,6 +112,12 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		{
 			g.GET(httppaths.ShortLinkPath, handlers.ResolveShortLinkHandler)
 			g.HEAD(httppaths.ShortLinkPath, handlers.ResolveShortLinkHandler)
+
+			g.GET(httppaths.ShortLinkStreamPath, handlers.ShortLinkStreamHandler)
+			g.HEAD(httppaths.ShortLinkStreamPath, handlers.ShortLinkStreamHandler)
+
+			g.GET(httppaths.ShortLinkImagePath, handlers.ShortLinkImageHandler)
+			g.HEAD(httppaths.ShortLinkImagePath, handlers.ShortLinkImageHandler)
 		}
 	}
 }
