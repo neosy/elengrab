@@ -45,13 +45,9 @@ func normalizePath(p string) string {
 	case strings.HasPrefix(p, "/downloader/items/"):
 		return normalizeBySegments(p, 3, "/downloader/items/:id")
 
-	// /downloader/stream/{id}
-	case strings.HasPrefix(p, "/downloader/stream/"):
-		return normalizeBySegments(p, 3, "/downloader/stream/:id")
-
-	// /downloader/channel/{id}/avatar
-	case strings.HasPrefix(p, "/downloader/channel/"):
-		return normalizeBySegments(p, 3, "/downloader/channel/:id")
+	// /downloader/channels/{id}
+	case strings.HasPrefix(p, "/downloader/channels/"):
+		return normalizeBySegments(p, 3, "/downloader/channels/:id")
 
 	// short links
 	case strings.HasPrefix(p, "/s/"):

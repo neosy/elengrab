@@ -9,8 +9,8 @@ import (
 func (h *V1Handlers) GetChannelByID(ctx *fasthttp.RequestCtx) {
 	args := ctx.QueryArgs()
 
-	channelID := string(args.Peek(channelIDKey))
-	if channelID == "" {
+	externalID := string(args.Peek(externalIDKey))
+	if externalID == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrChannelIsRequired)
 		return
 	}
@@ -21,7 +21,7 @@ func (h *V1Handlers) GetChannelByID(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	channel, err := h.downloader.GetChannelInfo(ctx, channelID, platform)
+	channel, err := h.downloader.GetChannelInfo(ctx, externalID, platform)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

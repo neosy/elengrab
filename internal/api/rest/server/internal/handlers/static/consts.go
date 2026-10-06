@@ -2,6 +2,6 @@ package static
 
 const (
 	thumbnailIdKey = "thumbnailId"
-	ChannelIdKey   = "channelId"
+	ExternalIdKey  = "externalId"
 	PlatformKey    = "platform"
 )

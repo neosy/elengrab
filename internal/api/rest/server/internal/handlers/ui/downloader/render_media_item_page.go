@@ -25,16 +25,16 @@ import (
 )
 
 type renderWatchPageRequest struct {
-	pageURL        string
-	streamURLPath  string
-	downloadID     uuid.UUID
+	pageURL    string
+	downloadID uuid.UUID
+
 	showBackButton bool
 
-	allowAnonymous bool
-	authCtx        dauth.AuthContext
+	authCtx   dauth.AuthContext
+	shortLink *shortLink
 }
 
-func (h *DownloaderHandlers) renderWatchPage(
+func (h *DownloaderHandlers) renderMediaItemPage(
 	ctx *fasthttp.RequestCtx,
 	req renderWatchPageRequest,
 ) {
@@ -44,18 +44,24 @@ func (h *DownloaderHandlers) renderWatchPage(
 		return
 	}
 
-	var (
-		downloadInfo *dto.MediaDownloadInfo
-		err          error
-	)
-	if req.allowAnonymous {
+	var downloadInfo *dto.MediaDownloadInfo
+
+	if req.shortLink != nil {
+		var err error
 		downloadInfo, err = h.downloader.GetDownloadInfoUnrestricted(ctx, req.downloadID)
-	} else {
-		downloadInfo, err = h.downloader.GetDownloadInfo(ctx, req.authCtx, req.downloadID)
+		if err != nil {
+			nfasthttp.WriteErrorx(ctx, err)
+			return
+		}
 	}
-	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
-		return
+
+	if req.shortLink == nil {
+		var err error
+		downloadInfo, err = h.downloader.GetDownloadInfo(ctx, req.authCtx, req.downloadID)
+		if err != nil {
+			nfasthttp.WriteErrorx(ctx, err)
+			return
+		}
 	}
 
 	var (
@@ -125,6 +131,38 @@ func (h *DownloaderHandlers) renderWatchPage(
 			Width:  1280,
 			Height: 720,
 		}
+	}
+
+	var (
+		streamURLPath string
+		titleImageURL string
+	)
+
+	if req.shortLink != nil {
+		streamURLPath = httppaths.BuildShortLinkStreamPath(h.shortLinkPrefix, req.shortLink.code)
+
+		titleImageURL = httppaths.BuildShortLinkImagePath(
+			h.shortLinkPrefix,
+			req.shortLink.code,
+			downloadInfo.ImageMetaHash(),
+			[]dtypes.ImageSource{
+				dtypes.ImageSourceChannel,
+				dtypes.ImageSourceSite,
+			},
+		)
+	}
+
+	if req.shortLink == nil {
+		streamURLPath = httppaths.BuildMediaItemStreamPath(req.downloadID)
+
+		titleImageURL = httppaths.BuildMediaItemImagePath(
+			downloadInfo.DownloadID,
+			downloadInfo.ImageMetaHash(),
+			[]dtypes.ImageSource{
+				dtypes.ImageSourceChannel,
+				dtypes.ImageSourceSite,
+			},
+		)
 	}
 
 	metaOgItems := make(pages.MetaOgItems, 0, 20)
@@ -214,15 +252,6 @@ func (h *DownloaderHandlers) renderWatchPage(
 		)
 	}
 
-	titleImageURL := httppaths.BuildMediaItemImagePath(
-		downloadInfo.DownloadID,
-		downloadInfo.ImageMetaHash(),
-		[]dtypes.ImageSource{
-			dtypes.ImageSourceChannel,
-			dtypes.ImageSourceSite,
-		},
-	)
-
 	mediaStartPosition, _ := h.downloader.GetLastWatchPosition(ctx, req.authCtx, req.downloadID)
 
 	pageData := pages.WatchPageData{
@@ -232,7 +261,7 @@ func (h *DownloaderHandlers) renderWatchPage(
 			Css:         cssPaths,
 			JsScripts:   jsScripts,
 			PwaManifest: pwaManifestPath,
-			StreamURL:   req.streamURLPath,
+			StreamURL:   streamURLPath,
 		},
 		Values: pages.WatchPageValues{
 			ItemID:               idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),

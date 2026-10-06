@@ -10,19 +10,19 @@ import (
 )
 
 func (h *StaticHandlers) ChannelImageHandler(ctx *fasthttp.RequestCtx) {
-	channelID, ok := ctx.UserValue(ChannelIdKey).(string)
-	if !ok || channelID == "" {
+	externalID, ok := ctx.UserValue(ExternalIdKey).(string)
+	if !ok || externalID == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrChannelIsRequired)
 		return
 	}
 
 	platform, ok := ctx.UserValue(PlatformKey).(string)
-	if !ok || channelID == "" {
+	if !ok || externalID == "" {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrChannelPlatformIsRequired)
 		return
 	}
 
-	channel, err := h.downloader.GetChannelInfo(ctx, channelID, platform)
+	channel, err := h.downloader.GetChannelInfo(ctx, externalID, platform)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

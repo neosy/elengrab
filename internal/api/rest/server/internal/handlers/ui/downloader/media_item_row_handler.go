@@ -3,27 +3,18 @@ package downloader
 import (
 	"bytes"
 
-	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
-	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
-	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) MediaItemRowHandler(ctx *fasthttp.RequestCtx) {
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
-	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
-	if !ok || downloadIDStr == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
-		return
-	}
-
-	downloadID, err := idcodec.DecodeUUIDBase64URL(downloadIDStr)
+	downloadID, err := h.extractDownloadID(ctx)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -44,6 +35,7 @@ func (h *DownloaderHandlers) MediaItemRowHandler(ctx *fasthttp.RequestCtx) {
 		nfasthttp.WriteErrorx(ctx, row.err)
 		return
 	}
+
 	if row.httpStatus == fasthttp.StatusNoContent {
 		ctx.SetStatusCode(row.httpStatus)
 		ctx.Response.Header.Set("HX-Trigger", "no-op")

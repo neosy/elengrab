@@ -2,7 +2,6 @@ package httppaths
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 
 	"github.com/google/uuid"
@@ -42,7 +41,7 @@ const (
 	MediaItemWatchPositionPath   = MediaItemsPath + "/{itemId}/watch-position"
 
 	// Paths channels Downloader
-	ChannelItemPath = ChannelsPath + "/item/{channelId}"
+	ChannelPath = ChannelsPath + "/{channelId}"
 
 	// Downloader Paths
 	DownloaderAccountMenuPath  = DownloaderGroup + AccountMenuPath
@@ -54,10 +53,6 @@ const (
 	DownloaderSearchPath       = DownloaderGroup + SearchPath
 	DownloaderEventsPath       = DownloaderGroup + EventsPath
 	DownloaderChannelsPath     = DownloaderGroup + ChannelsPath
-
-	// Paths short links, e.g. /s/{shortCode}
-	ShortLinkPath       = "/{shortCode}"
-	StreamShortCodePath = "/stream/{shortCode}"
 )
 
 func buildMediaItemPath(path string, downloadID uuid.UUID) string {
@@ -85,46 +80,21 @@ func BuildMediaItemEditPath(downloadID uuid.UUID) string {
 	return buildMediaItemPath(MediaItemEditPath, downloadID)
 }
 
-func BuildStreamShortCodePath(shortCode string) string {
-	return DownloaderGroup + strings.Replace(StreamShortCodePath, "{shortCode}", shortCode, 1)
-}
-
 func BuildMediaItemDownloadPath(downloadID uuid.UUID) string {
 	id := idcodec.EncodeUUIDBase64URL(downloadID)
 	return fmt.Sprintf("%s?itemId=%s", DownloaderGroup+DownloadFilePath, id)
 }
 
 func BuildMediaItemImagePath(downloadID uuid.UUID, verHash string, sources []dtypes.ImageSource) string {
-	var sourceStrings []string
-	for _, src := range sources {
-		if src.Exists() {
-			sourceStrings = append(sourceStrings, src.String())
-		}
-	}
-
-	var urlValues url.Values
-	if len(sourceStrings) > 0 {
-		urlValues = url.Values{}
-		urlValues.Set("source", strings.Join(sourceStrings, ","))
-	}
-
-	if verHash != "" {
-		urlValues.Set("v", verHash)
-	}
-
-	var urlSufix string
-	if len(urlValues) > 0 {
-		urlSufix = "?" + urlValues.Encode()
-	}
-
+	urlSufix := buildImageSufix(verHash, sources)
 	return buildMediaItemPath(MediaItemImagePath, downloadID) + urlSufix
 }
 
-func buildChannelItemPath(path string, channelID uuid.UUID) string {
+func buildChannelPath(path string, channelID uuid.UUID) string {
 	id := idcodec.EncodeUUIDBase64URL(channelID)
 	return DownloaderGroup + strings.Replace(path, "{channelId}", id, 1)
 }
 
-func BuildChannelItemPath(channelID uuid.UUID) string {
-	return buildChannelItemPath(ChannelItemPath, channelID)
+func BuildChannelPath(channelID uuid.UUID) string {
+	return buildChannelPath(ChannelPath, channelID)
 }

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
@@ -18,6 +19,7 @@ import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
+	dlink "github.com/neosy/elengrab/internal/domain/link"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
@@ -27,6 +29,15 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/stringx"
 	"github.com/valyala/fasthttp"
 )
+
+type shortLink struct {
+	code string
+
+	shortURL   string
+	pathSuffix string
+
+	originalURL string
+}
 
 func parseGetFilters(ctx *fasthttp.RequestCtx) (*dtypes.QueryFilters, error) {
 	filters := dtypes.NewQueryFilters()
@@ -313,7 +324,7 @@ func (h *DownloaderHandlers) buildChannelPageData(
 
 	encodeChannelID := idcodec.EncodeUUIDBase64URL(channelID)
 
-	channelURL := httppaths.BuildChannelItemPath(channelID)
+	channelURL := httppaths.BuildChannelPath(channelID)
 
 	return pages.Channel{
 		EncodedChannelID: encodeChannelID,
@@ -354,4 +365,95 @@ func (h *DownloaderHandlers) buildChannelHeaderPageData(ctx context.Context, cha
 		},
 		Show: true,
 	}
+}
+
+func (h *DownloaderHandlers) extractDownloadID(ctx *fasthttp.RequestCtx) (uuid.UUID, error) {
+	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
+	if !ok || downloadIDStr == "" {
+		return uuid.Nil, apierrors.ErrDownloadIDIsRequired
+	}
+
+	downloadID, err := idcodec.DecodeUUIDBase64URL(downloadIDStr)
+	if err != nil {
+		return uuid.Nil, apierrors.ErrDownloadIDIsIncorrect.Wrap(err)
+	}
+
+	return downloadID, nil
+}
+
+func (h *DownloaderHandlers) extractShortURL(rawURL string) (string, string) {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return "", ""
+	}
+
+	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
+	if len(parts) < 2 || "/"+parts[0] != h.shortLinkPrefix {
+		return "", ""
+	}
+
+	shortURL := u.Scheme + "://" + u.Host + "/" + strings.Join(parts[:2], "/")
+	pathSuffix := strings.Join(parts[2:], "/")
+
+	return shortURL, pathSuffix
+}
+
+func (h *DownloaderHandlers) resolveShortLink(ctx *fasthttp.RequestCtx, clickShortLink bool) (*shortLink, error) {
+	shortCode, ok := ctx.UserValue(qkeys.ShortCodeKey.String()).(string)
+	if !ok || shortCode == "" {
+		return nil, errorx.NewHTTPMessage("shortCode is required", fasthttp.StatusBadRequest)
+	}
+
+	url, ipAddress, userAgent, referrer := h.extractRequestMeta(ctx)
+
+	shortURL, pathSuffix := h.extractShortURL(url)
+	if shortURL == "" {
+		return nil, errorx.NewHTTPMessage("short link URL is invalid", fasthttp.StatusBadRequest)
+	}
+
+	var (
+		link *dlink.Link
+		err  error
+	)
+
+	if clickShortLink {
+		link, err = h.linkWeb.ShortLinkClick(ctx, shortURL, ipAddress, userAgent, referrer)
+	} else {
+		link, err = h.linkWeb.GetLastByShortCode(ctx, shortCode)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	if link == nil {
+		return nil, errorx.NewMessage("short link not found.", exceptionx.NOT_FOUND)
+	}
+
+	return &shortLink{
+		code: shortCode,
+
+		shortURL:   shortURL,
+		pathSuffix: pathSuffix,
+
+		originalURL: link.OriginalURL,
+	}, nil
+}
+
+func (h *DownloaderHandlers) resolveShortLinkToDownloadID(ctx *fasthttp.RequestCtx, clickShortLink bool) (*shortLink, uuid.UUID, error) {
+	shortLink, err := h.resolveShortLink(ctx, clickShortLink)
+	if err != nil {
+		return nil, uuid.Nil, err
+	}
+
+	downloadID := stripUUIDFromIDPath(shortLink.originalURL)
+	if downloadID == uuid.Nil {
+		return nil, uuid.Nil, errorx.Errorf(
+			"failed short link %v, originalURL: %v", shortLink.shortURL, shortLink.originalURL,
+			exceptionx.WRONG_DATA,
+			errorx.WithErrorMessage("Short link is invalid."),
+		)
+	}
+
+	return shortLink, downloadID, nil
 }
