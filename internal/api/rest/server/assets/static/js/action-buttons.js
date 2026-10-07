@@ -246,6 +246,12 @@ export function initCopyUrlButtons(onCopied, onError) {
             await navigator.clipboard.writeText(link.href);
             if (onCopied) {
                 onCopied(link.href);
+
+                button.classList.add("copied");
+
+                setTimeout(() => {
+                    button.classList.remove("copied");
+                }, 1500);
             }
         } catch (error) {
             if (onError) {
