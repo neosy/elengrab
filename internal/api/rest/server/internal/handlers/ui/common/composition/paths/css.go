@@ -38,6 +38,7 @@ var (
 
 	indexPageCssPaths = append(
 		pagesListCssPaths,
+
 		cssFileNames{
 			"page-index.css",
 			"grab-form.css",
@@ -46,6 +47,7 @@ var (
 
 	channelPageCssPaths = append(
 		pagesListCssPaths,
+
 		cssFileNames{
 			"page-channel.css",
 		}...,
@@ -75,21 +77,7 @@ var (
 		"page-auth.css",
 	}
 
-	watchPageCssPaths = cssFileNames{
-		"font-inter.css",
-		"base.css",
-		"interactions.css",
-		"utilities.css",
-		"variables.css",
-
-		"components.css",
-		"notifications.css",
-
-		"theme-switcher.css",
-		"page-watch.css",
-	}
-
-	editMediaPageCssPaths = cssFileNames{
+	pagesDetailCssPaths = cssFileNames{
 		"font-inter.css",
 		"base.css",
 		"interactions.css",
@@ -98,11 +86,34 @@ var (
 		"variables-page.css",
 
 		"components.css",
+		"components-header.css",
+		"components-footer.css",
 		"notifications.css",
+		"dialog.css",
 
 		"theme-switcher.css",
-		"page-edit-media.css",
+
+		"pages-detail.css",
+
+		"menu.css",
+		"menu-variants.css",
 	}
+
+	watchPageCssPaths = append(
+		pagesDetailCssPaths,
+
+		cssFileNames{
+			"page-watch.css",
+		}...,
+	)
+
+	editMediaPageCssPaths = append(
+		pagesDetailCssPaths,
+
+		cssFileNames{
+			"page-edit-media.css",
+		}...,
+	)
 )
 
 type (

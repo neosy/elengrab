@@ -13,6 +13,7 @@
 
     --header-logo-image-height: 3em;
     --header-title-font-size: 55px;
+    --header-link-gap: 10px;
 
     --main-margin-top: var(--header-height);
     --main-margin-bottom: 10px;
@@ -81,6 +82,8 @@
 @media (max-width: 480px) {
     :root {
         --main-padding: 10px;
+
+        --header-link-gap: 8px;
     }
 }
 
@@ -216,12 +219,13 @@ body.ui-blocking-active {
 
     align-items: center;
 
-    gap: 10px;
+    gap: var(--header-link-gap);
 
     text-decoration: none;
     color: inherit;
     -webkit-tap-highlight-color: transparent;
 }
+
 
 .header__logo-image svg {
     height: var(--header-logo-image-height);

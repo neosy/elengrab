@@ -1,5 +1,4 @@
-import { CLASS_NAMES, CLASS_SELECTORS, CSS_VARIABLE_NAMES, DOM_IDS, DOM_ELEMENTS } from "./pages-list.dom.js";
-import * as notify from './notifications.js';
+import { CLASS_NAMES, CLASS_SELECTORS, CSS_VARIABLE_NAMES, DOM_IDS } from "./pages-list.dom.js";
 import { CLASS_PREFIXES, EVENT_NAMES } from './constants.js';
 
 // -------------------------------------------------------------
@@ -200,20 +199,6 @@ export function handleRowDelete(event) {
     }
 }
 
-export function handleSystemInfoUpdate(event) {
-    try {
-        const data = JSON.parse(event.data);
-        if (!data.diskFree || !data.diskUsed) return
-
-        if (!DOM_ELEMENTS.sysInfoDiskFree || !DOM_ELEMENTS.sysInfoDiskUsed) return;
-
-        DOM_ELEMENTS.sysInfoDiskFree.textContent = data.diskFree
-        DOM_ELEMENTS.sysInfoDiskUsed.textContent = data.diskUsed
-    } catch (err) {
-        console.error(`SSE ${event.type} handler error:`, err);
-    }
-}
-
 export function handleRowPatchField(event) {
     try {
         const data = JSON.parse(event.data);
@@ -234,16 +219,4 @@ function handleRowPatchProgress(itemId, value) {
     if (!el) return;
 
     el.textContent = value
-}
-
-
-export function handleNotification(event) {
-    try {
-        const data = JSON.parse(event.data);
-        if (!data.module || !data.type || !data.message) return
-
-        notify.show(data.message, data.type)
-    } catch (err) {
-        console.error(`SSE ${event.type} handler error:`, err);
-    }
 }

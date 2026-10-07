@@ -254,6 +254,8 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 
 	mediaStartPosition, _ := h.downloader.GetLastWatchPosition(ctx, req.authCtx, req.downloadID)
 
+	systemInfo := h.downloader.SystemInfo()
+
 	pageData := pages.WatchPageData{
 		BaseValues: baseValues,
 		BasePaths:  paths.NewHttpPaths(),
@@ -273,6 +275,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 			ContentType:          contentType,
 			MediaTitleImageURL:   titleImageURL,
 			MediaStartPositionMs: uint32(mediaStartPosition.Milliseconds()),
+			AboutDialog:          h.mappers.MapSystemInfoToAboutDialogValues(systemInfo),
 		},
 	}
 

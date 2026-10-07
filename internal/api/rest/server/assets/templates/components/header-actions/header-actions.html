@@ -20,3 +20,21 @@
         {{- template "header-actions-user-avatar" . }}
       </div>
 {{- end }}
+
+{{- define "admin-header-actions" }}
+      <div class="header-actions">
+        {{- template "theme-switcher" . }}
+      </div>
+{{- end }}
+
+{{- define "watch-header-actions" }}
+      <div class="header-actions">
+        {{- template "theme-switcher" . }}
+      </div>
+{{- end }}
+
+{{- define "edit-media-header-actions" }}
+      <div class="header-actions">
+        {{- template "theme-switcher" . }}
+      </div>
+{{- end }}

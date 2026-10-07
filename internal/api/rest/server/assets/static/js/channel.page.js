@@ -1,12 +1,14 @@
 import * as browser from './browser.js';
 import * as common from "./common.js";
-import * as sseClient from "./sse.js";
 import * as dialog from "./dialog.js";
 import * as tooltip from './tooltip.js';
 import { initPlayer } from './player.js';
 import * as videoPreview from './video-preview.js';
 
+import * as sseClient from "./sse.js";
 import * as rowEventHandlers from './pages-list.sse.events.js';
+import * as commonEventHandlers from './sse.events.js';
+
 import { initChannelMenus as initMenu } from './pages-list.menu-configs.js';
 import * as view from './pages-list.view.js';
 import * as search from './pages-list.search.js';
@@ -126,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         "row-delete": rowEventHandlers.handleRowDelete,
         "row-patch-field": rowEventHandlers.handleRowPatchField,
         "row-start-refreshing": rowEventHandlers.handleRowStartRefreshing,
-        "notification": rowEventHandlers.handleNotification,
+        "notification": commonEventHandlers.handleNotification,
     };    
     sseClient.initSSE(sseEventHandlers);
 });

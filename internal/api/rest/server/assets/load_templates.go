@@ -21,6 +21,7 @@ var tmplPaths = [][]string{
 	{"templates", "components", "media-result", "*.html"},
 	{"templates", "components", "rows", "*.html"},
 	{"templates", "components", "watch", "*.html"},
+	{"templates", "components", "edit-media", "*.html"},
 	{"templates", "components", "dialogs", "*.html"},
 	{"templates", "components", "dialogs", "content", "*.html"},
 }

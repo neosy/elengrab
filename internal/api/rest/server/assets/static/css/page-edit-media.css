@@ -1,155 +1,57 @@
 :root {
-    --h1: 1.5rem;
     --h2: 1.40rem;
-    --h3: 1.25rem;
-    --h4: 1.0rem;
-    --h5: 0.85rem;
-
-    --header-margin: 10px 15px 10px 20px;
-    --main-margin: 10px 0px 10px 20px ;
-    --main-padding: 0px;
-    --main-horizontal-padding: 20px; 
-    --page-content-max-width: 700px;
-    --media-editor-max-width: 700px;
-    --input-horizontal-padding: 10px;
 }
 
-@media (max-width: 768px) {
-    :root {
-        --h1: 1.35rem;
-        --h2: 1.20rem;
-        --h3: 1.12rem;
-        --h4: 0.95rem;
-        --h5: 0.8rem;
-    }
+:root {
+    --header-bg: var(--page-main-bg);
+
+    --main-margin-x: 20px;
+    --main-margin-y: 10px;
+    --main-margin-top: calc(var(--header-height) + var(--main-margin-y));
+
+    --main-padding-x: 0px;
+    --main-padding-y: 0px;
+
+    --page-content-max-width: 700px;
+    --media-editor-max-width: 700px;
+    --page-content-padding-right: 10px; 
+
+    --input-horizontal-padding-x: 10px;
 }
 
 @media (max-width: 480px) {
     :root {
-        --h1: 1.5rem;
+        --main-margin-x: 5px;
+        --main-margin-y: 5px;
+        --main-margin-top: calc(var(--header-height) + var(--main-margin-y));
 
-        --header-margin: 10px 15px 5px 5px;
-        --main-margin: 10px 0px 10px 10px;
-        --main-padding: 0px 5px;
-        --main-horizontal-padding: 10px; 
+        --main-padding-x: 5px;
+        --main-padding-y: 0px;
+
+        --page-content-padding-right: 0; 
     }
 }
-
-h1 { font-size: var(--h1); font-weight: 600; font-family: 'Cinzel', serif; }
-h2 { font-size: var(--h2); font-weight: 600; }
-h3 { font-size: var(--h3); font-weight: 600; }
-h4 { font-size: var(--h4); }
 
 html, body {
     height: 100%;
     margin: 0;
-    overflow: hidden;
 }
 
 body {
-    display: flex;
-    flex-direction: column;
-
     height: 100vh;
-
-    justify-content: center;
-
-    background-color: var(--page-main-bg);
-    color: var(--page-text-primary);
-
-    letter-spacing: -0.25px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.header {
-    display: flex;
-
-    margin: var(--header-margin);
-
-    justify-content: space-between;
-    align-items: center;
-}
-
-.header__left {
-    display: flex;
-
-    align-items: center;
-    justify-content: left;
-}
-
-.header__right {
-    display: flex;
-}
-
-.header__left * {
-    user-select: none;
-}
-
-.header__logo-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    color: inherit;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.header__logo-image svg {
-    height: 2.4em;
-    width: auto;
-}
-
-.header__logo-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0px;
-}
-
-.header__logo-title {
-    color: var(--page-text-header);
-    letter-spacing: -0.5px;
-    line-height: normal;
-}
-
-.header__logo-description {
-    color: var(--page-text-secondary);
-}
-
-.header-actions {
-    display: flex;
-
-    width: auto;
-
-    justify-content: flex-end;
-
-    pointer-events: none;
-    gap: 8px;
-
-    z-index: 100;
-}
-
-.header-actions > div {
-    display: flex;
-
-    width: auto;
-
-    justify-content: center;
-    align-items: center;
-
-    pointer-events: auto;
 }
 
 .main {
-    flex: 1;
-
     display: grid;
     grid-template-columns: 1fr;
+    flex: 1;
 
     max-width: 100%;
     min-height: 0;
 
-    margin: var(--main-margin);
-    padding: var(--main-padding);
+    margin: var(--main-margin-y) var(--main-margin-x);
+    margin-top: var(--main-margin-top);
+    padding: var(--main-padding-y) var(--main-padding-x);
 
     align-content: start;
 
@@ -173,7 +75,7 @@ body {
     width: 100%;
 
     margin-bottom: 20px;
-    padding-right: var(--main-horizontal-padding);
+    padding-right: var(--page-content-padding-right);
 
     align-items: center;
 }
@@ -192,7 +94,7 @@ body {
     max-width: 100%;
     min-height: 0;
 
-    padding-right: var(--main-horizontal-padding);
+    padding-right: var(--page-content-padding-right);
 
     overflow-y: auto;
     scrollbar-width: thin;
@@ -252,7 +154,7 @@ body {
 
     min-height: 60px;
 
-    padding: 6px var(--input-horizontal-padding) 36px;
+    padding: 6px var(--input-horizontal-padding-x) 36px;
 
     background-color: transparent;
 
@@ -325,7 +227,7 @@ body {
 .media-editor__char-counter {
     position: absolute;
     bottom: 12px;
-    right: var(--input-horizontal-padding);
+    right: var(--input-horizontal-padding-x);
     color: var(--editor-field-error-color, var(--page-text-title-secondary));
     font-size: 13px;
     pointer-events: none;

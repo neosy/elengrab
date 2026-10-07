@@ -2,27 +2,13 @@
     {{- template "base" . }}
 {{- end }}
 
+{{- define "header-actions" }}
+  {{- template "watch-header-actions" . }}
+{{- end }}
+
 {{- define "header" }}
   <header class="header" id="header">
-    <div class="header-actions">
-      {{- template "theme-switcher" . }}
-    </div>
-    <div class="header__inner">
-        {{- if .Values.ShowBackButton -}}
-        <button class="back-button" id="backButton">
-            <svg viewBox="0 0 24 24">
-                <path d="M15 18l-6-6 6-6" />
-            </svg>
-        </button>
-        {{- end -}}
-        <a class="header__logo-link" href="/">
-            <div class="header__logo-image">{{ .BaseValues.LogoIcon }}</div>
-            <div class="header__logo-text">
-                <h1 class="header__logo-title">{{ .BaseValues.Header }}</h1>
-                <h5 class="header__logo-description">Media player</h5>
-            </div>
-        </a>
-    </div>
+    {{- template "watch-header-content" . }}
   </header>
 {{- end }}
 
@@ -35,6 +21,13 @@
   </main>
 {{- end }}
 
+{{- define "footer" }}
+  <footer class="footer">
+      {{- template "watch-footer-content" . }}
+  </footer>
+{{- end }}
+
 {{- define "overlays" }}
     {{- template "notification-area" . }}
+    {{- template "about-dialog" . }}
 {{- end }}

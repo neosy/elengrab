@@ -1,5 +1,9 @@
 /* /static/css/theme-switcher.css — compact sun/moon toggle button */
 
+:root {
+    --theme-switcher-button-backdrop-filter: 0;
+}
+
 html {
     color-scheme: light;
 }
@@ -35,8 +39,8 @@ html.dark {
     border-radius: 50%;
 
     background: transparent;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: var(--theme-switcher-button-backdrop-filter);
+    -webkit-backdrop-filter: var(--theme-switcher-button-backdrop-filter);
     
     cursor: pointer;
 
