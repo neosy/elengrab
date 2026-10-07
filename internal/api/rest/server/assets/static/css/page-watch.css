@@ -34,7 +34,10 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
+
     justify-content: center;
+
+    background-color: var(--main-bg);
 
     letter-spacing: -0.25px;
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -122,7 +125,7 @@ body {
 
     align-content: start;
 
-    background: var(--body-bg);
+    background: inherit;
 }
 
 .main_content {
@@ -148,7 +151,7 @@ body {
     width: auto;
     max-width: 100%;
 
-    background: #000;
+    background: var(--bg-card);
     border-radius: 20px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 

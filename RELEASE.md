@@ -12,6 +12,7 @@
 - Renamed the files database table to media_downloads. [L169]
 - Renamed database columns file_id to download_id and youtube_url to media_url. [L169]
 - Updated related database indexes and foreign key references. [L169]
+- Organized body and main background colors for different pages.
 
 ### 🐛 Fix
 - Stop stale video streams when switching or closing video players. [L171]

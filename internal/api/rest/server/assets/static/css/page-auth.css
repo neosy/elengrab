@@ -6,6 +6,8 @@ body {
     justify-content: center;
     align-items: center;
 
+    background-color: var(--auth-body-bg);
+
     letter-spacing: -0.25px;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -30,7 +32,8 @@ body {
 .main {
     display: flex;
     justify-content: center;
-    background: transparent;
+    
+    background-color: var(--auth-main-bg);
 }
 
 .main_register, .main_login {
@@ -39,7 +42,7 @@ body {
     max-width: 320px;
     min-width: 280px;
     padding: 24px;
-    background: var(--main-bg);
+    background: var(--auth-main-block-bg);
     border-radius: 20px;
     box-shadow: 0 2px 6px var(--shadow);
 }

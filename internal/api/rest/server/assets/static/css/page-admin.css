@@ -351,6 +351,8 @@ body {
 .content-open .nav-item.active {
     background: var(--admin-sidebar-item-active);
     color: white;
+
+    border-radius: 20px;
 }
 
 .nav-icon {

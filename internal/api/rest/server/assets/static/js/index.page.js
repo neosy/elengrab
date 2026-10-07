@@ -119,6 +119,9 @@ if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
 }
 
+// Apply persisted grid/list layout state on initial page load 
+view.initGridView();
+
 document.addEventListener('DOMContentLoaded', () => {
     initDomElements();
 
@@ -132,8 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
     cookie.setupCookieSelectSync(SELECT_NAMES.qualityResolution, COOKIE_NAMES.qualityResolution, true);
     cookie.setupCookieSelectSync(SELECT_NAMES.format, COOKIE_NAMES.format);
 
-    // Apply persisted grid/list layout state on initial page load 
-    view.initGridView();
     document.body.classList.add('layout-ready');
 
     // Submit on Enter
