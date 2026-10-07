@@ -5,6 +5,9 @@
 ### ✨ Features
 - Added a short URL code for media downloads. [L170]
 
+### 🎨 Style
+- Refined copy button colors and added animation.
+
 ### 🧩 Refactor
 - Renamed the files database table to media_downloads. [L169]
 - Renamed database columns file_id to download_id and youtube_url to media_url. [L169]

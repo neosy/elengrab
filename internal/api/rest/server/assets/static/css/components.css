@@ -64,3 +64,27 @@
 .dark .tooltip {
     border: 1px solid rgba(255, 255, 255, 0.35);
 }
+
+.action-button--copy:hover {
+    color: var(--action-copy-icon-hover);
+}
+
+.action-button--copy.copied {
+    color: var(--action-copy-icon-accent);
+}
+
+.action-button--copy.copied svg {
+    display: none;
+}
+
+.action-button--copy.copied::after {
+    content: "✓";
+
+    width: 20px;
+    height: 20px;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    transform: translateY(-2px);
+}
