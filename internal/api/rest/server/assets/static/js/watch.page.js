@@ -1,41 +1,13 @@
 import { DOM_ELEMENTS, initDomElements } from "./watch-page.dom.js";
 import * as browser from './browser.js';
+import * as dialog from "./dialog.js";
 import * as actionButton from './action-buttons.js';
 import * as watchAPI from './watch-api.js';
 import * as notify from './notifications.js';
 import { MEDIA_WATCH } from './constants.js';
 
-const isPWA =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      window.matchMedia('(display-mode: fullscreen)').matches ||
-      window.navigator.standalone === true;
-
-document.addEventListener('DOMContentLoaded', () => {
-    initDomElements();
-
-    document.addEventListener('keydown', function(e) {
-        if (e.code === "Space") {
-            e.preventDefault();
-            togglePlay();
-        }
-        if (e.code === "ArrowRight") skipForward();
-        if (e.code === "ArrowLeft") skipBackward();
-    });
-
-    // Initialize viewport height sync (fixes mobile PWA viewport issues)
-    browser.initViewportHeightVar();
-
-    actionButton.initCopyUrlButtons(
-        (url) => {
-            notify.show(`Link copied: ${url}`, notify.notifyType.SUCCESS);
-        },
-        (url) => {
-            notify.show(`Failed to copy link: ${url}`, notify.notifyType.ERROR);
-        }
-    );
-
-    initPlayer();
-});
+import * as sseClient from "./sse.js";
+import * as commonEventHandlers from './sse.events.js';
 
 function initPlayer() {
     function setStartPosition(player) {
@@ -50,8 +22,8 @@ function initPlayer() {
 
     if (DOM_ELEMENTS.backButton) {
         const display = DOM_ELEMENTS.backButton.style.display;
-        DOM_ELEMENTS.backButton.style.display = isPWA ? display : 'none';
-        isPWA && (DOM_ELEMENTS.backButton.addEventListener('click', goBack));
+        DOM_ELEMENTS.backButton.style.display = browser.isPWA ? display : 'none';
+        browser.isPWA && (DOM_ELEMENTS.backButton.addEventListener('click', goBack));
     }
 
     // Update progress bar as the media plays
@@ -153,13 +125,6 @@ function fitVideo() {
     
 }
 
-function formatTime(seconds) {
-    if (!seconds || isNaN(seconds)) return "0:00";
-    const min = Math.floor(seconds / 60);
-    const sec = Math.floor(seconds % 60);
-    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
-}
-
 function togglePlay() {
     if (DOM_ELEMENTS.player.paused) {
         DOM_ELEMENTS.player.play();
@@ -172,15 +137,6 @@ function togglePlay() {
             DOM_ELEMENTS.playButton.innerHTML = '▶';
         }
     }
-}
-
-function updateProgressBar() {
-    const progress = document.getElementById('progress');
-    const currentTimeEl = document.getElementById('currentTime');
-    
-    const percentage = (DOM_ELEMENTS.player.currentTime / DOM_ELEMENTS.player.duration) * 100;
-    progress && (progress.style.width = percentage + '%');
-    currentTimeEl && (currentTimeEl.textContent = formatTime(DOM_ELEMENTS.player.currentTime));
 }
 
 function skipForward() {
@@ -203,3 +159,39 @@ function toggleFullscreen() {
 function goBack() {
     window.history.back();
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    initDomElements();
+
+    document.addEventListener('keydown', function(e) {
+        if (e.code === "Space") {
+            e.preventDefault();
+            togglePlay();
+        }
+        if (e.code === "ArrowRight") skipForward();
+        if (e.code === "ArrowLeft") skipBackward();
+    });
+
+    // Initialize viewport height sync (fixes mobile PWA viewport issues)
+    browser.initViewportHeightVar();
+
+    actionButton.initCopyUrlButtons(
+        (url) => {
+            notify.show(`Link copied: ${url}`, notify.notifyType.SUCCESS);
+        },
+        (url) => {
+            notify.show(`Failed to copy link: ${url}`, notify.notifyType.ERROR);
+        }
+    );
+
+    // Init dialogs
+    dialog.initDialogs();
+
+    initPlayer();
+
+    // Create SSE connection
+    const sseEventHandlers = {
+        "notification": commonEventHandlers.handleNotification,
+    };    
+    sseClient.initSSE(sseEventHandlers);
+});

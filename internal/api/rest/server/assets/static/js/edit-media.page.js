@@ -30,21 +30,6 @@ class OriginalValues {
 
 const originalValues = new OriginalValues();
 
-document.addEventListener('DOMContentLoaded', () => {
-    initDomElements();
-    initElements();
-    initSaveButton();
-});
-
-function initElements() {
-    initInputElements();
-
-    DOM_ELEMENTS.mediaVisibilitySelect?.addEventListener(
-        "change",
-        syncButtonsState
-    );
-}
-
 function initInputElements() {
     const fields = document.querySelectorAll(`.${DOM_CLASSES.mediaEditorFieldInput}`);
     const maxWidth = 160;
@@ -99,6 +84,15 @@ function initInputElements() {
 
     setOriginalValues();
     syncButtonsState();
+}
+
+function initElements() {
+    initInputElements();
+
+    DOM_ELEMENTS.mediaVisibilitySelect?.addEventListener(
+        "change",
+        syncButtonsState
+    );
 }
 
 function initSaveButton() {
@@ -175,3 +169,9 @@ function syncButtonsState() {
         DOM_ELEMENTS.saveButton.disabled = !originalValues.hasChanges();
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    initDomElements();
+    initElements();
+    initSaveButton();
+});

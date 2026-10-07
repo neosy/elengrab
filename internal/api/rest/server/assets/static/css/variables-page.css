@@ -1,5 +1,9 @@
 :root {
-    --page-main-bg: #fff;
+    --page-body-bg: #fff;
+    --page-main-bg: inherit;
+
+    --page-header-bg-transparent: rgba(250, 250, 250, 0.95);
+
     --page-text-primary: #333;
     --page-text-secondary: #555;
     --page-text-header: #333;
@@ -24,7 +28,11 @@
 }
 
 .dark {
-    --page-main-bg: #282828;
+    --page-body-bg: #282828;
+    --page-main-bg: inherit;
+
+    --page-header-bg-transparent: rgba(23, 23, 23, 0.9);
+
     --page-text-primary: #fff;
     --page-text-secondary: #cfd8e3;
     --page-text-header: #fff;

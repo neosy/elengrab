@@ -1,141 +1,23 @@
-:root {
-  --h1: 1.5rem;
-  --h2: 1.65rem;
-  --h3: 1.25rem;
-  --h4: 1.0rem;
-  --h5: 0.85rem;
-}
-
-@media (max-width: 768px) {
-  :root {
-    --h1: 1.35rem;
-    --h2: 1.25rem;
-    --h3: 1.125rem;
-    --h4: 0.95rem;
-    --h5: 0.8rem;
-  }
-}
-
-@media (max-width: 480px) {
-  :root {
-    --h1: 1.5rem;
-  }
-}
-
-h1 { font-size: var(--h1); font-weight: 600; font-family: 'Cinzel', serif; }
-h2 { font-size: var(--h2); font-weight: 600; }
-h3 { font-size: var(--h3); font-weight: 600; }
-h4 { font-size: var(--h4); }
-
-html, body {
-  overflow-x: hidden;
-}
-
-body {
-    display: flex;
-    flex-direction: column;
-
-    justify-content: center;
-
-    background-color: var(--main-bg);
-
-    letter-spacing: -0.25px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.header-actions {
-    display: flex;
-    position: absolute;
-
-    width: 100%;
-    left: calc(50% - 16px);
-    top: 16px;
-
-    z-index: 100;
-    transform: translateX(-50%);
-
-    justify-content: flex-end;
-
-    pointer-events: none;
-    gap: 8px;
-}
-
-.header-actions > div {
-    display: flex;
-    width: 40px;
-
-    justify-content: center;
-    align-items: center;
-
-    pointer-events: auto;
-}
-
-.header__inner {
-    display: flex;
-
-    margin: 10px 20px;
-    margin-bottom: 10px;
-    padding-right: 50px;
-
-    align-items: center;
-    justify-content: left;
-}
-
-.header__inner * {
-    user-select: none;
-}
-
-.header__logo-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    color: inherit;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.header__logo-image svg {
-    height: 2.4em;
-    width: auto;
-}
-
-.header__logo-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0px;
-}
-
-.header__logo-title {
-    color: var(--text-header);
-    letter-spacing: -0.5px;
-    line-height: normal;
-}
-
-.header__logo-description {
-    color: var(--text-secondary);
-}
-
-.main {
-    display: grid;
-    grid-template-columns: 1fr;
-    max-width: 100%;
-
-    margin: 10px;
-    padding: 0px 20px;
-
-    align-content: start;
-
-    background: inherit;
+.dark {
+    --page-body-bg: #0F0F0F;
 }
 
 .main_content {
     display: flex;
     width: 100%;
-    max-width: 100%;
 
     justify-content: center;
 
     gap: 32px;
+}
+
+@media (max-width: 1000px) {
+    .main_content {
+        display: flex;
+        flex-direction: column;
+
+        gap: 16px;
+    }
 }
 
 .media__container {
@@ -158,6 +40,14 @@ body {
     overflow: hidden;
 }
 
+@media (max-width: 480px) {
+    .media_wrapper.is-full {
+        background: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
+
 .main_content__player:has(audio),
 .media__container:has(audio),
 .media_wrapper:has(audio) {
@@ -169,6 +59,41 @@ video {
     display: block;
     max-width: 65vw;
     max-height: 78vh;
+}
+
+@media (max-width: 1280px) {
+    video {
+        max-width: 62vw;
+    }
+}
+
+@media (max-width: 1160px) {
+    video {
+        max-width: 56vw;
+    }
+}
+
+@media (max-width: 1000px) {
+    video {
+        max-width: 93vw;
+        max-height: 80vh;
+    }
+}
+
+@media (max-width: 768px) {
+    video {
+        width: 95vw;
+        max-height: 80vh;
+    }
+}
+
+@media (max-width: 480px) {
+    video {
+        width: 100%;
+        height: auto;
+        max-width: none;
+        max-height: 80vh;
+    }
 }
 
 audio {
@@ -242,6 +167,12 @@ audio {
     line-height: 1.5;
 }
 
+@media (max-width: 768px) {
+    .main_content__media-info {
+            padding: 0 4px;
+    }
+}
+
 .media-info__title {
     display: flex;
     flex-direction: row;
@@ -266,6 +197,12 @@ audio {
 
     /* Preserve aspect ratio and fill the circle */
     object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .media-info__title-image {
+        margin-top: 0;
+    }
 }
 
 .media-info__title-text {
@@ -317,6 +254,13 @@ button {
   border: none;
 }
 
+@media (max-width: 480px) {
+    .back-button {
+        width: auto;
+        height: auto;
+    }
+}
+
 .back-button svg {
   width: 24px;
   height: 24px;
@@ -350,6 +294,30 @@ button {
     border-radius: 20px;
 
     background-color: var(--bg-card);
+}
+
+@media (max-width: 1000px) {
+     .main_content__sidebar {
+        width: auto;
+        max-width: 350px;
+        min-width: 280px;
+    }
+
+    .sidebar-card {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main_content__sidebar,
+    .sidebar-card {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .main_content__sidebar {
+        padding: 0 4px 4px;
+    }
 }
 
 .sidebar-card_title {
@@ -444,138 +412,4 @@ button {
     display: inline-block;
     width: 1.25em;
     text-align: center;
-}
-
-@media (max-width: 1280px) {
-    video {
-        max-width: 62vw;
-    }
-}
-
-@media (max-width: 1160px) {
-    video {
-        max-width: 56vw;
-    }
-}
-
-@media (max-width: 1000px) {
-    .header-actions {
-        width: 98%;
-        left: calc(50% - 8px);
-        top: 10px;
-    }
-
-    .main {
-        width: 100%;
-        margin: 0px;
-        border: none;
-        border-radius: 0px;
-        box-shadow: none;
-    }
-
-    .main_content {
-        display: flex;
-        flex-direction: column;
-
-        gap: 16px;
-    }
-
-    video {
-        max-width: 93vw;
-        max-height: 80vh;
-    }
-
-    .main_content__sidebar {
-        width: auto;
-        max-width: 350px;
-        min-width: 280px;
-    }
-
-    .sidebar-card {
-        padding: 16px;
-    }
-}
-
-@media (max-width: 768px) {
-    .main {
-        padding: 8px;
-    }
-
-    .header__inner {
-        margin: 10px;
-        margin-bottom: 6px;
-    }
-
-    .header__logo-link {
-        gap: 6px;
-    }
-
-    .header__logo-image svg {
-        height: 2.3em;
-    }
-
-    video {
-        max-width: 95vw;
-        max-height: 80vh;
-    }
-
-    .main_content__media-info {
-            padding: 0 4px;
-    }
-
-    .media-info__title-image {
-        margin-top: 0;
-    }
-}
-
-@media (max-width: 480px) {
-    .main {
-        padding: 0;
-    }
-
-    .header-actions {
-        height: 45px;
-        left: 50%;
-        top: 0px;
-    }
-
-    .header__inner {
-        margin: 10px 6px;
-    }
-
-    .back-button {
-        width: auto;
-        height: auto;
-    }
-
-    .header__logo-text h5 {
-        display: none;
-    }
-
-    .header__logo-image svg {
-        height: 1.5em;
-    }
-
-    .media_wrapper.is-full {
-        background: none;
-        border-radius: 0;
-        box-shadow: none;
-    }
-
-    video {
-        width: 100%;
-        height: auto;
-        max-width: none;
-        max-height: 80vh;
-    }
-
-    .main_content__sidebar,
-    .sidebar-card {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .main_content__sidebar {
-        padding: 0 4px 4px;
-    }
 }

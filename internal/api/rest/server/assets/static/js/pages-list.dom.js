@@ -56,9 +56,6 @@ export const DOM_ELEMENTS = {
     resultInfoFailed: null,
 
     mediaPlayer: null,
-
-    sysInfoDiskFree: null,
-    sysInfoDiskUsed: null,
 };
 
 export function initDomElements(elements = DOM_ELEMENTS) {    
@@ -69,7 +66,4 @@ export function initDomElements(elements = DOM_ELEMENTS) {
     elements.resultInfoFailed = document.getElementById("result-info-failed");
 
     elements.mediaPlayer = document.getElementById("media-player");
-
-    elements.sysInfoDiskFree = document.getElementById("disk-free");
-    elements.sysInfoDiskUsed = document.getElementById("disk-used");
 }

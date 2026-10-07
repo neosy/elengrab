@@ -1,0 +1,23 @@
+{{- define "watch-header-content" }}
+    <div class="header__container" id="header-container">
+      <div class="header__left">
+        {{- if .Values.ShowBackButton -}}
+        <button class="back-button" id="backButton">
+            <svg viewBox="0 0 24 24">
+                <path d="M15 18l-6-6 6-6" />
+            </svg>
+        </button>
+        {{- end -}}
+        <a class="header__logo-link" href="/">
+            <div class="header__logo-image">{{ .BaseValues.LogoIcon }}</div>
+            <div class="header__logo-text">
+                <h1 class="header__logo-title">{{ .BaseValues.Header }}</h1>
+                <h5 class="header__logo-description">Media player</h5>
+            </div>
+        </a>
+      </div>
+      <div class="header__right">
+        {{- block "header-actions" . }}{{- end }}
+      </div>
+    </div>
+{{- end }}

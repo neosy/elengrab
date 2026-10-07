@@ -231,7 +231,7 @@
 /* ------------------ dialogs ------------------ */
 :root {
     --dialog-title: var(--text-primary);
-    --dialog-bg: var(--main-bg);
+    --dialog-bg: var(--body-bg);
     --dialog-border: #dedfe3;
     --dialog-text: #686a73;
     --dialog-muted: #4250af;
@@ -242,7 +242,6 @@
 }
 
 .dark {
-    --dialog-bg: var(--main-bg);
     --dialog-border: #30323b;
     --dialog-text: #9a9fa6;
     --dialog-muted: #8fc5f5;

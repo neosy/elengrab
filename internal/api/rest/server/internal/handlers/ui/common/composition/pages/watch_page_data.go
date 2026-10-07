@@ -46,6 +46,8 @@ type (
 		MediaIsPortrait   bool
 		MediaIsShorts     bool
 		MediaLoopPlayback bool
+
+		AboutDialog AboutDialogValues
 	}
 
 	MediaParameter struct {

@@ -1,0 +1,29 @@
+{{- define "edit-media-main-editor" }}
+                <div class="page-content__media-editor">
+                    <div class="media-editor__field media-editor__field--input media-editor__field--title">
+                        <label class="media-editor__label" for="mediaTitleInput">Name (required field)</label>
+                        <textarea class="media-editor__textarea" id="mediaTitleInput" rows="1" data-max-length="100">{{ .Values.MediaTitle }}</textarea>
+                        <div class="media-editor__char-counter">97/100</div>
+                    </div>
+                    <div class="media-editor__field media-editor__field--input media-editor__field--description">
+                        <label class="media-editor__label" for="mediaDescriptionInput">Description</label>
+                        <textarea class="media-editor__textarea" id="mediaDescriptionInput" rows="1" data-max-length="5000">{{ .Values.MediaDescription }}</textarea>
+                        <div class="media-editor__char-counter">97/5000</div>
+                    </div>
+                    <div class="media-editor__field media-editor__field--visibility">
+                        <div class="media-editor__field-title">Access Parameters</div>
+                        <div class="media-editor__option">
+                            <div class="media-editor__option-label"><span>Visibility</span></div>
+                            <select name="visibility" id="mediaVisibilitySelect" title="Select visibility">
+                            {{- range .Values.VisibilityList }}
+                                {{- if eq .Value $.Values.Visibility }}
+                                <option value="{{ .Value }}" selected>{{ .Label }}</option>
+                                {{- else }}
+                                <option value="{{ .Value }}">{{ .Label }}</option>
+                                {{- end }}
+                            {{- end }}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+{{- end }}

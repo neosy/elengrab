@@ -2,6 +2,11 @@ const MOBILE_SCREEN_WIDTH = 580;
 
 let stableHeight = 0;
 
+export const isPWA =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.matchMedia('(display-mode: fullscreen)').matches ||
+      window.navigator.standalone === true;
+
 export function initViewportHeightVar() {
     syncViewportHeightVar();
 

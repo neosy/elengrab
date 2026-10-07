@@ -72,8 +72,7 @@ var rowMenuActions = []rowMenuAction{
 
 		icon:                icons.DownloaderRowMenuUpdateErrorInfoIcon,
 		visibleStatuses:     []dtypes.MediaDownloadStatus{dtypes.MediaDownloadStatusFailed},
-		requireEditAccess:   true,
-		requireDeleteAccess: false,
+		requireDeleteAccess: true,
 	},
 
 	{

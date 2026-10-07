@@ -1,7 +1,7 @@
 import {CLASS_NAMES, STORAGE_KEYS, API_PATHS} from './constants.js';
 import storageState from './storage-state.js';
 import * as notify from './notifications.js';
-import { DOM_ELEMENTS, CLASS_SELECTORS, DOM_IDS } from "./pages-list.dom.js";
+import { CLASS_SELECTORS, DOM_IDS } from "./pages-list.dom.js";
 
 export function applyGridView(isGridView) {
     document.body.classList.toggle(CLASS_NAMES.gridView, isGridView);
