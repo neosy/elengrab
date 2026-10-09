@@ -1,6 +1,7 @@
 package downloader
 
 import (
+	"errors"
 	"slices"
 
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
@@ -10,7 +11,6 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
-	"github.com/neosy/elengrab/internal/exceptions"
 )
 
 func (uc *downloader) CanCreateMediaDownload(authCtx dauth.AuthContext) bool {
@@ -32,26 +32,34 @@ func (uc *downloader) CanCreateMediaDownload(authCtx dauth.AuthContext) bool {
 // validateWriteOperationAccess validates whether the user is allowed to perform write operations.
 func (uc *downloader) validateWriteOperationAccess(authCtx dauth.AuthContext) error {
 	if uc.demoMode {
+		return ierrors.ErrDemoModeRestriction
+	}
+
+	if !uc.authz.HasFullAccess(authCtx.RoleIDs) && authz.IsAnonymous(authCtx.RoleIDs) {
+		return ierrors.ErrUnauthorized
+	}
+
+	return nil
+}
+
+// notifyWriteOperationAccessError broadcasts a notification for a write operation access error.
+func (uc *downloader) notifyWriteOperationAccessError(authCtx dauth.AuthContext, err error) {
+	switch {
+	case errors.Is(err, ierrors.ErrDemoModeRestriction):
 		uc.broadcastNotification(
 			authCtx.EventKey(),
 			dto.BroadcastNotificationModuleResultRow,
 			dto.BroadcastNotificationTypeError,
 			"Operation not allowed in demo mode",
 		)
-		return exceptions.DEMO_MODE_RESTRICTION.NewErrorx()
-	}
-
-	if !uc.authz.HasFullAccess(authCtx.RoleIDs) && authz.IsAnonymous(authCtx.RoleIDs) {
+	case errors.Is(err, ierrors.ErrUnauthorized):
 		uc.broadcastNotification(
 			authCtx.EventKey(),
 			dto.BroadcastNotificationModuleResultRow,
 			dto.BroadcastNotificationTypeError,
 			"You must be authenticated to perform this action",
 		)
-		return ierrors.ErrUnauthorized
 	}
-
-	return nil
 }
 
 func (uc *downloader) validateDownloadEditableStatus(download *ddownload.MediaDownload) error {

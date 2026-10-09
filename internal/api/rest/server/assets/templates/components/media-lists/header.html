@@ -1,9 +1,0 @@
-{{- define "channel-media-result-header" }}
-        <div class="channel-header{{ if not .Values.ChannelHeader.Show }} hidden{{ end }}" id="channel-header">
-          <img class="channel-header-image{{ if not .Values.ChannelHeader.ImageURL }} hidden{{ end }}" id="channel-header-image" alt="Channel avatar" src="{{ .Values.ChannelHeader.ImageURL }}">
-          <div class="channel-header-content">
-            <span class="channel-header-title" id="channel-header-title">{{ .Values.ChannelHeader.Title }}</span>
-            <span class="channel-header-ext-username" id="channel-header-ext-username">@{{ .Values.ChannelHeader.Ext.Username }}</span>
-          </div>
-        </div>
-{{- end }}

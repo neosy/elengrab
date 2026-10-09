@@ -19,21 +19,7 @@ type ChannelExt struct {
 	Username string `json:"username"`
 }
 
-type ChannelHeader struct {
-	Channel
-	Show bool `json:"show"`
-}
-
 func (c Channel) JSON() []byte {
-	json, err := json.Marshal(c)
-	if err != nil {
-		return nil
-	}
-
-	return json
-}
-
-func (c ChannelHeader) JSON() []byte {
 	json, err := json.Marshal(c)
 	if err != nil {
 		return nil

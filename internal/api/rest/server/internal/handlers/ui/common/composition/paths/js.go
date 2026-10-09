@@ -84,6 +84,31 @@ var (
 		},
 	}
 
+	userDownloadsPageJsPaths = jsScripts{
+		{
+			Path:   "htmx.min.js",
+			Type:   "",
+			Defer:  false,
+			Legacy: LegacyNo,
+		},
+		{
+			Path:   "htmx-1.9.12.min.js",
+			Type:   "",
+			Defer:  false,
+			Legacy: LegacyYes,
+		},
+		{
+			Path:  "theme-switcher.js",
+			Type:  "",
+			Defer: true,
+		},
+		{
+			Path:  "user-downloads.page.js",
+			Type:  "module",
+			Defer: false,
+		},
+	}
+
 	adminPageJsPaths = jsScripts{
 		{
 			Path:   "htmx.min.js",

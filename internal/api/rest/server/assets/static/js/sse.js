@@ -4,13 +4,14 @@ let globalEventSource = null;
 
 /**
  * @param {Record<string, EventListener>} eventHandlers
+ * @param {string} usernameFilter
  */
-export function initSSE(eventHandlers) {
+export function initSSE(eventHandlers, usernameFilter = "") {
     let sse = null;
 
     const connect = () => {
         if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
-            sse = createSSEConnection(eventHandlers);
+            sse = createSSEConnection(eventHandlers, usernameFilter);
         }
     };
 
@@ -18,7 +19,7 @@ export function initSSE(eventHandlers) {
 
     window.addEventListener("beforeunload", () => {
         if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
-            sse = createSSEConnection(eventHandlers);
+            sse = createSSEConnection(eventHandlers, usernameFilter);
         }
     });
 
@@ -32,7 +33,7 @@ export function initSSE(eventHandlers) {
 /**
  * @param {Record<string, EventListener>} eventHandlers
  */
-function createSSEConnection(eventHandlers) {
+function createSSEConnection(eventHandlers, usernameFilter = "") {
     function setServerStatus(online) {
         const el = sysInfoServerStatusDot;
         if (!el) return;
@@ -58,7 +59,9 @@ function createSSEConnection(eventHandlers) {
 
         // Business events
         Object.entries(eventHandlers).forEach(([eventName, handler]) => {
-            globalEventSource.addEventListener(eventName, handler);
+            globalEventSource.addEventListener(eventName, (event) => {
+                handler(event, usernameFilter);
+            });
         });        
 
         // Fallback: any default message marks server as online

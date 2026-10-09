@@ -17,6 +17,7 @@ func (uc *downloader) UpdateVisibility(
 ) error {
 	err := uc.validateWriteOperationAccess(authCtx)
 	if err != nil {
+		uc.notifyWriteOperationAccessError(authCtx, err)
 		return err
 	}
 

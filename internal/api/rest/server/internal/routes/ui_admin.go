@@ -17,20 +17,20 @@ func (r *routes) registerUIAdmin(handlers *admin.AdminHandlers) {
 		g.HEAD("", handlers.AdminPageHandler)
 		g.GET("", handlers.AdminPageHandler)
 
-		g.HEAD(httppaths.AdminUsersPath, handlers.AdminPageHandler)
-		g.GET(httppaths.AdminUsersPath, handlers.AdminPageHandler)
+		g.HEAD(httppaths.UsersPath, handlers.AdminPageHandler)
+		g.GET(httppaths.UsersPath, handlers.AdminPageHandler)
 	}
 
 	// With middleware (error, require admin auth)
 	g = nfasthttp.NewRouterGroup(httppaths.AdminGroup, r.router)
 	g.Use(middlewareError, r.middlewares.Auth.RequireAdmin)
 	{
-		g.HEAD(httppaths.AdminUserDetailPath, handlers.UserDetailHandler)
-		g.GET(httppaths.AdminUserDetailPath, handlers.UserDetailHandler)
+		g.HEAD(httppaths.UserDetailPath, handlers.UserDetailHandler)
+		g.GET(httppaths.UserDetailPath, handlers.UserDetailHandler)
 
-		g.HEAD(httppaths.AdminUserTableRowPath, handlers.UserTableRowHandler)
-		g.GET(httppaths.AdminUserTableRowPath, handlers.UserTableRowHandler)
+		g.HEAD(httppaths.UserTableRowPath, handlers.UserTableRowHandler)
+		g.GET(httppaths.UserTableRowPath, handlers.UserTableRowHandler)
 
-		g.POST(httppaths.AdminUserRolesPath, handlers.SetUserRolesHandler)
+		g.POST(httppaths.UserRolesPath, handlers.SetUserRolesHandler)
 	}
 }

@@ -12,6 +12,18 @@ func (a *auth) FindByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User,
 	return a.user.FindByUserID(ctx, userID)
 }
 
+func (a *auth) GetByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User, error) {
+	return a.user.GetByUserID(ctx, userID)
+}
+
+func (a *auth) FindByLogin(ctx context.Context, login string) (*dauth.User, error) {
+	return a.user.FindByLogin(ctx, dtypes.Login(login))
+}
+
+func (a *auth) GetByLogin(ctx context.Context, login string) (*dauth.User, error) {
+	return a.user.GetByLogin(ctx, dtypes.Login(login))
+}
+
 func (a *auth) ExistsUserByLogin(ctx context.Context, login string) (bool, error) {
 	return a.user.ExistsByLogin(ctx, dtypes.NewLogin(login))
 }

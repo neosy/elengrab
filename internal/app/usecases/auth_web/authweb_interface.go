@@ -10,6 +10,11 @@ import (
 type AuthWeb interface {
 	Startup(ctx context.Context) error
 
+	FindByUserID(ctx context.Context, userID uuid.UUID) (*dto.AuthUserResponse, error)
+	GetByUserID(ctx context.Context, userID uuid.UUID) (*dto.AuthUserResponse, error)
+	FindByLogin(ctx context.Context, login string) (*dto.AuthUserResponse, error)
+	GetByLogin(ctx context.Context, login string) (*dto.AuthUserResponse, error)
+
 	RegisterUser(
 		ctx context.Context,
 		req *dto.RegisterUserRequest,

@@ -29,10 +29,15 @@ func (h *DownloaderHandlers) renderDownloadRows(
 
 	queryFilters := h.mappers.MapQueryFiltersDomainToFilters(query.Filters)
 
-	searchParam := types.NewSearchParameters()
-	searchParam.AddValues(query.ViewMode, queryFilters, dtypes.QueryMediaDownloadCursor{})
+	searchQueryFilters, err := h.prepareSearchQueryFilters(ctx, queryFilters)
+	if err != nil {
+		return err
+	}
 
-	searchFilters := queryFilters.FilterByKeys(qkeys.SearchFilterKeys)
+	searchParam := types.NewSearchParameters()
+	searchParam.AddValues(query.ViewMode, searchQueryFilters, dtypes.QueryMediaDownloadCursor{})
+
+	searchFilters := searchQueryFilters.FilterByKeys(qkeys.SearchFilterKeys)
 	searchParamFilters := searchParam.QueryFilters()
 
 	pageData := pages.RowsFragmentData{
