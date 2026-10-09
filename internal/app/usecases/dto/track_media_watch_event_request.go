@@ -8,12 +8,6 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-const (
-	minMediaWatchInterval      = 2 * time.Second
-	maxMediaWatchInterval      = 15500 * time.Millisecond
-	maxMediaWatchEndedInterval = maxMediaWatchInterval + minMediaWatchInterval
-)
-
 type TrackMediaWatchEventRequest struct {
 	DownloadID uuid.UUID
 

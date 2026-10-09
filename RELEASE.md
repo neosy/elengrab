@@ -5,6 +5,9 @@
 ### ✨ Features
 - Added a short URL code for media downloads. [L170]
 
+### 🖥️ UI / Frontend
+- Added a pause button to media previews. [L173]
+
 ### 🎨 Style
 - Refined copy button colors and added animation.
 
@@ -13,6 +16,7 @@
 - Renamed database columns file_id to download_id and youtube_url to media_url. [L169]
 - Updated related database indexes and foreign key references. [L169]
 - Organized body and main background colors for different pages.
+- Improve page generation and CSS.
 
 ### 🐛 Fix
 - Stop stale video streams when switching or closing video players. [L171]

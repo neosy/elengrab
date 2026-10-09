@@ -1,0 +1,30 @@
+{{- define "video-preview" }}
+    <div class="video-preview-container is-playing is-sound-off" id="video-preview-container" hidden>
+        <video id="video-preview-player" playsinline disablepictureinpicture muted></video>
+        <div class="video-preview__duration">
+            <span class="video-preview__duration-remaining" id="video-preview-duration-remaining">0:00</span>
+        </div>
+        <div class="video-preview__watch-progress">
+            <div class="video-preview__watch-progress-buffer" id="video-preview-watch-progress-buffer" style="--video-preview-watch-buffer: 0%"></div>
+            <div class="video-preview__watch-progress-value" id="video-preview-watch-progress-value" style="--video-preview-watch-progress: 0%"></div>
+        </div>
+        <div class="video-preview__controls">
+            <button class="video-preview__toggle video-preview__toggle-sound" id="video-preview-toggle-sound" type="button" title="Turn on the sound" aria-label="Turn on the sound">
+                <div class="video-preview__toggle-icon toggle-icon--sound-off">
+                    {{ .Values.VideoPreview.SoundOffIcon }}
+                </div>
+                <div class="video-preview__toggle-icon toggle-icon--sound-on">
+                    {{ .Values.VideoPreview.SoundOnIcon }}
+                </div>            
+            </button>
+            <button class="video-preview__toggle video-preview__toggle-play-pause" id="video-preview-toggle-play-pause" type="button" title="Pause" aria-label="Pause">
+                <div class="video-preview__toggle-icon toggle-icon--play">
+                    {{ .Values.VideoPreview.PlayIcon }}
+                </div>
+                <div class="video-preview__toggle-icon toggle-icon--pause">
+                    {{ .Values.VideoPreview.PauseIcon }}
+                </div>            
+            </button>
+        </div>
+    </div>
+{{- end }}

@@ -10,18 +10,28 @@ import (
 var tmplPaths = [][]string{
 	{"templates", "layouts", "*.html"},
 	{"templates", "components", "*.html"},
+
+	{"templates", "components", "menus", "*.html"},
+	{"templates", "components", "overlays", "*.html"},
+
+	{"templates", "components", "admin", "*.html"},
+
 	{"templates", "components", "header-content", "*.html"},
 	{"templates", "components", "header-content", "blocks", "*.html"},
+
 	{"templates", "components", "header-actions", "*.html"},
 	{"templates", "components", "header-actions", "blocks", "*.html"},
+
 	{"templates", "components", "footer-content", "*.html"},
 	{"templates", "components", "footer-content", "blocks", "*.html"},
-	{"templates", "components", "menus", "*.html"},
-	{"templates", "components", "admin", "*.html"},
-	{"templates", "components", "media-result", "*.html"},
-	{"templates", "components", "rows", "*.html"},
-	{"templates", "components", "watch", "*.html"},
-	{"templates", "components", "edit-media", "*.html"},
+
+	{"templates", "components", "media-lists", "*.html"},
+	{"templates", "components", "media-lists", "rows", "*.html"},
+	{"templates", "components", "media-lists", "items", "*.html"},
+
+	{"templates", "components", "detail-pages", "watch", "*.html"},
+	{"templates", "components", "detail-pages", "edit-media", "*.html"},
+
 	{"templates", "components", "dialogs", "*.html"},
 	{"templates", "components", "dialogs", "content", "*.html"},
 }
