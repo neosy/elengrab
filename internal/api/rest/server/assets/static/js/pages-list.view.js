@@ -31,17 +31,6 @@ export function getGridView() {
     return storageState.get(STORAGE_KEYS.settingsGridView, true);
 }
 
-export function initHeaderUserMenu() {
-    const btn = document.getElementById("headerActionsDownloadButton");
-    const grabInput = document.getElementById("mediaURLInput");
-
-    if (!btn) return;
-
-    btn.addEventListener('click', () => {
-        selectGrabInput(grabInput);
-    });    
-}
-
 function selectGrabInput(grabInput) {
     if (!grabInput) {
         notify.show("You do not have permission to add downloads", notify.notifyType.ERROR);

@@ -7,13 +7,21 @@
 {{- define "index-header-actions" }}
       <div class="header-actions">
         {{- template "header-actions-search" . }}
-        {{- template "header-actions-download" . }}
+        {{- template "header-actions-upload-menu" . }}
         {{- template "theme-switcher" . }}
         {{- template "header-actions-user-avatar" . }}
       </div>
 {{- end }}
 
 {{- define "channel-header-actions" }}
+      <div class="header-actions">
+        {{- template "header-actions-search" . }}
+        {{- template "theme-switcher" . }}
+        {{- template "header-actions-user-avatar" . }}
+      </div>
+{{- end }}
+
+{{- define "user-downloads-header-actions" }}
       <div class="header-actions">
         {{- template "header-actions-search" . }}
         {{- template "theme-switcher" . }}

@@ -57,6 +57,12 @@ func (m *Mappers) MapSearchQueryToSearchValues(queryItems *types.QueryFilters) (
 			fallthrough
 		case qkeys.SearchQueryKey:
 			searchValues.QueryText = item.Value
+		case qkeys.UserIDKey:
+			filters.Add(item.Key, item.Value)
+		case qkeys.UserNameKey:
+			filters.Add(qkeys.UserLoginKey, item.Value)
+		case qkeys.UserLoginKey:
+			filters.Add(item.Key, item.Value)
 		case qkeys.ChannelIDKey:
 			filters.Add(item.Key, item.Value)
 		case qkeys.SearchParametersKey:

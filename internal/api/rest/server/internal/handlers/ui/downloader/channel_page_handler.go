@@ -1,7 +1,6 @@
 package downloader
 
 import (
-	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
@@ -16,15 +15,9 @@ import (
 func (h *DownloaderHandlers) ChannelPageHandler(ctx *fasthttp.RequestCtx) {
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
-	encodedChannelID, ok := ctx.UserValue(qkeys.ChannelIDKey.String()).(string)
-	if !ok || encodedChannelID == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrChannelIDIsRequired)
-		return
-	}
-
-	channelID, err := idcodec.DecodeUUIDBase64URL(encodedChannelID)
+	channelID, err := h.extractChannelID(ctx)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrChannelIDIsIncorrect.Wrap(err))
+		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -44,7 +37,7 @@ func (h *DownloaderHandlers) ChannelPageHandler(ctx *fasthttp.RequestCtx) {
 		searchValues.Parameters.Filters = types.NewQueryFilters()
 	}
 
-	searchValues.Parameters.Filters.Add(qkeys.ChannelIDKey, encodedChannelID)
+	searchValues.Parameters.Filters.Add(qkeys.ChannelIDKey, idcodec.EncodeUUIDBase64URL(channelID))
 
 	query, err := h.mappers.MapSearchValuesToUsecaseQuery(searchValues)
 	if err != nil {

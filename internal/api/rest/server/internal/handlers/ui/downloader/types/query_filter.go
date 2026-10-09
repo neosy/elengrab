@@ -42,6 +42,21 @@ func (filters *QueryFilters) Add(key qkeys.QueryKey, value string) QueryFilter {
 	return filter
 }
 
+func (filters *QueryFilters) Delete(key qkeys.QueryKey) {
+	if !filters.Exists(key) {
+		return
+	}
+
+	delete(filters.valuesByKey, key)
+
+	for i, k := range filters.list {
+		if k.Key == key {
+			filters.list = slices.Delete(filters.list, i, i+1)
+			break
+		}
+	}
+}
+
 func (filters *QueryFilters) List() []QueryFilter {
 	if filters == nil {
 		return nil

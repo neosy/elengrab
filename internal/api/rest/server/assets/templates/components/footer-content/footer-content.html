@@ -17,6 +17,15 @@
     </div>
 {{- end }}
 
+{{- define "user-downloads-footer-content" }}
+    <div class="footer__left">
+        {{- template "footer-content-version-about" . }}
+    </div>
+    <div class="footer__right">
+        {{- template "footer-content-settings-link" . }}
+    </div>
+{{- end }}
+
 {{- define "watch-footer-content" }}
     <div class="footer__left">
         {{- template "footer-content-version-about" . }}

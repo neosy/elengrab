@@ -1,0 +1,9 @@
+{{- define "user-downloads-media-result-header" }}
+        <div class="main-header{{ if not .Values.UserHeader.Show }} hidden{{ end }}" id="user-downloads-header">
+          <img class="main-header-image{{ if not .Values.UserHeader.ImageURL }} hidden{{ end }}" id="user-downloads-header-image" alt="User avatar" src="{{ .Values.UserHeader.ImageURL }}">
+          <div class="main-header-content">
+            <span class="main-header-title" id="user-downloads-header-title">{{ .Values.UserHeader.Title }}</span>
+            <span class="main-header-description" id="user-downloads-header-username">@{{ .Values.UserHeader.Description }}</span>
+          </div>
+        </div>
+{{- end }}

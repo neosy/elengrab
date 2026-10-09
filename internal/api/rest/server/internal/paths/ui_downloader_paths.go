@@ -23,9 +23,8 @@ const (
 	SearchPath       = "/search"
 	EventsPath       = "/events"
 	MediaItemsPath   = "/items"
-
-	// Paths Channels
-	ChannelsPath = "/channels"
+	ChannelsPath     = "/channels"
+	UsersPath        = "/users"
 
 	// Paths items Downloader
 	MediaItemPath                = MediaItemsPath + "/{itemId}"
@@ -40,8 +39,12 @@ const (
 	MediaItemReWatchTrackingPath = MediaItemsPath + "/{itemId}/watch-tracking"
 	MediaItemWatchPositionPath   = MediaItemsPath + "/{itemId}/watch-position"
 
-	// Paths channels Downloader
+	// Paths channels
 	ChannelPath = ChannelsPath + "/{channelId}"
+
+	// Paths users
+	UserLoginPath     = UsersPath + "/{login}"
+	UserDownloadsPath = UserLoginPath + "/downloads"
 
 	// Downloader Paths
 	DownloaderAccountMenuPath  = DownloaderGroup + AccountMenuPath
@@ -53,6 +56,7 @@ const (
 	DownloaderSearchPath       = DownloaderGroup + SearchPath
 	DownloaderEventsPath       = DownloaderGroup + EventsPath
 	DownloaderChannelsPath     = DownloaderGroup + ChannelsPath
+	DownloaderUsersPath        = DownloaderGroup + ChannelPath
 )
 
 func buildMediaItemPath(path string, downloadID uuid.UUID) string {
@@ -97,4 +101,12 @@ func buildChannelPath(path string, channelID uuid.UUID) string {
 
 func BuildChannelPath(channelID uuid.UUID) string {
 	return buildChannelPath(ChannelPath, channelID)
+}
+
+func buildUserLoginPath(path string, login string) string {
+	return DownloaderGroup + strings.Replace(path, "{login}", login, 1)
+}
+
+func BuildUserDownloadsPath(login string) string {
+	return buildUserLoginPath(UserDownloadsPath, login)
 }

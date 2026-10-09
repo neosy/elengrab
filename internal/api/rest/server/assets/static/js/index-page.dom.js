@@ -18,6 +18,8 @@ export const CLASS_SELECTORS = Object.fromEntries(
 
 export const DOM_IDS = {
     ...PAGES_DOM.DOM_IDS,
+
+    mediaURLInput: "mediaURLInput",
 }
 
 export const DOM_ELEMENTS = {
@@ -35,7 +37,7 @@ export function initDomElements() {
     PAGES_DOM.initDomElements(DOM_ELEMENTS);
 
     DOM_ELEMENTS.grabForm = document.getElementById("grabForm");
-    DOM_ELEMENTS.mediaURLInput = document.getElementById("mediaURLInput");
+    DOM_ELEMENTS.mediaURLInput = document.getElementById(DOM_IDS.mediaURLInput);
     DOM_ELEMENTS.inputActionBtn = document.getElementById("inputActionBtn");
     DOM_ELEMENTS.inputActionSettingsBtn = document.getElementById("inputActionSettingsBtn");
     DOM_ELEMENTS.grabOptionsCollapse = document.getElementById("grabOptionsCollapse");

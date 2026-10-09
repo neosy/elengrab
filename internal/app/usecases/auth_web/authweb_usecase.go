@@ -3,11 +3,13 @@ package authweb
 import (
 	"log/slog"
 
+	"github.com/neosy/elengrab/internal/app/usecases/auth_web/mappers"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
 type authWeb struct {
-	logger *slog.Logger
+	logger  *slog.Logger
+	mappers *mappers.Mappers
 
 	// services
 	auth pservices.AuthService
@@ -28,7 +30,8 @@ func NewAuthWeb(
 	defaultAdminPassword string,
 ) AuthWeb {
 	return &authWeb{
-		logger: logger,
+		logger:  logger,
+		mappers: mappers.NewMappers(),
 
 		// services
 		auth: auth,

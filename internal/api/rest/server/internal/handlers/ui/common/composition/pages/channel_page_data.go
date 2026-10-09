@@ -1,10 +1,12 @@
 package pages
 
 import (
+	"encoding/json"
+
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 )
 
-// Index page
+// Channel page
 type ChannelPageData struct {
 	BasePaths  paths.HttpPaths
 	BaseValues baseValues
@@ -17,4 +19,18 @@ type ChannelPageValues struct {
 	PagesListValues
 
 	ChannelHeader ChannelHeader
+}
+
+type ChannelHeader struct {
+	Channel
+	Show bool `json:"show"`
+}
+
+func (c ChannelHeader) JSON() []byte {
+	json, err := json.Marshal(c)
+	if err != nil {
+		return nil
+	}
+
+	return json
 }

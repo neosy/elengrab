@@ -185,7 +185,12 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		IsDownloadEvent:        params.isDownloadEvent,
 		ResultRowStatusTitle:   params.downloadInfo.StatusText,
 
-		UserName: params.downloadInfo.UserDisplayName(params.AuthCtx.UserID),
+		UserName: userDisplayName(
+			params.downloadInfo.UserID,
+			params.downloadInfo.UserLogin,
+			params.downloadInfo.UserType,
+			params.AuthCtx.UserID,
+		),
 
 		RefreshingIcon:            icons.DownloadRefreshingIcon.FileRaw(),
 		MetaUserNameSeparatorIcon: icons.DownloadMetaUserNameSeparatorIcon.FileRaw(),

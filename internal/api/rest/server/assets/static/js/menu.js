@@ -54,6 +54,7 @@ export function closeAllMenus(except = null, fnAfterClose) {
  * @property {(menu: HTMLElement, trigger: HTMLElement) => string} [buildUrl]
  * @property {() => boolean} [isMobile]
  * @property {boolean} [isOverlay]
+ * @property {boolean} [isStatic] Whether the menu content is static and does not require server loading.
  */
 export function initMenu(config) {
   const {
@@ -61,8 +62,9 @@ export function initMenu(config) {
     menuId,
     actions = {},
     position,
-    isMobile,
+    isMobile = null,
     isOverlay = true,
+    isStatic = false,
     beforeRenderElement,
     buildUrl,
     shouldOpen,
@@ -154,31 +156,35 @@ export function initMenu(config) {
       menuOverlay && (menuOverlay.classList.add(MENU_OVERLAY_SHOW_CLASS));
     }
    
-    menu.innerHTML = "";
-    activeMenus.add(menu);
+    if (!isStatic) {
+      menu.innerHTML = "";
+    }
 
+    activeMenus.add(menu);
     window.htmx?.trigger(menu, 'manual');
 
-    menu.addEventListener(
-      'htmx:afterSettle',
-      () => {
-        menu.querySelectorAll(`.${MENU_ACTION_CLASS}`).forEach(el => {
-          const id = el.id.replace('menu-action-', '');
-          beforeRenderElement?.(el, id);
-        });
+    const handleMenuReady = () => {
+      menu.querySelectorAll(`.${MENU_ACTION_CLASS}`).forEach(el => {
+        const id = el.id.replace('menu-action-', '');
+        beforeRenderElement?.(el, id);
+      });
 
-        if (isMobile ? isMobile() : isMobileDefault()) {
-          applyMobile(menu);
-        } else {
-          position?.(menu, trigger);
-        }
+      if (isMobile ? isMobile() : isMobileDefault()) {
+        applyMobile(menu);
+      } else {
+        position?.(menu, trigger);
+      }
 
-        requestAnimationFrame(() => {
-          menu.classList.add(DOM_CLASSES.menuShow);
-        });
-      },
-      { once: true }
-    );        
+      requestAnimationFrame(() => {
+        menu.classList.add(DOM_CLASSES.menuShow);
+      });
+    };
+
+    if (isStatic) {
+      handleMenuReady();
+    } else {
+      menu.addEventListener('htmx:afterSettle', handleMenuReady, { once: true });
+    }
   });
 
   /** Handle clicks inside the menu */

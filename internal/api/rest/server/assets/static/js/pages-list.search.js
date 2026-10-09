@@ -76,7 +76,12 @@ export function getSearchQueryValues() {
 
     if (rows.dataset.searchFiltersJson) {
         const searchFilters = JSON.parse(rows.dataset.searchFiltersJson);
+        const userName = searchFilters.userName;
         const channelId = searchFilters.channelId;
+
+        if (userName) {
+            queryValues.userName = userName;
+        }
 
         if (channelId) {
             queryValues.channelId = channelId;

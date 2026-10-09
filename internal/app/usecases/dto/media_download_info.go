@@ -2,9 +2,7 @@ package dto
 
 import (
 	"fmt"
-	"hash/fnv"
 	"math"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -169,27 +167,4 @@ func (info *MediaDownloadInfo) IsAudioOnly() bool {
 
 func (info *MediaDownloadInfo) ViewCountText() string {
 	return fmt.Sprintf("%s views", humanize.CompactNumber(info.ViewCount))
-}
-
-func (info *MediaDownloadInfo) UserDisplayName(curUserID uuid.UUID) string {
-	switch info.UserType {
-	case dtypes.UserTypeGuest:
-		if info.UserID != nil && curUserID == *info.UserID {
-			return "Guest (You)"
-		}
-
-		id := strings.TrimPrefix(info.UserLogin, "u-")
-		num := guestNumber(id)
-
-		return fmt.Sprintf("Guest #%04d", num)
-	}
-
-	return stringx.Capitalize(info.UserLogin)
-}
-
-func guestNumber(id string) uint32 {
-	h := fnv.New32a()
-	_, _ = h.Write([]byte(id))
-
-	return h.Sum32() % 10000
 }

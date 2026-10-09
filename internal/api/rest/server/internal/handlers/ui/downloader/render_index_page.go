@@ -49,6 +49,12 @@ func (h *DownloaderHandlers) renderIndexPage(
 		return
 	}
 
+	uploadMenuBuffer, err := h.renderUploadMenu(authCtx.Login)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
 	systemInfo := h.downloader.SystemInfo()
 
 	baseValues := pages.NewBaseValues()
@@ -63,6 +69,7 @@ func (h *DownloaderHandlers) renderIndexPage(
 	pagesListValues.AudioPlayingIcon = icons.MediaAudioPlayingIcon.FileRaw()
 	pagesListValues.AudioPlayIcon = icons.MediaAudioPlayIcon.FileRaw()
 	pagesListValues.AudioPauseIcon = icons.MediaAudioPauseIcon.FileRaw()
+	pagesListValues.UploadMenuContent = template.HTML(uploadMenuBuffer.String())
 
 	pageData := pages.IndexPageData{
 		BasePaths:  paths.NewHttpPaths(),

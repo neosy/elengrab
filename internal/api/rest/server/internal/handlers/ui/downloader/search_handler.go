@@ -5,9 +5,8 @@ import (
 	"encoding/json"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/consts"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
-	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
@@ -18,7 +17,10 @@ import (
 func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
-	query := udto.MediaDownloadQueryDefault(consts.LoadHistoryLimit)
+	var (
+		searchValues types.SearchValues
+		err          error
+	)
 
 	if string(ctx.Request.Header.ContentType()) == "application/json" {
 		var req dto.SearchRequest
@@ -35,27 +37,34 @@ func (h *DownloaderHandlers) SearchHandler(ctx *fasthttp.RequestCtx) {
 			return
 		}
 
-		query, err = h.mappers.MapSearchRequestToUsecaseQuery(req)
-		if err != nil {
-			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
-			return
-		}
-	} else {
-		searchValues, err := h.parseSearchPostRequest(ctx)
+		searchValues, err = h.mappers.MapSearchRequestToSearchValues(req)
 		if err != nil {
 			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 			return
 		}
 
-		query, err = h.mappers.MapSearchValuesToUsecaseQuery(searchValues)
+	} else {
+		searchValues, err = h.parseSearchPostRequest(ctx)
 		if err != nil {
-			fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+			nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 			return
 		}
 	}
 
+	searchValues.Filters, err = h.restoreSearchQueryFilters(ctx, searchValues.Filters)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
+	query, err := h.mappers.MapSearchValuesToUsecaseQuery(searchValues)
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		return
+	}
+
 	var bodyBuffer bytes.Buffer
-	err := h.renderDownloadRows(ctx, &bodyBuffer, authCtx, query)
+	err = h.renderDownloadRows(ctx, &bodyBuffer, authCtx, query)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, err)
 		return

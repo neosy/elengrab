@@ -53,6 +53,12 @@ var (
 		}...,
 	)
 
+	userDownloadsPageCssPaths = append(
+		pagesListCssPaths,
+
+		cssFileNames{}...,
+	)
+
 	adminPageCssPaths = cssFileNames{
 		"font-inter.css",
 		"base.css",

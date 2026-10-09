@@ -12,7 +12,7 @@ import * as sseClient from "./sse.js";
 import * as rowEventHandlers from './pages-list.sse.events.js';
 import * as commonEventHandlers from './sse.events.js';
 
-import { initIndexMenus as initMenu } from './pages-list.menu-configs.js';
+import { initMenus as initMenus } from './index-page.menu-configs.js';
 import * as view from './pages-list.view.js';
 import * as search from './pages-list.search.js';
 import {  CLASS_NAMES, CLASS_SELECTORS, DOM_IDS, DOM_ELEMENTS, initDomElements } from "./index-page.dom.js";
@@ -218,8 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init tooltips
     tooltip.initTooltips();
 
-    // Init menu
-    initMenu();
+    // Init menus
+    initMenus();
     
     // Init inline media player
     initPlayer(DOM_ELEMENTS.mediaPlayer, CLASS_NAMES.mediaResultRowThumbnailImageWrapper);
@@ -233,9 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init search elements
     const searching = search.initSearching();
     searchInputClearButton = searching.clearButton;
-
-    // Init header user menu elements
-    view.initHeaderUserMenu();
 
     // Initialize video preview player
     videoPreview.initVideoPreview();

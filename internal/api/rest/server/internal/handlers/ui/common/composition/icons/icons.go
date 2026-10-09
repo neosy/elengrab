@@ -19,6 +19,9 @@ var (
 
 	DonateIcon = newIcon("DonateIconName", "coffee-icon.svg")
 
+	UploadMenuPlusIcon        = newIcon("UploadMenuPlusIconName", "plus-icon.svg")
+	UploadMenuMyDownloadsIcon = newIcon("UploadMenuMyDownloadsIconName", "list-icon.svg")
+
 	IndexGrabSettingsButtonIcon = newIcon("IndexGrabSettingsButtonIconName", "settings-icon.svg")
 	IndexGrabGetButtonIcon      = newIcon("IndexGrabGetButtonIconName", "download-cloud-icon.svg")
 

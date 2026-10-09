@@ -26,4 +26,15 @@ func (r *routes) registerUIRoot(handlers *downloader.DownloaderHandlers) {
 		g.GET(httppaths.RootRobotsTxtPath, handlers.AssetRobotsHandler)
 		r.router.HEAD(httppaths.RootRobotsTxtPath, handlers.AssetRobotsHandler)
 	}
+
+	// User downloads
+	{
+		// With middleware (error, auth or anonym)
+		g := nfasthttp.NewRouterGroup("", r.router)
+		g.Use(middlewareError, r.middlewares.Auth.AuthOrAnonym)
+		{
+			g.GET(httppaths.RootUserLoginPath, handlers.UserDownloadsPageHandler)
+			g.HEAD(httppaths.RootUserLoginPath, handlers.UserDownloadsPageHandler)
+		}
+	}
 }

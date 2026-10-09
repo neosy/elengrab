@@ -23,12 +23,11 @@ const accountMenuConfig = {
   },
 
   beforeOpen(menu, trigger) {
-    menu.innerHTML = "";
     return true;
   }
 };
 
-// Settings menu config
+// Settings footer menu config
 const settingsMenuConfig = {
   triggerSelector: '#footerSettingsLink',
   menuId: 'settingsMenu',
@@ -77,7 +76,6 @@ const settingsMenuConfig = {
   },
 
   beforeOpen(menu, trigger) {
-    menu.innerHTML = "";
     return true;
   }
 };
@@ -243,8 +241,8 @@ const rowMenuConfig = {
   }
 };
 
-// Initialize index page menus
-export function initIndexMenus() {
+// Initialize menus
+export function initMenus() {
   initMenu(accountMenuConfig);
   initMenu(settingsMenuConfig);
   initMenu(rowMenuConfig);

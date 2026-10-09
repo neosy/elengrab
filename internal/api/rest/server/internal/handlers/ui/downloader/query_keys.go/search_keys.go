@@ -13,6 +13,8 @@ var (
 )
 
 func init() {
+	searchFilterKeys.Append(UserIDKey)
+	searchFilterKeys.Append(UserNameKey)
 	searchFilterKeys.Append(ChannelIDKey)
 
 	searchParameterFilterKeys.Append(ChannelPlatformKey)

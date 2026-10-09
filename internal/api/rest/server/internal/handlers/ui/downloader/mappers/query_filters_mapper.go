@@ -13,7 +13,7 @@ func (m *Mappers) MapQueryFiltersDomainToFilters(filters *dtypes.QueryFilters) *
 		return nil
 	}
 
-	newFilters := types.NewQueryFilters()
+	queryFilters := types.NewQueryFilters()
 
 	for _, filter := range filters.List() {
 		queryKey := qkeys.Keys.FindByFilterName(filter.Name)
@@ -23,13 +23,13 @@ func (m *Mappers) MapQueryFiltersDomainToFilters(filters *dtypes.QueryFilters) *
 
 		switch v := filter.Value().(type) {
 		case string:
-			newFilters.Add(queryKey, v)
+			queryFilters.Add(queryKey, v)
 		case uuid.UUID:
-			newFilters.Add(queryKey, idcodec.EncodeUUIDBase64URL(v))
+			queryFilters.Add(queryKey, idcodec.EncodeUUIDBase64URL(v))
 		}
 	}
 
-	return newFilters
+	return queryFilters
 }
 
 func (m *Mappers) MapQueryFiltersToDomain(filters *types.QueryFilters) (*dtypes.QueryFilters, error) {
@@ -37,7 +37,7 @@ func (m *Mappers) MapQueryFiltersToDomain(filters *types.QueryFilters) (*dtypes.
 		return nil, nil
 	}
 
-	newFilter := dtypes.NewQueryFilters()
+	domainFilters := dtypes.NewQueryFilters()
 
 	for _, filter := range filters.List() {
 		filterName := filter.Key.FilterName()
@@ -46,22 +46,28 @@ func (m *Mappers) MapQueryFiltersToDomain(filters *types.QueryFilters) (*dtypes.
 		}
 
 		switch filter.Key {
+		case qkeys.UserIDKey:
+			id, err := idcodec.DecodeUUIDBase64URL(filter.Value)
+			if err != nil {
+				return nil, err
+			}
+			domainFilters.Add(filterName, id)
 		case qkeys.ChannelIDKey:
 			id, err := idcodec.DecodeUUIDBase64URL(filter.Value)
 			if err != nil {
 				return nil, err
 			}
-			newFilter.Add(filterName, id)
+			domainFilters.Add(filterName, id)
 		case qkeys.SearchKey:
 			fallthrough
 		case qkeys.SearchQueryKey:
-			newFilter.Add(filterName, filter.Value)
+			domainFilters.Add(filterName, filter.Value)
 		}
 	}
 
-	if newFilter.Len() == 0 {
+	if domainFilters.Len() == 0 {
 		return nil, nil
 	}
 
-	return newFilter, nil
+	return domainFilters, nil
 }

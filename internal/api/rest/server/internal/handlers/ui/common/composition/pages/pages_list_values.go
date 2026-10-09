@@ -16,6 +16,8 @@ type PagesListValues struct {
 
 	SearchQuery string
 
+	UploadMenuContent template.HTML
+
 	ActiveViewMode string
 	ViewModeTabs   []ViewModeTab
 
