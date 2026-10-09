@@ -52,11 +52,14 @@ export const EVENT_NAMES = {
 // Media watch constants
 export const MEDIA_WATCH = {
     // Minimum watched time from the beginning to restore playback position
-    startThresholdMs: 8000,
+    startThresholdMs: 5000,
 
     // Minimum watch interval duration to send a watch event
-    minIntervalMs: 2000,
+    minIntervalMs: 1200,
 
     // Maximum allowed watch interval duration (with playback speed tolerance)
     maxIntervalMs: 15500,
+
+    // Interval between periodic watch-tracking events
+    heartbeatIntervalMs: 5000,
 };

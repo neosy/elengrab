@@ -30,3 +30,7 @@
                         </div>
                         {{- end }}
 {{- end }}
+
+{{- define "media-result-progress" }}
+<span class="result__progress-percent" id="{{ .Values.ProgressID }}">{{ .Extra.ProgressPercent }}</span>
+{{- end }}

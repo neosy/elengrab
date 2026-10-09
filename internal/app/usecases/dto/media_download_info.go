@@ -111,11 +111,6 @@ func (info *MediaDownloadInfo) IsReady() bool {
 		info.Status == dtypes.MediaDownloadStatusRefreshing
 }
 
-const (
-	userWatchStartThreshold           = 8 * time.Second
-	minDurationForWatchStartIndicator = 60 * time.Second
-)
-
 // WatchIndicatorEnabled reports whether the watch indicator
 // is enabled for this media.
 func (info *MediaDownloadInfo) WatchIndicatorEnabled() bool {
@@ -124,7 +119,7 @@ func (info *MediaDownloadInfo) WatchIndicatorEnabled() bool {
 	}
 
 	// The watch start indicator is disabled for short videos.
-	if info.MediaInfo.Duration() <= minDurationForWatchStartIndicator {
+	if info.MediaInfo.Duration() <= minDurationMediaWatchStartIndicator {
 		return false
 	}
 
@@ -138,7 +133,7 @@ func (info *MediaDownloadInfo) ShouldShowWatchStartIndicator() bool {
 		return false
 	}
 
-	return info.UserLastWatchPosition >= userWatchStartThreshold
+	return info.UserLastWatchPosition >= mediaWatchStartThreshold
 }
 
 func (info *MediaDownloadInfo) UserWatchPercent() float64 {

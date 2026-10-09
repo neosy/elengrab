@@ -59,9 +59,18 @@ const mediaPlayer = {
         this.isOpen = false;
 
         if (this.player) {
-            this.player.pause();
-            this.player.removeAttribute('src');
-            this.player.load();
+            const unloadVideo = () => {
+                this.player.removeAttribute("src");
+                this.player.load();
+            };
+
+            if (this.player.paused) {
+                unloadVideo();
+            } else {
+                this.player.addEventListener("pause", unloadVideo, { once: true });
+                this.player.pause();
+            }    
+
             this.player.remove();
             this.player = null;
         }

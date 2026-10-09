@@ -66,6 +66,8 @@ var (
 
 	VideoPreviewSoundOnIcon  = newIcon("VideoPreviewSoundOnIconName", "sound-on.svg")
 	VideoPreviewSoundOffIcon = newIcon("VideoPreviewSoundOffIconName", "sound-off.svg")
+	VideoPreviewPlayIcon     = newIcon("VideoPreviewPlayIconName", "play-3-icon.svg")
+	VideoPreviewPauseIcon    = newIcon("VideoPreviewPauseIconName", "pause-icon.svg")
 )
 
 var (

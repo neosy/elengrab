@@ -35,4 +35,6 @@ type UserAvatar struct {
 type VideoPreview struct {
 	SoundOnIcon  template.HTML
 	SoundOffIcon template.HTML
+	PlayIcon     template.HTML
+	PauseIcon    template.HTML
 }

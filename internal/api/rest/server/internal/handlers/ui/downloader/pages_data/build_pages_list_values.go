@@ -68,6 +68,8 @@ func BuildPagesListValues(
 		VideoPreview: pages.VideoPreview{
 			SoundOnIcon:  icons.VideoPreviewSoundOnIcon.FileRaw(),
 			SoundOffIcon: icons.VideoPreviewSoundOffIcon.FileRaw(),
+			PlayIcon:     icons.VideoPreviewPlayIcon.FileRaw(),
+			PauseIcon:    icons.VideoPreviewPauseIcon.FileRaw(),
 		},
 	}
 }
