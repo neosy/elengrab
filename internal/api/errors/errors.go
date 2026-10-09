@@ -18,7 +18,10 @@ var (
 
 	ErrHTTPSRequired = errorx.NewHTTPMessage("HTTPS is required", fasthttp.StatusUpgradeRequired)
 
-	ErrFileNotFound          = ierrors.ErrFileNotFound
+	ErrFileNotFound        = ierrors.ErrFileNotFound
+	ErrUserNameIsRequired  = errorx.NewMessage("user name is required", exceptions.INVALID_REQUEST)
+	ErrUserNameIsIncorrect = errorx.NewMessage("user name is incorrect", exceptions.INVALID_REQUEST)
+
 	ErrDownloadIDIsRequired  = errorx.NewMessage("downloadId is required", exceptions.INVALID_REQUEST)
 	ErrDownloadIDIsIncorrect = errorx.NewMessage("downloadId is incorrect", exceptions.INVALID_REQUEST)
 

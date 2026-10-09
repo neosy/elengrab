@@ -142,11 +142,13 @@ func (h *DownloaderHandlers) handleDownloadAdd(
 	html := strings.TrimSpace(buf.String())
 
 	data := struct {
-		DownloadID string `json:"itemId"`
-		HTML       string `json:"html"`
+		DownloadID     string `json:"itemId"`
+		OwnerUserLogin string `json:"owner"`
+		HTML           string `json:"html"`
 	}{
-		DownloadID: idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
-		HTML:       html,
+		DownloadID:     idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
+		OwnerUserLogin: downloadInfo.UserLogin,
+		HTML:           html,
 	}
 
 	jsonData, err := json.Marshal(data)

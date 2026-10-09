@@ -14,16 +14,16 @@ import (
 )
 
 func (h *DownloaderHandlers) AccountMenuHandler(ctx *fasthttp.RequestCtx) {
-	ctxUser, err := policy.EnsureUser(ctx)
+	authCtx, err := policy.EnsureUser(ctx)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
 
 	extraData := make(map[string]any)
-	extraData[items.UserLoginKey] = stringx.Capitalize(ctxUser.Login)
-	extraData[items.UserEmailKey] = ctxUser.Email
-	extraData[items.AccountMenuActionsKey] = menu.NewAccountMenuActions(ctxUser)
+	extraData[items.UserLoginKey] = stringx.Capitalize(authCtx.Login)
+	extraData[items.UserEmailKey] = authCtx.Email
+	extraData[items.MenuActionsKey] = menu.NewAccountMenuActions(authCtx)
 
 	type pageFragmentData struct {
 		pages.PageFragmentData
@@ -35,7 +35,7 @@ func (h *DownloaderHandlers) AccountMenuHandler(ctx *fasthttp.RequestCtx) {
 		Extra:     extraData,
 
 		UserAvatar: pages.UserAvatar{
-			Icon: icons.UserAvatarIconByType(ctxUser.UserType()).FileRaw(),
+			Icon: icons.UserAvatarIconByType(authCtx.UserType()).FileRaw(),
 		},
 	}
 

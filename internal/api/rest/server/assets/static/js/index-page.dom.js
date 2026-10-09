@@ -22,22 +22,8 @@ export const DOM_IDS = {
 
 export const DOM_ELEMENTS = {
     ...PAGES_DOM.DOM_ELEMENTS,
-
-    grabForm: null,
-    mediaURLInput: null,
-    inputActionBtn: null,
-    inputActionSettingsBtn: null,
-    grabOptionsCollapse: null,
-    grabOptions: null,
 };
 
 export function initDomElements() {    
     PAGES_DOM.initDomElements(DOM_ELEMENTS);
-
-    DOM_ELEMENTS.grabForm = document.getElementById("grabForm");
-    DOM_ELEMENTS.mediaURLInput = document.getElementById("mediaURLInput");
-    DOM_ELEMENTS.inputActionBtn = document.getElementById("inputActionBtn");
-    DOM_ELEMENTS.inputActionSettingsBtn = document.getElementById("inputActionSettingsBtn");
-    DOM_ELEMENTS.grabOptionsCollapse = document.getElementById("grabOptionsCollapse");
-    DOM_ELEMENTS.grabOptions = document.getElementById("grabOptions");
 }

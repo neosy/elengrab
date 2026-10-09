@@ -21,18 +21,5 @@
       <div class="email">{{ .Extra.UserEmail }}</div>
     </div>
   </div>
-  <div class="menu-actions">
-    {{- range .Extra.AccountMenuActions }}
-    <div class="menu-action menu-action--{{ .Action }}" id="menu-action-{{ .Action }}" data-action="{{ .Action }}" data-url="{{ .URL }}">
-        <div class="menu-action__content">
-            <div class="menu-action__content-icon">
-                {{ .IconSvg }}
-            </div>
-            <div class="menu-action__content-text">
-                <span>{{ .Title }}</span>
-            </div>
-        </div>
-    </div>
-    {{- end }}
-  </div>
+  {{- template "menu-actions" . }} 
 {{- end }}

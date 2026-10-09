@@ -3,6 +3,7 @@ package downloader
 import (
 	"context"
 	"fmt"
+	"hash/fnv"
 	"net/url"
 	"strings"
 
@@ -367,18 +368,45 @@ func (h *DownloaderHandlers) buildChannelHeaderPageData(ctx context.Context, cha
 	}
 }
 
+func (h *DownloaderHandlers) buildUserDownloadsHeaderPageData(ctx context.Context, login string) pages.UserDownloadsHeader {
+	if login == "" {
+		return pages.UserDownloadsHeader{}
+	}
+
+	return pages.UserDownloadsHeader{
+		Title:       login,
+		Description: login,
+		ImageURL:    "",
+		Show:        true,
+	}
+}
+
 func (h *DownloaderHandlers) extractDownloadID(ctx *fasthttp.RequestCtx) (uuid.UUID, error) {
-	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
-	if !ok || downloadIDStr == "" {
+	encodedDownloadID, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
+	if !ok || encodedDownloadID == "" {
 		return uuid.Nil, apierrors.ErrDownloadIDIsRequired
 	}
 
-	downloadID, err := idcodec.DecodeUUIDBase64URL(downloadIDStr)
+	downloadID, err := idcodec.DecodeUUIDBase64URL(encodedDownloadID)
 	if err != nil {
 		return uuid.Nil, apierrors.ErrDownloadIDIsIncorrect.Wrap(err)
 	}
 
 	return downloadID, nil
+}
+
+func (h *DownloaderHandlers) extractChannelID(ctx *fasthttp.RequestCtx) (uuid.UUID, error) {
+	encodedChannelID, ok := ctx.UserValue(qkeys.ChannelIDKey.String()).(string)
+	if !ok || encodedChannelID == "" {
+		return uuid.Nil, apierrors.ErrChannelIDIsRequired
+	}
+
+	channelID, err := idcodec.DecodeUUIDBase64URL(encodedChannelID)
+	if err != nil {
+		return uuid.Nil, apierrors.ErrChannelIDIsIncorrect.Wrap(err)
+	}
+
+	return channelID, nil
 }
 
 func (h *DownloaderHandlers) extractShortURL(rawURL string) (string, string) {
@@ -456,4 +484,96 @@ func (h *DownloaderHandlers) resolveShortLinkToDownloadID(ctx *fasthttp.RequestC
 	}
 
 	return shortLink, downloadID, nil
+}
+
+func (h *DownloaderHandlers) prepareSearchQueryFilters(ctx context.Context, queryFilters *types.QueryFilters) (*types.QueryFilters, error) {
+	if queryFilters == nil {
+		return queryFilters, nil
+	}
+
+	searchQueryFilters := queryFilters.Clone()
+
+	if filter, exists := searchQueryFilters.Find(qkeys.UserLoginKey); exists {
+		searchQueryFilters.Delete(qkeys.UserLoginKey)
+
+		user, err := h.authWeb.GetByLogin(ctx, filter.Value)
+		if err != nil {
+			return nil, apierrors.ErrUserNameIsIncorrect.Wrap(err)
+		}
+
+		searchQueryFilters.Add(qkeys.UserNameKey, user.Login)
+	}
+
+	if filter, exists := searchQueryFilters.Find(qkeys.UserIDKey); exists {
+		userID, err := idcodec.DecodeUUIDBase64URL(filter.Value)
+		if err != nil {
+			return nil, apierrors.ErrUserNameIsIncorrect.Wrap(err)
+		}
+
+		searchQueryFilters.Delete(qkeys.UserIDKey)
+
+		user, err := h.authWeb.GetByUserID(ctx, userID)
+		if err != nil {
+			return nil, apierrors.ErrUserNameIsIncorrect.Wrap(err)
+		}
+
+		searchQueryFilters.Add(qkeys.UserNameKey, user.Login)
+	}
+
+	return searchQueryFilters, nil
+}
+
+func (h *DownloaderHandlers) restoreSearchQueryFilters(ctx context.Context, searchQueryFilters *types.QueryFilters) (*types.QueryFilters, error) {
+	if searchQueryFilters == nil {
+		return searchQueryFilters, nil
+	}
+
+	queryFilters := searchQueryFilters.Clone()
+
+	if filter, exists := queryFilters.Find(qkeys.UserNameKey); exists {
+		queryFilters.Delete(filter.Key)
+
+		user, err := h.authWeb.GetByLogin(ctx, filter.Value)
+		if err != nil {
+			return nil, apierrors.ErrUserNameIsIncorrect.Wrap(err)
+		}
+
+		queryFilters.Add(qkeys.UserIDKey, idcodec.EncodeUUIDBase64URL(user.UserID))
+	}
+
+	if filter, exists := queryFilters.Find(qkeys.UserLoginKey); exists {
+		queryFilters.Delete(filter.Key)
+
+		user, err := h.authWeb.GetByLogin(ctx, filter.Value)
+		if err != nil {
+			return nil, apierrors.ErrUserNameIsIncorrect.Wrap(err)
+		}
+
+		queryFilters.Add(qkeys.UserIDKey, idcodec.EncodeUUIDBase64URL(user.UserID))
+	}
+
+	return queryFilters, nil
+}
+
+func userDisplayName(userID *uuid.UUID, userLogin string, userType dtypes.UserType, curUserID uuid.UUID) string {
+	switch userType {
+	case dtypes.UserTypeGuest:
+		if userID != nil && curUserID == *userID {
+			return "Guest (You)"
+		}
+
+		id := strings.TrimPrefix(userLogin, "u-")
+		num := generateGuestNumber(id)
+
+		return fmt.Sprintf("Guest #%04d", num)
+	}
+
+	return stringx.Capitalize(userLogin)
+}
+
+func generateGuestNumber(id string) uint32 {
+	h := fnv.New32a()
+	_, _ = h.Write([]byte(id))
+
+	return h.Sum32() % 10000
 }

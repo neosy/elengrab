@@ -12,19 +12,23 @@ const (
 	AdminGroup = "/admin"
 
 	// Paths Users
-	AdminUsersPath        = "/users"
-	AdminUserDetailPath   = "/users/{userId}/detail"
-	AdminUserTableRowPath = "/users/{userId}/table-row"
-	AdminUserRolesPath    = "/users/{userId}/roles"
+	UsersPath        = "/users"
+	UserDetailPath   = UsersPath + "/{userId}/detail"
+	UserTableRowPath = UsersPath + "/{userId}/table-row"
+	UserRolesPath    = UsersPath + "/{userId}/roles"
 
 	// Paths Groups, Logs, Settings
-	AdminGroupsPath   = "/groups"
-	AdminLogsPath     = "/logs"
-	AdminSettingsPath = "/settings"
+	UserGroupsPath = "/groups"
+	LogsPath       = "/logs"
+	SettingsPath   = "/settings"
+
+	// Admin paths
+	AdminUsersPath      = AdminGroup + UsersPath
+	AdminUserGroupsPath = AdminGroup + UserGroupsPath
 )
 
 func BuildAdminUserDetailTemplatePath() string {
-	return AdminGroup + AdminUserDetailPath
+	return AdminGroup + UserDetailPath
 }
 
 func buildAdminUserPath(path string, userID uuid.UUID) string {
@@ -33,9 +37,9 @@ func buildAdminUserPath(path string, userID uuid.UUID) string {
 }
 
 func BuildAdminUserRolesPath(userID uuid.UUID) string {
-	return buildAdminUserPath(AdminUserRolesPath, userID)
+	return buildAdminUserPath(UserRolesPath, userID)
 }
 
 func BuildAdminUserTableRowPath(userID uuid.UUID) string {
-	return buildAdminUserPath(AdminUserTableRowPath, userID)
+	return buildAdminUserPath(UserTableRowPath, userID)
 }

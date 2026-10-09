@@ -1,0 +1,7 @@
+{{- define "upload-menu" }}
+<div class="menu upload-menu" id="upload-menu"
+     hx-trigger="manual"
+     hx-target="this">
+     {{ .Values.UploadMenuContent }}
+</div>
+{{- end }}

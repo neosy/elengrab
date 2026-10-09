@@ -6,6 +6,10 @@ var (
 		key:      "index-page",
 		fileName: "index.html",
 	}
+	UserDownloadsPage = page{
+		key:      "user-downloads-page",
+		fileName: "user-downloads.html",
+	}
 	ChannelPage = page{
 		key:      "channel-page",
 		fileName: "channel.html",
@@ -37,6 +41,7 @@ var (
 
 	pages = []page{
 		IndexPage,
+		UserDownloadsPage,
 		ChannelPage,
 
 		AuthRegisterPage,

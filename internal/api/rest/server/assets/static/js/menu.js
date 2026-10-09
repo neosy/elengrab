@@ -1,28 +1,51 @@
-const isPWA =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      window.matchMedia('(display-mode: fullscreen)').matches ||
-      window.navigator.standalone === true;
+import { isPWA } from "./browser.js";
 
-const MENU_OVERLAY_SHOW_CLASS = 'menu-overlay--show';
-const MENU_MOBILE_LAYOUT_CLASS = 'menu--mobile-layout';
-const MENU_ACTION_CLASS = 'menu-action';
 const MENU_HASH = "#menu"
 
-export const DOM_CLASSES = {
+const CLASS_NAMES = {
+  menuOverlayShow: 'menu-overlay--show',
+  menuMobileLayout: 'menu--mobile-layout',
+  menuAction: 'menu-action',
+
   menuShow: 'menu--show',
   menuUp: 'menu--up',
   menuDown: 'menu--down',
   menuScroll: 'menu--scroll',
+
+  getMenuStateClasses() {
+    return [
+      this.menuShow,
+      this.menuUp,
+      this.menuDown,
+      this.menuScroll,
+    ];
+  },
 }
 
-const menuOverlay = document.getElementById("menu-overlay");
+const CLASS_SELECTORS = Object.fromEntries(
+    Object.entries(CLASS_NAMES)
+        .filter(([, value]) => typeof value === "string")
+        .map(([key, value]) => [key, `.${value}`])
+);
+
+const DOM_IDS = {
+  menuOverlay: 'menu-overlay',
+}
+
+const DOM_ELEMENTS = {
+  menuOverlay: null,
+}
+
+function initDomElements() {
+  DOM_ELEMENTS.menuOverlay = document.getElementById(DOM_IDS.menuOverlay);
+}
 
 let activeMenus = new Set();
 const menuState = new Map();
 
 // Close all opened menus except the provided one
 export function closeAllMenus(except = null, fnAfterClose) {
-  document.querySelectorAll('.'+DOM_CLASSES.menuShow).forEach(menu => {
+  document.querySelectorAll(CLASS_SELECTORS.menuShow).forEach(menu => {
     if (menu !== except) {
       closeMenu(menu, fnAfterClose);
     }
@@ -54,6 +77,7 @@ export function closeAllMenus(except = null, fnAfterClose) {
  * @property {(menu: HTMLElement, trigger: HTMLElement) => string} [buildUrl]
  * @property {() => boolean} [isMobile]
  * @property {boolean} [isOverlay]
+ * @property {boolean} [isStatic] Whether the menu content is static and does not require server loading.
  */
 export function initMenu(config) {
   const {
@@ -61,8 +85,9 @@ export function initMenu(config) {
     menuId,
     actions = {},
     position,
-    isMobile,
+    isMobile = null,
     isOverlay = true,
+    isStatic = false,
     beforeRenderElement,
     buildUrl,
     shouldOpen,
@@ -101,8 +126,8 @@ export function initMenu(config) {
     props.forEach(prop => {
       menu.style[prop] = '';
     });
-    menu.classList.remove(MENU_MOBILE_LAYOUT_CLASS);
-    menu.classList.add(MENU_MOBILE_LAYOUT_CLASS);
+    menu.classList.remove(CLASS_NAMES.menuMobileLayout);
+    menu.classList.add(CLASS_NAMES.menuMobileLayout);
   }  
 
   function syncMenuWithHash() {
@@ -125,7 +150,7 @@ export function initMenu(config) {
 
     closeAllMenus(menu, afterClose);
 
-    if (isSameTrigger && menu.classList.contains(DOM_CLASSES.menuShow)) {
+    if (isSameTrigger && menu.classList.contains(CLASS_NAMES.menuShow)) {
       closeMenu(menu, afterClose);
       return;
     }
@@ -151,34 +176,38 @@ export function initMenu(config) {
     beforeOpen?.(menu, trigger);
 
     if (isOverlay) {
-      menuOverlay && (menuOverlay.classList.add(MENU_OVERLAY_SHOW_CLASS));
+      DOM_ELEMENTS.menuOverlay && (DOM_ELEMENTS.menuOverlay.classList.add(CLASS_NAMES.menuOverlayShow));
     }
    
-    menu.innerHTML = "";
-    activeMenus.add(menu);
+    if (!isStatic) {
+      menu.innerHTML = "";
+    }
 
+    activeMenus.add(menu);
     window.htmx?.trigger(menu, 'manual');
 
-    menu.addEventListener(
-      'htmx:afterSettle',
-      () => {
-        menu.querySelectorAll(`.${MENU_ACTION_CLASS}`).forEach(el => {
-          const id = el.id.replace('menu-action-', '');
-          beforeRenderElement?.(el, id);
-        });
+    const handleMenuReady = () => {
+      menu.querySelectorAll(CLASS_SELECTORS.menuAction).forEach(el => {
+        const id = el.id.replace('menu-action-', '');
+        beforeRenderElement?.(el, id);
+      });
 
-        if (isMobile ? isMobile() : isMobileDefault()) {
-          applyMobile(menu);
-        } else {
-          position?.(menu, trigger);
-        }
+      if (isMobile ? isMobile() : isMobileDefault()) {
+        applyMobile(menu);
+      } else {
+        position?.(menu, trigger);
+      }
 
-        requestAnimationFrame(() => {
-          menu.classList.add(DOM_CLASSES.menuShow);
-        });
-      },
-      { once: true }
-    );        
+      requestAnimationFrame(() => {
+        menu.classList.add(CLASS_NAMES.menuShow);
+      });
+    };
+
+    if (isStatic) {
+      handleMenuReady();
+    } else {
+      menu.addEventListener('htmx:afterSettle', handleMenuReady, { once: true });
+    }
   });
 
   /** Handle clicks inside the menu */
@@ -229,14 +258,10 @@ function closeMenu(menu, fnAfterClose) {
   
   history.replaceState(null, "", location.pathname + location.search);
 
-  menu.classList.remove(
-    DOM_CLASSES.menuShow,
-    DOM_CLASSES.menuUp,
-    DOM_CLASSES.menuDown,
-    DOM_CLASSES.menuScroll
-  );
-  if (menuOverlay) {
-    menuOverlay.classList.remove(MENU_OVERLAY_SHOW_CLASS)
+  menu.classList.remove(...CLASS_NAMES.getMenuStateClasses());
+
+  if (DOM_ELEMENTS.menuOverlay) {
+    DOM_ELEMENTS.menuOverlay.classList.remove(CLASS_NAMES.menuOverlayShow)
   }
   
   menu.style.removeProperty('max-height');
@@ -271,13 +296,13 @@ export function positionFloatingMenu(menu, btn) {
       menu.style.top = `${rect.bottom + gap}px`;
       menu.style.bottom = 'auto';
 
-      menu.classList.add(DOM_CLASSES.menuDown);
+      menu.classList.add(CLASS_NAMES.menuDown);
   } else if (spaceAbove >= menuHeight) {
       // open up
       menu.style.bottom = `${window.innerHeight - rect.top + gap}px`;
       menu.style.top = 'auto';
 
-      menu.classList.add(DOM_CLASSES.menuUp);
+      menu.classList.add(CLASS_NAMES.menuUp);
   } else {
     // doesn't fit either side
     if (spaceBelow >= spaceAbove) {
@@ -285,18 +310,22 @@ export function positionFloatingMenu(menu, btn) {
         menu.style.bottom = 'auto';
         menu.style.maxHeight = `${spaceBelow}px`;
 
-        menu.classList.add(DOM_CLASSES.menuDown);
+        menu.classList.add(CLASS_NAMES.menuDown);
     } else {
         menu.style.bottom = `${window.innerHeight - rect.top + gap}px`;
         menu.style.top = 'auto';
         menu.style.maxHeight = `${spaceAbove}px`;
 
-        menu.classList.add(DOM_CLASSES.menuUp);
+        menu.classList.add(CLASS_NAMES.menuUp);
     }
 
-    menu.classList.add(DOM_CLASSES.menuScroll);
+    menu.classList.add(CLASS_NAMES.menuScroll);
   }
 
   menu.style.left = 'auto';
   menu.style.right = `${window.innerWidth - rect.right}px`;
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  initDomElements();
+})

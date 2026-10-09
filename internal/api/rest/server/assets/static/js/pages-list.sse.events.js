@@ -5,11 +5,18 @@ import { CLASS_PREFIXES, EVENT_NAMES } from './constants.js';
 // Handle row-add SSE event with multiple rows in one payload
 // and insert them after the top placeholder div
 // -------------------------------------------------------------
-export function handleRowAdd(event) {
+export function handleRowAdd(event, usernameFilter = "") {
     try {
         // Payload is raw HTML with multiple rows
         const data = JSON.parse(event.data);
         if (!data.itemId || !data.html) return
+
+        const owner = data.owner;
+
+        if (usernameFilter && owner !== usernameFilter) {
+            console.info(owner);
+            return;
+        }
 
         // Find the top placeholder div
         const itemsEl = document.getElementById(DOM_IDS.mediaResultItems);
@@ -72,11 +79,11 @@ export function handleRowUpdate(event) {
     }
 }
 
-	// Title string `json:"title,omitempty"`
-	// WatchPercent  string  `json:"watchPercent,omitempty"`
-	// Watched       *bool   `json:"watched,omitempty"`
-	// ViewCount     *uint32 `json:"viewCount,omitempty"`
-	// ViewCountText string  `json:"viewCountText,omitempty"`
+// Title string `json:"title,omitempty"`
+// WatchPercent  string  `json:"watchPercent,omitempty"`
+// Watched       *bool   `json:"watched,omitempty"`
+// ViewCount     *uint32 `json:"viewCount,omitempty"`
+// ViewCountText string  `json:"viewCountText,omitempty"`
 export function handleRowPatch(event) {
     try {
         const data = JSON.parse(event.data);

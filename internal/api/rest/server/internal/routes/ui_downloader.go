@@ -104,6 +104,17 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		}
 	}
 
+	// User downloads
+	{
+		// With middleware (error, auth or anonym)
+		g := nfasthttp.NewRouterGroup(httppaths.DownloaderGroup, r.router)
+		g.Use(middlewareError, r.middlewares.Auth.AuthOrAnonym)
+		{
+			g.GET(httppaths.UserDownloadsPath, handlers.UserDownloadsPageHandler)
+			g.HEAD(httppaths.UserDownloadsPath, handlers.UserDownloadsPageHandler)
+		}
+	}
+
 	// Short link
 	{
 		// With middleware (error, auth or anonym)
