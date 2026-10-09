@@ -16,6 +16,7 @@ func (uc *downloader) RetryDownload(
 ) (*dto.MediaDownloadInfo, error) {
 	err := uc.validateWriteOperationAccess(authCtx)
 	if err != nil {
+		uc.notifyWriteOperationAccessError(authCtx, err)
 		return nil, err
 	}
 

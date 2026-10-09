@@ -1,15 +1,32 @@
+/*------------------ Account menu ------------------*/
+.menu-account {
+    position: fixed;
+
+    top: calc(var(--header-height) - 10px);
+    right: calc(50px + 8px);
+}
+
 @media (min-width: 480px) {
     .menu-account {
         --menu-width: 200px;
     }
 }
 
-/* Account menu*/
-.menu-account {
-    position: fixed;
+@media (max-width: 768px) {
+    .menu-account {
+        top: 0;
+        right: 0;
 
-    top: calc(40px + 8px + 6px);
-    right: calc(40px + 8px);
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        
+        transform: none;
+    }
+
+    .avatar {
+        width: 50px;
+        height: 50px;
+    }
 }
 
 .avatar {
@@ -38,13 +55,51 @@
     color: #666;
 }
 
-/* Settings menu */
+/*------------------ Upload menu ------------------*/
+.upload-menu {
+    position: fixed;
+
+    top: calc(var(--header-height) - 10px);
+    right: calc(80px);
+}
+
+@media (min-width: 480px) {
+    .upload-menu {
+        --menu-width: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .upload-menu {
+        top: 0;
+        right: 0;
+
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        
+        transform: none;
+    }
+}
+
+.menu-action--upload-url:hover {
+    background: var(--menu-action-hover-bg-green);
+}
+
+.menu-action--upload-url .menu-action__content-icon {
+    color: var(--menu-action-icon-green);
+}
+
+.menu-action--my-downloads .menu-action__content-icon {
+    color: var(--menu-action-icon-blue);
+}
+
+/*------------------ Settings menu ------------------*/
 .menu-settings {
     position: fixed;
     transform-origin: top;
 }
 
-/* Row menu*/
+/*------------------ Row menu ------------------*/
 .menu-row {
     position: fixed;
 }
@@ -57,7 +112,26 @@
     gap: 10px;
 }
 
-/* Menu action */
+@media (max-width: 768px) {
+    .menu.menu-row {
+        bottom: 0;
+        left: auto;
+        right: 0;
+
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+
+        transform: none;
+    }
+
+    .menu-row.menu--show {
+        padding: 10px;
+        padding-top: 30px;
+        padding-right: 40px;
+    }
+}
+
+/*------------------ Menu action ------------------*/
 .menu-action--logout .menu-action__content svg {
     height: 115%;
 }
@@ -111,38 +185,4 @@
 
 .menu-action--refresh .menu-action__content-icon {
     color: var(--menu-action-icon-cyan-green);
-}
-
-@media (max-width: 768px) {
-    .menu-account {
-        top: 0;
-        right: 0;
-
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-        
-        transform: none;
-    }
-
-    .menu.menu-row {
-        bottom: 0;
-        left: auto;
-        right: 0;
-
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-
-        transform: none;
-    }
-
-    .menu-row.menu--show {
-        padding: 10px;
-        padding-top: 30px;
-        padding-right: 40px;
-    }
-
-    .avatar {
-        width: 50px;
-        height: 50px;
-    }
 }

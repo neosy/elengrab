@@ -7,8 +7,7 @@ const (
 	UserLoginKey = "UserLogin"
 	UserEmailKey = "UserEmail"
 
-	AccountMenuActionsKey = "AccountMenuActions"
-	MenuActionsKey        = "MenuActions"
+	MenuActionsKey = "MenuActions"
 
 	DisableHTMXEventKey = "DisableHTMXEvent"
 )

@@ -13,6 +13,10 @@ var (
 	TextKey   = keys.add("text", "t")
 	SourceKey = keys.add("source", "src")
 
+	UserIDKey    = keys.addWithName("userId", "ui", dtypes.QueryFilterNameUserID)
+	UserLoginKey = keys.add("login", "ul")
+	UserNameKey  = keys.add("userName", "un")
+
 	DownloadIDKey = keys.add("itemId", "id")
 
 	ChannelIDKey       = keys.addWithName("channelId", "cid", dtypes.QueryFilterNameChannelID)

@@ -18,10 +18,10 @@ const (
 
 var (
 	parseQueryFilterNameMap = map[string]QueryFilterName{
+		"createdAt":   QueryFilterNameCreatedAt,
 		"userID":      QueryFilterNameUserID,
 		"channelID":   QueryFilterNameChannelID,
-		"title":       QueryFilterNameCreatedAt,
-		"createdAt":   QueryFilterNameTitle,
+		"title":       QueryFilterNameTitle,
 		"searchQuery": QueryFilterNameSearchQuery,
 		"downloadIDs": QueryFilterNameDownloadIDs,
 	}

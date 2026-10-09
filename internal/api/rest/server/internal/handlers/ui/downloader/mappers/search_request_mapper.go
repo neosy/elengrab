@@ -33,6 +33,10 @@ func (m *Mappers) MapSearchRequestToSearchValues(
 		searchValues.QueryText = queryText.String()
 	}
 
+	if req.UserName != "" {
+		filters.Add(qkeys.UserNameKey, req.UserName)
+	}
+
 	if req.ChannelID != "" {
 		filters.Add(qkeys.ChannelIDKey, req.ChannelID)
 	}

@@ -19,10 +19,10 @@ type IndexPageValues struct {
 	PagesListValues
 	PagesFooterValues
 
-	GrabForm IndexGrabForm
+	GrabForm MediaGrabForm
 }
 
-type IndexGrabForm struct {
+type MediaGrabForm struct {
 	InputPlaceholder   string
 	GetButtonTitle     string
 	SettingsButtonIcon template.HTML

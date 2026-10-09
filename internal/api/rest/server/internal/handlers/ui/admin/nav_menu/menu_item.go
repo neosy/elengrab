@@ -45,13 +45,13 @@ func (mi MenuItem) url() string {
 
 	switch mi.PageName {
 	case page.PageNameUsers:
-		path += httppaths.AdminUsersPath
+		path += httppaths.UsersPath
 	case page.PageNameGroups:
-		path += httppaths.AdminGroupsPath
+		path += httppaths.UserGroupsPath
 	case page.PageNameLogs:
-		path += httppaths.AdminLogsPath
+		path += httppaths.LogsPath
 	case page.PageNameSettings:
-		path += httppaths.AdminSettingsPath
+		path += httppaths.SettingsPath
 	}
 
 	return path

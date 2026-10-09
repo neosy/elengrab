@@ -1,8 +1,25 @@
-import { CLASS_NAMES } from './constants.js';
+import { CLASS_NAMES as CONSTS_CLASS_NAMES } from './constants.js';
 import * as share from './share.js';
-import { initMenu, DOM_CLASSES as MENU_CLASSES, positionFloatingMenu} from './menu.js';
+import { initMenu, positionFloatingMenu} from './menu.js';
 import * as notify from './notifications.js';
 import * as view from './pages-list.view.js';
+import { DOM_IDS as GRAB_FORM_DOM_IDS } from './pages-list.grab-form.js';
+
+const CLASS_NAMES = {
+  ...CONSTS_CLASS_NAMES,
+}
+
+const DOM_IDS = {
+  ...GRAB_FORM_DOM_IDS,
+}
+
+const DOM_ELEMENTS = {
+  mediaURLInput: null,
+}
+
+function initDomElements() {
+  DOM_ELEMENTS.mediaURLInput = document.getElementById(DOM_IDS.mediaURLInput);
+}
 
 // Account menu config
 const accountMenuConfig = {
@@ -23,12 +40,11 @@ const accountMenuConfig = {
   },
 
   beforeOpen(menu, trigger) {
-    menu.innerHTML = "";
     return true;
   }
 };
 
-// Settings menu config
+// Settings footer menu config
 const settingsMenuConfig = {
   triggerSelector: '#footerSettingsLink',
   menuId: 'settingsMenu',
@@ -77,7 +93,6 @@ const settingsMenuConfig = {
   },
 
   beforeOpen(menu, trigger) {
-    menu.innerHTML = "";
     return true;
   }
 };
@@ -243,11 +258,42 @@ const rowMenuConfig = {
   }
 };
 
+// Upload menu config
+const uploadMenuConfig = {
+  triggerSelector: '#header-actions-upload-menu-button',
+  menuId: 'upload-menu',
+  isStatic: true,
+
+  actions: {
+    uploadUrl(item) {
+      if (!DOM_ELEMENTS.mediaURLInput) return;
+
+      DOM_ELEMENTS.mediaURLInput.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+      });
+
+      DOM_ELEMENTS.mediaURLInput.focus();
+    }
+  },
+
+  shouldOpen(trigger) {
+    return true;
+  },
+
+  beforeOpen(menu, trigger) {
+    return true;
+  }
+};
+
 // Initialize index page menus
 export function initIndexMenus() {
+  initDomElements();
+
   initMenu(accountMenuConfig);
   initMenu(settingsMenuConfig);
   initMenu(rowMenuConfig);
+  initMenu(uploadMenuConfig);
 }
 
 // Initialize channel page menus
@@ -255,4 +301,14 @@ export function initChannelMenus() {
   initMenu(accountMenuConfig);
   initMenu(settingsMenuConfig);
   initMenu(rowMenuConfig);
+}
+
+// Initialize user downloads page menus
+export function initUserDownloadsMenus() {
+  initDomElements();
+
+  initMenu(accountMenuConfig);
+  initMenu(settingsMenuConfig);
+  initMenu(rowMenuConfig);
+  initMenu(uploadMenuConfig);
 }

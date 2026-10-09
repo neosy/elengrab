@@ -58,9 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const searching = search.initSearching();
     searchInputClearButton = searching.clearButton;
 
-    // Init header user menu elements
-    view.initHeaderUserMenu();
-
     // Initialize video preview player
     videoPreview.initVideoPreview();
     videoPreview.initVideoPreviewHover(

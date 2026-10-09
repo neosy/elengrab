@@ -12,6 +12,7 @@ var (
 	ErrUnauthorized         = errorx.NewMessage("Authentication required", exceptionx.UNAUTHORIZED)
 	ErrAccessDenied         = errorx.NewMessage("Access denied", exceptionx.FORBIDDEN)
 	ErrDemoModeAccessDenied = errorx.NewMessage("Access denied in demo mode", exceptionx.FORBIDDEN)
+	ErrDemoModeRestriction  = exceptions.DEMO_MODE_RESTRICTION.NewErrorx()
 
 	ErrMediaDownloadNotEditable = errorx.NewMessage(
 		"Media download cannot be edited in its current status",

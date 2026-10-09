@@ -64,6 +64,16 @@ func (h *DownloaderHandlers) renderIndexPage(
 	pagesListValues.AudioPlayIcon = icons.MediaAudioPlayIcon.FileRaw()
 	pagesListValues.AudioPauseIcon = icons.MediaAudioPauseIcon.FileRaw()
 
+	uploadMenu, err := h.renderUploadMenu(authCtx.Login, pagesListValues.HasCreateAccess)
+	if err != nil {
+		nfasthttp.WriteErrorx(ctx, err)
+		return
+	}
+
+	if uploadMenu != nil {
+		pagesListValues.UploadMenuContent = template.HTML(uploadMenu.String())
+	}
+
 	pageData := pages.IndexPageData{
 		BasePaths:  paths.NewHttpPaths(),
 		BaseValues: baseValues,
@@ -75,7 +85,7 @@ func (h *DownloaderHandlers) renderIndexPage(
 		Values: pages.IndexPageValues{
 			PagesListValues: pagesListValues,
 
-			GrabForm: pages.IndexGrabForm{
+			GrabForm: pages.MediaGrabForm{
 				InputPlaceholder:   pages.IndexGrabFormInputPlaceholder,
 				SettingsButtonIcon: icons.IndexGrabSettingsButtonIcon.FileRaw(),
 				GetButtonTitle:     pages.IndexGrabGetButtonTitle,

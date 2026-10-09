@@ -9,6 +9,11 @@ const (
 	UserTypeAdmin
 )
 
+// HasRequiredAccess reports whether the user type meets the required access level.
+func (ut UserType) HasRequiredAccess(required UserType) bool {
+	return ut >= required
+}
+
 func ResolveUserTypeByRoles(roleIDs UserRoleIDs) UserType {
 	if len(roleIDs) == 0 {
 		return UserTypeAnonymous

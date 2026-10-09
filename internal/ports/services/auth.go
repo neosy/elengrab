@@ -25,6 +25,9 @@ type AuthService interface {
 	AuthenticateUser(ctx context.Context, req *dto.AuthUserRequest) (*dto.AuthUserResponse, error)
 
 	FindByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User, error)
+	GetByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User, error)
+	FindByLogin(ctx context.Context, login string) (*dauth.User, error)
+	GetByLogin(ctx context.Context, login string) (*dauth.User, error)
 	ExistsUserByLogin(ctx context.Context, login string) (bool, error)
 }
 
