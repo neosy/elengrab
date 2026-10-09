@@ -36,7 +36,6 @@ export async function getWatchPosition(itemId) {
     }
 }
 
-const HEARTBEAT_INTERVAL_MS = 5000;
 const LOOP_THRESHOLD = 0.2;
 
 // Media watch event types
@@ -160,7 +159,7 @@ export class MediaWatchTracker {
             if (!this.video.paused && !this.video.ended) {
                 this.sendWatchEvent(MEDIA_WATCH_EVENT.heartbeat);
             }
-        }, HEARTBEAT_INTERVAL_MS);
+        }, MEDIA_WATCH.heartbeatIntervalMs);
     }
 
     async stopHeartbeat(type = null) {
