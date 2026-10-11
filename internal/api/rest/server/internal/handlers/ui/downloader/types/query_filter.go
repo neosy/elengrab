@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/json"
+	"fmt"
 	"maps"
 	"slices"
 
@@ -156,4 +157,32 @@ func (filters *QueryFilters) BuildJSON() []byte {
 	}
 
 	return json
+}
+
+func (filters *QueryFilters) QueryStrings() []string {
+	if filters.Len() == 0 {
+		return nil
+	}
+
+	var queryList []string
+
+	for _, f := range filters.list {
+		queryList = append(queryList, fmt.Sprintf("%s=%s", f.Key, f.Value))
+	}
+
+	return queryList
+}
+
+func (filters *QueryFilters) ShortQueryStrings() []string {
+	if filters.Len() == 0 {
+		return nil
+	}
+
+	var queryList []string
+
+	for _, f := range filters.list {
+		queryList = append(queryList, fmt.Sprintf("%s=%s", f.Key.Short(), f.Value))
+	}
+
+	return queryList
 }

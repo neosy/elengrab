@@ -21,8 +21,12 @@ type SearchParameters struct {
 	itemsByKey map[qkeys.QueryKey]SearchParameter
 }
 
-func NewSearchParameter(key qkeys.QueryKey, value string) SearchParameter {
-	return SearchParameter{
+func NewSearchParameter(key qkeys.QueryKey, value string) *SearchParameter {
+	if !qkeys.SearchParameterKeys.ExistsByKey(key) {
+		return nil
+	}
+
+	return &SearchParameter{
 		Key:   key,
 		Value: value,
 	}
@@ -34,6 +38,10 @@ func NewSearchParameters(parameters ...SearchParameter) *SearchParameters {
 	}
 
 	for _, p := range parameters {
+		if !qkeys.SearchParameterKeys.ExistsByKey(p.Key) {
+			continue
+		}
+
 		sp.Append(p)
 	}
 
@@ -49,13 +57,24 @@ func (p SearchParameter) ShortQueryString() string {
 }
 
 func (sp *SearchParameters) Append(parameter SearchParameter) *SearchParameters {
+	if !qkeys.SearchParameterKeys.ExistsByKey(parameter.Key) {
+		return sp
+	}
+
 	sp.items = append(sp.items, parameter)
 	sp.itemsByKey[parameter.Key] = parameter
+
 	return sp
 }
 
 func (sp *SearchParameters) Add(key qkeys.QueryKey, value string) {
-	sp.Append(NewSearchParameter(key, value))
+	searchParameter := NewSearchParameter(key, value)
+
+	if searchParameter == nil {
+		return
+	}
+
+	sp.Append(*searchParameter)
 }
 
 func (sp *SearchParameters) AddFromParmValues(values SearchParameterValues) {
@@ -84,11 +103,11 @@ func (sp *SearchParameters) AddValues(
 	filters *QueryFilters,
 	lastCursor dtypes.QueryMediaDownloadCursor,
 ) {
-	searchFiltes := filters.FilterByKeys(qkeys.SearchParameterFilterKeys)
+	searchFilters := filters.FilterByKeys(qkeys.SearchParameterFilterKeys)
 
 	sp.AddFromParmValues(SearchParameterValues{
 		ViewMode:   viewMode,
-		Filters:    searchFiltes,
+		Filters:    searchFilters,
 		LastRecord: lastCursor,
 	})
 }
