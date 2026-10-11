@@ -112,7 +112,6 @@ jobs:
           esac
 
           FFMPEG_URL="https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/${FFMPEG_ARCHIVE}"
-          YTDLP_URL="https://github.com/yt-dlp/yt-dlp/releases/latest/download/${YTDLP_BINARY}"
 
           TARGET_DIR="dist/${{ matrix.goos }}-${{ matrix.goarch }}"
           LICENSE_DIR="${TARGET_DIR}/LICENSES"
@@ -121,7 +120,7 @@ jobs:
           mkdir -p "${LICENSE_DIR}"
 
           echo "Downloading FFmpeg..."
-          curl -L --fail --retry 3 \
+          curl -fL --retry 3 --retry-delay 2 \
             -o /tmp/ffmpeg.tar.xz \
             "${FFMPEG_URL}"
 
@@ -141,10 +140,22 @@ jobs:
           echo "Downloading FFmpeg licenses..."
           find "${FFMPEG_DIR}" -type f \
             \( -iname 'LICENSE*' -o -iname 'COPYING*' -o -iname 'NOTICE*' \) \
-            -exec sh -c 'cp "$1" "'"${LICENSE_DIR}"'/ffmpeg-$(basename "$1")"' _ {} \;            
+            -exec sh -c 'cp "$1" "'"${LICENSE_DIR}"'/ffmpeg-$(basename "$1")"' _ {} \;
 
-          echo "Downloading yt-dlp..."
-          curl -L --fail --retry 3 \
+          echo "Determining yt-dlp version..."
+          YTDLP_VERSION="$(curl -fsSL --retry 3 --retry-delay 2 \
+            "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest" |
+            sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p')"
+
+          if [ -z "${YTDLP_VERSION}" ]; then
+            echo "Unable to determine yt-dlp version."
+            exit 1
+          fi
+
+          echo "Downloading yt-dlp ${YTDLP_VERSION}..."
+          YTDLP_URL="https://github.com/yt-dlp/yt-dlp/releases/download/${YTDLP_VERSION}/${YTDLP_BINARY}"
+
+          curl -fL --retry 3 --retry-delay 2 \
             -o "${TARGET_DIR}/yt-dlp" \
             "${YTDLP_URL}"
 
@@ -153,26 +164,24 @@ jobs:
             "${TARGET_DIR}/ffprobe" \
             "${TARGET_DIR}/yt-dlp"
 
-          YTDLP_VERSION="$(curl -fsSL --retry 3 --retry-delay 2 \
-            https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest |
-            sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p')"
+          DOWNLOADED_VERSION="$("${TARGET_DIR}/yt-dlp" --version)"
 
-          if [ -z "${YTDLP_VERSION}" ]; then
-            echo "Unable to determine yt-dlp version."
+          if [ "${DOWNLOADED_VERSION}" != "${YTDLP_VERSION}" ]; then
+            echo "yt-dlp version mismatch: expected ${YTDLP_VERSION}, got ${DOWNLOADED_VERSION}"
             exit 1
           fi
 
-          echo "yt-dlp version: ${YTDLP_VERSION}"
+          echo "yt-dlp version: ${DOWNLOADED_VERSION}"
 
           echo "Downloading yt-dlp licenses..."
-          curl -L --fail --retry 3 \
+          curl -fL --retry 3 --retry-delay 2 \
             -o "${LICENSE_DIR}/yt-dlp-LICENSE.txt" \
             "https://raw.githubusercontent.com/yt-dlp/yt-dlp/${YTDLP_VERSION}/LICENSE"
 
-          curl -L --fail --retry 3 \
+          curl -fL --retry 3 --retry-delay 2 \
             -o "${LICENSE_DIR}/yt-dlp-THIRD_PARTY_LICENSES.txt" \
             "https://raw.githubusercontent.com/yt-dlp/yt-dlp/${YTDLP_VERSION}/THIRD_PARTY_LICENSES.txt"
-            
+
           echo "Creating Elengrab license..."
           cp LICENSE "${LICENSE_DIR}/elengrab-LICENSE.txt"
 

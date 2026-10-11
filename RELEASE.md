@@ -27,6 +27,7 @@
 
 ### 📦 Build
 - Removed version numbers from release artifact filenames.
+- Ensure release bundles include the correct yt-dlp version matching its license files. [L175]
 
 ---
 
