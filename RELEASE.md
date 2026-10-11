@@ -18,6 +18,7 @@
 - Updated related database indexes and foreign key references. [L169]
 - Organized body and main background colors for different pages.
 - Improve page generation and CSS.
+- Move command-line flag parsing to the `cli` package and run it before application initialization. [L176]
 
 ### 🐛 Fix
 - Stop stale video streams when switching or closing video players. [L171]

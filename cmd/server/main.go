@@ -12,10 +12,14 @@ import (
 	"github.com/neosy/elengrab/cmd/server/infra"
 	"github.com/neosy/elengrab/internal/app"
 	"github.com/neosy/elengrab/internal/bootstrap"
+	"github.com/neosy/elengrab/internal/cli"
 	iconfig "github.com/neosy/elengrab/internal/config"
 )
 
 func main() {
+	// Parse command-line flags before initializing the application.
+	cli.ParseFlags()
+
 	// Version output at startup
 	fmt.Fprintf(os.Stderr, "%s v%s\n", iconfig.AppName, iconfig.AppVersion)
 
