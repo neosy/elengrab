@@ -182,8 +182,6 @@ type RedisConfig struct {
 
 // New loads the application configuration and initializes default values.
 func New() (*Config, error) {
-	parseFlag()
-
 	c := &Config{}
 
 	if err := c.load(); err != nil {
