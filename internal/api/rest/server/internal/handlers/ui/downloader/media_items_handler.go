@@ -163,12 +163,12 @@ func (h *DownloaderHandlers) renderDownloadItemList(
 		}
 
 		if shouldLoadNextHistory && i == consts.PreloadHistoryAfter-1 {
-			query := query.Clone()
-			query.LastRecord.ID = lastDownloadID
-			query.LastRecord.CreatedAt = lastCreatedAt
-			query.LastRecord.Views = lastViews
+			newQuery := query.Clone()
+			newQuery.LastRecord.ID = lastDownloadID
+			newQuery.LastRecord.CreatedAt = lastCreatedAt
+			newQuery.LastRecord.Views = lastViews
 
-			h.renderRowShouldLoadHistory(buf, query)
+			h.renderRowShouldLoadHistory(buf, newQuery)
 		}
 	}
 
@@ -221,19 +221,23 @@ func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 		return dtypes.SearchText(txt)
 	}
 
-	var queryParameters []string
-	if text := getSearchText(query.Filters); text.IsValidate() {
-		queryParameters = append(queryParameters, fmt.Sprintf("%s=%s", qkeys.SearchQueryKey.String(), text.String()))
-	}
-
 	queryFilters := h.mappers.MapQueryFiltersDomainToFilters(query.Filters)
+
+	searchFilters := queryFilters.FilterByKeys(qkeys.SearchFilterKeys)
 
 	searchParameters := types.NewSearchParameters()
 	searchParameters.AddValues(query.ViewMode, queryFilters, query.LastRecord)
 
-	queryParameters = append(queryParameters, searchParameters.EncodeShortQueryString())
+	var queryStrings []string
 
-	queryString := "?" + strings.Join(queryParameters, "&")
+	if text := getSearchText(query.Filters); text.IsValidate() {
+		queryStrings = append(queryStrings, fmt.Sprintf("%s=%s", qkeys.SearchQueryKey.String(), text.String()))
+	}
+
+	queryStrings = append(queryStrings, searchFilters.QueryStrings()...)
+	queryStrings = append(queryStrings, searchParameters.EncodeShortQueryString())
+
+	queryString := "?" + strings.Join(queryStrings, "&")
 
 	basePaths := paths.NewHttpPaths()
 	basePaths.DownloaderItems += queryString
