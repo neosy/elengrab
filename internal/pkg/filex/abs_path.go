@@ -30,8 +30,8 @@ func AbsPathCwd(path string) (string, error) {
 }
 
 // AbsPath returns the absolute path for the given path.
-// If the path is relative, it is joined with the provided root directory.
-// If the path is already absolute, it is returned as is.
+// If path is relative, it is joined with the absolute root directory.
+// If path is already absolute, it is cleaned and returned as is.
 // Example:
 //
 //	appRoot := "/app_n"
@@ -52,10 +52,6 @@ func AbsPath(root, path string) (string, error) {
 
 	if !filepath.IsAbs(root) {
 		return "", fmt.Errorf("root must be absolute: %s", root)
-	}
-
-	if filepath.IsAbs(path) {
-		return path, nil
 	}
 
 	return filepath.Clean(filepath.Join(root, path)), nil

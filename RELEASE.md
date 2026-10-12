@@ -5,6 +5,7 @@
 ### ✨ Features
 - Added a short URL code for media downloads. [L170]
 - Added a page listing media uploaded by the current user. [L174]
+- Added configurable startup and runtime file logging via environment variables. [L176]
 
 ### 🖥️ UI / Frontend
 - Added a pause button to media previews. [L173]

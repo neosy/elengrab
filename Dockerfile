@@ -65,12 +65,15 @@ WORKDIR ${APP_DIR}
 VOLUME ["/app_n/downloads"]
 VOLUME ["/app_n/cookies"]
 VOLUME ["/app_n/media"]
+VOLUME ["/app_n/logs"]
 VOLUME ["/app_n/sqlite/data"]
 VOLUME ["/app_n/sqlite/backups"]
 
 # Enviroments
 ENV TZ=Europe/Moscow
 ENV ELENGRAB_ROOT_DIR=${APP_DIR}
+ENV ELENGRAB_LOGGING_STARTUP_ENABLED=false
+ENV ELENGRAB_LOGGING_RUNTIME_ENABLED=false
 
 # Expose web server port
 EXPOSE 8080

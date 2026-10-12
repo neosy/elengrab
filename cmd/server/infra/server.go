@@ -6,12 +6,13 @@ import (
 	httpsrv "github.com/neosy/elengrab/internal/api/rest/server"
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
 	"github.com/neosy/elengrab/internal/app"
+	upaths "github.com/neosy/elengrab/internal/app/utils/paths"
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Application) {
-	tmpl, err := assets.LoadTemplates(absPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir))
+func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Application, ready chan<- struct{}) {
+	tmpl, err := assets.LoadTemplates(upaths.AbsPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir))
 	if err != nil {
 		logger.Error("Failed to load templates", "error", err)
 		app.Cancel()
@@ -28,7 +29,7 @@ func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Applicat
 		AppMode:         dtypes.MustParseAppMode(cfg.Elengrab.Mode),
 		BaseURL:         cfg.Elengrab.BaseURL,
 		ShortLinkPrefix: cfg.Elengrab.ShortLinkPrefix,
-		AssetsDir:       absPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir),
+		AssetsDir:       upaths.AbsPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir),
 		MetricsEnabled:  cfg.AdminServer.Enable && cfg.AdminServer.DebugConfig.EnableMetrics,
 	}
 
@@ -39,7 +40,7 @@ func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Applicat
 		return
 	}
 
-	err = httpServer.ListenAndServe(app.Context(), cfg.HTTPServer.Port)
+	err = httpServer.ListenAndServe(app.Context(), cfg.HTTPServer.Port, ready)
 	if err != nil {
 		app.Cancel()
 	}

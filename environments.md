@@ -31,7 +31,12 @@ Config contains the application configuration.
  - `ELENGRAB_OPERATION_WORKERS` (default: `5`) - Maximum number of concurrent background operations.
  - `ELENGRAB_DELETE_DUPLICATES_UNIQUENESS_SCOPE` (default: `per_user`) - Scope used when checking media uniqueness before deleting duplicates.
  - `ELENGRAB_ALLOW_COOKIES` (default: `false`) - Enables the use of cookies when downloading media.
- - `ELENGRAB_BEHAVIOR_NEW_MEDIA_VISIBILITY` - Visibility assigned to new media. Supported values: private, authenticated, public.
+ - `ELENGRAB_LOGGING_STARTUP_ENABLED` (default: `true`) - Enables logging during application startup.
+ - `ELENGRAB_LOGGING_RUNTIME_ENABLED` (default: `false`) - Enables logging while the application is running.
+ - `ELENGRAB_LOGGING_DIR` (default: `logs`) - Path to the directory containing application log files.
+ - `ELENGRAB_BEHAVIOR_NEW_MEDIA_VISIBILITY` - Visibility assigned to new media.
+Supported values: private, authenticated, public.
+If not set, visibility is determined by the application mode.
  - `ELENGRAB_MAINTENANCE_UPDATE_HASH_INTERVAL` (default: `8h`) - Interval for calculating and updating hashes of downloaded files.
 File hashes are used to identify duplicate files.
  - `ELENGRAB_MAINTENANCE_DELETE_DUPLICATES_INTERVAL` (default: `1h`) - Interval for deleting duplicate media files.

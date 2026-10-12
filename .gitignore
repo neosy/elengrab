@@ -17,6 +17,7 @@
 # ignore local files
 /secrets/
 /local/
+/logs/
 .md
 issues.txt
 

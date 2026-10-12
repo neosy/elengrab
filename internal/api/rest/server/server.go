@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"log/slog"
+	"net"
 	"time"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
@@ -106,7 +107,7 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) (*
 	}, nil
 }
 
-func (s *httpServer) ListenAndServe(ctx context.Context, port string) error {
+func (s *httpServer) ListenAndServe(ctx context.Context, port string, ready chan<- struct{}) error {
 	addr := fmt.Sprintf(":%s", port)
 
 	routes := routes.NewRoutes(s.middlewares, s.handlers, s.shortLinkPrefix)
@@ -171,7 +172,17 @@ func (s *httpServer) ListenAndServe(ctx context.Context, port string) error {
 		_ = server.Shutdown()
 	}()
 
-	err := server.ListenAndServe(addr)
+	listener, err := net.Listen("tcp", addr)
+	if err != nil {
+		if ctx.Err() == nil {
+			s.logger.ErrorContext(ctx, "Failed to start server", "error", err)
+		}
+		return err
+	}
+
+	close(ready)
+
+	err = server.Serve(listener)
 	if err != nil && ctx.Err() == nil {
 		s.logger.ErrorContext(ctx, fmt.Sprintf("error run server: %v", err))
 		return err
