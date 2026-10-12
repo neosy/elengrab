@@ -118,6 +118,9 @@ type ElengrabConfig struct {
 	// Enables the use of cookies when downloading media.
 	AllowCookies bool `env:"ALLOW_COOKIES" envDefault:"false"`
 
+	// Logging configuration.
+	Logging ElengrabLoggingConfig `envPrefix:"LOGGING_"`
+
 	// Behavior configuration.
 	Behavior ElengrabBehaviorConfig `envPrefix:"BEHAVIOR_"`
 
@@ -178,6 +181,18 @@ type RedisConfig struct {
 
 	// Prefix added to Redis keys to namespace application data.
 	PrefixKey string `env:"PREFIX_KEY" envDefault:"microservice"`
+}
+
+// ElengrabLoggingConfig contains application logging settings.
+type ElengrabLoggingConfig struct {
+	// Enables logging during application startup.
+	StartupEnabled bool `env:"STARTUP_ENABLED" envDefault:"true"`
+
+	// Enables logging while the application is running.
+	RuntimeEnabled bool `env:"RUNTIME_ENABLED" envDefault:"false"`
+
+	// Directory containing application log files.
+	Dir string `env:"DIR" envDefault:"logs"`
 }
 
 // New loads the application configuration and initializes default values.

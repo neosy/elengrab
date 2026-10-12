@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
+	upaths "github.com/neosy/elengrab/internal/app/utils/paths"
 	iconfig "github.com/neosy/elengrab/internal/config"
 	nfile "github.com/neosy/elengrab/internal/pkg/filex"
 )
@@ -16,7 +17,7 @@ import (
 const versionFileName = "version"
 
 func SetupAssets(cfg *iconfig.Config) error {
-	assetsPath := absPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir)
+	assetsPath := upaths.AbsPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir)
 
 	if err := ensureAssets(assetsPath); err != nil {
 		return fmt.Errorf("failed to ensure assets directory: %w", err)
