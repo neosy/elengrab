@@ -27,6 +27,9 @@
 - Allow video previews to start after switching to another item when the previous preview has ended. [L172]
 - Fixed Instagram cookies error detection by correcting the error message matching.
 
+### ⚙️ Config
+- Added `ELENGRAB_SHOW_ABOUT_DEVELOPER` to control developer information visibility in the About dialog. [L177]
+
 ### 📦 Build
 - Removed version numbers from release artifact filenames.
 - Ensure release bundles include the correct yt-dlp version matching its license files. [L175]
