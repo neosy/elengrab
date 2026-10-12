@@ -15,6 +15,7 @@ Config contains the application configuration.
  - `ELENGRAB_ADMIN_SERVER_DEBUG_HEALTH` (default: `true`) - Enables the health check endpoint.
  - `ELENGRAB_MODE` (default: `public`) - Application operating mode.
  - `ELENGRAB_DEMO_MODE` (default: `false`) - Enables demo mode with restricted functionality.
+ - `ELENGRAB_SHOW_ABOUT_DEVELOPER` (default: `false`) - Shows developer information and donation links in the About section.
  - `ELENGRAB_BASE_URL` - Base URL used to build absolute application links.
  - `ELENGRAB_SHORT_LINK_PREFIX` (default: `/s`) - Prefix used for generated short links.
  - `ELENGRAB_SHORT_LINK_LENGTH` (default: `6`) - Length of generated short link identifiers.
@@ -33,7 +34,7 @@ Config contains the application configuration.
  - `ELENGRAB_ALLOW_COOKIES` (default: `false`) - Enables the use of cookies when downloading media.
  - `ELENGRAB_LOGGING_STARTUP_ENABLED` (default: `true`) - Enables logging during application startup.
  - `ELENGRAB_LOGGING_RUNTIME_ENABLED` (default: `false`) - Enables logging while the application is running.
- - `ELENGRAB_LOGGING_DIR` (default: `logs`) - Path to the directory containing application log files.
+ - `ELENGRAB_LOGGING_DIR` (default: `logs`) - Directory containing application log files.
  - `ELENGRAB_BEHAVIOR_NEW_MEDIA_VISIBILITY` - Visibility assigned to new media.
 Supported values: private, authenticated, public.
 If not set, visibility is determined by the application mode.

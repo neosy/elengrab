@@ -9,6 +9,8 @@ type runtimeInfo struct {
 	appMode  dtypes.AppMode
 	demoMode bool
 
+	showAboutDeveloper bool
+
 	initialMediaVisibility dtypes.MediaVisibility
 }
 
@@ -25,8 +27,11 @@ func newRuntimeInfo(c *Config) runtimeInfo {
 	}
 
 	info := runtimeInfo{
-		appMode:                appMode,
-		demoMode:               c.Elengrab.DemoMode,
+		appMode:  appMode,
+		demoMode: c.Elengrab.DemoMode,
+
+		showAboutDeveloper: c.Elengrab.ShowAboutDeveloper,
+
 		initialMediaVisibility: mediaVisibility,
 	}
 
@@ -46,4 +51,9 @@ func DemoMode() bool {
 // InitialMediaVisibility returns the initial media visibility for the application mode.
 func InitialMediaVisibility() dtypes.MediaVisibility {
 	return startupInfo.initialMediaVisibility
+}
+
+// ShowAboutDeveloper reports whether developer information should be shown in the About section.
+func ShowAboutDeveloper() bool {
+	return startupInfo.showAboutDeveloper
 }

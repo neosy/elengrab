@@ -62,6 +62,7 @@
         </dd>
       </div>
 
+      {{- if .ShowAboutDeveloper }}
       <div class="modal-dialog__item">
         <dt class="modal-dialog__label label--donate">
           <span>Donate</span>
@@ -71,15 +72,18 @@
           <a href="https://n-hub.ru/donate" target="_blank" rel="noopener noreferrer">Support my work</a>
         </dd>
       </div>
+      {{- end }}
     </dl>
   </div>
 
   <footer class="modal-dialog__footer about-dialog__footer">
     A simple downloader for video and audio.<br>
+    {{- if .ShowAboutDeveloper }}
     Developed by 
     <a href="https://n-hub.ru/" target="_blank" rel="noopener noreferrer">
         <strong>Neosy</strong>
     </a>
+    {{- end }}
   </footer>
   {{- end }}
 {{- end }}
