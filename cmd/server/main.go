@@ -18,13 +18,29 @@ import (
 
 func main() {
 	// Parse command-line flags before initializing the application.
-	cli.ParseFlags()
+	flags := cli.ParseFlags()
+
+	// Handle flags that don't require application startup.
+	if err := flags.Handle(); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to handle command-line flags: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Exit if a command-line flag requests termination.
+	if flags.ShouldExit() {
+		return
+	}
 
 	// Version output at startup
 	fmt.Fprintf(os.Stderr, "%s v%s\n", iconfig.AppName, iconfig.AppVersion)
 
 	// Initialize configuration and logger
-	cfg, logger := bootstrap.Initialize()
+	cfg, logger, logWriter, err := bootstrap.Initialize()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to initialize configuration and logger: %v\n", err)
+		os.Exit(1)
+	}
+	defer logWriter.Close()
 
 	// Ensure assets directory exists
 	if err := infra.SetupAssets(cfg); err != nil {
@@ -58,7 +74,20 @@ func main() {
 	}
 
 	// Start HTTP server
-	go infra.StartHTTPServer(logger, cfg, app)
+	readyHTTPServer := make(chan struct{})
+	go infra.StartHTTPServer(logger, cfg, app, readyHTTPServer)
+
+	go func() {
+		select {
+		case <-readyHTTPServer:
+		case <-app.Context().Done():
+			// The application is shutting down before the HTTP server is ready.
+		}
+
+		if err := logWriter.StopStartupFileLogging(); err != nil {
+			logger.Error("Failed to close log file", "error", err)
+		}
+	}()
 
 	// Wait for shutdown signal
 	waitForShutdown(app)
