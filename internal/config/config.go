@@ -79,6 +79,9 @@ type ElengrabConfig struct {
 	// Enables demo mode with restricted functionality.
 	DemoMode bool `env:"DEMO_MODE" envDefault:"false"`
 
+	// Shows developer information and donation links in the About section.
+	ShowAboutDeveloper bool `env:"SHOW_ABOUT_DEVELOPER" envDefault:"false"`
+
 	// Base URL used to build absolute application links.
 	BaseURL string `env:"BASE_URL" envDefault:""`
 

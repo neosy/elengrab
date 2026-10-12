@@ -6,6 +6,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
+	iconfig "github.com/neosy/elengrab/internal/config"
 )
 
 func (m *Mappers) MapSystemInfoToAboutDialogValues(info udto.SystemInfoResponse) pages.AboutDialogValues {
@@ -14,6 +15,7 @@ func (m *Mappers) MapSystemInfoToAboutDialogValues(info udto.SystemInfoResponse)
 		DonateIcon: icons.DonateIcon.FileRaw(),
 
 		VersionLinkEnabled: !strings.HasSuffix(info.AppVersion, "b"),
+		ShowAboutDeveloper: iconfig.ShowAboutDeveloper(),
 
 		Version:       info.AppVersion,
 		GoVersion:     info.GoVersion,
