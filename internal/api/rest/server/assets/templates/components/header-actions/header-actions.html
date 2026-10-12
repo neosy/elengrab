@@ -7,7 +7,9 @@
 {{- define "index-header-actions" }}
       <div class="header-actions">
         {{- template "header-actions-search" . }}
-        {{- template "header-actions-upload-menu" . }}
+        {{- if .Values.UploadMenuContent }}
+          {{- template "header-actions-upload-menu" . }}
+        {{- end }}
         {{- template "theme-switcher" . }}
         {{- template "header-actions-user-avatar" . }}
       </div>
