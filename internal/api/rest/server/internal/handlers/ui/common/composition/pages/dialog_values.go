@@ -7,7 +7,9 @@ type AboutDialogValues struct {
 	DonateIcon template.HTML
 
 	VersionLinkEnabled bool
-	ShowAboutDeveloper bool
+
+	ShowDeveloperInAbout    bool
+	ShowDonationLinkInAbout bool
 
 	Version       string
 	GoVersion     string

@@ -15,7 +15,8 @@ Config contains the application configuration.
  - `ELENGRAB_ADMIN_SERVER_DEBUG_HEALTH` (default: `true`) - Enables the health check endpoint.
  - `ELENGRAB_MODE` (default: `public`) - Application operating mode.
  - `ELENGRAB_DEMO_MODE` (default: `false`) - Enables demo mode with restricted functionality.
- - `ELENGRAB_SHOW_ABOUT_DEVELOPER` (default: `false`) - Shows developer information and donation links in the About section.
+ - `ELENGRAB_ABOUT_DEVELOPER_SHOW_INFO` (default: `true`) - ShowInfo controls whether developer information is displayed.
+ - `ELENGRAB_ABOUT_DEVELOPER_SHOW_DONATION_LINK` (default: `false`) - ShowDonationLink controls whether the donation link is displayed.
  - `ELENGRAB_BASE_URL` - Base URL used to build absolute application links.
  - `ELENGRAB_SHORT_LINK_PREFIX` (default: `/s`) - Prefix used for generated short links.
  - `ELENGRAB_SHORT_LINK_LENGTH` (default: `6`) - Length of generated short link identifiers.
