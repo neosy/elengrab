@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"mime"
 
@@ -99,6 +100,7 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 	systemInfo := h.downloader.SystemInfo()
 
 	baseValues := pages.NewBaseValues()
+	baseValues.Title = fmt.Sprintf("%s - %s", userDisplayName, pages.AppName)
 	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(h.baseURL)
 
 	pagesListValues := pagesdata.BuildPagesListValues(authCtx, query, queryFilters, h.downloader)
