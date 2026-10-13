@@ -150,6 +150,8 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		MediaTitle: params.downloadInfo.MediaTitle,
 		MediaURL:   params.downloadInfo.MediaURL,
 
+		UserDownloadsURL: httppaths.BuildRootUserDownloadsPath(params.downloadInfo.UserLogin),
+
 		ContentTimeAgo:   params.downloadInfo.CreatedTimeAgo,
 		ContentViewCount: humanize.CompactNumber(params.downloadInfo.ViewCount),
 
