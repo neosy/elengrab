@@ -968,13 +968,23 @@ img[data-src] {
     overflow: hidden;
 }
 
-.media-result__title-author {
+.media-result__title-user {
     display: flex;
     flex-direction: row;
     margin-top: 3px;
 
     flex-wrap: nowrap;
     overflow: hidden;
+}
+
+.media-result__title-user-name--link {
+    color: inherit;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.media-result__title-user-name--link:hover {
+    text-decoration: underline;
 }
 
 .media-result__title-meta {

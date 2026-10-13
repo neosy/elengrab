@@ -40,6 +40,8 @@ type (
 		ImageAvatarURL string
 		ImageSiteURL   string
 
+		UserDownloadsURL string
+
 		MediaTitle string
 		MediaURL   string
 
@@ -80,7 +82,7 @@ type (
 		DownloaderResultItemDeleteIcon       template.HTML
 		DownloaderResultItemStatusFailedIcon template.HTML
 
-		RefreshingIcon   template.HTML
+		RefreshingIcon template.HTML
 
 		MetaUserNameSeparatorIcon template.HTML
 		VisibilityIcon            template.HTML

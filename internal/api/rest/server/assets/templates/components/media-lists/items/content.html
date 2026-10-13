@@ -24,8 +24,12 @@
                                 <a class="media-result__title-link" href="{{ $linkURL }}" target="{{ $linkTarget }}" title="{{ .Values.MediaTitle }}">{{ .Values.MediaTitle }}</a>
                                 <div class="media-result__title-info">
                                     {{- if .Values.UserName }}
-                                    <div class="media-result__title-author">
-                                        <span class="media-result__content-user" title="Author" aria-label="Author" data-tooltip="Author">{{ .Values.UserName }}</span>
+                                    <div class="media-result__title-user" title="{{ .Values.UserName }}" data-tooltip="{{ .Values.UserName }}">
+                                        {{- if .Values.UserDownloadsURL }}
+                                        <a class="media-result__title-user-name media-result__title-user-name--link" href="{{ .Values.UserDownloadsURL }}">{{ .Values.UserName }}</a>
+                                        {{- else }}
+                                        <span class="media-result__title-user-name">{{ .Values.UserName }}</span>
+                                        {{- end }}
                                     </div>
                                     {{- end }}
                                     <div class="media-result__title-meta">

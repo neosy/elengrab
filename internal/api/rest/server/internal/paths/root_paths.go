@@ -13,6 +13,10 @@ const (
 )
 
 func buildRootUserLoginPath(path string, login string) string {
+	if login == "" {
+		return ""
+	}
+
 	return strings.Replace(path, "{login}", login, 1)
 }
 
