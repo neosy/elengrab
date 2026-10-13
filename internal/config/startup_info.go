@@ -9,7 +9,7 @@ type runtimeInfo struct {
 	appMode  dtypes.AppMode
 	demoMode bool
 
-	showAboutDeveloper bool
+	aboutDeveloper ElengrabAboutDeveloper
 
 	initialMediaVisibility dtypes.MediaVisibility
 }
@@ -30,7 +30,7 @@ func newRuntimeInfo(c *Config) runtimeInfo {
 		appMode:  appMode,
 		demoMode: c.Elengrab.DemoMode,
 
-		showAboutDeveloper: c.Elengrab.ShowAboutDeveloper,
+		aboutDeveloper: c.Elengrab.AboutDeveloper,
 
 		initialMediaVisibility: mediaVisibility,
 	}
@@ -53,7 +53,12 @@ func InitialMediaVisibility() dtypes.MediaVisibility {
 	return startupInfo.initialMediaVisibility
 }
 
-// ShowAboutDeveloper reports whether developer information should be shown in the About section.
-func ShowAboutDeveloper() bool {
-	return startupInfo.showAboutDeveloper
+// ShowDeveloperInAbout reports whether developer information is displayed in the About section.
+func ShowDeveloperInAbout() bool {
+	return startupInfo.aboutDeveloper.ShowInfo
+}
+
+// ShowDonationLinkInAbout reports whether the donation link is displayed in the About section.
+func ShowDonationLinkInAbout() bool {
+	return startupInfo.aboutDeveloper.ShowDonationLink
 }

@@ -28,7 +28,7 @@
 - Fixed Instagram cookies error detection by correcting the error message matching.
 
 ### ⚙️ Config
-- Added `ELENGRAB_SHOW_ABOUT_DEVELOPER` to control developer information visibility in the About dialog. [L177]
+Added `ELENGRAB_ABOUT_DEVELOPER_SHOW_INFO` to control developer attribution visibility in the About dialog. [L177]
 
 ### 📦 Build
 - Removed version numbers from release artifact filenames.

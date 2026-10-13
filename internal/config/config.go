@@ -80,7 +80,7 @@ type ElengrabConfig struct {
 	DemoMode bool `env:"DEMO_MODE" envDefault:"false"`
 
 	// Shows developer information and donation links in the About section.
-	ShowAboutDeveloper bool `env:"SHOW_ABOUT_DEVELOPER" envDefault:"false"`
+	AboutDeveloper ElengrabAboutDeveloper `envPrefix:"ABOUT_DEVELOPER_"`
 
 	// Base URL used to build absolute application links.
 	BaseURL string `env:"BASE_URL" envDefault:""`
@@ -196,6 +196,15 @@ type ElengrabLoggingConfig struct {
 
 	// Directory containing application log files.
 	Dir string `env:"DIR" envDefault:"logs"`
+}
+
+// ElengrabAboutDeveloper configures the visibility of developer information and donation options.
+type ElengrabAboutDeveloper struct {
+	// ShowInfo controls whether developer information is displayed.
+	ShowInfo bool `env:"SHOW_INFO" envDefault:"true"`
+
+	// ShowDonationLink controls whether the donation link is displayed.
+	ShowDonationLink bool `env:"SHOW_DONATION_LINK" envDefault:"false"`
 }
 
 // New loads the application configuration and initializes default values.

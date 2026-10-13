@@ -15,7 +15,9 @@ func (m *Mappers) MapSystemInfoToAboutDialogValues(info udto.SystemInfoResponse)
 		DonateIcon: icons.DonateIcon.FileRaw(),
 
 		VersionLinkEnabled: !strings.HasSuffix(info.AppVersion, "b"),
-		ShowAboutDeveloper: iconfig.ShowAboutDeveloper(),
+
+		ShowDeveloperInAbout:    iconfig.ShowDeveloperInAbout(),
+		ShowDonationLinkInAbout: iconfig.ShowDonationLinkInAbout(),
 
 		Version:       info.AppVersion,
 		GoVersion:     info.GoVersion,
