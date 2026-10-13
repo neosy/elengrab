@@ -10,6 +10,7 @@
 ### 🖥️ UI / Frontend
 - Added a pause button to media previews. [L173]
 - Made uploader usernames clickable links to their uploaded media pages. [L178]
+- Added the ability to minimize the video viewer to a floating thumbnail in the bottom-right corner. [L179]
 
 ### 🎨 Style
 - Refined copy button colors and added animation.
