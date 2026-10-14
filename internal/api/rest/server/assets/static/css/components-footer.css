@@ -1,4 +1,5 @@
 :root {
+    --footer-height: 33px;
     --footer-max-width: var(--main-content-max);
 }
 
@@ -11,7 +12,9 @@
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
+
     width: 95%;
+    height: var(--footer-height);
     max-width: var(--footer-max-width);
 
     display: flex;

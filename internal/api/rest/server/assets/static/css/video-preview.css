@@ -150,6 +150,10 @@
     }
 }
 
+body.media-player .video-preview__toggle-sound {
+    display: none;
+}
+
 .video-preview-container:not(.is-sound-off) .toggle-icon--sound-off,
 .video-preview-container.is-sound-off .toggle-icon--sound-on{
     opacity: 0;

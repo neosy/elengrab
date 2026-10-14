@@ -33,9 +33,11 @@ export const CLASS_NAMES = {
         gridView: "grid-view",
         listView: "list-view",
 
-        videoPlayer: "video-player",
-        audioPlayer: "audio-player",
+        mediaPlayer: "media-player",
+        mediaPlayerVideo: "media-player--video",
+        mediaPlayerAudio: "media-player--audio",
         playerPaused: 'player-paused',
+        playerSoundOn: "player-sound-on",
     },
 
     rowStatus: {
