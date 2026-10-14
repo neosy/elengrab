@@ -55,6 +55,8 @@ const PREVIEW_STATE = {
     updateCenteredRequestId: 0,
     showVideoPreviewRequestId: 0,
 
+    muted: true,
+
     watchTracker: null,
 
     clear() {
@@ -85,7 +87,7 @@ export function initVideoPreview() {
 
     DOM_ELEMENTS.preview.container.hidden = true;
 
-    DOM_ELEMENTS.preview.player.muted = true;
+    DOM_ELEMENTS.preview.player.muted = PREVIEW_STATE.muted;
     DOM_ELEMENTS.preview.player.playsInline = true;
 
     initWatchTracker(DOM_ELEMENTS.preview.player);
@@ -116,32 +118,36 @@ export function initVideoPreview() {
         });    
     }
 
+    const playbackEventHandler = () => {
+        const isPlaying = !DOM_ELEMENTS.preview.player.paused;
+
+        DOM_ELEMENTS.preview.container.classList.toggle(CLASS_NAMES.isPlaying, isPlaying);
+
+        const title = isPlaying ? "Pause" : "Play";
+
+        DOM_ELEMENTS.playingButton.setAttribute("title", title);
+        DOM_ELEMENTS.playingButton.setAttribute("aria-label", title);
+    }
+
+    const volumeChangeHandler = () => {
+        DOM_ELEMENTS.preview.container.classList.toggle(CLASS_NAMES.isSoundOff, PREVIEW_STATE.muted);
+
+        const title = PREVIEW_STATE.muted
+            ? "Turn on the sound"
+            : "Turn off the sound";
+
+        DOM_ELEMENTS.soundButton.setAttribute("title", title);
+        DOM_ELEMENTS.soundButton.setAttribute("aria-label", title);
+    }
+
     DOM_ELEMENTS.preview.player.addEventListener("play", playbackEventHandler);
     DOM_ELEMENTS.preview.player.addEventListener("pause", playbackEventHandler);   
+    DOM_ELEMENTS.preview.player.addEventListener("volumechange", volumeChangeHandler);
 }
 
 function toggleSound() {
     DOM_ELEMENTS.preview.player.muted = !DOM_ELEMENTS.preview.player.muted;
-
-    DOM_ELEMENTS.preview.container.classList.toggle(CLASS_NAMES.isSoundOff, DOM_ELEMENTS.preview.player.muted);
-
-    const title = DOM_ELEMENTS.preview.player.muted
-        ? "Turn on the sound"
-        : "Turn off the sound";
-
-    DOM_ELEMENTS.soundButton.setAttribute("title", title);
-    DOM_ELEMENTS.soundButton.setAttribute("aria-label", title);
-}
-
-function playbackEventHandler() {
-    const isPlaying = !DOM_ELEMENTS.preview.player.paused;
-
-    DOM_ELEMENTS.preview.container.classList.toggle(CLASS_NAMES.isPlaying, isPlaying);
-
-    const title = isPlaying ? "Pause" : "Play";
-
-    DOM_ELEMENTS.playingButton.setAttribute("title", title);
-    DOM_ELEMENTS.playingButton.setAttribute("aria-label", title);
+    PREVIEW_STATE.muted = DOM_ELEMENTS.preview.player.muted;
 }
 
 function togglePlaying() {
@@ -180,6 +186,10 @@ export function initVideoPreviewHover(previewAreaContainer, previewTargetClassNa
 
         if (!thumbnailElement) {
             return;
+        }
+
+        if (isMobileScreen()) {
+            return false;
         }
 
         if (!shouldShowVideoPreview(previewTarget)) {
@@ -238,15 +248,11 @@ export function initVideoPreviewHover(previewAreaContainer, previewTargetClassNa
 }
 
 export function shouldShowVideoPreview(previewTarget) {
-    if (isMobileScreen()) {
-        return false;
-    }
-
     if (!previewTarget) {
         return false;
     }
 
-    if (document.body.classList.contains(CLASS_NAMES.body.listView)) {
+    if (!isMobileScreen() && document.body.classList.contains(CLASS_NAMES.body.listView)) {
         return false;
     }
 
@@ -310,6 +316,11 @@ export async function showVideoPreview(thumbnailElement, previewTarget) {
 
     DOM_ELEMENTS.preview.player.playsInline = true;
     DOM_ELEMENTS.preview.player.loop = false;
+    DOM_ELEMENTS.preview.player.muted = PREVIEW_STATE.muted;
+
+    if (document.body.classList.contains(CLASS_NAMES.body.mediaPlayerVideo) || document.body.classList.contains(CLASS_NAMES.body.mediaPlayerAudio)) {
+        DOM_ELEMENTS.preview.player.muted = true;
+    }
 
     PREVIEW_STATE.currentItemId = itemId;
 
@@ -465,7 +476,7 @@ async function updateCenteredPreview(previewAreaContainer, previewTargetClassNam
         return;
     }
 
-    if (!previewTarget.classList.contains(CLASS_NAMES.rowStatus.success)) {
+    if (!shouldShowVideoPreview(previewTarget)) {
         return;
     }
 

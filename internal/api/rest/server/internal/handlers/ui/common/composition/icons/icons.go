@@ -67,6 +67,8 @@ var (
 	AdminUsersIcon    = newIcon("AdminUsersIconName", "users.svg")
 	AdminUserEditIcon = newIcon("AdminUserEditIconName", "user-edit.svg")
 
+	VideoPlayerMinimizeIcon = newIcon("VideoPlayerMinimizeIconName", "minimize-square-2-icon.svg")
+
 	VideoPreviewSoundOnIcon  = newIcon("VideoPreviewSoundOnIconName", "sound-on.svg")
 	VideoPreviewSoundOffIcon = newIcon("VideoPreviewSoundOffIconName", "sound-off.svg")
 	VideoPreviewPlayIcon     = newIcon("VideoPreviewPlayIconName", "play-3-icon.svg")
