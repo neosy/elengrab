@@ -29,8 +29,14 @@ export const CLASS_PREFIXES = {
 
 // Class names
 export const CLASS_NAMES = {
-    gridView: "grid-view",
-    listView: "list-view",
+    body: {
+        gridView: "grid-view",
+        listView: "list-view",
+
+        videoPlayer: "video-player",
+        audioPlayer: "audio-player",
+        playerPaused: 'player-paused',
+    },
 
     rowStatus: {
         success: "success",
