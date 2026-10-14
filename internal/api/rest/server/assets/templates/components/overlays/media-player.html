@@ -3,13 +3,18 @@
         <div class="media-player__video" id="media-player-video">
             <div class="media-player__wrapper">
                 <video class="media-player__video-player" disablepictureinpicture src=""></video>
-                <button class="media-player__close" aria-label="Close video player">×</button>                
+                <div class="media-player__controls media-player__controls--horizontal">
+                    <button class="media-player__control media-player__control--minimize" title="Minimize player" aria-label="Minimize player">{{ .Values.VideoPlayerMinimizeIcon }}</button>
+                    <button class="media-player__control media-player__control--close" title="Close player" aria-label="Close player">×</button>
+                </div>
             </div>
         </div>
         <div class="media-player__audio" id="media-player-audio">
             <div class="media-player__wrapper">
                 <audio class="media-player__audio-player" src=""></audio>
-                <button class="media-player__close" aria-label="Close audio player">×</button>            
+                <div class="media-player__controls media-player__controls--horizontal">
+                    <button class="media-player__control media-player__control--close" aria-label="Close audio player">×</button>
+                </div>
             </div>
         </div>
     </div>       

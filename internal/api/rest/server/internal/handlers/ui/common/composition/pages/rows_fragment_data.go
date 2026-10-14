@@ -24,6 +24,8 @@ type (
 		ResultNoRows   bool
 		ResultRowsHTML template.HTML
 
+		VideoPlayerMinimizeIcon template.HTML
+
 		AudioPlayingIcon template.HTML
 		AudioPlayIcon    template.HTML
 		AudioPauseIcon   template.HTML
