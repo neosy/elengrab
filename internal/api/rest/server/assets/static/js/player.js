@@ -6,26 +6,24 @@
 import * as watchAPI from './watch-api.js';
 import { CLASS_NAMES as CONST_CLASS_NAMES, MEDIA_WATCH, EVENT_NAMES } from './constants.js';
 
-export const CLASS_NAMES = {
+const CLASS_NAMES = {
     ...CONST_CLASS_NAMES,
 
-    mediaResultPlayButton: "media-play-button",
     mediaResultRow: "media-result__row",
+    rowPlayButton: "media-play-button",
 
     mediaPlayerWrapper: "media-player__wrapper",
     mediaPlayerClose: "media-player__close",
+
     showControls: "show-controls",
 
-    mediaPlayerVideo: "media-player__video",
-    mediaPlayerAudio: "media-player__audio",
-
-    audioPlaying: "audio-playing",
-    isAudioPaused: 'is-audio-paused',
+    videoPlayer: "media-player__video-player",
+    audioPlayer: "media-player__audio-player",
 
     audioPlayingOverlay: 'media-player__audio-playing-overlay',
 };
 
-export const CLASS_SELECTORS = Object.fromEntries(
+const CLASS_SELECTORS = Object.fromEntries(
     Object.entries(CLASS_NAMES)
         .filter(([, value]) => typeof value === "string")
         .map(([key, value]) => [key, `.${value}`])
@@ -33,14 +31,30 @@ export const CLASS_SELECTORS = Object.fromEntries(
 
 const DOM_IDS = {
     audioPlayingOverlay: "media-player-audio-playing-overlay",
+    videoPlayerContainer: "media-player-video",
+    audioPlayerContainer: "media-player-audio",
 };
 
 const DOM_ELEMENTS = {
     audioPlayingOverlay: null,
+    videoPlayerContainer: null,
+    audioPlayerContainer: null,
+    videoPlayer: null,
+    audioPlayer: null,
 }  
 
 function initDomElements(elements = DOM_ELEMENTS) {    
     elements.audioPlayingOverlay = document.getElementById(DOM_IDS.audioPlayingOverlay);
+    elements.videoPlayerContainer = document.getElementById(DOM_IDS.videoPlayerContainer);
+    elements.audioPlayerContainer = document.getElementById(DOM_IDS.audioPlayerContainer);
+
+    if (elements.videoPlayerContainer) {
+        elements.videoPlayer = elements.videoPlayerContainer.querySelector(CLASS_SELECTORS.videoPlayer);
+    }
+
+    if (elements.audioPlayerContainer) {
+        elements.audioPlayer = elements.audioPlayerContainer.querySelector(CLASS_SELECTORS.audioPlayer);
+    }
 }
 
 let watchTracker = null;
@@ -59,19 +73,13 @@ const mediaPlayer = {
         this.isOpen = false;
 
         if (this.player) {
-            const unloadVideo = () => {
-                this.player.removeAttribute("src");
-                this.player.load();
-            };
-
             if (this.player.paused) {
-                unloadVideo();
+                unloadMediaPlayer(this.player);
             } else {
-                this.player.addEventListener("pause", unloadVideo, { once: true });
+                this.player.addEventListener("pause", () => unloadMediaPlayer(this.player), { once: true });
                 this.player.pause();
             }    
 
-            this.player.remove();
             this.player = null;
         }
 
@@ -79,6 +87,11 @@ const mediaPlayer = {
         this.rowItemId = "";
     },
 };
+
+function unloadMediaPlayer(player) {
+    player.removeAttribute("src");
+    player.load();
+}
 
 function initWatchTracker(video, itemId) {
     if (!video) return;
@@ -104,34 +117,30 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
 
     initDomElements();
 
-    const videoContainer = playerContainer.querySelector(CLASS_SELECTORS.mediaPlayerVideo);
-    const audioContainer = playerContainer.querySelector(CLASS_SELECTORS.mediaPlayerAudio);
+    const videoContainer = DOM_ELEMENTS.videoPlayerContainer;
+    const audioContainer = DOM_ELEMENTS.audioPlayerContainer;
+    const videoPlayer = DOM_ELEMENTS.videoPlayer;
+    const audioPlayer = DOM_ELEMENTS.audioPlayer;
 
-    if (!videoContainer || !audioContainer) return;
-    
-    const videoPlayerHash        = "#player"
+    if (!videoContainer || !audioContainer || !videoPlayer || !audioPlayer) return;
+
+    const videoPlayerHash = "#player"
     let cleanupControls = null;
-
-    // Create audio container if missing
-    if (!audioContainer) {
-        audioContainer = document.createElement("div");
-        audioContainer.className = CLASS_NAMES.mediaPlayerAudio;
-        playerContainer.appendChild(audioContainer);
-    }
-
-    // Force initial hidden state
-    videoContainer.style.display = "none";
 
     initWatchTracker();
 
+    videoContainer.querySelector(CLASS_SELECTORS.mediaPlayerClose).addEventListener("click", closePlayer);
+    audioContainer.querySelector(CLASS_SELECTORS.mediaPlayerClose).addEventListener("click", closePlayer);
+
     document.addEventListener("click", async (event) => {
-        const playBtn = event.target.closest(CLASS_SELECTORS.mediaResultPlayButton);
+        const playBtn = event.target.closest(CLASS_SELECTORS.rowPlayButton);
         if (!playBtn) return;
 
         const row = playBtn.closest(CLASS_SELECTORS.mediaResultRow);
         if (!row) return;
 
         const itemId = row.dataset.itemId;
+        const itemIsAudio = row.dataset.isAudio === "true";
 
         if (mediaPlayer.isOpen) {
             if (mediaPlayer.isAudio && itemId === mediaPlayer.rowItemId) {
@@ -139,7 +148,11 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
                 return;
             }
 
-            await closePlayer();
+            if (mediaPlayer.isAudio != itemIsAudio) {
+                await closePlayer();
+            } else {
+                unloadMediaPlayer(mediaPlayer.player);
+            }
         }
 
         mediaPlayer.rowItemId = itemId;
@@ -148,10 +161,13 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
         const mediaURL = mediaPlayer.playingRow.dataset.media;
         if (!mediaURL) return;
 
-        mediaPlayer.isAudio = mediaPlayer.playingRow.dataset.isAudio === "true";
+        mediaPlayer.isAudio = itemIsAudio;
 
         if (!mediaPlayer.isAudio) {
+            mediaPlayer.player = videoPlayer;
             document.dispatchEvent(new Event(EVENT_NAMES.videoPlayerOpened));
+        } else {
+            mediaPlayer.player = audioPlayer;
         }
 
         const shouldLoop = mediaPlayer.playingRow.dataset.loop === "true";
@@ -160,19 +176,6 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
 
         if (positionMs < MEDIA_WATCH.startThresholdMs) {
             positionMs = 0;
-        }
-
-        // Clean previous players
-        videoContainer.innerHTML = "";
-        audioContainer.innerHTML = "";
-
-        if (mediaPlayer.isAudio) {
-            mediaPlayer.player = document.createElement("audio");
-        } else {
-            mediaPlayer.player = document.createElement("video");
-            mediaPlayer.player.style.background = "black";
-            // Disable Picture-in-Picture
-            mediaPlayer.player.disablePictureInPicture = true;
         }
 
         mediaPlayer.player.controls = true;
@@ -184,31 +187,15 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
                 mediaPlayer.player.currentTime = positionMs / 1000;
             }
         }, { once: true });        
-
+      
         mediaPlayer.isOpen = true
         mediaPlayer.player.src = mediaURL;
 
         if (mediaPlayer.isAudio) {
-            // Audio → bottom fixed bar
-            const wrapper = document.createElement("div");
-            wrapper.className = CLASS_NAMES.mediaPlayerWrapper;
-
-            const closeBtn = document.createElement("button");
-            closeBtn.className = CLASS_NAMES.mediaPlayerClose;
-            closeBtn.innerHTML = "×";
-            closeBtn.setAttribute("aria-label", "Close audio player");
-            closeBtn.onclick = closePlayer;
-
-            wrapper.appendChild(mediaPlayer.player);
-            wrapper.appendChild(closeBtn);
-
-            audioContainer.appendChild(wrapper);
-
             cleanupControls = initAudioControls();
 
             mediaPlayer.player.focus({ preventScroll: true });
 
-            videoContainer.style.display = "none !important";   // forceful hide
             document.body.style.overflow = "";
 
             const overlayTarget = mediaPlayer.playingRow.querySelector(`.${overlayTargetClassName}`);
@@ -217,23 +204,18 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
             }
 
             requestAnimationFrame(() => {
-                document.body.classList.add(CLASS_NAMES.audioPlaying);
+                document.body.classList.add(CLASS_NAMES.body.audioPlayer);
             });
         } else {
             document.documentElement.classList.add(CLASS_NAMES.ui.blockingActive);
             
             location.hash = videoPlayerHash
 
-            // Video → centered overlay
-            const wrapper = document.createElement("div");
-            wrapper.className = CLASS_NAMES.mediaPlayerWrapper;
-
-            wrapper.appendChild(mediaPlayer.player);
-            videoContainer.appendChild(wrapper);
-
             cleanupControls = initVideoControls();
 
-            videoContainer.style.display = "flex";
+            requestAnimationFrame(() => {
+                document.body.classList.add(CLASS_NAMES.body.videoPlayer);
+            });
 
             mediaPlayer.player.focus({ preventScroll: true });
         }
@@ -250,7 +232,7 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
         const el = e.target;
         if (!(el instanceof Element)) return;
 
-        const playBtn = el.closest(CLASS_SELECTORS.mediaResultPlayButton);
+        const playBtn = el.closest(CLASS_SELECTORS.rowPlayButton);
         if (!playBtn) return;
 
         const row = playBtn.closest(CLASS_SELECTORS.mediaResultRow);
@@ -309,14 +291,11 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
 
         mediaPlayer.clear();
 
-        if (videoContainer) videoContainer.innerHTML = "";
-        if (audioContainer) audioContainer.innerHTML = "";
-
-        videoContainer.style.display = "none";
         document.body.style.overflow = "";
 
-        document.body.classList.remove(CLASS_NAMES.audioPlaying);
-        document.body.classList.remove(CLASS_NAMES.isAudioPaused);
+        document.body.classList.remove(CLASS_NAMES.body.videoPlayer);
+        document.body.classList.remove(CLASS_NAMES.body.audioPlayer);
+        document.body.classList.remove(CLASS_NAMES.body.playerPaused);
 
         document.documentElement.classList.remove(CLASS_NAMES.ui.blockingActive);
 
@@ -325,11 +304,11 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
 
     function initAudioControls() {
         const handlePlay = () => {
-            document.body.classList.remove(CLASS_NAMES.isAudioPaused);
+            document.body.classList.remove(CLASS_NAMES.body.playerPaused);
         };
 
         const handlePause = () => {
-            document.body.classList.add(CLASS_NAMES.isAudioPaused);
+            document.body.classList.add(CLASS_NAMES.body.playerPaused);
         };
 
         mediaPlayer.player.addEventListener("play", handlePlay);
@@ -347,14 +326,6 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
         if (!wrapper) return;
 
         let controlsTimeout;
-
-        const closeBtn = document.createElement("button");
-        closeBtn.className = CLASS_NAMES.mediaPlayerClose;
-        closeBtn.innerHTML = "×";
-        closeBtn.setAttribute("aria-label", "Close player");
-        closeBtn.onclick = closePlayer;
-
-        wrapper.appendChild(closeBtn);
 
         const showControls = () => {
             if (!mediaPlayer.isOpen) {

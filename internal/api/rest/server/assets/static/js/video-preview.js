@@ -246,7 +246,7 @@ export function shouldShowVideoPreview(previewTarget) {
         return false;
     }
 
-    if (document.body.classList.contains(CLASS_NAMES.listView)) {
+    if (document.body.classList.contains(CLASS_NAMES.body.listView)) {
         return false;
     }
 

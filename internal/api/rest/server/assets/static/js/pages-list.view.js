@@ -4,8 +4,8 @@ import * as notify from './notifications.js';
 import { CLASS_SELECTORS, DOM_IDS } from "./pages-list.dom.js";
 
 export function applyGridView(isGridView) {
-    document.body.classList.toggle(CLASS_NAMES.gridView, isGridView);
-    document.body.classList.toggle(CLASS_NAMES.listView, !isGridView);
+    document.body.classList.toggle(CLASS_NAMES.body.gridView, isGridView);
+    document.body.classList.toggle(CLASS_NAMES.body.listView, !isGridView);
 }
 
 export function toggleGridView() {
