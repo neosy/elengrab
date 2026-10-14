@@ -12,6 +12,10 @@
     background: rgba(0,0,0,0.82);
 }
 
+body.video-player .media-player__video {
+    display: flex;
+}
+
 .media-player__video .media-player__wrapper {
     position: relative;
 
@@ -22,7 +26,7 @@
     margin: 4vh auto;
 }
 
-.media-player__wrapper video {
+.media-player__video-player {
     display: block;
 
     width: 100%;
@@ -75,10 +79,15 @@
 /* ── Audio player bar ────────────────────────────────────────────────────────── */
 
 .media-player__audio {
+    display: none;
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 200;
+}
+
+body.audio-player .media-player__audio {
+    display: flex;
 }
 
 .media-player__audio .media-player__wrapper {
@@ -102,7 +111,7 @@
     box-shadow: 0 -6px 20px rgba(0,0,0,0.6);
 }
 
-.media-player__wrapper audio {
+.media-player__audio-player {
     width: 100%;
     max-width: 860px;
     outline: none;
@@ -156,7 +165,7 @@
     justify-content: center;
 }
 
-body.grid-view.audio-playing .media-player__audio-playing-overlay {
+body.grid-view.audio-player .media-player__audio-playing-overlay {
     opacity: 1;
 }
 
@@ -167,12 +176,12 @@ body.grid-view.audio-playing .media-player__audio-playing-overlay {
     opacity: 0.9;
 }
 
-body.grid-view.audio-playing .audio-playing-overlay__playing-icon svg {
+body.grid-view.audio-player .audio-playing-overlay__playing-icon svg {
     animation: media-result-audio-player-spin 2.4s linear infinite;
     animation-play-state: running;
 }
 
-body.grid-view.is-audio-paused .audio-playing-overlay__playing-icon svg {
+body.grid-view.player-paused .audio-playing-overlay__playing-icon svg {
     animation-play-state: paused;
 }
 
@@ -187,7 +196,7 @@ body.grid-view.is-audio-paused .audio-playing-overlay__playing-icon svg {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    body.grid-view.audio-playing .audio-playing-overlay__playing-icon svg {
+    body.grid-view.audio-player .audio-playing-overlay__playing-icon svg {
         animation: none;
     }
 }
@@ -231,7 +240,7 @@ body.grid-view.is-audio-paused .audio-playing-overlay__playing-icon svg {
     filter: drop-shadow(0 1px 3px rgb(0 0 0 / 35%));
 }
 
-body.grid-view.is-audio-paused .audio-playing-overlay__play-icon {
+body.grid-view.player-paused .audio-playing-overlay__play-icon {
     opacity: 1;
     transform: scale(1);
 }
