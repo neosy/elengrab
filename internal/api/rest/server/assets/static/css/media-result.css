@@ -720,6 +720,10 @@ img[data-src] {
     user-select: none;
 }
 
+.media-result__row[data-is-audio="true"].is-player-attached .media-result__thumbnail-duration {
+    display: none;
+}
+
 .media-result__thumbnail-watched {
     z-index: 2;
 

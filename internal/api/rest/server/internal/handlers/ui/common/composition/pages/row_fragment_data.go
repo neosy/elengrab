@@ -87,7 +87,7 @@ type (
 		MetaUserNameSeparatorIcon template.HTML
 		VisibilityIcon            template.HTML
 
-		AudioIcon     template.HTML
+		AudioNoteIcon template.HTML
 		ShareLinkIcon template.HTML
 		WatchedIcon   template.HTML
 

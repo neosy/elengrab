@@ -88,7 +88,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	}
 
 	var (
-		audioIcon     template.HTML
+		audioNoteIcon template.HTML
 		mediaDuration = humanize.DurationClock(0)
 
 		fileSize   = "-"
@@ -99,7 +99,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	)
 	if mediaInfo := params.downloadInfo.MediaInfo; mediaInfo != nil {
 		if mediaInfo.FormatType == dtypes.FormatTypeAudioOnly {
-			audioIcon = icons.MediaAudioIcon.FileRaw()
+			audioNoteIcon = icons.MediaAudioNoteIcon.FileRaw()
 		}
 
 		if params.downloadInfo.FileSize != nil && *params.downloadInfo.FileSize > 0 {
@@ -199,7 +199,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 
 		VisibilityIcon: visibility.Icon,
 
-		AudioIcon:     audioIcon,
+		AudioNoteIcon: audioNoteIcon,
 		ShareLinkIcon: icons.MediaShareLinkIcon.FileRaw(),
 		WatchedIcon:   icons.MediaWatchedIcon.FileRaw(),
 
