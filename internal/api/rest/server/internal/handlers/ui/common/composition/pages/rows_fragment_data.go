@@ -27,6 +27,7 @@ type (
 		VideoPlayerMinimizeIcon template.HTML
 
 		AudioPlayingIcon template.HTML
+		AudioNoteIcon    template.HTML
 		AudioPlayIcon    template.HTML
 		AudioPauseIcon   template.HTML
 	}

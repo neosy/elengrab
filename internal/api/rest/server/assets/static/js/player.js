@@ -3,14 +3,17 @@
 // Handles video/audio playback in modal overlay or bottom bar
 // -------------------------------------------------------------
 
-import * as watchAPI from './watch-api.js';
 import { CLASS_NAMES as CONST_CLASS_NAMES, MEDIA_WATCH, EVENT_NAMES } from './constants.js';
+import * as watchAPI from './watch-api.js';
+import * as playerUtils from './player-utils.js';
 
 const CLASS_NAMES = {
     ...CONST_CLASS_NAMES,
 
     mediaResultRow: "media-result__row",
     rowPlayButton: "media-play-button",
+
+    isPlayerAttached: "is-player-attached",
 
     mediaPlayerWrapper: "media-player__wrapper",
     mediaPlayerCloseButton: "media-player__control--close",
@@ -22,7 +25,8 @@ const CLASS_NAMES = {
     videoPlayer: "media-player__video-player",
     audioPlayer: "media-player__audio-player",
 
-    audioPlayingOverlay: 'media-player__audio-playing-overlay',
+    audioPlayingOverlay: "media-player__audio-playing-overlay",
+    audioPlayingDuration: "audio-playing-overlay__duration-value",
 };
 
 const CLASS_SELECTORS = Object.fromEntries(
@@ -50,6 +54,7 @@ const DOM_ELEMENTS = {
     audioPlayerCloseButton: null,
 
     audioPlayingOverlay: null,
+    audioPlayingDuration: null,
 }  
 
 function initDomElements(elements = DOM_ELEMENTS) {    
@@ -67,6 +72,10 @@ function initDomElements(elements = DOM_ELEMENTS) {
     if (elements.audioPlayerContainer) {
         elements.audioPlayer = elements.audioPlayerContainer.querySelector(CLASS_SELECTORS.audioPlayer);
         elements.audioPlayerCloseButton = elements.audioPlayerContainer.querySelector(CLASS_SELECTORS.mediaPlayerCloseButton)
+    }
+
+    if (elements.audioPlayingOverlay) {
+        elements.audioPlayingDuration = elements.audioPlayingOverlay.querySelector(CLASS_SELECTORS.audioPlayingDuration)
     }
 }
 
@@ -137,7 +146,7 @@ function isVideoPlayerMinimized() {
     return DOM_ELEMENTS.videoPlayerContainer.classList.contains(CLASS_NAMES.videoPlayerMinimized);
 }
 
-function initAudioControls() {
+function initAudioHandlers() {
     const handlePlay = () => {
         mediaPlayer.updateBodyState();
     };
@@ -150,14 +159,20 @@ function initAudioControls() {
         mediaPlayer.updateBodyState();
     };
 
+    const handleTimeUpdate = () => {
+        playerUtils.updateRemainingDuration(DOM_ELEMENTS.audioPlayingDuration, mediaPlayer.player)
+    }
+
     mediaPlayer.player.addEventListener("play", handlePlay);
     mediaPlayer.player.addEventListener("pause", handlePause);
     mediaPlayer.player.addEventListener("volumechange", handleVolumeChange);
+    mediaPlayer.player.addEventListener("timeupdate", handleTimeUpdate);
 
     return () => {
         mediaPlayer.player.removeEventListener("play", handlePlay);
         mediaPlayer.player.removeEventListener("pause", handlePause);
         mediaPlayer.player.removeEventListener("volumechange", handleVolumeChange);
+        mediaPlayer.player.removeEventListener("timeupdate", handleTimeUpdate);
     };
 }
 
@@ -197,7 +212,7 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
 
     if (!videoContainer || !audioContainer || !videoPlayer || !audioPlayer) return;
 
-    let cleanupControls = null;
+    let cleanupHandlers = null;
 
     initWatchTracker();
 
@@ -264,8 +279,14 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
             }
         }
 
+        if (mediaPlayer.playingRow) {
+            mediaPlayer.playingRow.classList.remove(CLASS_NAMES.isPlayerAttached);
+        }
+
         mediaPlayer.rowItemId = itemId;
         mediaPlayer.playingRow = row;
+
+        mediaPlayer.playingRow.classList.add(CLASS_NAMES.isPlayerAttached);
 
         const mediaURL = mediaPlayer.playingRow.dataset.media;
         if (!mediaURL) return;
@@ -301,7 +322,7 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
         mediaPlayer.player.src = mediaURL;
 
         if (mediaPlayer.isAudio) {
-            cleanupControls = initAudioControls();
+            cleanupHandlers = initAudioHandlers();
 
             mediaPlayer.player.focus({ preventScroll: true });
 
@@ -319,7 +340,7 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
         } else {
             updateBlockingState();
             
-            cleanupControls = initVideoControls();
+            cleanupHandlers = initVideoHandlers();
 
             requestAnimationFrame(() => {
                 document.body.classList.add(CLASS_NAMES.body.mediaPlayer);
@@ -343,8 +364,12 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
 
         history.replaceState(null, "", location.pathname + location.search);
 
-        cleanupControls?.();
-        cleanupControls = null;
+        if (mediaPlayer.playingRow) {
+            mediaPlayer.playingRow.classList.remove(CLASS_NAMES.isPlayerAttached);
+        }
+
+        cleanupHandlers?.();
+        cleanupHandlers = null;
 
         mediaPlayer.clear();
 
@@ -366,7 +391,7 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
     }
 }
 
-function initVideoControls() {
+function initVideoHandlers() {
     if (!DOM_ELEMENTS.videoPlayerContainer) return;
 
     const videoContainer = DOM_ELEMENTS.videoPlayerContainer;

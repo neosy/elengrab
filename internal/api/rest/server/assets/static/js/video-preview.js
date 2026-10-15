@@ -1,6 +1,7 @@
 import * as watchAPI from './watch-api.js';
 import { CLASS_NAMES as CONST_CLASS_NAMES, MEDIA_WATCH, EVENT_NAMES } from './constants.js';
 import { isMobileScreen } from './browser.js';
+import * as playerUtils from './player-utils.js';
 
 const CLASS_NAMES = {
     ...CONST_CLASS_NAMES,
@@ -372,51 +373,17 @@ export async function hideVideoPreview() {
 }
 
 function updateVideoPreviewDuration() {
-    if (!DOM_ELEMENTS.preview.player || !DOM_ELEMENTS.preview.durationRemaining) {
-        return;
-    }
+    playerUtils.updateRemainingDuration(DOM_ELEMENTS.preview.durationRemaining, DOM_ELEMENTS.preview.player)
 
-    const remainingSeconds = Math.max(
-        0,
-        Math.floor(DOM_ELEMENTS.preview.player.duration - DOM_ELEMENTS.preview.player.currentTime)
-    );
-
-    DOM_ELEMENTS.preview.durationRemaining.textContent = formatDuration(remainingSeconds);
-
-    if (DOM_ELEMENTS.preview.progressBuffer !== null) {
-        const bufferPercent = (DOM_ELEMENTS.preview.player.duration && DOM_ELEMENTS.preview.player.buffered.length > 0)
-        ? Math.floor((DOM_ELEMENTS.preview.player.buffered.end(DOM_ELEMENTS.preview.player.buffered.length - 1) / DOM_ELEMENTS.preview.player.duration) * 100)
-        : 0;
-
-        DOM_ELEMENTS.preview.progressBuffer.style.setProperty(
-            CSS_VARIABLE_NAMES.watchBuffer,
-            `${bufferPercent}%`
-        );
-    }
-
-    if (DOM_ELEMENTS.preview.progressValue !== null) {
-        const progressPercent = DOM_ELEMENTS.preview.player.duration > 0
-        ? Math.floor((DOM_ELEMENTS.preview.player.currentTime / DOM_ELEMENTS.preview.player.duration) * 1000) / 10
-        : 0;
-
-        DOM_ELEMENTS.preview.progressValue.style.setProperty(
-            CSS_VARIABLE_NAMES.watchProgress,
-            `${progressPercent}%`
-        );
-    }
-}
-
-function formatDuration(seconds) {
-    const days = Math.floor(seconds / 86400);
-    const hours = Math.floor((seconds % 86400) / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const sec = (seconds % 60).toString().padStart(2, "0");
-
-    return days > 0 
-        ? `${days}:${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${sec}` 
-        : hours > 0 
-            ? `${hours}:${minutes.toString().padStart(2, "0")}:${sec}`
-            : `${minutes}:${sec}`;
+    playerUtils.updateProgress(
+        DOM_ELEMENTS.preview.progressBuffer,
+        DOM_ELEMENTS.preview.progressValue,
+        DOM_ELEMENTS.preview.player,
+        {
+            watchBuffer: CSS_VARIABLE_NAMES.watchBuffer,
+            watchProgress: CSS_VARIABLE_NAMES.watchProgress,
+        }
+    )
 }
 
 export function initVideoPreviewScroll(previewAreaContainer, previewTargetClassName, thumbClassName) {

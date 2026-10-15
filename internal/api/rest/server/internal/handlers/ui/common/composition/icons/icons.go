@@ -39,7 +39,7 @@ var (
 	MediaAuthenticatedIcon = newIcon("MediaAuthenticatedIconName", "visibility-authenticated-user-icon.svg")
 	MediaPrivateIcon       = newIcon("MediaPrivateIconName", "visibility-private-lock.svg")
 
-	MediaAudioIcon     = newIcon("DownloadMusicIconName", "music-note-icon.svg")
+	MediaAudioNoteIcon = newIcon("MediaAudioNoteIconName", "music-note-icon.svg")
 	MediaShareLinkIcon = newIcon("DownloadShareLinkIconName", "link-icon.svg")
 	MediaWatchedIcon   = newIcon("DownloadWatchedIconName", "check-icon.svg")
 

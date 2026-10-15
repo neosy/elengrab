@@ -22,6 +22,12 @@
         <div class="audio-playing-overlay__playing-icon">
             {{ .Values.AudioPlayingIcon }}
         </div>
+        <div class="audio-playing-overlay__duration">
+            <span class="audio-playing-overlay__duration-audio-icon">
+                {{ .Values.AudioNoteIcon }}
+            </span>
+            <span class="audio-playing-overlay__duration-value">0:00</span>
+        </div>
         <div class="audio-playing-overlay__play-icon">
             {{ .Values.AudioPlayIcon }}
         </div>

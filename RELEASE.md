@@ -1,6 +1,6 @@
 # Releases
 
-## v0.27.0 — 2026-10-15
+## v0.27.0 — 2026-10-17
 
 ### ✨ Features
 - Added a short URL code for media downloads. [L170]
@@ -11,6 +11,7 @@
 - Added a pause button to media previews. [L173]
 - Made uploader usernames clickable links to their uploaded media pages. [L178]
 - Added the ability to minimize the video viewer to a floating thumbnail in the bottom-right corner. [L179]
+- Added a countdown animation for the currently playing audio item. [L179]
 
 ### 🎨 Style
 - Refined copy button colors and added animation.
