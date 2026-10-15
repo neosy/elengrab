@@ -17,12 +17,12 @@
                                 {{- end }}
                                 <img class="media-result__thumbnail-image" {{ if .Values.LazyLoadImages }}data-src{{ else }}src{{ end }}="{{ .Values.ThumbnailURL }}" alt="Video thumbnail">
                                 <div class="media-result__thumbnail-duration">
-                                    {{- if .Values.AudioIcon }}
+                                    {{- if .Values.AudioNoteIcon }}
                                     <span class="media-result__thumbnail-duration-icon">
-                                        {{ .Values.AudioIcon }}
+                                        {{ .Values.AudioNoteIcon }}
                                     </span>
                                     {{- end }}
-                                    <span class="media-result__thumbnail-duration-value">{{ .Values.Duration }}</span>
+                                    <span class="media-result__thumbnail-duration-value" data-duration-formatted="{{ .Values.Duration }}">{{ .Values.Duration }}</span>
                                 </div>
                                 <div class="media-result__thumbnail-watched{{- if not .Values.Watched }} hidden{{- end }}">{{ .Values.WatchedIcon }}</div>
                                 {{- if .Values.WatchIndicatorEnabled }}
