@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	"github.com/neosy/elengrab/internal/app/usecases/types"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
@@ -12,9 +13,7 @@ func (uc *downloader) PatchMediaDownload(
 	authCtx dauth.AuthContext,
 	req dto.PatchMediaDownloadRequest,
 ) error {
-	err := uc.validateWriteOperationAccess(authCtx)
-	if err != nil {
-		uc.notifyWriteOperationAccessError(authCtx, err)
+	if err := uc.validateWriteAccess(authCtx, types.BroadcastNotificationModuleResultRow); err != nil {
 		return err
 	}
 
@@ -44,7 +43,7 @@ func (uc *downloader) PatchMediaDownload(
 	}
 	downloadChanged.MarkManualChanges()
 
-	uc.broadcastDownloadChanged(ctx, *downloadChanged)
+	uc.broadcastMediaDownloadChanged(ctx, *downloadChanged)
 
 	return nil
 }

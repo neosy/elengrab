@@ -6,12 +6,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
-	ytdlpsrv "github.com/neosy/elengrab/internal/app/services/ytdlp"
+	"github.com/neosy/elengrab/internal/app/services/ffmpeg/ffframe"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
 func (m *migrations) fillMediaInfo(ctx context.Context) error {
@@ -25,7 +24,7 @@ func (m *migrations) fillMediaInfo(ctx context.Context) error {
 			m.Logger(),
 			retryCountDefault, retryDelayDefault,
 			func(ctx context.Context, path string) (*dtypes.ImageData, error) {
-				return m.Services().Downloader.FetchThumbnail(ctx, path, ytdlpsrv.WithRequestCookies())
+				return m.Services().Downloader.FetchThumbnail(ctx, path, pservices.WithDownloaderCookies())
 			},
 		)
 
@@ -44,16 +43,24 @@ func (m *migrations) fillMediaInfo(ctx context.Context) error {
 				return m.Services().FFMpeg.ExtractBestFrame(
 					ctx,
 					path,
-					ffmpegsrv.WithFrameStrategy(ffmpegsrv.FrameStrategyBalanced{}),
-					ffmpegsrv.WithFrameFormat(ffmpegsrv.FrameFormatWebP{}),
+					pservices.WithFrameStrategy(ffframe.FrameStrategyBalanced{}),
+					pservices.WithFrameFormat(ffframe.FrameFormatWebP{}),
 				)
 			},
 		)
 	)
 
 	medias, err := m.getAllDownloads(ctx, false,
-		func(download *ddownload.MediaDownload) bool {
-			if download.MediaInfo == nil {
+		func(media *ddownload.MediaDownload) bool {
+			if media.SourceType != dtypes.MediaDownloadSourceTypeURL {
+				return false
+			}
+
+			if media.SourceURL() == "" {
+				return false
+			}
+
+			if media.MediaInfo == nil {
 				return true
 			}
 			return false
@@ -80,14 +87,14 @@ func (m *migrations) fillMediaInfo(ctx context.Context) error {
 		default:
 		}
 
-		mediaInfoResp, _ := m.Services().FFMpeg.ExtractVideoAudioInfoFromFile(
+		mediaInfoResp, _ := m.Services().FFMpeg.ExtractMediaInfoWithFFprobe(
 			ctx,
 			m.DownloadsStorage().Path(media.FileFullName),
-			dservices.NewMediaInfo(media.Ext),
+			pservices.NewMediaInfoFromExt(media.Ext),
 		)
 
 		var (
-			fileFormat = dtypes.MapFileExtToFileFormat(media.Ext)
+			fileFormat = dtypes.FileExtToFileFormat(media.Ext)
 			formatType = fileFormat.FormatType()
 
 			videoInfo *dtypes.VideoInfo
@@ -102,19 +109,17 @@ func (m *migrations) fillMediaInfo(ctx context.Context) error {
 
 		var thumbnailID, frameThumbnailID *uuid.UUID
 
-		if media.SourceType == dtypes.MediaDownloadSourceTypeURL {
-			imageData := fetchThumbnail(ctx, media.SourceURL())
+		imageData := fetchThumbnail(ctx, media.SourceURL())
 
-			if imageData != nil {
-				sourceType := hostdetect.DetectPlatformType(media.SourceURL()).ThumbnailSourceType()
-				if sourceType == dtypes.ThumbnailSourceTypeNone {
-					sourceType = dtypes.ThumbnailSourceTypeExternal
-				}
+		if imageData != nil {
+			sourceType := hostdetect.DetectPlatformType(media.SourceURL()).ThumbnailSourceType()
+			if sourceType == dtypes.ThumbnailSourceTypeNone {
+				sourceType = dtypes.ThumbnailSourceTypeExternal
+			}
 
-				thumbID, err := m.createThumbnail(ctx, imageData, sourceType)
-				if err == nil {
-					thumbnailID = &thumbID
-				}
+			thumbID, err := m.createThumbnail(ctx, imageData, sourceType)
+			if err == nil {
+				thumbnailID = &thumbID
 			}
 		}
 

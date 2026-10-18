@@ -1,32 +1,29 @@
 package downloader
 
 import (
-	"mime"
-
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) GetShareLinkHandler(ctx *fasthttp.RequestCtx) {
 	if ctx.IsHead() {
-		ctx.SetContentType(mime.TypeByExtension(".html"))
-		ctx.SetStatusCode(fasthttp.StatusOK)
+		fasthttpx.WriteHTMLHeadResponse(ctx)
 		return
 	}
 
 	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
 	if !ok || downloadIDStr == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
+		fasthttpx.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return
 	}
 
 	downloadID, err := idcodec.DecodeUUIDBase64URL(downloadIDStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
+		fasthttpx.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
 		return
 	}
 
@@ -35,7 +32,7 @@ func (h *DownloaderHandlers) GetShareLinkHandler(ctx *fasthttp.RequestCtx) {
 		h.buildMediaWatchURL(downloadID),
 	)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -46,5 +43,5 @@ func (h *DownloaderHandlers) GetShareLinkHandler(ctx *fasthttp.RequestCtx) {
 		URL:        url,
 	}
 
-	nfasthttp.WriteResponse(ctx, resp)
+	fasthttpx.WriteResponse(ctx, resp)
 }

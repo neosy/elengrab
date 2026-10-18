@@ -68,19 +68,33 @@ func (v AppMode) UniquenessScope() UniquenessScope {
 	return uniquenessScopeByAppMode[v]
 }
 
-// IsGuestAllowed returns true if guests are allowed for this app mode.
-func (v AppMode) IsGuestAllowed() bool {
-	return v == AppModePublic || v == AppModeGuest
+// AllowsGuests reports whether guest access is permitted in this mode.
+func (m AppMode) AllowsGuests() bool {
+	return m == AppModePublic || m == AppModeGuest
 }
 
-// IsUserRequiredForWrite1 returns true if user is required for this app mode.
-func (v AppMode) IsUserRequiredForWrite() bool {
-	return v == AppModeAuthenticated || v == AppModeGuest || v == AppModePublicReadonly
+// RequiresIdentityForWrite reports whether write operations need an identified client
+// (guest or authenticated user) in this mode.
+func (m AppMode) RequiresIdentityForWrite() bool {
+	return m == AppModeAuthenticated || m == AppModeGuest || m == AppModePublicReadonly
 }
 
-// IsUserRequiredForRead returns true if user is required for this app mode.
-func (v AppMode) IsUserRequiredForRead() bool {
-	return v == AppModeAuthenticated
+// RequiresIdentityForRead reports whether read operations need an identified client
+// (guest or authenticated user) in this mode.
+func (m AppMode) RequiresIdentityForRead() bool {
+	return m == AppModeAuthenticated
+}
+
+// AllowsAnonymousWrite reports whether unidentified clients may write in this mode.
+// It is the inverse of RequiresIdentityForWrite.
+func (m AppMode) AllowsAnonymousWrite() bool {
+	return !m.RequiresIdentityForWrite()
+}
+
+// AllowsAnonymousRead reports whether unidentified clients may read in this mode.
+// It is the inverse of RequiresIdentityForRead.
+func (m AppMode) AllowsAnonymousRead() bool {
+	return !m.RequiresIdentityForRead()
 }
 
 // ParseAppMode converting string to AppMode

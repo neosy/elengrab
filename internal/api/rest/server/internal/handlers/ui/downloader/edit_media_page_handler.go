@@ -1,39 +1,36 @@
 package downloader
 
 import (
-	"mime"
-
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) EditMediaPageByDownloadIDHandler(ctx *fasthttp.RequestCtx) {
 	if ctx.IsHead() {
-		ctx.SetContentType(mime.TypeByExtension(".html"))
-		ctx.SetStatusCode(fasthttp.StatusOK)
+		fasthttpx.WriteHTMLHeadResponse(ctx)
 		return
 	}
 
 	authCtx, err := policy.ResolveUserOrFallback(ctx, h.appMode)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
 	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
 	if !ok || downloadIDStr == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
+		fasthttpx.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return
 	}
 
 	downloadID, err := idcodec.DecodeUUIDBase64URL(downloadIDStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
+		fasthttpx.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
 		return
 	}
 

@@ -2,17 +2,19 @@ package fasthttpx
 
 import (
 	"encoding/json"
+	"mime"
 
 	"github.com/valyala/fasthttp"
 )
 
-func WriteResponse(ctx *fasthttp.RequestCtx, t any) error {
-	if isNil(t) {
+// WriteResponse writes the given data as a JSON response to the provided fasthttp.RequestCtx.
+func WriteResponse(ctx *fasthttp.RequestCtx, data any) error {
+	if isNil(data) {
 		ctx.SetStatusCode(fasthttp.StatusNoContent)
 		return nil
 	}
 
-	response, err := json.Marshal(t)
+	response, err := json.Marshal(data)
 	if err != nil {
 		WriteErrorx(ctx, err)
 		return err
@@ -23,9 +25,15 @@ func WriteResponse(ctx *fasthttp.RequestCtx, t any) error {
 		statusCode = fasthttp.StatusOK
 	}
 
-	ctx.SetContentType("application/json")
+	ctx.SetContentType(mime.TypeByExtension(".json"))
 	ctx.SetStatusCode(statusCode)
 	ctx.SetBody(response)
 
 	return nil
+}
+
+// WriteHTMLHeadResponse writes a 200 OK response with an HTML Content-Type for HEAD requests.
+func WriteHTMLHeadResponse(ctx *fasthttp.RequestCtx) {
+	ctx.SetContentType(mime.TypeByExtension(".html"))
+	ctx.SetStatusCode(fasthttp.StatusOK)
 }

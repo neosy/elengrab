@@ -9,7 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
@@ -25,14 +25,13 @@ func (h *DownloaderHandlers) renderEditMediaPage(
 	req renderEditMediaPageRequest,
 ) {
 	if ctx.IsHead() {
-		ctx.SetContentType(mime.TypeByExtension(".html"))
-		ctx.SetStatusCode(fasthttp.StatusOK)
+		fasthttpx.WriteHTMLHeadResponse(ctx)
 		return
 	}
 
 	downloadInfo, err := h.downloader.GetDownloadInfoForEdit(ctx, req.authCtx, req.downloadID)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -41,7 +40,7 @@ func (h *DownloaderHandlers) renderEditMediaPage(
 
 	cssPaths, err := h.assetPaths.EditMediaPageCssPaths()
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -49,13 +48,13 @@ func (h *DownloaderHandlers) renderEditMediaPage(
 
 	jsScripts, err := h.assetPaths.EditMediaPageJsPaths(caps.IsLegacyWebKit)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
 	pwaManifestPath, err := h.assetPaths.PwaManifestPath()
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -81,8 +80,7 @@ func (h *DownloaderHandlers) renderEditMediaPage(
 
 	// Execute template with PageTitle
 	if err := h.templates.Pages[pages.EditMediaPage.Key()].ExecuteTemplate(ctx, pages.EditMediaPage.Key(), pageData); err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
+		fasthttpx.WriteErrorx(ctx, errInternal(err))
 		return
 	}
-
 }

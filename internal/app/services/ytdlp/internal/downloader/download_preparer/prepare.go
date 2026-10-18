@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
-	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
 func (p *DownloadPreparer) Prepare(
@@ -56,9 +56,9 @@ func (p *DownloadPreparer) Prepare(
 		Args:        args,
 		FileExt:     extractResult.fileExt,
 		ExtractInfo: extractResult.info,
-		MediaInfo: &dservices.MediaInfo{
+		MediaInfo: &pservices.MediaInfo{
 			FormatType: dlOptions.FormatType,
-			Format:     dtypes.MapFileExtToFileFormat(extractResult.fileExt),
+			Format:     dtypes.FileExtToFileFormat(extractResult.fileExt),
 			VideoInfo:  nil,
 			AudioInfo:  nil,
 		},

@@ -6,11 +6,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/app/usecases/consts"
+	"github.com/neosy/elengrab/internal/app/usecases/types"
 	"github.com/neosy/elengrab/internal/app/utils/hash"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
-	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/neosy/elengrab/internal/pkg/stringx"
@@ -19,7 +20,7 @@ import (
 type MediaDownloadInfo struct {
 	DownloadID    uuid.UUID
 	Status        dtypes.MediaDownloadStatus
-	WorkingStatus WorkingStatus
+	WorkingStatus types.WorkingStatus
 
 	Channel      *dmedia.Channel
 	ChannelTitle string
@@ -44,7 +45,7 @@ type MediaDownloadInfo struct {
 	FileSize             *int64
 	SafeReadableFullName string
 	StatusText           string
-	Progress             *dservices.DownloaderProgress
+	Progress             *dtypes.DownloadProgress
 
 	MediaInfo        *dtypes.MediaInfo
 	MediaInfoText    string
@@ -66,6 +67,10 @@ type MediaDownloadInfo struct {
 }
 
 func (downloadInfo *MediaDownloadInfo) IsYouTube() bool {
+	if downloadInfo.MediaURL == "" {
+		return false
+	}
+
 	return hostdetect.YouTube(downloadInfo.MediaURL)
 }
 
@@ -117,7 +122,7 @@ func (info *MediaDownloadInfo) WatchIndicatorEnabled() bool {
 	}
 
 	// The watch start indicator is disabled for short videos.
-	if info.MediaInfo.Duration() <= minDurationMediaWatchStartIndicator {
+	if info.MediaInfo.Duration() <= consts.MinDurationMediaWatchStartIndicator {
 		return false
 	}
 
@@ -131,7 +136,7 @@ func (info *MediaDownloadInfo) ShouldShowWatchStartIndicator() bool {
 		return false
 	}
 
-	return info.UserLastWatchPosition >= mediaWatchStartThreshold
+	return info.UserLastWatchPosition >= consts.MediaWatchStartThreshold
 }
 
 func (info *MediaDownloadInfo) UserWatchPercent() float64 {

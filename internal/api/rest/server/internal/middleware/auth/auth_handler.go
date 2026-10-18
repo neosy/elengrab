@@ -26,7 +26,7 @@ func (a *AuthMiddleware) AuthOrGuest(next fasthttp.RequestHandler) fasthttp.Requ
 			return
 		}
 
-		userCtx, err := a.processAuth(ctx, a.appMode.IsGuestAllowed())
+		userCtx, err := a.processAuth(ctx, a.appMode.AllowsGuests())
 		if err != nil {
 			nfasthttp.WriteErrorx(
 				ctx,
@@ -40,7 +40,7 @@ func (a *AuthMiddleware) AuthOrGuest(next fasthttp.RequestHandler) fasthttp.Requ
 
 		// If no valid session exists and guest sessions are not allowed,
 		// return an unauthorized response.
-		if userCtx == nil && !a.appMode.IsUserRequiredForWrite() {
+		if userCtx == nil && a.appMode.AllowsAnonymousWrite() {
 			a.SetCookieAnonym(ctx)
 			next(ctx)
 			return
@@ -211,7 +211,7 @@ func (a *AuthMiddleware) RequireAuthMode(next fasthttp.RequestHandler) fasthttp.
 		}
 
 		if userCtx == nil {
-			if a.appMode.IsUserRequiredForWrite() {
+			if a.appMode.RequiresIdentityForWrite() {
 				nfasthttp.WriteErrorx(ctx, ierrors.ErrUnauthorized)
 				return
 			}

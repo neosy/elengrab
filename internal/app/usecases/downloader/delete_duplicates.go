@@ -30,7 +30,7 @@ func (uc *downloader) DeleteDuplicates(ctx context.Context) error {
 			if err != nil {
 				continue
 			}
-			uc.broadcastDownloadDelete(ctx, download)
+			uc.broadcastMediaDownloadDeleted(ctx, download)
 
 			delCnt++
 

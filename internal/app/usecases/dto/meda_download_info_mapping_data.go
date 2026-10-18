@@ -4,7 +4,6 @@ import (
 	"time"
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
-	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
@@ -23,5 +22,5 @@ type MediaDownloadInfoMappingData struct {
 	Channel      *dmedia.Channel
 	ChannelTitle string
 
-	Progress *dservices.DownloaderProgress
+	Progress *dtypes.DownloadProgress
 }

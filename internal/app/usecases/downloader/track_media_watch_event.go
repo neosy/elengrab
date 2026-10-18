@@ -39,7 +39,7 @@ func (uc *downloader) TrackMediaWatchEvent(
 		return apperrors.ErrDownloadNotFound
 	}
 
-	if !uc.authz.HasMediaViewAccess(authCtx, mediaDownload) {
+	if !uc.authz.HasMediaDownloadViewAccess(authCtx, mediaDownload) {
 		return ierrors.ErrAccessDenied
 	}
 

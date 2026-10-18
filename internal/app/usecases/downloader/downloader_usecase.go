@@ -8,7 +8,6 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/broadcaster"
 	uchannel "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/channel"
-	dlexecutor "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_executor"
 	dlstate "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_state_cache"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task"
 	dltasktatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task_status"
@@ -19,6 +18,7 @@ import (
 	proctaskstatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/processing_task_status"
 	searchindex "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/search_index"
 	siteicon "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon"
+	taskexecutor "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/task_executor"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/mappers"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
@@ -41,14 +41,16 @@ type downloader struct {
 	systemInfoStore systemInfoStore
 
 	// dispetchers
-	downloadDispatcher  workerpool.JobDispatcher
-	operationDispatcher workerpool.JobDispatcher
+	downloadDispatcher        workerpool.JobDispatcher
+	mediaProcessingDispatcher workerpool.JobDispatcher
+	operationDispatcher       workerpool.JobDispatcher
 
 	// internal
 	download             *mediadownload.MediaDownload
 	dlTask               *dltask.DownloadTask
 	processingTask       *processingtask.ProcessingTask
-	downloadStatus       *downloadstatus.MediaDownloadStatus
+	downloadStatus       downloadstatus.StatusUpdater
+	uploadStatus         downloadstatus.StatusUpdater
 	dlTaskStatus         *dltasktatus.DownloadTaskStatus
 	processingTaskStatus *proctaskstatus.ProcessingTaskStatus
 	channel              *uchannel.Channel
@@ -56,7 +58,7 @@ type downloader struct {
 	authz                *authz.Authorization
 	mediaWatch           *mediawatch.MediaWatch
 	searchIndex          *searchindex.SearchIndex
-	dlExecutor           *dlexecutor.Executor
+	taskExecutors        *taskexecutor.TaskExecutors
 
 	// broadcasters
 	broadcaster *broadcaster.Broadcaster
@@ -106,6 +108,7 @@ func NewDownloader(
 
 	// dispetchers
 	downloadDispatcher workerpool.JobDispatcher,
+	mediaProcessingDispatcher workerpool.JobDispatcher,
 	operationDispatcher workerpool.JobDispatcher,
 	watchEventDispatcher workerpool.JobDispatcher,
 
@@ -151,8 +154,9 @@ func NewDownloader(
 		},
 
 		// Dispetchers
-		downloadDispatcher:  downloadDispatcher,
-		operationDispatcher: operationDispatcher,
+		downloadDispatcher:        downloadDispatcher,
+		mediaProcessingDispatcher: mediaProcessingDispatcher,
+		operationDispatcher:       operationDispatcher,
 
 		// Internal
 		dlTask:               dlTask,
@@ -205,15 +209,30 @@ func NewDownloader(
 
 		dlTask,
 		dlStateCache,
+		processingTask,
 		mediaWatch,
 		searchIndex,
 
 		thumbnail,
 	)
 
-	downloadStatus := downloadstatus.NewMediaDownloadStatus(logger, download, dlTask, dlTaskStatus)
+	downloadStatus := downloadstatus.NewStatusUpdater(
+		logger,
+		dtypes.MediaDownloadSourceTypeURL,
+		download,
+		dlTask, processingTask,
+		dlTaskStatus, processingTaskStatus,
+	)
 
-	dlExecutor := dlexecutor.NewExecutor(
+	uploadStatus := downloadstatus.NewStatusUpdater(
+		logger,
+		dtypes.MediaDownloadSourceTypeUpload,
+		download,
+		dlTask, processingTask,
+		dlTaskStatus, processingTaskStatus,
+	)
+
+	taskExecutors := taskexecutor.NewTaskExecutors(
 		ctx,
 		logger,
 
@@ -227,14 +246,18 @@ func NewDownloader(
 		// Usecases
 		download,
 		downloadStatus,
+		uploadStatus,
 		siteIcon,
 		channel,
 		thumbnail,
 
+		// Functions
+		downloader.UpdateSystemInfo,
+
 		// Broadcaster
-		dlexecutor.Broadcaster{
-			DownloadUpdate:         downloader.broadcastDownloadUpdate,
-			DownloadProgressUpdate: downloader.broadcastDownloadProgressUpdate,
+		taskexecutor.Broadcaster{
+			MediaUpdated:            downloader.broadcastMediaDownloadUpdated,
+			DownloadProgressUpdated: downloader.broadcastDownloadProgressUpdated,
 		},
 
 		// Options
@@ -244,8 +267,9 @@ func NewDownloader(
 	// Internal
 	downloader.download = download
 	downloader.downloadStatus = downloadStatus
+	downloader.uploadStatus = uploadStatus
 	downloader.mediaWatch = mediaWatch
-	downloader.dlExecutor = dlExecutor
+	downloader.taskExecutors = taskExecutors
 
 	return downloader
 }

@@ -58,7 +58,11 @@ func (m *Mappers) MapDownloadDomainToEntity(download *ddownload.MediaDownload) (
 	}, nil
 }
 
-func (m *Mappers) MapDownloadEntityToDomain(eDownload *edownload.MediaDownload, eTask *edownload.DownloadTask) (*ddownload.MediaDownload, error) {
+func (m *Mappers) MapDownloadEntityToDomain(
+	eDownload *edownload.MediaDownload,
+	eDownloadTask *edownload.DownloadTask,
+	eProcessingTask *edownload.MediaProcessingTask,
+) (*ddownload.MediaDownload, error) {
 	sourceType, err := dtypes.ParseMediaDownloadSourceType(eDownload.SourceType)
 	if err != nil {
 		return nil, err
@@ -90,10 +94,19 @@ func (m *Mappers) MapDownloadEntityToDomain(eDownload *edownload.MediaDownload, 
 		}
 	}
 
-	var task *ddownload.DownloadTask
-	if eTask != nil && eTask.TaskID.String != "" {
+	var downloadTask *ddownload.DownloadTask
+	if eDownloadTask != nil && eDownloadTask.TaskID.String != "" {
 		var err error
-		task, err = m.MapDownloadTaskEntityToDomain(eTask)
+		downloadTask, err = m.MapDownloadTaskEntityToDomain(eDownloadTask)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var processingTask *ddownload.MediaProcessingTask
+	if eProcessingTask != nil && eProcessingTask.TaskID.String != "" {
+		var err error
+		processingTask, err = m.MapMediaProcessingTaskEntityToDomain(eProcessingTask)
 		if err != nil {
 			return nil, err
 		}
@@ -138,7 +151,8 @@ func (m *Mappers) MapDownloadEntityToDomain(eDownload *edownload.MediaDownload, 
 		CreatedAt:                eDownload.CreatedAt,
 		UpdatedAt:                eDownload.UpdatedAt,
 		DeletedAt:                eDownload.DeletedAt,
-		DownloadTask:             task,
+		DownloadTask:             downloadTask,
+		ProcessingTask:           processingTask,
 	}, nil
 }
 
@@ -154,7 +168,7 @@ func (m *Mappers) MapRowsToDownloads(rows *sql.Rows) ([]*ddownload.MediaDownload
 			return nil, err
 		}
 
-		download, err := m.MapDownloadEntityToDomain(&eDownload, nil)
+		download, err := m.MapDownloadEntityToDomain(&eDownload, nil, nil)
 		if err != nil {
 			return nil, err
 		}

@@ -15,6 +15,7 @@ export const ICONS = {
 export const API_PATHS = {
     downloaderItems: "/downloader/items",
     downloaderSearch: "/downloader/search",
+    downloaderUpload: "/downloader/upload",
 }
 
 // Internal API request path templates.

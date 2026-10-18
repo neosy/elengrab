@@ -23,8 +23,7 @@ const (
 )
 
 var (
-	fileFormatMap = map[FileFormat]struct{}{
-		FileFormatNone: {},
+	fileFormats = map[FileFormat]struct{}{
 		FileFormatAuto: {},
 		FileFormatMP4:  {},
 		FileFormatWebM: {},
@@ -34,7 +33,7 @@ var (
 		FileFormatOPUS: {},
 	}
 
-	fileFormatToExtMap = map[FileFormat]string{
+	extByFileFormat = map[FileFormat]string{
 		FileFormatMP4:  "mp4",
 		FileFormatWebM: "webm",
 		FileFormatMP3:  "mp3",
@@ -43,7 +42,7 @@ var (
 		FileFormatOPUS: "opus",
 	}
 
-	fileExtToFileFormatMap = map[string]FileFormat{
+	fileFormatByExt = map[string]FileFormat{
 		"mp4":  FileFormatMP4,
 		"webm": FileFormatWebM,
 		"mp3":  FileFormatMP3,
@@ -52,12 +51,12 @@ var (
 		"opus": FileFormatOPUS,
 	}
 
-	fileFormatToVideoFormatMap = map[FileFormat]VideoFormat{
+	videoFormatByFileFormat = map[FileFormat]VideoFormat{
 		FileFormatMP4:  VideoFormatMP4,
 		FileFormatWebM: VideoFormatWebM,
 	}
 
-	fileFormatToAudioFormatMap = map[FileFormat]AudioFormat{
+	audioFormatByFileFormat = map[FileFormat]AudioFormat{
 		FileFormatMP3:  AudioFormatMP3,
 		FileFormatM4A:  AudioFormatM4A,
 		FileFormatFLAC: AudioFormatFLAC,
@@ -70,9 +69,19 @@ func (v FileFormat) String() string {
 	return string(v)
 }
 
-// Ext returns the file extension for the FileFormat.
+// Ext returns the file extension for the FileFormat, without a dot.
 func (v FileFormat) Ext() string {
-	return fileFormatToExtMap[v]
+	return extByFileFormat[v]
+}
+
+// FileExt returns the file extension for the FileFormat, prefixed with a dot.
+func (v FileFormat) FileExt() string {
+	ext := extByFileFormat[v]
+	if ext == "" {
+		return ""
+	}
+
+	return "." + ext
 }
 
 // Ptr returns the pointer.
@@ -82,25 +91,25 @@ func (v FileFormat) Ptr() *FileFormat {
 
 // Exists returns true if the FileFormat is valid.
 func (v FileFormat) Exists() bool {
-	_, exists := fileFormatMap[v]
+	_, exists := fileFormats[v]
 	return exists
 }
 
 // IsVideo returns true if a video format.
 func (v FileFormat) IsVideo() bool {
-	_, exitsts := fileFormatToVideoFormatMap[v]
+	_, exitsts := videoFormatByFileFormat[v]
 	return exitsts
 }
 
 // IsAudio returns true if an audio format.
 func (v FileFormat) IsAudio() bool {
-	_, exitsts := fileFormatToAudioFormatMap[v]
+	_, exitsts := audioFormatByFileFormat[v]
 	return exitsts
 }
 
 // VideoFormat returns the corresponding VideoFormat for the FileFormat.
 func (v FileFormat) VideoFormat() VideoFormat {
-	videoFormat, exitsts := fileFormatToVideoFormatMap[v]
+	videoFormat, exitsts := videoFormatByFileFormat[v]
 	if !exitsts {
 		return VideoFormatNone
 	}
@@ -109,7 +118,7 @@ func (v FileFormat) VideoFormat() VideoFormat {
 
 // AudioFormat returns the corresponding AudioFormat for the FileFormat.
 func (v FileFormat) AudioFormat() AudioFormat {
-	audioFormat, exitsts := fileFormatToAudioFormatMap[v]
+	audioFormat, exitsts := audioFormatByFileFormat[v]
 	if !exitsts {
 		return AudioFormatNone
 	}
@@ -131,26 +140,42 @@ func (v FileFormat) FormatType() FormatType {
 
 // ParseFileFormat converting string to FileFormat
 func ParseFileFormat(format string) (FileFormat, error) {
+	if format == "" {
+		return FileFormatNone, errors.New("empty value for FileFormat")
+	}
+
 	fileFormat := FileFormat(strings.ToLower(format))
 
-	if _, exists := fileFormatMap[fileFormat]; !exists {
-		return "", errors.New("invalid value for FileFormat")
+	if !fileFormat.Exists() {
+		return FileFormatNone, errors.New("invalid value for FileFormat")
 	}
 
 	return fileFormat, nil
 }
 
-// MapFileExtToFileFormat
-func MapFileExtToFileFormat(ext string) FileFormat {
-	ext, _ = strings.CutPrefix(ext, ".")
-	ext = strings.ToLower(ext)
-
-	format, exist := fileExtToFileFormatMap[ext]
-	if !exist {
+// MustParseFileFormat converts a string to FileFormat, returning FileFormatNone if invalid.
+func MustParseFileFormat(format string) FileFormat {
+	fileFormat, err := ParseFileFormat(format)
+	if err != nil {
 		return FileFormatNone
 	}
 
-	return format
+	return fileFormat
+}
+
+// FileExtToFileFormat converts a file extension to a FileFormat, returning FileFormatNone if not found.
+func FileExtToFileFormat(ext string) FileFormat {
+	ext, _ = strings.CutPrefix(ext, ".")
+	if ext == "" {
+		return FileFormatNone
+	}
+
+	fileFormat, exists := fileFormatByExt[strings.ToLower(ext)]
+	if !exists {
+		return FileFormatNone
+	}
+
+	return fileFormat
 }
 
 // ValidateFileFormat checks if the field value is a valid FileFormat enum.

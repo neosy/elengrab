@@ -4,6 +4,7 @@ import * as dialog from "./dialog.js";
 import * as tooltip from './tooltip.js';
 import { initPlayer } from './player.js';
 import * as videoPreview from './video-preview.js';
+import { API_PATHS } from './constants.js';
 
 import * as sseClient from "./sse.js";
 import * as rowEventHandlers from './pages-list.sse.events.js';
@@ -48,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Init dialogs
     dialog.initDialogs();
-    initUploadFileDialog("");
+    initUploadFileDialog(API_PATHS.downloaderUpload);
 
     // Init tooltips
     tooltip.initTooltips();

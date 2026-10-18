@@ -53,7 +53,7 @@ func BuildPagesListValues(
 		SearchBackArrowIcon: icons.SearchBackArrowIcon.FileRaw(),
 
 		HasCreateAccess:         downloader.CanCreateMediaDownload(authCtx),
-		HasWriteOperationAccess: downloader.HasWriteOperationAccess(authCtx),
+		HasWriteOperationAccess: downloader.HasWriteAccess(authCtx),
 
 		ActiveViewMode: query.ViewMode.String(),
 		ViewModeTabs:   pages.BuildViewModeTabs(query.ViewMode),

@@ -65,7 +65,7 @@
                         <label class="upload-file-dialog__option-label" for="uploadFileVisibility">Visibility</label>
                         <select class="upload-file-dialog__select" name="visibility" id="uploadFileVisibility">
                             {{- range .VisibilityList }}
-                            <option value="{{ .Value }}"{{ if eq .Value $.Values.Visibility }} selected{{ end }}>{{ .Label }}</option>
+                            <option value="{{ .Value }}"{{ if eq .Value $.Values.UploadFileDialog.Visibility }} selected{{ end }}>{{ .Label }}</option>
                             {{- end }}
                         </select>
                     </div>
@@ -76,7 +76,7 @@
 
     <footer class="modal-dialog__footer upload-file-dialog__footer">
         <button class="modal-dialog__button upload-file-dialog__button upload-file-dialog__button--cancel" type="button" data-dialog-close>Cancel</button>
-        <button class="modal-dialog__button upload-file-dialog__button upload-file-dialog__button--done" type="button" data-dialog-close disabled>Done</button>
+        <button class="modal-dialog__button upload-file-dialog__button upload-file-dialog__button--done" type="button" disabled>Done</button>
     </footer>
     {{- end }}
 {{- end }}

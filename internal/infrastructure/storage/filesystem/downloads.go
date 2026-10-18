@@ -3,6 +3,7 @@ package fsstorage
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -36,16 +37,23 @@ func (s *downloadsStorage) Exists(uniqueFileName string) (bool, error) {
 	return s.storage.Exists(keyPath)
 }
 
-// Move file from directory to storage
+// Move moves the file at fromFilePath into storage under uniqueFileName,
+// creating intermediate directories as needed.
+// The source file is removed on success. An existing file with the same
+// storage key is overwritten.
 func (s *downloadsStorage) Move(fromFilePath, uniqueFileName string) error {
 	keyPath := s.buildStorageKeyPath(uniqueFileName)
 	toFilePath := filepath.Join(s.BasePath(), keyPath)
 
-	if err := os.MkdirAll(filepath.Dir(toFilePath), 0755); err != nil {
-		return err
+	if err := os.MkdirAll(filepath.Dir(toFilePath), 0o755); err != nil {
+		return fmt.Errorf("create storage directory: %w", err)
 	}
 
-	return os.Rename(fromFilePath, toFilePath)
+	if err := os.Rename(fromFilePath, toFilePath); err != nil {
+		return fmt.Errorf("move file into storage: %w", err)
+	}
+
+	return nil
 }
 
 // Delete removes file for a given fileName.
@@ -54,17 +62,19 @@ func (s *downloadsStorage) Delete(uniqueFileName string) error {
 	return s.storage.Delete(keyPath)
 }
 
-// Path returns the full file path.
+// Path returns the filesystem path where the file with uniqueFileName is (or would be) stored.
+// It does not check that the file exists.
 func (s *downloadsStorage) Path(uniqueFileName string) string {
 	keyPath := s.buildStorageKeyPath(uniqueFileName)
 	return s.storage.Path(keyPath)
 }
 
-// BasePath
+// BasePath returns the root directory of the downloads storage.
 func (s *downloadsStorage) BasePath() string {
 	return s.storage.BasePath()
 }
 
+// MediaPath returns the directory where downloaded media files are stored.
 func (s *downloadsStorage) MediaPath() string {
 	return filepath.Join(s.storage.BasePath(), s.mediaDirName)
 }

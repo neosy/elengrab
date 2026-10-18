@@ -6,6 +6,7 @@ import (
 	dlstate "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_state_cache"
 	dltask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/download_task"
 	mediawatch "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch"
+	processingtask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/processing_task"
 	searchindex "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/search_index"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
 	"github.com/neosy/elengrab/internal/ports/persistence"
@@ -21,10 +22,11 @@ type MediaDownload struct {
 	downloadCacheRep persistence.MediaDownloadCacheRepository
 
 	// internal
-	dlTask       *dltask.DownloadTask
-	dlStateCache *dlstate.DownloadStateCache
-	mediaWatch   *mediawatch.MediaWatch
-	searchIndex  *searchindex.SearchIndex
+	dlTask         *dltask.DownloadTask
+	dlStateCache   *dlstate.DownloadStateCache
+	processingTask *processingtask.ProcessingTask
+	mediaWatch     *mediawatch.MediaWatch
+	searchIndex    *searchindex.SearchIndex
 
 	// usecases
 	thumbnail thumbnail.Thumbnail
@@ -42,6 +44,7 @@ func NewMediaDownload(
 	// internal
 	dlTask *dltask.DownloadTask,
 	dlStateCache *dlstate.DownloadStateCache,
+	processingTask *processingtask.ProcessingTask,
 	mediaWatch *mediawatch.MediaWatch,
 	searchIndex *searchindex.SearchIndex,
 
@@ -54,10 +57,11 @@ func NewMediaDownload(
 		downloadCacheRep: downloadCacheRep,
 
 		// internal
-		dlTask:       dlTask,
-		dlStateCache: dlStateCache,
-		mediaWatch:   mediaWatch,
-		searchIndex:  searchIndex,
+		dlTask:         dlTask,
+		processingTask: processingTask,
+		dlStateCache:   dlStateCache,
+		mediaWatch:     mediaWatch,
+		searchIndex:    searchIndex,
 
 		// usecases
 		thumbnail: thumbnail,

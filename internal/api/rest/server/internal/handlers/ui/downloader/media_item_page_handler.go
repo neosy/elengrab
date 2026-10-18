@@ -1,18 +1,15 @@
 package downloader
 
 import (
-	"mime"
-
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) MediaItemPageByDownloadIDHandler(ctx *fasthttp.RequestCtx) {
 	if ctx.IsHead() {
-		ctx.SetContentType(mime.TypeByExtension(".html"))
-		ctx.SetStatusCode(fasthttp.StatusOK)
+		fasthttpx.WriteHTMLHeadResponse(ctx)
 		return
 	}
 
@@ -20,7 +17,7 @@ func (h *DownloaderHandlers) MediaItemPageByDownloadIDHandler(ctx *fasthttp.Requ
 
 	downloadID, err := h.extractDownloadID(ctx)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 

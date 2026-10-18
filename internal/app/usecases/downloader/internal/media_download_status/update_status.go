@@ -9,7 +9,7 @@ import (
 )
 
 // updateStatus marking the status
-func (uc *MediaDownloadStatus) updateStatus(
+func (uc *mediaDownloadStatus) updateStatus(
 	ctx context.Context,
 	downloadID uuid.UUID,
 	toStatus dtypes.MediaDownloadStatus,

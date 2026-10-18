@@ -8,6 +8,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
@@ -35,7 +36,7 @@ func (h *DownloaderHandlers) QueueMediaDownloadByURLHandler(ctx *fasthttp.Reques
 	formSelectQualityResolution := string(ctx.FormValue(formFieldQualityResolutionKey))
 	formSelectFormat := string(ctx.FormValue(formFieldFormatKey))
 
-	resp, err := h.downloader.ScheduleDownload(
+	scheduleResp, err := h.downloader.ScheduleDownload(
 		ctx,
 		authCtx,
 		url,
@@ -52,15 +53,16 @@ func (h *DownloaderHandlers) QueueMediaDownloadByURLHandler(ctx *fasthttp.Reques
 		return
 	}
 
-	if resp == nil {
+	if scheduleResp == nil {
 		nfasthttp.WriteErrorx(ctx, apierrors.ErrEmptyResponse)
 		return
 	}
 
-	dataResp := dto.GrabResponse{
+	dataResponse := dto.GrabResponse{
+		ItemID:       idcodec.EncodeUUIDBase64URL(scheduleResp.DownloadID),
 		GuestCreated: authCtx.GuestCreated,
 	}
 
 	ctx.SetStatusCode(fasthttp.StatusCreated)
-	nfasthttp.WriteResponse(ctx, dataResp)
+	nfasthttp.WriteResponse(ctx, dataResponse)
 }

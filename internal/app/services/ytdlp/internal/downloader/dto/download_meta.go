@@ -3,9 +3,9 @@ package idto
 import (
 	"sync"
 
-	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
 type DownloadMeta struct {
@@ -22,9 +22,9 @@ type DownloadMeta struct {
 	Thumbnail           *dtypes.ImageData
 	ThumbnailVideoFrame *dtypes.ImageData
 
-	MediaInfo *dservices.MediaInfo
+	MediaInfo *pservices.MediaInfo
 
-	Progress *dservices.DownloaderProgress
+	Progress *dtypes.DownloadProgress
 }
 
 type SafeDownloadMeta struct {
@@ -70,7 +70,7 @@ func (m *SafeDownloadMeta) CloneMeta() *DownloadMeta {
 	return &metaCopy
 }
 
-func (m *SafeDownloadMeta) InitialResult() *dservices.DownloaderResult {
+func (m *SafeDownloadMeta) InitialResult() *pservices.DownloadResult {
 	meta := m.CloneMeta()
 
 	var ext = meta.FileExt
@@ -78,7 +78,7 @@ func (m *SafeDownloadMeta) InitialResult() *dservices.DownloaderResult {
 		ext = meta.MediaInfo.Format.String()
 	}
 
-	return &dservices.DownloaderResult{
+	return &pservices.DownloadResult{
 		MediaTitle:          meta.Title,
 		MediaDescription:    uptr.NonZeroString(meta.Description),
 		Filename:            meta.FileName,

@@ -11,7 +11,7 @@ import (
 
 func (a *authWeb) RegisterUser(
 	ctx context.Context,
-	req *dto.RegisterUserRequest,
+	req *dto.AuthRegisterUserRequest,
 ) (*dto.AuthUserResponse, error) {
 	if req == nil {
 		return nil, errorx.New("function parameter is nil", exceptionx.ERROR)

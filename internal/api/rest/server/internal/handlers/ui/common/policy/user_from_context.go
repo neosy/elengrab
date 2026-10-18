@@ -78,5 +78,5 @@ func ResolveUserOrFallback(ctx *fasthttp.RequestCtx, appMode dtypes.AppMode) (da
 // IsAnonymousFallbackAllowed returns true if anonymous fallback is allowed for current request.
 // It's used in public app mode over non-HTTPS requests.
 func IsAnonymousFallbackAllowed(ctx *fasthttp.RequestCtx, appMode dtypes.AppMode) bool {
-	return !nfasthttp.IsForwardedHTTPS(ctx) && !appMode.IsUserRequiredForRead()
+	return !nfasthttp.IsForwardedHTTPS(ctx) && appMode.AllowsAnonymousRead()
 }

@@ -8,17 +8,23 @@ import (
 )
 
 // parseVideoFromFFprobe parses an FFprobe "stream" line into VideoInfo.
-func (info *info) parseVideoFromFFprobe(stream ffprobeStream, srcVideoInfo *dtypes.VideoInfo) *dtypes.VideoInfo {
-	var (
-		videoInfo = srcVideoInfo.Clone()
-	)
+func (info *info) parseVideoFromFFprobe(stream ffprobeStream, baseInfo *dtypes.VideoInfo) (*dtypes.VideoInfo, error) {
+	var videoInfo *dtypes.VideoInfo
+
+	if baseInfo != nil {
+		videoInfo = baseInfo.Clone()
+	}
 
 	if videoInfo == nil {
 		videoInfo = &dtypes.VideoInfo{}
 	}
 
 	videoCodec, err := dtypes.ParseVideoCodec(stream.CodecName)
-	if err == nil {
+	if err != nil && videoInfo.Codec == dtypes.VideoCodecNone {
+		return nil, err
+	}
+
+	if videoCodec != dtypes.VideoCodecNone {
 		videoInfo.Codec = videoCodec
 	}
 
@@ -37,24 +43,23 @@ func (info *info) parseVideoFromFFprobe(stream ffprobeStream, srcVideoInfo *dtyp
 		videoInfo.Bitrate = int(bitrate / 1000)
 	}
 
-	// Discard video info if codec not set
-	if videoInfo.Codec == "" {
-		return nil
-	}
-
-	return videoInfo
+	return videoInfo, nil
 }
 
 // parseVideo parses an FFmpeg "Video:" line into VideoInfo.
-func (info *info) parseVideoFromFFmppeg(line string, srcVideoInfo *dtypes.VideoInfo) *dtypes.VideoInfo {
+func (info *info) parseVideoFromFFmppeg(line string, baseInfo *dtypes.VideoInfo) *dtypes.VideoInfo {
 	if line == "" {
 		return nil
 	}
 
 	var (
 		infoSetter videoInfoSetter
-		videoInfo  = srcVideoInfo.Clone()
+		videoInfo  *dtypes.VideoInfo
 	)
+
+	if baseInfo != nil {
+		videoInfo = baseInfo.Clone()
+	}
 
 	if videoInfo == nil {
 		videoInfo = &dtypes.VideoInfo{}

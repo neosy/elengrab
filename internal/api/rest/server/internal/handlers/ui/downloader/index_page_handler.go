@@ -2,7 +2,6 @@ package downloader
 
 import (
 	"fmt"
-	"mime"
 	"time"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
@@ -16,8 +15,7 @@ import (
 // IndexHandlers serves the main page (index.html)
 func (h *DownloaderHandlers) IndexPageHandler(ctx *fasthttp.RequestCtx) {
 	if ctx.IsHead() {
-		ctx.SetContentType(mime.TypeByExtension(".html"))
-		ctx.SetStatusCode(fasthttp.StatusOK)
+		fasthttpx.WriteHTMLHeadResponse(ctx)
 		return
 	}
 

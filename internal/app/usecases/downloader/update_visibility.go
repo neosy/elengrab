@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/app/usecases/types"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -15,9 +16,8 @@ func (uc *downloader) UpdateVisibility(
 	downloadID uuid.UUID,
 	visibility dtypes.MediaVisibility,
 ) error {
-	err := uc.validateWriteOperationAccess(authCtx)
+	err := uc.validateWriteAccess(authCtx, types.BroadcastNotificationModuleResultRow)
 	if err != nil {
-		uc.notifyWriteOperationAccessError(authCtx, err)
 		return err
 	}
 

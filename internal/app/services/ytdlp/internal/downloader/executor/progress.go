@@ -7,14 +7,14 @@ import (
 	"strconv"
 	"strings"
 
-	dservices "github.com/neosy/elengrab/internal/domain/services"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 func (e *Executor) watchProgress(
 	fileSize *int64,
 	std io.Reader,
 	outBuf *bytes.Buffer,
-	onProgressUpdate func(dservices.DownloaderProgress),
+	onProgressUpdate func(dtypes.DownloadProgress),
 ) {
 	var (
 		downloadedMap = make(map[int64]int64)
@@ -32,7 +32,7 @@ func (e *Executor) watchProgress(
 
 			// Call progress update callback
 			onProgressUpdate(
-				dservices.DownloaderProgress{
+				dtypes.DownloadProgress{
 					DownloadedBytes: downloaded,
 					TotalBytes:      downloaded,
 				})
@@ -73,7 +73,7 @@ func (e *Executor) watchProgress(
 
 		// Call progress update callback
 		onProgressUpdate(
-			dservices.DownloaderProgress{
+			dtypes.DownloadProgress{
 				DownloadedBytes:  downloaded,
 				TotalBytes:       total,
 				ETASeconds:       eta,

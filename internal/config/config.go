@@ -111,8 +111,13 @@ type ElengrabConfig struct {
 	// Directory containing cookies used by the downloader.
 	CookiesDir string `env:"COOKIES_DIR" envDefault:"cookies"`
 
+	// Configuration for uploading media files.
+	Upload ElengrabUploadConfig `env:"UPLOAD" envDefault:""`
+
 	// Maximum number of concurrent media downloads.
 	DownloadWorkers uint32 `env:"DOWNLOAD_WORKERS" envDefault:"3"`
+	// Maximum number of concurrent media processing tasks.
+	MediaProcessingWorkers uint32 `env:"MEDIA_PROCESSING_WORKERS" envDefault:"3"`
 	// Maximum number of concurrent background operations.
 	OperationWorkers uint32 `env:"OPERATION_WORKERS" envDefault:"5"`
 	// Scope used when checking media uniqueness before deleting duplicates.
@@ -137,6 +142,25 @@ type ElengrabBehaviorConfig struct {
 	// Supported values: private, authenticated, public.
 	// If not set, visibility is determined by the application mode.
 	NewMediaVisibility string `env:"NEW_MEDIA_VISIBILITY" envDefault:""`
+}
+
+// ElengrabUploadConfig holds the settings for uploading media files from the user's device.
+type ElengrabUploadConfig struct {
+	// How long a temporary uploaded file waits for the user's confirmation before it is removed.
+	TempTTLMinutes uint16 `env:"TEMP_TTL_MINUTES" envDefault:"120"`
+
+	// Maximum size of an uploaded file, in MiB.
+	MaxFileSizeMiB uint32 `env:"MAX_FILE_SIZE_MIB" envDefault:"10240"`
+}
+
+// TTL returns the lifetime of an uploaded file waiting for confirmation.
+func (c ElengrabUploadConfig) TempTTL() time.Duration {
+	return time.Duration(c.TempTTLMinutes) * time.Minute
+}
+
+// MaxFileSize returns the maximum size of an uploaded file, in bytes.
+func (c ElengrabUploadConfig) MaxFileSize() int64 {
+	return int64(c.MaxFileSizeMiB) << 20 // * 1024 * 1024
 }
 
 // ElengrabMaintenanceConfig contains configuration for periodic maintenance tasks.

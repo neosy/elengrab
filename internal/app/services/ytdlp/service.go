@@ -4,11 +4,11 @@ import (
 	"log/slog"
 	"path/filepath"
 
-	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
 	"github.com/neosy/elengrab/internal/app/services/internal/utils"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader"
-	nfile "github.com/neosy/elengrab/internal/pkg/filex"
+	"github.com/neosy/elengrab/internal/pkg/filex"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
@@ -28,7 +28,7 @@ func NewYtDlpService(
 	logger *slog.Logger,
 	binDir string,
 	storage pstorage.DownloadsStorage,
-	ffmpeg *ffmpegsrv.FFmpegService,
+	ffmpeg pservices.FFMpeg,
 	opts ...ServiceOption,
 ) (*YtDlpService, error) {
 	cmdPath, err := utils.ResolveCmdPath(consts.YtDlpName, binDir)
@@ -72,7 +72,7 @@ func NewYtDlpService(
 	}
 
 	if options.AllowCookies {
-		exists, err := nfile.DirExists(options.CookiesDir)
+		exists, err := filex.DirExists(options.CookiesDir)
 		if err != nil {
 			options.AllowCookies = false
 			logger.Warn("Error checking if directory exists", "dir", options.CookiesDir, "error", err)

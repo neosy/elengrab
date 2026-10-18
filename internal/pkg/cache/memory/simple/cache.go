@@ -230,6 +230,13 @@ func (c *Cache[K, T]) CleanExpired() {
 	c.CleanExpiredWithNow(time.Now().UTC())
 }
 
+// CleanExpiredWithDeleteHook removes expired entries and calls beforeDelete
+// for each of them right before it is removed from the cache.
+// beforeDelete may be nil.
+func (c *Cache[K, T]) CleanExpiredWithDeleteHook(beforeDelete func(key K, value *T)) {
+	c.CleanExpiredWithNowDeleteHook(time.Now().UTC(), beforeDelete)
+}
+
 // CleanExpiredWithNow is the high-performance version of CleanExpired.
 // The caller provides the current time to eliminate the cost of time.Now().UTC()
 // in the hot path. Use this when doing batch cleanups or under high load.
@@ -241,7 +248,37 @@ func (c *Cache[K, T]) CleanExpiredWithNow(now time.Time) {
 	}
 }
 
+// CleanExpiredWithNowDeleteHook works like CleanExpiredWithNow, but calls beforeDelete
+// for every expired entry right before it is removed from the cache.
+// beforeDelete may be nil.
+func (c *Cache[K, T]) CleanExpiredWithNowDeleteHook(now time.Time, beforeDelete func(key K, value *T)) {
+	for key, cacheValue := range c.cache {
+		if !cacheValue.ExpiredAt(now) {
+			continue
+		}
+
+		if beforeDelete != nil {
+			beforeDelete(key, cacheValue.value)
+		}
+
+		delete(c.cache, key)
+	}
+}
+
 // Clear removes all entries from the cache.
 func (c *Cache[K, T]) Clear() {
+	clear(c.cache)
+}
+
+// ClearWithDeleteHook works like Clear, but calls beforeDelete
+// for every entry right before it is removed from the cache.
+// beforeDelete may be nil.
+func (c *Cache[K, T]) ClearWithDeleteHook(beforeDelete func(key K, value *T)) {
+	if beforeDelete != nil {
+		for key, cacheValue := range c.cache {
+			beforeDelete(key, cacheValue.value)
+		}
+	}
+
 	clear(c.cache)
 }

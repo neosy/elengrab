@@ -7,7 +7,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-func (uc *MediaDownload) CreateTask(
+func (uc *MediaDownload) CreateDownloadTask(
 	ctx context.Context,
 	download *ddownload.MediaDownload,
 	dlOptions *ddownload.DownloadOptions,
@@ -23,4 +23,17 @@ func (uc *MediaDownload) CreateTask(
 	}
 
 	return uc.dlTask.Create(ctx, task)
+}
+
+func (uc *MediaDownload) CreateUploadTask(
+	ctx context.Context,
+	download *ddownload.MediaDownload,
+	sourcePath string,
+) error {
+	task := &ddownload.MediaProcessingTask{
+		DownloadID: download.DownloadID,
+		SourcePath: sourcePath,
+	}
+
+	return uc.processingTask.Create(ctx, task)
 }

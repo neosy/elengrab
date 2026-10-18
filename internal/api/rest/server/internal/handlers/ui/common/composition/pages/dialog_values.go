@@ -21,6 +21,6 @@ type AboutDialogValues struct {
 type UploadFileDialogValues struct {
 	LogoIcon template.HTML
 
-	Visibility     string
 	VisibilityList []VisibilityOption
+	Visibility     string
 }

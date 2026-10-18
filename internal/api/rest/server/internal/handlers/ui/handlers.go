@@ -10,6 +10,7 @@ import (
 	dlhandlers "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
@@ -24,6 +25,9 @@ func NewHandlers(
 	// Storages
 	downloadsStorage pstorage.DownloadsStorage,
 
+	// Caches
+	uploadedFileCacheRepo persistence.UploadedFileCacheRepository,
+
 	assets *assets.Assets,
 
 	usecases *usecases.Usecases,
@@ -33,6 +37,7 @@ func NewHandlers(
 	appMode dtypes.AppMode,
 	baseURL string,
 	shortLinkPrefix string,
+	maxUploadSize int64,
 ) *Handlers {
 	icons.InitDir(assets.FolderPaths().Icons())
 	assetPaths := paths.NewAssetPaths(assets)
@@ -62,6 +67,9 @@ func NewHandlers(
 			// Storages
 			downloadsStorage,
 
+			// Caches
+			uploadedFileCacheRepo,
+
 			// Usecases
 			usecases,
 
@@ -69,6 +77,7 @@ func NewHandlers(
 			appMode,
 			baseURL,
 			shortLinkPrefix,
+			maxUploadSize,
 		),
 	}
 }

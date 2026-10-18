@@ -1,29 +1,31 @@
 :root {
-    --page-text-primary: #333;
-    --page-text-secondary: #555;
-    --page-text-title-secondary: #aaaaaa;
+    --dialog-text-primary: #333;
+    --dialog-text-secondary: #555;
+    --dialog-text-title-secondary: #aaaaaa;
 
-    --page-control-border: #aaaaaa;
-    --page-control-border-hover: #7eb980;
-    --page-control-border-focus: #4caf50;
-    --page-field-error: #ff8983;
+    --dialog-control-border: #aaaaaa;
+    --dialog-control-border-hover: #7eb980;
+    --dialog-control-border-focus: #4caf50;
+    --dialog-field-error: #ff8983;
 
-    --page-option-border: #EBEBEB;
-    --page-option-label-bg: #EBEBEB;
-    --page-option-select-bg: #fff;
+    --dialog-option-border: #EBEBEB;
+    --dialog-option-label-bg: #EBEBEB;
+    --dialog-option-select-bg: #fff;
+
+    --dialog-muted-color: var(--dialog-text-secondary);
 }
 
 .dark {
-    --page-text-primary: #fff;
-    --page-text-secondary: #cfd8e3;
+    --dialog-text-primary: #fff;
+    --dialog-text-secondary: #cfd8e3;
 
-    --page-option-border: #3e3e3e;
-    --page-option-label-bg: #1f1f1f;
-    --page-option-select-bg: #3e3e3e;
+    --dialog-option-border: #3e3e3e;
+    --dialog-option-label-bg: #1f1f1f;
+    --dialog-option-select-bg: #3e3e3e;
 
-    --page-scrollbar-track-bg: #3e3e3e;
-    --page-scrollbar-thumb-bg: #606060;
-    --page-scrollbar-thumb-hover-bg: #707070;
+    --dialog-scrollbar-track-bg: #3e3e3e;
+    --dialog-scrollbar-thumb-bg: #606060;
+    --dialog-scrollbar-thumb-hover-bg: #707070;
 }
 
 .upload-file-dialog .modal-dialog__logo {
@@ -230,17 +232,17 @@
 }
 
 .upload-file-dialog__field--error {
-    --editor-field-error-color: var(--page-field-error);
+    --editor-field-error-color: var(--dialog-field-error);
     --char-counter-opacity: 1;
 }
 
 .upload-file-dialog__field--input:hover {
-    --input-border-color: var(--editor-field-error-color, var(--page-control-border-hover));
+    --input-border-color: var(--editor-field-error-color, var(--dialog-control-border-hover));
 }
 
 .upload-file-dialog__field--input:focus-within {
     --input-border-width: 2px;
-    --input-border-color: var(--editor-field-error-color, var(--page-control-border-focus));
+    --input-border-color: var(--editor-field-error-color, var(--dialog-control-border-focus));
     --char-counter-opacity: 1;
 }
 
@@ -251,7 +253,7 @@
     background-color: transparent;
     border-radius: 8px;
     border: 0;
-    box-shadow: 0 0 0 var(--input-border-width, 1px) inset var(--input-border-color, var(--editor-field-error-color, var(--page-control-border)));
+    box-shadow: 0 0 0 var(--input-border-width, 1px) inset var(--input-border-color, var(--editor-field-error-color, var(--dialog-control-border)));
     box-sizing: border-box;
     transition: box-shadow 0.5s ease;
 }
@@ -259,7 +261,7 @@
 .upload-file-dialog__label {
     display: block;
     margin-bottom: 8px;
-    color: var(--editor-field-error-color, var(--page-text-title-secondary));
+    color: var(--editor-field-error-color, var(--dialog-text-title-secondary));
     font-size: 13px;
     font-weight: 400;
     user-select: none;
@@ -275,7 +277,7 @@
     padding: 0;
 
     background: transparent;
-    color: var(--page-text-primary);
+    color: var(--dialog-text-primary);
 
     border: none;
 
@@ -288,7 +290,7 @@
     overflow-y: auto;
 
     scrollbar-width: thin;
-    scrollbar-color: var(--page-scrollbar-thumb-bg, initial) var(--page-scrollbar-track-bg, initial);
+    scrollbar-color: var(--dialog-scrollbar-thumb-bg, initial) var(--dialog-scrollbar-track-bg, initial);
 
     resize: none;
 }
@@ -298,16 +300,16 @@
 }
 
 .upload-file-dialog__textarea::-webkit-scrollbar-thumb {
-    background-color: var(--page-scrollbar-thumb-bg, initial);
+    background-color: var(--dialog-scrollbar-thumb-bg, initial);
     border-radius: 4px;
 }
 
 .upload-file-dialog__textarea::-webkit-scrollbar-thumb:hover {
-    background-color: var(--page-scrollbar-thumb-hover-bg, initial);
+    background-color: var(--dialog-scrollbar-thumb-hover-bg, initial);
 }
 
 .upload-file-dialog__textarea::-webkit-scrollbar-track {
-    background-color: var(--page-scrollbar-track-bg, initial);
+    background-color: var(--dialog-scrollbar-track-bg, initial);
 }
 
 .upload-file-dialog__textarea::placeholder {
@@ -318,7 +320,7 @@
     position: absolute;
     right: var(--input-horizontal-padding-x, 10px);
     bottom: 12px;
-    color: var(--editor-field-error-color, var(--page-text-title-secondary));
+    color: var(--editor-field-error-color, var(--dialog-text-title-secondary));
     font-size: 13px;
     pointer-events: none;
     opacity: var(--char-counter-opacity, 0);
@@ -350,26 +352,26 @@
     min-width: 0;
     padding: 0;
     align-items: center;
-    background: var(--page-option-label-bg);
-    border: 1px solid var(--page-option-border);
+    background: var(--dialog-option-label-bg);
+    border: 1px solid var(--dialog-option-border);
     border-radius: 8px;
 }
 
 .upload-file-dialog__option-label {
     padding: 0 20px;
-    color: var(--page-text-secondary);
+    color: var(--dialog-text-secondary);
 }
 
 .upload-file-dialog__select {
     flex: 0 1 auto;
-    width: 160px;
+    width: 170px;
     padding: 5px 40px 5px 16px;
     font-size: 16px;
     font-family: inherit;
     outline: none;
     cursor: pointer;
-    background-color: var(--page-option-select-bg);
-    color: var(--page-text-primary);
+    background-color: var(--dialog-option-select-bg);
+    color: var(--dialog-text-primary);
     border: 1px solid transparent;
     border-radius: 0 8px 8px 0;
     appearance: none;
@@ -390,9 +392,9 @@
 }
 
 .upload-file-dialog__select:hover:not(:focus):not(:disabled) {
-    border-color: var(--page-control-border-hover);
+    border-color: var(--dialog-control-border-hover);
 }
 
 .upload-file-dialog__select:focus {
-    border-color: var(--page-control-border-focus);
+    border-color: var(--dialog-control-border-focus);
 }

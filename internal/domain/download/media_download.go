@@ -9,17 +9,14 @@ import (
 	"unicode/utf8"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/app/utils/filename"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
+	dconsts "github.com/neosy/elengrab/internal/domain/consts"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/stringx"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
-)
-
-const (
-	MediaTitleMaxLength       = 100
-	MediaDescriptionMaxLength = 5000
 )
 
 type MediaDownload struct {
@@ -96,15 +93,30 @@ type MediaDownload struct {
 	DeletedAt *time.Time
 
 	// Related task
-	DownloadTask *DownloadTask
+	DownloadTask   *DownloadTask
+	ProcessingTask *MediaProcessingTask
 }
 
-func (f *MediaDownload) IsYouTube() bool {
-	if f.MediaURL == nil {
+func (m *MediaDownload) IsYouTube() bool {
+	if m == nil {
 		return false
 	}
 
-	return hostdetect.YouTube(*f.MediaURL)
+	url := m.SourceURL()
+
+	if url == "" {
+		return false
+	}
+
+	return hostdetect.YouTube(url)
+}
+
+func (m *MediaDownload) IsVideo() bool {
+	if m == nil || m.MediaInfo == nil {
+		return false
+	}
+
+	return m.MediaInfo.IsVideo()
 }
 
 func (src *MediaDownload) Clone() *MediaDownload {
@@ -127,6 +139,15 @@ func (src *MediaDownload) Clone() *MediaDownload {
 	copy.DownloadTask = src.DownloadTask.Clone()
 
 	return &copy
+}
+
+// FileExt returns the extension with a leading dot (e.g. ".mp4").
+func (d *MediaDownload) FileExt() string {
+	if d.Ext == "" {
+		return ""
+	}
+
+	return "." + d.Ext
 }
 
 // SourceURL returns the media source URL, or an empty string for entries without one (e.g. uploads).
@@ -163,22 +184,22 @@ func (d *MediaDownload) Normalize() {
 func (d *MediaDownload) NormalizeFileFullName() string {
 	name := strings.TrimSpace(d.MediaTitle)
 	name = fasthttpx.SanitizeFileName(name)
-	name = stringx.TruncateBytesWords(name, MediaTitleMaxLength)
+	name = stringx.TruncateBytesWords(name, filename.MaxTitleLength)
 	return name + "." + d.Ext
 }
 
 func (d *MediaDownload) NormalizeForSave() {
 	d.Normalize()
 
-	d.MediaTitle = stringx.TruncateWords(d.MediaTitle, MediaTitleMaxLength)
-	d.MediaTitleOriginal = stringx.TruncateWords(d.MediaTitleOriginal, MediaTitleMaxLength)
+	d.MediaTitle = stringx.TruncateWords(d.MediaTitle, dconsts.MediaTitleMaxLength)
+	d.MediaTitleOriginal = stringx.TruncateWords(d.MediaTitleOriginal, dconsts.MediaTitleMaxLength)
 
 	if d.MediaDescription != nil {
-		*d.MediaDescription = stringx.Truncate(*d.MediaDescription, MediaDescriptionMaxLength)
+		*d.MediaDescription = stringx.Truncate(*d.MediaDescription, dconsts.MediaDescriptionMaxLength)
 	}
 
 	if d.MediaDescriptionOriginal != nil {
-		*d.MediaDescriptionOriginal = stringx.Truncate(*d.MediaDescriptionOriginal, MediaDescriptionMaxLength)
+		*d.MediaDescriptionOriginal = stringx.Truncate(*d.MediaDescriptionOriginal, dconsts.MediaDescriptionMaxLength)
 	}
 
 	if (d.UserID == nil || *d.UserID == uuid.Nil) && d.Visibility == dtypes.MediaVisibilityPrivate {
@@ -195,13 +216,21 @@ func (d *MediaDownload) Validate() error {
 		return err
 	}
 
-	if d.SourceType == dtypes.MediaDownloadSourceTypeURL && (d.MediaURL == nil || *d.MediaURL == "") {
-		return errors.New("media url is required for url source type")
+	if d.SourceType == dtypes.MediaDownloadSourceTypeURL {
+		if d.SourceURL() == "" {
+			return errors.New("media url is required for url source type")
+		}
 	}
 
-	if utf8.RuneCountInString(d.MediaTitle) > MediaTitleMaxLength {
+	if d.SourceType == dtypes.MediaDownloadSourceTypeUpload {
+		if d.MediaInfo == nil {
+			return errors.New("media info is required for upload source type")
+		}
+	}
+
+	if utf8.RuneCountInString(d.MediaTitle) > dconsts.MediaTitleMaxLength {
 		return errorx.NewHTTPMessage(
-			fmt.Sprintf("Title must not exceed %d characters", MediaTitleMaxLength),
+			fmt.Sprintf("Title must not exceed %d characters", dconsts.MediaTitleMaxLength),
 			http.StatusBadRequest,
 		)
 	}
@@ -213,9 +242,9 @@ func (d *MediaDownload) Validate() error {
 	// }
 
 	if d.MediaDescription != nil {
-		if utf8.RuneCountInString(*d.MediaDescription) > MediaDescriptionMaxLength {
+		if utf8.RuneCountInString(*d.MediaDescription) > dconsts.MediaDescriptionMaxLength {
 			return errorx.NewHTTPMessage(
-				fmt.Sprintf("Description must not exceed %d characters", MediaDescriptionMaxLength),
+				fmt.Sprintf("Description must not exceed %d characters", dconsts.MediaDescriptionMaxLength),
 				http.StatusBadRequest,
 			)
 		}
