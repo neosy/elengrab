@@ -23,7 +23,7 @@ type DBSchema interface {
 
 // Repositories is an interface that defines methods for interacting with databases.
 type Repositories interface {
-	Backup(dbName string, path string) error
+	Backup(dbName string, filePath string) error
 	FlushWAL() error
 	Schemas() []DBSchema
 	StartupMaintenance(ctx context.Context) error

@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func (r *Repositories) Backup(dbName string, path string) error {
+func (r *Repositories) Backup(dbName string, filePath string) error {
 	backup := func(db *sql.DB, path string) error {
 		_, err := db.Exec(`
         VACUUM INTO ?
@@ -18,5 +18,5 @@ func (r *Repositories) Backup(dbName string, path string) error {
 		return fmt.Errorf("unknown db: %s", dbName)
 	}
 
-	return backup(db, path)
+	return backup(db, filePath)
 }

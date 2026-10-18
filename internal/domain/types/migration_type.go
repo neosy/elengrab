@@ -11,21 +11,21 @@ type MigrationType uint8
 
 const (
 	MigrationTypeNone MigrationType = iota
-	MigrationTypeNoneRequired
-	MigrationTypeNoneDeferred
+	MigrationTypeRequired
+	MigrationTypeDeferred
 )
 
 var (
 	migrationTypes = map[MigrationType]string{
-		MigrationTypeNone:         "",
-		MigrationTypeNoneRequired: "required",
-		MigrationTypeNoneDeferred: "deferred",
+		MigrationTypeNone:     "",
+		MigrationTypeRequired: "required",
+		MigrationTypeDeferred: "deferred",
 	}
 
 	migrationTypesByStringValue = map[string]MigrationType{
 		"":         MigrationTypeNone,
-		"required": MigrationTypeNoneRequired,
-		"deferred": MigrationTypeNoneDeferred,
+		"required": MigrationTypeRequired,
+		"deferred": MigrationTypeDeferred,
 	}
 )
 

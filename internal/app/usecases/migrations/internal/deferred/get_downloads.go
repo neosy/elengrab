@@ -23,10 +23,6 @@ func (m *migrations) getAllDownloads(
 				return nil
 			}
 
-			if download.MediaURL == "" {
-				return nil
-			}
-
 			if !match(download) {
 				return nil
 			}

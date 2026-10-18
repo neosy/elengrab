@@ -5,7 +5,8 @@
             <div class="menu-action__divider"></div>
           {{- else if eq .RenderType "link" }}
             <a class="menu-action menu-action--link menu-action--{{ .Action }}" id="menu-action-{{ .Action }}"
-                href="{{ .Link.URL }}"
+                {{- if .Link.URL }}href="{{ .Link.URL }}"{{ end }}
+                {{- range .Link.DataAttributes }} {{ .Attribute }}{{ end }}
                 {{- if .Link.NewTab }} target="_blank" rel="noopener noreferrer" {{- end }}>
                 <div class="menu-action__content">
                     {{- if .IconSvg }}

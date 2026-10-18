@@ -3,6 +3,7 @@
     --header-bg-light-transparent: rgba(250, 250, 250, 0.92);
 
     --body-bg: #fff;
+    --body-hover-bg: #f5f5f5;
     --main-bg: inherit;
     --footer-bg: rgba(240, 240, 240, 0.5);
 
@@ -116,6 +117,7 @@
     --header-bg-light-transparent: rgba(31, 31, 31, 0.9);
 
     --body-bg: #1f1f1f;
+    --body-hover-bg: #292929;
     --main-bg: inherit;
     --footer-bg: rgba(23, 23, 23, 0.5);
 
@@ -228,82 +230,3 @@
     --section-tab-active-color: #0f0f0f;
 }
 /* ==================== components ==================== */
-
-/* ------------------ dialogs ------------------ */
-:root {
-    --dialog-title: var(--text-primary);
-    --dialog-bg: var(--body-bg);
-    --dialog-border: #dedfe3;
-    --dialog-text: #686a73;
-    --dialog-muted: #4250af;
-    --dialog-link: #686a73;
-    --dialog-hover: var(--bg-button-hover);
-    --dialog-logo-start: #8b5cf6;
-    --dialog-logo-end: #10b981;
-}
-
-.dark {
-    --dialog-border: #30323b;
-    --dialog-text: #9a9fa6;
-    --dialog-muted: #8fc5f5;
-    --dialog-link: #9a9fa6;
-}
-/* ==================== dialogs ==================== */
-
-/* ------------------ auth ------------------ */
-:root {
-    --auth-body-bg: #f3f5f6;
-    --auth-main-bg: inherit;
-
-    --auth-main-block-bg: #fff;
-}
-
-.dark {
-    --auth-body-bg: #171717;
-    --auth-main-bg: inherit;
-
-    --auth-main-block-bg: #1f1f1f;
-}
-/* ==================== auth ==================== */
-
-/* ------------------ admin ------------------ */
-:root {
-    --admin-body-bg: #f3f5f6;
-    --admin-header-bg: #fff;
-    --admin-sidebar-bg: #2b3642;
-    --admin-sidebar-item-hover: #334155;
-    --admin-sidebar-item-active: #1f2a37;
-
-    --admin-panel-bg: #fff;
-    --admin-panel-border: #eee;
-
-    --admin-table-th-bg: #f8f9fa;
-    --admin-info-block-bg: #f8f9fa;
-    --admin-info-block-select-bg: #e8f5e9;
-    --admin-info-block-hover-bg: #ebf3fd;
-
-    --admin-btn-primary-bg: #3498db;
-    --admin-btn-secondary-bg: #95a5a6;
-    --admin-btn-success-bg: #2ecc71;
-}
-
-.dark {
-    --admin-body-bg: #1E1F20;
-    --admin-header-bg: #37393b;
-    --admin-sidebar-bg: #37393b;
-    --admin-sidebar-item-hover: #414345;
-    --admin-sidebar-item-active: #313335;
-
-    --admin-panel-bg: #37393b;
-    --admin-panel-border: rgba(255, 255, 255, 0.12);
-
-    --admin-table-th-bg: #313335;
-    --admin-info-block-bg: #313335;
-    --admin-info-block-select-bg: #324c33;
-    --admin-info-block-hover-bg: #47494b;
-
-    --admin-btn-primary-bg: #1478bb;
-    --admin-btn-secondary-bg: #758586;
-    --admin-btn-success-bg: #208148;
-}
-/* ==================== admin ==================== */

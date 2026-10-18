@@ -23,6 +23,7 @@ type Repositories struct {
 	DownloadDataMigration persistence.DownloadDataMigrationRepositoryFactory
 	MediaDownload         persistence.MediaDownloadRepositoryFactory
 	DownloadTask          persistence.DownloadTaskRepositoryFactory
+	MediaProcessingTask   persistence.MediaProcessingTaskRepositoryFactory
 
 	MediaSourceIndex persistence.MediaSourceIndexRepositoryFactory
 
@@ -89,6 +90,7 @@ func New(dbEntries []persistence.DBEntry) *Repositories {
 		DownloadDataMigration: download.NewDataMigrationRepository(mainEntry),
 		MediaDownload:         download.NewMediaDownloadRepository(mainEntry),
 		DownloadTask:          download.NewDownloadTaskRepository(mainEntry),
+		MediaProcessingTask:   download.NewProcessingTaskRepository(mainEntry),
 
 		MediaWatchEvent:        watchevent.NewMediaWatchEventRepository(watchEventEntry),
 		MediaUserWatchChunk:    watchevent.NewMediaUserWatchChunkRepository(watchEventEntry),

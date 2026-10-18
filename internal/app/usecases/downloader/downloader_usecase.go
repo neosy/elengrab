@@ -15,6 +15,8 @@ import (
 	mediadownload "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download"
 	downloadstatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download_status"
 	mediawatch "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch"
+	processingtask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/processing_task"
+	proctaskstatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/processing_task_status"
 	searchindex "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/search_index"
 	siteicon "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/site_icon"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
@@ -43,16 +45,18 @@ type downloader struct {
 	operationDispatcher workerpool.JobDispatcher
 
 	// internal
-	download       *mediadownload.MediaDownload
-	dlTask         *dltask.DownloadTask
-	downloadStatus *downloadstatus.MediaDownloadStatus
-	dlTaskStatus   *dltasktatus.DownloadTaskStatus
-	channel        *uchannel.Channel
-	siteIcon       *siteicon.SiteIcon
-	authz          *authz.Authorization
-	mediaWatch     *mediawatch.MediaWatch
-	searchIndex    *searchindex.SearchIndex
-	dlExecutor     *dlexecutor.Executor
+	download             *mediadownload.MediaDownload
+	dlTask               *dltask.DownloadTask
+	processingTask       *processingtask.ProcessingTask
+	downloadStatus       *downloadstatus.MediaDownloadStatus
+	dlTaskStatus         *dltasktatus.DownloadTaskStatus
+	processingTaskStatus *proctaskstatus.ProcessingTaskStatus
+	channel              *uchannel.Channel
+	siteIcon             *siteicon.SiteIcon
+	authz                *authz.Authorization
+	mediaWatch           *mediawatch.MediaWatch
+	searchIndex          *searchindex.SearchIndex
+	dlExecutor           *dlexecutor.Executor
 
 	// broadcasters
 	broadcaster *broadcaster.Broadcaster
@@ -78,6 +82,7 @@ func NewDownloader(
 	// repositories
 	downloadRepo persistence.MediaDownloadRepositoryFactory,
 	dlTaskRepo persistence.DownloadTaskRepositoryFactory,
+	processingTaskRepo persistence.MediaProcessingTaskRepositoryFactory,
 	watchEventRepo persistence.MediaWatchEventRepositoryFactory,
 	userWatchChunkRepo persistence.MediaUserWatchChunkRepositoryFactory,
 	userWatchStatRepo persistence.MediaUserWatchStatRepositoryFactory,
@@ -120,7 +125,9 @@ func NewDownloader(
 ) *downloader {
 	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRep)
 	dlTask := dltask.NewDownloadTask(logger, dlTaskRepo, dlStateCache)
+	processingTask := processingtask.NewProcessingTask(logger, processingTaskRepo)
 	dlTaskStatus := dltasktatus.NewDownloadTaskStatus(logger, dlTask)
+	processingTaskStatus := proctaskstatus.NewProcessingTaskStatus(logger, processingTask)
 
 	authz := authz.NewAuthorization(logger, appMode)
 
@@ -148,11 +155,13 @@ func NewDownloader(
 		operationDispatcher: operationDispatcher,
 
 		// Internal
-		dlTask:       dlTask,
-		dlTaskStatus: dlTaskStatus,
-		channel:      channel,
-		siteIcon:     siteIcon,
-		authz:        authz,
+		dlTask:               dlTask,
+		processingTask:       processingTask,
+		dlTaskStatus:         dlTaskStatus,
+		processingTaskStatus: processingTaskStatus,
+		channel:              channel,
+		siteIcon:             siteIcon,
+		authz:                authz,
 
 		// broadcasters
 		broadcaster: broadcaster.NewBroadcaster(authz),

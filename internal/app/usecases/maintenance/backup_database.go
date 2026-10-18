@@ -2,13 +2,12 @@ package maintenance
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
 
+	backupname "github.com/neosy/elengrab/internal/infrastructure/sqlite/backup_name"
 	nfile "github.com/neosy/elengrab/internal/pkg/filex"
 )
 
@@ -50,34 +49,25 @@ func (m *maintenance) BackupDatabase(ctx context.Context) error {
 	return nil
 }
 
-func (m *maintenance) backupDB(dbName string, backupDir string) error {
-	filename := fmt.Sprintf(
-		"%s_%s.%s",
-		m.prefixBackup(dbName),
-		time.Now().Format(backupDateFormat),
-		backupFileExt,
-	)
+func (m *maintenance) backupDB(dbName string, backupsDir string) error {
+	filePath := backupname.Path(dbName, backupsDir)
 
-	path := filepath.Join(backupDir, filename)
-
-	if err := m.repositories.Backup(dbName, path); err != nil {
+	if err := m.repositories.Backup(dbName, filePath); err != nil {
 		m.logger.Error("Failed backup database", "error", err)
 		return err
 	}
 
-	m.logger.Info("Database backup completed", "path", path)
+	m.logger.Info(
+		"Database backup completed",
+		"dbName", dbName,
+		"path", filePath,
+	)
 
 	return nil
 }
 
-func (m *maintenance) prefixBackup(dbName string) string {
-	prefix := nfile.SanitizeFileName(dbName)
-	prefix = strings.ToLower(prefix)
-	return prefix
-}
-
-func (m *maintenance) cleanupOldBackups(dbName string, backupDir string) error {
-	entries, err := os.ReadDir(backupDir)
+func (m *maintenance) cleanupOldBackups(dbName string, backupsDir string) error {
+	entries, err := os.ReadDir(backupsDir)
 	if err != nil {
 		return err
 	}
@@ -90,7 +80,7 @@ func (m *maintenance) cleanupOldBackups(dbName string, backupDir string) error {
 		name := entry.Name()
 
 		// Filter by prefix and extension
-		if strings.HasPrefix(name, m.prefixBackup(dbName)) && strings.HasSuffix(name, backupFileExt) {
+		if strings.HasPrefix(name, backupname.Prefix(dbName)) && strings.HasSuffix(name, backupname.FileExt) {
 			files = append(files, name)
 		}
 	}

@@ -6,11 +6,6 @@ import (
 	"github.com/neosy/elengrab/internal/ports/persistence"
 )
 
-const (
-	backupFileExt    = "sqlite"
-	backupDateFormat = "2006-01-02_15-04-05"
-)
-
 type maintenance struct {
 	logger *slog.Logger
 

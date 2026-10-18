@@ -26,7 +26,8 @@ type PagesListValues struct {
 
 	VideoPreview VideoPreview
 
-	AboutDialog AboutDialogValues
+	AboutDialog      AboutDialogValues
+	UploadFileDialog UploadFileDialogValues
 }
 
 type UserAvatar struct {

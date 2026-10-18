@@ -7,7 +7,7 @@ import (
 )
 
 // SetStatus checks if the status transition is valid and setting the status.
-func (u *DownloadTaskStatusSetter) SetStatus(task *ddownload.DownloadTask, toStatus dtypes.DownloadTaskStatus) error {
+func (u *StatusSetter) SetStatus(task *ddownload.DownloadTask, toStatus dtypes.MediaTaskStatus) error {
 	if task == nil {
 		return apperrors.ErrFuncParamNullPointer
 	}
@@ -19,7 +19,7 @@ func (u *DownloadTaskStatusSetter) SetStatus(task *ddownload.DownloadTask, toSta
 
 	// Update fields depending on the status being set
 	switch toStatus {
-	case dtypes.DownloadTaskStatusWorking:
+	case dtypes.MediaTaskStatusWorking:
 	}
 
 	task.Status = toStatus

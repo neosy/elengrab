@@ -17,7 +17,7 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 ) *dto.MediaDownloadInfo {
 	var mediaTitle = download.MediaTitle
 	if download.MediaTitle == "" {
-		mediaTitle = download.MediaURL
+		mediaTitle = download.SourceURL()
 	}
 
 	workingStatus := dto.WorkingStatusNone
@@ -43,7 +43,7 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 		Channel:      mappingData.Channel,
 		ChannelTitle: mappingData.ChannelTitle,
 
-		MediaURL: download.MediaURL,
+		MediaURL: download.SourceURL(),
 
 		MediaTitle:       mediaTitle,
 		MediaDescription: uptr.Deref(download.MediaDescription),

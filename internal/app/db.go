@@ -35,14 +35,22 @@ func applyMigrations(
 	searchIndexEntry persistence.DBEntry,
 ) error {
 	sqliteDir := absPath(cfg.Elengrab.RootDir, cfg.SQLite.DataDir)
+	backupsDir := absPath(cfg.Elengrab.RootDir, cfg.SQLite.BackupsDir)
 
-	migration := database.NewMigrations(logger, authEntry, nil)
+	defaultConfig := &database.MigrationConfig{
+		SQLiteDir:       sqliteDir,
+		BackupsDir:      backupsDir,
+		NoTxWrap:        false,
+		ResolveSourceDB: false,
+	}
+
+	migration := database.NewMigrations(logger, authEntry, defaultConfig)
 	if err := migration.ApplyMigrations(); err != nil {
 		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", authEntry.DBName()), "error", err)
 		return err
 	}
 
-	migration = database.NewMigrations(logger, mainEntry, nil)
+	migration = database.NewMigrations(logger, mainEntry, defaultConfig)
 	if err := migration.ApplyMigrations(); err != nil {
 		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", mainEntry.DBName()), "error", err)
 		return err
@@ -53,6 +61,7 @@ func applyMigrations(
 		mediaEntry,
 		&database.MigrationConfig{
 			SQLiteDir:       sqliteDir,
+			BackupsDir:      backupsDir,
 			NoTxWrap:        true,
 			ResolveSourceDB: true,
 		},
@@ -62,19 +71,19 @@ func applyMigrations(
 		return err
 	}
 
-	migration = database.NewMigrations(logger, linkEntry, nil)
+	migration = database.NewMigrations(logger, linkEntry, defaultConfig)
 	if err := migration.ApplyMigrations(); err != nil {
 		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", linkEntry.DBName()), "error", err)
 		return err
 	}
 
-	migration = database.NewMigrations(logger, watchEventEntry, nil)
+	migration = database.NewMigrations(logger, watchEventEntry, defaultConfig)
 	if err := migration.ApplyMigrations(); err != nil {
 		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", watchEventEntry.DBName()), "error", err)
 		return err
 	}
 
-	migration = database.NewMigrations(logger, searchIndexEntry, nil)
+	migration = database.NewMigrations(logger, searchIndexEntry, defaultConfig)
 	if err := migration.ApplyMigrations(); err != nil {
 		logger.Error(fmt.Sprintf("Failed to migration SQLite database: %v", searchIndexEntry.DBName()), "error", err)
 		return err

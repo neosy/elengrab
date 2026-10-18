@@ -31,5 +31,5 @@ func NewMigrations(
 }
 
 func (m *migrations) Add(id string, run registry.MigrationRunner) {
-	m.Migrations.Add(id, dtypes.MigrationTypeNoneRequired, run)
+	m.Migrations.Add(id, dtypes.MigrationTypeRequired, run)
 }
