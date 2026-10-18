@@ -6,7 +6,7 @@ import (
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
-	"github.com/neosy/elengrab/internal/app/utils/siteimage/thumbnails"
+	"github.com/neosy/elengrab/internal/app/utils/site_image/thumbnails"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )

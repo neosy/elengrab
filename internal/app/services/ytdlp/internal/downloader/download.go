@@ -7,23 +7,23 @@ import (
 	"sync"
 	"time"
 
-	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
+	"github.com/neosy/elengrab/internal/app/services/ffmpeg/ffframe"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	"github.com/neosy/elengrab/internal/app/utils/hash"
-	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/syncx"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
 func (d *Downloader) Download(
 	ctx context.Context,
 	url string,
-	options *dservices.DownloadOptions,
-	downloadResultCh chan<- *dservices.DownloaderResult,
+	options *pservices.DownloadOptions,
+	downloadResultCh chan<- *pservices.DownloadResult,
 ) {
 	var wg sync.WaitGroup
 	done := syncx.NewDoneSignal()
@@ -33,8 +33,8 @@ func (d *Downloader) Download(
 	}()
 
 	var (
-		sendError = func(data *dservices.DownloaderResult, err error) {
-			var result = &dservices.DownloaderResult{}
+		sendError = func(data *pservices.DownloadResult, err error) {
+			var result = &pservices.DownloadResult{}
 			if data != nil {
 				*result = *data
 			}
@@ -47,7 +47,7 @@ func (d *Downloader) Download(
 			}
 		}
 
-		sendData = func(data *dservices.DownloaderResult) {
+		sendData = func(data *pservices.DownloadResult) {
 			select {
 			case <-done.Done():
 			case downloadResultCh <- data:
@@ -79,7 +79,7 @@ func (d *Downloader) Download(
 			"url", url,
 			"elapsed", uformat.DurationFormat(elapsed),
 		)
-		sendData(&dservices.DownloaderResult{
+		sendData(&pservices.DownloadResult{
 			MediaTitle: title,
 		})
 	}
@@ -121,7 +121,7 @@ func (d *Downloader) Download(
 		dlOptions,
 	)
 	if err != nil {
-		sendError(&dservices.DownloaderResult{MediaTitle: title}, err)
+		sendError(&pservices.DownloadResult{MediaTitle: title}, err)
 		return
 	}
 
@@ -171,7 +171,7 @@ func (d *Downloader) Download(
 
 	out, err := d.downloadWithStrategies(
 		ctx, url, meta.CloneMeta(), execOptions.Clone(),
-		func(progress dservices.DownloaderProgress) {
+		func(progress dtypes.DownloadProgress) {
 			meta.Lock()
 			meta.Meta.Progress = &progress
 			meta.Unlock()
@@ -264,8 +264,8 @@ func (d *Downloader) extractThumbnailFromFile(ctx context.Context, fileName stri
 		imgData, err := d.ffmpeg.ExtractBestFrame(
 			ctx,
 			filePath,
-			ffmpegsrv.WithFrameStrategy(ffmpegsrv.FrameStrategyBalanced{}),
-			ffmpegsrv.WithFrameFormat(ffmpegsrv.FrameFormatWebP{}),
+			pservices.WithFrameStrategy(ffframe.FrameStrategyBalanced{}),
+			pservices.WithFrameFormat(ffframe.FrameFormatWebP{}),
 		)
 		if err != nil {
 			imgData, err = d.ffmpeg.ExtractBestFrame(ctx, filePath)
@@ -293,9 +293,9 @@ func (d *Downloader) extractThumbnailFromFile(ctx context.Context, fileName stri
 }
 
 func (d *Downloader) extractMediaInfoFromFile(
-	ctx context.Context, fileName string, mediaInfo *dservices.MediaInfo,
-) *dservices.MediaInfo {
-	mediaInfo, err := d.ffmpeg.ExtractVideoAudioInfoFromFile(ctx, d.storage.Path(fileName), mediaInfo)
+	ctx context.Context, fileName string, mediaInfo *pservices.MediaInfo,
+) *pservices.MediaInfo {
+	mediaInfo, err := d.ffmpeg.ExtractMediaInfoWithFFprobe(ctx, d.storage.Path(fileName), mediaInfo)
 	if err != nil {
 		d.logger.Warn(
 			"Failed to get media info from file",

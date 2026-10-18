@@ -1,3 +1,5 @@
+import * as notify from "./notifications.js";
+
 const CLASS_NAMES = {
     form: "upload-file-dialog__form",
     input: "upload-file-dialog__input",
@@ -35,8 +37,11 @@ const DOM_IDS = {
     dialog: "upload-file-dialog",
 };
 
+// Containers that can hold browser-playable codecs
+// (H.264/VP9/AV1 video; AAC/Opus/MP3/FLAC/Vorbis/PCM audio).
+// Codecs themselves are validated on the server.
 const MEDIA_EXTENSIONS =
-    /\.(mp3|wav|flac|m4a|aac|ogg|oga|opus|wma|mp4|m4v|mov|mkv|webm|avi|wmv|flv|mpeg|mpg)$/i;
+    /\.(mp4|m4v|m4a|m4b|mov|3gp|3gpp|3g2|webm|weba|mkv|ogg|oga|ogv|opus|mp3|mpga|aac|flac|wav)$/i;
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
@@ -86,8 +91,15 @@ function isMediaFile(file) {
     return /^(audio|video)\//.test(file.type) || MEDIA_EXTENSIONS.test(file.name);
 }
 
-function stripExtension(name) {
-    return name.replace(/\.[^./\\]+$/, "");
+function fitFileName(name, maxLength) {
+    if (name.length <= maxLength) {
+        return name;
+    }
+
+    const dot = name.lastIndexOf(".");
+    const extension = dot > 0 ? name.slice(dot) : "";
+
+    return name.slice(0, maxLength - extension.length) + extension;
 }
 
 function getMaxLength(field) {
@@ -119,11 +131,13 @@ function isOverLimit(field) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Uploaders (transport). Interface: start(file, callbacks) -> { abort }  */
-/* callbacks: onProgress(percent), onSent(), onSuccess(), onError(msg)   */
+/* Interface: start(file, callbacks) -> { abort }, queue(fileId, data) -> Promise<{ itemId }>, remove(fileId) -> Promise */
+/* callbacks: onProgress(percent), onSent(), onSuccess({ fileId }), onError(msg) */
 /* ------------------------------------------------------------------ */
 
 function createXhrUploader(url) {
+    const fileUrl = (fileId) => `${url.replace(/\/+$/, "")}/${encodeURIComponent(fileId)}`;
+
     return {
         start(file, { onProgress, onSent, onSuccess, onError }) {
             const xhr = new XMLHttpRequest();
@@ -144,7 +158,24 @@ function createXhrUploader(url) {
 
             xhr.addEventListener("load", () => {
                 if (xhr.status >= 200 && xhr.status < 300) {
-                    onSuccess();
+                    let fileId = null;
+
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+
+                        if (typeof response.fileId === "string" && response.fileId) {
+                            fileId = response.fileId;
+                        }
+                    } catch {
+                        // Handled below: the response is not valid JSON.
+                    }
+
+                    if (fileId === null) {
+                        onError("The server returned an unexpected response.");
+                        return;
+                    }
+
+                    onSuccess({ fileId });
                     return;
                 }
 
@@ -153,8 +184,8 @@ function createXhrUploader(url) {
                 try {
                     const response = JSON.parse(xhr.responseText);
 
-                    if (typeof response.error === "string" && response.error) {
-                        message = response.error;
+                    if (typeof response.message === "string" && response.message) {
+                        message = response.message;
                     }
                 } catch {
                     // Keep the default message when the response is not valid JSON.
@@ -175,6 +206,50 @@ function createXhrUploader(url) {
 
             return { abort: () => xhr.abort() };
         },
+
+        async queue(fileId, { title, description, visibility }) {
+            let response;
+
+            try {
+                response = await fetch(fileUrl(fileId), {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({ title, description, visibility }),
+                });
+            } catch {
+                throw new Error("A network error occurred. Please try again.");
+            }
+
+            const body = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                const message = body?.message;
+
+                throw new Error(
+                    typeof message === "string" && message
+                        ? message
+                        : "Could not save the file. Please try again."
+                );
+            }
+
+            if (typeof body?.itemId !== "string" || !body.itemId) {
+                throw new Error("The server returned an unexpected response.");
+            }
+
+            return { itemId: body.itemId };
+        },
+
+        async remove(fileId) {
+            try {
+                // keepalive lets the request finish even if the page is closing.
+                await fetch(fileUrl(fileId), { method: "DELETE", keepalive: true });
+            } catch {
+                // Best effort: the user can't do anything about a failed cleanup.
+            }
+        },        
     };
 }
 
@@ -200,7 +275,7 @@ function createMockUploader({ failRate = 0.25, stepMs = 150 } = {}) {
                     if (Math.random() < failRate) {
                         onError("Mock upload failed.");
                     } else {
-                        onSuccess();
+                        onSuccess({ fileId: `mock-${Date.now()}` });
                     }
                 }, 600);
             }, stepMs);
@@ -212,6 +287,22 @@ function createMockUploader({ failRate = 0.25, stepMs = 150 } = {}) {
                 },
             };
         },
+
+        queue() {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    if (Math.random() < failRate) {
+                        reject(new Error("Mock save failed."));
+                    } else {
+                        resolve({ itemId: `mock-item-${Date.now()}` });
+                    }
+                }, 600);
+            });
+        },
+
+        remove() {
+            return Promise.resolve();
+        },        
     };
 }
 
@@ -222,7 +313,7 @@ function createMockUploader({ failRate = 0.25, stepMs = 150 } = {}) {
 /**
  * @param {string} [uploadUrl] Upload URL. If omitted (or mock: true), the mock uploader is used.
  * @param {object} [options]
- * @param {(result: {file: File|null, title: string, description: string, visibility: string}) => void} [options.onDone]
+ * @param {(result: {itemId: string, title: string, description: string, visibility: string}) => void} [options.onDone]
  * @param {boolean} [options.mock]
  * @param {number} [options.mockFailRate] Mock failure rate (0..1), defaults to 0.25
  */
@@ -264,6 +355,7 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
     const titleField = form.elements.title;
     const descriptionField = form.elements.description;
     const visibilityField = form.elements.visibility;
+    const closeButtons = dialog.querySelectorAll("[data-dialog-close]");
 
     const uploader =
         mock || !uploadUrl
@@ -271,8 +363,30 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
             : createXhrUploader(uploadUrl);
 
     let uploading = false;
+    let submitting = false;
     let uploaded = false;
+    let fileId = null;
     let job = null;
+
+    const resetUploadResult = () => {
+        uploaded = false;
+        fileId = null;
+    };
+
+    const setUploadResult = (id) => {
+        uploaded = true;
+        fileId = id;
+    };
+
+    const discardUploadedFile = () => {
+        const id = fileId;
+
+        resetUploadResult();
+
+        if (id !== null) {
+            uploader.remove(id);
+        }
+    };
 
     /* ---------- UI helpers ---------- */
 
@@ -280,6 +394,7 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
         doneButton.disabled = !(
             uploaded &&
             !uploading &&
+            !submitting &&
             titleField.value.trim() !== "" &&
             !isOverLimit(titleField) &&
             !isOverLimit(descriptionField) &&
@@ -291,6 +406,10 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
         status.textContent = message;
         status.classList.toggle(CLASS_NAMES.statusVisible, Boolean(message));
         status.classList.toggle(CLASS_NAMES.statusError, Boolean(message) && isError);
+
+        if (isError) {
+            notify.show(message, notify.notifyType.ERROR);
+        }
     };
 
     const setProgress = (percent) => {
@@ -311,10 +430,24 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
         removeButton.disabled = value;
     };
 
+    const setSubmitting = (value) => {
+        submitting = value;
+
+        input.disabled = value;
+        chooseButton.disabled = value;
+        removeButton.disabled = value;
+
+        closeButtons.forEach((button) => {
+            button.disabled = value;
+        });
+
+        updateDone();
+    };
+
     const resetProgress = () => {
         progress.classList.remove(CLASS_NAMES.progressVisible);
         setProgress(0);
-        progressText.textContent = "Uploading&";
+        progressText.textContent = "Uploading...";
     };
 
     const resetState = () => {
@@ -333,7 +466,7 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
 
     const handleFailure = (message) => {
         job = null;
-        uploaded = false;
+        resetUploadResult();
 
         // Allows picking the same file again; otherwise "change" won't fire.
         input.value = "";
@@ -419,7 +552,7 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
         form.classList.add(CLASS_NAMES.formFileSelected);
         progress.classList.add(CLASS_NAMES.progressVisible);
 
-        uploaded = false;
+        discardUploadedFile();
         setStatus("");
         setProgress(0);
         setUploading(true);
@@ -429,12 +562,12 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
             onProgress: setProgress,
 
             onSent: () => {
-                progressText.textContent = "Processing&";
+                progressText.textContent = "Processing...";
             },
 
-            onSuccess: () => {
+            onSuccess: ({ fileId: id }) => {
                 job = null;
-                uploaded = true;
+                setUploadResult(id);
 
                 setProgress(100);
                 setUploading(false);
@@ -442,7 +575,7 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
                 form.classList.remove(CLASS_NAMES.formUploadFailed);
                 form.classList.add(CLASS_NAMES.formUploaded);
 
-                setStatus("File uploaded successfully.");
+                // setStatus("File uploaded successfully.");
                 updateDone();
             },
 
@@ -451,7 +584,7 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
     };
 
     const selectFile = (file) => {
-        if (uploading || !file) {
+        if (uploading || submitting || !file) {
             return;
         }
 
@@ -468,7 +601,7 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
         const shouldPrefillTitle = titleField.value.trim() === "";
 
         if (shouldPrefillTitle) {
-            titleField.value = stripExtension(file.name).slice(0, getMaxLength(titleField));
+            titleField.value = fitFileName(file.name, getMaxLength(titleField));
         }
 
         // Start the upload first: it reveals the metadata block,
@@ -484,7 +617,7 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
     const clearFile = () => {
         job?.abort();
         job = null;
-        uploaded = false;
+        discardUploadedFile();
 
         input.value = "";
         fileName.textContent = "";
@@ -518,14 +651,14 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
 
     removeButton.addEventListener("click", () => {
         if (!uploading) {
-            clearFile();
+            resetAll();
         }
     });
 
     dropzone.addEventListener("dragenter", (event) => {
         event.preventDefault();
 
-        if (!uploading) {
+        if (!uploading && !submitting) {
             dropzone.classList.add(CLASS_NAMES.dropzoneDragover);
         }
     });
@@ -533,7 +666,7 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
     dropzone.addEventListener("dragover", (event) => {
         event.preventDefault();
 
-        if (!uploading) {
+        if (!uploading && !submitting) {
             dropzone.classList.add(CLASS_NAMES.dropzoneDragover);
         }
     });
@@ -554,23 +687,54 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
         }
     });
 
-    doneButton.addEventListener("click", () => {
-        if (doneButton.disabled) {
+    doneButton.addEventListener("click", async (event) => {
+        if (doneButton.disabled || submitting) {
             return;
         }
 
-        // The dialog's "close" event is dispatched asynchronously, after this handler,
-        // so the form data hasn't been reset yet.
-        onDone?.({
-            file: input.files?.[0] ?? null,
+        // Capture the values now: the user could edit the fields while the request is in flight.
+        const data = {
             title: titleField.value.trim(),
             description: descriptionField.value.trim(),
             visibility: visibilityField.value,
-        });
+        };
+
+        setSubmitting(true);
+        setStatus("");
+
+        let itemId;
+
+        try {
+            ({ itemId } = await uploader.queue(fileId, data));
+        } catch (error) {
+            console.error("Failed to queue uploaded file", error);
+            notify.show(error.message, notify.notifyType.ERROR);
+            return;
+        } finally {
+            setSubmitting(false);
+        }
+
+        // The file is now owned by the queued item: closing must not delete it.
+        resetUploadResult();
+        dialog.close();
+        onDone?.({ itemId, ...data });        
     });
 
-    // Fires on Cancel, Done, the close button and Esc.
+    dialog.addEventListener("cancel", (event) => {
+        if (submitting) {
+            event.preventDefault();
+        }
+    });
+
+    // Fires on Cancel, the close button, Esc, and after Done (dialog.close()).
+    // An uploaded file that wasn't queued is deleted in clearFile.
     dialog.addEventListener("close", resetAll);
+
+    window.addEventListener("pagehide", () => {
+    if (fileId !== null && !submitting) {
+        uploader.remove(fileId);
+    }
+    });
 
     // Initial state.
     resetState();

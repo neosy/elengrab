@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	"github.com/neosy/elengrab/internal/app/usecases/types"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
@@ -14,9 +15,7 @@ func (uc *downloader) RetryDownload(
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) (*dto.MediaDownloadInfo, error) {
-	err := uc.validateWriteOperationAccess(authCtx)
-	if err != nil {
-		uc.notifyWriteOperationAccessError(authCtx, err)
+	if err := uc.validateWriteAccess(authCtx, types.BroadcastNotificationModuleResultRow); err != nil {
 		return nil, err
 	}
 
@@ -39,7 +38,7 @@ func (uc *downloader) RetryDownload(
 		return nil
 	}
 
-	err = uc.download.Tx(ctx, resetStatusToNew)
+	err := uc.download.Tx(ctx, resetStatusToNew)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +59,7 @@ func (uc *downloader) RetryDownload(
 		return nil, err
 	}
 
-	uc.broadcastDownloadUpdate(ctx, downloadID)
+	uc.broadcastMediaDownloadUpdated(ctx, downloadID)
 
 	return uc.resolveActualDownloadInfoByDownload(ctx, download)
 }

@@ -1,6 +1,7 @@
 const DIALOG_SELECTORS = {
     open: '[data-dialog-open]',
     close: '[data-dialog-close]',
+    static: '[data-dialog-static]',
 };
 
 export function initDialogs() {
@@ -34,6 +35,11 @@ export function initDialogs() {
         }
 
         if (event.target instanceof HTMLDialogElement) {
+            // Ignore clicks on the backdrop of static dialogs
+            if (event.target.matches(DIALOG_SELECTORS.static)) {
+                return;
+            }
+
             event.target.close();
         }
     });

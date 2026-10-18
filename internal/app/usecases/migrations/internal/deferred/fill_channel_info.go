@@ -14,6 +14,10 @@ func (m *migrations) fill_channel_info(ctx context.Context) error {
 	downloads := make([]*ddownload.MediaDownload, 0)
 
 	err := m.Usecases().MediaDownload.IterateAll(ctx, func(d *ddownload.MediaDownload) error {
+		if d.SourceType != dtypes.MediaDownloadSourceTypeURL {
+			return nil
+		}
+
 		if d.ChannelID == uuid.Nil {
 			downloads = append(downloads, d)
 			return nil
@@ -40,10 +44,6 @@ func (m *migrations) fill_channel_info(ctx context.Context) error {
 	updatedChannelIDs := make(map[uuid.UUID]struct{})
 
 	for _, download := range downloads {
-		if download.SourceType != dtypes.MediaDownloadSourceTypeURL {
-			continue
-		}
-
 		channelSource, err := m.Services().Downloader.FetchChannelInfoWithCookieFallback(ctx, download.SourceURL())
 		if err != nil {
 			continue

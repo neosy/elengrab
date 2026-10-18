@@ -1,10 +1,11 @@
 package dtypes
 
 import (
-	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
 )
 
 type AudioCodec string
@@ -51,6 +52,11 @@ func (v AudioCodec) Title() string {
 	return audioCodecTitleMap[v]
 }
 
+// Format returns the corresponding AudioFormat for the AudioCodec.
+func (v AudioCodec) Format() AudioFormat {
+	return audioCodecToAudioFormatMap[v]
+}
+
 // Ptr returns the pointer.
 func (v AudioCodec) Ptr() *AudioCodec {
 	return &v
@@ -76,7 +82,7 @@ func ParseAudioCodec(s string) (AudioCodec, error) {
 	audioCodec := AudioCodec(strings.ToLower(s))
 
 	if _, exists := audioCodecMap[audioCodec]; !exists {
-		return "", errors.New("invalid value for AudioCodec")
+		return AudioCodecNone, fmt.Errorf("%w: %s", apperrors.ErrUnsupportedAudioCodec, s)
 	}
 
 	return audioCodec, nil

@@ -13,6 +13,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
+	utypes "github.com/neosy/elengrab/internal/app/usecases/types"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/domain/types/broadcast"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
@@ -102,23 +103,23 @@ func (h *DownloaderHandlers) handleEvent(
 	event ucdto.BroadcastEvent,
 ) {
 	switch event.Type {
-	case ucdto.BroadcastEventTypeDownloadAdd:
+	case utypes.BroadcastEventTypeDownloadAdd:
 		h.handleDownloadAdd(ctx, authCtx, w, event)
-	case ucdto.BroadcastEventTypeDownloadUpdate:
+	case utypes.BroadcastEventTypeDownloadUpdate:
 		h.handleDownloadUpdate(ctx, authCtx, w, event)
-	case ucdto.BroadcastEventTypeDownloadPatch:
+	case utypes.BroadcastEventTypeDownloadPatch:
 		h.handleDownloadPatch(ctx, w, event)
-	case ucdto.BroadcastEventTypeDownloadDelete:
+	case utypes.BroadcastEventTypeDownloadDelete:
 		h.handleDownloadDelete(w, event)
-	case ucdto.BroadcastEventTypeProgressUpdate:
+	case utypes.BroadcastEventTypeProgressUpdate:
 		h.handleProgressUpdate(w, event)
-	case ucdto.BroadcastEventTypeDownloadStartRefreshing:
+	case utypes.BroadcastEventTypeDownloadStartRefreshing:
 		h.handleStartRefreshing(w, event)
-	case ucdto.BroadcastEventTypeSystemInfoUpdate:
-		if h.downloader.HasWriteOperationAccess(authCtx) {
+	case utypes.BroadcastEventTypeSystemInfoUpdate:
+		if h.downloader.HasWriteAccess(authCtx) {
 			h.handleSystemInfoUpdate(w, event)
 		}
-	case ucdto.BroadcastEventTypeNotification:
+	case utypes.BroadcastEventTypeNotification:
 		h.handleNotification(w, event)
 	}
 }

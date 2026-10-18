@@ -916,12 +916,13 @@ img[data-src] {
     word-break: break-word;
 }
 
-.media-result__title-link {
+/* Shared look of the title label, for both the link and the plain text */
+.media-result__title-label {
     display: -webkit-inline-box;
 
     line-clamp: 2;
     -webkit-line-clamp: 2;
-    
+
     -webkit-box-orient: vertical;
     overflow: hidden;
 
@@ -931,10 +932,14 @@ img[data-src] {
     font-family: "Inter", sans-serif;
     font-weight: 500;
     text-decoration: none;
+}
+
+/* Interactive behavior only for the real link */
+.media-result__title-label--link {
     transition: opacity 0.2s ease;
 }
 
-.media-result__title-link:hover {
+.media-result__title-label--link:hover {
     opacity: 0.7;
     text-decoration: underline;
 }
@@ -1149,6 +1154,12 @@ img[data-src] {
     align-items: center;
 }
 
+/* Source link is unavailable: keep the icon in place, but make it look inactive */
+.media-result__source-link--disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 .media-result__source-link svg {
     width: 22px;
     height: 22px;
@@ -1157,7 +1168,7 @@ img[data-src] {
     transition: transform .25s ease;
 }
 
-.media-result__source-link:hover svg {
+.media-result__source-link:not(.media-result__source-link--disabled):hover svg {
     color: var(--row-icon-hover-blue);
     transform: scale(1.2);
 }

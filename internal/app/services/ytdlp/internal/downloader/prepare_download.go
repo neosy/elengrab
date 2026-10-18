@@ -5,11 +5,10 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	downloadpreparer "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/download_preparer"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
-	"github.com/neosy/elengrab/internal/pkg/stringx"
+	"github.com/neosy/elengrab/internal/app/utils/filename"
+	"github.com/neosy/elengrab/internal/pkg/filex"
 )
 
 func (d *Downloader) prepareDownload(
@@ -39,21 +38,18 @@ func (d *Downloader) prepareDownload(
 	}
 
 	// Generate a unique filename if none provided
-	fileName := options.FileName
-	if fileName == "" {
-		fileName = uuid.New().String()
+	uniqueFilePart := options.UniqueFileName
+	if uniqueFilePart == "" {
+		uniqueFilePart = uuid.New().String()
 	}
+
+	var fileName string
 
 	if options.IncludeTitleInFilename {
-		// Sanitize the title to ensure it is a valid file name.
-		title := nfasthttp.SanitizeFileName(title)
-		// Truncate the title to fit within the maximum length allowed for filenames.
-		title = stringx.TruncateBytesWords(title, consts.MaxTitleLengthInFilename)
-
-		fileName = fmt.Sprintf("%s_%s", title, fileName)
+		fileName = filename.BuildUnique(uniqueFilePart, title, downloadPlan.FileExt)
+	} else {
+		fileName = fmt.Sprintf("%s.%s", uniqueFilePart, downloadPlan.FileExt)
 	}
-
-	fileFullName := fmt.Sprintf("%s.%s", fileName, downloadPlan.FileExt)
 
 	var (
 		fileSize *int64
@@ -76,9 +72,9 @@ func (d *Downloader) prepareDownload(
 		URL:          rawURL,
 		Title:        title,
 		Description:  downloadPlan.ExtractInfo.Description,
-		FileName:     fileName,
+		FileName:     filex.FileNameWithoutExt(fileName),
 		FileExt:      downloadPlan.FileExt,
-		FileFullName: fileFullName,
+		FileFullName: fileName,
 		FileSize:     fileSize,
 
 		Channel: channel,

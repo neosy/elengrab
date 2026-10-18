@@ -10,9 +10,14 @@ import (
 func (m *migrations) fillMediaDuration(ctx context.Context) error {
 	medias, err := m.getAllDownloads(ctx, false,
 		func(download *ddownload.MediaDownload) bool {
-			if download.MediaInfo != nil && download.MediaInfo.DurationMs == 0 {
+			if download.MediaInfo == nil {
+				return false
+			}
+
+			if download.MediaInfo.DurationMs == 0 {
 				return true
 			}
+
 			return false
 		},
 	)

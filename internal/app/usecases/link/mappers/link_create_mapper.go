@@ -6,7 +6,7 @@ import (
 )
 
 func (m *Mappers) MapLinkCreateRequestDtoToDomain(
-	req *dto.LinkCreateRequest,
+	req *dto.ShortLinkCreateRequest,
 ) *dlink.Link {
 	return &dlink.Link{
 		OriginalURL:     req.OriginalURL,

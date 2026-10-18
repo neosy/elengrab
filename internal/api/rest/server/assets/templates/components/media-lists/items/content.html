@@ -21,7 +21,11 @@
                                     {{ $linkURL = .Values.MediaURL }} 
                                     {{- $linkTarget = "_blank" }}
                                 {{- end }}
-                                <a class="media-result__title-link" href="{{ $linkURL }}" target="{{ $linkTarget }}" title="{{ .Values.MediaTitle }}">{{ .Values.MediaTitle }}</a>
+                                {{- if $linkURL }}
+                                <a class="media-result__title-label media-result__title-label--link" href="{{ $linkURL }}" target="{{ $linkTarget }}" rel="noopener noreferrer" title="{{ .Values.MediaTitle }}">{{ .Values.MediaTitle }}</a>
+                                {{- else }}
+                                <span class="media-result__title-label" title="{{ .Values.MediaTitle }}">{{ .Values.MediaTitle }}</span>
+                                {{- end }}
                                 <div class="media-result__title-info">
                                     {{- if .Values.UserName }}
                                     <div class="media-result__title-user" title="{{ .Values.UserName }}" data-tooltip="{{ .Values.UserName }}">

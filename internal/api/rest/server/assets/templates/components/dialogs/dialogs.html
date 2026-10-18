@@ -5,7 +5,7 @@
 {{- end }}
 
 {{- define "upload-file-dialog" }}
-<dialog class="modal-dialog upload-file-dialog" id="upload-file-dialog" aria-labelledby="upload-file-dialog-title">
+<dialog class="modal-dialog upload-file-dialog" id="upload-file-dialog" aria-labelledby="upload-file-dialog-title" data-dialog-static>
     {{- block "upload-file-dialog-content" . }}{{- end }}
 </dialog>
 {{- end }}

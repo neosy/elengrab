@@ -44,7 +44,7 @@ func (uc *downloader) UpdateSystemDiskInfo() {
 
 	if systemInfoOld.DiskFree != uc.systemInfoStore.data.DiskFree ||
 		systemInfoOld.DiskUsed != uc.systemInfoStore.data.DiskUsed {
-		uc.broadcastSystemInfoUpdate()
+		uc.broadcastSystemInfoUpdated()
 	}
 }
 func (uc *downloader) UpdateSystemVersionInfo() {

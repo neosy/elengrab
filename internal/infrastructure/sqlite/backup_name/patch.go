@@ -11,7 +11,7 @@ import (
 
 // Prefix returns the sanitized lowercase file name prefix for the given database.
 func Prefix(dbName string) string {
-	prefix := filex.SanitizeFileName(dbName)
+	prefix := filex.SanitizeName(dbName)
 	prefix = strings.ToLower(prefix)
 	return prefix
 }

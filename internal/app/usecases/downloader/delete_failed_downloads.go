@@ -31,7 +31,7 @@ func (uc *downloader) DeleteFailedDownloads(ctx context.Context) error {
 				continue
 			}
 			uc.logger.Debug("Hard deleted download download", "downloadID", download.DownloadID)
-			uc.broadcastDownloadDelete(ctx, download)
+			uc.broadcastMediaDownloadDeleted(ctx, download)
 		}
 	}
 

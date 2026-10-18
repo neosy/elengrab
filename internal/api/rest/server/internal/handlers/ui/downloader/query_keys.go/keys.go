@@ -19,6 +19,8 @@ var (
 
 	DownloadIDKey = keys.add("itemId", "id")
 
+	FileIDKey = keys.add("fileId", "fid")
+
 	ChannelIDKey       = keys.addWithName("channelId", "cid", dtypes.QueryFilterNameChannelID)
 	ChannelPlatformKey = keys.add("platform", "cpl")
 

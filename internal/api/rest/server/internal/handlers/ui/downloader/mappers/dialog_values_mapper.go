@@ -29,6 +29,8 @@ func (m *Mappers) MapAboutDialogValues(info udto.SystemInfoResponse) pages.About
 
 func (m *Mappers) MapUploadFileDialogValues() pages.UploadFileDialogValues {
 	return pages.UploadFileDialogValues{
-		LogoIcon: icons.DialogUploadFileIcon.FileRaw(),
+		LogoIcon:       icons.DialogUploadFileIcon.FileRaw(),
+		VisibilityList: pages.VisibilityList(),
+		Visibility:     iconfig.InitialMediaVisibility().String(),
 	}
 }

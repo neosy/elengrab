@@ -11,5 +11,5 @@ func (uc *downloader) ExecuteRefreshMetadataTask(
 	workerID uint64,
 	task *ddownload.RefreshMetadataTask,
 ) error {
-	return uc.dlExecutor.ExecuteRefreshMetadataTask(ctx, workerID, task)
+	return uc.taskExecutors.RefreshMetadata.Execute(ctx, workerID, task)
 }

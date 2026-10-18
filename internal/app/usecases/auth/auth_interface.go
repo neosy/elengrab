@@ -9,9 +9,9 @@ import (
 )
 
 type Auth interface {
-	RegisterUser(ctx context.Context, req *dto.RegisterUserRequest) (*dto.AuthUserResponse, error)
+	RegisterUser(ctx context.Context, req *dto.AuthRegisterUserRequest) (*dto.AuthUserResponse, error)
 	RegisterGuest(ctx context.Context) (*dto.AuthUserResponse, error)
-	RegisterAdmin(ctx context.Context, req *dto.RegisterAdminRequest) (*dto.AuthUserResponse, error)
+	RegisterAdmin(ctx context.Context, req *dto.AuthRegisterAdminRequest) (*dto.AuthUserResponse, error)
 
 	SoftDeleteUser(ctx context.Context, userID uuid.UUID) error
 

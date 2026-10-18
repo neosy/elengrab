@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	utypes "github.com/neosy/elengrab/internal/app/usecases/types"
 )
 
 type WorkingStatus string
@@ -22,11 +22,11 @@ var (
 		WorkingStatusFinishDownload: {},
 	}
 
-	usecaseWorkingStatusToUI = map[dto.WorkingStatus]WorkingStatus{
-		dto.WorkingStatusNone:           WorkingStatusNone,
-		dto.WorkingStatusStartDownload:  WorkingStatusStartDownload,
-		dto.WorkingStatusDownloading:    WorkingStatusDownloading,
-		dto.WorkingStatusFinishDownload: WorkingStatusFinishDownload,
+	usecaseWorkingStatusToUI = map[utypes.WorkingStatus]WorkingStatus{
+		utypes.WorkingStatusNone:           WorkingStatusNone,
+		utypes.WorkingStatusStartDownload:  WorkingStatusStartDownload,
+		utypes.WorkingStatusDownloading:    WorkingStatusDownloading,
+		utypes.WorkingStatusFinishDownload: WorkingStatusFinishDownload,
 	}
 )
 
@@ -41,7 +41,7 @@ func (v WorkingStatus) Exists() bool {
 	return exists
 }
 
-func MapUsecaseWorkingStatusToUI(workingStatus dto.WorkingStatus) WorkingStatus {
+func MapUsecaseWorkingStatusToUI(workingStatus utypes.WorkingStatus) WorkingStatus {
 	status, ok := usecaseWorkingStatusToUI[workingStatus]
 	if !ok {
 		return WorkingStatusNone

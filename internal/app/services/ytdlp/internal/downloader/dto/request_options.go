@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
-	"github.com/neosy/elengrab/internal/app/utils/siteimage/channels"
-	"github.com/neosy/elengrab/internal/app/utils/siteimage/thumbnails"
+	"github.com/neosy/elengrab/internal/app/utils/site_image/channels"
+	"github.com/neosy/elengrab/internal/app/utils/site_image/thumbnails"
 )
 
 type RequestOptions struct {

@@ -35,7 +35,9 @@ func (m *ErrorMiddleware) ErrorMethodNotAllowedHandler(ctx *fasthttp.RequestCtx)
 	m.writeError(ctx, fmt.Sprintf("The requested method %s is not allowed for URL %s.", ctx.Method(), uri))
 }
 
-// ErrorHandler is a middleware that handles errors and writes error responses.
+// ErrorHandler is a middleware that renders an HTML error page for failed GET requests.
+// It runs after the next handler, so it sees the final status code and body.
+// Errors of other methods (POST, PATCH, DELETE, HEAD) are left as is (JSON).
 func (m *ErrorMiddleware) ErrorHandler(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
 		next(ctx)
@@ -48,8 +50,16 @@ func (m *ErrorMiddleware) WrapWithErrorHandler(next nfasthttp.Middleware) nfasth
 	return nfasthttp.MiddlewareChain(m.ErrorHandler, next)
 }
 
+// errorHandler replaces a failed GET response (status >= 400) with an HTML error page.
+// For JSON errors it passes the message from the body to the page.
+// Other methods and non-error responses are not touched.
 func (m *ErrorMiddleware) errorHandler(ctx *fasthttp.RequestCtx) {
 	if !ctx.IsGet() || ctx.Response.StatusCode() < 400 {
+		return
+	}
+
+	// htmx requests load fragments into an open page: keep the JSON error as is.
+	if len(ctx.Request.Header.Peek("HX-Request")) > 0 {
 		return
 	}
 

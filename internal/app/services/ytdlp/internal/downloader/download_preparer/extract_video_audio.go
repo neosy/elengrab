@@ -136,7 +136,7 @@ func (p *DownloadPreparer) buildVideoDownloadParams(
 	mediaFormat *idto.ExtractMediaFormat,
 	dlOptions idto.DLOptions,
 ) videoDownloadParams {
-	srcVideoFormat := dtypes.MapFileExtToFileFormat(mediaFormat.FileExt).VideoFormat()
+	srcVideoFormat := dtypes.FileExtToFileFormat(mediaFormat.FileExt).VideoFormat()
 	srcVideoCodec := mediaFormat.VideoCodec()
 
 	outVideoFormat := dlOptions.VideoFormat

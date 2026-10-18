@@ -26,5 +26,4 @@ const (
 	FormatCacheTTL = 2 * time.Hour
 
 	ConcurrentFragmentsDefault = 5
-	MaxTitleLengthInFilename   = 100
 )

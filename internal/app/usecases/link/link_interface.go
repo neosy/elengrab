@@ -9,7 +9,7 @@ import (
 )
 
 type Link interface {
-	Create(ctx context.Context, req *dto.LinkCreateRequest) (*dlink.Link, error)
+	Create(ctx context.Context, req *dto.ShortLinkCreateRequest) (*dlink.Link, error)
 	SoftDelete(ctx context.Context, linkID uuid.UUID) error
 
 	FindLastByShortCode(ctx context.Context, shortCode string) (*dlink.Link, error)

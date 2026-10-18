@@ -395,6 +395,20 @@ func (h *DownloaderHandlers) extractDownloadID(ctx *fasthttp.RequestCtx) (uuid.U
 	return downloadID, nil
 }
 
+func (h *DownloaderHandlers) extractFileID(ctx *fasthttp.RequestCtx) (uuid.UUID, error) {
+	encodedFileID, ok := ctx.UserValue(qkeys.FileIDKey.String()).(string)
+	if !ok || encodedFileID == "" {
+		return uuid.Nil, apierrors.ErrFileIDIsRequired
+	}
+
+	fileID, err := idcodec.DecodeUUIDBase64URL(encodedFileID)
+	if err != nil {
+		return uuid.Nil, apierrors.ErrFileIDIsIncorrect.Wrap(err)
+	}
+
+	return fileID, nil
+}
+
 func (h *DownloaderHandlers) extractChannelID(ctx *fasthttp.RequestCtx) (uuid.UUID, error) {
 	encodedChannelID, ok := ctx.UserValue(qkeys.ChannelIDKey.String()).(string)
 	if !ok || encodedChannelID == "" {

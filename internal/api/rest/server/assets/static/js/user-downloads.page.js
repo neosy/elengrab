@@ -4,6 +4,7 @@ import * as dialog from "./dialog.js";
 import * as tooltip from './tooltip.js';
 import { initPlayer } from './player.js';
 import * as videoPreview from './video-preview.js';
+import { API_PATHS } from './constants.js';
 
 import * as sseClient from "./sse.js";
 import * as rowEventHandlers from './pages-list.sse.events.js';
@@ -14,6 +15,8 @@ import * as view from './pages-list.view.js';
 import * as grabForm from './pages-list.grab-form.js';
 import * as search from './pages-list.search.js';
 import { CLASS_NAMES, CLASS_SELECTORS, DOM_ELEMENTS, initDomElements } from "./user-downloads-page.dom.js";
+import { initUploadFileDialog } from "upload-file-dialog.js";
+
 
 // Global variables
 let searchInputClearButton = null;
@@ -47,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Init dialogs
     dialog.initDialogs();
+    initUploadFileDialog(API_PATHS.downloaderUpload);
 
     // Init tooltips
     tooltip.initTooltips();

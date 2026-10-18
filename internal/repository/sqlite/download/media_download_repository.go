@@ -317,14 +317,18 @@ func (r *MediaDownloadRepository) FindByDownloadCode(ctx context.Context, downlo
 
 func (r *MediaDownloadRepository) findByUniqueField(ctx context.Context, fieldName, value string) (*ddownload.MediaDownload, error) {
 	var (
-		eDownload edownload.MediaDownload
-		eTask     edownload.DownloadTask
+		eDownload       edownload.MediaDownload
+		eDownloadTask   edownload.DownloadTask
+		eProcessingTask edownload.MediaProcessingTask
 
-		aliasDownloads = "f"
-		aliasTasks     = "t"
+		aliasDownloads       = "f"
+		aliasDownloadTasks   = "dt"
+		aliasProcessingTasks = "pt"
 	)
 
-	selectFields := append(eDownload.QueryFieldsWithAlias(aliasDownloads), eTask.QueryFieldsWithAlias(aliasTasks)...)
+	selectFields := eDownload.QueryFieldsWithAlias(aliasDownloads)
+	selectFields = append(selectFields, eDownloadTask.QueryFieldsWithAlias(aliasDownloadTasks)...)
+	selectFields = append(selectFields, eProcessingTask.QueryFieldsWithAlias(aliasProcessingTasks)...)
 
 	sqlWhere := squirrel.And{}
 	sqlWhere = append(sqlWhere, squirrel.Eq{eDownload.FieldName(fieldName, aliasDownloads): value})
@@ -342,8 +346,13 @@ func (r *MediaDownloadRepository) findByUniqueField(ctx context.Context, fieldNa
 	sqlQuery, args, err := squirrel.Select(selectFields...).
 		From(eDownload.TableName() + " AS " + aliasDownloads).
 		LeftJoin(
-			eTask.TableName() + " AS " + aliasTasks +
-				" ON " + aliasTasks + "." + eTask.FieldName(&eTask.DownloadID) +
+			eDownloadTask.TableName() + " AS " + aliasDownloadTasks +
+				" ON " + aliasDownloadTasks + "." + eDownloadTask.FieldName(&eDownloadTask.DownloadID) +
+				" = " + aliasDownloads + "." + eDownload.FieldName(&eDownload.DownloadID),
+		).
+		LeftJoin(
+			eProcessingTask.TableName() + " AS " + aliasProcessingTasks +
+				" ON " + aliasProcessingTasks + "." + eProcessingTask.FieldName(&eProcessingTask.DownloadID) +
 				" = " + aliasDownloads + "." + eDownload.FieldName(&eDownload.DownloadID),
 		).
 		Where(sqlWhere).
@@ -360,8 +369,13 @@ func (r *MediaDownloadRepository) findByUniqueField(ctx context.Context, fieldNa
 	db := dbexec.Resolve(ctx, r.dbEntry)
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
+
+		fieldPointers := eDownload.FieldPointers()
+		fieldPointers = append(fieldPointers, eDownloadTask.FieldPointers()...)
+		fieldPointers = append(fieldPointers, eProcessingTask.FieldPointers()...)
+
 		// Scan result into entity
-		err := row.Scan(append(eDownload.FieldPointers(), eTask.FieldPointers()...)...)
+		err := row.Scan(fieldPointers...)
 		if err == sql.ErrNoRows {
 			notFound = true
 			return nil
@@ -377,7 +391,7 @@ func (r *MediaDownloadRepository) findByUniqueField(ctx context.Context, fieldNa
 	}
 
 	// Map entity to domain model
-	download, err := r.mappers.MapDownloadEntityToDomain(&eDownload, &eTask)
+	download, err := r.mappers.MapDownloadEntityToDomain(&eDownload, &eDownloadTask, &eProcessingTask)
 	if err != nil {
 		return nil, err
 	}
@@ -440,14 +454,18 @@ func (r *MediaDownloadRepository) iterateAll(
 	fn func(*ddownload.MediaDownload) error,
 ) error {
 	var (
-		eDownload edownload.MediaDownload
-		eTask     edownload.DownloadTask
+		eDownload       edownload.MediaDownload
+		eDownloadTask   edownload.DownloadTask
+		eProcessingTask edownload.MediaProcessingTask
 
-		aliasDownloads = "f"
-		aliasTasks     = "t"
+		aliasDownloads       = "f"
+		aliasDownloadTasks   = "dt"
+		aliasProcessingTasks = "pt"
 	)
 
-	selectFields := append(eDownload.QueryFieldsWithAlias(aliasDownloads), eTask.QueryFieldsWithAlias(aliasTasks)...)
+	selectFields := eDownload.QueryFieldsWithAlias(aliasDownloads)
+	selectFields = append(selectFields, eDownloadTask.QueryFieldsWithAlias(aliasDownloadTasks)...)
+	selectFields = append(selectFields, eProcessingTask.QueryFieldsWithAlias(aliasProcessingTasks)...)
 
 	var conditions = squirrel.And{}
 	if len(r.queryOptions.statuses) > 0 {
@@ -530,8 +548,13 @@ func (r *MediaDownloadRepository) iterateAll(
 		Where(sqlWhere).
 		OrderBy(orderBys.Query()).
 		LeftJoin(
-			eTask.TableName() + " AS " + aliasTasks +
-				" ON " + eTask.FieldName(&eTask.DownloadID, aliasTasks) +
+			eDownloadTask.TableName() + " AS " + aliasDownloadTasks +
+				" ON " + eDownloadTask.FieldName(&eDownloadTask.DownloadID, aliasDownloadTasks) +
+				" = " + eDownload.FieldName(&eDownload.DownloadID, aliasDownloads),
+		).
+		LeftJoin(
+			eProcessingTask.TableName() + " AS " + aliasProcessingTasks +
+				" ON " + eProcessingTask.FieldName(&eProcessingTask.DownloadID, aliasProcessingTasks) +
 				" = " + eDownload.FieldName(&eDownload.DownloadID, aliasDownloads),
 		).
 		PlaceholderFormat(squirrel.Dollar)
@@ -555,13 +578,17 @@ func (r *MediaDownloadRepository) iterateAll(
 	defer rows.Close()
 
 	if rows != nil {
+		fieldPointers := eDownload.FieldPointers()
+		fieldPointers = append(fieldPointers, eDownloadTask.FieldPointers()...)
+		fieldPointers = append(fieldPointers, eProcessingTask.FieldPointers()...)
+
 		for rows.Next() {
-			err := rows.Scan(append(eDownload.FieldPointers(), eTask.FieldPointers()...)...)
+			err := rows.Scan(fieldPointers...)
 			if err != nil {
 				return err
 			}
 
-			download, err := r.mappers.MapDownloadEntityToDomain(&eDownload, &eTask)
+			download, err := r.mappers.MapDownloadEntityToDomain(&eDownload, &eDownloadTask, &eProcessingTask)
 			if err != nil {
 				return err
 			}

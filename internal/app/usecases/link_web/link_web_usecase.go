@@ -24,7 +24,7 @@ type linkWeb struct {
 	logger *slog.Logger
 
 	// services
-	link pservices.ShortLinkService
+	link pservices.ShortLink
 
 	// options
 	options Options

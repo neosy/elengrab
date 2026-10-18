@@ -10,7 +10,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-func (a *auth) RegisterAdmin(ctx context.Context, req *dto.RegisterAdminRequest) (*dto.AuthUserResponse, error) {
+func (a *auth) RegisterAdmin(ctx context.Context, req *dto.AuthRegisterAdminRequest) (*dto.AuthUserResponse, error) {
 	if req == nil {
 		return nil, autherr.ErrFunctionNilParameter
 	}

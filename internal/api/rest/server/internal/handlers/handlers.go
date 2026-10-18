@@ -14,12 +14,16 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
 type Dependencies struct {
 	// Storages
 	DownloadsStorage pstorage.DownloadsStorage
+
+	// Caches
+	UploadedFileCacheRepo persistence.UploadedFileCacheRepository
 
 	// Assets
 	Assets *assets.Assets
@@ -32,6 +36,7 @@ type Dependencies struct {
 	AppMode         dtypes.AppMode
 	BaseURL         string
 	ShortLinkPrefix string
+	MaxUploadSize   int64
 }
 
 type Handlers struct {
@@ -56,12 +61,14 @@ func New(logger *slog.Logger, deps *Dependencies) (*Handlers, error) {
 		UI: ui.NewHandlers(
 			logger,
 			deps.DownloadsStorage,
+			deps.UploadedFileCacheRepo,
 			deps.Assets,
 			deps.Usecases,
 			templates,
 			deps.AppMode,
 			deps.BaseURL,
 			deps.ShortLinkPrefix,
+			deps.MaxUploadSize,
 		),
 		API: api.NewHandlers(deps.Usecases),
 	}, nil

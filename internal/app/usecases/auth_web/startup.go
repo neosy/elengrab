@@ -29,7 +29,7 @@ func (a *authWeb) registerDefaultAdmin(ctx context.Context) error {
 		return nil
 	}
 
-	req := &dto.RegisterAdminRequest{
+	req := &dto.AuthRegisterAdminRequest{
 		Login:    a.defaultAdminLogin,
 		Password: a.defaultAdminPassword,
 	}

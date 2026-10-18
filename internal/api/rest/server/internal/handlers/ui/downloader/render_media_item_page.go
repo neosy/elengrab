@@ -17,7 +17,7 @@ import (
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
@@ -39,8 +39,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 	req renderWatchPageRequest,
 ) {
 	if ctx.IsHead() {
-		ctx.SetContentType(mime.TypeByExtension(".html"))
-		ctx.SetStatusCode(fasthttp.StatusOK)
+		fasthttpx.WriteHTMLHeadResponse(ctx)
 		return
 	}
 
@@ -50,7 +49,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 		var err error
 		downloadInfo, err = h.downloader.GetDownloadInfoUnrestricted(ctx, req.downloadID)
 		if err != nil {
-			nfasthttp.WriteErrorx(ctx, err)
+			fasthttpx.WriteErrorx(ctx, err)
 			return
 		}
 	}
@@ -59,7 +58,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 		var err error
 		downloadInfo, err = h.downloader.GetDownloadInfo(ctx, req.authCtx, req.downloadID)
 		if err != nil {
-			nfasthttp.WriteErrorx(ctx, err)
+			fasthttpx.WriteErrorx(ctx, err)
 			return
 		}
 	}
@@ -197,7 +196,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 
 	cssPaths, err := h.assetPaths.WatchPageCssPaths()
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -205,13 +204,13 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 
 	jsScripts, err := h.assetPaths.WatchPageJsPaths(caps.IsLegacyWebKit)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
 	pwaManifestPath, err := h.assetPaths.PwaManifestPath()
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -291,7 +290,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 
 	// Execute template with PageTitle
 	if err := h.templates.Pages[pages.WatchPage.Key()].ExecuteTemplate(ctx, pages.WatchPage.Key(), pageData); err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
+		fasthttpx.WriteErrorx(ctx, errInternal(err))
 		return
 	}
 }

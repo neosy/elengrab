@@ -3,12 +3,19 @@
     flex-direction: column;
     position: fixed;
 
-    bottom: 20px;
-    left: 50%;
+    inset: auto auto 20px 50%;
+
+    margin: 0;
+    padding: 0;
+
+    border: none;
+
+    background: transparent;
+    
+    overflow: visible;
 
     transform: translateX(-50%);
     gap: 12px;
-    z-index: 1000;
     pointer-events: none;
 }
 

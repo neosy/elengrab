@@ -1,6 +1,7 @@
 package httpsrv
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"html/template"
@@ -12,6 +13,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/middleware"
+	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/routes"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -23,12 +25,18 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+const (
+	uploadMultipartOverhead       = 1 << 20  // multipart boundaries and part headers
+	defaultMaxUploadSize    int64 = 10 << 30 // 10 GiB
+)
+
 type Dependencies struct {
 	// Storages
 	DownloadsStorage pstorage.DownloadsStorage
 
-	// caches
-	AssetFileCacheRepository persistence.AssetFileCacheRepository
+	// Caches
+	AssetFileCacheRepo    persistence.AssetFileCacheRepository
+	UploadedFileCacheRepo persistence.UploadedFileCacheRepository
 
 	Usecases *usecases.Usecases
 	Template *template.Template
@@ -39,6 +47,7 @@ type Dependencies struct {
 	ShortLinkPrefix string
 	AssetsDir       string
 	MetricsEnabled  bool
+	MaxUploadSize   int64
 }
 
 type httpServer struct {
@@ -62,20 +71,28 @@ type httpServer struct {
 	shortLinkPrefix string
 	assetsDir       string
 	metricsEnabled  bool
+	maxUploadSize   int64
 }
 
 func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) (*httpServer, error) {
+	maxUploadSize := deps.MaxUploadSize
+	if maxUploadSize <= 0 {
+		maxUploadSize = defaultMaxUploadSize
+	}
+
 	handlers, err := handlers.New(
 		logger,
 		&handlers.Dependencies{
-			DownloadsStorage: deps.DownloadsStorage,
-			Assets:           assets.NewAssets(deps.AssetsDir, deps.AssetFileCacheRepository),
-			Usecases:         deps.Usecases,
-			Template:         deps.Template,
-			AppEnv:           appEnv,
-			AppMode:          deps.AppMode,
-			BaseURL:          deps.BaseURL,
-			ShortLinkPrefix:  deps.ShortLinkPrefix,
+			UploadedFileCacheRepo: deps.UploadedFileCacheRepo,
+			DownloadsStorage:      deps.DownloadsStorage,
+			Assets:                assets.NewAssets(deps.AssetsDir, deps.AssetFileCacheRepo),
+			Usecases:              deps.Usecases,
+			Template:              deps.Template,
+			AppEnv:                appEnv,
+			AppMode:               deps.AppMode,
+			BaseURL:               deps.BaseURL,
+			ShortLinkPrefix:       deps.ShortLinkPrefix,
+			MaxUploadSize:         maxUploadSize,
 		},
 	)
 	if err != nil {
@@ -104,6 +121,7 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) (*
 		shortLinkPrefix: deps.ShortLinkPrefix,
 		assetsDir:       deps.AssetsDir,
 		metricsEnabled:  deps.MetricsEnabled,
+		maxUploadSize:   maxUploadSize,
 	}, nil
 }
 
@@ -120,6 +138,25 @@ func (s *httpServer) ListenAndServe(ctx context.Context, port string, ready chan
 
 	server := &fasthttp.Server{
 		Handler: handler,
+
+		// Required for large uploads: the body is read as a stream and never buffered in memory.
+		StreamRequestBody: true,
+
+		// Let handlers parse multipart bodies on demand.
+		DisablePreParseMultipartForm: true,
+
+		// Per-request overrides: only the upload route gets the long read timeout and the large
+		// body limit; every other route keeps the strict server defaults below.
+		HeaderReceived: func(header *fasthttp.RequestHeader) fasthttp.RequestConfig {
+			if string(header.Method()) == fasthttp.MethodPost && isUploadPath(header.RequestURI()) {
+				return fasthttp.RequestConfig{
+					ReadTimeout:        time.Hour,
+					MaxRequestBodySize: int(s.maxUploadSize) + uploadMultipartOverhead,
+				}
+			}
+
+			return fasthttp.RequestConfig{} // zero values mean "use the server settings"
+		},
 
 		// --- Timeouts ---
 		// Protects against slowloris during request read
@@ -191,4 +228,13 @@ func (s *httpServer) ListenAndServe(ctx context.Context, port string, ready chan
 	log.Println("Server stopped")
 
 	return nil
+}
+
+// isUploadPath reports whether the request URI points to the upload endpoint (query string ignored).
+func isUploadPath(uri []byte) bool {
+	if i := bytes.IndexByte(uri, '?'); i >= 0 {
+		uri = uri[:i]
+	}
+
+	return string(uri) == httppaths.DownloaderUploadPath
 }

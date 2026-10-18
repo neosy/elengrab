@@ -20,10 +20,11 @@ func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Applicat
 	}
 
 	deps := &httpsrv.Dependencies{
-		DownloadsStorage:         app.DownloadsStorage,
-		AssetFileCacheRepository: app.AssetFileCacheRepository,
-		Usecases:                 app.Usecases,
-		Template:                 tmpl,
+		DownloadsStorage:      app.DownloadsStorage,
+		AssetFileCacheRepo:    app.AssetFileCacheRepo,
+		UploadedFileCacheRepo: app.UploadedFileCacheRepo,
+		Usecases:              app.Usecases,
+		Template:              tmpl,
 
 		// Options
 		AppMode:         dtypes.MustParseAppMode(cfg.Elengrab.Mode),
@@ -31,6 +32,7 @@ func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Applicat
 		ShortLinkPrefix: cfg.Elengrab.ShortLinkPrefix,
 		AssetsDir:       upaths.AbsPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir),
 		MetricsEnabled:  cfg.AdminServer.Enable && cfg.AdminServer.DebugConfig.EnableMetrics,
+		MaxUploadSize:   cfg.Elengrab.Upload.MaxFileSize(),
 	}
 
 	httpServer, err := httpsrv.NewServer(logger, cfg.AppConfig.AppEnv, deps)
