@@ -28,6 +28,12 @@ type refreshMetadataPatch struct {
 	needPatch bool
 }
 
+type sourceMetadata struct {
+	mediaInfo     *dservices.DownloaderMediaInfo
+	channelSource *dtypes.ChannelSource
+	thumbnailData *dtypes.ImageData
+}
+
 func (uc *Executor) collectMetadata(
 	ctx context.Context,
 	media *ddownload.MediaDownload,
@@ -113,91 +119,63 @@ func (uc *Executor) collectMetadata(
 		}
 	}
 
-	mediaInfo, err := uc.downloaderSrv.FetchInfo(ctx, media.MediaURL)
-	if err != nil {
-		uc.logger.Warn(
-			"Failed to fetch media info",
-			"downloadID", media.DownloadID,
-			"mediaTitle", media.MediaTitle,
-			"mediaURL", media.MediaURL,
-			"error", err,
-		)
-	}
+	sourceMetadata := uc.fetchSourceMetadata(ctx, media)
 
-	if mediaInfo != nil {
-		if mediaInfo.Title != media.MediaTitle {
-			patch.needPatch = true
-			patch.title = &mediaInfo.Title
+	if sourceMetadata != nil {
+		mediaInfo := sourceMetadata.mediaInfo
+		channelSource := sourceMetadata.channelSource
+		thumbnailData := sourceMetadata.thumbnailData
+
+		if mediaInfo != nil {
+			if mediaInfo.Title != media.MediaTitle {
+				patch.needPatch = true
+				patch.title = &mediaInfo.Title
+			}
+
+			if helper.ValuesEqual(media.MediaDescription, &mediaInfo.Description) {
+				patch.needPatch = true
+				patch.description = &mediaInfo.Description
+			}
 		}
 
-		if helper.ValuesEqual(media.MediaDescription, &mediaInfo.Description) {
-			patch.needPatch = true
-			patch.description = &mediaInfo.Description
-		}
-	}
-
-	channelSource, err := uc.downloaderSrv.FetchChannelInfoWithCookieFallback(ctx, media.MediaURL)
-	if err != nil {
-		uc.logger.Warn(
-			"Failed to fetch channel info",
-			"downloadID", media.DownloadID,
-			"mediaTitle", media.MediaTitle,
-			"mediaURL", media.MediaURL,
-			"error", err,
-		)
-	}
-
-	if channelSource.IsValid() {
-		var channelID uuid.UUID
-		channel, _ := uc.channel.FindByExternalChannelIDNoCache(ctx, channelSource.ChannelID, channelSource.Platform)
-		if channel != nil {
-			err := uc.channel.Patch(ctx, channel.ChannelID,
-				func(c *dmedia.Channel) error {
-					if c.EqualSource(channelSource) {
+		if channelSource.IsValid() {
+			var channelID uuid.UUID
+			channel, _ := uc.channel.FindByExternalChannelIDNoCache(ctx, channelSource.ChannelID, channelSource.Platform)
+			if channel != nil {
+				err := uc.channel.Patch(ctx, channel.ChannelID,
+					func(c *dmedia.Channel) error {
+						if c.EqualSource(channelSource) {
+							return nil
+						}
+						c.UpdateFromSource(channelSource)
 						return nil
-					}
-					c.UpdateFromSource(channelSource)
-					return nil
-				},
-			)
-			if err == nil {
-				channelID = channel.ChannelID
+					},
+				)
+				if err == nil {
+					channelID = channel.ChannelID
+				}
+			} else {
+				newChannel := dmedia.NewChannelFromSource(channelSource)
+				err := uc.channel.Create(ctx, newChannel)
+				if err == nil {
+					channelID = newChannel.ChannelID
+				}
 			}
-		} else {
-			newChannel := dmedia.NewChannelFromSource(channelSource)
-			err := uc.channel.Create(ctx, newChannel)
-			if err == nil {
-				channelID = newChannel.ChannelID
+
+			if channelID != uuid.Nil && media.ChannelID != channelID {
+				patch.needPatch = true
+				patch.channelID = channelID
 			}
 		}
 
-		if channelID != uuid.Nil && media.ChannelID != channelID {
-			patch.needPatch = true
-			patch.channelID = channelID
-		}
-	}
-
-	thumbnailData, err := uc.downloaderSrv.FetchThumbnail(
-		ctx, media.MediaURL,
-		ytdlpsrv.WithRequestTimeout(fetchImageTimeout),
-	)
-	if err != nil {
-		uc.logger.Warn(
-			"failed to fetch media thumbnail",
-			"downloadID", media.DownloadID,
-			"mediaTitle", media.MediaTitle,
-			"mediaURL", media.MediaURL,
-			"error", err,
-		)
-	}
-
-	if thumbnailData != nil {
-		if thumbnail == nil {
-			patch.needPatch = true
-			patch.thumbnailData = thumbnailData
-		} else if !thumbnail.ImageDataWithSourceURL().Equal(thumbnailData) {
-			patch.needPatch = true
-			patch.thumbnailData = thumbnailData
+		if thumbnailData != nil {
+			if thumbnail == nil {
+				patch.needPatch = true
+				patch.thumbnailData = thumbnailData
+			} else if !thumbnail.ImageDataWithSourceURL().Equal(thumbnailData) {
+				patch.needPatch = true
+				patch.thumbnailData = thumbnailData
+			}
 		}
 	}
 
@@ -223,6 +201,54 @@ func (uc *Executor) collectMetadata(
 	}
 
 	return patch, nil
+}
+
+func (uc *Executor) fetchSourceMetadata(ctx context.Context, media *ddownload.MediaDownload) *sourceMetadata {
+	if media == nil || media.MediaURL == nil || *media.MediaURL == "" {
+		return nil
+	}
+
+	mediaInfo, err := uc.downloaderSrv.FetchInfo(ctx, media.SourceURL())
+	if err != nil {
+		uc.logger.Warn(
+			"Failed to fetch media info",
+			"downloadID", media.DownloadID,
+			"mediaTitle", media.MediaTitle,
+			"mediaURL", media.MediaURL,
+			"error", err,
+		)
+	}
+
+	channelSource, err := uc.downloaderSrv.FetchChannelInfoWithCookieFallback(ctx, media.SourceURL())
+	if err != nil {
+		uc.logger.Warn(
+			"Failed to fetch channel info",
+			"downloadID", media.DownloadID,
+			"mediaTitle", media.MediaTitle,
+			"mediaURL", media.MediaURL,
+			"error", err,
+		)
+	}
+
+	thumbnailData, err := uc.downloaderSrv.FetchThumbnail(
+		ctx, media.SourceURL(),
+		ytdlpsrv.WithRequestTimeout(fetchImageTimeout),
+	)
+	if err != nil {
+		uc.logger.Warn(
+			"failed to fetch media thumbnail",
+			"downloadID", media.DownloadID,
+			"mediaTitle", media.MediaTitle,
+			"mediaURL", media.MediaURL,
+			"error", err,
+		)
+	}
+
+	return &sourceMetadata{
+		mediaInfo:     mediaInfo,
+		channelSource: channelSource,
+		thumbnailData: thumbnailData,
+	}
 }
 
 func (uc *Executor) applyMetadataPatch(

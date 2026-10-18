@@ -17,9 +17,12 @@ type MediaDownload struct {
 	// Unique short download code
 	DownloadCode string `db:"download_code"`
 
+	// Source of the media record: a remote URL or a file uploaded by the user
+	SourceType string `db:"source_type"`
+
 	UserID                   *uuid.UUID `db:"user_id" pfield:"userID"`
 	Status                   string     `db:"file_status"`
-	MediaURL                 string     `db:"media_url"`
+	MediaURL                 *string    `db:"media_url"`
 	MediaTitleOriginal       string     `db:"media_title_original"`
 	MediaTitle               string     `db:"media_title"`
 	MediaDescriptionOriginal *string    `db:"media_description_original"`

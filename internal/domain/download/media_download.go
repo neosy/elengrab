@@ -2,6 +2,7 @@ package ddownload
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -28,6 +29,9 @@ type MediaDownload struct {
 	// Unique short download code
 	DownloadCode string
 
+	// Source of the media record: a remote URL or a file uploaded by the user
+	SourceType dtypes.MediaDownloadSourceType
+
 	// Associated user identifier (UUID)
 	UserID *uuid.UUID
 
@@ -35,7 +39,7 @@ type MediaDownload struct {
 	Status dtypes.MediaDownloadStatus
 
 	// Media URL
-	MediaURL string
+	MediaURL *string
 
 	// Media title
 	MediaTitle string
@@ -96,7 +100,11 @@ type MediaDownload struct {
 }
 
 func (f *MediaDownload) IsYouTube() bool {
-	return hostdetect.YouTube(f.MediaURL)
+	if f.MediaURL == nil {
+		return false
+	}
+
+	return hostdetect.YouTube(*f.MediaURL)
 }
 
 func (src *MediaDownload) Clone() *MediaDownload {
@@ -107,6 +115,7 @@ func (src *MediaDownload) Clone() *MediaDownload {
 	copy := *src
 
 	copy.UserID = uptr.Clone(src.UserID)
+	copy.MediaURL = uptr.Clone(src.MediaURL)
 	copy.MediaDescription = uptr.Clone(src.MediaDescription)
 	copy.MediaDescriptionOriginal = uptr.Clone(src.MediaDescriptionOriginal)
 	copy.FileSize = uptr.Clone(src.FileSize)
@@ -118,6 +127,14 @@ func (src *MediaDownload) Clone() *MediaDownload {
 	copy.DownloadTask = src.DownloadTask.Clone()
 
 	return &copy
+}
+
+// SourceURL returns the media source URL, or an empty string for entries without one (e.g. uploads).
+func (d *MediaDownload) SourceURL() string {
+	if d.MediaURL == nil {
+		return ""
+	}
+	return *d.MediaURL
 }
 
 func (d *MediaDownload) Normalize() {
@@ -174,8 +191,19 @@ func (d *MediaDownload) Validate() error {
 		return errors.New("download code is required")
 	}
 
+	if err := d.SourceType.Validate(); err != nil {
+		return err
+	}
+
+	if d.SourceType == dtypes.MediaDownloadSourceTypeURL && (d.MediaURL == nil || *d.MediaURL == "") {
+		return errors.New("media url is required for url source type")
+	}
+
 	if utf8.RuneCountInString(d.MediaTitle) > MediaTitleMaxLength {
-		return errorx.NewHTTPMessage("Title must not exceed 100 characters", http.StatusBadRequest)
+		return errorx.NewHTTPMessage(
+			fmt.Sprintf("Title must not exceed %d characters", MediaTitleMaxLength),
+			http.StatusBadRequest,
+		)
 	}
 
 	// TODO: Determine the proper validation rules for media title.
@@ -185,15 +213,12 @@ func (d *MediaDownload) Validate() error {
 	// }
 
 	if d.MediaDescription != nil {
-		description := *d.MediaDescription
-
-		if utf8.RuneCountInString(description) > MediaDescriptionMaxLength {
+		if utf8.RuneCountInString(*d.MediaDescription) > MediaDescriptionMaxLength {
 			return errorx.NewHTTPMessage(
-				"Description must not exceed 5000 characters",
+				fmt.Sprintf("Description must not exceed %d characters", MediaDescriptionMaxLength),
 				http.StatusBadRequest,
 			)
 		}
-
 	}
 
 	return nil

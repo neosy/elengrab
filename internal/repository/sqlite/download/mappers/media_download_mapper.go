@@ -36,6 +36,7 @@ func (m *Mappers) MapDownloadDomainToEntity(download *ddownload.MediaDownload) (
 	return &edownload.MediaDownload{
 		DownloadID:               download.DownloadID,
 		DownloadCode:             download.DownloadCode,
+		SourceType:               download.SourceType.String(),
 		UserID:                   download.UserID,
 		Status:                   download.Status.String(),
 		MediaURL:                 download.MediaURL,
@@ -58,6 +59,11 @@ func (m *Mappers) MapDownloadDomainToEntity(download *ddownload.MediaDownload) (
 }
 
 func (m *Mappers) MapDownloadEntityToDomain(eDownload *edownload.MediaDownload, eTask *edownload.DownloadTask) (*ddownload.MediaDownload, error) {
+	sourceType, err := dtypes.ParseMediaDownloadSourceType(eDownload.SourceType)
+	if err != nil {
+		return nil, err
+	}
+
 	var mediaInfo *dtypes.MediaInfo
 	if eDownload.MediaInfo != nil {
 		mediaInfoJson := *eDownload.MediaInfo
@@ -110,6 +116,7 @@ func (m *Mappers) MapDownloadEntityToDomain(eDownload *edownload.MediaDownload, 
 	return &ddownload.MediaDownload{
 		DownloadID:               eDownload.DownloadID,
 		DownloadCode:             eDownload.DownloadCode,
+		SourceType:               sourceType,
 		UserID:                   eDownload.UserID,
 		Status:                   dtypes.MustParseMediaDownloadStatus(eDownload.Status),
 		MediaURL:                 eDownload.MediaURL,

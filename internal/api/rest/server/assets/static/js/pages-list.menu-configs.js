@@ -274,6 +274,9 @@ const uploadMenuConfig = {
       });
 
       DOM_ELEMENTS.mediaURLInput.focus();
+    },
+
+    uploadFile(item) {
     }
   },
 

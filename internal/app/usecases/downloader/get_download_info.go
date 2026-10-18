@@ -191,7 +191,7 @@ func (uc *downloader) resolveActualDownloadInfoByDownload(
 	}
 
 	var hasSiteIcon bool
-	siteLogo, _ := uc.siteIcon.FindBySiteURL(ctx, httpx.BaseURL(download.MediaURL))
+	siteLogo, _ := uc.siteIcon.FindBySiteURL(ctx, httpx.BaseURL(download.SourceURL()))
 	if siteLogo != nil {
 		hasSiteIcon = true
 		if channelTitle == "" {

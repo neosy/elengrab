@@ -1,4 +1,44 @@
 :root {
+    --admin-body-bg: #f3f5f6;
+    --admin-header-bg: #fff;
+    --admin-sidebar-bg: #2b3642;
+    --admin-sidebar-item-hover: #334155;
+    --admin-sidebar-item-active: #1f2a37;
+
+    --admin-panel-bg: #fff;
+    --admin-panel-border: #eee;
+
+    --admin-table-th-bg: #f8f9fa;
+    --admin-info-block-bg: #f8f9fa;
+    --admin-info-block-select-bg: #e8f5e9;
+    --admin-info-block-hover-bg: #ebf3fd;
+
+    --admin-btn-primary-bg: #3498db;
+    --admin-btn-secondary-bg: #95a5a6;
+    --admin-btn-success-bg: #2ecc71;
+}
+
+.dark {
+    --admin-body-bg: #1E1F20;
+    --admin-header-bg: #37393b;
+    --admin-sidebar-bg: #37393b;
+    --admin-sidebar-item-hover: #414345;
+    --admin-sidebar-item-active: #313335;
+
+    --admin-panel-bg: #37393b;
+    --admin-panel-border: rgba(255, 255, 255, 0.12);
+
+    --admin-table-th-bg: #313335;
+    --admin-info-block-bg: #313335;
+    --admin-info-block-select-bg: #324c33;
+    --admin-info-block-hover-bg: #47494b;
+
+    --admin-btn-primary-bg: #1478bb;
+    --admin-btn-secondary-bg: #758586;
+    --admin-btn-success-bg: #208148;
+}
+
+:root {
     --h1: 2.0rem;
     --h2: 1.6rem;
     --h3: 1.25rem;

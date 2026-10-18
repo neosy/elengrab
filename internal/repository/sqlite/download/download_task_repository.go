@@ -3,10 +3,12 @@ package download
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
@@ -15,6 +17,8 @@ import (
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	edownload "github.com/neosy/elengrab/internal/repository/sqlite/download/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/download/mappers"
+	"modernc.org/sqlite"
+	sqlite3 "modernc.org/sqlite/lib"
 )
 
 type DownloadTaskRepository struct {
@@ -27,7 +31,7 @@ type DownloadTaskRepository struct {
 
 type taskByFields struct {
 	downloadID *uuid.UUID
-	status     *dtypes.DownloadTaskStatus
+	status     *dtypes.MediaTaskStatus
 }
 
 // NewTaskRepository returns a new object for the repository
@@ -79,6 +83,12 @@ func (r *DownloadTaskRepository) save(ctx context.Context, task *ddownload.Downl
 		ToSql()
 	// If SQL generation failed — return an error
 	if err != nil {
+		var sqliteErr *sqlite.Error
+		if errors.As(err, &sqliteErr) &&
+			sqliteErr.Code() == sqlite3.SQLITE_CONSTRAINT_UNIQUE {
+			return apperrors.ErrIDConflict
+		}
+
 		return fmt.Errorf("failed to build SQL: %w", err)
 	}
 
@@ -95,13 +105,13 @@ func (r *DownloadTaskRepository) UpdateStatusToNew(ctx context.Context) error {
 	var ent edownload.DownloadTask
 
 	sqlWhere := squirrel.Or{
-		squirrel.Eq{ent.FieldName(&ent.Status): dtypes.DownloadTaskStatusPending.String()},
-		squirrel.Eq{ent.FieldName(&ent.Status): dtypes.DownloadTaskStatusWorking.String()},
+		squirrel.Eq{ent.FieldName(&ent.Status): dtypes.MediaTaskStatusPending.String()},
+		squirrel.Eq{ent.FieldName(&ent.Status): dtypes.MediaTaskStatusWorking.String()},
 	}
 
 	// Build query
 	sqlBuilder := squirrel.Update(ent.TableName()).
-		Set(ent.FieldName(&ent.Status), dtypes.DownloadTaskStatusNew.String()).
+		Set(ent.FieldName(&ent.Status), dtypes.MediaTaskStatusNew.String()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar)
 
@@ -120,12 +130,16 @@ func (r *DownloadTaskRepository) UpdateStatusToNew(ctx context.Context) error {
 	return nil
 }
 
-func (r *DownloadTaskRepository) FindByTaskID(ctx context.Context, taskID uuid.UUID) (*ddownload.DownloadTask, error) {
-	var ent edownload.DownloadTask
+func (r *DownloadTaskRepository) findBy(ctx context.Context, filterFieldName string, filterValue any) (*ddownload.DownloadTask, error) {
+	var eTask edownload.DownloadTask
 
-	sqlQuery, args, err := squirrel.Select(ent.QueryFields()...).
-		From(ent.TableName()).
-		Where(squirrel.Eq{ent.FieldName(&ent.TaskID): taskID.String()}).
+	sqlWhere := squirrel.And{
+		squirrel.Eq{filterFieldName: filterValue},
+	}
+
+	sqlQuery, args, err := squirrel.Select(eTask.QueryFields()...).
+		From(eTask.TableName()).
+		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()
@@ -140,7 +154,7 @@ func (r *DownloadTaskRepository) FindByTaskID(ctx context.Context, taskID uuid.U
 	execQuery := func() error {
 		row := db.QueryRowContext(ctx, sqlQuery, args...)
 		// Scan result into entity
-		err := row.Scan(ent.FieldPointers()...)
+		err := row.Scan(eTask.FieldPointers()...)
 		if err == sql.ErrNoRows {
 			notFound = true
 			return nil
@@ -156,93 +170,37 @@ func (r *DownloadTaskRepository) FindByTaskID(ctx context.Context, taskID uuid.U
 	}
 
 	// Map entity to domain model
-	task, err := r.mappers.MapDownloadTaskEntityToDomain(&ent)
+	task, err := r.mappers.MapDownloadTaskEntityToDomain(&eTask)
 	if err != nil {
 		return nil, err
 	}
 
 	return task, nil
+}
+
+func (r *DownloadTaskRepository) FindByTaskID(ctx context.Context, taskID uuid.UUID) (*ddownload.DownloadTask, error) {
+	var eTask edownload.DownloadTask
+	return r.findBy(ctx, eTask.FieldName(&eTask.TaskID), taskID.String())
 }
 
 func (r *DownloadTaskRepository) FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.DownloadTask, error) {
-	var ent edownload.DownloadTask
-
-	sqlQuery, args, err := squirrel.Select(ent.QueryFields()...).
-		From(ent.TableName()).
-		Where(squirrel.Eq{ent.FieldName(&ent.DownloadID): downloadID.String()}).
-		PlaceholderFormat(squirrel.Dollar).
-		Limit(1).
-		ToSql()
-
-	if err != nil {
-		return nil, fmt.Errorf("error generating SQL: %v", err)
-	}
-
-	// Execute the query
-	var notFound bool
-	db := dbexec.Resolve(ctx, r.dbEntry)
-	execQuery := func() error {
-		row := db.QueryRowContext(ctx, sqlQuery, args...)
-		// Scan result into entity
-		err := row.Scan(ent.FieldPointers()...)
-		if err == sql.ErrNoRows {
-			notFound = true
-			return nil
-		}
-		return err
-	}
-	err = dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
-	if err != nil {
-		return nil, err
-	}
-	if notFound {
-		return nil, nil
-	}
-
-	// Map entity to domain model
-	task, err := r.mappers.MapDownloadTaskEntityToDomain(&ent)
-	if err != nil {
-		return nil, err
-	}
-
-	return task, nil
+	var eTask edownload.DownloadTask
+	return r.findBy(ctx, eTask.FieldName(&eTask.DownloadID), downloadID.String())
 }
 
-func (r *DownloadTaskRepository) Delete(ctx context.Context, taskID uuid.UUID) error {
-	var ent edownload.DownloadTask
+func (r *DownloadTaskRepository) deleteBy(ctx context.Context, filterFieldName string, filterValue any) error {
+	var eTask edownload.DownloadTask
 
-	// Build DELETE query
-	sqlBuilder := squirrel.Delete(ent.TableName()).
-		Where(squirrel.Eq{ent.FieldName(&ent.TaskID): taskID.String()}).
-		PlaceholderFormat(squirrel.Dollar)
-
-	// Generate SQL and args
-	sqlStr, args, err := sqlBuilder.ToSql()
-	if err != nil {
-		return fmt.Errorf("error generating SQL: %v", err)
+	if filterFieldName == "" {
+		return nil
 	}
 
-	// Execute the query
-	err = dbexec.ExecContext(ctx, r.dbEntry, sqlStr, args, r.retryOptions)
-	if err != nil {
-		return fmt.Errorf("failed to delete task: %v", err)
-	}
-
-	return nil
-}
-
-func (r *DownloadTaskRepository) deleteBy(ctx context.Context, byFields taskByFields) error {
-	var ent edownload.DownloadTask
-
-	sqlWhere := squirrel.Expr("TRUE")
-	if byFields.downloadID != nil {
-		sqlWhere = squirrel.Eq{ent.FieldName(&ent.DownloadID): byFields.downloadID.String()}
-	} else if byFields.status != nil {
-		sqlWhere = squirrel.Eq{ent.FieldName(&ent.Status): byFields.status.String()}
+	sqlWhere := squirrel.And{
+		squirrel.Eq{filterFieldName: filterValue},
 	}
 
 	// Build DELETE query
-	sqlBuilder := squirrel.Delete(ent.TableName()).
+	sqlBuilder := squirrel.Delete(eTask.TableName()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar)
 
@@ -261,14 +219,25 @@ func (r *DownloadTaskRepository) deleteBy(ctx context.Context, byFields taskByFi
 	return nil
 }
 
-func (r *DownloadTaskRepository) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
-	return r.deleteBy(ctx, taskByFields{downloadID: &downloadID})
+func (r *DownloadTaskRepository) Delete(ctx context.Context, taskID uuid.UUID) error {
+	var eTask edownload.DownloadTask
+	return r.deleteBy(ctx, eTask.FieldName(&eTask.TaskID), taskID.String())
 }
 
-func (r *DownloadTaskRepository) DeleteByStatus(ctx context.Context, status dtypes.DownloadTaskStatus) error {
-	return r.deleteBy(ctx, taskByFields{status: &status})
+func (r *DownloadTaskRepository) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
+	var eTask edownload.DownloadTask
+	return r.deleteBy(ctx, eTask.FieldName(&eTask.DownloadID), downloadID.String())
+}
+
+func (r *DownloadTaskRepository) DeleteByStatus(ctx context.Context, status dtypes.MediaTaskStatus) error {
+	var eTask edownload.DownloadTask
+	return r.deleteBy(ctx, eTask.FieldName(&eTask.Status), status.String())
 }
 
 func (r *DownloadTaskRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
 	return dbexec.Tx(ctx, r.dbEntry, fn)
+}
+
+func (r *DownloadTaskRepository) TxIndependent(ctx context.Context, fn func(ctx context.Context) error) error {
+	return dbexec.TxIndependent(ctx, r.dbEntry, fn)
 }

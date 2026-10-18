@@ -8,6 +8,11 @@ type ViewModeTab struct {
 	Active bool
 }
 
+type VisibilityOption struct {
+	Value string
+	Label string
+}
+
 func BuildViewModeTabs(activeMode dtypes.QueryMediaViewMode) []ViewModeTab {
 	var tabs []ViewModeTab
 

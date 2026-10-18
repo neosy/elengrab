@@ -3,12 +3,16 @@ package database
 import (
 	"database/sql"
 	"embed"
+	"errors"
 	"fmt"
 	"io/fs"
 	"log/slog"
+	"path/filepath"
+	"time"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite"
+	backupname "github.com/neosy/elengrab/internal/infrastructure/sqlite/backup_name"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	sqliterep "github.com/neosy/elengrab/internal/repository/sqlite"
 )
@@ -58,10 +62,16 @@ func migrationsSearchIndexRoot() (fs.FS, error) {
 type MigrationConfig struct {
 	// Path to SQLite database directory
 	SQLiteDir string
+
+	// Path to backups directory for pre-migration backups
+	BackupsDir string
+
 	// path to migration files
 	Dir string
+
 	// Disable automatic transaction wrapping for migrations (required for ATTACH, etc.)
 	NoTxWrap bool
+
 	// Enable copying migrations and resolving ${SOURCE_DB} placeholders
 	ResolveSourceDB bool
 }
@@ -129,6 +139,10 @@ func (m *Migrations) applyUp(migrator *migrate.Migrate) error {
 // Returns:
 //   - error: non-nil if any step fails.
 func (m *Migrations) ApplyMigrations() error {
+	if err := requireSQLiteVersion(m.db); err != nil {
+		return err
+	}
+
 	sqliteConfig := &sqlite.Config{}
 	if m.config != nil {
 		sqliteConfig.NoTxWrap = m.config.NoTxWrap
@@ -180,6 +194,10 @@ func (m *Migrations) ApplyMigrations() error {
 	// 	log.Fatalf("failed to rollback migration: %v", err)
 	// }
 
+	if err := m.backupIfPending(mgr); err != nil {
+		return err
+	}
+
 	return m.applyUp(mgr)
 }
 
@@ -206,5 +224,39 @@ func (m *Migrations) rollbackMigration(mgr *migrate.Migrate) error {
 		m.logger.Info("Dirty state cleared.")
 	}
 
+	return nil
+}
+
+// backupIfPending makes a consistent copy of the database before pending migrations run.
+func (m *Migrations) backupIfPending(mgr *migrate.Migrate) error {
+	if m.config == nil || m.config.BackupsDir == "" || m.fs == nil {
+		return nil
+	}
+
+	current, _, err := mgr.Version()
+	if errors.Is(err, migrate.ErrNilVersion) {
+		return nil // a brand-new database: nothing to protect
+	}
+	if err != nil {
+		return err
+	}
+
+	latest, err := latestMigrationVersion(m.fs)
+	if err != nil {
+		return err
+	}
+	if latest <= current {
+		return nil
+	}
+
+	path := filepath.Join(m.config.BackupsDir, fmt.Sprintf("%s_premigration_v%d_%s.%s",
+		backupname.Prefix(m.name), current, time.Now().Format(backupname.DateFormat), backupname.FileExt))
+
+	// Abort the migration if the backup can't be made.
+	if _, err := m.db.Exec(`VACUUM INTO ?`, path); err != nil {
+		return fmt.Errorf("pre-migration backup of '%s' failed, migrations aborted: %w", m.name, err)
+	}
+
+	m.logger.Info("Pre-migration backup created", "db", m.name, "path", path)
 	return nil
 }
