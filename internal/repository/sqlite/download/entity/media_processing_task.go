@@ -1,9 +1,8 @@
 package edownload
 
 import (
-	"time"
+	"database/sql"
 
-	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/pkg/dbentity"
 	tablenames "github.com/neosy/elengrab/internal/repository/sqlite/download/table_names"
 )
@@ -12,28 +11,28 @@ type MediaProcessingTask struct {
 	dbentity.BaseEntity[MediaProcessingTask]
 
 	// Unique task identifier (UUID)
-	TaskID uuid.UUID `db:"task_id"`
+	TaskID sql.NullString `db:"task_id"`
 
 	// Unique file identifier (UUID)
-	DownloadID uuid.UUID `db:"download_id"`
+	DownloadID sql.NullString `db:"download_id"`
 
 	// Status
-	Status string `db:"task_status"`
+	Status sql.NullString `db:"task_status"`
 
 	// Path to the staged uploaded file
-	SourcePath string `db:"source_path"`
+	SourcePath sql.NullString `db:"source_path"`
 
 	// ID of the worker currently processing the task
-	WorkerID *int `db:"worker_id"`
+	WorkerID sql.NullInt64 `db:"worker_id"`
 
 	// ID of the job currently processing the task
-	JobID *uuid.UUID `db:"job_id"`
+	JobID sql.NullString `db:"job_id"`
 
 	// Task creation timestamp
-	CreatedAt time.Time `db:"created_at" insert:"false"`
+	CreatedAt sql.NullTime `db:"created_at" insert:"false"`
 
 	// Last update timestamp
-	UpdatedAt time.Time `db:"updated_at" sqlexpr:"CURRENT_TIMESTAMP"`
+	UpdatedAt sql.NullTime `db:"updated_at" sqlexpr:"CURRENT_TIMESTAMP"`
 }
 
 // TableName returns the table name

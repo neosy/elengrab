@@ -5,12 +5,12 @@ import (
 	"path"
 	"path/filepath"
 
-	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/executor"
 	formatcache "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/format_cache"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/mappers"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
@@ -25,7 +25,7 @@ type Downloader struct {
 	storage pstorage.DownloadsStorage // Storage where downloaded files are saved
 
 	// Services
-	ffmpeg *ffmpegsrv.FFmpegService
+	ffmpeg pservices.FFMpeg
 
 	// Parameters
 	ytDlpName      string
@@ -37,7 +37,7 @@ func NewDownloader(
 	logger *slog.Logger,
 	ytDlpPath string,
 	storage pstorage.DownloadsStorage,
-	ffmpeg *ffmpegsrv.FFmpegService,
+	ffmpeg pservices.FFMpeg,
 	serviceOptions idto.ServiceOptions,
 ) *Downloader {
 	formatCache := formatcache.NewFormatCache(path.Join(storage.BasePath(), consts.YtDlpFormatCacheDir))

@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	ffmpegsrv "github.com/neosy/elengrab/internal/app/services/ffmpeg"
-	ytdlpsrv "github.com/neosy/elengrab/internal/app/services/ytdlp"
+	"github.com/neosy/elengrab/internal/app/services/ffmpeg/ffframe"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
 func (m *migrations) fillThumbnails(ctx context.Context) error {
@@ -24,7 +24,7 @@ func (m *migrations) fillThumbnails(ctx context.Context) error {
 			m.Logger(),
 			retryCountDefault, retryDelayDefault,
 			func(ctx context.Context, path string) (*dtypes.ImageData, error) {
-				return m.Services().Downloader.FetchThumbnail(ctx, path, ytdlpsrv.WithRequestCookies())
+				return m.Services().Downloader.FetchThumbnail(ctx, path, pservices.WithDownloaderCookies())
 			},
 		)
 
@@ -43,8 +43,8 @@ func (m *migrations) fillThumbnails(ctx context.Context) error {
 				return m.Services().FFMpeg.ExtractBestFrame(
 					ctx,
 					path,
-					ffmpegsrv.WithFrameStrategy(ffmpegsrv.FrameStrategyBalanced{}),
-					ffmpegsrv.WithFrameFormat(ffmpegsrv.FrameFormatWebP{}),
+					pservices.WithFrameStrategy(ffframe.FrameStrategyBalanced{}),
+					pservices.WithFrameFormat(ffframe.FrameFormatWebP{}),
 				)
 			},
 		)
@@ -76,9 +76,14 @@ func (m *migrations) fillThumbnails(ctx context.Context) error {
 
 	medias, err := m.getAllDownloads(ctx, false,
 		func(download *ddownload.MediaDownload) bool {
+			if download.MediaInfo == nil {
+				return false
+			}
+
 			if download.MediaInfo.ThumbnailID == nil && download.MediaInfo.FrameThumbnailID == nil {
 				return true
 			}
+			
 			return false
 		},
 	)
@@ -103,7 +108,7 @@ func (m *migrations) fillThumbnails(ctx context.Context) error {
 		default:
 		}
 
-		if media.MediaInfo.ThumbnailID == nil && media.SourceType == dtypes.MediaDownloadSourceTypeURL {
+		if media.MediaInfo.ThumbnailID == nil && media.SourceURL() != "" {
 			imageData := fetchThumbnail(ctx, media.SourceURL())
 			if imageData != nil {
 				sourceType := hostdetect.DetectPlatformType(media.SourceURL()).ThumbnailSourceType()

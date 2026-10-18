@@ -24,6 +24,7 @@ const (
 	EventsPath       = "/events"
 	MediaItemsPath   = "/items"
 	ChannelsPath     = "/channels"
+	UploadPath       = "/upload"
 
 	// Paths items Downloader
 	MediaItemPath                = MediaItemsPath + "/{itemId}"
@@ -37,6 +38,9 @@ const (
 	MediaItemRefreshPath         = MediaItemsPath + "/{itemId}/refresh"
 	MediaItemReWatchTrackingPath = MediaItemsPath + "/{itemId}/watch-tracking"
 	MediaItemWatchPositionPath   = MediaItemsPath + "/{itemId}/watch-position"
+
+	// Paths Uploader
+	UploadFilePath = UploadPath + "/{fileId}"
 
 	// Paths channels
 	ChannelPath = ChannelsPath + "/{channelId}"
@@ -56,6 +60,8 @@ const (
 	DownloaderEventsPath       = DownloaderGroup + EventsPath
 	DownloaderChannelsPath     = DownloaderGroup + ChannelsPath
 	DownloaderUsersPath        = DownloaderGroup + ChannelPath
+	DownloaderUploadPath       = DownloaderGroup + UploadPath
+	DownloaderUploadFilePath   = DownloaderGroup + UploadFilePath
 )
 
 func buildMediaItemPath(path string, downloadID uuid.UUID) string {
@@ -91,6 +97,15 @@ func BuildMediaItemDownloadPath(downloadID uuid.UUID) string {
 func BuildMediaItemImagePath(downloadID uuid.UUID, verHash string, sources []dtypes.ImageSource) string {
 	urlSufix := buildImageSufix(verHash, sources)
 	return buildMediaItemPath(MediaItemImagePath, downloadID) + urlSufix
+}
+
+func buildUploadFilePath(path string, fileID uuid.UUID) string {
+	id := idcodec.EncodeUUIDBase64URL(fileID)
+	return DownloaderGroup + strings.Replace(path, "{fileId}", id, 1)
+}
+
+func BuildUploadFilePath(path string, fileID uuid.UUID) string {
+	return buildUploadFilePath(UploadFilePath, fileID)
 }
 
 func buildChannelPath(path string, channelID uuid.UUID) string {

@@ -11,6 +11,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
 type downloaderBase interface {
@@ -78,7 +79,7 @@ type DownloaderAPI interface {
 	) ([]*dto.MediaDownloadInfo, error)
 	PatchMediaDownload(ctx context.Context, authCtx dauth.AuthContext, req dto.PatchMediaDownloadRequest) error
 	DeleteDownload(ctx context.Context, authCtx dauth.AuthContext, downloadID uuid.UUID) error
-	HasWriteOperationAccess(authCtx dauth.AuthContext) bool
+	HasWriteAccess(authCtx dauth.AuthContext) bool
 	CanCreateMediaDownload(authCtx dauth.AuthContext) bool
 	GetLastWatchPosition(ctx context.Context, authCtx dauth.AuthContext, downloadID uuid.UUID) (time.Duration, error)
 	ScheduleDownload(
@@ -92,6 +93,12 @@ type DownloaderAPI interface {
 		authCtx dauth.AuthContext,
 		downloadID uuid.UUID,
 	) (*dto.MediaDownloadInfo, error)
+	ScheduleUpload(
+		ctx context.Context,
+		authCtx dauth.AuthContext,
+		upload pservices.UploadedFile,
+		req dto.ScheduleUploadRequest,
+	) (*dto.ScheduleUploadResponse, error)
 	ScheduleRefreshMetadata(
 		ctx context.Context,
 		authCtx dauth.AuthContext,

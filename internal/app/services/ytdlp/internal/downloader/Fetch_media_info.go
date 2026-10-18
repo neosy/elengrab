@@ -5,7 +5,7 @@ import (
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
-	dservices "github.com/neosy/elengrab/internal/domain/services"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
 // GetInfo retrieves and parses video formats for the given URL.
@@ -13,7 +13,7 @@ func (d *Downloader) FetchInfo(
 	ctx context.Context,
 	url string,
 	options idto.RequestOptions,
-) (*dservices.DownloaderMediaInfo, error) {
+) (*pservices.DownloaderMeta, error) {
 	var cookieFilePath string
 	if options.AllowCookies {
 		cookieFilePath, _ = helper.CookieFilePathFromURL(url, d.serviceOptions.CookiesDir)
@@ -24,5 +24,5 @@ func (d *Downloader) FetchInfo(
 		return nil, err
 	}
 
-	return d.mappers.MapMediaInfoToDomain(info), nil
+	return d.mappers.MapExtractInfoToDownloaderMeta(info), nil
 }

@@ -14,7 +14,7 @@ import (
 
 func (a *auth) RegisterUser(
 	ctx context.Context,
-	req *dto.RegisterUserRequest,
+	req *dto.AuthRegisterUserRequest,
 ) (*dto.AuthUserResponse, error) {
 	if req == nil {
 		return nil, autherr.ErrFunctionNilParameter

@@ -10,10 +10,19 @@ import (
 
 func (m *migrations) fillMediaDescription(ctx context.Context) error {
 	medias, err := m.getAllDownloads(ctx, false,
-		func(download *ddownload.MediaDownload) bool {
-			if download.MediaDescription == nil || *download.MediaDescription == "" {
+		func(media *ddownload.MediaDownload) bool {
+			if media.SourceType != dtypes.MediaDownloadSourceTypeURL {
+				return false
+			}
+
+			if media.SourceURL() == "" {
+				return false
+			}
+
+			if media.MediaDescription == nil || *media.MediaDescription == "" {
 				return true
 			}
+
 			return false
 		},
 	)
@@ -30,10 +39,6 @@ func (m *migrations) fillMediaDescription(ctx context.Context) error {
 	var hasError bool
 
 	for i, media := range medias {
-		if media.SourceType != dtypes.MediaDownloadSourceTypeURL {
-			continue
-		}
-
 		m.Logger().Debug("Extract media info", "index", i+1, "total", len(medias))
 
 		info, err := m.Services().Downloader.FetchInfo(ctx, media.SourceURL())

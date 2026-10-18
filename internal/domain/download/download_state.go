@@ -2,7 +2,7 @@ package ddownload
 
 import (
 	"github.com/google/uuid"
-	dservices "github.com/neosy/elengrab/internal/domain/services"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
@@ -12,7 +12,7 @@ type DownloadState struct {
 	TaskID     *uuid.UUID
 
 	Download *MediaDownload
-	Progress *dservices.DownloaderProgress
+	Progress *dtypes.DownloadProgress
 }
 
 // InitFromMediaDownload initializes the state from a file.

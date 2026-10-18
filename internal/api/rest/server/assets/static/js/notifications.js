@@ -8,23 +8,33 @@ export const notifyType = {
     INFO:    'info'
 };
 
-export function show(message, type = NotificationType.INFO, duration = durationDefault) {
+// Move the notification area to the top of the top layer,
+// so it is rendered above any open modal dialog.
+function raiseNotificationArea() {
+    if (notificationArea.matches(':popover-open')) {
+        notificationArea.hidePopover();
+    }
+    notificationArea.showPopover();
+}
+
+export function show(message, type = notifyType.INFO, duration = durationDefault) {
     const notification = document.createElement('div');
     notification.className = `notification notification--${type}`;
     notification.textContent = message;
 
     notificationArea.appendChild(notification);
+    raiseNotificationArea();
 
     setTimeout(() => {
-    notification.classList.add('notification--show');
+        notification.classList.add('notification--show');
     }, 10);
 
     setTimeout(() => {
-    notification.classList.remove('notification--show');
+        notification.classList.remove('notification--show');
 
-    setTimeout(() => {
-        notification.remove();
-    }, 400);
+        setTimeout(() => {
+            notification.remove();
+        }, 400);
     }, duration);
 }
 
@@ -35,7 +45,7 @@ let errorMessageTimer = null;
  * @param {string} text - Message to display
  * @param {HTMLElement} container - Element that will get the "show" class
  * @param {HTMLElement} messageElem - Element where the message text will be inserted
- * @param {number} duration - Duration in ms to show the message (default 2000)
+ * @param {number} duration - Duration in ms to show the message (default 5000)
  */
 export function showErrorMessage(text, container, messageElem, duration = 5000) {
     if (!container || !messageElem) return;
@@ -46,10 +56,10 @@ export function showErrorMessage(text, container, messageElem, duration = 5000) 
         errorMessageTimer = null;
     }
 
-    // Updating the message text
+    // Update the message text
     messageElem.textContent = `Error: ${text}`;
 
-    // Показать элемент
+    // Show the element
     container.classList.add("show");
 
     // Hide after a set time

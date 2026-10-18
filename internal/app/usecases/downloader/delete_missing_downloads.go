@@ -65,7 +65,7 @@ func (uc *downloader) deleteMissingDownloads(ctx context.Context) error {
 			err := uc.download.SoftDelete(ctx, download.DownloadID)
 			if err == nil {
 				uc.logger.Debug("Soft deleting file", "download_id", download.DownloadID, "fileName", download.FileFullName)
-				uc.broadcastDownloadDelete(ctx, download)
+				uc.broadcastMediaDownloadDeleted(ctx, download)
 			}
 		}
 	}

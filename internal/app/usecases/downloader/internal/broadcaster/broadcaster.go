@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	"github.com/neosy/elengrab/internal/app/usecases/types"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/domain/types/broadcast"
@@ -56,7 +57,7 @@ func (b *Broadcaster) Unsubscribe(clientKey broadcast.ClientKey) {
 	close(data.eventCh)
 }
 
-func (b *Broadcaster) Broadcast(eventType dto.BroadcastEventType, data any) {
+func (b *Broadcaster) Broadcast(eventType types.BroadcastEventType, data any) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
@@ -73,7 +74,7 @@ func (b *Broadcaster) Broadcast(eventType dto.BroadcastEventType, data any) {
 	}
 }
 
-func (b *Broadcaster) BroadcastPublic(key eventkey.EventKey, eventType dto.BroadcastEventType, data any) {
+func (b *Broadcaster) BroadcastPublic(key eventkey.EventKey, eventType types.BroadcastEventType, data any) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
@@ -106,7 +107,7 @@ func (b *Broadcaster) BroadcastPublic(key eventkey.EventKey, eventType dto.Broad
 	}
 }
 
-func (b *Broadcaster) BroadcastByKey(key eventkey.EventKey, eventType dto.BroadcastEventType, data any) {
+func (b *Broadcaster) BroadcastByKey(key eventkey.EventKey, eventType types.BroadcastEventType, data any) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
@@ -131,7 +132,7 @@ func (b *Broadcaster) BroadcastByKey(key eventkey.EventKey, eventType dto.Broadc
 	}
 }
 
-func (b *Broadcaster) BroadcastByAccess(key eventkey.EventKey, eventType dto.BroadcastEventType, data any) {
+func (b *Broadcaster) BroadcastByAccess(key eventkey.EventKey, eventType types.BroadcastEventType, data any) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
@@ -160,28 +161,28 @@ func (b *Broadcaster) BroadcastByAccess(key eventkey.EventKey, eventType dto.Bro
 	}
 }
 
-func (b *Broadcaster) BroadcastToAuth(authCtx dauth.AuthContext, eventType dto.BroadcastEventType, data any) {
+func (b *Broadcaster) BroadcastToAuth(authCtx dauth.AuthContext, eventType types.BroadcastEventType, data any) {
 	if authCtx.UserID == uuid.Nil && authCtx.AnonSessionID == uuid.Nil {
 		return
 	}
 	b.BroadcastByKey(authCtx.EventKey(), eventType, data)
 }
 
-func (b *Broadcaster) BroadcastToUser(userID uuid.UUID, eventType dto.BroadcastEventType, data any) {
+func (b *Broadcaster) BroadcastToUser(userID uuid.UUID, eventType types.BroadcastEventType, data any) {
 	if userID == uuid.Nil {
 		return
 	}
 	b.BroadcastByKey(eventkey.NewEventKeyUserID(userID), eventType, data)
 }
 
-func (b *Broadcaster) BroadcastToSession(sessionID uuid.UUID, eventType dto.BroadcastEventType, data any) {
+func (b *Broadcaster) BroadcastToSession(sessionID uuid.UUID, eventType types.BroadcastEventType, data any) {
 	if sessionID == uuid.Nil {
 		return
 	}
 	b.BroadcastByKey(eventkey.NewEventKeySessionID(sessionID), eventType, data)
 }
 
-func (b *Broadcaster) BroadcastToUsersWithAccess(userID uuid.UUID, eventType dto.BroadcastEventType, data any) {
+func (b *Broadcaster) BroadcastToUsersWithAccess(userID uuid.UUID, eventType types.BroadcastEventType, data any) {
 	if userID == uuid.Nil {
 		return
 	}

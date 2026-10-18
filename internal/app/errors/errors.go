@@ -6,6 +6,7 @@ import (
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/valyala/fasthttp"
 )
 
 var (
@@ -20,4 +21,20 @@ var (
 	).(errorx.Errorx)
 
 	ErrIDConflict = errors.New("id conflict")
+
+	ErrUnsupportedMediaFormat = errorx.New(
+		"unsupported media format",
+		errorx.WithErrorMessage("Unsupported media format"),
+		errorx.WithHttpStatus(fasthttp.StatusUnsupportedMediaType),
+	)
+	ErrUnsupportedVideoCodec = errorx.New(
+		"unsupported video codec",
+		errorx.WithErrorMessage("Unsupported video codec"),
+		errorx.WithHttpStatus(fasthttp.StatusUnsupportedMediaType),
+	)
+	ErrUnsupportedAudioCodec = errorx.New(
+		"unsupported audio codec",
+		errorx.WithErrorMessage("Unsupported audio codec"),
+		errorx.WithHttpStatus(fasthttp.StatusUnsupportedMediaType),
+	)
 )

@@ -11,6 +11,5 @@ func (uc *downloader) ExecuteDownloadTask(
 	workerId uint64,
 	task *ddownload.DownloadTask,
 ) error {
-	defer uc.UpdateSystemDiskInfo()
-	return uc.dlExecutor.ExecuteDownloadTask(ctx, workerId, task)
+	return uc.taskExecutors.Download.Execute(ctx, workerId, task)
 }

@@ -59,6 +59,7 @@ var (
 
 		cssFileNames{
 			"grab-form.css",
+			"upload-media-dialog.css",
 		}...,
 	)
 

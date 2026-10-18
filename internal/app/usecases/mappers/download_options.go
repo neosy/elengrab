@@ -2,18 +2,18 @@ package mappers
 
 import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	dservices "github.com/neosy/elengrab/internal/domain/services"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
-func (m *Mappers) MapDownloadOptionsDomainToService(options *ddownload.DownloadOptions) *dservices.DownloadOptions {
-	opt := dservices.NewDefaultDownloadOptions()
+func (m *Mappers) MapDownloadOptionsDomainToService(options *ddownload.DownloadOptions) *pservices.DownloadOptions {
+	opt := pservices.NewDefaultDownloadOptions()
 
 	opt.FormatType = options.FormatType
 	opt.VideoFormat = options.VideoFormat
 	opt.VideoCodec = options.VideoCodec
 	opt.VideoResolution = options.VideoResolution
 	opt.AudioFormat = options.AudioFormat
-	opt.Filename = options.Filename
+	opt.UniqueFileName = options.UniqueFileName
 	opt.VideoQuality = options.VideoQuality
 	opt.AudioQuality = options.AudioQuality
 

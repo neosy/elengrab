@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	"github.com/neosy/elengrab/internal/app/usecases/types"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
@@ -20,19 +21,8 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 		mediaTitle = download.SourceURL()
 	}
 
-	workingStatus := dto.WorkingStatusNone
-	if download.Status == dtypes.MediaDownloadStatusWorking {
-		workingStatus = dto.WorkingStatusStartDownload
-		if mappingData.Progress != nil {
-			if mappingData.Progress.Percent() < 100 {
-				workingStatus = dto.WorkingStatusDownloading
-			} else {
-				workingStatus = dto.WorkingStatusFinishDownload
-			}
-		}
-	}
-
-	mediaInfoText := mediaInfoText(download.MediaInfo)
+	workingStatus := resolveWorkingStatus(download, mappingData.Progress)
+	mediaInfoText := resolveMediaInfoText(download.MediaInfo)
 
 	return &dto.MediaDownloadInfo{
 		DownloadID: download.DownloadID,
@@ -81,7 +71,7 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 	}
 }
 
-func mediaInfoText(mediaInfo *dtypes.MediaInfo) string {
+func resolveMediaInfoText(mediaInfo *dtypes.MediaInfo) string {
 	if mediaInfo == nil {
 		return ""
 	}
@@ -124,4 +114,32 @@ func mediaInfoText(mediaInfo *dtypes.MediaInfo) string {
 
 func mediaInfoTooltip(text string) string {
 	return strings.ReplaceAll(text, "; ", "\n")
+}
+
+// resolveWorkingStatus determines the working status of a media item
+// from its status, source type and the current download progress.
+// Uploaded media has no download stage, so it is always reported as finished.
+// Progress may be nil if no progress has been reported yet.
+func resolveWorkingStatus(
+	download *ddownload.MediaDownload,
+	progress *dtypes.DownloadProgress,
+) types.WorkingStatus {
+	if download == nil || download.Status != dtypes.MediaDownloadStatusWorking {
+		return types.WorkingStatusNone
+	}
+
+	if download.SourceType == dtypes.MediaDownloadSourceTypeUpload {
+		return types.WorkingStatusFinishDownload
+	}
+
+	// No progress reported yet: the download has just started.
+	if progress == nil {
+		return types.WorkingStatusStartDownload
+	}
+
+	if progress.Percent() < 100 {
+		return types.WorkingStatusDownloading
+	}
+
+	return types.WorkingStatusFinishDownload
 }

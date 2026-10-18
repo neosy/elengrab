@@ -11,14 +11,15 @@ import (
 
 func (m *migrations) fillTitleForInstagram(ctx context.Context) error {
 	medias, err := m.getAllDownloads(ctx, false,
-		func(download *ddownload.MediaDownload) bool {
-			if download.SourceURL() == "" {
+		func(media *ddownload.MediaDownload) bool {
+			if media.SourceURL() == "" {
 				return false
 			}
 
-			if hostdetect.Instagram(download.SourceURL()) {
+			if hostdetect.Instagram(media.SourceURL()) {
 				return true
 			}
+
 			return false
 		},
 	)

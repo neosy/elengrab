@@ -61,6 +61,10 @@ var (
 
 func makeIsPlatform(rootDomain string, urls map[string]struct{}) isPlatform {
 	return func(rawURL string) bool {
+		if strings.TrimSpace(rawURL) == "" {
+			return false
+		}
+
 		u, err := url.Parse(rawURL)
 		if err != nil {
 			return false

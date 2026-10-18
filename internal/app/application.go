@@ -46,10 +46,12 @@ const (
 	siteLogoCacheTTL = 1 * 24 * time.Hour
 	// TTL for thumbnail information cache
 	thumbnailCacheTTL = 1 * 24 * time.Hour
-	// for thumbnail file cache
+	// TTL for thumbnail file cache
 	thumbnailFileCacheTTL = 60 * time.Minute
-	// for static file cache
-	assetFileCacheTTL = 60 * time.Hour
+	// TTL for static file cache
+	assetFileCacheTTL = 60 * time.Minute
+	// TTL for uploaded file cache
+	defaultUploadedFileCacheTTL = 2 * time.Hour
 
 	// Update interval for site logo information
 	logoUpdateInterval = 24 * time.Hour
@@ -65,6 +67,7 @@ const (
 	cleanThumbnailCacheInterval             = 23 * time.Hour
 	cleanThumbnailFileCacheInterval         = 1 * time.Hour
 	cleanAssetFileCacheInterval             = 1 * time.Hour
+	cleanUploadedFileCacheInterval          = 30 * time.Minute
 
 	// Intervals for updating metrics
 	updateSystemInfoInterval = 15 * time.Minute
@@ -100,14 +103,16 @@ type Application struct {
 	sqLiteRepositories *sqliterep.Repositories
 
 	// Caches
-	AssetFileCacheRepository persistence.AssetFileCacheRepository
+	AssetFileCacheRepo    persistence.AssetFileCacheRepository
+	UploadedFileCacheRepo persistence.UploadedFileCacheRepository
 
 	Usecases *usecases.Usecases
 	Services *services.Services
 
-	DownloadWorkerPool   workerpool.WorkerPool
-	OperationWorkerPool  workerpool.WorkerPool
-	WatchEventWorkerPool workerpool.WorkerPool
+	DownloadWorkerPool       workerpool.WorkerPool
+	MediProcessingWorkerPool workerpool.WorkerPool
+	OperationWorkerPool      workerpool.WorkerPool
+	WatchEventWorkerPool     workerpool.WorkerPool
 
 	Workers *workers.Workers
 
@@ -153,7 +158,8 @@ func (a *Application) initialize() error {
 
 	// Initialize in memory repositories
 	inMemoryRepositories := a.initInMemoryRepositories()
-	a.AssetFileCacheRepository = inMemoryRepositories.AssetFile
+	a.AssetFileCacheRepo = inMemoryRepositories.AssetFile
+	a.UploadedFileCacheRepo = inMemoryRepositories.UploadedFile
 
 	// Initialize storages
 	storages, err := a.initStorages()
@@ -180,6 +186,7 @@ func (a *Application) initialize() error {
 
 	// Initialize workers pool
 	a.DownloadWorkerPool = a.newDownloadWorkerPool()
+	a.MediProcessingWorkerPool = a.newMediaProcessingWorkerPool()
 	a.OperationWorkerPool = a.newOperationWorkerPool()
 	a.WatchEventWorkerPool = a.newWatchEventWorkerPool()
 
@@ -190,6 +197,7 @@ func (a *Application) initialize() error {
 
 			MediaDownload:         slRepositories.MediaDownload,
 			DownloadTask:          slRepositories.DownloadTask,
+			MediaProcessingTask:   slRepositories.MediaProcessingTask,
 			DownloadDataMigration: slRepositories.DownloadDataMigration,
 
 			MediaWatchEvent:     slRepositories.MediaWatchEvent,
@@ -230,10 +238,11 @@ func (a *Application) initialize() error {
 			Downloads:  storages.Download,
 		},
 
-		DownloadDispetcher:   a.DownloadWorkerPool,
-		OperationDispatcher:  a.OperationWorkerPool,
-		WatchEventDispatcher: a.WatchEventWorkerPool,
-		Services:             services,
+		DownloadDispetcher:        a.DownloadWorkerPool,
+		MediaProcessingDispetcher: a.MediProcessingWorkerPool,
+		OperationDispatcher:       a.OperationWorkerPool,
+		WatchEventDispatcher:      a.WatchEventWorkerPool,
+		Services:                  services,
 
 		// Options
 		AppName:  iconfig.AppName,
@@ -276,6 +285,7 @@ func (a *Application) initialize() error {
 		ThumbnailCache:              inMemoryRepositories.Thumbnail,
 		ThumbnailFileCache:          inMemoryRepositories.ThumbnailFile,
 		AssetFileCache:              inMemoryRepositories.AssetFile,
+		UploadedFileCache:           inMemoryRepositories.UploadedFile,
 
 		// runners
 		DownloaderMaintenance: a.Usecases.DownloaderMaintenance,
@@ -303,6 +313,7 @@ func (a *Application) initialize() error {
 		CleanThumbnailCacheInterval:              cleanThumbnailCacheInterval,
 		CleanThumbnailFileCacheInterval:          cleanThumbnailFileCacheInterval,
 		CleanAssetFileCacheInterval:              cleanAssetFileCacheInterval,
+		CleanUploadedFileCacheInterval:           cleanUploadedFileCacheInterval,
 
 		// metrics
 		UpdateSystemInfoInterval: updateSystemInfoInterval,
@@ -345,6 +356,11 @@ func (a *Application) StartBackground() error {
 		return err
 	}
 
+	if err := a.MediProcessingWorkerPool.Start(a.ctx); err != nil {
+		a.logger.Warn("Failed to start media processing worker pool", "err", err)
+		return err
+	}
+
 	if err := a.OperationWorkerPool.Start(a.ctx); err != nil {
 		a.logger.Warn("Failed to start operation worker pool", "err", err)
 		return err
@@ -373,9 +389,15 @@ func (a *Application) StopWorkerPools() {
 	if a.DownloadWorkerPool != nil {
 		a.DownloadWorkerPool.Stop()
 	}
+
+	if a.MediProcessingWorkerPool != nil {
+		a.MediProcessingWorkerPool.Stop()
+	}
+
 	if a.OperationWorkerPool != nil {
 		a.OperationWorkerPool.Stop()
 	}
+
 	if a.WatchEventWorkerPool != nil {
 		a.WatchEventWorkerPool.Stop()
 	}
@@ -494,6 +516,11 @@ func (a *Application) initSQLiteRepositories() (*sqliterep.Repositories, error) 
 }
 
 func (a *Application) initInMemoryRepositories() *inmemoryrep.Repositories {
+	uploadedFileCacheTTL := a.cfg.Elengrab.Upload.TempTTL()
+	if uploadedFileCacheTTL <= 0 {
+		uploadedFileCacheTTL = defaultUploadedFileCacheTTL
+	}
+
 	inMemoryDeps := inmemoryrep.Dependencies{
 		MediaDownloadCacheTTL:          mediaDownloadCacheTTL,
 		DownloadStateCacheTTL:          downloadStateCacheTTL,
@@ -505,6 +532,7 @@ func (a *Application) initInMemoryRepositories() *inmemoryrep.Repositories {
 		ThumbnailCacheTTL:              thumbnailCacheTTL,
 		ThumbnailFileCacheTTL:          thumbnailFileCacheTTL,
 		AssetFileCacheTTL:              assetFileCacheTTL,
+		UploadedFileCacheTTL:           uploadedFileCacheTTL,
 	}
 	return inmemoryrep.New(inMemoryDeps)
 }
@@ -523,6 +551,15 @@ func (a *Application) newDownloadWorkerPool() workerpool.WorkerPool {
 		workerpool.WithIdleTime(downloadWorkerIdleTimeDefault),
 	)
 
+}
+
+func (a *Application) newMediaProcessingWorkerPool() workerpool.WorkerPool {
+	return workerpool.NewDynamicWorkerPool(
+		a.logger,
+		"MediaProcessing",
+		workerpool.WithMaxWorkers(a.cfg.Elengrab.MediaProcessingWorkers),
+		workerpool.WithIdleTime(operationWorkerIdleTimeDefault),
+	)
 }
 
 func (a *Application) newOperationWorkerPool() workerpool.WorkerPool {

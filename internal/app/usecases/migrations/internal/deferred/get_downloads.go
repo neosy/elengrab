@@ -19,7 +19,7 @@ func (m *migrations) getAllDownloads(
 
 	err := iterateGetAll(ctx,
 		func(download *ddownload.MediaDownload) error {
-			if download == nil || download.MediaInfo == nil {
+			if download == nil {
 				return nil
 			}
 

@@ -2,13 +2,15 @@ package mappers
 
 import (
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
-	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
-func (m *Mappers) MapMediaInfoToDomain(info *idto.ExtractInfo) *dservices.DownloaderMediaInfo {
-	var formats = make([]dservices.DownloaderMediaFormat, 0, len(info.Formats))
+// MapExtractInfoToDownloaderMeta maps the raw yt-dlp extract info
+// to the downloader metadata.
+func (m *Mappers) MapExtractInfoToDownloaderMeta(info *idto.ExtractInfo) *pservices.DownloaderMeta {
+	var formats = make([]pservices.DownloaderMetaMediaFormat, 0, len(info.Formats))
 
 	for _, f := range info.Formats {
 		var fps *int
@@ -45,7 +47,7 @@ func (m *Mappers) MapMediaInfoToDomain(info *idto.ExtractInfo) *dservices.Downlo
 			formatType = dtypes.FormatTypeAudioOnly
 		}
 
-		formats = append(formats, dservices.DownloaderMediaFormat{
+		formats = append(formats, pservices.DownloaderMetaMediaFormat{
 			FormatType: formatType,
 			FormatId:   f.FormatID,
 			FileExt:    f.FileExt,
@@ -64,7 +66,7 @@ func (m *Mappers) MapMediaInfoToDomain(info *idto.ExtractInfo) *dservices.Downlo
 		})
 	}
 
-	return &dservices.DownloaderMediaInfo{
+	return &pservices.DownloaderMeta{
 		Title:       info.Title,
 		Description: info.Description,
 		Formats:     formats,

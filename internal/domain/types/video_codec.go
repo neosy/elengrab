@@ -1,10 +1,11 @@
 package dtypes
 
 import (
-	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
 )
 
 type VideoCodec string
@@ -86,7 +87,7 @@ func (v VideoCodec) Exists() bool {
 func ParseVideoCodec(s string) (VideoCodec, error) {
 	videoCodec, exists := parseVideoCodecMap[strings.ToLower(s)]
 	if !exists {
-		return "", errors.New("invalid value for VideoCodec")
+		return VideoCodecNone, fmt.Errorf("%w: %s", apperrors.ErrUnsupportedVideoCodec, s)
 	}
 	return videoCodec, nil
 }

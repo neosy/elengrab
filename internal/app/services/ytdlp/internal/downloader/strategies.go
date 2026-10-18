@@ -7,7 +7,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/consts"
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
-	dservices "github.com/neosy/elengrab/internal/domain/services"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 func (d *Downloader) downloadWithStrategies(
@@ -15,7 +15,7 @@ func (d *Downloader) downloadWithStrategies(
 	url string,
 	meta *idto.DownloadMeta,
 	options *idto.DownloadExecOptions,
-	onProgressUpdate func(dservices.DownloaderProgress),
+	onProgressUpdate func(dtypes.DownloadProgress),
 ) ([]byte, error) {
 	// Define download attempts
 	type downloadAttempt struct {

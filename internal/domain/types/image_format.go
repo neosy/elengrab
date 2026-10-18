@@ -63,14 +63,22 @@ func ParseImageFormat(s string) (ImageFormat, error) {
 	return imageFormat, nil
 }
 
+// MustParseImageFormat converts string to ImageFormat, returning ImageFormatUnknown if invalid.
+func MustParseImageFormat(s string) ImageFormat {
+	imageFormat, err := ParseImageFormat(s)
+	if err != nil {
+		return ImageFormatUnknown
+	}
+	return imageFormat
+}
+
 // ImageFormatFromFileName converting ext from fileName to ImageFormat
 func ImageFormatFromFileName(fileName string) ImageFormat {
 	ext := filepath.Ext(fileName)
-	ext = strings.TrimPrefix(ext, ".")
-
-	imageFormat, _ := ParseImageFormat(ext)
-
-	return imageFormat
+	if ext == "" {
+		return ImageFormatUnknown
+	}
+	return MustParseImageFormat(strings.TrimPrefix(ext, "."))
 }
 
 // ValidateImageFormat checks if the field value is a valid ImageFormat enum.

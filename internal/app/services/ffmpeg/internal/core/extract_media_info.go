@@ -13,19 +13,21 @@ import (
 	"strings"
 	"time"
 
-	dservices "github.com/neosy/elengrab/internal/domain/services"
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
-// ExtractVideoAudioInfoWithFFprobe extracts video and audio information from a media file
+// ExtractMediaInfoWithFFprobe extracts video and audio information from a media file
 // using ffprobe. It returns VideoInfo, AudioInfo, and media duration if available.
 //
 // Duration is returned in milliseconds.
-func (c *FFmpegCore) ExtractVideoAudioInfoWithFFprobe(
+func (c *FFmpegCore) ExtractMediaInfoWithFFprobe(
 	ctx context.Context,
 	filePath string,
-	srcMediaInfo *dservices.MediaInfo,
-) (*dservices.MediaInfo, error) {
+	baseMediaInfo *pservices.MediaInfo,
+) (*pservices.MediaInfo, error) {
 	if filePath == "" {
 		return nil, fmt.Errorf("file path is empty")
 	}
@@ -92,24 +94,51 @@ func (c *FFmpegCore) ExtractVideoAudioInfoWithFFprobe(
 	var (
 		videoInfo *dtypes.VideoInfo
 		audioInfo *dtypes.AudioInfo
+
+		lastVideoErr error
+		lastAudioErr error
 	)
 
 	for _, s := range probe.Streams {
 		switch s.CodecType {
 		case "video":
 			if videoInfo == nil {
-				videoInfo = c.info.parseVideoFromFFprobe(s, srcMediaInfo.VideoInfo)
+				var baseInfo *dtypes.VideoInfo
+				if baseMediaInfo != nil {
+					baseInfo = baseMediaInfo.VideoInfo
+				}
+
+				videoInfo, err = c.info.parseVideoFromFFprobe(s, baseInfo)
+				if err != nil {
+					lastVideoErr = err
+				}
 			}
 
 		case "audio":
 			if audioInfo == nil {
-				audioInfo = c.info.parseAudioFromFFprobe(s, srcMediaInfo.AudioInfo)
+				var baseInfo *dtypes.AudioInfo
+				if baseMediaInfo != nil {
+					baseInfo = baseMediaInfo.AudioInfo
+				}
+
+				audioInfo, err = c.info.parseAudioFromFFprobe(s, baseInfo)
+				if err != nil {
+					lastAudioErr = err
+				}
 			}
 		}
 
 		if videoInfo != nil && audioInfo != nil {
 			break
 		}
+	}
+
+	if videoInfo == nil && lastVideoErr != nil {
+		return nil, lastVideoErr
+	}
+
+	if audioInfo == nil && lastAudioErr != nil {
+		return nil, lastAudioErr
 	}
 
 	var formatType dtypes.FormatType
@@ -121,9 +150,26 @@ func (c *FFmpegCore) ExtractVideoAudioInfoWithFFprobe(
 		formatType = dtypes.FormatTypeAudioOnly
 	}
 
-	return &dservices.MediaInfo{
+	fileFormat := dtypes.FileExtToFileFormat(strings.ToLower(filepath.Ext(filePath)))
+
+	if fileFormat == dtypes.FileFormatNone {
+		if videoInfo != nil {
+			fileFormat = videoInfo.Codec.Format().FileFormat()
+		} else if audioInfo != nil {
+			fileFormat = audioInfo.Codec.Format().FileFormat()
+		}
+	}
+
+	if fileFormat == dtypes.FileFormatNone {
+		return nil, errorx.NewFromError(
+			fmt.Errorf("unsupported media format for %s", filePath),
+			apperrors.ErrUnsupportedMediaFormat,
+		)
+	}
+
+	return &pservices.MediaInfo{
 		FormatType: formatType,
-		Format:     dtypes.MapFileExtToFileFormat(filepath.Ext(filePath)),
+		Format:     fileFormat,
 		Duration:   duration,
 		Bitrate:    totalBitrate,
 		VideoInfo:  videoInfo,
@@ -131,13 +177,13 @@ func (c *FFmpegCore) ExtractVideoAudioInfoWithFFprobe(
 	}, nil
 }
 
-// ExtractVideoAudioInfoWithFFmpeg extracts video and audio information from a media file
+// ExtractMediaInfoWithFFmpeg extracts video and audio information from a media file
 // using ffmpeg. Returns VideoInfo and AudioInfo, or nil if unavailable.
-func (c *FFmpegCore) ExtractVideoAudioInfoWithFFmpeg(
+func (c *FFmpegCore) ExtractMediaInfoWithFFmpeg(
 	ctx context.Context,
 	filePath string,
-	srcMediaInfo *dservices.MediaInfo,
-) (*dservices.MediaInfo, error) {
+	srcMediaInfo *pservices.MediaInfo,
+) (*pservices.MediaInfo, error) {
 	if filePath == "" {
 		return nil, fmt.Errorf("file path is empty")
 	}
@@ -220,9 +266,23 @@ func (c *FFmpegCore) ExtractVideoAudioInfoWithFFmpeg(
 		formatType = dtypes.FormatTypeAudioOnly
 	}
 
-	return &dservices.MediaInfo{
+	fileFormat := dtypes.FileExtToFileFormat(strings.ToLower(filepath.Ext(filePath)))
+
+	if fileFormat == dtypes.FileFormatNone {
+		if videoInfo != nil {
+			fileFormat = videoInfo.Codec.Format().FileFormat()
+		} else if audioInfo != nil {
+			fileFormat = audioInfo.Codec.Format().FileFormat()
+		}
+	}
+
+	if fileFormat == dtypes.FileFormatNone {
+		return nil, fmt.Errorf("unable to determine file format for %s", filePath)
+	}
+
+	return &pservices.MediaInfo{
 		FormatType: formatType,
-		Format:     dtypes.MapFileExtToFileFormat(filepath.Ext(filePath)),
+		Format:     fileFormat,
 		Duration:   duration,
 		VideoInfo:  videoInfo,
 		AudioInfo:  audioInfo,

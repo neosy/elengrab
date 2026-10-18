@@ -9,7 +9,6 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	dservices "github.com/neosy/elengrab/internal/domain/services"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
@@ -56,7 +55,7 @@ func (uc *downloader) getActualDownloadWithViewAccess(
 		return nil, apperrors.ErrDownloadNotFound
 	}
 
-	if !uc.authz.HasMediaViewAccess(authCtx, download) {
+	if !uc.authz.HasMediaDownloadViewAccess(authCtx, download) {
 		return nil, ierrors.ErrAccessDenied
 	}
 
@@ -89,7 +88,7 @@ func (uc *downloader) GetDownloadInfo(
 		return nil, apperrors.ErrDownloadNotFound
 	}
 
-	if !uc.authz.HasMediaViewAccess(authCtx, downloadInfo.MediaDownload) {
+	if !uc.authz.HasMediaDownloadViewAccess(authCtx, downloadInfo.MediaDownload) {
 		return nil, ierrors.ErrAccessDenied
 	}
 
@@ -157,7 +156,7 @@ func (uc *downloader) resolveActualDownloadInfoByDownload(
 	opts ...callOption,
 ) (*dto.MediaDownloadInfo, error) {
 	var (
-		dlProgress *dservices.DownloaderProgress
+		dlProgress *dtypes.DownloadProgress
 	)
 
 	if download == nil {
@@ -276,7 +275,7 @@ func (uc *downloader) GetDownloadFileName(
 		return "", err
 	}
 
-	if !uc.authz.HasMediaViewAccess(authCtx, download) {
+	if !uc.authz.HasMediaDownloadViewAccess(authCtx, download) {
 		return "", ierrors.ErrAccessDenied
 	}
 

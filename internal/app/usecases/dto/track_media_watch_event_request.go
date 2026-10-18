@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/app/usecases/consts"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
@@ -26,7 +27,7 @@ func (t *TrackMediaWatchEventRequest) AdjustForMediaDuration(mediaDuration time.
 	}
 
 	untilEnd := mediaDuration - t.Position
-	if untilEnd > 0 && untilEnd < minMediaWatchInterval {
+	if untilEnd > 0 && untilEnd < consts.MinMediaWatchInterval {
 		t.EventType = dtypes.MediaWatchEventTypeEnded
 		t.Interval += untilEnd
 	}
@@ -41,17 +42,17 @@ func (t *TrackMediaWatchEventRequest) Validate() error {
 		return fmt.Errorf("interval must be positive")
 	}
 
-	if t.EventType != dtypes.MediaWatchEventTypeEnded && t.Interval < minMediaWatchInterval {
-		return fmt.Errorf("interval must be at least %s", minMediaWatchInterval)
+	if t.EventType != dtypes.MediaWatchEventTypeEnded && t.Interval < consts.MinMediaWatchInterval {
+		return fmt.Errorf("interval must be at least %s", consts.MinMediaWatchInterval)
 	}
 
 	if t.EventType == dtypes.MediaWatchEventTypeEnded {
-		if t.Interval > maxMediaWatchEndedInterval {
-			return fmt.Errorf("ended interval should be no more than %s", maxMediaWatchEndedInterval)
+		if t.Interval > consts.MaxMediaWatchEndedInterval {
+			return fmt.Errorf("ended interval should be no more than %s", consts.MaxMediaWatchEndedInterval)
 		}
 	} else {
-		if t.Interval > maxMediaWatchInterval {
-			return fmt.Errorf("interval should be no more than %s", maxMediaWatchInterval)
+		if t.Interval > consts.MaxMediaWatchInterval {
+			return fmt.Errorf("interval should be no more than %s", consts.MaxMediaWatchInterval)
 		}
 	}
 

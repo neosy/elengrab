@@ -44,7 +44,7 @@ func (p *DownloadPreparer) extractAudioOnly(
 
 	selectedFormatIDs := append([]string{}, mediaFormat.FormatID)
 
-	srcAudioFormat := dtypes.MapFileExtToFileFormat(mediaFormat.FileExt).AudioFormat()
+	srcAudioFormat := dtypes.FileExtToFileFormat(mediaFormat.FileExt).AudioFormat()
 	srcAudioCodec := mediaFormat.AudioCodec()
 
 	outAudioFormat := dlOptions.AudioFormat

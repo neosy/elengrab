@@ -27,7 +27,7 @@ type MediaInfo struct {
 }
 
 func NewMediaInfo(ext string) *MediaInfo {
-	format := MapFileExtToFileFormat(ext)
+	format := FileExtToFileFormat(ext)
 
 	return &MediaInfo{
 		Format:     format,
@@ -100,6 +100,20 @@ func (m *MediaInfo) HasVideo() bool {
 	return m.VideoInfo != nil
 }
 
+// FileFormat returns the media file format, determined by the video codec if present,
+// otherwise by the audio codec. Returns FileFormatNone if there is neither.
+func (m *MediaInfo) FileFormat() FileFormat {
+	if m.VideoInfo != nil {
+		return m.VideoInfo.Codec.Format().FileFormat()
+	}
+
+	if m.AudioInfo != nil {
+		return m.AudioInfo.Codec.Format().FileFormat()
+	}
+
+	return FileFormatNone
+}
+
 func (m *MediaInfo) FormatDuration() string {
 	return humanize.DurationClock(m.DurationMs / 1000)
 }
@@ -138,12 +152,18 @@ func (m *MediaInfo) IsShorts() bool {
 
 // IsAudioOnly returns true if the media is audio-only (no video).
 func (m *MediaInfo) IsAudioOnly() bool {
-	return m != nil && m.FormatType == FormatTypeAudioOnly
+	if m == nil {
+		return false
+	}
+	return m.FormatType == FormatTypeAudioOnly
 }
 
 // IsVideo returns true if the media has video (not audio-only).
 func (m *MediaInfo) IsVideo() bool {
-	return m != nil && m.VideoInfo != nil
+	if m == nil {
+		return false
+	}
+	return m.VideoInfo != nil
 }
 
 // ResolutionString returns the video dimensions formatted as "widthxheight" (e.g., "1920x1080").

@@ -97,7 +97,7 @@ func (h *DownloaderHandlers) AuthRegisterSubmitHandler(ctx *fasthttp.RequestCtx)
 		return
 	}
 
-	req := &udto.RegisterUserRequest{
+	req := &udto.AuthRegisterUserRequest{
 		Login:    formLogin,
 		Password: formPassword,
 	}

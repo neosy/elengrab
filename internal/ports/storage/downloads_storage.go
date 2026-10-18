@@ -7,19 +7,22 @@ type DownloadsStorage interface {
 	// Exists checks if file exists in storage.
 	Exists(uniqueFileName string) (bool, error)
 
-	// Move file from directory to storage
+	// Move moves the file at fromFilePath into storage under uniqueFileName.
+	// The source file is removed on success.
+	// Returns an error if a file with this name already exists.
 	Move(fromFilePath, uniqueFileName string) error
 
-	// Delete removes the dowload data.
+	// Delete removes the file stored under uniqueFileName.
 	Delete(uniqueFileName string) error
 
-	// BasePath
+	// BasePath returns the root directory of the downloads storage.
 	BasePath() string
 
-	// MediaPath
+	// MediaPath returns the directory where downloaded media files are stored.
 	MediaPath() string
 
-	// Path returns the full file path.
+	// Path returns the filesystem path where the file with uniqueFileName is (or would be) stored.
+	// It does not check that the file exists.
 	Path(uniqueFileName string) string
 
 	// Stats returns filesystem usage for the given path.

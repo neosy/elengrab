@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	"github.com/neosy/elengrab/internal/app/usecases/types"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/pool_jobs"
 	iconfig "github.com/neosy/elengrab/internal/config"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -22,53 +22,29 @@ func (uc *downloader) ScheduleDownload(
 	url string,
 	options *ddownload.DownloadOptions,
 ) (*dto.ScheduleDownloadResponse, error) {
-	if uc.demoMode {
-		uc.broadcastNotification(
-			authCtx.EventKey(),
-			dto.BroadcastNotificationModuleGrabForm,
-			dto.BroadcastNotificationTypeError,
-			"Operation not allowed in demo mode",
-		)
-		return nil, exceptions.DEMO_MODE_RESTRICTION.NewErrorx()
+	if err := uc.validateWriteAccess(authCtx, types.BroadcastNotificationModuleGrabForm); err != nil {
+		return nil, err
 	}
 
-	if uc.appMode == dtypes.AppModePublicReadonly && authz.IsAnonymous(authCtx.RoleIDs) {
-		uc.broadcastNotification(
-			authCtx.EventKey(),
-			dto.BroadcastNotificationModuleGrabForm,
-			dto.BroadcastNotificationTypeError,
-			"You must be authenticated to perform this action",
-		)
-		return nil, exceptions.UNAUTHORIZED.NewErrorx()
-	}
-
-	returnErr := func(err error) error {
-		uc.broadcastNotification(
-			authCtx.EventKey(),
-			dto.BroadcastNotificationModuleGrabForm,
-			dto.BroadcastNotificationTypeError,
-			err.Error(),
-		)
-		return err
-	}
+	broadcastError := uc.newErrorBroadcaster(authCtx, types.BroadcastNotificationModuleGrabForm)
 
 	downloadID := uuid.New()
-	filename := downloadID.String()
+	uniqueFileName := downloadID.String()
 
-	options.Filename = &filename
+	options.UniqueFileName = &uniqueFileName
 
 	mediaVisibility := iconfig.InitialMediaVisibility()
 	if authCtx.UserID == uuid.Nil {
 		mediaVisibility = dtypes.MediaVisibilityPublic
 	}
 
-	err := uc.download.Create(
+	err := uc.download.CreateDownload(
 		ctx,
 		&ddownload.MediaDownload{
 			DownloadID: downloadID,
 			SourceType: dtypes.MediaDownloadSourceTypeURL,
 			UserID:     &authCtx.UserID,
-			FileName:   filename,
+			FileName:   uniqueFileName,
 			MediaURL:   &url,
 			Visibility: mediaVisibility,
 		},
@@ -76,26 +52,26 @@ func (uc *downloader) ScheduleDownload(
 	)
 	if err != nil {
 		uc.logger.Error("Insert record failed", "error", err)
-		return nil, returnErr(err)
+		return nil, broadcastError(err)
 	}
 
 	download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed find download", "error", err)
-		return nil, returnErr(err)
+		return nil, broadcastError(err)
 	}
 	if download.DownloadTask == nil {
 		download.DownloadTask, err = uc.dlTask.GetByDownloadID(ctx, downloadID)
 		if err != nil {
 			uc.logger.Error("Failed find task", "error", err)
-			return nil, returnErr(err)
+			return nil, broadcastError(err)
 		}
 	}
 
 	err = uc.addDownloadToQueueDownload(ctx, downloadID, download.DownloadTask.TaskID)
 	if err != nil {
 		uc.logger.Error("Failed add to queue", "error", err)
-		return nil, returnErr(err)
+		return nil, broadcastError(err)
 	}
 
 	tmpDownload, _ := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
@@ -105,7 +81,7 @@ func (uc *downloader) ScheduleDownload(
 
 	downloadInfo, _ := uc.resolveActualDownloadInfoByDownload(ctx, download)
 
-	uc.broadcastDownloadAdd(downloadInfo)
+	uc.broadcastMediaDownloadAdded(downloadInfo)
 
 	return &dto.ScheduleDownloadResponse{
 		URL:        url,

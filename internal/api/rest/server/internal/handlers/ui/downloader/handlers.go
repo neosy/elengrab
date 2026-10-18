@@ -12,7 +12,9 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/downloader"
 	linkweb "github.com/neosy/elengrab/internal/app/usecases/link_web"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
+	uploadmedia "github.com/neosy/elengrab/internal/app/usecases/upload_media"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/ports/persistence"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
 
@@ -28,16 +30,21 @@ type DownloaderHandlers struct {
 	// Storages
 	downloadsStorage pstorage.DownloadsStorage
 
+	// Caches
+	uploadedFileCacheRepo persistence.UploadedFileCacheRepository
+
 	// Usecases
-	authWeb    authweb.AuthWeb
-	downloader downloader.DownloaderAPI
-	linkWeb    linkweb.LinkWeb
-	thumbnail  thumbnail.Thumbnail
+	authWeb     authweb.AuthWeb
+	downloader  downloader.DownloaderAPI
+	linkWeb     linkweb.LinkWeb
+	thumbnail   thumbnail.Thumbnail
+	uploadFiles uploadmedia.UploadMedia
 
 	// Options
 	appMode         dtypes.AppMode
 	baseURL         string
 	shortLinkPrefix string
+	maxUploadSize   int64
 }
 
 func NewDownloaderHandlers(
@@ -50,10 +57,14 @@ func NewDownloaderHandlers(
 	// Storages
 	downloadsStorage pstorage.DownloadsStorage,
 
+	// Caches
+	uploadedFileCacheRepo persistence.UploadedFileCacheRepository,
+
 	usecases *usecases.Usecases,
 	appMode dtypes.AppMode,
 	baseURL string,
 	shortLinkPrefix string,
+	maxUploadSize int64,
 ) *DownloaderHandlers {
 	return &DownloaderHandlers{
 		logger:     logger,
@@ -67,15 +78,20 @@ func NewDownloaderHandlers(
 		// Storages
 		downloadsStorage: downloadsStorage,
 
+		// Caches
+		uploadedFileCacheRepo: uploadedFileCacheRepo,
+
 		// Usecases
-		authWeb:    usecases.AuthWeb,
-		downloader: usecases.DownloaderAPI,
-		linkWeb:    usecases.LinkWeb,
-		thumbnail:  usecases.Thumbnail,
+		authWeb:     usecases.AuthWeb,
+		downloader:  usecases.DownloaderAPI,
+		linkWeb:     usecases.LinkWeb,
+		thumbnail:   usecases.Thumbnail,
+		uploadFiles: usecases.UploadMedia,
 
 		// Options
 		appMode:         appMode,
 		baseURL:         baseURL,
 		shortLinkPrefix: shortLinkPrefix,
+		maxUploadSize:   maxUploadSize,
 	}
 }

@@ -8,7 +8,7 @@ import (
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
-	"github.com/neosy/elengrab/internal/app/utils/siteimage/channels"
+	"github.com/neosy/elengrab/internal/app/utils/site_image/channels"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uformat "github.com/neosy/elengrab/internal/pkg/utils/format"
 )

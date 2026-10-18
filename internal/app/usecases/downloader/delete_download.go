@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/app/usecases/types"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -24,9 +25,7 @@ func (uc *downloader) DeleteDownload(
 		fileFullName            string
 	)
 
-	err := uc.validateWriteOperationAccess(authCtx)
-	if err != nil {
-		uc.notifyWriteOperationAccessError(authCtx, err)
+	if err := uc.validateWriteAccess(authCtx, types.BroadcastNotificationModuleResultRow); err != nil {
 		return err
 	}
 
@@ -46,7 +45,7 @@ func (uc *downloader) DeleteDownload(
 			uc.logger.Error("Failed to delete download", "downloadID", download.DownloadID, "error", err)
 			return err
 		}
-		uc.broadcastDownloadDelete(ctx, download)
+		uc.broadcastMediaDownloadDeleted(ctx, download)
 		return nil
 	}
 
@@ -67,13 +66,25 @@ func (uc *downloader) DeleteDownload(
 				return err
 			}
 		case dtypes.MediaDownloadStatusPending, dtypes.MediaDownloadStatusWorking:
-			task := download.DownloadTask
-			if task == nil || task.JobID == nil {
-				return errors.New("jobID is missing")
+			switch download.SourceType {
+			case dtypes.MediaDownloadSourceTypeURL:
+				task := download.DownloadTask
+				if task == nil || task.JobID == nil {
+					return errors.New("jobID is missing")
+				}
+				if !uc.downloadDispatcher.CancelJob(task.JobID.String()) {
+					return errors.New("job cannot be cancelled")
+				}
+			case dtypes.MediaDownloadSourceTypeUpload:
+				task := download.ProcessingTask
+				if task == nil || task.JobID == nil {
+					return errors.New("jobID is missing")
+				}
+				if !uc.operationDispatcher.CancelJob(task.JobID.String()) {
+					return errors.New("job cannot be cancelled")
+				}
 			}
-			if !uc.downloadDispatcher.CancelJob(task.JobID.String()) {
-				return errors.New("job cannot be cancelled")
-			}
+
 			if err := fnDelete(ctx, download); err != nil {
 				return err
 			}

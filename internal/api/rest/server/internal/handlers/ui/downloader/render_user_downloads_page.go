@@ -108,6 +108,7 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 	pagesListValues.ResultNoRows = rowsBuf.Len() == 0
 	pagesListValues.ResultRowsHTML = template.HTML(rowsBuf.String())
 	pagesListValues.AboutDialog = h.mappers.MapAboutDialogValues(systemInfo)
+	pagesListValues.UploadFileDialog = h.mappers.MapUploadFileDialogValues()
 	pagesListValues.VideoPlayerMinimizeIcon = icons.VideoPlayerMinimizeIcon.FileRaw()
 	pagesListValues.AudioPlayingIcon = icons.MediaAudioPlayingIcon.FileRaw()
 	pagesListValues.AudioNoteIcon = icons.MediaAudioNoteIcon.FileRaw()

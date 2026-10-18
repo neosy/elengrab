@@ -4,12 +4,10 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
-	"github.com/neosy/elengrab/internal/app/usecases/dto"
+	"github.com/neosy/elengrab/internal/app/usecases/types"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/pool_jobs"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
@@ -20,29 +18,7 @@ func (uc *downloader) ScheduleRefreshMetadata(
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) error {
-	if uc.demoMode {
-		uc.broadcastNotification(
-			authCtx.EventKey(),
-			dto.BroadcastNotificationModuleGrabForm,
-			dto.BroadcastNotificationTypeError,
-			"Operation not allowed in demo mode",
-		)
-		return exceptions.DEMO_MODE_RESTRICTION.NewErrorx()
-	}
-
-	if uc.appMode == dtypes.AppModePublicReadonly && authz.IsAnonymous(authCtx.RoleIDs) {
-		uc.broadcastNotification(
-			authCtx.EventKey(),
-			dto.BroadcastNotificationModuleGrabForm,
-			dto.BroadcastNotificationTypeError,
-			"You must be authenticated to perform this action",
-		)
-		return exceptions.UNAUTHORIZED.NewErrorx()
-	}
-
-	err := uc.validateWriteOperationAccess(authCtx)
-	if err != nil {
-		uc.notifyWriteOperationAccessError(authCtx, err)
+	if err := uc.validateWriteAccess(authCtx, types.BroadcastNotificationModuleResultRow); err != nil {
 		return err
 	}
 
@@ -51,8 +27,7 @@ func (uc *downloader) ScheduleRefreshMetadata(
 		return err
 	}
 
-	err = uc.validateDownloadEditAccess(authCtx, download)
-	if err != nil {
+	if err := uc.validateDownloadEditAccess(authCtx, download); err != nil {
 		return err
 	}
 
@@ -61,7 +36,7 @@ func (uc *downloader) ScheduleRefreshMetadata(
 		return err
 	}
 
-	uc.broadcastDownloadStartRefreshing(ctx, downloadID)
+	uc.broadcastMediaDownloadStartRefreshing(ctx, downloadID)
 
 	err = uc.addTaskToQueueRefreshMetadata(authCtx.UserID, download)
 	if err != nil {

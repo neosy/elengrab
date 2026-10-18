@@ -3,7 +3,7 @@ package idto
 import dtypes "github.com/neosy/elengrab/internal/domain/types"
 
 type DLOptions struct {
-	FileName               string
+	UniqueFileName         string
 	IncludeTitleInFilename bool
 
 	FormatType          dtypes.FormatType

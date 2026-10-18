@@ -5,7 +5,7 @@ import (
 
 	idto "github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/dto"
 	"github.com/neosy/elengrab/internal/app/services/ytdlp/internal/downloader/helper"
-	dservices "github.com/neosy/elengrab/internal/domain/services"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
 func (d *Downloader) FetchInfoWithBestFormat(
@@ -13,7 +13,7 @@ func (d *Downloader) FetchInfoWithBestFormat(
 	mediaURL string,
 	format string,
 	options idto.RequestOptions,
-) (*dservices.DownloaderMediaInfo, error) {
+) (*pservices.DownloaderMeta, error) {
 	var cookieFilePath string
 	if options.AllowCookies && d.serviceOptions.AllowCookies {
 		cookieFilePath, _ = helper.CookieFilePathFromURL(mediaURL, d.serviceOptions.CookiesDir)
@@ -29,5 +29,5 @@ func (d *Downloader) FetchInfoWithBestFormat(
 		return nil, err
 	}
 
-	return d.mappers.MapMediaInfoToDomain(info), nil
+	return d.mappers.MapExtractInfoToDownloaderMeta(info), nil
 }

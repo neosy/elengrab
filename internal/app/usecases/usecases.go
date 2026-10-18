@@ -15,6 +15,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/maintenance"
 	"github.com/neosy/elengrab/internal/app/usecases/migrations"
 	"github.com/neosy/elengrab/internal/app/usecases/thumbnail"
+	uploadmedia "github.com/neosy/elengrab/internal/app/usecases/upload_media"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
 	"github.com/neosy/elengrab/internal/ports/persistence"
@@ -27,9 +28,10 @@ type Dependencies struct {
 	Services     *services.Services
 
 	// dispetchers
-	DownloadDispetcher   workerpool.JobDispatcher
-	OperationDispatcher  workerpool.JobDispatcher
-	WatchEventDispatcher workerpool.JobDispatcher
+	DownloadDispetcher        workerpool.JobDispatcher
+	MediaProcessingDispetcher workerpool.JobDispatcher
+	OperationDispatcher       workerpool.JobDispatcher
+	WatchEventDispatcher      workerpool.JobDispatcher
 
 	// Options
 	AppName  string
@@ -115,6 +117,7 @@ type Usecases struct {
 	LinkWeb               linkweb.LinkWeb
 	Thumbnail             thumbnail.Thumbnail
 	Migrations            migrations.Migrations
+	UploadMedia           uploadmedia.UploadMedia
 }
 
 func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *Usecases {
@@ -174,6 +177,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 
 		// dispetchers
 		deps.DownloadDispetcher,
+		deps.MediaProcessingDispetcher,
 		deps.OperationDispatcher,
 		deps.WatchEventDispatcher,
 
@@ -237,6 +241,13 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 					Downloader: deps.Services.Downloader,
 					FFMpeg:     deps.Services.FFMpeg,
 				},
+			},
+		),
+		UploadMedia: uploadmedia.NewUploadMedia(
+			logger,
+			deps.Storages.Downloads.BasePath(),
+			uploadmedia.Dependencies{
+				FFmpegService: deps.Services.FFMpeg,
 			},
 		),
 	}

@@ -8,17 +8,23 @@ import (
 )
 
 // parseAudioFromFFprobe parses an FFprobe "stream" line into AudioInfo.
-func (info *info) parseAudioFromFFprobe(stream ffprobeStream, srcAudioInfo *dtypes.AudioInfo) *dtypes.AudioInfo {
-	var (
-		audioInfo = srcAudioInfo.Clone()
-	)
+func (info *info) parseAudioFromFFprobe(stream ffprobeStream, baseInfo *dtypes.AudioInfo) (*dtypes.AudioInfo, error) {
+	var audioInfo *dtypes.AudioInfo
+
+	if baseInfo != nil {
+		audioInfo = baseInfo.Clone()
+	}
 
 	if audioInfo == nil {
 		audioInfo = &dtypes.AudioInfo{}
 	}
 
 	audioCodec, err := dtypes.ParseAudioCodec(stream.CodecName)
-	if err == nil {
+	if err != nil && audioInfo.Codec == dtypes.AudioCodecNone {
+		return nil, err
+	}
+
+	if audioCodec != dtypes.AudioCodecNone {
 		audioInfo.Codec = audioCodec
 	}
 
@@ -32,24 +38,23 @@ func (info *info) parseAudioFromFFprobe(stream ffprobeStream, srcAudioInfo *dtyp
 		audioInfo.Bitrate = int(bitrate / 1000)
 	}
 
-	// Discard audio info if codec not set
-	if audioInfo.Codec == "" {
-		return nil
-	}
-
-	return audioInfo
+	return audioInfo, nil
 }
 
 // parseAudioFromFFmppeg parses an FFmpeg "Audio:" line into AudioInfo.
-func (info *info) parseAudioFromFFmppeg(line string, srcAudioInfo *dtypes.AudioInfo) *dtypes.AudioInfo {
+func (info *info) parseAudioFromFFmppeg(line string, baseInfo *dtypes.AudioInfo) *dtypes.AudioInfo {
 	if line == "" {
 		return nil
 	}
 
 	var (
 		infoSetter audioInfoSetter
-		audioInfo  = srcAudioInfo.Clone()
+		audioInfo  *dtypes.AudioInfo
 	)
+
+	if baseInfo != nil {
+		audioInfo = baseInfo.Clone()
+	}
 
 	if audioInfo == nil {
 		audioInfo = &dtypes.AudioInfo{}

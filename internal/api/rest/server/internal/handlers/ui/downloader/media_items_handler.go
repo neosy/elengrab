@@ -28,7 +28,7 @@ import (
 
 func (h *DownloaderHandlers) MediaItemsHandler(ctx *fasthttp.RequestCtx) {
 	if ctx.IsHead() {
-		ctx.SetStatusCode(fasthttp.StatusOK)
+		fasthttpx.WriteHTMLHeadResponse(ctx)
 		return
 	}
 

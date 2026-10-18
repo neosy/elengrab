@@ -1,6 +1,8 @@
 package dto
 
+import "github.com/neosy/elengrab/internal/app/usecases/types"
+
 type BroadcastEvent struct {
-	Type BroadcastEventType
+	Type types.BroadcastEventType
 	Data any
 }
