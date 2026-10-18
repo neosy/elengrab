@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 func (m *migrations) fillMediaDescription(ctx context.Context) error {
@@ -29,9 +30,13 @@ func (m *migrations) fillMediaDescription(ctx context.Context) error {
 	var hasError bool
 
 	for i, media := range medias {
+		if media.SourceType != dtypes.MediaDownloadSourceTypeURL {
+			continue
+		}
+
 		m.Logger().Debug("Extract media info", "index", i+1, "total", len(medias))
 
-		info, err := m.Services().Downloader.FetchInfo(ctx, media.MediaURL)
+		info, err := m.Services().Downloader.FetchInfo(ctx, media.SourceURL())
 		if err != nil {
 			continue
 		}

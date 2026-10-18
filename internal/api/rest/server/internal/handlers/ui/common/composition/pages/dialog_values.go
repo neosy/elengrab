@@ -17,3 +17,10 @@ type AboutDialogValues struct {
 	FFmpegVersion string
 	DenoVersion   string
 }
+
+type UploadFileDialogValues struct {
+	LogoIcon template.HTML
+
+	Visibility     string
+	VisibilityList []VisibilityOption
+}

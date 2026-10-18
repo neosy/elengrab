@@ -68,6 +68,7 @@ type DepRepositories struct {
 	DownloadDataMigration persistence.DownloadDataMigrationRepositoryFactory
 	MediaDownload         persistence.MediaDownloadRepositoryFactory
 	DownloadTask          persistence.DownloadTaskRepositoryFactory
+	MediaProcessingTask   persistence.MediaProcessingTaskRepositoryFactory
 
 	MediaWatchEvent        persistence.MediaWatchEventRepositoryFactory
 	MediaUserWatchChunk    persistence.MediaUserWatchChunkRepositoryFactory
@@ -149,6 +150,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 		// repositories
 		deps.Repositories.MediaDownload,
 		deps.Repositories.DownloadTask,
+		deps.Repositories.MediaProcessingTask,
 		deps.Repositories.MediaWatchEvent,
 		deps.Repositories.MediaUserWatchChunk,
 		deps.Repositories.MediaUserWatchStat,

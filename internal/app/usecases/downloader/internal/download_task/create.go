@@ -18,7 +18,11 @@ func (uc *DownloadTask) Create(ctx context.Context, task *ddownload.DownloadTask
 	if task.TaskID == uuid.Nil {
 		task.TaskID = uuid.New()
 	}
-	task.Status = dtypes.DownloadTaskStatusNew
+	task.Status = dtypes.MediaTaskStatusNew
+
+	if err := task.Validate(); err != nil {
+		return err
+	}
 
 	err := uc.TaskRepo().Insert(ctx, task)
 	if err != nil {

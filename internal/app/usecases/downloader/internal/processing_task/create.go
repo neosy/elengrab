@@ -1,0 +1,37 @@
+package processingtask
+
+import (
+	"context"
+
+	"github.com/google/uuid"
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
+	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
+)
+
+func (uc *ProcessingTask) Create(ctx context.Context, task *ddownload.MediaProcessingTask) error {
+	if task == nil {
+		uc.logger.Warn("Nil pointer in function")
+		return apperrors.ErrFuncParamNullPointer
+	}
+
+	if task.TaskID == uuid.Nil {
+		task.TaskID = uuid.New()
+	}
+	task.Status = dtypes.MediaTaskStatusNew
+
+	if err := task.Validate(); err != nil {
+		return err
+	}
+
+	err := uc.TaskRepo().Insert(ctx, task)
+	if err != nil {
+		uc.logger.Warn(
+			"Failed to insert record",
+			"error", err,
+		)
+		return err
+	}
+
+	return nil
+}

@@ -275,7 +275,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 			ContentType:          contentType,
 			MediaTitleImageURL:   titleImageURL,
 			MediaStartPositionMs: uint32(mediaStartPosition.Milliseconds()),
-			AboutDialog:          h.mappers.MapSystemInfoToAboutDialogValues(systemInfo),
+			AboutDialog:          h.mappers.MapAboutDialogValues(systemInfo),
 		},
 	}
 

@@ -1,6 +1,7 @@
 package ddownload
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,7 +17,7 @@ type DownloadTask struct {
 	DownloadID uuid.UUID
 
 	// Status
-	Status dtypes.DownloadTaskStatus
+	Status dtypes.MediaTaskStatus
 
 	// Media URL
 	MediaUrl string
@@ -24,11 +25,8 @@ type DownloadTask struct {
 	// Media download options
 	Options *DownloadOptions
 
-	// Id worker
-	WorkerID *uint64
-
-	// ID job
-	JobID *uuid.UUID
+	// Embeds TaskAssignment struct to track which worker and job are processing the task
+	TaskAssignment
 
 	// Timestamp when the record was created
 	CreatedAt time.Time
@@ -37,16 +35,28 @@ type DownloadTask struct {
 	UpdatedAt time.Time
 }
 
-func (src *DownloadTask) Clone() *DownloadTask {
-	if src == nil {
+func (task *DownloadTask) Clone() *DownloadTask {
+	if task == nil {
 		return nil
 	}
 
-	copy := *src
+	copy := *task
 
-	copy.Options = src.Options.Clone()
-	copy.WorkerID = uptr.Clone(src.WorkerID)
-	copy.JobID = uptr.Clone(src.JobID)
+	copy.Options = task.Options.Clone()
+	copy.WorkerID = uptr.Clone(task.WorkerID)
+	copy.JobID = uptr.Clone(task.JobID)
 
 	return &copy
+}
+
+func (task *DownloadTask) Validate() error {
+	if task == nil {
+		return errors.New("download task is nil")
+	}
+
+	if task.MediaUrl == "" {
+		return errors.New("media url is required")
+	}
+
+	return nil
 }

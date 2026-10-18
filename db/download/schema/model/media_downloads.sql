@@ -9,11 +9,14 @@ CREATE TABLE IF NOT EXISTS media_downloads (
     -- Associated user identifier (UUID)
     user_id TEXT NULL,
 
+    -- Source of the media record: a remote URL or a file uploaded by the user
+    source_type TEXT NOT NULL, -- url, upload
+
     -- Status
     file_status TEXT NOT NULL DEFAULT 'new', -- new, pending, working, done, failed
 
     -- Media URL
-    media_url TEXT NOT NULL,
+    media_url TEXT NULL,
 
     -- Original title from the media source
     media_title_original TEXT NOT NULL,

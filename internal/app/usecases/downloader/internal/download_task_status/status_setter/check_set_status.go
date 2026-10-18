@@ -4,15 +4,15 @@ import (
 	"fmt"
 
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	dfilestatus "github.com/neosy/elengrab/internal/domain/types/download_task_status"
+	dmediataskstatus "github.com/neosy/elengrab/internal/domain/types/media_task_status"
 )
 
 // checkSetStatus validates whether the status transition from fromStatus to toStatus is allowed.
-func (u *DownloadTaskStatusSetter) checkSetStatus(
-	fromStatus dtypes.DownloadTaskStatus,
-	toStatus dtypes.DownloadTaskStatus,
+func (u *StatusSetter) checkSetStatus(
+	fromStatus dtypes.MediaTaskStatus,
+	toStatus dtypes.MediaTaskStatus,
 ) error {
-	_, exists := dfilestatus.SelectAllowedStatusMap()[fromStatus][toStatus]
+	_, exists := dmediataskstatus.SelectAllowedStatusMap()[fromStatus][toStatus]
 	if exists {
 		return nil
 	}

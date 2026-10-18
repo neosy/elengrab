@@ -1,3 +1,17 @@
+:root {
+    --auth-body-bg: #f3f5f6;
+    --auth-main-bg: inherit;
+
+    --auth-main-block-bg: #fff;
+}
+
+.dark {
+    --auth-body-bg: #171717;
+    --auth-main-bg: inherit;
+
+    --auth-main-block-bg: #1f1f1f;
+}
+
 body {
     display: flex;
     height: 100vh;

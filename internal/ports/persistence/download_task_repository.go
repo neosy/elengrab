@@ -17,7 +17,7 @@ type DownloadTaskRepository interface {
 	UpdateStatusToNew(ctx context.Context) error
 	Delete(ctx context.Context, taskId uuid.UUID) error
 	DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error
-	DeleteByStatus(ctx context.Context, status dtypes.DownloadTaskStatus) error
+	DeleteByStatus(ctx context.Context, status dtypes.MediaTaskStatus) error
 	FindByTaskID(ctx context.Context, taskId uuid.UUID) (*ddownload.DownloadTask, error)
 	FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.DownloadTask, error)
 }

@@ -8,20 +8,20 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-// Penging set status to penging
-func (s *DownloadTaskStatus) Penging(
+// Failed set status to failed
+func (s *DownloadTaskStatus) Failed(
 	ctx context.Context,
 	taskId uuid.UUID,
-	jobID uuid.UUID,
 ) error {
-	updateFieldsFunc := func(task *ddownload.DownloadTask) {
-		task.JobID = &jobID
+	patchFields := func(task *ddownload.DownloadTask) {
+		task.WorkerID = nil
+		task.JobID = nil
 	}
 
 	return s.updateStatus(
 		ctx,
 		taskId,
-		dtypes.DownloadTaskStatusPending,
-		updateFieldsFunc,
+		dtypes.MediaTaskStatusFailed,
+		patchFields,
 	)
 }

@@ -11,7 +11,7 @@ type DownloadTaskStatus struct {
 	logger *slog.Logger
 
 	// internal
-	statusSetter *statussetter.DownloadTaskStatusSetter
+	statusSetter *statussetter.StatusSetter
 
 	// usecases
 	downloadTask *downloadtask.DownloadTask
@@ -27,7 +27,7 @@ func NewDownloadTaskStatus(
 		logger: logger,
 
 		// internal
-		statusSetter: statussetter.NewFDownloadTaskStatusSetter(logger),
+		statusSetter: statussetter.NewStatusSetter(logger),
 
 		// usecases
 		downloadTask: downloadTask,

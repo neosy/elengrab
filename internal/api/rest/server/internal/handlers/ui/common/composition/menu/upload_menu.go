@@ -12,6 +12,7 @@ type uploadMenuAction struct {
 
 const (
 	uploadMenuActionUploadURL   = "upload-url"
+	uploadMenuActionUploadFile  = "upload-file"
 	uploadMenuActionMyDownloads = "my-downloads"
 )
 
@@ -23,6 +24,22 @@ var uploadMenuActions = []uploadMenuAction{
 			Title:      "Add download",
 		},
 		icon: &icons.UploadMenuPlusIcon,
+	},
+	{
+		menuAction: menuAction{
+			RenderType: renderTypeLink,
+			Action:     uploadMenuActionUploadFile,
+			Title:      "Upload media",
+			Link: linkOptions{
+				DataAttributes: []dataAttribute{
+					{
+						Name:  "dialog-open",
+						Value: "upload-file-dialog",
+					},
+				},
+			},
+		},
+		icon: &icons.UploadMenuUploadFileIcon,
 	},
 	{
 		menuAction: menuAction{
@@ -43,6 +60,10 @@ func UploadMenuActions(userLogin string, hasCreateAccess bool) []uploadMenuActio
 	for _, action := range uploadMenuActions {
 		switch action.Action {
 		case uploadMenuActionUploadURL:
+			if !hasCreateAccess {
+				continue
+			}
+		case uploadMenuActionUploadFile:
 			if !hasCreateAccess {
 				continue
 			}

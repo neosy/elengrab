@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 func (m *migrations) fill_channel_info(ctx context.Context) error {
@@ -39,7 +40,11 @@ func (m *migrations) fill_channel_info(ctx context.Context) error {
 	updatedChannelIDs := make(map[uuid.UUID]struct{})
 
 	for _, download := range downloads {
-		channelSource, err := m.Services().Downloader.FetchChannelInfoWithCookieFallback(ctx, download.MediaURL)
+		if download.SourceType != dtypes.MediaDownloadSourceTypeURL {
+			continue
+		}
+
+		channelSource, err := m.Services().Downloader.FetchChannelInfoWithCookieFallback(ctx, download.SourceURL())
 		if err != nil {
 			continue
 		}

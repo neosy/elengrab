@@ -9,7 +9,7 @@ import (
 	iconfig "github.com/neosy/elengrab/internal/config"
 )
 
-func (m *Mappers) MapSystemInfoToAboutDialogValues(info udto.SystemInfoResponse) pages.AboutDialogValues {
+func (m *Mappers) MapAboutDialogValues(info udto.SystemInfoResponse) pages.AboutDialogValues {
 	return pages.AboutDialogValues{
 		LogoIcon:   icons.FaviconIcon.FileRaw(),
 		DonateIcon: icons.DonateIcon.FileRaw(),
@@ -24,5 +24,11 @@ func (m *Mappers) MapSystemInfoToAboutDialogValues(info udto.SystemInfoResponse)
 		YtDlpVersion:  info.YtDlpVersion,
 		FFmpegVersion: info.FFmpegVersion,
 		DenoVersion:   info.DenoVersion,
+	}
+}
+
+func (m *Mappers) MapUploadFileDialogValues() pages.UploadFileDialogValues {
+	return pages.UploadFileDialogValues{
+		LogoIcon: icons.DialogUploadFileIcon.FileRaw(),
 	}
 }

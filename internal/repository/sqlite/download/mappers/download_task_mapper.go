@@ -72,7 +72,7 @@ func (m *Mappers) MapDownloadTaskEntityToDomain(eTask *edownload.DownloadTask) (
 	return &ddownload.DownloadTask{
 		TaskID:     taskID,
 		DownloadID: downloadID,
-		Status:     dtypes.MustParseDownloadTaskStatus(usql.String(eTask.Status)),
+		Status:     dtypes.MustParseMediaTaskStatus(usql.String(eTask.Status)),
 		MediaUrl:   usql.String(eTask.MediaUrl),
 		Options:    options,
 		JobID:      jobID,

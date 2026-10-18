@@ -1,0 +1,82 @@
+{{- define "upload-file-dialog-content" }}
+    {{- with .Values.UploadFileDialog }}
+    <header class="modal-dialog__header">
+        <div class="modal-dialog__brand">
+            <span class="modal-dialog__logo" aria-hidden="true">{{ .LogoIcon }}</span>
+            <h2 class="modal-dialog__title" id="upload-file-dialog-title">Upload Media</h2>
+        </div>
+
+        <button class="modal-dialog__close" type="button" aria-label="Close" data-dialog-close>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+        </button>
+    </header>
+
+    <div class="modal-dialog__body">
+        <form class="upload-file-dialog__form" novalidate>
+            <input class="upload-file-dialog__input" type="file" name="file" accept="audio/*,video/*" hidden>
+
+            <div class="upload-file-dialog__dropzone">
+                <span class="upload-file-dialog__logo-icon" aria-hidden="true">{{ .LogoIcon }}</span>
+                <p class="upload-file-dialog__heading">Drag and drop your media file here</p>
+                <p class="upload-file-dialog__description">or</p>
+                <button class="modal-dialog__button upload-file-dialog__button upload-file-dialog__button--choose" type="button">Choose File</button>
+                <p class="upload-file-dialog__hint">Audio and video files</p>
+            </div>
+
+            <div class="upload-file-dialog__file">
+                <div class="upload-file-dialog__file-info">
+                    <span class="upload-file-dialog__file-name"></span>
+                    <span class="upload-file-dialog__file-size"></span>
+                </div>
+                <button class="modal-dialog__icon-button upload-file-dialog__remove" type="button" aria-label="Remove selected file">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="upload-file-dialog__progress">
+                <div class="upload-file-dialog__progress-track" role="progressbar" aria-label="Upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <div class="upload-file-dialog__progress-bar"></div>
+                </div>
+                <span class="upload-file-dialog__progress-text">Uploading…</span>
+            </div>
+
+            <p class="upload-file-dialog__status" role="status" aria-live="polite"></p>
+
+            <div class="upload-file-dialog__metadata">
+                <div class="upload-file-dialog__field upload-file-dialog__field--input upload-file-dialog__field--title">
+                    <label class="upload-file-dialog__label" for="uploadFileTitle">Name (required)</label>
+                    <textarea class="upload-file-dialog__textarea" id="uploadFileTitle" name="title" rows="1" data-max-length="100" required></textarea>
+                    <div class="upload-file-dialog__char-counter" aria-hidden="true">0/100</div>
+                </div>
+
+                <div class="upload-file-dialog__field upload-file-dialog__field--input upload-file-dialog__field--description">
+                    <label class="upload-file-dialog__label" for="uploadFileDescription">Description</label>
+                    <textarea class="upload-file-dialog__textarea" id="uploadFileDescription" name="description" rows="1" data-max-length="5000"></textarea>
+                    <div class="upload-file-dialog__char-counter" aria-hidden="true">0/5000</div>
+                </div>
+
+                <div class="upload-file-dialog__field upload-file-dialog__field--visibility">
+                    <div class="upload-file-dialog__field-title">Access Parameters</div>
+                    <div class="upload-file-dialog__option">
+                        <label class="upload-file-dialog__option-label" for="uploadFileVisibility">Visibility</label>
+                        <select class="upload-file-dialog__select" name="visibility" id="uploadFileVisibility">
+                            {{- range .VisibilityList }}
+                            <option value="{{ .Value }}"{{ if eq .Value $.Values.Visibility }} selected{{ end }}>{{ .Label }}</option>
+                            {{- end }}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <footer class="modal-dialog__footer upload-file-dialog__footer">
+        <button class="modal-dialog__button upload-file-dialog__button upload-file-dialog__button--cancel" type="button" data-dialog-close>Cancel</button>
+        <button class="modal-dialog__button upload-file-dialog__button upload-file-dialog__button--done" type="button" data-dialog-close disabled>Done</button>
+    </footer>
+    {{- end }}
+{{- end }}

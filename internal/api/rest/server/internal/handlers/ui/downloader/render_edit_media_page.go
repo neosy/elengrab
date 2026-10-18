@@ -72,7 +72,7 @@ func (h *DownloaderHandlers) renderEditMediaPage(
 			MediaDescription: downloadInfo.MediaDescription,
 			PatchURL:         httppaths.BuildMediaItemPath(downloadInfo.DownloadID),
 			Visibility:       downloadInfo.Visibility.String(),
-			VisibilityList:   pages.MediaPageVisibilityList(),
+			VisibilityList:   pages.VisibilityList(),
 		},
 	}
 

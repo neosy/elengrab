@@ -100,24 +100,27 @@ func (m *migrations) fillMediaInfo(ctx context.Context) error {
 			audioInfo = mediaInfoResp.AudioInfo
 		}
 
-		imageData := fetchThumbnail(ctx, media.MediaURL)
-
 		var thumbnailID, frameThumbnailID *uuid.UUID
-		if imageData != nil {
-			sourceType := hostdetect.DetectPlatformType(media.MediaURL).ThumbnailSourceType()
-			if sourceType == dtypes.ThumbnailSourceTypeNone {
-				sourceType = dtypes.ThumbnailSourceTypeExternal
-			}
 
-			thumbID, err := m.createThumbnail(ctx, imageData, sourceType)
-			if err == nil {
-				thumbnailID = &thumbID
+		if media.SourceType == dtypes.MediaDownloadSourceTypeURL {
+			imageData := fetchThumbnail(ctx, media.SourceURL())
+
+			if imageData != nil {
+				sourceType := hostdetect.DetectPlatformType(media.SourceURL()).ThumbnailSourceType()
+				if sourceType == dtypes.ThumbnailSourceTypeNone {
+					sourceType = dtypes.ThumbnailSourceTypeExternal
+				}
+
+				thumbID, err := m.createThumbnail(ctx, imageData, sourceType)
+				if err == nil {
+					thumbnailID = &thumbID
+				}
 			}
 		}
 
 		if fileFormat.IsVideo() {
 			filePath := m.DownloadsStorage().Path(media.FileFullName)
-			imageData = extractBalanceThumbnail(ctx, filePath)
+			imageData := extractBalanceThumbnail(ctx, filePath)
 			if imageData == nil {
 				imageData = extractThumbnail(ctx, filePath)
 			}

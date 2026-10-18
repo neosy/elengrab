@@ -12,8 +12,8 @@ import (
 func (s *DownloadTaskStatus) updateStatus(
 	ctx context.Context,
 	taskId uuid.UUID,
-	toStatus dtypes.DownloadTaskStatus,
-	updateFieldsFunc func(file *ddownload.DownloadTask),
+	toStatus dtypes.MediaTaskStatus,
+	patchFields func(file *ddownload.DownloadTask),
 ) error {
 	task, err := s.downloadTask.GetByTaskID(ctx, taskId)
 	if err != nil {
@@ -30,9 +30,9 @@ func (s *DownloadTaskStatus) updateStatus(
 		return err
 	}
 
-	// Update fields
-	if updateFieldsFunc != nil {
-		updateFieldsFunc(task)
+	// Patch fields
+	if patchFields != nil {
+		patchFields(task)
 	}
 
 	// Update in the repository

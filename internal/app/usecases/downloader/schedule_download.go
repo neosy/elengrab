@@ -66,9 +66,10 @@ func (uc *downloader) ScheduleDownload(
 		ctx,
 		&ddownload.MediaDownload{
 			DownloadID: downloadID,
+			SourceType: dtypes.MediaDownloadSourceTypeURL,
 			UserID:     &authCtx.UserID,
 			FileName:   filename,
-			MediaURL:   url,
+			MediaURL:   &url,
 			Visibility: mediaVisibility,
 		},
 		options,

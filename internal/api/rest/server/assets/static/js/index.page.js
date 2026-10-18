@@ -14,6 +14,7 @@ import * as view from './pages-list.view.js';
 import * as grabForm from './pages-list.grab-form.js';
 import * as search from './pages-list.search.js';
 import {  CLASS_NAMES, CLASS_SELECTORS, DOM_ELEMENTS, initDomElements } from "./index-page.dom.js";
+import { initUploadFileDialog } from "upload-file-dialog.js";
 
 // Global variables
 let searchInputClearButton = null;
@@ -47,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Init dialogs
     dialog.initDialogs();
+    initUploadFileDialog("");
 
     // Init tooltips
     tooltip.initTooltips();

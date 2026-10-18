@@ -8,20 +8,20 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-// New set status to new
-func (s *DownloadTaskStatus) New(
+// Working set status to working
+func (s *DownloadTaskStatus) Working(
 	ctx context.Context,
 	taskId uuid.UUID,
+	workerId uint64,
 ) error {
-	updateFieldsFunc := func(task *ddownload.DownloadTask) {
-		task.WorkerID = nil
-		task.JobID = nil
+	patchFields := func(task *ddownload.DownloadTask) {
+		task.WorkerID = &workerId
 	}
 
 	return s.updateStatus(
 		ctx,
 		taskId,
-		dtypes.DownloadTaskStatusNew,
-		updateFieldsFunc,
+		dtypes.MediaTaskStatusWorking,
+		patchFields,
 	)
 }
