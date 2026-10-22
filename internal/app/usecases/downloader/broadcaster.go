@@ -39,21 +39,21 @@ func (uc *downloader) broadcastMediaDownloadAdded(downloadInfo *dto.MediaDownloa
 		return
 	}
 
-	if downloadInfo.UserID == nil || *downloadInfo.UserID == uuid.Nil {
+	if downloadInfo.UserID == uuid.Nil {
 		uc.broadcaster.Broadcast(types.BroadcastEventTypeDownloadAdd, downloadInfo)
 		return
 	}
 
 	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
-			eventkey.NewEventKeyUserID(*downloadInfo.UserID),
+			eventkey.NewEventKeyUserID(downloadInfo.UserID),
 			types.BroadcastEventTypeDownloadAdd,
 			downloadInfo,
 		)
 		return
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(*downloadInfo.UserID, types.BroadcastEventTypeDownloadAdd, downloadInfo)
+	uc.broadcaster.BroadcastToUsersWithAccess(downloadInfo.UserID, types.BroadcastEventTypeDownloadAdd, downloadInfo)
 }
 
 func (uc *downloader) broadcastMediaDownloadUpdated(
@@ -70,21 +70,21 @@ func (uc *downloader) broadcastMediaDownloadUpdated(
 		return
 	}
 
-	if downloadInfo.UserID == nil || *downloadInfo.UserID == uuid.Nil {
+	if downloadInfo.UserID == uuid.Nil {
 		uc.broadcaster.Broadcast(types.BroadcastEventTypeDownloadUpdate, downloadInfo)
 		return
 	}
 
 	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
-			eventkey.NewEventKeyUserID(*downloadInfo.UserID),
+			eventkey.NewEventKeyUserID(downloadInfo.UserID),
 			types.BroadcastEventTypeDownloadUpdate,
 			downloadInfo,
 		)
 		return
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(*downloadInfo.UserID, types.BroadcastEventTypeDownloadUpdate, downloadInfo)
+	uc.broadcaster.BroadcastToUsersWithAccess(downloadInfo.UserID, types.BroadcastEventTypeDownloadUpdate, downloadInfo)
 }
 
 func (uc *downloader) broadcastWatchStatsUpdatedToAuth(
@@ -154,21 +154,21 @@ func (uc *downloader) broadcastMediaDownloadChanged(
 		return
 	}
 
-	if req.Info.UserID == nil || *req.Info.UserID == uuid.Nil {
+	if req.Info.UserID == uuid.Nil {
 		uc.broadcaster.Broadcast(types.BroadcastEventTypeDownloadPatch, &req)
 		return
 	}
 
 	if req.Info.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
-			eventkey.NewEventKeyUserID(*req.Info.UserID),
+			eventkey.NewEventKeyUserID(req.Info.UserID),
 			types.BroadcastEventTypeDownloadPatch,
 			&req,
 		)
 		return
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(*req.Info.UserID, types.BroadcastEventTypeDownloadPatch, &req)
+	uc.broadcaster.BroadcastToUsersWithAccess(req.Info.UserID, types.BroadcastEventTypeDownloadPatch, &req)
 }
 
 func (uc *downloader) broadcastMediaDownloadStartRefreshing(
@@ -185,21 +185,21 @@ func (uc *downloader) broadcastMediaDownloadStartRefreshing(
 		return
 	}
 
-	if downloadInfo.UserID == nil || *downloadInfo.UserID == uuid.Nil {
+	if downloadInfo.UserID == uuid.Nil {
 		uc.broadcaster.Broadcast(types.BroadcastEventTypeDownloadStartRefreshing, downloadInfo)
 		return
 	}
 
 	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
-			eventkey.NewEventKeyUserID(*downloadInfo.UserID),
+			eventkey.NewEventKeyUserID(downloadInfo.UserID),
 			types.BroadcastEventTypeDownloadStartRefreshing,
 			downloadInfo,
 		)
 		return
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(*downloadInfo.UserID, types.BroadcastEventTypeDownloadStartRefreshing, downloadInfo)
+	uc.broadcaster.BroadcastToUsersWithAccess(downloadInfo.UserID, types.BroadcastEventTypeDownloadStartRefreshing, downloadInfo)
 }
 
 func (uc *downloader) broadcastMediaDownloadDeleted(_ context.Context, download *ddownload.MediaDownload) {
@@ -253,21 +253,21 @@ func (uc *downloader) broadcastDownloadProgressUpdated(
 		Percent:    percent,
 	}
 
-	if downloadInfo.UserID == nil || *downloadInfo.UserID == uuid.Nil {
+	if downloadInfo.UserID == uuid.Nil {
 		uc.broadcaster.Broadcast(types.BroadcastEventTypeProgressUpdate, resp)
 		return
 	}
 
 	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
-			eventkey.NewEventKeyUserID(*downloadInfo.UserID),
+			eventkey.NewEventKeyUserID(downloadInfo.UserID),
 			types.BroadcastEventTypeProgressUpdate,
 			resp,
 		)
 		return
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(*downloadInfo.UserID, types.BroadcastEventTypeProgressUpdate, resp)
+	uc.broadcaster.BroadcastToUsersWithAccess(downloadInfo.UserID, types.BroadcastEventTypeProgressUpdate, resp)
 }
 
 func (uc *downloader) broadcastSystemInfoUpdated() {

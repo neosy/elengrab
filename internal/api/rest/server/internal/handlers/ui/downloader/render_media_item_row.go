@@ -139,11 +139,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	userInitial := userDisplayInitial(userName)
 
 	userDownloadsURL := httppaths.BuildRootUserDownloadsPath(params.downloadInfo.UserLogin)
-
-	var userHue int = 210
-	if params.downloadInfo.UserID != nil {
-		userHue = userDisplayInitialHue(params.downloadInfo.UserID.String())
-	}
+	userHue := userDisplayInitialHueFNV(params.downloadInfo.UserID.String())
 
 	var (
 		channelTitle   = channelPageData.Title
@@ -177,6 +173,9 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		MediaTitle: params.downloadInfo.MediaTitle,
 		MediaURL:   params.downloadInfo.MediaURL,
 
+		UserName:         userName,
+		UserInitial:      userInitial,
+		UserHue:          userHue,
 		UserDownloadsURL: userDownloadsURL,
 
 		ContentTimeAgo:   params.downloadInfo.CreatedTimeAgo,
@@ -213,10 +212,6 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		IsItemHTMXOptionRepeat: isGrabResultItemHTMXOptionRepeat,
 		IsDownloadEvent:        params.isDownloadEvent,
 		ResultRowStatusTitle:   params.downloadInfo.StatusText,
-
-		UserName:    userName,
-		UserInitial: userInitial,
-		UserHue:     userHue,
 
 		RefreshingIcon:            icons.DownloadRefreshingIcon.FileRaw(),
 		MetaUserNameSeparatorIcon: icons.DownloadMetaUserNameSeparatorIcon.FileRaw(),

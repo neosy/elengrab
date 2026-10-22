@@ -51,7 +51,7 @@ type MediaDownloadInfo struct {
 	MediaInfoText    string
 	MediaInfoTooltip string
 
-	UserID    *uuid.UUID
+	UserID    uuid.UUID
 	UserType  dtypes.UserType
 	UserLogin string
 

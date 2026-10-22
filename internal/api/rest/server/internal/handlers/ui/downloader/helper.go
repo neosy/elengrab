@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"hash/fnv"
 	"net/url"
@@ -32,6 +33,11 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+const (
+	defaultAvatarHue = 210 // neutral blue, same as the CSS fallback
+	nilUUIDString    = "00000000-0000-0000-0000-000000000000"
+)
+
 type shortLink struct {
 	code string
 
@@ -39,46 +45,6 @@ type shortLink struct {
 	pathSuffix string
 
 	originalURL string
-}
-
-func parseGetFilters(ctx *fasthttp.RequestCtx) (*dtypes.QueryFilters, error) {
-	filters := dtypes.NewQueryFilters()
-
-	for key, value := range ctx.QueryArgs().All() {
-		k := string(key)
-		v := string(value)
-
-		switch k {
-		case qkeys.SearchKey.String():
-			fallthrough
-		case qkeys.SearchQueryKey.String():
-			filters.Add(dtypes.QueryFilterNameSearchQuery, v)
-			continue
-		}
-
-		prefix := "filter["
-		suffix := "]"
-
-		if !strings.HasPrefix(k, prefix) || !strings.HasSuffix(k, suffix) {
-			continue
-		}
-
-		// filter[name] → name
-		name := k[len(prefix) : len(k)-len(suffix)]
-		if name == "" {
-			continue
-		}
-
-		filterName, err := dtypes.ParseQueryFilterName(name)
-		if err != nil {
-			return nil, err
-		}
-
-		filters.Add(filterName, v)
-
-	}
-
-	return filters, nil
 }
 
 func parseSearchQueryString(queryString string) (*types.QueryFilters, error) {
@@ -570,10 +536,10 @@ func (h *DownloaderHandlers) restoreSearchQueryFilters(ctx context.Context, sear
 	return queryFilters, nil
 }
 
-func userDisplayName(userID *uuid.UUID, userLogin string, userType dtypes.UserType, curUserID uuid.UUID) string {
+func userDisplayName(userID uuid.UUID, userLogin string, userType dtypes.UserType, curUserID uuid.UUID) string {
 	switch userType {
 	case dtypes.UserTypeGuest:
-		if userID != nil && curUserID == *userID {
+		if curUserID == userID {
 			return "Guest (You)"
 		}
 
@@ -595,11 +561,27 @@ func userDisplayInitial(userName string) string {
 	return strings.ToUpper(string(r))
 }
 
-// userDisplayInitialHue derives a stable color hue (0-359) from the user ID
-func userDisplayInitialHue(userID string) int {
+// userDisplayInitialHueFNV derives a stable color hue (0-359) from the user ID using FNV-1a
+func userDisplayInitialHueFNV(userID string) int {
+	if userID == "" || userID == nilUUIDString {
+		return defaultAvatarHue
+	}
+
 	h := fnv.New32a()
 	h.Write([]byte(userID))
+
 	return int(h.Sum32() % 360)
+}
+
+// userDisplayInitialHueSHA256 derives a stable color hue (0-359) from the user ID using SHA-256
+func userDisplayInitialHueSHA256(userID string) int {
+	if userID == "" || userID == nilUUIDString {
+		return defaultAvatarHue
+	}
+
+	h := sha256.Sum256([]byte(userID))
+
+	return int(uint16(h[0])<<8|uint16(h[1])) % 360
 }
 
 func generateGuestNumber(id string) uint32 {
