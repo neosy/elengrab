@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/types"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -23,6 +25,11 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 
 	workingStatus := resolveWorkingStatus(download, mappingData.Progress)
 	mediaInfoText := resolveMediaInfoText(download.MediaInfo)
+
+	var userID uuid.UUID
+	if download.UserID != nil {
+		userID = *download.UserID
+	}
 
 	return &dto.MediaDownloadInfo{
 		DownloadID: download.DownloadID,
@@ -60,7 +67,7 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 		Progress:             mappingData.Progress,
 		Visibility:           download.Visibility,
 
-		UserID:    download.UserID,
+		UserID:    userID,
 		UserType:  mappingData.UserType,
 		UserLogin: strings.ToLower(mappingData.UserLogin),
 

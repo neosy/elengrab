@@ -74,7 +74,7 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 	userHeaderPageData := h.buildUserDownloadsHeaderPageData(ctx, userLogin)
 
 	userDisplayName := userDisplayName(
-		&user.UserID,
+		user.UserID,
 		user.Login,
 		user.UserType(),
 		authCtx.UserID,
