@@ -6,6 +6,7 @@ import (
 	"hash/fnv"
 	"net/url"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
@@ -583,6 +584,22 @@ func userDisplayName(userID *uuid.UUID, userLogin string, userType dtypes.UserTy
 	}
 
 	return stringx.Capitalize(userLogin)
+}
+
+// userDisplayInitial returns the uppercased first letter of the name
+func userDisplayInitial(userName string) string {
+	r, _ := utf8.DecodeRuneInString(strings.TrimSpace(userName))
+	if r == utf8.RuneError {
+		return "?"
+	}
+	return strings.ToUpper(string(r))
+}
+
+// userDisplayInitialHue derives a stable color hue (0-359) from the user ID
+func userDisplayInitialHue(userID string) int {
+	h := fnv.New32a()
+	h.Write([]byte(userID))
+	return int(h.Sum32() % 360)
 }
 
 func generateGuestNumber(id string) uint32 {

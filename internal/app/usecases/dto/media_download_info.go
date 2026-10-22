@@ -114,6 +114,15 @@ func (info *MediaDownloadInfo) IsReady() bool {
 		info.Status == dtypes.MediaDownloadStatusRefreshing
 }
 
+// IsUpload reports whether the media was uploaded by a user.
+// It returns false if info or its MediaDownload is nil.
+func (info *MediaDownloadInfo) IsUpload() bool {
+	if info == nil || info.MediaDownload == nil {
+		return false
+	}
+	return info.MediaDownload.SourceType == dtypes.MediaDownloadSourceTypeUpload
+}
+
 // WatchIndicatorEnabled reports whether the watch indicator
 // is enabled for this media.
 func (info *MediaDownloadInfo) WatchIndicatorEnabled() bool {

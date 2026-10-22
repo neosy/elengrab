@@ -24,13 +24,16 @@ type (
 		VisibilityLabel string
 		IsReady         bool
 		HasShareLink    bool
+		IsUploaded      bool
 
 		LazyLoadImages bool
 
 		DownloadRowPath    string
 		DownloadRepeatPath string
 
-		Channel Channel
+		Channel        Channel
+		ChannelTitle   string
+		ChannelLinkURL string
 
 		ThumbnailID         string
 		ThumbnailIsPortrait bool
@@ -53,7 +56,9 @@ type (
 		WatchPercent          float64
 		Watched               bool
 
-		UserName string
+		UserName    string
+		UserInitial string
+		UserHue     int
 
 		FilePath string
 		FileSize string

@@ -59,7 +59,7 @@
     --media-result-row-meta-justify-content: center;
 
     --media-result-avatar-image-display: none;
-    --media-result-avatar-image-avatar-display: inline;
+    --media-result-avatar-image-avatar-display: inline-flex;
 
     --media-result-channel-button-top: 0;
     --media-result-channel-button-left: 50%;
@@ -195,7 +195,7 @@
         --media-result-thumbnail-image-wrapper-width: 100%;
         --media-result-thumbnail-image-wrapper-height: auto;
         --media-result-thumbnail-image-display: block;
-        --media-result-thumbnail-image-max-width: auto;
+        --media-result-thumbnail-image-max-width: 100%;
         --media-result-thumbnail-image-max-height: var(--thumbnail-image-max-height);
         --media-result-thumbnail-image-width: 100%;
         --media-result-thumbnail-image-height: auto;
@@ -775,8 +775,7 @@ img[data-src] {
     height: 30px;
 }
 
-.media-result__channel-image,
-.media-result__channel-image--avatar {
+.media-result__channel-image {
     /* Prevent inline image gaps */
     display: var(--media-result-avatar-image-display);
 
@@ -796,13 +795,28 @@ img[data-src] {
     display: var(--media-result-avatar-image-avatar-display);
 }
 
-.media-result__row.inprogress .media-result__channel-image,
- .media-result__row.inprogress .media-result__channel-image--avatar{
+.media-result__channel-image--initials {
+    display: var(--media-result-avatar-image-avatar-display);
+
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    background: hsl(var(--avatar-hue, 210) 45% 40%);
+    color: #fff;
+
+    font-size: 16px;
+    font-weight: 600;
+    
+    line-height: 1;
+    user-select: none;
+}
+
+.media-result__row.inprogress .media-result__channel-image {
   filter: brightness(0.6);
 }
 
-.media-result__row.success .media-result__channel:hover .media-result__channel-image,
-.media-result__row.success .media-result__channel:hover .media-result__channel-image--avatar {
+.media-result__row.success .media-result__channel:hover .media-result__channel-image {
     transform: scale(1.2);
 }
 
@@ -811,7 +825,7 @@ img[data-src] {
     transform: scale(1.3);
 }
 
-.grid-view .media-result__channel.channel--has-id {
+.grid-view .media-result__channel.channel--has-link {
     --channel-link-display: flex;
     --channel-play-button-display: none;
 }
@@ -870,10 +884,6 @@ img[data-src] {
     border-radius: 50%;
 
     transform: var(--media-result-channel-button-transform);
-}
-
-.channel-button--link {
-    display: var(--channel-link-button-display, none);
 }
 
 .channel-button--play {

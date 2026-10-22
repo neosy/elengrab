@@ -6,8 +6,6 @@ export const CLASS_NAMES = {
     viewModeTabs: "view-mode-tabs",
     viewModeTab: "view-mode-tab",
 
-    mediaExtChannelLinkButton: "channel-button--link",
-
     mediaResultRowThumbnail: "media-result__row-thumbnail",
     mediaResultThumbnailPlayButton: "media-result__thumbnail-play-button",
     mediaResultRowThumbnailImageWrapper: "media-result__thumbnail-image__wrapper",

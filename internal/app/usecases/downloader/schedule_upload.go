@@ -28,7 +28,9 @@ func (uc *downloader) ScheduleUpload(
 		return nil, apperrors.ErrFuncParamNullPointer
 	}
 
-	if upload.MediaInfo() == nil {
+	mediaInfo := upload.MediaInfo()
+
+	if mediaInfo == nil {
 		return nil, errorx.New("uploaded file has no media info",
 			errorx.WithErrorMessage("Could not read information about the uploaded file."))
 	}
@@ -57,7 +59,8 @@ func (uc *downloader) ScheduleUpload(
 			MediaTitle:               req.Title,
 			MediaDescriptionOriginal: mediaDescription,
 			MediaDescription:         mediaDescription,
-			MediaInfo:                upload.MediaInfo(),
+			Ext:                      mediaInfo.Format.Ext(),
+			MediaInfo:                mediaInfo,
 		},
 		upload.FilePath(),
 	)

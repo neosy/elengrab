@@ -1,6 +1,6 @@
 # Releases
 
-## v0.27.0 — 2026-10-17
+## v0.27.0 — 2026-10-22
 
 ### ✨ Features
 - Added a short URL code for media downloads. [L170]
