@@ -6,21 +6,22 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
 type MediaQueryCursor dtypes.QueryMediaDownloadCursor
 
 func (cursor MediaQueryCursor) IsZero() bool {
-	return cursor.ID == uuid.Nil &&
+	return cursor.ID == uuid.Nil() &&
 		cursor.CreatedAt.IsZero() &&
 		cursor.Views == 0
 }
 
 func (cursor MediaQueryCursor) Encode() string {
 	var lastID string
-	if cursor.ID != uuid.Nil {
+	if cursor.ID != uuid.Nil() {
 		lastID = cursor.ID.String()
 	}
 

@@ -3,7 +3,8 @@ package mediadownload
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
@@ -77,8 +78,8 @@ func (uc *MediaDownload) hardDeleteDependencies(ctx context.Context, download *d
 	}
 
 	go func() {
-		uc.deleteThumbnails(ctx, download)
 		uc.searchIndex.HardDeleteMediaDownload(ctx, download.DownloadID)
+		uc.deleteThumbnails(ctx, download)
 	}()
 
 	return nil

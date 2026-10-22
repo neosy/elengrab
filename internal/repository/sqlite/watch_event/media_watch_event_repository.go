@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"uuid"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
@@ -99,7 +100,7 @@ func (r *MediaWatchEventRepository) DeleteByDownloadID(ctx context.Context, down
 	// Build DELETE query
 	sqlBuilder := squirrel.
 		Delete(eEvent.TableName()).
-		Where(squirrel.Eq{eEvent.FieldName(&eEvent.DownloadID): downloadID}).
+		Where(squirrel.Eq{eEvent.FieldName(&eEvent.DownloadID): downloadID.String()}).
 		PlaceholderFormat(squirrel.Dollar)
 
 	// Generate SQL and args

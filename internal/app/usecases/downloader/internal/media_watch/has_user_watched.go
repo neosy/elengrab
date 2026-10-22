@@ -3,7 +3,7 @@ package mediawatch
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *MediaWatch) HasUserWatched(

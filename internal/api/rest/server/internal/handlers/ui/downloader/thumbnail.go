@@ -3,7 +3,8 @@ package downloader
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/images"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -14,7 +15,7 @@ func (h *DownloaderHandlers) thumbnailURLWithFallback(mediaInfo *dtypes.MediaInf
 		return images.ThumbnailDefault().URL
 	}
 
-	if thumbID := mediaInfo.PreferredThumbnailID(); thumbID != uuid.Nil {
+	if thumbID := mediaInfo.PreferredThumbnailID(); thumbID != uuid.Nil() {
 		return httppaths.BuildThumbnailPath(thumbID)
 	}
 
@@ -28,7 +29,7 @@ func (h *DownloaderHandlers) thumbnailURLWithFallback(mediaInfo *dtypes.MediaInf
 func (h *DownloaderHandlers) thumbnailImageData(ctx context.Context, mediaInfo *dtypes.MediaInfo) *dtypes.ImageData {
 	var imageData *dtypes.ImageData
 
-	if mediaInfo == nil || mediaInfo.PreferredThumbnailID() == uuid.Nil {
+	if mediaInfo == nil || mediaInfo.PreferredThumbnailID() == uuid.Nil() {
 		return nil
 	}
 

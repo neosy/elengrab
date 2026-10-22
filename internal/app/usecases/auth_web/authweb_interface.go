@@ -3,7 +3,8 @@ package authweb
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 )
 

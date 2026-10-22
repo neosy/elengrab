@@ -3,7 +3,8 @@ package downloadstatus
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	itask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/task"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )

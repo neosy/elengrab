@@ -3,7 +3,7 @@ package uwatchchunk
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *MediaUserWatchChunk) CountViews(ctx context.Context, downloadID uuid.UUID, requiredChunks uint32) (uint32, error) {

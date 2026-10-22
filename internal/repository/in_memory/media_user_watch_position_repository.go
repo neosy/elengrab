@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
@@ -18,17 +19,17 @@ type MediaUserWatchPositionRepository struct {
 func buildMediaUserWatchPositionKey(downloadID uuid.UUID, userID uuid.UUID, sessionID uuid.UUID) string {
 	const sep = "_"
 
-	if downloadID == uuid.Nil {
+	if downloadID == uuid.Nil() {
 		return ""
 	}
 
-	if userID == uuid.Nil && sessionID == uuid.Nil {
+	if userID == uuid.Nil() && sessionID == uuid.Nil() {
 		return ""
 	}
 
 	key := downloadID.String() + sep + userID.String()
 
-	if userID == uuid.Nil && sessionID != uuid.Nil {
+	if userID == uuid.Nil() && sessionID != uuid.Nil() {
 		key += sep + sessionID.String()
 	}
 
@@ -75,7 +76,7 @@ func (r *MediaUserWatchPositionRepository) SaveNegative(
 	downloadID uuid.UUID,
 	userID uuid.UUID, sessionID uuid.UUID,
 ) error {
-	if downloadID == uuid.Nil {
+	if downloadID == uuid.Nil() {
 		return nil
 	}
 
@@ -103,7 +104,7 @@ func (r *MediaUserWatchPositionRepository) Delete(
 	userID uuid.UUID, sessionID uuid.UUID,
 ) error {
 	fn := func() error {
-		if downloadID != uuid.Nil {
+		if downloadID != uuid.Nil() {
 			r.cache.Delete(buildMediaUserWatchPositionKey(downloadID, userID, sessionID))
 		}
 		return nil

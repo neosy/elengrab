@@ -3,7 +3,8 @@ package uploadexecutor
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
@@ -20,7 +21,7 @@ func (uc *Executor) CreateThumbnail(
 
 	id, err := uc.thumbnail.Create(ctx, req)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil(), err
 	}
 
 	return id, nil

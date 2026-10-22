@@ -3,7 +3,7 @@ package searchindex
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *SearchIndex) SoftDeleteMediaDownload(ctx context.Context, downloadID uuid.UUID) error {

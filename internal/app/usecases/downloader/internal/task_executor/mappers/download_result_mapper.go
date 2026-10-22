@@ -1,9 +1,10 @@
 package mappers
 
 import (
-	"github.com/google/uuid"
-	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/task_executor/types"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/helper"
+	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/task_executor/types"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	pservices "github.com/neosy/elengrab/internal/ports/services"

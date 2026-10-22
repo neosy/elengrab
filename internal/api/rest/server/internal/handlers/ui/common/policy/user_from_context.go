@@ -1,7 +1,8 @@
 package policy
 
 import (
-	"github.com/google/uuid"
+	"uuid"
+
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/middleware/auth"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"

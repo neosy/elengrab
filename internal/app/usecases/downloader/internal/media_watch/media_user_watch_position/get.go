@@ -3,7 +3,8 @@ package uwatchposition
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -15,16 +16,16 @@ func (uc *MediaUserWatchPosition) Find(
 	downloadID uuid.UUID,
 	userID uuid.UUID, sessionID uuid.UUID,
 ) (*ddownload.MediaUserWatchPosition, error) {
-	if downloadID == uuid.Nil {
+	if downloadID == uuid.Nil() {
 		return nil, nil
 	}
 
-	if userID == uuid.Nil && sessionID == uuid.Nil {
+	if userID == uuid.Nil() && sessionID == uuid.Nil() {
 		return nil, nil
 	}
 
-	if userID != uuid.Nil && sessionID != uuid.Nil {
-		sessionID = uuid.Nil
+	if userID != uuid.Nil() && sessionID != uuid.Nil() {
+		sessionID = uuid.Nil()
 	}
 
 	position, cacheStatus, _ := uc.positionCacheRep.Find(ctx, downloadID, userID, sessionID)

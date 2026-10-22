@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
@@ -32,7 +33,7 @@ func (r *SiteLogoRepository) Name() string {
 
 // Save saves a new logo to the repository.
 func (r *SiteLogoRepository) Save(ctx context.Context, logo *dmedia.SiteLogo) error {
-	if logo == nil || logo.LogoID == uuid.Nil || logo.SiteURL == "" {
+	if logo == nil || logo.LogoID == uuid.Nil() || logo.SiteURL == "" {
 		return nil
 	}
 
@@ -55,7 +56,7 @@ func (r *SiteLogoRepository) Save(ctx context.Context, logo *dmedia.SiteLogo) er
 
 // SaveNegative saves a negative entry for a given logoID to the repository.
 func (r *SiteLogoRepository) SaveNegative(ctx context.Context, logoID uuid.UUID) error {
-	if logoID == uuid.Nil {
+	if logoID == uuid.Nil() {
 		return nil
 	}
 

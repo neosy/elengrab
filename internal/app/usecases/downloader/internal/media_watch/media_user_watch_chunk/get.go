@@ -3,7 +3,7 @@ package uwatchchunk
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *MediaUserWatchChunk) IterateDownloadUsers(

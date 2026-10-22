@@ -5,7 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
@@ -81,7 +82,7 @@ func (m *MediaInfo) Clone() *MediaInfo {
 // PreferredThumbnailID returns the ThumbnailID if available, otherwise returns the FrameThumbnailID.
 func (m *MediaInfo) PreferredThumbnailID() uuid.UUID {
 	if m == nil {
-		return uuid.Nil
+		return uuid.Nil()
 	}
 
 	if m.ThumbnailID != nil {
@@ -92,7 +93,7 @@ func (m *MediaInfo) PreferredThumbnailID() uuid.UUID {
 		return *m.FrameThumbnailID
 	}
 
-	return uuid.Nil
+	return uuid.Nil()
 }
 
 // HasVideo

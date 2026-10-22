@@ -7,8 +7,9 @@ import (
 	"fmt"
 	"time"
 
+	"uuid"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
@@ -122,7 +123,7 @@ func (r *UserRepository) Update(ctx context.Context, user *dauth.User) error {
 }
 
 func (r *UserRepository) UpdatePassword(ctx context.Context, userID uuid.UUID, newPasswHash string) error {
-	if userID == uuid.Nil {
+	if userID == uuid.Nil() {
 		return errors.New("user ID is nil")
 	}
 
@@ -137,7 +138,7 @@ func (r *UserRepository) UpdatePassword(ctx context.Context, userID uuid.UUID, n
 	sqlQuery, args, err := squirrel.
 		Update(eUser.TableName()).
 		SetMap(fieldsMap).
-		Where(squirrel.Eq{eUser.FieldName(&eUser.UserID): userID}).
+		Where(squirrel.Eq{eUser.FieldName(&eUser.UserID): userID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 	// If SQL generation failed — return an error
@@ -173,7 +174,7 @@ func (r *UserRepository) softDelete(ctx context.Context, userID uuid.UUID) error
 	sqlQuery, args, err := squirrel.
 		Update(eUser.TableName()).
 		SetMap(fieldsToUpdate).
-		Where(squirrel.Eq{eUser.FieldName(&eUser.UserID): userID}).
+		Where(squirrel.Eq{eUser.FieldName(&eUser.UserID): userID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 	// If SQL generation failed — return an error
@@ -215,7 +216,7 @@ func (r *UserRepository) hardDelete(ctx context.Context, userID uuid.UUID) error
 
 func (r *UserRepository) FindByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User, error) {
 	var eUser eauth.User
-	return r.findByFieldName(ctx, eUser.FieldName(&eUser.UserID), userID)
+	return r.findByFieldName(ctx, eUser.FieldName(&eUser.UserID), userID.String())
 }
 
 func (r *UserRepository) FindByLogin(ctx context.Context, login dtypes.Login) (*dauth.User, error) {
@@ -228,7 +229,7 @@ func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*dauth.
 	return r.findByFieldName(ctx, eUser.FieldName(&eUser.Email), email)
 }
 
-func (r *UserRepository) findByFieldName(ctx context.Context, fieldName string, value any) (*dauth.User, error) {
+func (r *UserRepository) findByFieldName(ctx context.Context, fieldName string, value string) (*dauth.User, error) {
 	var (
 		eUser     eauth.User
 		eUserRole eauth.UserRole
@@ -397,7 +398,7 @@ func (r *UserRepository) iterateGetAll(
 
 func (r *UserRepository) ExistsByUserID(ctx context.Context, userID uuid.UUID) (bool, error) {
 	var eUser eauth.User
-	return r.existsByFieldName(ctx, eUser.FieldName(&eUser.UserID), userID)
+	return r.existsByFieldName(ctx, eUser.FieldName(&eUser.UserID), userID.String())
 }
 
 func (r *UserRepository) ExistsByLogin(ctx context.Context, login dtypes.Login) (bool, error) {
@@ -405,7 +406,7 @@ func (r *UserRepository) ExistsByLogin(ctx context.Context, login dtypes.Login) 
 	return r.existsByFieldName(ctx, eUser.FieldName(&eUser.Login), login.String())
 }
 
-func (r *UserRepository) existsByFieldName(ctx context.Context, fieldName string, value any) (bool, error) {
+func (r *UserRepository) existsByFieldName(ctx context.Context, fieldName string, value string) (bool, error) {
 	var (
 		eUser    eauth.User
 		sqlWhere squirrel.Sqlizer

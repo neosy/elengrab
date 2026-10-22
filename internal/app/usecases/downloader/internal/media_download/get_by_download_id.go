@@ -3,7 +3,8 @@ package mediadownload
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -43,7 +44,7 @@ func (uc *MediaDownload) GetByDownloadIDNoCache(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) (*ddownload.MediaDownload, error) {
-	if downloadID == uuid.Nil {
+	if downloadID == uuid.Nil() {
 		uc.logger.Warn("MediaDownload not found", "downloadID", downloadID)
 		return nil, nil
 	}
@@ -65,7 +66,7 @@ func (uc *MediaDownload) FindByDownloadID(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) (*ddownload.MediaDownload, error) {
-	if downloadID == uuid.Nil {
+	if downloadID == uuid.Nil() {
 		return nil, nil
 	}
 
@@ -96,7 +97,7 @@ func (uc *MediaDownload) GetByDownloadID(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) (*ddownload.MediaDownload, error) {
-	if downloadID == uuid.Nil {
+	if downloadID == uuid.Nil() {
 		uc.logger.Warn("MediaDownload not found", "downloadID", downloadID)
 		return nil, nil
 	}

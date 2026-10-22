@@ -3,7 +3,8 @@ package channel
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
@@ -15,7 +16,7 @@ func (uc *Channel) Create(ctx context.Context, channel *dmedia.Channel) error {
 		return apperrors.ErrFuncParamNullPointer
 	}
 
-	if channel.ChannelID == uuid.Nil {
+	if channel.ChannelID == uuid.Nil() {
 		channel.ChannelID = uuid.New()
 	}
 

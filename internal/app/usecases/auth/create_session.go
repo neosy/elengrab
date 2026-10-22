@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
 	authtoken "github.com/neosy/elengrab/internal/app/usecases/auth/internal/token"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"

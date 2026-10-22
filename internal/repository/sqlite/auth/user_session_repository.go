@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
+	"uuid"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
@@ -90,7 +91,7 @@ func (r *UserSessionRepository) FindBySessionID(ctx context.Context, sessionID u
 
 	sqlQuery, args, err := squirrel.Select(eSession.QueryFields()...).
 		From(eSession.TableName()).
-		Where(squirrel.Eq{eSession.FieldName(&eSession.SessionID): sessionID}).
+		Where(squirrel.Eq{eSession.FieldName(&eSession.SessionID): sessionID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()

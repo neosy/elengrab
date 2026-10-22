@@ -3,7 +3,7 @@ package dlink
 import (
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 type LinkClick struct {

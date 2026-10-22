@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/google/uuid"
+import "uuid"
 
 type MediaDownloadChanged struct {
 	DownloadID uuid.UUID

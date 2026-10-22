@@ -3,7 +3,8 @@ package mediadownload
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
@@ -11,7 +12,7 @@ import (
 func (uc *MediaDownload) Update(ctx context.Context, userID *uuid.UUID, download *ddownload.MediaDownload) error {
 	download.NormalizeForSave()
 
-	if userID != nil && *userID != uuid.Nil && (download.UserID == nil || *download.UserID == uuid.Nil) {
+	if userID != nil && *userID != uuid.Nil() && (download.UserID == nil || *download.UserID == uuid.Nil()) {
 		download.UserID = userID
 	}
 

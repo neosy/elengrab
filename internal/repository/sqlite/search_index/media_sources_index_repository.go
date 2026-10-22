@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"strings"
 
+	"uuid"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
@@ -96,11 +97,11 @@ func (r *MediaSourceIndexRepository) Save(ctx context.Context, index *ddownload.
 func (r *MediaSourceIndexRepository) UpdateOwner(ctx context.Context, fromID, toID uuid.UUID) error {
 	var eIndex esearchindex.MediaSourceIndex
 
-	sqlWhere := squirrel.Eq{eIndex.FieldName(&eIndex.UserID): fromID}
+	sqlWhere := squirrel.Eq{eIndex.FieldName(&eIndex.UserID): fromID.String()}
 
 	// Build query
 	sqlBuilder := squirrel.Update(eIndex.TableName()).
-		Set(eIndex.FieldName(&eIndex.UserID), toID).
+		Set(eIndex.FieldName(&eIndex.UserID), toID.String()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar)
 
@@ -130,7 +131,7 @@ func (r *MediaSourceIndexRepository) SoftDelete(ctx context.Context, downloadID 
 	sqlQuery, args, err := squirrel.
 		Update(eIndex.TableName()).
 		SetMap(fieldsToUpdate).
-		Where(squirrel.Eq{eIndex.FieldName(&eIndex.DownloadID): downloadID}).
+		Where(squirrel.Eq{eIndex.FieldName(&eIndex.DownloadID): downloadID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 	// If SQL generation failed — return an error
@@ -179,7 +180,7 @@ func (r *MediaSourceIndexRepository) Restore(ctx context.Context, downloadID uui
 	}
 
 	sqlWhere := squirrel.And{
-		squirrel.Eq{eIndex.FieldName(&eIndex.DownloadID): downloadID},
+		squirrel.Eq{eIndex.FieldName(&eIndex.DownloadID): downloadID.String()},
 		squirrel.NotEq{eIndex.FieldName(&eIndex.DeletedAt): nil},
 	}
 
@@ -309,7 +310,7 @@ func (r *MediaSourceIndexRepository) iterateAll(
 		if queryVisibility > dtypes.QueryMediaVisibilityAll {
 			sqlOr = squirrel.Or{
 				squirrel.Eq{eIndex.FieldName(&eIndex.UserID): nil},
-				squirrel.Eq{eIndex.FieldName(&eIndex.UserID): uuid.Nil},
+				squirrel.Eq{eIndex.FieldName(&eIndex.UserID): uuid.Nil().String()},
 				squirrel.Eq{eIndex.FieldName(&eIndex.Visibility): dtypes.MediaVisibilityPublic.String()},
 			}
 		}
@@ -370,7 +371,7 @@ func (r *MediaSourceIndexRepository) iterateAll(
 				squirrel.And{
 					squirrel.Eq{eIndex.FieldName(&eIndex.Views): lastViews},
 					squirrel.Eq{eIndex.FieldName(&eIndex.SourceCreatedAt): lastCreatedAt},
-					squirrel.Lt{eIndex.FieldName(&eIndex.DownloadID): lastDownloadID},
+					squirrel.Lt{eIndex.FieldName(&eIndex.DownloadID): lastDownloadID.String()},
 				},
 			}
 
@@ -477,7 +478,7 @@ func (r *MediaSourceIndexRepository) FillEmptyMediaTitleLower(ctx context.Contex
 			SetMap(map[string]any{
 				eIndex.FieldName(&eIndex.TitleLower): strings.ToLower(index.Title),
 			}).
-			Where(squirrel.Eq{eIndex.FieldName(&eIndex.DownloadID): index.DownloadID}).
+			Where(squirrel.Eq{eIndex.FieldName(&eIndex.DownloadID): index.DownloadID.String()}).
 			PlaceholderFormat(squirrel.Dollar).
 			ToSql()
 		if err != nil {

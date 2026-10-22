@@ -1,7 +1,8 @@
 package dauth
 
 import (
-	"github.com/google/uuid"
+	"uuid"
+
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	eventkey "github.com/neosy/elengrab/internal/domain/types/event_key"
 )
@@ -33,7 +34,7 @@ func (u *AuthContext) UserType() dtypes.UserType {
 }
 
 func (u *AuthContext) EventKey() eventkey.EventKey {
-	if u.UserID != uuid.Nil {
+	if u.UserID != uuid.Nil() {
 		return eventkey.NewEventKeyUserID(u.UserID)
 	}
 	return eventkey.NewEventKeySessionID(u.AnonSessionID)

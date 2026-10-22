@@ -6,8 +6,9 @@ import (
 	"errors"
 	"fmt"
 
+	"uuid"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -27,11 +28,6 @@ type DownloadTaskRepository struct {
 
 	// options
 	retryOptions dbexec.RetryOptions
-}
-
-type taskByFields struct {
-	downloadID *uuid.UUID
-	status     *dtypes.MediaTaskStatus
 }
 
 // NewTaskRepository returns a new object for the repository

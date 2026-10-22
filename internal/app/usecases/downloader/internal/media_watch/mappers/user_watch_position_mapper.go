@@ -3,7 +3,8 @@ package mappers
 import (
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 

@@ -4,7 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -19,7 +20,7 @@ func (uc *UserRole) Create(ctx context.Context, userRole *dauth.UserRole) error 
 
 	userRole.RoleID = strings.TrimSpace(userRole.RoleID)
 
-	if userRole.UserID == uuid.Nil || userRole.RoleID == "" {
+	if userRole.UserID == uuid.Nil() || userRole.RoleID == "" {
 		return errorx.New("empty userID or roleID fields", exceptionx.ERROR)
 	}
 

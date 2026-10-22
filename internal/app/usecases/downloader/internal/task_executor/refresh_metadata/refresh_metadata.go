@@ -3,7 +3,8 @@ package refreshmetaexecutor
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/helper"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/task_executor/consts"
@@ -162,7 +163,7 @@ func (uc *Executor) collectMetadata(
 				}
 			}
 
-			if channelID != uuid.Nil && media.ChannelID != channelID {
+			if channelID != uuid.Nil() && media.ChannelID != channelID {
 				patch.needPatch = true
 				patch.channelID = channelID
 			}
@@ -179,7 +180,7 @@ func (uc *Executor) collectMetadata(
 		}
 	}
 
-	if frameThumbnail == nil {
+	if frameThumbnail == nil && media.IsVideo() {
 		frameThumbnailData, err := uc.ffmpeg.ExtractBestFrame(
 			ctx,
 			uc.storage.Path(media.FileFullName),
@@ -256,7 +257,7 @@ func (uc *Executor) applyMetadataPatch(
 	downloadID uuid.UUID,
 	metadataPatch *refreshMetadataPatch,
 ) error {
-	if downloadID != uuid.Nil && metadataPatch == nil {
+	if downloadID != uuid.Nil() && metadataPatch == nil {
 		return apperrors.ErrFuncParamNullPointer
 	}
 
@@ -280,7 +281,7 @@ func (uc *Executor) applyMetadataPatch(
 				"error", err,
 			)
 		}
-		if thumbnailID != uuid.Nil {
+		if thumbnailID != uuid.Nil() {
 			metadataPatch.mediaInfo.ThumbnailID = &thumbnailID
 		}
 	}
@@ -300,7 +301,7 @@ func (uc *Executor) applyMetadataPatch(
 				"error", err,
 			)
 		}
-		if thumbnailID != uuid.Nil {
+		if thumbnailID != uuid.Nil() {
 			metadataPatch.mediaInfo.FrameThumbnailID = &thumbnailID
 		}
 	}
@@ -320,7 +321,7 @@ func (uc *Executor) applyMetadataPatch(
 			d.MediaDescriptionOriginal = metadataPatch.description
 		}
 
-		if metadataPatch.channelID != uuid.Nil {
+		if metadataPatch.channelID != uuid.Nil() {
 			d.ChannelID = metadataPatch.channelID
 		}
 

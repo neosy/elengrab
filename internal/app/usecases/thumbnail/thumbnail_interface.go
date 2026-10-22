@@ -3,7 +3,8 @@ package thumbnail
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )

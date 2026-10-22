@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
+	"uuid"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
@@ -128,7 +129,7 @@ func (r *UserRoleRepository) Find(
 		From(eUserRole.TableName()).
 		Where(
 			squirrel.And{
-				squirrel.Eq{eUserRole.FieldName(&eUserRole.UserID): userID},
+				squirrel.Eq{eUserRole.FieldName(&eUserRole.UserID): userID.String()},
 				squirrel.Eq{eUserRole.FieldName(&eUserRole.RoleID): roleID},
 			}).
 		PlaceholderFormat(squirrel.Dollar).
@@ -181,7 +182,7 @@ func (r *UserRoleRepository) Exists(
 		From(eUserRole.TableName()).
 		Where(
 			squirrel.And{
-				squirrel.Eq{eUserRole.FieldName(&eUserRole.UserID): userID},
+				squirrel.Eq{eUserRole.FieldName(&eUserRole.UserID): userID.String()},
 				squirrel.Eq{eUserRole.FieldName(&eUserRole.RoleID): roleID},
 			}).
 		PlaceholderFormat(squirrel.Dollar).

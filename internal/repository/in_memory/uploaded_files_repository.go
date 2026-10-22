@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
@@ -64,7 +65,7 @@ func (r *UploadedFileRepository) Save(ctx context.Context, upload pservices.Uplo
 }
 
 func (r *UploadedFileRepository) SaveNegative(ctx context.Context, fileID uuid.UUID) error {
-	if fileID == uuid.Nil {
+	if fileID == uuid.Nil() {
 		return nil
 	}
 
@@ -93,7 +94,7 @@ func (r *UploadedFileRepository) Forget(ctx context.Context, fileID uuid.UUID) e
 
 func (r *UploadedFileRepository) remove(ctx context.Context, fileID uuid.UUID, cleanup bool) error {
 	return r.Repository.Delete(ctx, func() error {
-		if fileID == uuid.Nil {
+		if fileID == uuid.Nil() {
 			return nil
 		}
 

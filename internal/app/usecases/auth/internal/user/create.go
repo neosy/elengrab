@@ -8,7 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
 	idto "github.com/neosy/elengrab/internal/app/usecases/auth/internal/dto"
@@ -27,10 +28,10 @@ const (
 func (u *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption) (uuid.UUID, error) {
 	if user == nil {
 		u.logger.Warn("Nil pointer in function")
-		return uuid.Nil, apperrors.ErrFuncParamNullPointer
+		return uuid.Nil(), apperrors.ErrFuncParamNullPointer
 	}
 
-	if user.UserID == uuid.Nil {
+	if user.UserID == uuid.Nil() {
 		user.UserID = uuid.New()
 	}
 
@@ -68,7 +69,7 @@ func (u *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption)
 			"Failed to insert record into repository",
 			"error", err,
 		)
-		return uuid.Nil, err
+		return uuid.Nil(), err
 	}
 
 	return user.UserID, nil
@@ -77,7 +78,7 @@ func (u *User) Create(ctx context.Context, user *dauth.User, opts ...UserOption)
 func (u *User) CreateGuest(ctx context.Context) (uuid.UUID, error) {
 	guestLogin, err := u.genGuestLogin()
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil(), err
 	}
 
 	req := &idto.CreateUserRequest{
@@ -100,7 +101,7 @@ func (u *User) CreateUser(
 	req *idto.CreateUserRequest,
 ) (uuid.UUID, error) {
 	if req == nil {
-		return uuid.Nil, autherr.ErrFunctionNilParameter
+		return uuid.Nil(), autherr.ErrFunctionNilParameter
 	}
 
 	login := req.Login
@@ -108,7 +109,7 @@ func (u *User) CreateUser(
 		var err error
 		l, err := u.genLogin()
 		if err != nil {
-			return uuid.Nil, errorx.NewFromError(err, exceptionx.ERROR)
+			return uuid.Nil(), errorx.NewFromError(err, exceptionx.ERROR)
 		}
 		login = l
 	}

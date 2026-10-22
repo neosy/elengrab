@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/google/uuid"
+	"uuid"
 
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"

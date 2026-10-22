@@ -3,7 +3,7 @@ package taskexecutor
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 type Broadcaster struct {

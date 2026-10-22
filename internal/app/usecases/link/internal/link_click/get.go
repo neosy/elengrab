@@ -3,7 +3,7 @@ package linkclick
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (u *LinkClick) CountByLinkId(ctx context.Context, linkID uuid.UUID) (uint16, error) {

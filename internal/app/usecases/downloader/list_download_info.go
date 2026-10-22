@@ -4,7 +4,8 @@ import (
 	"context"
 	"sync"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -34,7 +35,7 @@ func (uc *downloader) ListDownloadInfo(
 	if query.Filters != nil {
 		if filter, exists := query.Filters.Find(dtypes.QueryFilterNameUserID); exists {
 			userID, ok := filter.Value().(uuid.UUID)
-			existsUserIDFilter = ok && userID != uuid.Nil
+			existsUserIDFilter = ok && userID != uuid.Nil()
 
 			if existsUserIDFilter && uc.authz.ShouldRestrictDownloads(authCtx.RoleIDs) && userID != authCtx.UserID {
 				options.Visibility = new(dtypes.QueryMediaVisibilityPublic)

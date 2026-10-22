@@ -1,7 +1,8 @@
 package mappers
 
 import (
-	"github.com/google/uuid"
+	"uuid"
+
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	emedia "github.com/neosy/elengrab/internal/repository/sqlite/media/entity"

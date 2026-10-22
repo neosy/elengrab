@@ -4,7 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -55,7 +56,7 @@ func (uc *MediaWatch) ExecuteCreateMediaWatchEvent(
 	}
 
 	var sessionID uuid.UUID
-	if userID == uuid.Nil && event.SessionID != nil {
+	if userID == uuid.Nil() && event.SessionID != nil {
 		sessionID = *event.SessionID
 	}
 

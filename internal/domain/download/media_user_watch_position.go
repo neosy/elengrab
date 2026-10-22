@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 type MediaUserWatchPosition struct {
@@ -28,11 +28,11 @@ type MediaUserWatchPosition struct {
 }
 
 func (p *MediaUserWatchPosition) Validate() error {
-	if p.DownloadID == uuid.Nil {
+	if p.DownloadID == uuid.Nil() {
 		return errors.New("download ID is required")
 	}
 
-	if p.UserID == uuid.Nil && p.SessionID == uuid.Nil {
+	if p.UserID == uuid.Nil() && p.SessionID == uuid.Nil() {
 		return errors.New("user ID is required")
 	}
 

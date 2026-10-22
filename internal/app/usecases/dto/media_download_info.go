@@ -5,7 +5,8 @@ import (
 	"math"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/consts"
 	"github.com/neosy/elengrab/internal/app/usecases/types"
 	"github.com/neosy/elengrab/internal/app/utils/hash"

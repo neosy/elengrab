@@ -3,7 +3,8 @@ package downloader
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/types"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/pool_jobs"
@@ -34,7 +35,7 @@ func (uc *downloader) ScheduleDownload(
 	options.UniqueFileName = &uniqueFileName
 
 	mediaVisibility := iconfig.InitialMediaVisibility()
-	if authCtx.UserID == uuid.Nil {
+	if authCtx.UserID == uuid.Nil() {
 		mediaVisibility = dtypes.MediaVisibilityPublic
 	}
 

@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
+	"uuid"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
@@ -91,7 +92,7 @@ func (r *ThumbnailRepository) Delete(ctx context.Context, thumbID uuid.UUID) err
 
 	// Build DELETE query
 	sqlBuilder := squirrel.Delete(eThumbnail.TableName()).
-		Where(squirrel.Eq{eThumbnail.FieldName(&eThumbnail.ThumbID): thumbID}).
+		Where(squirrel.Eq{eThumbnail.FieldName(&eThumbnail.ThumbID): thumbID.String()}).
 		PlaceholderFormat(squirrel.Dollar)
 
 	// Generate SQL and args

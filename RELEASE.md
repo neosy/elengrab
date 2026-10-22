@@ -24,6 +24,7 @@
 - Organized body and main background colors for different pages.
 - Improve page generation and CSS.
 - Move command-line flag parsing to the `cli` package and run it before application initialization. [L176]
+- Replaced Google UUID with built-in UUID generation. [L181]
 
 ### 🐛 Fix
 - Stop stale video streams when switching or closing video players. [L171]

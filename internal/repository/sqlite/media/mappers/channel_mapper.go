@@ -3,7 +3,7 @@ package mappers
 import (
 	"bytes"
 
-	"github.com/google/uuid"
+	"uuid"
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"

@@ -4,7 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
@@ -33,13 +34,13 @@ type MediaWatchEvent struct {
 }
 
 func (e *MediaWatchEvent) AuthCtx() dauth.AuthContext {
-	if e.UserID != nil && *e.UserID != uuid.Nil {
+	if e.UserID != nil && *e.UserID != uuid.Nil() {
 		return dauth.AuthContext{
 			UserID: *e.UserID,
 		}
 	}
 
-	if e.SessionID != nil && *e.SessionID != uuid.Nil {
+	if e.SessionID != nil && *e.SessionID != uuid.Nil() {
 		return dauth.AuthContext{
 			AnonSessionID: *e.SessionID,
 		}
@@ -53,7 +54,7 @@ func (e *MediaWatchEvent) Start() time.Duration {
 }
 
 func (e *MediaWatchEvent) Validate() error {
-	if e.DownloadID == uuid.Nil {
+	if e.DownloadID == uuid.Nil() {
 		return errors.New("download ID is required")
 	}
 

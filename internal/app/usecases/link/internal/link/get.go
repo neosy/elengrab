@@ -3,14 +3,15 @@ package link
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dlink "github.com/neosy/elengrab/internal/domain/link"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
 func (u *Link) FindByLinkID(ctx context.Context, linkID uuid.UUID) (*dlink.Link, error) {
-	if linkID == uuid.Nil {
+	if linkID == uuid.Nil() {
 		return nil, nil
 	}
 

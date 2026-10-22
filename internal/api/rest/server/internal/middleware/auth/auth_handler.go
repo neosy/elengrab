@@ -3,7 +3,8 @@ package authmw
 import (
 	"errors"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"

@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
+	"uuid"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
@@ -97,7 +98,7 @@ func (r *MediaUserWatchPositionRepository) DeleteByDownloadID(ctx context.Contex
 	// Build DELETE query
 	sqlBuilder := squirrel.
 		Delete(ePosition.TableName()).
-		Where(squirrel.Eq{ePosition.FieldName(&ePosition.DownloadID): downloadID}).
+		Where(squirrel.Eq{ePosition.FieldName(&ePosition.DownloadID): downloadID.String()}).
 		PlaceholderFormat(squirrel.Dollar)
 
 	// Generate SQL and args
@@ -124,7 +125,7 @@ func (r *MediaUserWatchPositionRepository) Find(
 	var ePosition ewatchevent.MediaUserWatchPosition
 
 	var sessionIDFilter string
-	if sessionID != uuid.Nil {
+	if sessionID != uuid.Nil() {
 		sessionIDFilter = sessionID.String()
 	}
 
@@ -132,8 +133,8 @@ func (r *MediaUserWatchPositionRepository) Find(
 
 	sqlWhere = append(sqlWhere,
 		squirrel.Eq{
-			ePosition.FieldName(&ePosition.DownloadID): downloadID,
-			ePosition.FieldName(&ePosition.UserID):     userID,
+			ePosition.FieldName(&ePosition.DownloadID): downloadID.String(),
+			ePosition.FieldName(&ePosition.UserID):     userID.String(),
 			ePosition.FieldName(&ePosition.SessionID):  sessionIDFilter,
 		},
 	)

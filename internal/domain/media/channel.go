@@ -4,7 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/imgx"
 )
@@ -140,7 +141,7 @@ func (c *Channel) Validate() error {
 		return errors.New("channel is nil")
 	}
 
-	if c.ChannelID == uuid.Nil {
+	if c.ChannelID == uuid.Nil() {
 		return errors.New("channel ID is empty")
 	}
 

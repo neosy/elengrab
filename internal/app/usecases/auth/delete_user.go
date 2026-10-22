@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (a *auth) SoftDeleteUser(ctx context.Context, userID uuid.UUID) error {

@@ -1,6 +1,6 @@
 package ddownload
 
-import "github.com/google/uuid"
+import "uuid"
 
 type DuplicateHashRow struct {
 	Hash   string

@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
+	"uuid"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/ports/persistence"
@@ -145,7 +146,7 @@ func (r *MediaUserWatchChunkRepository) DeleteByDownloadID(ctx context.Context, 
 	// Build DELETE query
 	sqlBuilder := squirrel.
 		Delete(eChunk.TableName()).
-		Where(squirrel.Eq{eChunk.FieldName(&eChunk.DownloadID): downloadID}).
+		Where(squirrel.Eq{eChunk.FieldName(&eChunk.DownloadID): downloadID.String()}).
 		PlaceholderFormat(squirrel.Dollar)
 
 	// Generate SQL and args
@@ -284,7 +285,7 @@ func (r *MediaUserWatchChunkRepository) CountViews(
 	execQuery := func() error {
 		row := db.QueryRowContext(
 			ctx, countViewsSQL,
-			downloadID,
+			downloadID.String(),
 			requiredChunks, requiredChunks,
 		)
 		// Scan result into entity
@@ -343,7 +344,7 @@ func (r *MediaUserWatchChunkRepository) CountUserViews(
 	execQuery := func() error {
 		row := db.QueryRowContext(
 			ctx, countUserViewsSQL,
-			downloadID, userID,
+			downloadID.String(), userID.String(),
 			requiredChunks, requiredChunks,
 		)
 		// Scan result into entity

@@ -3,7 +3,7 @@ package watchstat
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *MediaWatchStat) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {

@@ -3,7 +3,8 @@ package broadcaster
 import (
 	"sync"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/types"
@@ -162,28 +163,28 @@ func (b *Broadcaster) BroadcastByAccess(key eventkey.EventKey, eventType types.B
 }
 
 func (b *Broadcaster) BroadcastToAuth(authCtx dauth.AuthContext, eventType types.BroadcastEventType, data any) {
-	if authCtx.UserID == uuid.Nil && authCtx.AnonSessionID == uuid.Nil {
+	if authCtx.UserID == uuid.Nil() && authCtx.AnonSessionID == uuid.Nil() {
 		return
 	}
 	b.BroadcastByKey(authCtx.EventKey(), eventType, data)
 }
 
 func (b *Broadcaster) BroadcastToUser(userID uuid.UUID, eventType types.BroadcastEventType, data any) {
-	if userID == uuid.Nil {
+	if userID == uuid.Nil() {
 		return
 	}
 	b.BroadcastByKey(eventkey.NewEventKeyUserID(userID), eventType, data)
 }
 
 func (b *Broadcaster) BroadcastToSession(sessionID uuid.UUID, eventType types.BroadcastEventType, data any) {
-	if sessionID == uuid.Nil {
+	if sessionID == uuid.Nil() {
 		return
 	}
 	b.BroadcastByKey(eventkey.NewEventKeySessionID(sessionID), eventType, data)
 }
 
 func (b *Broadcaster) BroadcastToUsersWithAccess(userID uuid.UUID, eventType types.BroadcastEventType, data any) {
-	if userID == uuid.Nil {
+	if userID == uuid.Nil() {
 		return
 	}
 	b.BroadcastByAccess(eventkey.NewEventKeyUserID(userID), eventType, data)

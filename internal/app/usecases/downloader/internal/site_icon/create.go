@@ -4,7 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 
@@ -16,7 +17,7 @@ func (uc *SiteIcon) Create(ctx context.Context, logo *dmedia.SiteLogo) error {
 	}
 
 	// Ensure LogoID is generated if it's not provided
-	if logo.LogoID == uuid.Nil {
+	if logo.LogoID == uuid.Nil() {
 		logo.LogoID = uuid.New()
 	}
 

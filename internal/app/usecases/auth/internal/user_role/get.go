@@ -3,7 +3,8 @@ package authuserrole
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
@@ -11,7 +12,7 @@ import (
 
 // Find
 func (uc *UserRole) Find(ctx context.Context, userID uuid.UUID, roleID string) (*dauth.UserRole, error) {
-	if userID == uuid.Nil || roleID == "" {
+	if userID == uuid.Nil() || roleID == "" {
 		return nil, nil
 	}
 
