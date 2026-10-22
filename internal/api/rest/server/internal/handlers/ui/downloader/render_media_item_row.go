@@ -4,7 +4,8 @@ import (
 	"context"
 	"html/template"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/items"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
@@ -59,7 +60,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 
 	var thumbnailID string
 	if params.downloadInfo.MediaInfo != nil {
-		if params.downloadInfo.MediaInfo.PreferredThumbnailID() != uuid.Nil {
+		if params.downloadInfo.MediaInfo.PreferredThumbnailID() != uuid.Nil() {
 			thumbnailID = params.downloadInfo.MediaInfo.PreferredThumbnailID().String()
 		}
 	}

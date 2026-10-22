@@ -4,7 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -62,7 +63,7 @@ func (uc *downloader) getDownloadThumbnailImage(
 	ctx context.Context,
 	mediaInfo *dtypes.MediaInfo,
 ) (*dtypes.ImageData, error) {
-	if mediaInfo != nil && mediaInfo.PreferredThumbnailID() != uuid.Nil {
+	if mediaInfo != nil && mediaInfo.PreferredThumbnailID() != uuid.Nil() {
 		thumbnail, _ := uc.thumbnail.LoadByThumbID(ctx, mediaInfo.PreferredThumbnailID())
 		if thumbnail != nil {
 			if imageData := thumbnail.ImageData(""); imageData != nil {

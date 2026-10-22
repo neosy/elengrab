@@ -4,7 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dto "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -17,12 +18,12 @@ func (m *Mappers) MapMediaItemWatchTrackingRequestToUsecase(
 	req dto.MediaItemWatchTrackingRequest,
 ) (ucdto.TrackMediaWatchEventRequest, error) {
 	var userID *uuid.UUID
-	if authCtx.UserID != uuid.Nil {
+	if authCtx.UserID != uuid.Nil() {
 		userID = &authCtx.UserID
 	}
 
 	var sessionID *uuid.UUID
-	if userID == nil && authCtx.AnonSessionID != uuid.Nil {
+	if userID == nil && authCtx.AnonSessionID != uuid.Nil() {
 		sessionID = &authCtx.AnonSessionID
 	}
 

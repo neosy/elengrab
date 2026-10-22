@@ -3,7 +3,7 @@ package sourceindex
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *MediaSourceIndex) UpdateViews(ctx context.Context, downloadID uuid.UUID, views uint32) error {

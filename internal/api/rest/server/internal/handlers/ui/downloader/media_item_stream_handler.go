@@ -3,7 +3,8 @@ package downloader
 import (
 	"os"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"

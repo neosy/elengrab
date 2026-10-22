@@ -1,7 +1,8 @@
 package dto
 
 import (
-	"github.com/google/uuid"
+	"uuid"
+
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 

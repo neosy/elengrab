@@ -3,13 +3,14 @@ package authweb
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/valyala/fasthttp"
 )
 
 func (a *authWeb) SoftDeleteUser(ctx context.Context, userID uuid.UUID) error {
-	if userID == uuid.Nil {
+	if userID == uuid.Nil() {
 		a.logger.Warn("UserID is Nil")
 		return errorx.NewHTTPMessage("invalid userID", fasthttp.StatusBadRequest)
 	}

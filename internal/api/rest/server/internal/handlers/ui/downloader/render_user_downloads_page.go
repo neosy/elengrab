@@ -6,7 +6,8 @@ import (
 	"html/template"
 	"mime"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/clientcap"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"

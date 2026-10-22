@@ -1,7 +1,8 @@
 package broadcast
 
 import (
-	"github.com/google/uuid"
+	"uuid"
+
 	eventkey "github.com/neosy/elengrab/internal/domain/types/event_key"
 )
 

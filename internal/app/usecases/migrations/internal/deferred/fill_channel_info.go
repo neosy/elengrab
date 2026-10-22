@@ -3,7 +3,8 @@ package deferred
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -18,7 +19,7 @@ func (m *migrations) fill_channel_info(ctx context.Context) error {
 			return nil
 		}
 
-		if d.ChannelID == uuid.Nil {
+		if d.ChannelID == uuid.Nil() {
 			downloads = append(downloads, d)
 			return nil
 		}
@@ -55,7 +56,7 @@ func (m *migrations) fill_channel_info(ctx context.Context) error {
 
 		channelID := download.ChannelID
 
-		if channelID == uuid.Nil {
+		if channelID == uuid.Nil() {
 			channel, err := m.Usecases().Channel.FindByExternalChannelIDNoCache(ctx, channelSource.ChannelID, channelSource.Platform)
 			if err != nil {
 				return err
@@ -66,7 +67,7 @@ func (m *migrations) fill_channel_info(ctx context.Context) error {
 			}
 		}
 
-		if channelID == uuid.Nil {
+		if channelID == uuid.Nil() {
 			newChannel := dmedia.NewChannelFromSource(channelSource)
 
 			if !newChannel.IsValid() {
@@ -122,7 +123,7 @@ func (m *migrations) fill_channel_info(ctx context.Context) error {
 
 		updatedChannelIDs[channelID] = struct{}{}
 
-		if download.ChannelID == uuid.Nil {
+		if download.ChannelID == uuid.Nil() {
 			err = m.Usecases().MediaDownload.Patch(
 				ctx, nil, download.DownloadID,
 				func(d *ddownload.MediaDownload) error {

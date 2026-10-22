@@ -3,7 +3,7 @@ package dlstate
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *DownloadStateCache) DetachDownloadTask(ctx context.Context, taskID uuid.UUID) {

@@ -3,7 +3,7 @@ package filename
 import (
 	"strings"
 
-	"github.com/google/uuid"
+	"uuid"
 
 	"github.com/neosy/elengrab/internal/pkg/filex"
 	"github.com/neosy/elengrab/internal/pkg/stringx"

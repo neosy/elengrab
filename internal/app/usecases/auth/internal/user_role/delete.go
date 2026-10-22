@@ -3,7 +3,7 @@ package authuserrole
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *UserRole) Delete(ctx context.Context, userID uuid.UUID, roleID string) error {

@@ -3,7 +3,8 @@ package dltask
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"

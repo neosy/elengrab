@@ -4,7 +4,8 @@ import (
 	"context"
 	"slices"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"

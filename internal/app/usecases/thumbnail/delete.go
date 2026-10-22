@@ -3,7 +3,8 @@ package thumbnail
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )

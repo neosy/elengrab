@@ -4,7 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	linkerr "github.com/neosy/elengrab/internal/app/usecases/link/errors"
 	dlink "github.com/neosy/elengrab/internal/domain/link"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -27,7 +28,7 @@ func (u *Link) Create(
 	}
 
 	// Generate a new UUID if not already set
-	if link.LinkID == uuid.Nil {
+	if link.LinkID == uuid.Nil() {
 		link.LinkID = uuid.New()
 	}
 

@@ -3,7 +3,8 @@ package admin
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/admin/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )

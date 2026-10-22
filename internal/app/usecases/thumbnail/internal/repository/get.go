@@ -3,7 +3,8 @@ package repository
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
@@ -12,7 +13,7 @@ import (
 )
 
 func (r *ThumbnailRepository) FindByThumbID(ctx context.Context, thumbID uuid.UUID) (*dmedia.Thumbnail, error) {
-	if thumbID == uuid.Nil {
+	if thumbID == uuid.Nil() {
 		return nil, nil
 	}
 

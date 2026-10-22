@@ -3,7 +3,8 @@ package mappers
 import (
 	"database/sql"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	usql "github.com/neosy/elengrab/internal/pkg/dbutils/sql"

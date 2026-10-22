@@ -3,7 +3,8 @@ package downloader
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/broadcaster"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/types"
@@ -39,7 +40,7 @@ func (uc *downloader) broadcastMediaDownloadAdded(downloadInfo *dto.MediaDownloa
 		return
 	}
 
-	if downloadInfo.UserID == uuid.Nil {
+	if downloadInfo.UserID == uuid.Nil() {
 		uc.broadcaster.Broadcast(types.BroadcastEventTypeDownloadAdd, downloadInfo)
 		return
 	}
@@ -70,7 +71,7 @@ func (uc *downloader) broadcastMediaDownloadUpdated(
 		return
 	}
 
-	if downloadInfo.UserID == uuid.Nil {
+	if downloadInfo.UserID == uuid.Nil() {
 		uc.broadcaster.Broadcast(types.BroadcastEventTypeDownloadUpdate, downloadInfo)
 		return
 	}
@@ -154,7 +155,7 @@ func (uc *downloader) broadcastMediaDownloadChanged(
 		return
 	}
 
-	if req.Info.UserID == uuid.Nil {
+	if req.Info.UserID == uuid.Nil() {
 		uc.broadcaster.Broadcast(types.BroadcastEventTypeDownloadPatch, &req)
 		return
 	}
@@ -185,7 +186,7 @@ func (uc *downloader) broadcastMediaDownloadStartRefreshing(
 		return
 	}
 
-	if downloadInfo.UserID == uuid.Nil {
+	if downloadInfo.UserID == uuid.Nil() {
 		uc.broadcaster.Broadcast(types.BroadcastEventTypeDownloadStartRefreshing, downloadInfo)
 		return
 	}
@@ -207,7 +208,7 @@ func (uc *downloader) broadcastMediaDownloadDeleted(_ context.Context, download 
 		return
 	}
 
-	if download.UserID == nil || *download.UserID == uuid.Nil {
+	if download.UserID == nil || *download.UserID == uuid.Nil() {
 		uc.broadcaster.Broadcast(types.BroadcastEventTypeDownloadDelete, download.DownloadID)
 		return
 	}
@@ -253,7 +254,7 @@ func (uc *downloader) broadcastDownloadProgressUpdated(
 		Percent:    percent,
 	}
 
-	if downloadInfo.UserID == uuid.Nil {
+	if downloadInfo.UserID == uuid.Nil() {
 		uc.broadcaster.Broadcast(types.BroadcastEventTypeProgressUpdate, resp)
 		return
 	}

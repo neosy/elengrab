@@ -3,7 +3,8 @@ package authsession
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
@@ -11,10 +12,10 @@ import (
 func (uc *UserSession) Create(ctx context.Context, session *dauth.UserSession) (uuid.UUID, error) {
 	if session == nil {
 		uc.logger.Warn("Nil pointer in function")
-		return uuid.Nil, apperrors.ErrFuncParamNullPointer
+		return uuid.Nil(), apperrors.ErrFuncParamNullPointer
 	}
 
-	if session.SessionID == uuid.Nil {
+	if session.SessionID == uuid.Nil() {
 		session.SessionID = uuid.New()
 	}
 
@@ -24,7 +25,7 @@ func (uc *UserSession) Create(ctx context.Context, session *dauth.UserSession) (
 			"Failed to insert record into repository",
 			"error", err,
 		)
-		return uuid.Nil, err
+		return uuid.Nil(), err
 	}
 
 	return session.SessionID, nil

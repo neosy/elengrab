@@ -3,7 +3,8 @@ package ddownload
 import (
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )

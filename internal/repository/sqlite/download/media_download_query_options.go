@@ -1,9 +1,8 @@
 package download
 
 import (
-	"strings"
+	"uuid"
 
-	"github.com/google/uuid"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	"github.com/neosy/elengrab/internal/ports/persistence"
@@ -29,21 +28,6 @@ type queryArgs struct {
 func newMediaDownloadQueryOptions() mediaDownloadQueryOptions {
 	return mediaDownloadQueryOptions{
 		QueryMediaOptions: types.NewQueryMediaOptions(),
-	}
-}
-
-func (o *mediaDownloadQueryOptions) downloadIDsQuery() queryArgs {
-	placeholders := make([]string, len(o.downloadIDs))
-	values := make([]any, len(o.downloadIDs))
-
-	for i, id := range o.downloadIDs {
-		placeholders[i] = "?"
-		values[i] = id.String()
-	}
-
-	return queryArgs{
-		Placeholder: strings.Join(placeholders, ", "),
-		Values:      values,
 	}
 }
 
@@ -84,7 +68,7 @@ func (r *MediaDownloadRepository) WithDeleted() persistence.MediaDownloadReposit
 func (r *MediaDownloadRepository) WithUser(userID uuid.UUID) persistence.MediaDownloadRepository {
 	var eDownload edownload.MediaDownload
 
-	if userID == uuid.Nil {
+	if userID == uuid.Nil() {
 		r.queryOptions.Visibility = new(dtypes.QueryMediaVisibilityPublic)
 	} else {
 		r.queryOptions.Filters.Append(dbutils.NewFieldFilterEq(eDownload.FieldName(&eDownload.UserID), userID))
@@ -112,7 +96,7 @@ func (r *MediaDownloadRepository) WithFilters(filters ...dtypes.QueryFilter) per
 				if !ok {
 					continue
 				}
-				if id == uuid.Nil {
+				if id == uuid.Nil() {
 					r.queryOptions.Visibility = new(dtypes.QueryMediaVisibilityPublic)
 					continue
 				}

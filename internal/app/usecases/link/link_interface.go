@@ -3,7 +3,8 @@ package link
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dlink "github.com/neosy/elengrab/internal/domain/link"
 )

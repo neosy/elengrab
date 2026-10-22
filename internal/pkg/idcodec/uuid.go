@@ -4,8 +4,10 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 
+	"uuid"
+
 	"github.com/cespare/xxhash/v2"
-	"github.com/google/uuid"
+	"github.com/neosy/elengrab/internal/pkg/uuidx"
 )
 
 // EncodeUUIDBase64URL converts UUID into a URL-safe short string representation.
@@ -19,10 +21,10 @@ func EncodeUUIDBase64URL(id uuid.UUID) string {
 func DecodeUUIDBase64URL(value string) (uuid.UUID, error) {
 	data, err := base64.RawURLEncoding.DecodeString(value)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil(), err
 	}
 
-	return uuid.FromBytes(data)
+	return uuidx.FromBytes(data)
 }
 
 // EncodeUUIDShortBase64URL converts UUID into an 11-character URL-safe short string.

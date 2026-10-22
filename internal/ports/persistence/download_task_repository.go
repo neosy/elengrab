@@ -3,7 +3,8 @@ package persistence
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )

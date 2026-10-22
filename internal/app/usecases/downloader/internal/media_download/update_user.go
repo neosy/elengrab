@@ -3,7 +3,7 @@ package mediadownload
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *MediaDownload) UpdateUser(ctx context.Context, fromID, toID uuid.UUID) error {

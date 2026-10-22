@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+	"github.com/neosy/elengrab/internal/pkg/uuidx"
 )
 
 // Stores thumbnail metadata for media files
@@ -72,12 +74,12 @@ func NewThumbnail() *Thumbnail {
 // MakeThumbnailStorageKey generates a (analog of UUID v5) based on mediaID, variant, and format using a predefined namespace
 func MakeThumbnailStorageKey(thumbID uuid.UUID, variant string, format string) uuid.UUID {
 	name := fmt.Sprintf("%s_%s_%s", thumbID.String(), variant, format)
-	return uuid.NewSHA1(thumbnailNamespace, []byte(name))
+	return uuidx.UUIDv5(thumbnailNamespace, []byte(name))
 }
 
 // InitStorageKey generates a stable StorageKey (analog of UUID v5) based on MediaID, Variant, and Version
 func (t *Thumbnail) InitStorageKey() error {
-	if t.MediaID == uuid.Nil || !t.Variant.Exists() || t.Version == 0 {
+	if t.MediaID == uuid.Nil() || !t.Variant.Exists() || t.Version == 0 {
 		return fmt.Errorf("invalid media thumbnail data for storage key generation")
 	}
 
@@ -89,10 +91,10 @@ func (t *Thumbnail) InitStorageKey() error {
 
 // Validate checks the integrity of the Thumbnail data
 func (t *Thumbnail) Validate() error {
-	if t.ThumbID == uuid.Nil {
+	if t.ThumbID == uuid.Nil() {
 		return fmt.Errorf("thumbnail ID cannot be nil")
 	}
-	if t.MediaID == uuid.Nil {
+	if t.MediaID == uuid.Nil() {
 		return fmt.Errorf("media ID cannot be nil")
 	}
 	if !t.Variant.Exists() {
@@ -107,7 +109,7 @@ func (t *Thumbnail) Validate() error {
 	if !t.SourceType.Exists() {
 		return fmt.Errorf("invalid thumbnail source type")
 	}
-	if t.StorageKey == uuid.Nil {
+	if t.StorageKey == uuid.Nil() {
 		return fmt.Errorf("storage key cannot be nil")
 	}
 	return nil

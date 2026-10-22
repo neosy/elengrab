@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/google/uuid"
+	"uuid"
 
 	mediadownload "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download"
 	downloadstatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download_status"

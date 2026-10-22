@@ -3,7 +3,8 @@ package pservices
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 

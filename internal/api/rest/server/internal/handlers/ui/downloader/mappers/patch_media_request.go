@@ -3,7 +3,8 @@ package mappers
 import (
 	"net/http"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dto "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"

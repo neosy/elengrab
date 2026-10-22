@@ -4,7 +4,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 )
 
@@ -33,7 +34,7 @@ func (k statsUpdateKey) downloadUserKey() downloadUserKey {
 
 func (k statsUpdateKey) authCtx() dauth.AuthContext {
 	var sessionID uuid.UUID
-	if k.userID == uuid.Nil {
+	if k.userID == uuid.Nil() {
 		sessionID = k.sessionID
 	}
 

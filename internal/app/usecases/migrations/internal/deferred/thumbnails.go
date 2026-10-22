@@ -6,7 +6,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
@@ -64,7 +65,7 @@ func (m *migrations) createThumbnail(
 	sourceType dtypes.ThumbnailSourceType,
 ) (uuid.UUID, error) {
 	if imageData == nil {
-		return uuid.Nil, fmt.Errorf("image data is nil")
+		return uuid.Nil(), fmt.Errorf("image data is nil")
 	}
 
 	var sourceURL *string

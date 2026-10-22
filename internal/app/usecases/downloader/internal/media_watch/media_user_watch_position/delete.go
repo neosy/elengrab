@@ -3,11 +3,11 @@ package uwatchposition
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *MediaUserWatchPosition) DeleteByDownloadID(ctx context.Context, downloadID uuid.UUID) error {
-	if downloadID == uuid.Nil {
+	if downloadID == uuid.Nil() {
 		return nil
 	}
 

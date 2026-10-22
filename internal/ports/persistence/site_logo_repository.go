@@ -3,7 +3,8 @@ package persistence
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	"github.com/neosy/elengrab/internal/pkg/cache/memory"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"

@@ -3,7 +3,7 @@ package mediawatch
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *MediaWatch) DeleteAllByDownloadID(ctx context.Context, downloadID uuid.UUID) error {

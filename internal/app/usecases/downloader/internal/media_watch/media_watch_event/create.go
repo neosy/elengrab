@@ -3,7 +3,8 @@ package watchevent
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -16,7 +17,7 @@ func (uc *MediaWatchEvent) Create(ctx context.Context, event *ddownload.MediaWat
 		return apperrors.ErrFuncParamNullPointer
 	}
 
-	if event.EventID == uuid.Nil {
+	if event.EventID == uuid.Nil() {
 		event.EventID = uuid.New()
 	}
 

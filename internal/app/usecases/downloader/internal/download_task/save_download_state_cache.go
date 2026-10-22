@@ -3,7 +3,7 @@ package dltask
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *DownloadTask) saveToDownloadStateCache(ctx context.Context, downloadID uuid.UUID, taskID uuid.UUID) {

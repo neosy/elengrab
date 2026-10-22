@@ -3,7 +3,7 @@ package dauth
 import (
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 type UserRole struct {

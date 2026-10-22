@@ -5,7 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -62,7 +63,7 @@ func (uc *MediaDownload) create(
 		return apperrors.ErrFuncParamNullPointer
 	}
 
-	if download.DownloadID == uuid.Nil {
+	if download.DownloadID == uuid.Nil() {
 		download.DownloadID = uuid.New()
 	}
 

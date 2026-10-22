@@ -3,7 +3,9 @@ package eventkey
 import (
 	"fmt"
 
-	"github.com/google/uuid"
+	"uuid"
+
+	"github.com/neosy/elengrab/internal/pkg/uuidx"
 )
 
 type EventKey struct {
@@ -28,5 +30,5 @@ func NewEventKeySessionID(sessionID uuid.UUID) EventKey {
 
 func (e EventKey) UUID() uuid.UUID {
 	data := fmt.Sprintf("%s:%s", e.Type.String(), e.ID)
-	return uuid.NewSHA1(uuid.NameSpaceOID, []byte(data))
+	return uuidx.UUIDv5OID([]byte(data))
 }

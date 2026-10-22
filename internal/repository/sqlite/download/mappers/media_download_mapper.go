@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
@@ -29,7 +30,7 @@ func (m *Mappers) MapDownloadDomainToEntity(download *ddownload.MediaDownload) (
 	}
 
 	var channelID *string
-	if download.ChannelID != uuid.Nil {
+	if download.ChannelID != uuid.Nil() {
 		channelID = new(download.ChannelID.String())
 	}
 

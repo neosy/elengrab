@@ -4,7 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"

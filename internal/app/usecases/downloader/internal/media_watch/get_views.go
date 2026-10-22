@@ -3,7 +3,7 @@ package mediawatch
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *MediaWatch) GetViews(ctx context.Context, downloadID uuid.UUID) (uint32, error) {

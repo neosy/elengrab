@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 type MediaWatchStat struct {
@@ -19,7 +19,7 @@ type MediaWatchStat struct {
 }
 
 func (c *MediaWatchStat) Validate() error {
-	if c.DownloadID == uuid.Nil {
+	if c.DownloadID == uuid.Nil() {
 		return errors.New("download ID is required")
 	}
 

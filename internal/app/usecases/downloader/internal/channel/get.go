@@ -3,7 +3,7 @@ package channel
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
@@ -27,7 +27,7 @@ func (uc *Channel) FindByChannelID(
 	ctx context.Context,
 	channelID uuid.UUID,
 ) (*dmedia.Channel, error) {
-	if channelID == uuid.Nil {
+	if channelID == uuid.Nil() {
 		return nil, nil
 	}
 

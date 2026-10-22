@@ -4,7 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/types"

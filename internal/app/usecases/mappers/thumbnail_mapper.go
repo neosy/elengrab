@@ -1,7 +1,8 @@
 package mappers
 
 import (
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
@@ -22,7 +23,7 @@ func (m *Mappers) MapCreateThumbnailRequestToThumbnailDomain(
 	thumbnail := dmedia.NewThumbnail()
 
 	thumbnail.MediaID = req.MediaID
-	if thumbnail.MediaID == uuid.Nil {
+	if thumbnail.MediaID == uuid.Nil() {
 		thumbnail.MediaID = uuid.New()
 	}
 

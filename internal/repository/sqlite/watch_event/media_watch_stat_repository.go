@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
+	"uuid"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
@@ -97,7 +98,7 @@ func (r *MediaWatchStatRepository) DeleteByDownloadID(ctx context.Context, downl
 	// Build DELETE query
 	sqlBuilder := squirrel.
 		Delete(eStat.TableName()).
-		Where(squirrel.Eq{eStat.FieldName(&eStat.DownloadID): downloadID}).
+		Where(squirrel.Eq{eStat.FieldName(&eStat.DownloadID): downloadID.String()}).
 		PlaceholderFormat(squirrel.Dollar)
 
 	// Generate SQL and args
@@ -145,7 +146,7 @@ func (r *MediaWatchStatRepository) Find(ctx context.Context, downloadID uuid.UUI
 	sqlBuilder := squirrel.
 		Select(eStat.QueryFields()...).
 		From(eStat.TableName()).
-		Where(squirrel.Eq{eStat.FieldName(&eStat.DownloadID): downloadID}).
+		Where(squirrel.Eq{eStat.FieldName(&eStat.DownloadID): downloadID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1)
 

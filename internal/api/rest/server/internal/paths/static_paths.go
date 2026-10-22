@@ -3,7 +3,8 @@ package httppaths
 import (
 	"strings"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
 )
 

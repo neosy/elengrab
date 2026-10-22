@@ -5,7 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
@@ -40,7 +41,7 @@ func (r *ChannelRepository) Save(ctx context.Context, channel *dmedia.Channel) e
 		return errors.New("channel is nil")
 	}
 
-	if channel.ChannelID == uuid.Nil {
+	if channel.ChannelID == uuid.Nil() {
 		return errors.New("channel ID is empty")
 	}
 	save := func() error {
@@ -61,7 +62,7 @@ func (r *ChannelRepository) Save(ctx context.Context, channel *dmedia.Channel) e
 }
 
 func (r *ChannelRepository) SaveNegative(ctx context.Context, channelID uuid.UUID) error {
-	if channelID == uuid.Nil {
+	if channelID == uuid.Nil() {
 		return nil
 	}
 
@@ -101,7 +102,7 @@ func (r *ChannelRepository) SaveNegativeByExternalChannelID(
 // Delete removes a YouTube channel from the in-memory repository using its ID.
 func (r *ChannelRepository) Delete(ctx context.Context, channelID uuid.UUID) error {
 	delete := func() error {
-		if channelID == uuid.Nil {
+		if channelID == uuid.Nil() {
 			return nil
 		}
 

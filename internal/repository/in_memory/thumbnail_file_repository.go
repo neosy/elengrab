@@ -5,7 +5,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
 
@@ -46,7 +47,7 @@ func (r *ThumbnailFileRepository) Name() string {
 }
 
 func (r *ThumbnailFileRepository) Save(ctx context.Context, fileID uuid.UUID, raw []byte) error {
-	if len(raw) == 0 || fileID == uuid.Nil {
+	if len(raw) == 0 || fileID == uuid.Nil() {
 		return nil
 	}
 
@@ -70,7 +71,7 @@ func (r *ThumbnailFileRepository) Save(ctx context.Context, fileID uuid.UUID, ra
 }
 
 func (r *ThumbnailFileRepository) SaveNegative(ctx context.Context, fileID uuid.UUID) error {
-	if fileID == uuid.Nil {
+	if fileID == uuid.Nil() {
 		return nil
 	}
 
@@ -89,7 +90,7 @@ func (r *ThumbnailFileRepository) SaveNegative(ctx context.Context, fileID uuid.
 // Delete removes a thumbnail from the in-memory repository using its ID.
 func (r *ThumbnailFileRepository) Delete(ctx context.Context, fileID uuid.UUID) error {
 	delete := func() error {
-		if fileID != uuid.Nil {
+		if fileID != uuid.Nil() {
 			r.cacheByFileID.Delete(fileID)
 		}
 		return nil

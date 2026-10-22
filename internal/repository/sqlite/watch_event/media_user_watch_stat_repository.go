@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
+	"uuid"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
@@ -98,8 +99,8 @@ func (r *MediaUserWatchStatRepository) Delete(ctx context.Context, downloadID uu
 	sqlBuilder := squirrel.
 		Delete(eStat.TableName()).
 		Where(squirrel.Eq{
-			eStat.FieldName(&eStat.DownloadID): downloadID,
-			eStat.FieldName(&eStat.UserID):     userID,
+			eStat.FieldName(&eStat.DownloadID): downloadID.String(),
+			eStat.FieldName(&eStat.UserID):     userID.String(),
 		}).
 		PlaceholderFormat(squirrel.Dollar)
 
@@ -124,7 +125,7 @@ func (r *MediaUserWatchStatRepository) DeleteByDownloadID(ctx context.Context, d
 	// Build DELETE query
 	sqlBuilder := squirrel.
 		Delete(eStat.TableName()).
-		Where(squirrel.Eq{eStat.FieldName(&eStat.DownloadID): downloadID}).
+		Where(squirrel.Eq{eStat.FieldName(&eStat.DownloadID): downloadID.String()}).
 		PlaceholderFormat(squirrel.Dollar)
 
 	// Generate SQL and args
@@ -173,8 +174,8 @@ func (r *MediaUserWatchStatRepository) Find(ctx context.Context, downloadID uuid
 		Select(eStat.QueryFields()...).
 		From(eStat.TableName()).
 		Where(squirrel.Eq{
-			eStat.FieldName(&eStat.DownloadID): downloadID,
-			eStat.FieldName(&eStat.UserID):     userID,
+			eStat.FieldName(&eStat.DownloadID): downloadID.String(),
+			eStat.FieldName(&eStat.UserID):     userID.String(),
 		}).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1)
@@ -226,8 +227,8 @@ func (r *MediaUserWatchStatRepository) Exists(
 		Select("1").
 		From(eStat.TableName()).
 		Where(squirrel.Eq{
-			eStat.FieldName(&eStat.DownloadID): downloadID,
-			eStat.FieldName(&eStat.UserID):     userID,
+			eStat.FieldName(&eStat.DownloadID): downloadID.String(),
+			eStat.FieldName(&eStat.UserID):     userID.String(),
 		}).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1)

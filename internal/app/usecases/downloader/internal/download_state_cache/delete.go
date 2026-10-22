@@ -3,7 +3,7 @@ package dlstate
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *DownloadStateCache) Delete(ctx context.Context, downloadID uuid.UUID) error {
