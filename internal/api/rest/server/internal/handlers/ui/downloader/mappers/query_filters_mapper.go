@@ -1,7 +1,8 @@
 package mappers
 
 import (
-	"github.com/google/uuid"
+	"uuid"
+
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"

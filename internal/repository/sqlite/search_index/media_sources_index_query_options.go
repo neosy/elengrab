@@ -1,7 +1,8 @@
 package searchindex
 
 import (
-	"github.com/google/uuid"
+	"uuid"
+
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
 	"github.com/neosy/elengrab/internal/ports/persistence"
@@ -50,7 +51,7 @@ func (r *MediaSourceIndexRepository) WithDeleted() persistence.MediaSourceIndexR
 func (r *MediaSourceIndexRepository) WithUser(userID uuid.UUID) persistence.MediaSourceIndexRepository {
 	var eIndex esearchindex.MediaSourceIndex
 
-	if userID == uuid.Nil {
+	if userID == uuid.Nil() {
 		r.queryOptions.Visibility = new(dtypes.QueryMediaVisibilityPublic)
 	} else {
 		r.queryOptions.Filters.Append(dbutils.NewFieldFilterEq(eIndex.FieldName(&eIndex.UserID), userID))
@@ -90,7 +91,7 @@ func (r *MediaSourceIndexRepository) WithFilters(filters ...dtypes.QueryFilter) 
 			if !ok {
 				continue
 			}
-			if id == uuid.Nil {
+			if id == uuid.Nil() {
 				r.queryOptions.Visibility = new(dtypes.QueryMediaVisibilityPublic)
 				continue
 			}

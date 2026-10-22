@@ -3,7 +3,8 @@ package idcodec
 import (
 	"testing"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -15,7 +16,7 @@ func TestEncodeUUIDBase64URL(t *testing.T) {
 	}{
 		{
 			name: "zero",
-			id:   uuid.Nil,
+			id:   uuid.Nil(),
 			want: "AAAAAAAAAAAAAAAAAAAAAA",
 		},
 		{
@@ -45,7 +46,7 @@ func TestDecodeUUIDBase64URL(t *testing.T) {
 		{
 			name:  "zero",
 			value: "AAAAAAAAAAAAAAAAAAAAAA",
-			want:  uuid.Nil,
+			want:  uuid.Nil(),
 		},
 		{
 			name:  "uuid",
@@ -99,7 +100,7 @@ func TestDecodeUUIDBase64URLInvalid(t *testing.T) {
 
 func TestEncodeDecodeUUIDBase64URL(t *testing.T) {
 	ids := []uuid.UUID{
-		uuid.Nil,
+		uuid.Nil(),
 		uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
 		uuid.MustParse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
 	}

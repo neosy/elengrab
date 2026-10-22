@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -18,7 +19,7 @@ func (uc *downloader) TrackMediaWatchEvent(
 	authCtx dauth.AuthContext,
 	req dto.TrackMediaWatchEventRequest,
 ) error {
-	if req.DownloadID == uuid.Nil {
+	if req.DownloadID == uuid.Nil() {
 		uc.logger.Warn("Id for the DownloadID field is not defined")
 		return apperrors.ErrDownloadIDIsNil
 	}

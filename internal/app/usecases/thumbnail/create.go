@@ -3,7 +3,8 @@ package thumbnail
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
@@ -11,7 +12,7 @@ import (
 func (t *thumbnail) Create(ctx context.Context, req *dto.CreateThumbnailRequest) (uuid.UUID, error) {
 	thumbnail, err := t.mappers.MapCreateThumbnailRequestToThumbnailDomain(req)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil(), err
 	}
 
 	err = thumbnail.InitStorageKey()
@@ -20,7 +21,7 @@ func (t *thumbnail) Create(ctx context.Context, req *dto.CreateThumbnailRequest)
 			"Failed to initialize storage key",
 			"error", err,
 		)
-		return uuid.Nil, err
+		return uuid.Nil(), err
 	}
 
 	create := func(ctx context.Context) error {
@@ -50,7 +51,7 @@ func (t *thumbnail) Create(ctx context.Context, req *dto.CreateThumbnailRequest)
 
 	err = t.repo.Tx(ctx, create)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil(), err
 	}
 
 	t.logger.Debug(

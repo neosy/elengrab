@@ -3,7 +3,8 @@ package mediawatch
 import (
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
@@ -31,7 +32,7 @@ func (uc *MediaWatch) eventToChunks(event *ddownload.MediaWatchEvent, mediaDurat
 		return nil
 	}
 
-	userID := uuid.Nil
+	userID := uuid.Nil()
 	if event.UserID != nil {
 		userID = *event.UserID
 	}

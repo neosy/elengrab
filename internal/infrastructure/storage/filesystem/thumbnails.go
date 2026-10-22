@@ -4,7 +4,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	core "github.com/neosy/elengrab/internal/infrastructure/storage/filesystem/internal"
 )

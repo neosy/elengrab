@@ -1,6 +1,6 @@
 package reflection
 
-import "github.com/google/uuid"
+import "uuid"
 
 type tradeEntity struct {
 	TradeId      uuid.UUID `db:"trade_id" json:"tradeId"`

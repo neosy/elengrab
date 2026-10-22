@@ -3,7 +3,7 @@ package dtypes
 import (
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 type QueryMediaDownloadCursor struct {

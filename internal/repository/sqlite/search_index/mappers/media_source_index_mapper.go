@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"strings"
 
-	"github.com/google/uuid"
+	"uuid"
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -18,7 +18,7 @@ func (m *Mappers) MapMediaSourceIndexDomainToEntity(index *ddownload.MediaSource
 	}
 
 	var channelID *uuid.UUID
-	if index.ChannelID != uuid.Nil {
+	if index.ChannelID != uuid.Nil() {
 		channelID = &index.ChannelID
 	}
 

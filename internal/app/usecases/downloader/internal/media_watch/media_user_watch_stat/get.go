@@ -3,7 +3,8 @@ package uwatchstat
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -14,7 +15,7 @@ func (uc *MediaUserWatchStat) Find(
 	ctx context.Context,
 	downloadID uuid.UUID, userID uuid.UUID,
 ) (*ddownload.MediaUserWatchStat, error) {
-	if downloadID == uuid.Nil {
+	if downloadID == uuid.Nil() {
 		return nil, nil
 	}
 

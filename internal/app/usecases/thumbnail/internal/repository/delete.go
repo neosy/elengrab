@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (r *ThumbnailRepository) Delete(ctx context.Context, thumbID uuid.UUID) error {

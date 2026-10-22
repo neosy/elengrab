@@ -3,7 +3,8 @@ package emedia
 import (
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/pkg/dbentity"
 	tablenames "github.com/neosy/elengrab/internal/repository/sqlite/media/table_names"
 )

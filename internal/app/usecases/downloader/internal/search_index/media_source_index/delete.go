@@ -3,7 +3,7 @@ package sourceindex
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *MediaSourceIndex) SoftDelete(ctx context.Context, downloadID uuid.UUID) error {

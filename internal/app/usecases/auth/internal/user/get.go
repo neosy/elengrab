@@ -3,7 +3,8 @@ package authuser
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -12,7 +13,7 @@ import (
 
 // FindByUserID
 func (u *User) FindByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User, error) {
-	if userID == uuid.Nil {
+	if userID == uuid.Nil() {
 		return nil, nil
 	}
 

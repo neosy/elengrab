@@ -5,7 +5,8 @@ import (
 	"html/template"
 	"mime"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/clientcap"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
@@ -56,7 +57,7 @@ func (h *DownloaderHandlers) renderChannelPage(
 	channelHeaderPageData := pages.ChannelHeader{}
 	if filterChannelID, exists := queryFilters.Find(qkeys.ChannelIDKey); exists {
 		channelID, _ := idcodec.DecodeUUIDBase64URL(filterChannelID.Value)
-		if channelID != uuid.Nil {
+		if channelID != uuid.Nil() {
 			channelHeaderPageData = h.buildChannelHeaderPageData(ctx, channelID)
 		}
 	}

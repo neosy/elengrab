@@ -3,7 +3,8 @@ package dltask
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -15,7 +16,7 @@ func (uc *DownloadTask) Create(ctx context.Context, task *ddownload.DownloadTask
 		return apperrors.ErrFuncParamNullPointer
 	}
 
-	if task.TaskID == uuid.Nil {
+	if task.TaskID == uuid.Nil() {
 		task.TaskID = uuid.New()
 	}
 	task.Status = dtypes.MediaTaskStatusNew

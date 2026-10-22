@@ -1,5 +1,5 @@
 package dauth
 
-import "github.com/google/uuid"
+import "uuid"
 
-var AnonymousUserID = func() uuid.UUID { return uuid.Nil }
+var AnonymousUserID = func() uuid.UUID { return uuid.Nil() }

@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/task_executor/types"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"

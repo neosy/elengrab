@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -20,7 +21,7 @@ func (uc *downloader) findActualDownload(
 ) (*ddownload.MediaDownload, error) {
 	var download *ddownload.MediaDownload
 
-	if downloadID == uuid.Nil {
+	if downloadID == uuid.Nil() {
 		uc.logger.Warn("Id for the DownloadID field is not defined")
 		return nil, apperrors.ErrDownloadIDIsNil
 	}
@@ -182,7 +183,7 @@ func (uc *downloader) resolveActualDownloadInfoByDownload(
 	}
 
 	var channelTitle string
-	if download.ChannelID != uuid.Nil {
+	if download.ChannelID != uuid.Nil() {
 		channel, _ := uc.channel.FindByChannelID(ctx, download.ChannelID)
 		if channel != nil {
 			channelTitle = channel.Title
@@ -220,7 +221,7 @@ func (uc *downloader) resolveActualDownloadInfoByDownload(
 	}
 
 	var watched bool
-	if authCtx.UserID != uuid.Nil {
+	if authCtx.UserID != uuid.Nil() {
 		watched, _ = uc.mediaWatch.HasUserWatched(ctx, download.DownloadID, authCtx.UserID)
 	}
 

@@ -3,7 +3,7 @@ package upload
 import (
 	"log/slog"
 
-	"github.com/google/uuid"
+	"uuid"
 
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	pservices "github.com/neosy/elengrab/internal/ports/services"

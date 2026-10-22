@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 type MediaUserWatchChunk struct {
@@ -25,7 +25,7 @@ type MediaUserWatchChunk struct {
 }
 
 func (c *MediaUserWatchChunk) Validate() error {
-	if c.DownloadID == uuid.Nil {
+	if c.DownloadID == uuid.Nil() {
 		return errors.New("download ID is required")
 	}
 

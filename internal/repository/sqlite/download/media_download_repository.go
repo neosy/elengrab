@@ -8,8 +8,9 @@ import (
 	"slices"
 	"time"
 
+	"uuid"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -169,11 +170,11 @@ func (r *MediaDownloadRepository) UpdateStatus(
 func (r *MediaDownloadRepository) UpdateOwner(ctx context.Context, fromID, toID uuid.UUID) error {
 	var eDownload edownload.MediaDownload
 
-	sqlWhere := squirrel.Eq{eDownload.FieldName(&eDownload.UserID): fromID}
+	sqlWhere := squirrel.Eq{eDownload.FieldName(&eDownload.UserID): fromID.String()}
 
 	// Build query
 	sqlBuilder := squirrel.Update(eDownload.TableName()).
-		Set(eDownload.FieldName(&eDownload.UserID), toID).
+		Set(eDownload.FieldName(&eDownload.UserID), toID.String()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar)
 
@@ -231,7 +232,7 @@ func (r *MediaDownloadRepository) SoftDelete(ctx context.Context, downloadID uui
 	sqlQuery, args, err := squirrel.
 		Update(eDownload.TableName()).
 		SetMap(fieldsToUpdate).
-		Where(squirrel.Eq{eDownload.FieldName(&eDownload.DownloadID): downloadID}).
+		Where(squirrel.Eq{eDownload.FieldName(&eDownload.DownloadID): downloadID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 	// If SQL generation failed — return an error
@@ -280,7 +281,7 @@ func (r *MediaDownloadRepository) Restore(ctx context.Context, downloadID uuid.U
 	}
 
 	sqlWhere := squirrel.And{
-		squirrel.Eq{eDownload.FieldName(&eDownload.DownloadID): downloadID},
+		squirrel.Eq{eDownload.FieldName(&eDownload.DownloadID): downloadID.String()},
 		squirrel.NotEq{eDownload.FieldName(&eDownload.DeletedAt): nil},
 	}
 
@@ -476,8 +477,13 @@ func (r *MediaDownloadRepository) iterateAll(
 	}
 
 	if len(r.queryOptions.downloadIDs) > 0 {
+		downloadIDs := make([]string, 0, len(r.queryOptions.downloadIDs))
+		for _, id := range r.queryOptions.downloadIDs {
+			downloadIDs = append(downloadIDs, id.String())
+		}
+
 		conditions = append(conditions, squirrel.Eq{
-			eDownload.FieldName(&eDownload.DownloadID, aliasDownloads): r.queryOptions.downloadIDs,
+			eDownload.FieldName(&eDownload.DownloadID, aliasDownloads): downloadIDs,
 		})
 	}
 
@@ -502,7 +508,7 @@ func (r *MediaDownloadRepository) iterateAll(
 		if queryVisibility > dtypes.QueryMediaVisibilityAll {
 			sqlOr := squirrel.Or{
 				squirrel.Eq{eDownload.FieldName(&eDownload.UserID, aliasDownloads): nil},
-				squirrel.Eq{eDownload.FieldName(&eDownload.UserID, aliasDownloads): uuid.Nil},
+				squirrel.Eq{eDownload.FieldName(&eDownload.UserID, aliasDownloads): uuid.Nil().String()},
 				squirrel.Eq{eDownload.FieldName(&eDownload.Visibility, aliasDownloads): dtypes.MediaVisibilityPublic.String()},
 			}
 			if queryVisibility == dtypes.QueryMediaVisibilityAuthenticated {

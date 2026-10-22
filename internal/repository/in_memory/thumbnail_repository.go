@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
@@ -32,7 +33,7 @@ func (r *ThumbnailRepository) Name() string {
 }
 
 func (r *ThumbnailRepository) Save(ctx context.Context, thumbnail *dmedia.Thumbnail) error {
-	if thumbnail == nil || thumbnail.ThumbID == uuid.Nil {
+	if thumbnail == nil || thumbnail.ThumbID == uuid.Nil() {
 		return nil
 	}
 
@@ -49,7 +50,7 @@ func (r *ThumbnailRepository) Save(ctx context.Context, thumbnail *dmedia.Thumbn
 }
 
 func (r *ThumbnailRepository) SaveNegative(ctx context.Context, thumbID uuid.UUID) error {
-	if thumbID == uuid.Nil {
+	if thumbID == uuid.Nil() {
 		return nil
 	}
 
@@ -68,7 +69,7 @@ func (r *ThumbnailRepository) SaveNegative(ctx context.Context, thumbID uuid.UUI
 // Delete removes a thumbnail from the in-memory repository using its ID.
 func (r *ThumbnailRepository) Delete(ctx context.Context, thumbID uuid.UUID) error {
 	delete := func() error {
-		if thumbID != uuid.Nil {
+		if thumbID != uuid.Nil() {
 			r.cacheByThumbnailID.Delete(thumbID)
 		}
 		return nil

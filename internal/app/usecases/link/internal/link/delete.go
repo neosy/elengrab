@@ -3,7 +3,7 @@ package link
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (u *Link) SoftDelete(ctx context.Context, linkID uuid.UUID) error {

@@ -8,7 +8,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/utils/filename"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	dconsts "github.com/neosy/elengrab/internal/domain/consts"
@@ -202,7 +203,7 @@ func (d *MediaDownload) NormalizeForSave() {
 		*d.MediaDescriptionOriginal = stringx.Truncate(*d.MediaDescriptionOriginal, dconsts.MediaDescriptionMaxLength)
 	}
 
-	if (d.UserID == nil || *d.UserID == uuid.Nil) && d.Visibility == dtypes.MediaVisibilityPrivate {
+	if (d.UserID == nil || *d.UserID == uuid.Nil()) && d.Visibility == dtypes.MediaVisibilityPrivate {
 		d.Visibility = dtypes.MediaVisibilityPublic
 	}
 }

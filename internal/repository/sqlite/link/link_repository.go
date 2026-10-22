@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"time"
 
+	"uuid"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	dlink "github.com/neosy/elengrab/internal/domain/link"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
@@ -102,7 +103,7 @@ func (r *LinkRepository) SoftDelete(ctx context.Context, linkID uuid.UUID) error
 	sqlQuery, args, err := squirrel.
 		Update(eLink.TableName()).
 		SetMap(fieldsToUpdate).
-		Where(squirrel.Eq{eLink.FieldName(&eLink.LinkID): linkID}).
+		Where(squirrel.Eq{eLink.FieldName(&eLink.LinkID): linkID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 	// If SQL generation failed — return an error
@@ -146,7 +147,7 @@ func (r *LinkRepository) Find(ctx context.Context, linkID uuid.UUID) (*dlink.Lin
 	var eLink elink.Link
 
 	sqlWhere := squirrel.And{}
-	sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(&eLink.LinkID): linkID})
+	sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(&eLink.LinkID): linkID.String()})
 
 	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
@@ -199,7 +200,7 @@ func (r *LinkRepository) Exists(ctx context.Context, linkID uuid.UUID) (bool, er
 	var eLink elink.Link
 
 	sqlWhere := squirrel.And{}
-	sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(&eLink.LinkID): linkID})
+	sqlWhere = append(sqlWhere, squirrel.Eq{eLink.FieldName(&eLink.LinkID): linkID.String()})
 
 	for name, filter := range r.queryOptions.Filters {
 		if name != "" {

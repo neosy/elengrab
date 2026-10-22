@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
@@ -142,12 +143,12 @@ func (sp *SearchParameters) FindViewMode() (dtypes.QueryMediaViewMode, error) {
 func (sp *SearchParameters) FindChannelID() uuid.UUID {
 	channelID, exists := sp.Find(qkeys.ChannelIDKey)
 	if !exists || channelID == "" {
-		return uuid.Nil
+		return uuid.Nil()
 	}
 
 	id, err := idcodec.DecodeUUIDBase64URL(channelID)
 	if err != nil {
-		return uuid.Nil
+		return uuid.Nil()
 	}
 
 	return id

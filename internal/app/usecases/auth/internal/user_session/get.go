@@ -3,14 +3,15 @@ package authsession
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 )
 
 func (uc *UserSession) FindBySessionID(ctx context.Context, sessionID uuid.UUID) (*dauth.UserSession, error) {
-	if sessionID == uuid.Nil {
+	if sessionID == uuid.Nil() {
 		return nil, nil
 	}
 

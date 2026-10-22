@@ -1,6 +1,6 @@
 package ddownload
 
-import "github.com/google/uuid"
+import "uuid"
 
 // TaskAssignment describes which worker and job are currently processing a task.
 // Both fields are nil while the task is not being processed.

@@ -3,7 +3,8 @@ package downloader
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 )
 

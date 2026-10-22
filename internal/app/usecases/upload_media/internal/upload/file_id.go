@@ -1,6 +1,6 @@
 package upload
 
-import "github.com/google/uuid"
+import "uuid"
 
 func newFileID() uuid.UUID {
 	return uuid.New()

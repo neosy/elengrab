@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
@@ -55,7 +56,7 @@ func (r *MediaDownloadRepository) Save(ctx context.Context, media *ddownload.Med
 }
 
 func (r *MediaDownloadRepository) SaveNegative(ctx context.Context, downloadID uuid.UUID, downloadCode string) error {
-	if downloadID == uuid.Nil || downloadCode == "" {
+	if downloadID == uuid.Nil() || downloadCode == "" {
 		return nil
 	}
 
@@ -99,7 +100,7 @@ func (r *MediaDownloadRepository) SaveNegativeByCode(ctx context.Context, downlo
 // Delete removes a mediaDownload from the in-memory repository using its ID.
 func (r *MediaDownloadRepository) Delete(ctx context.Context, downloadID uuid.UUID) error {
 	delete := func() error {
-		if downloadID == uuid.Nil {
+		if downloadID == uuid.Nil() {
 			return nil
 		}
 

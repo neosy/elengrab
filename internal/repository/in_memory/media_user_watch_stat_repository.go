@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
@@ -56,7 +57,7 @@ func (r *MediaUserWatchStatRepository) Save(ctx context.Context, stat *ddownload
 }
 
 func (r *MediaUserWatchStatRepository) SaveNegative(ctx context.Context, downloadID uuid.UUID, userID uuid.UUID) error {
-	if downloadID == uuid.Nil {
+	if downloadID == uuid.Nil() {
 		return nil
 	}
 
@@ -85,7 +86,7 @@ func (r *MediaUserWatchStatRepository) Delete(ctx context.Context, downloadID uu
 	}
 
 	delete := func() error {
-		if downloadID != uuid.Nil {
+		if downloadID != uuid.Nil() {
 			r.cache.Delete(key)
 		}
 		return nil

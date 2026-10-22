@@ -3,7 +3,7 @@ package dlexecutor
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 type Broadcaster struct {

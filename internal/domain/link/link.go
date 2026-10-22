@@ -5,7 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	shcode "github.com/neosy/elengrab/internal/app/utils/short_code"
 )
 

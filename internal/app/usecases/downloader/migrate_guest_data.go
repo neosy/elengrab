@@ -3,7 +3,7 @@ package downloader
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func (uc *downloader) MigrateGuestData(ctx context.Context, guestID, userID uuid.UUID) error {

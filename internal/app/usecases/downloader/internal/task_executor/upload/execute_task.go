@@ -6,7 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/utils/filename"
 	dconsts "github.com/neosy/elengrab/internal/domain/consts"
@@ -97,7 +98,7 @@ func (uc *Executor) Execute(
 			dl.FileSize = &fileSize
 		}
 
-		if thumbnailID != uuid.Nil {
+		if thumbnailID != uuid.Nil() {
 			dl.MediaInfo.FrameThumbnailID = &thumbnailID
 		}
 

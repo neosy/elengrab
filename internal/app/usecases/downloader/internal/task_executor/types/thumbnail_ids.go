@@ -1,6 +1,6 @@
 package types
 
-import "github.com/google/uuid"
+import "uuid"
 
 type ThumbnailIDs struct {
 	ThumbnailID      *uuid.UUID

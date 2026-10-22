@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/neosy/elengrab/internal/app/usecases/consts"
 	cachejobs "github.com/neosy/elengrab/internal/app/workers/cache"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/worker_jobs"
 	"github.com/neosy/elengrab/internal/pkg/workers"
@@ -16,6 +17,7 @@ const (
 	defaultDeleteDuplicatesInterval       = 1 * time.Hour
 	defaultDeleteMissingDownloadsInterval = 30 * time.Minute
 	defaultDeleteFailedDownloadsInterval  = 1 * time.Hour
+	defaultResolveInconsistenciesInterval = 6 * time.Hour
 
 	defaultCleanMediaDownloadCacheInterval          = 30 * time.Minute
 	defaultCleanDownloadStateCacheInterval          = 20 * time.Minute
@@ -65,6 +67,7 @@ type Dependencies struct {
 	DeleteDuplicatesInterval       time.Duration
 	DeleteMissingDownloadsInterval time.Duration
 	DeleteFailedDownloadsInterval  time.Duration
+	ResolveInconsistenciesInterval time.Duration
 
 	// caches
 	CleanChannelCacheInterval                time.Duration
@@ -136,6 +139,12 @@ func Initialize(logger *slog.Logger, deps *Dependencies, ws *workers.Workers) {
 		wjobs.NewDeleteFailedDownloadsJob(ws.Logger(), deps.DownloaderMaintenance),
 		workers.WithIntervalFallback(deps.DeleteFailedDownloadsInterval, defaultDeleteFailedDownloadsInterval),
 		workers.WithInitialDelay(20*time.Second),
+	))
+
+	ws.Add(workers.NewWorker(
+		wjobs.NewResolveInconsistenciesJob(ws.Logger(), deps.DownloaderMaintenance, consts.DefaultOrphanGracePeriod),
+		workers.WithIntervalFallback(deps.ResolveInconsistenciesInterval, defaultResolveInconsistenciesInterval),
+		workers.WithInitialDelay(30*time.Second),
 	))
 
 	ws.Add(workers.NewWorker(

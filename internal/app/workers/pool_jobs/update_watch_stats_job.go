@@ -3,7 +3,8 @@ package wjobs
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )

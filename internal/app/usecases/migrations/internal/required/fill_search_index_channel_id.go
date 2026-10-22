@@ -4,7 +4,8 @@ import (
 	"context"
 	"sync"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
@@ -27,7 +28,7 @@ func (m *migrations) fillSearchIndexChannelID(ctx context.Context) error {
 
 	err := m.Usecases().Downloader.MediaDownload().IterateAll(
 		ctx, func(download *ddownload.MediaDownload) error {
-			if download.ChannelID != uuid.Nil {
+			if download.ChannelID != uuid.Nil() {
 				channelIDsByDownloadID[download.DownloadID] = download.ChannelID
 			}
 			return nil

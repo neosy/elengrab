@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 	"github.com/neosy/elengrab/internal/ports/persistence"
@@ -51,7 +52,7 @@ func (r *DownloadStateRepository) WithUser(userID uuid.UUID) persistence.Downloa
 }
 
 func (r *DownloadStateRepository) Save(ctx context.Context, state *ddownload.DownloadState) error {
-	if state == nil || state.DownloadID == uuid.Nil {
+	if state == nil || state.DownloadID == uuid.Nil() {
 		return nil
 	}
 

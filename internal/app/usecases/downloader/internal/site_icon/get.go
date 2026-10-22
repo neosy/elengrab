@@ -3,7 +3,8 @@ package siteicon
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -13,7 +14,7 @@ import (
 // FindByLogoID
 // Record may not exist — caller decides what to do
 func (uc *SiteIcon) FindByLogoID(ctx context.Context, logoID uuid.UUID) (*dmedia.SiteLogo, error) {
-	if logoID == uuid.Nil {
+	if logoID == uuid.Nil() {
 		return nil, nil
 	}
 

@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/broadcaster"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -33,6 +34,7 @@ type DownloaderMaintenance interface {
 	DeleteMissingDownloads(ctx context.Context, enableMoveUnmatchedFiles bool) error
 	DeleteFailedDownloads(ctx context.Context) error
 	ResetStuckJobs(ctx context.Context) error
+	ResolveInconsistencies(ctx context.Context, orphanGracePeriod time.Duration) error
 }
 
 type DownloaderTask interface {

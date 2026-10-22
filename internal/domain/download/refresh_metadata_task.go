@@ -1,7 +1,8 @@
 package ddownload
 
 import (
-	"github.com/google/uuid"
+	"uuid"
+
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 

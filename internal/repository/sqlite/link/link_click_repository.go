@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
+	"uuid"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	dlink "github.com/neosy/elengrab/internal/domain/link"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
@@ -90,7 +91,7 @@ func (r *LinkClickRepository) Find(ctx context.Context, linkClickID uuid.UUID) (
 
 	sqlQuery, args, err := squirrel.Select(eLinkClick.QueryFields()...).
 		From(eLinkClick.TableName()).
-		Where(squirrel.Eq{eLinkClick.FieldName(&eLinkClick.LinkClickID): linkClickID}).
+		Where(squirrel.Eq{eLinkClick.FieldName(&eLinkClick.LinkClickID): linkClickID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
 		Limit(1).
 		ToSql()
@@ -134,7 +135,7 @@ func (r *LinkClickRepository) CountByLinkId(ctx context.Context, linkID uuid.UUI
 
 	sqlQuery, args, err := squirrel.Select("COUNT(*)").
 		From(eLinkClick.TableName()).
-		Where(squirrel.Eq{eLinkClick.FieldName(&eLinkClick.LinkID): linkID}).
+		Where(squirrel.Eq{eLinkClick.FieldName(&eLinkClick.LinkID): linkID.String()}).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 

@@ -9,7 +9,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 
@@ -198,7 +199,7 @@ func stripUUIDFromIDPath(path string) uuid.UUID {
 		}
 	}
 
-	return uuid.Nil
+	return uuid.Nil()
 }
 
 func mediaSourceFromURL(mediaURL string) string {
@@ -281,7 +282,7 @@ func (h *DownloaderHandlers) buildChannelPageData(
 	ctx context.Context,
 	channelID uuid.UUID,
 ) pages.Channel {
-	if channelID == uuid.Nil {
+	if channelID == uuid.Nil() {
 		return pages.Channel{}
 	}
 
@@ -310,7 +311,7 @@ func (h *DownloaderHandlers) buildChannelPageData(
 }
 
 func (h *DownloaderHandlers) buildChannelHeaderPageData(ctx context.Context, channelID uuid.UUID) pages.ChannelHeader {
-	if channelID == uuid.Nil {
+	if channelID == uuid.Nil() {
 		return pages.ChannelHeader{}
 	}
 
@@ -351,12 +352,12 @@ func (h *DownloaderHandlers) buildUserDownloadsHeaderPageData(ctx context.Contex
 func (h *DownloaderHandlers) extractDownloadID(ctx *fasthttp.RequestCtx) (uuid.UUID, error) {
 	encodedDownloadID, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
 	if !ok || encodedDownloadID == "" {
-		return uuid.Nil, apierrors.ErrDownloadIDIsRequired
+		return uuid.Nil(), apierrors.ErrDownloadIDIsRequired
 	}
 
 	downloadID, err := idcodec.DecodeUUIDBase64URL(encodedDownloadID)
 	if err != nil {
-		return uuid.Nil, apierrors.ErrDownloadIDIsIncorrect.Wrap(err)
+		return uuid.Nil(), apierrors.ErrDownloadIDIsIncorrect.Wrap(err)
 	}
 
 	return downloadID, nil
@@ -365,12 +366,12 @@ func (h *DownloaderHandlers) extractDownloadID(ctx *fasthttp.RequestCtx) (uuid.U
 func (h *DownloaderHandlers) extractFileID(ctx *fasthttp.RequestCtx) (uuid.UUID, error) {
 	encodedFileID, ok := ctx.UserValue(qkeys.FileIDKey.String()).(string)
 	if !ok || encodedFileID == "" {
-		return uuid.Nil, apierrors.ErrFileIDIsRequired
+		return uuid.Nil(), apierrors.ErrFileIDIsRequired
 	}
 
 	fileID, err := idcodec.DecodeUUIDBase64URL(encodedFileID)
 	if err != nil {
-		return uuid.Nil, apierrors.ErrFileIDIsIncorrect.Wrap(err)
+		return uuid.Nil(), apierrors.ErrFileIDIsIncorrect.Wrap(err)
 	}
 
 	return fileID, nil
@@ -379,12 +380,12 @@ func (h *DownloaderHandlers) extractFileID(ctx *fasthttp.RequestCtx) (uuid.UUID,
 func (h *DownloaderHandlers) extractChannelID(ctx *fasthttp.RequestCtx) (uuid.UUID, error) {
 	encodedChannelID, ok := ctx.UserValue(qkeys.ChannelIDKey.String()).(string)
 	if !ok || encodedChannelID == "" {
-		return uuid.Nil, apierrors.ErrChannelIDIsRequired
+		return uuid.Nil(), apierrors.ErrChannelIDIsRequired
 	}
 
 	channelID, err := idcodec.DecodeUUIDBase64URL(encodedChannelID)
 	if err != nil {
-		return uuid.Nil, apierrors.ErrChannelIDIsIncorrect.Wrap(err)
+		return uuid.Nil(), apierrors.ErrChannelIDIsIncorrect.Wrap(err)
 	}
 
 	return channelID, nil
@@ -452,12 +453,12 @@ func (h *DownloaderHandlers) resolveShortLink(ctx *fasthttp.RequestCtx, clickSho
 func (h *DownloaderHandlers) resolveShortLinkToDownloadID(ctx *fasthttp.RequestCtx, clickShortLink bool) (*shortLink, uuid.UUID, error) {
 	shortLink, err := h.resolveShortLink(ctx, clickShortLink)
 	if err != nil {
-		return nil, uuid.Nil, err
+		return nil, uuid.Nil(), err
 	}
 
 	downloadID := stripUUIDFromIDPath(shortLink.originalURL)
-	if downloadID == uuid.Nil {
-		return nil, uuid.Nil, errorx.Errorf(
+	if downloadID == uuid.Nil() {
+		return nil, uuid.Nil(), errorx.Errorf(
 			"failed short link %v, originalURL: %v", shortLink.shortURL, shortLink.originalURL,
 			exceptionx.WRONG_DATA,
 			errorx.WithErrorMessage("Short link is invalid."),
