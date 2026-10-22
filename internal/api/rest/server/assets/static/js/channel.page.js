@@ -98,26 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
         },
     });
 
-    // Initialize the external channel link button
-    view.initExtChannelLink({
-        getSearchQueryValues: search.getSearchQueryValues,
-        onSuccess: (rows) => {
-            refreshVideoPreview(true);
-
-            searchInputClearButton.clearInputOnly();
-            search.setSearchParametersInUrl();
-
-            const lazyObservers= [
-                thumbnailLazyImages,
-                avatarLazyImages,
-            ];
-
-            for (const observer of lazyObservers) {
-                observer.observe(rows);
-            }
-        },
-    });
-
     // Create SSE connection
     const sseEventHandlers = {
         "row-update": rowEventHandlers.handleRowUpdate,

@@ -130,6 +130,30 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	encodedDownloadID := idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID)
 	visibility := h.buildVisibilityResponse(params.downloadInfo)
 
+	userName := userDisplayName(
+		params.downloadInfo.UserID,
+		params.downloadInfo.UserLogin,
+		params.downloadInfo.UserType,
+		params.AuthCtx.UserID,
+	)
+	userInitial := userDisplayInitial(userName)
+
+	userDownloadsURL := httppaths.BuildRootUserDownloadsPath(params.downloadInfo.UserLogin)
+
+	var userHue int = 210
+	if params.downloadInfo.UserID != nil {
+		userHue = userDisplayInitialHue(params.downloadInfo.UserID.String())
+	}
+
+	var (
+		channelTitle   = channelPageData.Title
+		channelLinkURL = channelPageData.URL
+	)
+	if params.downloadInfo.IsUpload() {
+		channelTitle = userName
+		channelLinkURL = userDownloadsURL
+	}
+
 	data := pages.RowFragmentValues{
 		DownloadID:      encodedDownloadID,
 		DownloadStatus:  params.downloadInfo.Status.String(),
@@ -138,8 +162,11 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		VisibilityLabel: params.downloadInfo.Visibility.Label(),
 		IsReady:         params.downloadInfo.Status.IsReady(),
 		HasShareLink:    h.hasShareLink(ctx, params.downloadInfo.DownloadID),
+		IsUploaded:      params.downloadInfo.MediaDownload.SourceType == dtypes.MediaDownloadSourceTypeUpload,
 
-		Channel: channelPageData,
+		Channel:        channelPageData,
+		ChannelTitle:   channelTitle,
+		ChannelLinkURL: channelLinkURL,
 
 		LazyLoadImages: params.lazyLoadImages,
 
@@ -150,7 +177,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		MediaTitle: params.downloadInfo.MediaTitle,
 		MediaURL:   params.downloadInfo.MediaURL,
 
-		UserDownloadsURL: httppaths.BuildRootUserDownloadsPath(params.downloadInfo.UserLogin),
+		UserDownloadsURL: userDownloadsURL,
 
 		ContentTimeAgo:   params.downloadInfo.CreatedTimeAgo,
 		ContentViewCount: humanize.CompactNumber(params.downloadInfo.ViewCount),
@@ -187,12 +214,9 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		IsDownloadEvent:        params.isDownloadEvent,
 		ResultRowStatusTitle:   params.downloadInfo.StatusText,
 
-		UserName: userDisplayName(
-			params.downloadInfo.UserID,
-			params.downloadInfo.UserLogin,
-			params.downloadInfo.UserType,
-			params.AuthCtx.UserID,
-		),
+		UserName:    userName,
+		UserInitial: userInitial,
+		UserHue:     userHue,
 
 		RefreshingIcon:            icons.DownloadRefreshingIcon.FileRaw(),
 		MetaUserNameSeparatorIcon: icons.DownloadMetaUserNameSeparatorIcon.FileRaw(),
