@@ -70,7 +70,7 @@ type MediaDownload struct {
 	Ext string
 
 	// Full file name including extension
-	FileFullName string
+	FileName string
 
 	// File size (byte)
 	FileSize *int64

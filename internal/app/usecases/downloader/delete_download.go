@@ -37,7 +37,7 @@ func (uc *downloader) DeleteDownload(
 
 	type processDeleteResponse struct {
 		needDeleteFileOnStorage bool
-		fileFullName            string
+		FileName                string
 	}
 
 	processDelete := func(ctx context.Context) (processDeleteResponse, error) {
@@ -93,15 +93,15 @@ func (uc *downloader) DeleteDownload(
 
 		uc.broadcastMediaDownloadDeleted(ctx, download)
 
-		response.needDeleteFileOnStorage = download.FileFullName != ""
-		response.fileFullName = download.FileFullName
+		response.needDeleteFileOnStorage = download.FileName != ""
+		response.FileName = download.FileName
 
 		return response, nil
 	}
 
 	var (
 		needDeleteFileOnStorage bool
-		fileFullName            string
+		FileName                string
 	)
 
 	err = uc.download.Tx(ctx,
@@ -112,7 +112,7 @@ func (uc *downloader) DeleteDownload(
 			}
 
 			needDeleteFileOnStorage = resp.needDeleteFileOnStorage
-			fileFullName = resp.fileFullName
+			FileName = resp.FileName
 
 			return nil
 		},
@@ -121,11 +121,11 @@ func (uc *downloader) DeleteDownload(
 		return err
 	}
 
-	if needDeleteFileOnStorage && fileFullName != "" {
+	if needDeleteFileOnStorage && FileName != "" {
 		go func() {
-			err := uc.deleteFileWithRetry(ctx, fileFullName, 10, 5*time.Second)
+			err := uc.deleteFileWithRetry(ctx, FileName, 10, 5*time.Second)
 			if err != nil {
-				uc.logger.Warn("Failed delete download", "filePath", uc.downloadsStorage.Path(fileFullName), "error", err)
+				uc.logger.Warn("Failed delete download", "filePath", uc.downloadsStorage.Path(FileName), "error", err)
 			}
 			uc.UpdateSystemDiskInfo()
 		}()

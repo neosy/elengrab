@@ -71,7 +71,7 @@ func (uc *Executor) collectMetadata(
 
 	fileMediaInfo, err := uc.ffmpeg.ExtractMediaInfoWithFFprobe(
 		ctx,
-		uc.storage.Path(media.FileFullName),
+		uc.storage.Path(media.FileName),
 		pservices.NewMediaInfoFromExt(media.Ext),
 	)
 	if err != nil {
@@ -79,7 +79,7 @@ func (uc *Executor) collectMetadata(
 			"Failed to extact media info from file",
 			"downloadID", media.DownloadID,
 			"mediaTitle", media.MediaTitle,
-			"fileName", media.FileFullName,
+			"fileName", media.FileName,
 			"error", err,
 		)
 		return nil, err
@@ -183,14 +183,14 @@ func (uc *Executor) collectMetadata(
 	if frameThumbnail == nil && media.IsVideo() {
 		frameThumbnailData, err := uc.ffmpeg.ExtractBestFrame(
 			ctx,
-			uc.storage.Path(media.FileFullName),
+			uc.storage.Path(media.FileName),
 		)
 		if err != nil {
 			uc.logger.Warn(
 				"failed to extract frame from file",
 				"downloadID", media.DownloadID,
 				"mediaTitle", media.MediaTitle,
-				"fileName", media.FileFullName,
+				"fileName", media.FileName,
 				"error", err,
 			)
 		}

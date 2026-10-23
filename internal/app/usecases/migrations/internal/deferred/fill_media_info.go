@@ -90,7 +90,7 @@ func (m *migrations) fillMediaInfo(ctx context.Context) error {
 
 		mediaInfoResp, _ := m.Services().FFMpeg.ExtractMediaInfoWithFFprobe(
 			ctx,
-			m.DownloadsStorage().Path(media.FileFullName),
+			m.DownloadsStorage().Path(media.FileName),
 			pservices.NewMediaInfoFromExt(media.Ext),
 		)
 
@@ -125,7 +125,7 @@ func (m *migrations) fillMediaInfo(ctx context.Context) error {
 		}
 
 		if fileFormat.IsVideo() {
-			filePath := m.DownloadsStorage().Path(media.FileFullName)
+			filePath := m.DownloadsStorage().Path(media.FileName)
 			imageData := extractBalanceThumbnail(ctx, filePath)
 			if imageData == nil {
 				imageData = extractThumbnail(ctx, filePath)

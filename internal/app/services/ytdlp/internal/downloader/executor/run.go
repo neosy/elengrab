@@ -65,7 +65,7 @@ func (e *Executor) RunYtDlp(
 	)
 
 	// Build full path to the output file inside the temp work directory
-	tmpFilePath := filepath.Join(workDir, meta.FileFullName)
+	tmpFilePath := filepath.Join(workDir, meta.FileName)
 
 	// If no extractor args provided, use cache and isolated paths
 	if options.ExtractorArgs == nil {
@@ -235,7 +235,7 @@ func (e *Executor) RunYtDlp(
 
 	// Move final file from temp directory to target path
 	// to avoid ffmpeg creating temporary files in the download directory
-	err = e.storage.Move(tmpFilePath, meta.FileFullName)
+	err = e.storage.Move(tmpFilePath, meta.FileName)
 	if err != nil {
 		return nil, fmt.Errorf("%s failed to move file from temp dir to target path: %w", consts.YtDlpName, err)
 	}

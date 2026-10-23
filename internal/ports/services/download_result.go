@@ -20,7 +20,7 @@ type DownloadResult struct {
 	FileExt string
 
 	// file name
-	FileFullName string
+	FileName string
 
 	// file size (byte)
 	Filesize *int64

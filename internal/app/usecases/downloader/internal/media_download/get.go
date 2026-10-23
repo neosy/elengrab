@@ -118,7 +118,7 @@ func (uc *MediaDownload) GetWithoutPartialHash(ctx context.Context) ([]*ddownloa
 	if len(gFiles) > 0 {
 		downloads = make([]*ddownload.MediaDownload, 0, len(gFiles))
 		for _, download := range gFiles {
-			if download.FileFullName == "" {
+			if download.FileName == "" {
 				continue
 			}
 			downloads = append(downloads, download)

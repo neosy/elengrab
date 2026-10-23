@@ -75,7 +75,7 @@ func (d *Downloader) prepareDownload(
 		Description:   downloadPlan.ExtractInfo.Description,
 		FileNameNoExt: filex.FileNameWithoutExt(fileName),
 		FileExt:       downloadPlan.FileExt,
-		FileFullName:  fileName,
+		FileName:      fileName,
 		FileSize:      fileSize,
 
 		Channel: channel,

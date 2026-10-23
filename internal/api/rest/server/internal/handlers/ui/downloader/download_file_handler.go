@@ -36,8 +36,8 @@ func (h *DownloaderHandlers) DownloadFileHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	var filePath string
-	if downloadInfo.FileFullName != "" {
-		filePath = h.downloadsStorage.Path(downloadInfo.FileFullName)
+	if downloadInfo.FileName != "" {
+		filePath = h.downloadsStorage.Path(downloadInfo.FileName)
 	}
 
 	// Check if the file exists

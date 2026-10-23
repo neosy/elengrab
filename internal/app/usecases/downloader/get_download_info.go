@@ -255,7 +255,7 @@ func (uc *downloader) GetDownloadFilePath(ctx context.Context, downloadID uuid.U
 		return "", err
 	}
 
-	return uc.downloadsStorage.Path(download.FileFullName), nil
+	return uc.downloadsStorage.Path(download.FileName), nil
 }
 
 // GetDownloadFileName retrieves the display file name and extension

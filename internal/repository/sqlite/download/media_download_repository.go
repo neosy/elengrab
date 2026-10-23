@@ -674,7 +674,7 @@ func (r *MediaDownloadRepository) IterateFullNames(ctx context.Context, includeD
 		}
 	}
 
-	sqlQuery, args, err := squirrel.Select(eDownload.FieldName(&eDownload.FileFullName)).
+	sqlQuery, args, err := squirrel.Select(eDownload.FieldName(&eDownload.FileName)).
 		From(eDownload.TableName()).
 		Where(sqlWhere).
 		PlaceholderFormat(squirrel.Dollar).
@@ -789,7 +789,7 @@ func (r *MediaDownloadRepository) GetDuplicateHashes(ctx context.Context, scope 
 
 	sqlWhere := squirrel.And{
 		squirrel.Expr(eDownload.FieldName(&eDownload.PartialHash) + " IS NOT NULL"),
-		squirrel.NotEq{eDownload.FieldName(&eDownload.FileFullName): ""},
+		squirrel.NotEq{eDownload.FieldName(&eDownload.FileName): ""},
 		squirrel.Eq{
 			eDownload.FieldName(&eDownload.Status):    dtypes.MediaDownloadStatusDone.String(),
 			eDownload.FieldName(&eDownload.DeletedAt): nil,

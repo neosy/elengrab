@@ -42,7 +42,7 @@ type MediaDownloadInfo struct {
 	HasSiteIcon          bool
 	FileNameNoExt        string
 	FileExt              string
-	FileFullName         string
+	FileName             string
 	FileSize             *int64
 	SafeReadableFullName string
 	StatusText           string
