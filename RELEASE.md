@@ -32,6 +32,7 @@
 - Allow video previews to start after switching to another item when the previous preview has ended. [L172]
 - Fixed Instagram cookies error detection by correcting the error message matching.
 - Fixed orphaned media index entries and skipped them during page retrieval. [L181]
+- Fixed field filters with conditions other than EQ. [L183]
 
 ### ⚙️ Config
 Added `ELENGRAB_ABOUT_DEVELOPER_SHOW_INFO` to control developer attribution visibility in the About dialog. [L177]

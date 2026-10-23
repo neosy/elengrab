@@ -19,7 +19,7 @@ type FiltersByField map[string]FieldFilter
 // NewFieldFilter creates a new FieldFilter with the specified field name, value, and operator.
 func NewFieldFilter(fieldName string, value any, operator FilterOperator) FieldFilter {
 	return FieldFilter{
-		FieldName:     fieldName,
+		FieldName: fieldName,
 		condition: NewFilterCondition(value, operator),
 	}
 }
@@ -27,6 +27,14 @@ func NewFieldFilter(fieldName string, value any, operator FilterOperator) FieldF
 // NewFieldFilterEq creates a new FieldFilter with the Eq operator.
 func NewFieldFilterEq(fieldName string, value any) FieldFilter {
 	return NewFieldFilter(fieldName, value, FilterOperatorEq)
+}
+
+// NewFieldFilterWithCondition creates a field filter with the specified condition.
+func NewFieldFilterWithCondition(fieldName string, condition FilterConditioner) FieldFilter {
+	return FieldFilter{
+		FieldName: fieldName,
+		condition: condition,
+	}
 }
 
 func (f FieldFilter) Condition() FilterConditioner {
@@ -54,7 +62,7 @@ func (filters FiltersByField) Add(field string, condition FilterConditioner) {
 	}
 
 	filter := FieldFilter{
-		FieldName:     field,
+		FieldName: field,
 		condition: condition,
 	}
 

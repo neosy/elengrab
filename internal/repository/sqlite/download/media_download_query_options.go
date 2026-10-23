@@ -102,7 +102,7 @@ func (r *MediaDownloadRepository) WithFilters(filters ...dtypes.QueryFilter) per
 				}
 				r.queryOptions.Filters.Append(dbutils.NewFieldFilterEq(fieldName, filter.Value()))
 			default:
-				r.queryOptions.Filters.Append(dbutils.NewFieldFilterEq(fieldName, filter.Value()))
+				r.queryOptions.Filters.Append(dbutils.NewFieldFilterWithCondition(fieldName, filter.Condition()))
 			}
 			continue
 		}

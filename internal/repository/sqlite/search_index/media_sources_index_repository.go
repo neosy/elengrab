@@ -268,12 +268,12 @@ func (r *MediaSourceIndexRepository) iterateAll(
 	ctx context.Context,
 	fn func(*ddownload.MediaSourceIndex) error,
 ) error {
-	var eIndex esearchindex.MediaSourceIndex
-
 	var (
+		eIndex esearchindex.MediaSourceIndex
 		filterUserID string
 		conditions   = squirrel.And{}
 	)
+
 	for name, filter := range r.queryOptions.Filters {
 		switch name {
 		case "":
@@ -291,7 +291,7 @@ func (r *MediaSourceIndexRepository) iterateAll(
 			}
 			filterUserID = userID.String()
 		default:
-			conditions = append(conditions, squirrel.Eq{eIndex.FieldName(name): filter.Condition().Value()})
+			conditions = append(conditions, filter.SqlCondition())
 		}
 	}
 
