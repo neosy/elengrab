@@ -12,7 +12,23 @@ type Job interface {
 }
 
 type JobDispatcher interface {
+	// IsTaskRunning reports whether the task with the specified job ID is currently running.
+	// This method is thread-safe and can be called from any goroutine.
+	IsRunningTask(jobID string) bool
+
+	// HasJob reports whether a job exists in the queue or is currently running.
+	// This method is thread-safe and can be called from any goroutine.
+	HasJob(jobID string) bool
+
+	// AddJob enqueues a new job for execution.
+	// job: the job to be executed by a worker.
+	// Thread-safe; can be called from any goroutine.
 	AddJob(job Job) error
+
+	// CancelJob removes a job with the given ID from the queue.
+	// Returns true if the job was found and removed, false otherwise.
+	// If the job is removed, it signals the dispatcher to wake up
+	// and re-evaluate available jobs.
 	CancelJob(jobID string) bool
 }
 
@@ -52,6 +68,15 @@ func newTask(ctx context.Context, job Job) *task {
 // protecting the queue before calling Len.
 func (q *jobQueue) len() int {
 	return q.items.Len()
+}
+
+// contains reports whether a job with the given ID exists in the queue.
+//
+// This method is not thread-safe. The caller must hold the mutex
+// protecting the queue before calling Contains.
+func (q *jobQueue) contains(jobID string) bool {
+	_, exists := q.index[jobID]
+	return exists
 }
 
 // push adds a new item to the queue.

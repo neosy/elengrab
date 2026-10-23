@@ -21,11 +21,6 @@ func (uc *downloader) DeleteDownload(
 	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) error {
-	var (
-		needDeleteFileOnStorage bool
-		fileFullName            string
-	)
-
 	if err := uc.validateWriteAccess(authCtx, types.BroadcastNotificationModuleResultRow); err != nil {
 		return err
 	}
@@ -40,72 +35,88 @@ func (uc *downloader) DeleteDownload(
 		return err
 	}
 
-	fnDelete := func(ctx context.Context, download *ddownload.MediaDownload) error {
-		err := uc.download.HardDelete(ctx, download.DownloadID)
-		if err != nil {
-			uc.logger.Error("Failed to delete download", "downloadID", download.DownloadID, "error", err)
-			return err
-		}
-		uc.broadcastMediaDownloadDeleted(ctx, download)
-		return nil
+	type processDeleteResponse struct {
+		needDeleteFileOnStorage bool
+		fileFullName            string
 	}
 
-	fn := func(ctx context.Context) error {
+	processDelete := func(ctx context.Context) (processDeleteResponse, error) {
+		var response, responseNil processDeleteResponse
+
 		download, err := uc.download.FindByDownloadIDNoCache(ctx, downloadID)
 		if err != nil {
-			return err
+			return responseNil, err
 		}
 
 		// do not return an error if the download is not found
 		if download == nil {
-			return nil
+			return responseNil, nil
 		}
 
 		switch download.Status {
 		case dtypes.MediaDownloadStatusNew:
-			if err := fnDelete(ctx, download); err != nil {
-				return err
-			}
+			// No action required for this status.
 		case dtypes.MediaDownloadStatusPending, dtypes.MediaDownloadStatusWorking:
 			switch download.SourceType {
 			case dtypes.MediaDownloadSourceTypeURL:
-				task := download.DownloadTask
-				if task == nil || task.JobID == nil {
-					return errors.New("jobID is missing")
-				}
-				if !uc.downloadDispatcher.CancelJob(task.JobID.String()) {
-					return errors.New("job cannot be cancelled")
-				}
+				uc.cancelDownloadJob(download)
 			case dtypes.MediaDownloadSourceTypeUpload:
-				task := download.ProcessingTask
-				if task == nil || task.JobID == nil {
-					return errors.New("jobID is missing")
-				}
-				if !uc.operationDispatcher.CancelJob(task.JobID.String()) {
-					return errors.New("job cannot be cancelled")
-				}
-			}
-
-			if err := fnDelete(ctx, download); err != nil {
-				return err
+				uc.cancelUploadJob(download)
+			default:
+				err := errors.New("unsupported download source type")
+				uc.logger.Error(
+					err.Error(),
+					"downloadID", download.DownloadID,
+					"sourceType", download.SourceType,
+					"error", err,
+				)
+				return responseNil, err
 			}
 		case dtypes.MediaDownloadStatusDone, dtypes.MediaDownloadStatusFailed:
-			if err := fnDelete(ctx, download); err != nil {
-				return err
-			}
-			needDeleteFileOnStorage = true
+			// No action required for this status.
 		default:
 			err := errors.New("the deletion action is not defined")
-			uc.logger.Error(err.Error(), "downloadID", downloadID, "status", download.Status, "error", err)
-			return err
+			uc.logger.Error(
+				err.Error(),
+				"downloadID", downloadID,
+				"status", download.Status,
+				"error", err,
+			)
+			return responseNil, err
 		}
 
-		fileFullName = download.FileFullName
+		err = uc.download.HardDelete(ctx, download.DownloadID)
+		if err != nil {
+			uc.logger.Error("Failed to delete download", "downloadID", download.DownloadID, "error", err)
+			return responseNil, err
+		}
 
-		return nil
+		uc.broadcastMediaDownloadDeleted(ctx, download)
+
+		response.needDeleteFileOnStorage = download.FileFullName != ""
+		response.fileFullName = download.FileFullName
+
+		return response, nil
 	}
 
-	err = uc.download.Tx(ctx, fn)
+	var (
+		needDeleteFileOnStorage bool
+		fileFullName            string
+	)
+
+	err = uc.download.Tx(ctx,
+		func(ctx context.Context) error {
+			resp, err := processDelete(ctx)
+			if err != nil {
+				return err
+			}
+
+			needDeleteFileOnStorage = resp.needDeleteFileOnStorage
+			fileFullName = resp.fileFullName
+
+			return nil
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -121,6 +132,54 @@ func (uc *downloader) DeleteDownload(
 	}
 
 	return nil
+}
+
+func (uc *downloader) cancelDownloadJob(download *ddownload.MediaDownload) {
+	task := download.DownloadTask
+	if task == nil || task.JobID == nil {
+		uc.logger.Warn("task or jobId is missing",
+			"taskIsNil", task == nil,
+			"sourceType", download.SourceType,
+			"downloadID", download.DownloadID,
+		)
+		return
+	}
+
+	jobID := task.JobID.String()
+	if !uc.downloadDispatcher.HasJob(jobID) {
+		uc.logger.Warn("job not found in dispatcher",
+			"jobId", jobID,
+			"sourceType", download.SourceType,
+			"downloadID", download.DownloadID,
+		)
+		return
+	}
+
+	uc.downloadDispatcher.CancelJob(jobID)
+}
+
+func (uc *downloader) cancelUploadJob(download *ddownload.MediaDownload) {
+	task := download.ProcessingTask
+	if task == nil || task.JobID == nil {
+		uc.logger.Warn("task or jobId is missing",
+			"taskIsNil", task == nil,
+			"sourceType", download.SourceType,
+			"downloadID", download.DownloadID,
+		)
+		return
+	}
+
+	jobID := task.JobID.String()
+	if !uc.mediaProcessingDispatcher.HasJob(jobID) {
+		uc.logger.Warn("job not found in dispatcher",
+			"jobId", jobID,
+			"sourceType", download.SourceType,
+			"downloadID", download.DownloadID,
+		)
+		return
+	}
+
+	uc.mediaProcessingDispatcher.CancelJob(jobID)
 }
 
 // deleteFileWithRetry attempts to delete a download at the specified path with retries.

@@ -5,7 +5,6 @@ import (
 
 	"uuid"
 
-	itask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/task"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
@@ -16,7 +15,7 @@ func (s *mediaDownloadStatus) Pending(
 	taskId uuid.UUID,
 	jobID uuid.UUID,
 ) error {
-	taskStatus, err := itask.SelectTaskStatus(s.sourceType, s.dlTaskStatus, s.processingTaskStatus)
+	taskStatus, err := s.resolveTaskStatus()
 	if err != nil {
 		return err
 	}

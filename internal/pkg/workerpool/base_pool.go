@@ -18,6 +18,14 @@ type WorkerPool interface {
 	// Blocks until all goroutines exit.
 	Stop()
 
+	// IsTaskRunning reports whether the task with the specified job ID is currently running.
+	// This method is thread-safe and can be called from any goroutine.
+	IsRunningTask(jobID string) bool
+
+	// HasJob reports whether a job exists in the queue or is currently running.
+	// This method is thread-safe and can be called from any goroutine.
+	HasJob(jobID string) bool
+
 	// AddJob enqueues a new job for execution.
 	// job: the job to be executed by a worker.
 	// Thread-safe; can be called from any goroutine.
@@ -115,6 +123,30 @@ func (wp *baseWorkerPool) Stop() {
 			"Worker pool manager stopped",
 		)
 	}
+}
+
+// IsTaskRunning reports whether the task with the specified job ID is currently running.
+// This method is thread-safe and can be called from any goroutine.
+func (wp *baseWorkerPool) IsRunningTask(jobID string) bool {
+	wp.mu.RLock()
+	defer wp.mu.RUnlock()
+
+	_, exists := wp.runningTasks[jobID]
+
+	return exists
+}
+
+// HasJob reports whether a job exists in the queue or is currently running.
+// This method is thread-safe and can be called from any goroutine.
+func (wp *baseWorkerPool) HasJob(jobID string) bool {
+	wp.mu.RLock()
+	defer wp.mu.RUnlock()
+
+	if _, exists := wp.runningTasks[jobID]; exists {
+		return true
+	}
+
+	return wp.jobQueue.contains(jobID)
 }
 
 // AddJob enqueues a new job for execution.

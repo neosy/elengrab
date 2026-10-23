@@ -16,8 +16,8 @@ type TaskStatus interface {
 	Failed(ctx context.Context, taskId uuid.UUID) error
 }
 
-// SelectTaskStatus returns the TaskStatus implementation for the given source type.
-func SelectTaskStatus(
+// TaskStatusBySourceType returns the TaskStatus implementation for the given source type.
+func TaskStatusBySourceType(
 	sourceType dtypes.MediaDownloadSourceType,
 	downloadTaskStatus TaskStatus,
 	processingTaskStatus TaskStatus,
