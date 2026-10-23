@@ -13,8 +13,8 @@ type ProcessedDownload struct {
 	MediaDescription         *string
 	MediaDescriptionOriginal *string
 
-	Filename     string
-	FileFullName string
+	FileNameNoExt string
+	FileFullName  string
 
 	FileExt  string
 	Filesize *int64

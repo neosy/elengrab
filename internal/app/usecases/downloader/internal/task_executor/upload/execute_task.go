@@ -80,7 +80,7 @@ func (uc *Executor) Execute(
 	}
 
 	patch := func(dl *ddownload.MediaDownload) error {
-		dl.FileName = storedFile.fileNameNoExt
+		dl.FileNameNoExt = storedFile.fileNameNoExt
 		dl.Ext = strings.TrimPrefix(storedFile.fileExt, ".")
 
 		dl.FileFullName = storedFile.fileName

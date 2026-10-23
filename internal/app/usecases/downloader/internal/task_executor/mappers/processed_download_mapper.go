@@ -25,7 +25,7 @@ func (m *Mappers) MapProcessedDownloadToMediaDownload(
 	out.Ext = processed.FileExt
 	out.FileSize = processed.Filesize
 
-	out.FileName = processed.Filename
+	out.FileNameNoExt = processed.FileNameNoExt
 	out.FileFullName = processed.FileFullName
 	out.SafeReadableFileFullName = out.NormalizeFileFullName()
 
