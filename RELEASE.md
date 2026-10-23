@@ -39,6 +39,7 @@ Added `ELENGRAB_ABOUT_DEVELOPER_SHOW_INFO` to control developer attribution visi
 ### 📦 Build
 - Removed version numbers from release artifact filenames.
 - Ensure release bundles include the correct yt-dlp version matching its license files. [L175]
+- Updated Go to 1.27.3.
 
 ---
 
