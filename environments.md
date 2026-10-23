@@ -29,7 +29,9 @@ Config contains the application configuration.
  - `ELENGRAB_MEDIA_DIR` (default: `media`) - Directory containing media files (e.g. thumbnails).
  - `ELENGRAB_DOWNLOADS_DIR` (default: `downloads`) - Directory containing downloaded files.
  - `ELENGRAB_COOKIES_DIR` (default: `cookies`) - Directory containing cookies used by the downloader.
+ - `ELENGRAB_UPLOAD` - Configuration for uploading media files.
  - `ELENGRAB_DOWNLOAD_WORKERS` (default: `3`) - Maximum number of concurrent media downloads.
+ - `ELENGRAB_MEDIA_PROCESSING_WORKERS` (default: `3`) - Maximum number of concurrent media processing tasks.
  - `ELENGRAB_OPERATION_WORKERS` (default: `5`) - Maximum number of concurrent background operations.
  - `ELENGRAB_DELETE_DUPLICATES_UNIQUENESS_SCOPE` (default: `per_user`) - Scope used when checking media uniqueness before deleting duplicates.
  - `ELENGRAB_ALLOW_COOKIES` (default: `false`) - Enables the use of cookies when downloading media.
