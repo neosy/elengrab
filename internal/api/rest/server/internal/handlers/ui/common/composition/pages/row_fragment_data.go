@@ -24,7 +24,9 @@ type (
 		VisibilityLabel string
 		IsReady         bool
 		HasShareLink    bool
-		IsUploaded      bool
+
+		SourceType string
+		IsUploaded bool
 
 		LazyLoadImages bool
 

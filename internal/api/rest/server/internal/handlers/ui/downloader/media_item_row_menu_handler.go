@@ -41,6 +41,7 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 			menu.RowMenuActionURLKey:    downloadInfo.MediaURL,
 		},
 		downloadInfo.Status,
+		downloadInfo.MediaDownload.SourceType,
 		downloadInfo.HasEditAccess,
 		downloadInfo.HasDeleteAccess,
 		menu.WithErrorText(errorMessage),

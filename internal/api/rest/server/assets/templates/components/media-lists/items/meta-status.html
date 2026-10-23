@@ -17,7 +17,7 @@
                                 {{- end }}
                             </div>
                             {{- else }}
-                                {{- if eq .Values.DownloadStatus "failed" }}
+                                {{- if and (eq .Values.DownloadStatus "failed") (eq .Values.SourceType "url") }}
                                 <button class="media-result__status-button"
                                     hx-post="{{ .Values.DownloadRepeatPath }}"
                                     hx-swap="none">

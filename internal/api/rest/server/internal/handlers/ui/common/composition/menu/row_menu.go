@@ -23,6 +23,7 @@ type rowMenuAction struct {
 	requireVisibilityPublicOrEditAccess bool
 	requireEditAccess                   bool
 	requireDeleteAccess                 bool
+	requireSourceType                   dtypes.MediaDownloadSourceType
 }
 
 const (
@@ -39,9 +40,9 @@ var rowMenuActions = []rowMenuAction{
 		Action:     "watch",
 		Title:      "Watch",
 		Link: linkOptions{
-			URL:          httppaths.DownloaderGroup + httppaths.MediaItemPath,
-			NewTab:       false,
-			replaceInURL: RowMenuActionItemIDKey,
+			URLTemplate: httppaths.DownloaderGroup + httppaths.MediaItemPath,
+			Placeholder: RowMenuActionItemIDKey,
+			NewTab:      false,
 		},
 
 		icon:                icons.DownloaderRowMenuPlayIcon,
@@ -55,12 +56,13 @@ var rowMenuActions = []rowMenuAction{
 		Action:     "open-original",
 		Title:      "Open original in new tab",
 		Link: linkOptions{
-			URL:          RowMenuActionURLKey,
-			NewTab:       true,
-			replaceInURL: RowMenuActionURLKey,
+			URLTemplate: RowMenuActionURLKey,
+			Placeholder: RowMenuActionURLKey,
+			NewTab:      true,
 		},
 
 		icon:                icons.DownloaderRowMenuExternalLinkIcon,
+		requireSourceType:   dtypes.MediaDownloadSourceTypeURL,
 		requireEditAccess:   false,
 		requireDeleteAccess: false,
 	},
@@ -84,8 +86,8 @@ var rowMenuActions = []rowMenuAction{
 		Action:     "share-link",
 		Title:      "Share link",
 		Link: linkOptions{
-			URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
-			replaceInURL: RowMenuActionItemIDKey,
+			URLTemplate: httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
+			Placeholder: RowMenuActionItemIDKey,
 		},
 
 		icon:                                icons.DownloaderRowMenuShareLinkIcon,
@@ -98,8 +100,8 @@ var rowMenuActions = []rowMenuAction{
 		Action:     rowMenuActionCreateLink,
 		Title:      "Create short link",
 		Link: linkOptions{
-			URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
-			replaceInURL: RowMenuActionItemIDKey,
+			URLTemplate: httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
+			Placeholder: RowMenuActionItemIDKey,
 		},
 
 		icon:                                icons.DownloaderRowMenuCopyLinkIcon,
@@ -112,8 +114,8 @@ var rowMenuActions = []rowMenuAction{
 		Action:     rowMenuActionCopyLink,
 		Title:      "Copy short link",
 		Link: linkOptions{
-			URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
-			replaceInURL: RowMenuActionItemIDKey,
+			URLTemplate: httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
+			Placeholder: RowMenuActionItemIDKey,
 		},
 
 		icon:            icons.DownloaderRowMenuCopyLinkIcon,
@@ -125,8 +127,8 @@ var rowMenuActions = []rowMenuAction{
 		Action:     rowMenuActionDeleteLink,
 		Title:      "Delete short link",
 		Link: linkOptions{
-			URL:          httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
-			replaceInURL: RowMenuActionItemIDKey,
+			URLTemplate: httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
+			Placeholder: RowMenuActionItemIDKey,
 		},
 
 		icon:              icons.DownloaderRowMenuDeleteLinkIcon,
@@ -143,9 +145,9 @@ var rowMenuActions = []rowMenuAction{
 		Action:     "refresh",
 		Title:      "Refresh Media Information",
 		Link: linkOptions{
-			URL:          httppaths.DownloaderGroup + httppaths.MediaItemRefreshPath,
-			NewTab:       false,
-			replaceInURL: RowMenuActionItemIDKey,
+			URLTemplate: httppaths.DownloaderGroup + httppaths.MediaItemRefreshPath,
+			Placeholder: RowMenuActionItemIDKey,
+			NewTab:      false,
 		},
 
 		icon:                icons.DownloaderRowMenuUpdateMetadataIcon,
@@ -160,9 +162,9 @@ var rowMenuActions = []rowMenuAction{
 		Action:     "edit",
 		Title:      "Edit",
 		Link: linkOptions{
-			URL:          httppaths.DownloaderGroup + httppaths.MediaItemEditPath,
-			NewTab:       false,
-			replaceInURL: RowMenuActionItemIDKey,
+			URLTemplate: httppaths.DownloaderGroup + httppaths.MediaItemEditPath,
+			Placeholder: RowMenuActionItemIDKey,
+			NewTab:      false,
 		},
 
 		icon:                icons.DownloaderRowMenuEditIcon,
@@ -180,8 +182,8 @@ var rowMenuActions = []rowMenuAction{
 		Action:     "delete",
 		Title:      "Delete",
 		Link: linkOptions{
-			URL:          httppaths.DownloaderGroup + httppaths.MediaItemPath,
-			replaceInURL: RowMenuActionItemIDKey,
+			URLTemplate: httppaths.DownloaderGroup + httppaths.MediaItemPath,
+			Placeholder: RowMenuActionItemIDKey,
 		},
 
 		icon:                icons.DownloaderRowMenuDeleteIcon,
@@ -193,6 +195,7 @@ var rowMenuActions = []rowMenuAction{
 func RowMenuActions(
 	mapReplaceUrl map[string]string,
 	status dtypes.MediaDownloadStatus,
+	sourceType dtypes.MediaDownloadSourceType,
 	hasEditAccess bool,
 	hasDeleteAccess bool,
 	opts ...MenuActionOption,
@@ -209,6 +212,10 @@ func RowMenuActions(
 		}
 
 		if status == dtypes.MediaDownloadStatusRefreshing && a.disallowRefreshing {
+			continue
+		}
+
+		if a.requireSourceType != dtypes.MediaDownloadSourceTypeNone && a.requireSourceType != sourceType {
 			continue
 		}
 
@@ -267,10 +274,10 @@ func RowMenuActions(
 			action.IconSvg = action.icon.FileRaw()
 		}
 
-		if key := action.Link.replaceInURL; key != "" {
+		if key := action.Link.Placeholder; key != "" {
 			value, ok := mapReplaceUrl[key]
 			if ok {
-				action.Link.URL = strings.Replace(action.Link.URL, key, value, 1)
+				action.Link.URLTemplate = strings.Replace(action.Link.URLTemplate, key, value, 1)
 			}
 		}
 
