@@ -10,15 +10,14 @@ import (
 type FormatType string
 
 const (
-	FormatTypeNone       FormatType = "none"
+	FormatTypeNone       FormatType = ""
 	FormatTypeVideoAudio FormatType = "video_audio"
 	FormatTypeVideoOnly  FormatType = "video_only"
 	FormatTypeAudioOnly  FormatType = "audio_only"
 )
 
 var (
-	formatTypesMap = map[FormatType]struct{}{
-		FormatTypeNone:       {},
+	formatTypes = map[FormatType]struct{}{
 		FormatTypeVideoAudio: {},
 		FormatTypeVideoOnly:  {},
 		FormatTypeAudioOnly:  {},
@@ -37,7 +36,7 @@ func (v FormatType) Ptr() *FormatType {
 
 // Exists returns true if the FormatType is valid.
 func (v FormatType) Exists() bool {
-	_, exists := formatTypesMap[v]
+	_, exists := formatTypes[v]
 	return exists
 }
 
@@ -45,7 +44,7 @@ func (v FormatType) Exists() bool {
 func ParseFormatType(s string) (FormatType, error) {
 	FormatType := FormatType(strings.ToLower(s))
 
-	if _, exists := formatTypesMap[FormatType]; !exists {
+	if _, exists := formatTypes[FormatType]; !exists {
 		return "", errors.New("invalid value for FormatType")
 	}
 
