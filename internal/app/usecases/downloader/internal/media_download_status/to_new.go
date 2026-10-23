@@ -5,7 +5,6 @@ import (
 
 	"uuid"
 
-	itask "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/task"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
@@ -15,7 +14,7 @@ func (s *mediaDownloadStatus) New(
 	ctx context.Context,
 	downloadID uuid.UUID,
 ) error {
-	taskStatus, err := itask.SelectTaskStatus(s.sourceType, s.dlTaskStatus, s.processingTaskStatus)
+	taskStatus, err := s.resolveTaskStatus()
 	if err != nil {
 		return err
 	}
@@ -25,12 +24,12 @@ func (s *mediaDownloadStatus) New(
 		return nil
 	}
 
-	task, err := s.dlTask.GetByDownloadID(ctx, downloadID)
+	taskID, err := s.getTaskID(ctx, downloadID)
 	if err != nil {
 		return err
 	}
 
-	err = taskStatus.New(ctx, task.TaskID)
+	err = taskStatus.New(ctx, taskID)
 	if err != nil {
 		return err
 	}

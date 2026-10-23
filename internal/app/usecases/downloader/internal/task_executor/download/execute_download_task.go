@@ -14,7 +14,7 @@ func (uc *Executor) Execute(
 	task *ddownload.DownloadTask,
 ) error {
 	if task == nil {
-		uc.logger.Error("Nil pointer in function", "func", "ExecuteDownloadTask")
+		uc.logger.Error("Nil pointer in function for download task", "funcName", "Execute")
 		return apperrors.ErrFuncParamNullPointer
 	}
 

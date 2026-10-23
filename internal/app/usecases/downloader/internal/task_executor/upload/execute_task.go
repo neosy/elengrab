@@ -3,6 +3,8 @@ package uploadexecutor
 import (
 	"context"
 	"errors"
+	"io/fs"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -15,18 +17,39 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
+// storedFile describes a source file that has been moved into the storage.
+type storedFile struct {
+	fileName      string
+	fileNameNoExt string
+
+	fileExt string
+
+	fileSize    int64
+	partialHash *string
+
+	thumbnailID uuid.UUID
+}
+
 func (uc *Executor) Execute(
 	ctx context.Context,
 	workerId uint64,
 	task *ddownload.MediaProcessingTask,
 ) error {
 	if task == nil {
+		uc.logger.Error("Nil pointer in function for upload task", "funcName", "Execute")
 		return apperrors.ErrFuncParamNullPointer
 	}
+
+	defer func() {
+		uc.removeSourceFile(task)
+		uc.updateSystemDiskInfo()
+		uc.broadcaster.MediaUpdated(ctx, task.DownloadID)
+	}()
 
 	err := uc.uploadStatus.Working(ctx, task.DownloadID, task.TaskID, workerId)
 	if err != nil {
 		uc.logger.Error("Failed update status", "error", err)
+		uc.uploadStatus.Failed(ctx, task.DownloadID, nil, err.Error())
 		return err
 	}
 
@@ -34,6 +57,7 @@ func (uc *Executor) Execute(
 
 	download, err := uc.download.GetByDownloadID(ctx, task.DownloadID)
 	if err != nil {
+		uc.uploadStatus.Failed(ctx, task.DownloadID, nil, err.Error())
 		return err
 	}
 
@@ -45,61 +69,31 @@ func (uc *Executor) Execute(
 			"workerId", workerId,
 			"error", err,
 		)
+		uc.uploadStatus.Failed(ctx, task.DownloadID, nil, err.Error())
 		return err
 	}
 
-	defer func() {
-		uc.broadcaster.MediaUpdated(ctx, task.DownloadID)
-		uc.updateSystemDiskInfo()
-	}()
-
-	uniqueName := task.DownloadID.String()
-	var uniqueFileName string
-
-	if dconsts.DefaultIncludeTitleInFilename {
-		uniqueFileName = filename.BuildUnique(uniqueName, download.MediaTitle, filepath.Ext(task.SourcePath))
-	} else {
-		uniqueFileName = uniqueName + filepath.Ext(task.SourcePath)
-	}
-
-	fileSize := uc.fileSize(task.SourcePath)
-	partialHash := uc.partialHash(task.SourcePath)
-
-	err = uc.storage.Move(task.SourcePath, uniqueFileName)
+	storedFile, err := uc.saveAndProcessFile(ctx, task, download)
 	if err != nil {
 		uc.uploadStatus.Failed(ctx, task.DownloadID, nil, err.Error())
 		return err
 	}
 
-	filePath := uc.storage.Path(uniqueFileName)
-
-	var thumbnailID uuid.UUID
-
-	if download.IsVideo() {
-		imageData := uc.extractThumbnailFromFile(ctx, filePath)
-		if imageData != nil {
-			thumbnailID, _ = uc.CreateThumbnail(ctx, imageData, dtypes.ThumbnailSourceTypeVideoFrame)
-		}
-	}
-
-	fileExt := filepath.Ext(uniqueFileName)
-	fileName := strings.TrimSuffix(uniqueFileName, fileExt)
-
 	patch := func(dl *ddownload.MediaDownload) error {
-		dl.FileName = fileName
-		dl.Ext = strings.TrimPrefix(fileExt, ".")
+		dl.FileName = storedFile.fileNameNoExt
+		dl.Ext = strings.TrimPrefix(storedFile.fileExt, ".")
 
-		dl.FileFullName = uniqueFileName
+		dl.FileFullName = storedFile.fileName
 		dl.SafeReadableFileFullName = dl.NormalizeFileFullName()
 
-		dl.PartialHash = partialHash
+		dl.PartialHash = storedFile.partialHash
 
-		if fileSize != 0 {
-			dl.FileSize = &fileSize
+		if storedFile.fileSize != 0 {
+			dl.FileSize = &storedFile.fileSize
 		}
 
-		if thumbnailID != uuid.Nil() {
-			dl.MediaInfo.FrameThumbnailID = &thumbnailID
+		if storedFile.thumbnailID != uuid.Nil() {
+			dl.MediaInfo.FrameThumbnailID = &storedFile.thumbnailID
 		}
 
 		return nil
@@ -112,4 +106,59 @@ func (uc *Executor) Execute(
 	}
 
 	return nil
+}
+
+// removeSourceFile deletes the task source file and logs a warning if it fails.
+func (uc *Executor) removeSourceFile(task *ddownload.MediaProcessingTask) {
+	if err := os.Remove(task.SourcePath); err != nil && !errors.Is(err, fs.ErrNotExist) {
+		uc.logger.Warn("failed to remove source file",
+			"downloadID", task.DownloadID,
+			"sourcePath", task.SourcePath,
+			"error", err,
+		)
+	}
+}
+
+// saveAndProcessFile moves the source file into the storage, collects its metadata
+// and extracts a thumbnail for videos.
+func (uc *Executor) saveAndProcessFile(
+	ctx context.Context,
+	task *ddownload.MediaProcessingTask,
+	download *ddownload.MediaDownload,
+) (storedFile, error) {
+	var resultNil storedFile
+
+	fileExt := filepath.Ext(task.SourcePath)
+
+	uniqueName := task.DownloadID.String()
+
+	uniqueFileName := uniqueName + fileExt
+	if dconsts.DefaultIncludeTitleInFilename {
+		uniqueFileName = filename.BuildUnique(uniqueName, download.MediaTitle, fileExt)
+	}
+
+	// Size and hash must be taken before the move, while the source path still exists.
+	result := storedFile{
+		fileName:      uniqueFileName,
+		fileNameNoExt: strings.TrimSuffix(uniqueFileName, fileExt),
+		fileExt:       fileExt,
+
+		fileSize:    uc.fileSize(task.SourcePath),
+		partialHash: uc.partialHash(task.SourcePath),
+	}
+
+	err := uc.storage.Move(task.SourcePath, uniqueFileName)
+	if err != nil {
+		return resultNil, err
+	}
+
+	filePath := uc.storage.Path(uniqueFileName)
+
+	if download.IsVideo() {
+		if imageData := uc.extractThumbnailFromFile(ctx, filePath); imageData != nil {
+			result.thumbnailID, _ = uc.CreateThumbnail(ctx, imageData, dtypes.ThumbnailSourceTypeVideoFrame)
+		}
+	}
+
+	return result, nil
 }
