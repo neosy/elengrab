@@ -97,7 +97,7 @@ func (r *MediaSourceIndexRepository) WithFilters(filters ...dtypes.QueryFilter) 
 			}
 			r.queryOptions.Filters.Append(dbutils.NewFieldFilterEq(fieldName, id))
 		default:
-			r.queryOptions.Filters.Append(dbutils.NewFieldFilterEq(fieldName, filter.Condition().Value()))
+			r.queryOptions.Filters.Append(dbutils.NewFieldFilterWithCondition(fieldName, filter.Condition()))
 		}
 	}
 

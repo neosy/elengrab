@@ -34,9 +34,6 @@ func (uc *downloader) ResolveInconsistencies(ctx context.Context, orphanGracePer
 				dtypes.QueryFilterNameCreatedAt,
 				dbutils.NewFilterCondition(time.Now().UTC().Add(-orphanGracePeriod), dbutils.FilterOperatorLt),
 			))
-
-		// TODO - Убрать. Выше фильтр не работает
-		options = nil
 	}
 
 	ids, err := uc.searchIndex.GetDownloadIDsFromMediaSourceIndex(ctx, options)
