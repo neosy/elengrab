@@ -647,16 +647,16 @@ func (r *MediaDownloadRepository) GetByIDs(ctx context.Context, ids []uuid.UUID)
 	return downloadsSorted, nil
 }
 
-func (r *MediaDownloadRepository) GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error) {
+func (r *MediaDownloadRepository) GetAllFileNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error) {
 	names := make(map[string]struct{})
-	r.IterateFullNames(ctx, includeDeleted, func(name string) error {
+	r.IterateFileNames(ctx, includeDeleted, func(name string) error {
 		names[name] = struct{}{}
 		return nil
 	})
 	return names, nil
 }
 
-func (r *MediaDownloadRepository) IterateFullNames(ctx context.Context, includeDeleted bool, fn func(string) error) error {
+func (r *MediaDownloadRepository) IterateFileNames(ctx context.Context, includeDeleted bool, fn func(string) error) error {
 	var eDownload edownload.MediaDownload
 
 	sqlWhere := squirrel.And{}
@@ -693,17 +693,17 @@ func (r *MediaDownloadRepository) IterateFullNames(ctx context.Context, includeD
 	defer rows.Close()
 
 	for rows.Next() {
-		var fullName string
-		err = rows.Scan(&fullName)
+		var fileName string
+		err = rows.Scan(&fileName)
 		if err != nil {
 			return err
 		}
 
-		if fullName == "" {
+		if fileName == "" {
 			continue
 		}
 
-		if err := fn(fullName); err != nil {
+		if err := fn(fileName); err != nil {
 			return err
 		}
 	}

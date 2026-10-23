@@ -37,8 +37,8 @@ type MediaDownloadRepository interface {
 	ExistsByDownloadCode(ctx context.Context, downloadCode string) (bool, error)
 
 	IterateAll(ctx context.Context, fn func(*ddownload.MediaDownload) error) error
-	IterateFullNames(ctx context.Context, includeDeleted bool, fn func(string) error) error
-	GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error)
+	IterateFileNames(ctx context.Context, includeDeleted bool, fn func(string) error) error
+	GetAllFileNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error)
 
 	IterateByIDs(ctx context.Context, ids []uuid.UUID, fn func(*ddownload.MediaDownload) error) error
 	GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ddownload.MediaDownload, error)

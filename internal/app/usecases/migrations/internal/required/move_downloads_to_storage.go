@@ -9,7 +9,7 @@ import (
 )
 
 func (m *migrations) moveDownloadsToStorage(ctx context.Context) error {
-	fileNames, err := m.Usecases().MediaDownload.GetAllFullNamesWithDeleted(ctx)
+	fileNames, err := m.Usecases().MediaDownload.GetAllFileNamesWithDeleted(ctx)
 	if err != nil {
 		return err
 	}
