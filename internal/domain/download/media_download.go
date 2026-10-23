@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"unicode"
 	"unicode/utf8"
 
 	"uuid"
@@ -18,6 +19,14 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/stringx"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
+)
+
+const (
+	// removeTrailingTitleHashtagsEnabled controls whether trailing hashtags are removed from media titles.
+	removeTrailingTitleHashtagsEnabled = false
+
+	// validateMediaTitleControlCharactersEnabled controls whether control characters in media titles are rejected.
+	validateMediaTitleControlCharactersEnabled = false
 )
 
 type MediaDownload struct {
@@ -163,9 +172,10 @@ func (d *MediaDownload) Normalize() {
 	d.MediaTitle = strings.TrimSpace(d.MediaTitle)
 	d.MediaTitleOriginal = strings.TrimSpace(d.MediaTitleOriginal)
 
-	// TODO: Normalize title hashtags after deciding how to handle platform-specific tags.
-	// d.MediaTitle = stringx.RemoveTrailingHashtags(d.MediaTitle)
-	// d.MediaTitleOriginal = stringx.RemoveTrailingHashtags(d.MediaTitleOriginal)
+	if removeTrailingTitleHashtagsEnabled {
+		d.MediaTitle = stringx.RemoveTrailingHashtags(d.MediaTitle)
+		d.MediaTitleOriginal = stringx.RemoveTrailingHashtags(d.MediaTitleOriginal)
+	}
 
 	if d.MediaDescription != nil {
 		*d.MediaDescription = strings.TrimSpace(*d.MediaDescription)
@@ -236,11 +246,10 @@ func (d *MediaDownload) Validate() error {
 		)
 	}
 
-	// TODO: Determine the proper validation rules for media title.
-	// 		 Current control character check may be too restrictive.
-	// if strings.IndexFunc(d.MediaTitle, unicode.IsControl) >= 0 {
-	// 	return errorx.NewHTTPMessage("Title contains invalid characters", http.StatusBadRequest)
-	// }
+	// Reject media titles containing control characters when validation is enabled.
+	if validateMediaTitleControlCharactersEnabled && strings.IndexFunc(d.MediaTitle, unicode.IsControl) >= 0 {
+		return errorx.NewHTTPMessage("Title contains invalid characters", http.StatusBadRequest)
+	}
 
 	if d.MediaDescription != nil {
 		if utf8.RuneCountInString(*d.MediaDescription) > dconsts.MediaDescriptionMaxLength {

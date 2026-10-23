@@ -6,8 +6,10 @@ import (
 
 	"uuid"
 
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
 )
@@ -63,22 +65,15 @@ func (uc *downloader) listDownloadInfo(
 	queryOptions dtypes.QueryMediaOptions,
 	opts ...callOption,
 ) ([]*dto.MediaDownloadInfo, error) {
-	var (
-		mu sync.Mutex
-	)
+	var mu sync.Mutex
 
-	downloadIDs, err := uc.searchIndex.GetDownloadIDsFromMediaSourceIndex(ctx, &queryOptions)
+	downloads, err := uc.fetchDownloadsByIndex(ctx, &queryOptions)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(downloadIDs) == 0 {
+	if len(downloads) == 0 {
 		return nil, nil
-	}
-
-	downloads, err := uc.download.GetByIDs(ctx, downloadIDs)
-	if err != nil {
-		return nil, err
 	}
 
 	for i, d := range downloads {
@@ -151,4 +146,86 @@ func (uc *downloader) listDownloadInfo(
 	}
 
 	return results, nil
+}
+
+// fetchDownloadsByIndex reads download IDs from the search index and loads
+// the matching downloads. The index is the primary source, so entries without
+// a download (orphans) are skipped and the index is read again with a larger
+// limit until wantLimit downloads are collected or the index is exhausted.
+// The caller's options are not modified.
+func (uc *downloader) fetchDownloadsByIndex(
+	ctx context.Context,
+	queryOptions *dtypes.QueryMediaOptions,
+) ([]*ddownload.MediaDownload, error) {
+	if queryOptions == nil {
+		return nil, apperrors.ErrFuncParamNullPointer
+	}
+
+	opts := *queryOptions
+
+	var wantLimit uint64
+	if opts.Limit != nil {
+		wantLimit = *opts.Limit
+	}
+
+	var (
+		downloads []*ddownload.MediaDownload
+		passes    int
+		lastIDs   int
+	)
+
+	limit := wantLimit
+
+	for {
+		passes++
+
+		downloadIDs, err := uc.searchIndex.GetDownloadIDsFromMediaSourceIndex(ctx, &opts)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(downloadIDs) == 0 {
+			break
+		}
+
+		lastIDs = len(downloadIDs)
+
+		downloads, err = uc.download.GetByIDs(ctx, downloadIDs)
+		if err != nil {
+			return nil, err
+		}
+
+		// No limit, or the index returned less than asked: nothing more to read.
+		if limit == 0 || uint64(len(downloadIDs)) < limit {
+			break
+		}
+
+		if uint64(len(downloads)) >= wantLimit {
+			break
+		}
+
+		// Ask the index for as many extra entries as are missing.
+		limit += wantLimit - uint64(len(downloads))
+		opts.Limit = &limit
+	}
+
+	if passes > 1 {
+		uc.logger.Warn("orphaned index entries hit during page fetch",
+			"wanted", wantLimit,
+			"passes", passes,
+			"index_ids", lastIDs,
+			"found", len(downloads),
+			"orphans", lastIDs-len(downloads),
+		)
+	}
+
+	if len(downloads) == 0 {
+		return nil, nil
+	}
+
+	if wantLimit > 0 && uint64(len(downloads)) > wantLimit {
+		downloads = downloads[:wantLimit:wantLimit]
+	}
+
+	return downloads, nil
 }
