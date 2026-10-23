@@ -72,7 +72,7 @@ func UploadMenuActions(userLogin string, hasCreateAccess bool) []uploadMenuActio
 				continue
 			}
 
-			action.Link.URL = httppaths.BuildRootUserDownloadsPath(userLogin)
+			action.Link.URLTemplate = httppaths.BuildRootUserDownloadsPath(userLogin)
 		}
 
 		if action.icon != nil {

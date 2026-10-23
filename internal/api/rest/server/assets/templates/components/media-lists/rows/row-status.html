@@ -1,12 +1,16 @@
 {{- define "result-row-status" }}
+                {{- $sourceTypeClass := "" }}
+                {{- if .Values.SourceType }}
+                    {{- $sourceTypeClass = printf "row--source-%s" .Values.SourceType }}
+                {{- end }}
                 {{- if .Values.IsReady }}
-                    {{- $cssClass := "" }}
+                    {{- $refreshingClass := "" }}
                     {{- if eq .Values.DownloadStatus "refreshing" }}
-                        {{- $cssClass = "row--refreshing" }}
+                        {{- $refreshingClass = "row--refreshing" }}
                     {{- end }}
-                <div class="media-result__row success {{ $cssClass }}" id="{{ .Values.RowID }}" data-item-id="{{ .Values.ItemID }}" data-media="{{ .Values.StreamURL }}" data-is-audio="{{ .Values.IsAudioOnly }}" data-loop="{{ .Values.LoopPlayback }}">
+                <div class="media-result__row success {{ $refreshingClass }} {{ $sourceTypeClass }}" id="{{ .Values.RowID }}" data-item-id="{{ .Values.ItemID }}" data-media="{{ .Values.StreamURL }}" data-is-audio="{{ .Values.IsAudioOnly }}" data-loop="{{ .Values.LoopPlayback }}">
                 {{- else }}
-                <div class="media-result__row inprogress {{ .Values.ResultRowFade }}" id="{{ .Values.RowID }}" data-item-id="{{ .Values.ItemID }}">
+                <div class="media-result__row inprogress {{ .Values.ResultRowFade }} {{ $sourceTypeClass }}" id="{{ .Values.RowID }}" data-item-id="{{ .Values.ItemID }}">
                 {{- end }}
                     {{- template "media-result-row-thumbnail" . }}
                     {{- template "media-result-row-content" . }}
@@ -16,7 +20,7 @@
                         {{- template "media-result-source-link" . }}
                         {{- template "media-result-delete" . }}
                         {{- template "media-result-status" . }}
-                        {{- template "media-result-menu" .}}
+                        {{- template "media-result-menu" . }}
                     </div>
                 </div>
 {{- end }}

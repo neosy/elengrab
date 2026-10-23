@@ -18,7 +18,7 @@ var settingsMenuActions = []settingsMenuAction{
 			Title:      "Grid view: on",
 			Text:       "Grid view",
 			Link: linkOptions{
-				URL: httppaths.DownloaderSettingsMenuPath,
+				URLTemplate: httppaths.DownloaderSettingsMenuPath,
 			},
 		},
 		icon: nil,

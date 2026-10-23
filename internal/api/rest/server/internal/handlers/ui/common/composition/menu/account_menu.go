@@ -38,8 +38,8 @@ var accountMenuActions = []accountMenuAction{
 			Action:     accountMenuActionUsers,
 			Title:      "Users",
 			Link: linkOptions{
-				URL:    httppaths.AdminUsersPath,
-				NewTab: false,
+				URLTemplate: httppaths.AdminUsersPath,
+				NewTab:      false,
 			},
 		},
 		icon:             &icons.AdminUsersIcon,
@@ -51,8 +51,8 @@ var accountMenuActions = []accountMenuAction{
 			Action:     accountMenuActionLogout,
 			Title:      "Logout",
 			Link: linkOptions{
-				URL:    httppaths.AuthLogoutPath,
-				NewTab: false,
+				URLTemplate: httppaths.AuthLogoutPath,
+				NewTab:      false,
 			},
 		},
 		icon: &icons.AccountMenuLogoutIcon,
@@ -74,7 +74,7 @@ func NewAccountMenuActions(authCtx dauth.AuthContext) []accountMenuAction {
 				continue
 			}
 
-			action.Link.URL = httppaths.BuildRootUserDownloadsPath(authCtx.Login)
+			action.Link.URLTemplate = httppaths.BuildRootUserDownloadsPath(authCtx.Login)
 		}
 
 		if action.icon != nil {

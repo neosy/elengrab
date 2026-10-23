@@ -159,7 +159,9 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		VisibilityLabel: params.downloadInfo.Visibility.Label(),
 		IsReady:         params.downloadInfo.Status.IsReady(),
 		HasShareLink:    h.hasShareLink(ctx, params.downloadInfo.DownloadID),
-		IsUploaded:      params.downloadInfo.MediaDownload.SourceType == dtypes.MediaDownloadSourceTypeUpload,
+
+		SourceType: params.downloadInfo.MediaDownload.SourceType.String(),
+		IsUploaded: params.downloadInfo.MediaDownload.SourceType == dtypes.MediaDownloadSourceTypeUpload,
 
 		Channel:        channelPageData,
 		ChannelTitle:   channelTitle,

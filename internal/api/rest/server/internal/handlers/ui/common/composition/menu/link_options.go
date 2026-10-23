@@ -8,9 +8,9 @@ import (
 )
 
 type linkOptions struct {
-	URL          string
-	NewTab       bool
-	replaceInURL string
+	URLTemplate string
+	Placeholder string
+	NewTab      bool
 
 	DataAttributes []dataAttribute
 }
