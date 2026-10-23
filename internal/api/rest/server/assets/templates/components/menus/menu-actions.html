@@ -5,7 +5,7 @@
             <div class="menu-action__divider"></div>
           {{- else if eq .RenderType "link" }}
             <a class="menu-action menu-action--link menu-action--{{ .Action }}" id="menu-action-{{ .Action }}"
-                {{- if .Link.URL }}href="{{ .Link.URL }}"{{ end }}
+                {{- if .Link.URLTemplate }}href="{{ .Link.URLTemplate }}"{{ end }}
                 {{- range .Link.DataAttributes }} {{ .Attribute }}{{ end }}
                 {{- if .Link.NewTab }} target="_blank" rel="noopener noreferrer" {{- end }}>
                 <div class="menu-action__content">
@@ -20,7 +20,7 @@
                 </div>
             </a>
           {{- else }}
-          <div class="menu-action menu-action--{{ .Action }}" id="menu-action-{{ .Action }}" data-action="{{ .Action }}" data-url="{{ .Link.URL }}" data-new-tab="{{ .Link.NewTab }}" data-text="{{ .Text }}">
+          <div class="menu-action menu-action--{{ .Action }}" id="menu-action-{{ .Action }}" data-action="{{ .Action }}" data-url="{{ .Link.URLTemplate }}" data-new-tab="{{ .Link.NewTab }}" data-text="{{ .Text }}">
                 <div class="menu-action__content">
                     {{- if .IconSvg }}
                     <div class="menu-action__content-icon">
