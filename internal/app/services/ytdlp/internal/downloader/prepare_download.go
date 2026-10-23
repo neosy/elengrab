@@ -70,13 +70,13 @@ func (d *Downloader) prepareDownload(
 	channel := d.buildChannel(rawURL, downloadPlan.ExtractInfo)
 
 	meta := &idto.DownloadMeta{
-		URL:          rawURL,
-		Title:        title,
-		Description:  downloadPlan.ExtractInfo.Description,
-		FileName:     filex.FileNameWithoutExt(fileName),
-		FileExt:      downloadPlan.FileExt,
-		FileFullName: fileName,
-		FileSize:     fileSize,
+		URL:           rawURL,
+		Title:         title,
+		Description:   downloadPlan.ExtractInfo.Description,
+		FileNameNoExt: filex.FileNameWithoutExt(fileName),
+		FileExt:       downloadPlan.FileExt,
+		FileFullName:  fileName,
+		FileSize:      fileSize,
 
 		Channel: channel,
 

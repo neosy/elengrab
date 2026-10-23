@@ -64,7 +64,7 @@ type MediaDownload struct {
 	ChannelID uuid.UUID
 
 	// Original file name
-	FileName string
+	FileNameNoExt string
 
 	// File extension (e.g., "mp3", "mp4")
 	Ext string

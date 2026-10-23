@@ -30,9 +30,9 @@ func (uc *downloader) ScheduleDownload(
 	broadcastError := uc.newErrorBroadcaster(authCtx, types.BroadcastNotificationModuleGrabForm)
 
 	downloadID := uuid.New()
-	uniqueFileName := downloadID.String()
+	uniqueFileNameNoExt := downloadID.String()
 
-	options.UniqueFileName = &uniqueFileName
+	options.UniqueFileName = &uniqueFileNameNoExt
 
 	mediaVisibility := iconfig.InitialMediaVisibility()
 	if authCtx.UserID == uuid.Nil() {
@@ -42,12 +42,12 @@ func (uc *downloader) ScheduleDownload(
 	err := uc.download.CreateDownload(
 		ctx,
 		&ddownload.MediaDownload{
-			DownloadID: downloadID,
-			SourceType: dtypes.MediaDownloadSourceTypeURL,
-			UserID:     &authCtx.UserID,
-			FileName:   uniqueFileName,
-			MediaURL:   &url,
-			Visibility: mediaVisibility,
+			DownloadID:    downloadID,
+			SourceType:    dtypes.MediaDownloadSourceTypeURL,
+			UserID:        &authCtx.UserID,
+			FileNameNoExt: uniqueFileNameNoExt,
+			MediaURL:      &url,
+			Visibility:    mediaVisibility,
 		},
 		options,
 	)

@@ -40,7 +40,7 @@ type MediaDownloadInfo struct {
 	UserWatched           bool
 
 	HasSiteIcon          bool
-	FileName             string
+	FileNameNoExt        string
 	FileExt              string
 	FileFullName         string
 	FileSize             *int64
