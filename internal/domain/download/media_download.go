@@ -79,7 +79,7 @@ type MediaDownload struct {
 	PartialHash *string
 
 	// Human-readable safe full name
-	SafeReadableFileFullName string
+	SafeReadableFileName string
 
 	// MediaInfo holds media metadata.
 	MediaInfo *dtypes.MediaInfo
@@ -192,7 +192,7 @@ func (d *MediaDownload) Normalize() {
 	}
 }
 
-func (d *MediaDownload) NormalizeFileFullName() string {
+func (d *MediaDownload) NormalizeFileName() string {
 	name := strings.TrimSpace(d.MediaTitle)
 	name = fasthttpx.SanitizeFileName(name)
 	name = stringx.TruncateBytesWords(name, filename.MaxTitleLength)

@@ -50,5 +50,5 @@ func (h *DownloaderHandlers) DownloadFileHandler(ctx *fasthttp.RequestCtx) {
 	contentType := httpx.ContentTypeByExt(downloadInfo.FileExtNoDot, httpx.ContentTypeOptionWithIsAudio(downloadInfo.IsAudioOnly()))
 
 	// Send file via streaming
-	nfasthttp.SendFileDirect(ctx, filePath, downloadInfo.SafeReadableFullName, contentType)
+	nfasthttp.SendFileDirect(ctx, filePath, downloadInfo.SafeReadableName, contentType)
 }

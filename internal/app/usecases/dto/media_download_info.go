@@ -39,14 +39,14 @@ type MediaDownloadInfo struct {
 	UserLastWatchPosition time.Duration
 	UserWatched           bool
 
-	HasSiteIcon          bool
-	FileNameNoExt        string
-	FileExtNoDot         string
-	FileName             string
-	FileSize             *int64
-	SafeReadableFullName string
-	StatusText           string
-	Progress             *dtypes.DownloadProgress
+	HasSiteIcon      bool
+	FileNameNoExt    string
+	FileExtNoDot     string
+	FileName         string
+	FileSize         *int64
+	SafeReadableName string
+	StatusText       string
+	Progress         *dtypes.DownloadProgress
 
 	MediaInfo        *dtypes.MediaInfo
 	MediaInfoText    string

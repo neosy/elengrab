@@ -280,5 +280,5 @@ func (uc *downloader) GetDownloadFileName(
 		return "", ierrors.ErrAccessDenied
 	}
 
-	return download.SafeReadableFileFullName, nil
+	return download.SafeReadableFileName, nil
 }
