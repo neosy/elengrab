@@ -35,10 +35,10 @@ func (uc *MediaDownload) IterateAllWithDeleted(ctx context.Context, fn func(*ddo
 	return uc.iterateAll(ctx, true, fn)
 }
 
-func (uc *MediaDownload) GetAllFullNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error) {
-	names, err := uc.downloadRepo().GetAllFullNames(ctx, includeDeleted)
+func (uc *MediaDownload) GetAllFileNames(ctx context.Context, includeDeleted bool) (map[string]struct{}, error) {
+	names, err := uc.downloadRepo().GetAllFileNames(ctx, includeDeleted)
 	if err != nil {
-		uc.logger.Warn("Failed to get fullNames", "error", err)
+		uc.logger.Warn("Failed to get fileNames", "error", err)
 		return nil, err
 	}
 

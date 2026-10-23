@@ -112,7 +112,7 @@ func (uc *downloader) deleteMissingDownloads(ctx context.Context) error {
 // This helps clean up orphaned downloads that were downloaded but not recorded.
 func (uc *downloader) moveUnmatchedFiles(ctx context.Context) error {
 	// Load all known filenames from DB (including deleted)
-	names, err := uc.download.GetAllFullNames(ctx, true)
+	names, err := uc.download.GetAllFileNames(ctx, true)
 	if err != nil {
 		return err
 	}
