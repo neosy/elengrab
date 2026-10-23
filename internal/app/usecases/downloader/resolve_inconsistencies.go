@@ -35,7 +35,7 @@ func (uc *downloader) ResolveInconsistencies(ctx context.Context, orphanGracePer
 				dbutils.NewFilterCondition(time.Now().UTC().Add(-orphanGracePeriod), dbutils.FilterOperatorLt),
 			))
 
-		// TODO
+		// TODO - Убрать. Выше фильтр не работает
 		options = nil
 	}
 
