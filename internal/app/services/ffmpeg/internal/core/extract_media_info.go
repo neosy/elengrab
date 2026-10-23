@@ -141,13 +141,20 @@ func (c *FFmpegCore) ExtractMediaInfoWithFFprobe(
 		return nil, lastAudioErr
 	}
 
-	var formatType dtypes.FormatType
+	formatType := dtypes.FormatTypeNone
+
 	if videoInfo != nil && audioInfo != nil {
 		formatType = dtypes.FormatTypeVideoAudio
 	} else if videoInfo != nil {
 		formatType = dtypes.FormatTypeVideoOnly
 	} else if audioInfo != nil {
 		formatType = dtypes.FormatTypeAudioOnly
+	}
+
+	if formatType == dtypes.FormatTypeAudioOnly {
+		if audioInfo != nil && audioInfo.Bitrate == 0 {
+			audioInfo.Bitrate = totalBitrate
+		}
 	}
 
 	fileFormat := dtypes.FileExtToFileFormat(strings.ToLower(filepath.Ext(filePath)))
