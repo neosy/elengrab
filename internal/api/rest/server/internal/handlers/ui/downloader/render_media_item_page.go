@@ -73,7 +73,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 		contentType   = "text/html"
 	)
 	if downloadInfo.MediaInfo != nil {
-		ext := downloadInfo.MediaInfo.Format.Ext()
+		ext := downloadInfo.MediaInfo.Format.ExtNoDot()
 
 		isVideoPlayer = downloadInfo.MediaInfo.Format.IsVideo()
 		format = strings.ToUpper(ext)

@@ -53,12 +53,12 @@ func (p *DownloadPreparer) Prepare(
 	args = append(args, extractResult.args...)
 
 	downloadResult := DownloadPlan{
-		Args:        args,
-		FileExt:     extractResult.fileExt,
-		ExtractInfo: extractResult.info,
+		Args:         args,
+		FileExtNoDot: extractResult.fileExtNoDot,
+		ExtractInfo:  extractResult.info,
 		MediaInfo: &pservices.MediaInfo{
 			FormatType: dlOptions.FormatType,
-			Format:     dtypes.FileExtToFileFormat(extractResult.fileExt),
+			Format:     dtypes.FileExtToFileFormat(extractResult.fileExtNoDot),
 			VideoInfo:  nil,
 			AudioInfo:  nil,
 		},

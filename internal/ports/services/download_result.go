@@ -16,8 +16,8 @@ type DownloadResult struct {
 	// file name
 	FileNameNoExt string
 
-	// ext
-	FileExt string
+	// file ext
+	FileExtNoDot string
 
 	// file name
 	FileName string

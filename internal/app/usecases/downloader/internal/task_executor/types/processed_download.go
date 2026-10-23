@@ -16,8 +16,8 @@ type ProcessedDownload struct {
 	FileNameNoExt string
 	FileName      string
 
-	FileExt  string
-	Filesize *int64
+	FileExtNoDot string
+	Filesize     *int64
 
 	PartialHash *string
 

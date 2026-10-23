@@ -15,7 +15,7 @@ func (u *Upload) finish() error {
 			errorx.WithErrorMessage("Failed to read the file's metadata."))
 	}
 
-	u.fileExt = u.mediaInfo.Format.FileExt()
+	u.fileExt = u.mediaInfo.Format.Ext()
 
 	err := os.Rename(u.PartPath(), u.FilePath())
 	if err != nil {

@@ -66,8 +66,8 @@ type MediaDownload struct {
 	// Original file name
 	FileNameNoExt string
 
-	// File extension (e.g., "mp3", "mp4")
-	Ext string
+	// File extension without a leading dot (e.g., "mp3", "mp4")
+	FileExtNoDot string
 
 	// Full file name including extension
 	FileName string
@@ -153,11 +153,11 @@ func (src *MediaDownload) Clone() *MediaDownload {
 
 // FileExt returns the extension with a leading dot (e.g. ".mp4").
 func (d *MediaDownload) FileExt() string {
-	if d.Ext == "" {
+	if d.FileExtNoDot == "" {
 		return ""
 	}
 
-	return "." + d.Ext
+	return "." + d.FileExtNoDot
 }
 
 // SourceURL returns the media source URL, or an empty string for entries without one (e.g. uploads).
@@ -196,7 +196,7 @@ func (d *MediaDownload) NormalizeFileFullName() string {
 	name := strings.TrimSpace(d.MediaTitle)
 	name = fasthttpx.SanitizeFileName(name)
 	name = stringx.TruncateBytesWords(name, filename.MaxTitleLength)
-	return name + "." + d.Ext
+	return name + d.FileExt()
 }
 
 func (d *MediaDownload) NormalizeForSave() {

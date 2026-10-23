@@ -60,7 +60,7 @@ func (uc *downloader) ScheduleUpload(
 			MediaTitle:               req.Title,
 			MediaDescriptionOriginal: mediaDescription,
 			MediaDescription:         mediaDescription,
-			Ext:                      mediaInfo.Format.Ext(),
+			FileExtNoDot:             mediaInfo.Format.ExtNoDot(),
 			MediaInfo:                mediaInfo,
 		},
 		upload.FilePath(),

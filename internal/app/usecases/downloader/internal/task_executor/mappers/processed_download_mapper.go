@@ -22,7 +22,7 @@ func (m *Mappers) MapProcessedDownloadToMediaDownload(
 	}
 	out.MediaDescriptionOriginal = processed.MediaDescriptionOriginal
 
-	out.Ext = processed.FileExt
+	out.FileExtNoDot = processed.FileExtNoDot
 	out.FileSize = processed.Filesize
 
 	out.FileNameNoExt = processed.FileNameNoExt

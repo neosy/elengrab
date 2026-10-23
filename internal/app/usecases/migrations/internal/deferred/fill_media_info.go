@@ -91,11 +91,11 @@ func (m *migrations) fillMediaInfo(ctx context.Context) error {
 		mediaInfoResp, _ := m.Services().FFMpeg.ExtractMediaInfoWithFFprobe(
 			ctx,
 			m.DownloadsStorage().Path(media.FileName),
-			pservices.NewMediaInfoFromExt(media.Ext),
+			pservices.NewMediaInfoFromExt(media.FileExtNoDot),
 		)
 
 		var (
-			fileFormat = dtypes.FileExtToFileFormat(media.Ext)
+			fileFormat = dtypes.FileExtToFileFormat(media.FileExtNoDot)
 			formatType = fileFormat.FormatType()
 
 			videoInfo *dtypes.VideoInfo

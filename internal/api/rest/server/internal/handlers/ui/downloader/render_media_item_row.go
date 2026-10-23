@@ -107,9 +107,9 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 			fileSize = humanize.Bytes(*params.downloadInfo.FileSize)
 		}
 
-		if params.downloadInfo.FileExt != "" {
-			format = params.downloadInfo.FileExt
-			dataFormat = params.downloadInfo.FileExt
+		if params.downloadInfo.FileExtNoDot != "" {
+			format = params.downloadInfo.FileExtNoDot
+			dataFormat = params.downloadInfo.FileExtNoDot
 		}
 
 		mediaDuration = mediaInfo.FormatDuration()

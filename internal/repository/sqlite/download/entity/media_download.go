@@ -30,7 +30,7 @@ type MediaDownload struct {
 	MediaDescription         *string    `db:"media_description"`
 	ChannelID                *string    `db:"channel_id"`
 	FileNameNoExt            string     `db:"file_name"`
-	Ext                      string     `db:"ext"`
+	FileExtNoDot             string     `db:"ext"`
 	FileName                 string     `db:"full_name"`
 	FileSize                 *int64     `db:"file_size"`
 	PartialHash              *string    `db:"partial_hash"`

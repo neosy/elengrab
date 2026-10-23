@@ -9,7 +9,7 @@ type extractResult struct {
 	formatQuery string
 	args        []string
 
-	fileExt string
+	fileExtNoDot string
 
 	info        *idto.ExtractInfo
 	mediaFormat *idto.ExtractMediaFormat

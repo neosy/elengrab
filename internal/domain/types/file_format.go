@@ -33,7 +33,7 @@ var (
 		FileFormatOPUS: {},
 	}
 
-	extByFileFormat = map[FileFormat]string{
+	extNoDotByFileFormat = map[FileFormat]string{
 		FileFormatMP4:  "mp4",
 		FileFormatWebM: "webm",
 		FileFormatMP3:  "mp3",
@@ -42,7 +42,7 @@ var (
 		FileFormatOPUS: "opus",
 	}
 
-	fileFormatByExt = map[string]FileFormat{
+	fileFormatByExtNoDot = map[string]FileFormat{
 		"mp4":  FileFormatMP4,
 		"webm": FileFormatWebM,
 		"mp3":  FileFormatMP3,
@@ -69,19 +69,19 @@ func (v FileFormat) String() string {
 	return string(v)
 }
 
-// Ext returns the file extension for the FileFormat, without a dot.
-func (v FileFormat) Ext() string {
-	return extByFileFormat[v]
+// ExtNoDot returns the file extension for the FileFormat, without a dot.
+func (v FileFormat) ExtNoDot() string {
+	return extNoDotByFileFormat[v]
 }
 
-// FileExt returns the file extension for the FileFormat, prefixed with a dot.
-func (v FileFormat) FileExt() string {
-	ext := extByFileFormat[v]
-	if ext == "" {
+// Ext returns the file extension for the FileFormat, prefixed with a dot.
+func (v FileFormat) Ext() string {
+	extNoDot := extNoDotByFileFormat[v]
+	if extNoDot == "" {
 		return ""
 	}
 
-	return "." + ext
+	return "." + extNoDot
 }
 
 // Ptr returns the pointer.
@@ -165,12 +165,12 @@ func MustParseFileFormat(format string) FileFormat {
 
 // FileExtToFileFormat converts a file extension to a FileFormat, returning FileFormatNone if not found.
 func FileExtToFileFormat(ext string) FileFormat {
-	ext, _ = strings.CutPrefix(ext, ".")
-	if ext == "" {
+	extNoDot := strings.TrimPrefix(ext, ".")
+	if extNoDot == "" {
 		return FileFormatNone
 	}
 
-	fileFormat, exists := fileFormatByExt[strings.ToLower(ext)]
+	fileFormat, exists := fileFormatByExtNoDot[strings.ToLower(extNoDot)]
 	if !exists {
 		return FileFormatNone
 	}

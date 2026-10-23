@@ -53,7 +53,7 @@ func (uc *Executor) collectMetadata(
 
 	if media.MediaInfo != nil {
 		patch.mediaInfo = *media.MediaInfo.Clone()
-		mediaInfo := dtypes.NewMediaInfo(media.Ext)
+		mediaInfo := dtypes.NewMediaInfo(media.FileExtNoDot)
 
 		if media.MediaInfo.Format != mediaInfo.Format && mediaInfo.Format != dtypes.FileFormatNone {
 			patch.needPatch = true
@@ -66,13 +66,13 @@ func (uc *Executor) collectMetadata(
 		}
 	} else {
 		patch.needPatch = true
-		patch.mediaInfo = *dtypes.NewMediaInfo(media.Ext)
+		patch.mediaInfo = *dtypes.NewMediaInfo(media.FileExtNoDot)
 	}
 
 	fileMediaInfo, err := uc.ffmpeg.ExtractMediaInfoWithFFprobe(
 		ctx,
 		uc.storage.Path(media.FileName),
-		pservices.NewMediaInfoFromExt(media.Ext),
+		pservices.NewMediaInfoFromExt(media.FileExtNoDot),
 	)
 	if err != nil {
 		uc.logger.Warn(

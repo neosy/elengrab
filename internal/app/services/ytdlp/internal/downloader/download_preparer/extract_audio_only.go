@@ -95,7 +95,7 @@ func (p *DownloadPreparer) extractAudioOnly(
 		formatQuery: formatQuery,
 		args:        args,
 
-		fileExt: outAudioFormat.FileFormat().Ext(),
+		fileExtNoDot: outAudioFormat.FileFormat().ExtNoDot(),
 
 		info:        extractInfo,
 		mediaFormat: &mediaFormat,
