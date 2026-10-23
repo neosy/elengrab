@@ -39,8 +39,8 @@ func (m *Mappers) MapDownloadResultToProcessedDownload(
 		FileNameNoExt: result.FileNameNoExt,
 		FileName:      result.FileName,
 
-		FileExt:  result.FileExt,
-		Filesize: result.Filesize,
+		FileExtNoDot: result.FileExtNoDot,
+		Filesize:     result.Filesize,
 
 		PartialHash: result.PartialHash,
 
@@ -68,7 +68,7 @@ func (m *Mappers) MapDownloaderResultToState(
 
 	out.Download.ChannelID = channelID
 
-	out.Download.Ext = result.FileExt
+	out.Download.FileExtNoDot = result.FileExtNoDot
 
 	if result.Filesize != nil {
 		out.Download.FileSize = result.Filesize

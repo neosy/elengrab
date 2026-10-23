@@ -40,7 +40,7 @@ func (p *DownloadPreparer) extractVideoAudio(
 		formatQuery: formatQuery,
 		args:        args,
 
-		fileExt: downloadParams.fileExt,
+		fileExtNoDot: downloadParams.fileExtNoDot,
 
 		info:        fetchedInfo.info,
 		mediaFormat: fetchedInfo.mediaFormat,
@@ -125,8 +125,8 @@ func (p *DownloadPreparer) buildVideoFormatQuery(dlOptions idto.DLOptions) strin
 }
 
 type videoDownloadParams struct {
-	fileExt string
-	args    []string
+	fileExtNoDot string
+	args         []string
 
 	videoCodec dtypes.VideoCodec
 	audioCodec dtypes.AudioCodec
@@ -295,8 +295,8 @@ func (p *DownloadPreparer) buildVideoDownloadParams(
 	}
 
 	return videoDownloadParams{
-		fileExt: outVideoFormat.FileFormat().Ext(),
-		args:    args,
+		fileExtNoDot: outVideoFormat.FileFormat().ExtNoDot(),
+		args:         args,
 
 		videoCodec: outVideoCodec,
 		audioCodec: outAudioCodec,

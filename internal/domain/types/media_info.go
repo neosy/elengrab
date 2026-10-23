@@ -27,8 +27,8 @@ type MediaInfo struct {
 	FrameThumbnailID *uuid.UUID `json:"frameThumbnailId,omitempty"`
 }
 
-func NewMediaInfo(ext string) *MediaInfo {
-	format := FileExtToFileFormat(ext)
+func NewMediaInfo(extNoDot string) *MediaInfo {
+	format := FileExtToFileFormat(extNoDot)
 
 	return &MediaInfo{
 		Format:     format,

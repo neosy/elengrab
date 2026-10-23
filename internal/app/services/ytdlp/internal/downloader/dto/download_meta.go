@@ -13,7 +13,7 @@ type DownloadMeta struct {
 	Title         string
 	Description   string
 	FileNameNoExt string
-	FileExt       string
+	FileExtNoDot  string
 	FileName      string
 	FileSize      *int64
 
@@ -73,16 +73,16 @@ func (m *SafeDownloadMeta) CloneMeta() *DownloadMeta {
 func (m *SafeDownloadMeta) InitialResult() *pservices.DownloadResult {
 	meta := m.CloneMeta()
 
-	var ext = meta.FileExt
-	if ext == "" && meta.MediaInfo != nil && meta.MediaInfo.Format != dtypes.FileFormatNone {
-		ext = meta.MediaInfo.Format.String()
+	var extNoDot = meta.FileExtNoDot
+	if extNoDot == "" && meta.MediaInfo != nil && meta.MediaInfo.Format != dtypes.FileFormatNone {
+		extNoDot = meta.MediaInfo.Format.String()
 	}
 
 	return &pservices.DownloadResult{
 		MediaTitle:          meta.Title,
 		MediaDescription:    uptr.NonZeroString(meta.Description),
 		FileNameNoExt:       meta.FileNameNoExt,
-		FileExt:             ext,
+		FileExtNoDot:        extNoDot,
 		FileName:            meta.FileName,
 		Filesize:            meta.FileSize,
 		MediaInfo:           meta.MediaInfo,

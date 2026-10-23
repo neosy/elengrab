@@ -6,8 +6,8 @@ import (
 )
 
 type DownloadPlan struct {
-	Args        []string
-	FileExt     string
-	ExtractInfo *idto.ExtractInfo
-	MediaInfo   *pservices.MediaInfo
+	Args         []string
+	FileExtNoDot string
+	ExtractInfo  *idto.ExtractInfo
+	MediaInfo    *pservices.MediaInfo
 }

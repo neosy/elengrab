@@ -47,9 +47,9 @@ func (d *Downloader) prepareDownload(
 	var fileName string
 
 	if options.IncludeTitleInFilename {
-		fileName = filename.BuildUnique(uniqueFilePart, title, downloadPlan.FileExt)
+		fileName = filename.BuildUnique(uniqueFilePart, title, downloadPlan.FileExtNoDot)
 	} else {
-		fileName = fmt.Sprintf("%s.%s", uniqueFilePart, downloadPlan.FileExt)
+		fileName = fmt.Sprintf("%s.%s", uniqueFilePart, downloadPlan.FileExtNoDot)
 	}
 
 	var (
@@ -74,7 +74,7 @@ func (d *Downloader) prepareDownload(
 		Title:         title,
 		Description:   downloadPlan.ExtractInfo.Description,
 		FileNameNoExt: filex.FileNameWithoutExt(fileName),
-		FileExt:       downloadPlan.FileExt,
+		FileExtNoDot:  downloadPlan.FileExtNoDot,
 		FileName:      fileName,
 		FileSize:      fileSize,
 

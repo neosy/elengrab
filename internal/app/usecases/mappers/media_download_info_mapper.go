@@ -56,7 +56,7 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 		ThumbnalIsPortrait: mappingData.ThumbnailIsPortrait,
 
 		FileNameNoExt:        download.FileNameNoExt,
-		FileExt:              download.Ext,
+		FileExtNoDot:         download.FileExtNoDot,
 		FileName:             download.FileName,
 		FileSize:             download.FileSize,
 		SafeReadableFullName: download.SafeReadableFileFullName,

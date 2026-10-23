@@ -89,7 +89,7 @@ func (uc *downloader) ScheduleDownload(
 		DownloadID: download.DownloadID,
 		Status:     download.Status,
 		MediaTitle: download.MediaTitle,
-		Format:     download.Ext,
+		Format:     download.FileExtNoDot,
 	}, nil
 }
 

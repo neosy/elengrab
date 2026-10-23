@@ -24,8 +24,8 @@ type MediaInfo struct {
 }
 
 // NewMediaInfoFromExt creates a MediaInfo from a file extension (e.g. "mp4").
-func NewMediaInfoFromExt(ext string) *MediaInfo {
-	fileFormat := dtypes.FileExtToFileFormat(ext)
+func NewMediaInfoFromExt(extNoDot string) *MediaInfo {
+	fileFormat := dtypes.FileExtToFileFormat(extNoDot)
 
 	return &MediaInfo{
 		FormatType: fileFormat.FormatType(),
