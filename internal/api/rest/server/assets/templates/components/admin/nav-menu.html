@@ -4,7 +4,7 @@
                 {{- if .IsVisible }}
                     {{- $classActive := "" }}
                     {{- if .IsActive }}{{ $classActive = " active" }}{{ end }}
-                <a href="{{ .URL }}" class="nav-item{{ $classActive }}" data-page="{{ .PageName }}">
+                <a href="{{ .URLTemplate }}" class="nav-item{{ $classActive }}" data-page="{{ .PageName }}">
                     <span class="nav-icon">{{ .LogoHTML }}</span> {{ .Title }}
                 </a>
                 {{- end }}
