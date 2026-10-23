@@ -34,7 +34,7 @@ type MediaDownload struct {
 	FileName                 string     `db:"full_name"`
 	FileSize                 *int64     `db:"file_size"`
 	PartialHash              *string    `db:"partial_hash"`
-	SafeReadableFileFullName string     `db:"safe_readable_full_name"`
+	SafeReadableFileName     string     `db:"safe_readable_full_name"`
 	MediaInfo                *string    `db:"media_info"`
 	ErrorMessage             *string    `db:"error_message"`
 	Visibility               string     `db:"visibility"`
