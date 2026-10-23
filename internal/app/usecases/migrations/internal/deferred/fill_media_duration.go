@@ -43,7 +43,7 @@ func (m *migrations) fillMediaDuration(ctx context.Context) error {
 			"format", media.MediaInfo.Format.String(),
 		)
 
-		filePath := m.DownloadsStorage().Path(media.FileFullName)
+		filePath := m.DownloadsStorage().Path(media.FileName)
 		duration, err := m.Services().FFMpeg.ExtractDurationMs(ctx, filePath)
 		if err != nil {
 			continue

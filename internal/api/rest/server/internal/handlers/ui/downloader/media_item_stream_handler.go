@@ -61,8 +61,8 @@ func (h *DownloaderHandlers) stream(
 
 	// Build the full path to the file
 	var filePath string
-	if downloadInfo.FileFullName != "" {
-		filePath = h.downloadsStorage.Path(downloadInfo.FileFullName)
+	if downloadInfo.FileName != "" {
+		filePath = h.downloadsStorage.Path(downloadInfo.FileName)
 	}
 
 	// Check if the file exists

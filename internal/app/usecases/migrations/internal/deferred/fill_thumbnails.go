@@ -84,7 +84,7 @@ func (m *migrations) fillThumbnails(ctx context.Context) error {
 			if download.MediaInfo.ThumbnailID == nil && download.MediaInfo.FrameThumbnailID == nil {
 				return true
 			}
-			
+
 			return false
 		},
 	)
@@ -129,7 +129,7 @@ func (m *migrations) fillThumbnails(ctx context.Context) error {
 		}
 
 		if media.MediaInfo.FrameThumbnailID == nil && media.MediaInfo.Format.IsVideo() {
-			filePath := m.DownloadsStorage().Path(media.FileFullName)
+			filePath := m.DownloadsStorage().Path(media.FileName)
 			imageData := extractBalanceThumbnail(ctx, filePath)
 			if imageData == nil {
 				imageData = extractThumbnail(ctx, filePath)

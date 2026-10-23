@@ -60,11 +60,11 @@ func (uc *downloader) deleteMissingDownloads(ctx context.Context) error {
 
 	// Mark records for deletion if the download is missing
 	for _, download := range downloads {
-		exists, _ := uc.downloadsStorage.Exists(download.FileFullName)
+		exists, _ := uc.downloadsStorage.Exists(download.FileName)
 		if !exists {
 			err := uc.download.SoftDelete(ctx, download.DownloadID)
 			if err == nil {
-				uc.logger.Debug("Soft deleting file", "download_id", download.DownloadID, "fileName", download.FileFullName)
+				uc.logger.Debug("Soft deleting file", "download_id", download.DownloadID, "fileName", download.FileName)
 				uc.broadcastMediaDownloadDeleted(ctx, download)
 			}
 		}
@@ -80,16 +80,16 @@ func (uc *downloader) deleteMissingDownloads(ctx context.Context) error {
 	// Restore records if the download was found
 	// Permanently delete records if the download is still missing after the grace period
 	for _, download := range deletedDownloads {
-		if download.FileFullName == "" {
+		if download.FileName == "" {
 			continue
 		}
-		if exists, _ := uc.downloadsStorage.Exists(download.FileFullName); exists {
+		if exists, _ := uc.downloadsStorage.Exists(download.FileName); exists {
 			err := uc.download.Restore(ctx, download.DownloadID)
 			if err != nil {
 				uc.logger.Warn("Failed to restore", "error", err)
 				continue
 			}
-			uc.logger.Debug("Restoring media download in database", "downloadID", download.DownloadID, "fileName", download.FileFullName)
+			uc.logger.Debug("Restoring media download in database", "downloadID", download.DownloadID, "fileName", download.FileName)
 			continue
 		}
 
@@ -99,7 +99,7 @@ func (uc *downloader) deleteMissingDownloads(ctx context.Context) error {
 				uc.logger.Warn("Failed to hard delete", "downloadID", download.DownloadID, "error", err)
 				continue
 			}
-			uc.logger.Debug("Hard deleting media download from database", "downloadID", download.DownloadID, "fileName", download.FileFullName)
+			uc.logger.Debug("Hard deleting media download from database", "downloadID", download.DownloadID, "fileName", download.FileName)
 			continue
 		}
 	}

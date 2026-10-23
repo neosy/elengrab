@@ -83,7 +83,7 @@ func (uc *Executor) Execute(
 		dl.FileNameNoExt = storedFile.fileNameNoExt
 		dl.Ext = strings.TrimPrefix(storedFile.fileExt, ".")
 
-		dl.FileFullName = storedFile.fileName
+		dl.FileName = storedFile.fileName
 		dl.SafeReadableFileFullName = dl.NormalizeFileFullName()
 
 		dl.PartialHash = storedFile.partialHash

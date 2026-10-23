@@ -14,7 +14,7 @@ type DownloadMeta struct {
 	Description   string
 	FileNameNoExt string
 	FileExt       string
-	FileFullName  string
+	FileName      string
 	FileSize      *int64
 
 	Channel *dtypes.ChannelSource
@@ -83,7 +83,7 @@ func (m *SafeDownloadMeta) InitialResult() *pservices.DownloadResult {
 		MediaDescription:    uptr.NonZeroString(meta.Description),
 		FileNameNoExt:       meta.FileNameNoExt,
 		FileExt:             ext,
-		FileFullName:        meta.FileFullName,
+		FileName:            meta.FileName,
 		Filesize:            meta.FileSize,
 		MediaInfo:           meta.MediaInfo,
 		Channel:             meta.Channel,

@@ -194,7 +194,7 @@ func (d *Downloader) Download(
 
 	// Get (asynchronous) the actual file size
 	wg.Go(func() {
-		size := d.fileSize(meta.Meta.FileFullName)
+		size := d.fileSize(meta.Meta.FileName)
 		if size != 0 {
 			meta.Lock()
 			meta.Meta.FileSize = &size
@@ -206,7 +206,7 @@ func (d *Downloader) Download(
 	wg.Go(func() {
 		ctx, cancel := context.WithTimeout(ctx, consts.MediaInfoExtractionTimeout)
 		defer cancel()
-		mediaInfo := d.extractMediaInfoFromFile(ctx, meta.Meta.FileFullName, meta.Meta.MediaInfo)
+		mediaInfo := d.extractMediaInfoFromFile(ctx, meta.Meta.FileName, meta.Meta.MediaInfo)
 		if mediaInfo != nil {
 			meta.Lock()
 			if mediaInfo.Duration > 0 {
@@ -228,7 +228,7 @@ func (d *Downloader) Download(
 		wg.Go(func() {
 			ctx, cancel := context.WithTimeout(ctx, consts.ThumbnailExtractionTimeout)
 			defer cancel()
-			imgData := d.extractThumbnailFromFile(ctx, meta.Meta.FileFullName)
+			imgData := d.extractThumbnailFromFile(ctx, meta.Meta.FileName)
 			if imgData != nil {
 				meta.Lock()
 				meta.Meta.ThumbnailVideoFrame = imgData
@@ -243,7 +243,7 @@ func (d *Downloader) Download(
 
 	// Build response struct
 	result := meta.InitialResult()
-	result.PartialHash = d.partialHash(d.storage.Path(meta.Meta.FileFullName))
+	result.PartialHash = d.partialHash(d.storage.Path(meta.Meta.FileName))
 
 	// Build response struct
 	sendData(result)

@@ -34,8 +34,8 @@ func (uc *downloader) DeleteDuplicates(ctx context.Context) error {
 
 			delCnt++
 
-			if err := uc.downloadsStorage.Delete(download.FileFullName); err != nil {
-				uc.logger.Warn("Failed delete file", "filePath", uc.downloadsStorage.Path(download.FileFullName), "error", err)
+			if err := uc.downloadsStorage.Delete(download.FileName); err != nil {
+				uc.logger.Warn("Failed delete file", "filePath", uc.downloadsStorage.Path(download.FileName), "error", err)
 				continue
 			}
 		}

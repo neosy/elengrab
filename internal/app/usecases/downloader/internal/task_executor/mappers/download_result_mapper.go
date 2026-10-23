@@ -37,7 +37,7 @@ func (m *Mappers) MapDownloadResultToProcessedDownload(
 		MediaDescriptionOriginal: result.MediaDescription,
 
 		FileNameNoExt: result.FileNameNoExt,
-		FileFullName:  result.FileFullName,
+		FileName:      result.FileName,
 
 		FileExt:  result.FileExt,
 		Filesize: result.Filesize,
