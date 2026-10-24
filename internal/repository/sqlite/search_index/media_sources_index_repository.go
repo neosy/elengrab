@@ -269,7 +269,7 @@ func (r *MediaSourceIndexRepository) iterateAll(
 	fn func(*ddownload.MediaSourceIndex) error,
 ) error {
 	var (
-		eIndex esearchindex.MediaSourceIndex
+		eIndex       esearchindex.MediaSourceIndex
 		filterUserID string
 		conditions   = squirrel.And{}
 	)
@@ -291,7 +291,12 @@ func (r *MediaSourceIndexRepository) iterateAll(
 			}
 			filterUserID = userID.String()
 		default:
-			conditions = append(conditions, filter.SqlCondition())
+			f := filter
+			// Convert Stringer values to plain strings before building SQL.
+			if v, ok := f.Condition().Value().(fmt.Stringer); ok {
+				f = f.CloneWithValue(v.String())
+			}
+			conditions = append(conditions, f.SqlCondition())
 		}
 	}
 

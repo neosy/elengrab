@@ -69,6 +69,12 @@ func (filters FiltersByField) Add(field string, condition FilterConditioner) {
 	filters[field] = filter
 }
 
+// CloneWithValue returns a new FieldFilter with the same field name and
+// operator as f, but with the given value. The receiver is not modified.
+func (f FieldFilter) CloneWithValue(value any) FieldFilter {
+	return NewFieldFilter(f.FieldName, value, f.condition.Operator())
+}
+
 // SqlCondition generates a SQL condition for the FieldFilter using the provided field name and condition.
 func (f FieldFilter) SqlCondition() squirrel.Sqlizer {
 	if f.condition == nil {

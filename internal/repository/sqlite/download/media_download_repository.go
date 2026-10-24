@@ -499,7 +499,12 @@ func (r *MediaDownloadRepository) iterateAll(
 			}
 			filterUserID = userID.String()
 		default:
-			conditions = append(conditions, filter.SqlConditionWithAlias(aliasDownloads))
+			f := filter
+			// Convert Stringer values to plain strings before building SQL.
+			if v, ok := f.Condition().Value().(fmt.Stringer); ok {
+				f = f.CloneWithValue(v.String())
+			}
+			conditions = append(conditions, f.SqlConditionWithAlias(aliasDownloads))
 		}
 	}
 
