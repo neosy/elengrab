@@ -1,6 +1,8 @@
 package dbutils
 
 import (
+	"fmt"
+
 	"github.com/Masterminds/squirrel"
 )
 
@@ -73,6 +75,17 @@ func (filters FiltersByField) Add(field string, condition FilterConditioner) {
 // operator as f, but with the given value. The receiver is not modified.
 func (f FieldFilter) CloneWithValue(value any) FieldFilter {
 	return NewFieldFilter(f.FieldName, value, f.condition.Operator())
+}
+
+// PrepareForSql returns a FieldFilter whose value is converted to a form
+// suitable for use in SQL queries. Currently, values implementing
+// fmt.Stringer are converted to plain strings; other values are kept as is.
+// The receiver is not modified.
+func (f FieldFilter) PrepareForSql() FieldFilter {
+	if s, ok := f.Condition().Value().(fmt.Stringer); ok {
+		return f.CloneWithValue(s.String())
+	}
+	return f
 }
 
 // SqlCondition generates a SQL condition for the FieldFilter using the provided field name and condition.

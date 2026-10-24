@@ -151,7 +151,7 @@ func (r *LinkRepository) Find(ctx context.Context, linkID uuid.UUID) (*dlink.Lin
 
 	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, filter.SqlCondition())
+			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlCondition())
 		}
 	}
 
@@ -204,7 +204,7 @@ func (r *LinkRepository) Exists(ctx context.Context, linkID uuid.UUID) (bool, er
 
 	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, filter.SqlCondition())
+			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlCondition())
 		}
 	}
 
@@ -244,7 +244,7 @@ func (r *LinkRepository) FindLastByShortCode(ctx context.Context, shortCode stri
 
 	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, filter.SqlCondition())
+			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlCondition())
 		}
 	}
 
@@ -306,7 +306,7 @@ func (r *LinkRepository) ExistsActiveShortCode(ctx context.Context, shortCode st
 
 	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, filter.SqlCondition())
+			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlCondition())
 		}
 	}
 

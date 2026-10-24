@@ -139,7 +139,7 @@ func (r *ProcessingTaskRepository) findBy(ctx context.Context, filterFieldName s
 
 	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, filter.SqlCondition())
+			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlCondition())
 		}
 	}
 
