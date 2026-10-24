@@ -1,4 +1,4 @@
-package uploadexecutor
+package helper
 
 import (
 	"os"
@@ -6,7 +6,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/utils/hash"
 )
 
-func (uc *Executor) partialHash(filePath string) *string {
+func PartialHash(filePath string) *string {
 	h, err := hash.FilePartialHash(filePath)
 	if err == nil && h != "" {
 		return &h
@@ -14,7 +14,7 @@ func (uc *Executor) partialHash(filePath string) *string {
 	return nil
 }
 
-func (uc *Executor) fileSize(filePath string) int64 {
+func FileSize(filePath string) int64 {
 	fileInfo, err := os.Stat(filePath)
 	if err != nil {
 		return 0

@@ -7,6 +7,7 @@ import (
 	"uuid"
 
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
+	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/helper"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/types"
 	wjobs "github.com/neosy/elengrab/internal/app/workers/pool_jobs"
@@ -15,6 +16,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
+	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
@@ -49,6 +51,8 @@ func (uc *downloader) ScheduleUpload(
 		mediaDescription = &desc
 	}
 
+	fileSize := helper.FileSize(upload.FilePath())
+
 	err := uc.download.CreateUpload(
 		ctx,
 		&ddownload.MediaDownload{
@@ -61,6 +65,7 @@ func (uc *downloader) ScheduleUpload(
 			MediaDescriptionOriginal: mediaDescription,
 			MediaDescription:         mediaDescription,
 			FileExtNoDot:             mediaInfo.Format.ExtNoDot(),
+			FileSize:                 uptr.NonZero(fileSize),
 			MediaInfo:                mediaInfo,
 		},
 		upload.FilePath(),
