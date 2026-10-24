@@ -11,6 +11,7 @@ import (
 	"uuid"
 
 	apperrors "github.com/neosy/elengrab/internal/app/errors"
+	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/helper"
 	"github.com/neosy/elengrab/internal/app/utils/filename"
 	dconsts "github.com/neosy/elengrab/internal/domain/consts"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
@@ -143,8 +144,8 @@ func (uc *Executor) saveAndProcessFile(
 		fileNameNoExt: strings.TrimSuffix(uniqueFileName, fileExt),
 		fileExt:       fileExt,
 
-		fileSize:    uc.fileSize(task.SourcePath),
-		partialHash: uc.partialHash(task.SourcePath),
+		fileSize:    helper.FileSize(task.SourcePath),
+		partialHash: helper.PartialHash(task.SourcePath),
 	}
 
 	err := uc.storage.Move(task.SourcePath, uniqueFileName)
