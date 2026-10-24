@@ -3,6 +3,7 @@ package uploadexecutor
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -16,6 +17,7 @@ import (
 	dconsts "github.com/neosy/elengrab/internal/domain/consts"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/neosy/elengrab/internal/pkg/filex"
 )
 
 // storedFile describes a source file that has been moved into the storage.
@@ -148,9 +150,19 @@ func (uc *Executor) saveAndProcessFile(
 		partialHash: helper.PartialHash(task.SourcePath),
 	}
 
-	err := uc.storage.Move(task.SourcePath, uniqueFileName)
+	needMove, err := uc.checkNeedMove(task.SourcePath, uniqueFileName)
 	if err != nil {
 		return resultNil, err
+	}
+
+	if needMove {
+		err := uc.storage.Move(task.SourcePath, uniqueFileName)
+		if err != nil {
+			uc.logger.Warn("Failed to move file", "source", task.SourcePath, "target", uniqueFileName, "error", err)
+			return resultNil, err
+		}
+
+		uc.logger.Info("File moved", "source", task.SourcePath, "target", uniqueFileName)
 	}
 
 	filePath := uc.storage.Path(uniqueFileName)
@@ -162,4 +174,32 @@ func (uc *Executor) saveAndProcessFile(
 	}
 
 	return result, nil
+}
+
+// checkNeedMove reports whether the file must be moved from the source to the storage.
+// It returns false if the file is already in the storage,
+// and an error if the file is in neither place (lost) or the storage check fails.
+func (uc *Executor) checkNeedMove(sourcePath, targetName string) (bool, error) {
+	dstExists, err := uc.storage.Exists(targetName)
+	if err != nil {
+		uc.logger.Warn("Failed to check target file", "target", targetName, "error", err)
+		return false, err
+	}
+	if dstExists {
+		uc.logger.Info("File already in storage, move skipped", "source", sourcePath, "target", targetName)
+		return false, nil
+	}
+
+	srcExists, err := filex.FileExists(sourcePath)
+	if err != nil {
+		uc.logger.Warn("Failed to check source file", "source", sourcePath, "error", err)
+		return false, err
+	}
+	if !srcExists {
+		err := fmt.Errorf("file %q is missing in both source and storage (target %q)", sourcePath, targetName)
+		uc.logger.Warn("File lost", "source", sourcePath, "target", targetName, "error", err)
+		return false, err
+	}
+
+	return true, nil
 }

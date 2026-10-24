@@ -8,7 +8,7 @@ import (
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-func NewDeleteMissingDownloadsJob(
+func NewDeleteMissingMediaDownloadsJob(
 	logger *slog.Logger,
 	runner pworkers.DownloadMaintenanceRunner,
 
@@ -16,10 +16,10 @@ func NewDeleteMissingDownloadsJob(
 	enableMoveUnmatchedFiles bool,
 ) workers.Job {
 	run := func(ctx context.Context) error {
-		return runner.DeleteMissingDownloads(ctx, enableMoveUnmatchedFiles)
+		return runner.DeleteMissingMediaDownloads(ctx, enableMoveUnmatchedFiles)
 	}
 	return workers.NewJob(
-		"DeleteMissingDownloads",
+		"DeleteMissingMediaDownloads",
 		workers.WrapJobExecute(logger, run),
 	)
 }
