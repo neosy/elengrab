@@ -335,7 +335,7 @@ func (r *UserRepository) iterateGetAll(
 
 	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, filter.Condition().SqlCondition(eUser.FieldName(name, aliasUsers)))
+			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlConditionWithAlias(aliasUsers))
 		}
 	}
 

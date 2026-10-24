@@ -131,7 +131,7 @@ func (r *MediaWatchEventRepository) iterateGetAll(
 	var sqlWhere = squirrel.And{}
 	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, filter.SqlCondition())
+			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlCondition())
 		}
 	}
 

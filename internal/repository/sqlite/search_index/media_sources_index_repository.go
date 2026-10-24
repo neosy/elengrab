@@ -219,7 +219,7 @@ func (r *MediaSourceIndexRepository) FindByDownloadID(ctx context.Context, downl
 
 	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, filter.SqlCondition())
+			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlCondition())
 		}
 	}
 
@@ -291,12 +291,7 @@ func (r *MediaSourceIndexRepository) iterateAll(
 			}
 			filterUserID = userID.String()
 		default:
-			f := filter
-			// Convert Stringer values to plain strings before building SQL.
-			if v, ok := f.Condition().Value().(fmt.Stringer); ok {
-				f = f.CloneWithValue(v.String())
-			}
-			conditions = append(conditions, f.SqlCondition())
+			conditions = append(conditions, filter.PrepareForSql().SqlCondition())
 		}
 	}
 

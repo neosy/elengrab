@@ -340,7 +340,7 @@ func (r *MediaDownloadRepository) findByUniqueField(ctx context.Context, fieldNa
 
 	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, filter.SqlConditionWithAlias(aliasDownloads))
+			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlConditionWithAlias(aliasDownloads))
 		}
 	}
 
@@ -419,7 +419,7 @@ func (r *MediaDownloadRepository) existsByUniqueField(ctx context.Context, field
 
 	for name, filter := range r.queryOptions.Filters {
 		if name != "" {
-			sqlWhere = append(sqlWhere, filter.SqlCondition())
+			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlCondition())
 		}
 	}
 
@@ -499,12 +499,7 @@ func (r *MediaDownloadRepository) iterateAll(
 			}
 			filterUserID = userID.String()
 		default:
-			f := filter
-			// Convert Stringer values to plain strings before building SQL.
-			if v, ok := f.Condition().Value().(fmt.Stringer); ok {
-				f = f.CloneWithValue(v.String())
-			}
-			conditions = append(conditions, f.SqlConditionWithAlias(aliasDownloads))
+			conditions = append(conditions, filter.PrepareForSql().SqlConditionWithAlias(aliasDownloads))
 		}
 	}
 
@@ -675,7 +670,7 @@ func (r *MediaDownloadRepository) IterateFileNames(ctx context.Context, includeD
 		case "":
 			continue
 		default:
-			sqlWhere = append(sqlWhere, filter.SqlCondition())
+			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlCondition())
 		}
 	}
 
@@ -806,7 +801,7 @@ func (r *MediaDownloadRepository) GetDuplicateHashes(ctx context.Context, scope 
 		case "":
 			continue
 		default:
-			sqlWhere = append(sqlWhere, filter.SqlCondition())
+			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlCondition())
 		}
 	}
 
@@ -889,7 +884,7 @@ func (r *MediaDownloadRepository) GetDeleted(ctx context.Context, from, to *time
 		case "":
 			continue
 		default:
-			sqlWhere = append(sqlWhere, filter.SqlCondition())
+			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlCondition())
 		}
 	}
 
