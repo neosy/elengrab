@@ -69,7 +69,9 @@ func (uc *downloader) ResolveInconsistencies(ctx context.Context, orphanGracePer
 		deleted++
 	}
 
-	uc.logger.Info("Inconsistencies resolved", "checked", len(ids), "deleted", deleted)
+	if deleted > 0 {
+		uc.logger.Info("Inconsistencies resolved", "checked", len(ids), "deleted", deleted)
+	}
 
 	return nil
 }

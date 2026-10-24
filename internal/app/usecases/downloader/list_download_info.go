@@ -171,7 +171,7 @@ func (uc *downloader) fetchDownloadsByIndex(
 	var (
 		downloads []*ddownload.MediaDownload
 		passes    int
-		lastIDs   int
+		lastIDs   []uuid.UUID
 	)
 
 	limit := wantLimit
@@ -188,7 +188,7 @@ func (uc *downloader) fetchDownloadsByIndex(
 			break
 		}
 
-		lastIDs = len(downloadIDs)
+		lastIDs = downloadIDs
 
 		downloads, err = uc.download.GetByIDs(ctx, downloadIDs)
 		if err != nil {
@@ -209,13 +209,27 @@ func (uc *downloader) fetchDownloadsByIndex(
 		opts.Limit = &limit
 	}
 
-	if passes > 1 {
-		uc.logger.Warn("orphaned index entries hit during page fetch",
+	if len(downloads) != len(lastIDs) {
+		// Collect the IDs that the index returned but the download storage did not.
+		found := make(map[uuid.UUID]struct{}, len(downloads))
+		for _, d := range downloads {
+			found[d.DownloadID] = struct{}{}
+		}
+
+		var orphanIDs []uuid.UUID
+		for _, id := range lastIDs {
+			if _, ok := found[id]; !ok {
+				orphanIDs = append(orphanIDs, id)
+			}
+		}
+
+		uc.logger.Warn("Orphaned index entries hit during page fetch",
 			"wanted", wantLimit,
 			"passes", passes,
-			"index_ids", lastIDs,
+			"index_ids", len(lastIDs),
 			"found", len(downloads),
-			"orphans", lastIDs-len(downloads),
+			"orphans", len(orphanIDs),
+			"orphan_ids", orphanIDs,
 		)
 	}
 
