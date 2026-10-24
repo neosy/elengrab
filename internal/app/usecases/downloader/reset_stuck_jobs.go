@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"context"
+	"fmt"
 
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
@@ -13,10 +14,13 @@ func (uc *downloader) ResetStuckJobs(ctx context.Context) error {
 			if err := uc.dlTask.ResetStatus(ctx); err != nil {
 				return err
 			}
+			if err := uc.processingTask.ResetStatus(ctx); err != nil {
+				return err
+			}
 			if err := uc.download.ResetStatus(ctx); err != nil {
 				return err
 			}
-			if err := uc.download.DeleteBroken(ctx); err != nil {
+			if err := uc.download.DeleteNewWithoutTask(ctx); err != nil {
 				return err
 			}
 			return nil
@@ -32,8 +36,17 @@ func (uc *downloader) ResetStuckJobs(ctx context.Context) error {
 	}
 
 	for _, download := range downloads {
-		if download.DownloadTask != nil {
-			uc.addDownloadToQueueDownload(ctx, download.DownloadID, download.DownloadTask.TaskID)
+		switch download.SourceType {
+		case dtypes.MediaDownloadSourceTypeURL:
+			if download.DownloadTask != nil {
+				uc.addDownloadToQueueDownload(ctx, download.DownloadID, download.DownloadTask.TaskID)
+			}
+		case dtypes.MediaDownloadSourceTypeUpload:
+			if download.ProcessingTask != nil {
+				uc.addUploadToQueueProcessing(ctx, download.DownloadID, download.ProcessingTask.TaskID)
+			}
+		default:
+			return fmt.Errorf("unsupported source type %v for download %v", download.SourceType, download.DownloadID)
 		}
 	}
 

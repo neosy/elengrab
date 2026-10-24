@@ -296,12 +296,12 @@ func (a *Application) initialize() error {
 		DownloaderMigrations:  a.Usecases.Migrations,
 
 		// options
-		MetricsEnabled:                 a.cfg.AdminServer.Enable && a.cfg.AdminServer.DebugConfig.EnableMetrics,
-		UpdateHashInterval:             a.cfg.Elengrab.Maintenance.UpdateHashInterval,
-		DeleteDuplicatesInterval:       a.cfg.Elengrab.Maintenance.DeleteDuplicatesInterval,
-		DeleteMissingDownloadsInterval: a.cfg.Elengrab.Maintenance.DeleteMissingDownloadsInterval,
-		DeleteFailedDownloadsInterval:  a.cfg.Elengrab.Maintenance.DeleteFailedDownloadsInterval,
-		MoveUnmatchedFilesEnabled:      a.cfg.Elengrab.Maintenance.MoveUnmatchedFilesEnabled,
+		MetricsEnabled:                      a.cfg.AdminServer.Enable && a.cfg.AdminServer.DebugConfig.EnableMetrics,
+		UpdateHashInterval:                  a.cfg.Elengrab.Maintenance.UpdateHashInterval,
+		DeleteDuplicatesInterval:            a.cfg.Elengrab.Maintenance.DeleteDuplicatesInterval,
+		DeleteMissingMediaDownloadsInterval: a.cfg.Elengrab.Maintenance.DeleteMissingMediaDownloadsInterval,
+		DeleteFailedMediaDownloadsInterval:  a.cfg.Elengrab.Maintenance.DeleteFailedMediaDownloadsInterval,
+		MoveUnmatchedFilesEnabled:           a.cfg.Elengrab.Maintenance.MoveUnmatchedFilesEnabled,
 
 		CleanMediaDownloadCacheInterval:          cleanMediaDownloadCacheInterval,
 		CleanDownloadStateCacheInterval:          cleanDownloadStateCacheInterval,

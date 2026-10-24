@@ -7,10 +7,11 @@ type QueryFilterName string
 const (
 	QueryFilterNameNone QueryFilterName = ""
 
-	QueryFilterNameUserID    QueryFilterName = "userID"
-	QueryFilterNameChannelID QueryFilterName = "channelId"
-	QueryFilterNameTitle     QueryFilterName = "title"
-	QueryFilterNameCreatedAt QueryFilterName = "createdAt"
+	QueryFilterNameUserID     QueryFilterName = "userID"
+	QueryFilterNameChannelID  QueryFilterName = "channelId"
+	QueryFilterNameTitle      QueryFilterName = "title"
+	QueryFilterNameCreatedAt  QueryFilterName = "createdAt"
+	QueryFilterNameSourceType QueryFilterName = "sourceType"
 
 	QueryFilterNameSearchQuery QueryFilterName = "searchQuery"
 	QueryFilterNameDownloadIDs QueryFilterName = "downloadIDs"
@@ -18,10 +19,11 @@ const (
 
 var (
 	parseQueryFilterNameMap = map[string]QueryFilterName{
-		"createdAt":   QueryFilterNameCreatedAt,
 		"userID":      QueryFilterNameUserID,
 		"channelID":   QueryFilterNameChannelID,
 		"title":       QueryFilterNameTitle,
+		"createdAt":   QueryFilterNameCreatedAt,
+		"sourceType":  QueryFilterNameSourceType,
 		"searchQuery": QueryFilterNameSearchQuery,
 		"downloadIDs": QueryFilterNameDownloadIDs,
 	}

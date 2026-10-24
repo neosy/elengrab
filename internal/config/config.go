@@ -173,10 +173,10 @@ type ElengrabMaintenanceConfig struct {
 	DeleteDuplicatesInterval time.Duration `env:"DELETE_DUPLICATES_INTERVAL" envDefault:"1h"`
 
 	// Interval for deleting database records whose downloaded files are missing.
-	DeleteMissingDownloadsInterval time.Duration `env:"DELETE_MISSING_DOWNLOADS_INTERVAL" envDefault:"12h"`
+	DeleteMissingMediaDownloadsInterval time.Duration `env:"DELETE_MISSING_DOWNLOADS_INTERVAL" envDefault:"12h"`
 
 	// Interval for deleting failed download records.
-	DeleteFailedDownloadsInterval time.Duration `env:"DELETE_FAILED_DOWNLOADS_INTERVAL" envDefault:"1h"`
+	DeleteFailedMediaDownloadsInterval time.Duration `env:"DELETE_FAILED_DOWNLOADS_INTERVAL" envDefault:"1h"`
 
 	// Enables moving unmatched files during periodic maintenance.
 	MoveUnmatchedFilesEnabled bool `env:"ENABLE_MOVE_UNMATCHED_FILES" envDefault:"false"`

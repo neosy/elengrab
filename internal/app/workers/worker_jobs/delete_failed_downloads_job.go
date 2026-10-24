@@ -7,9 +7,9 @@ import (
 	pworkers "github.com/neosy/elengrab/internal/ports/workers"
 )
 
-func NewDeleteFailedDownloadsJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) workers.Job {
+func NewDeleteFailedMediaDownloadsJob(logger *slog.Logger, runner pworkers.DownloadMaintenanceRunner) workers.Job {
 	return workers.NewJob(
-		"DeleteFailedDownloads",
-		workers.WrapJobExecute(logger, runner.DeleteFailedDownloads),
+		"DeleteFailedMediaDownloads",
+		workers.WrapJobExecute(logger, runner.DeleteFailedMediaDownloads),
 	)
 }

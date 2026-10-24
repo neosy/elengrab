@@ -262,3 +262,11 @@ func (d *MediaDownload) Validate() error {
 
 	return nil
 }
+
+func (d *MediaDownload) HasTask() bool {
+	if d == nil {
+		return false
+	}
+
+	return d.DownloadTask != nil || d.ProcessingTask != nil
+}

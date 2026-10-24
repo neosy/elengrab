@@ -79,7 +79,10 @@ func (uc *MediaDownload) GetAll(
 	return downloads, err
 }
 
-func (uc *MediaDownload) GetByStatus(ctx context.Context, status dtypes.MediaDownloadStatus) ([]*ddownload.MediaDownload, error) {
+func (uc *MediaDownload) GetByStatus(
+	ctx context.Context,
+	status dtypes.MediaDownloadStatus,
+) ([]*ddownload.MediaDownload, error) {
 	repo := uc.downloadRepo()
 	repo = repo.WithOrderBy(dtypes.QuerySortBy(dtypes.QueryFilterNameCreatedAt.String(), dtypes.QueryOrderAsc))
 
@@ -138,8 +141,13 @@ func (uc *MediaDownload) GetDuplicateHashes(ctx context.Context, scope dtypes.Un
 	return rows, nil
 }
 
-func (uc *MediaDownload) GetDeleted(ctx context.Context, from, to *time.Time) ([]*ddownload.MediaDownload, error) {
-	downloads, err := uc.downloadRepo().GetDeleted(ctx, from, to)
+func (uc *MediaDownload) GetDeleted(
+	ctx context.Context,
+	from, to *time.Time,
+) ([]*ddownload.MediaDownload, error) {
+	repo := uc.downloadRepo()
+
+	downloads, err := repo.GetDeleted(ctx, from, to)
 	if err != nil {
 		uc.logger.Warn("Failed to get deleted", "fromDate", from, "toDate", to, "error", err)
 		return nil, err

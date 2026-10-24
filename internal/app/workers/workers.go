@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	defaultUpdateHashInterval             = 8 * time.Hour
-	defaultDeleteDuplicatesInterval       = 1 * time.Hour
-	defaultDeleteMissingDownloadsInterval = 30 * time.Minute
-	defaultDeleteFailedDownloadsInterval  = 1 * time.Hour
-	defaultResolveInconsistenciesInterval = 6 * time.Hour
+	defaultUpdateHashInterval                  = 8 * time.Hour
+	defaultDeleteDuplicatesInterval            = 1 * time.Hour
+	defaultDeleteMissingMediaDownloadsInterval = 30 * time.Minute
+	defaultDeleteFailedMediaDownloadsInterval  = 1 * time.Hour
+	defaultResolveInconsistenciesInterval      = 6 * time.Hour
 
 	defaultCleanMediaDownloadCacheInterval          = 30 * time.Minute
 	defaultCleanDownloadStateCacheInterval          = 20 * time.Minute
@@ -61,13 +61,13 @@ type Dependencies struct {
 	DownloaderMigrations  pworkers.MigrationsRunner
 
 	// options
-	MetricsEnabled                 bool
-	MoveUnmatchedFilesEnabled      bool
-	UpdateHashInterval             time.Duration
-	DeleteDuplicatesInterval       time.Duration
-	DeleteMissingDownloadsInterval time.Duration
-	DeleteFailedDownloadsInterval  time.Duration
-	ResolveInconsistenciesInterval time.Duration
+	MetricsEnabled                      bool
+	MoveUnmatchedFilesEnabled           bool
+	UpdateHashInterval                  time.Duration
+	DeleteDuplicatesInterval            time.Duration
+	DeleteMissingMediaDownloadsInterval time.Duration
+	DeleteFailedMediaDownloadsInterval  time.Duration
+	ResolveInconsistenciesInterval      time.Duration
 
 	// caches
 	CleanChannelCacheInterval                time.Duration
@@ -130,14 +130,14 @@ func Initialize(logger *slog.Logger, deps *Dependencies, ws *workers.Workers) {
 	))
 
 	ws.Add(workers.NewWorker(
-		wjobs.NewDeleteMissingDownloadsJob(ws.Logger(), deps.DownloaderMaintenance, deps.MoveUnmatchedFilesEnabled),
-		workers.WithIntervalFallback(deps.DeleteMissingDownloadsInterval, defaultDeleteMissingDownloadsInterval),
+		wjobs.NewDeleteMissingMediaDownloadsJob(ws.Logger(), deps.DownloaderMaintenance, deps.MoveUnmatchedFilesEnabled),
+		workers.WithIntervalFallback(deps.DeleteMissingMediaDownloadsInterval, defaultDeleteMissingMediaDownloadsInterval),
 		workers.WithInitialDelay(15*time.Second),
 	))
 
 	ws.Add(workers.NewWorker(
-		wjobs.NewDeleteFailedDownloadsJob(ws.Logger(), deps.DownloaderMaintenance),
-		workers.WithIntervalFallback(deps.DeleteFailedDownloadsInterval, defaultDeleteFailedDownloadsInterval),
+		wjobs.NewDeleteFailedMediaDownloadsJob(ws.Logger(), deps.DownloaderMaintenance),
+		workers.WithIntervalFallback(deps.DeleteFailedMediaDownloadsInterval, defaultDeleteFailedMediaDownloadsInterval),
 		workers.WithInitialDelay(20*time.Second),
 	))
 
