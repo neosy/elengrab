@@ -277,6 +277,10 @@ export async function showVideoPreview(thumbnailElement, previewTarget) {
         return;
     }
 
+    if (isMobileScreen() && isVideoPlayerOpen()) {
+        return;
+    }
+
     const positionMs = await watchAPI.getWatchPosition(itemId);
 
     if (requestId !== PREVIEW_STATE.showVideoPreviewRequestId) {
@@ -317,11 +321,7 @@ export async function showVideoPreview(thumbnailElement, previewTarget) {
 
     DOM_ELEMENTS.preview.player.playsInline = true;
     DOM_ELEMENTS.preview.player.loop = false;
-    DOM_ELEMENTS.preview.player.muted = PREVIEW_STATE.muted;
-
-    if (document.body.classList.contains(CLASS_NAMES.body.mediaPlayerVideo) || document.body.classList.contains(CLASS_NAMES.body.mediaPlayerAudio)) {
-        DOM_ELEMENTS.preview.player.muted = true;
-    }
+    DOM_ELEMENTS.preview.player.muted = PREVIEW_STATE.muted || isMediaPlayerOpen();
 
     PREVIEW_STATE.currentItemId = itemId;
 
@@ -519,4 +519,17 @@ function findCenteredElement(previewAreaContainer, previewTargetClassName) {
     }
 
     return bestElement;
+}
+
+function isVideoPlayerOpen() {
+    return document.body.classList.contains(CLASS_NAMES.body.mediaPlayerVideo);
+}
+
+function isAudioPlayerOpen() {
+    return document.body.classList.contains(CLASS_NAMES.body.mediaPlayerAudio);
+}
+
+function isMediaPlayerOpen() {
+    return isVideoPlayerOpen()
+        || isAudioPlayerOpen();
 }

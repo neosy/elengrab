@@ -6,8 +6,8 @@ body.media-player--video .media-player__video {
 }
 
 .media-player__video--minimized {
-    --media-player-video-width: clamp(180px, 30vw, 400px);
-    --media-player-video-height: calc(clamp(180px, 30vw, 400px) * 9 / 16);
+    --media-player-video-width: clamp(200px, 30vw, 400px);
+    --media-player-video-height: calc(var(--media-player-video-width) * 9 / 16);
     --media-player-aspect-ratio: 16 / 9;
 
     --media-player-video-top: calc(100vh - var(--media-player-video-height) - var(--footer-height, 20px));
@@ -34,8 +34,9 @@ body.media-player--video .media-player__video {
 }
 
 @media (max-width: 480px) {
-    :root {
-        --media-player-control-minimize-display: none;
+    .media-player__video--minimized {
+        --media-player-video-width:  min(60vw, 400px);
+        --media-player-video-left: calc(100vw - var(--media-player-video-width) - 8px);
     }
 }
 
