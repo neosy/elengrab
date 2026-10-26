@@ -1,6 +1,6 @@
 # Releases
 
-## v0.27.0 — 2026-10-22
+## v0.27.0 — 2026-10-26
 
 ### ✨ Features
 - Added a short URL code for media downloads. [L170]
@@ -13,6 +13,7 @@
 - Made uploader usernames clickable links to their uploaded media pages. [L178]
 - Added the ability to minimize the video viewer to a floating thumbnail in the bottom-right corner. [L179]
 - Added a countdown animation for the currently playing audio item. [L179]
+- Saved the new playback position sooner after a seek or resume.
 
 ### 🎨 Style
 - Refined copy button colors and added animation.
@@ -33,6 +34,9 @@
 - Fixed Instagram cookies error detection by correcting the error message matching.
 - Fixed orphaned media index entries and skipped them during page retrieval. [L181]
 - Fixed field filters with conditions other than EQ. [L183]
+- Fixed watch tracking stopping after seeking in the video.
+- Fixed seeking being counted as watched time.
+- Fixed lost or duplicated watch time on slow or failed requests.
 
 ### ⚙️ Config
 Added `ELENGRAB_ABOUT_DEVELOPER_SHOW_INFO` to control developer attribution visibility in the About dialog. [L177]
