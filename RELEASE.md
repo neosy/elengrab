@@ -1,5 +1,13 @@
 # Releases
 
+## v0.28.0 — 2026-11-15
+
+### 🖥️ UI / Frontend
+- Mobile: minimizable video player with adjusted size. [L186]
+- Mobile: no video preview while the video player is open. [L186]
+
+---
+
 ## v0.27.0 — 2026-10-26
 
 ### ✨ Features
