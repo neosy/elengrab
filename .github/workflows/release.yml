@@ -91,7 +91,7 @@ jobs:
         run: |
           cd cmd/server
           rsrc -ico icon.ico
-          
+
       - name: Download Linux dependencies
         if: matrix.goos == 'linux'
         shell: bash
@@ -164,14 +164,20 @@ jobs:
             "${TARGET_DIR}/ffprobe" \
             "${TARGET_DIR}/yt-dlp"
 
-          DOWNLOADED_VERSION="$("${TARGET_DIR}/yt-dlp" --version)"
+          # The binary can only be executed when the runner arch matches the target arch
+          if [ "$(uname -m)" = "x86_64" ] && [ "${{ matrix.goarch }}" = "amd64" ]; then
+            DOWNLOADED_VERSION="$("${TARGET_DIR}/yt-dlp" --version)"
 
-          if [ "${DOWNLOADED_VERSION}" != "${YTDLP_VERSION}" ]; then
-            echo "yt-dlp version mismatch: expected ${YTDLP_VERSION}, got ${DOWNLOADED_VERSION}"
-            exit 1
+            if [ "${DOWNLOADED_VERSION}" != "${YTDLP_VERSION}" ]; then
+              echo "yt-dlp version mismatch: expected ${YTDLP_VERSION}, got ${DOWNLOADED_VERSION}"
+              exit 1
+            fi
+
+            echo "yt-dlp version verified: ${DOWNLOADED_VERSION}"
+          else
+            echo "Skipping yt-dlp version check (cross-architecture build)"
+            echo "yt-dlp version: ${YTDLP_VERSION}"
           fi
-
-          echo "yt-dlp version: ${DOWNLOADED_VERSION}"
 
           echo "Downloading yt-dlp licenses..."
           curl -fL --retry 3 --retry-delay 2 \
@@ -271,7 +277,7 @@ jobs:
           else
             tar -czf elengrab-${{ matrix.os_name }}-${{ matrix.arch_name }}.tar.gz elengrab-${{ matrix.os_name }}-${{ matrix.arch_name }}${{ matrix.ext }}
           fi
-          
+
       - name: Create Linux bundle
         if: matrix.goos == 'linux'
         shell: bash
@@ -295,7 +301,7 @@ jobs:
         run: |
           TARGET_DIR="dist/${{ matrix.goos }}-${{ matrix.goarch }}"
           BINARY="elengrab-${{ steps.version.outputs.version }}-${{ matrix.os_name }}-${{ matrix.arch_name }}.exe"
-          BUNDLE="elengrab-${{ steps.version.outputs.version }}-${{ matrix.os_name }}-${{ matrix.arch_name }}-bundle.zip"          
+          BUNDLE="elengrab-${{ steps.version.outputs.version }}-${{ matrix.os_name }}-${{ matrix.arch_name }}-bundle.zip"
 
           cd "${TARGET_DIR}"
 
@@ -391,7 +397,7 @@ jobs:
         with:
           name: elengrab-binaries-darwin-arm64
           path: dist/darwin-arm64
-          
+
       - name: Publish Release
         uses: softprops/action-gh-release@v3
         with:
