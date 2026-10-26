@@ -93,7 +93,7 @@ export function handleRowPatch(event) {
         if (!el) return;
 
         if (data.title !== undefined && data.title !== "") {
-            const titleEl = el.querySelector(CLASS_SELECTORS.mediaResultTitleLink);
+            const titleEl = el.querySelector(CLASS_SELECTORS.mediaResultTitleLabel);
             if (titleEl) {
                 titleEl.textContent = data.title;
                 titleEl.title = data.title;

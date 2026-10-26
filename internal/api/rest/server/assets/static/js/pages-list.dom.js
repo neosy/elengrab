@@ -16,7 +16,7 @@ export const CLASS_NAMES = {
 
     mediaResultAvatar: "media-result__channel",
 
-    mediaResultTitleLink: "media-result__title-link",
+    mediaResultTitleLabel: "media-result__title-label",
     mediaResultViewCount: "media-result__content-view-count",
     mediaResultVisibility: "media-result__content-visibility",
     mediaResultShareLink: "media-result__content-share-link",
