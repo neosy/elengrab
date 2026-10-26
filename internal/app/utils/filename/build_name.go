@@ -5,12 +5,13 @@ import (
 
 	"uuid"
 
+	dconsts "github.com/neosy/elengrab/internal/domain/consts"
 	"github.com/neosy/elengrab/internal/pkg/filex"
 	"github.com/neosy/elengrab/internal/pkg/stringx"
 )
 
 const (
-	MaxTitleLength = 100
+	MaxFilenameLength = min(200, dconsts.MediaTitleMaxLength*2)
 )
 
 // BuildUnique builds a unique file name: "<title>_<uniqueName>.<ext>",
@@ -34,7 +35,7 @@ func BuildUnique(uniqueName, title, ext string) string {
 
 		// Bytes left for the title after the unique name, "_" and the extension.
 		maxTitleBytes := min(
-			MaxTitleLength,
+			MaxFilenameLength,
 			filex.NameMaxBytes-len(uniqueName)-len("_")-len(suffix),
 		)
 
