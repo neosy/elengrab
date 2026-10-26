@@ -37,6 +37,11 @@ export async function getWatchPosition(itemId) {
 }
 
 const LOOP_THRESHOLD = 0.2;
+const LOOP_END_THRESHOLD = 1;
+
+// Extra time on top of minIntervalMs for the early send,
+// because currentPosition is updated only on timeupdate (every ~250 ms).
+const EARLY_SEND_MARGIN_MS = 500;
 
 // Media watch event types
 export const MEDIA_WATCH_EVENT = {
@@ -55,19 +60,30 @@ export class MediaWatchTracker {
             this.itemId = itemId;
         }
 
+        // Single timer of the send chain (early send, then regular heartbeats).
         this.heartbeatTimer = null;
 
         this.currentPosition = null;
         this.lastSentPosition = null;
 
         this.stopPromise = null;
+
+        // Incremented whenever the playback baseline is reset (seek).
+        this.baselineEpoch = 0;
+
+        // Queue that serializes sending of watch events.
+        this.sendChain = Promise.resolve();
     }
 
-    setItemId(itemId) {
-        this.stopHeartbeatInternal();
+    async setItemId(itemId) {
+        // Send the remaining time to the previous item first.
+        await this.stopHeartbeat(MEDIA_WATCH_EVENT.pause);
+
+        // The new item starts counting from scratch.
+        this.lastSentPosition = null;
         this.itemId = itemId || null;
     }
-        
+
     getWatchEventUrl() {
         if (!this.itemId) {
             return null;
@@ -79,7 +95,14 @@ export class MediaWatchTracker {
         );
     }
 
-    async sendWatchEvent(eventType = null) {
+    sendWatchEvent(eventType = null) {
+        this.sendChain = this.sendChain
+            .then(() => this.sendWatchEventInternal(eventType))
+            .catch((err) => console.error("Media watch send failed", err));
+        return this.sendChain;
+    }
+
+    async sendWatchEventInternal(eventType = null) {
         if (!this.video) {
             return;
         }
@@ -101,8 +124,9 @@ export class MediaWatchTracker {
             return;
         }
 
-        // Ignore invalid large intervals.
+        // Ignore invalid large intervals and restart counting from the current position.
         if (intervalMs > MEDIA_WATCH.maxIntervalMs) {
+            this.lastSentPosition = this.currentPosition;
             return;
         }
 
@@ -113,7 +137,7 @@ export class MediaWatchTracker {
         }
 
         const event = {
-            positionMs: positionMs,
+            positionMs,
             intervalMs,
             eventType,
         };
@@ -122,10 +146,14 @@ export class MediaWatchTracker {
 
         if (!url) {
             return;
-        }        
+        }
+
+        // Remember the position that is actually being sent.
+        const sentPosition = this.currentPosition;
+        const epoch = this.baselineEpoch;
 
         try {
-            await fetch(url, {
+            const response = await fetch(url, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -133,10 +161,39 @@ export class MediaWatchTracker {
                 body: JSON.stringify(event),
             });
 
-            this.lastSentPosition = this.currentPosition;
+            if (!response.ok) {
+                throw new Error(`Failed to send media watch event: ${response.status}`);
+            }
+
+            // Skip the update if a seek re-baselined the positions while the request was in flight.
+            if (epoch === this.baselineEpoch) {
+                this.lastSentPosition = sentPosition;
+            }
         } catch (err) {
             console.error("Failed to send media watch event", err);
         }
+    }
+
+    // Schedules the next send. After it fires, the chain continues
+    // with a full heartbeat interval until the heartbeat is stopped.
+    scheduleNext(delayMs) {
+        clearTimeout(this.heartbeatTimer);
+
+        this.heartbeatTimer = setTimeout(() => {
+            if (this.video && !this.video.paused && !this.video.ended) {
+                this.sendWatchEvent(MEDIA_WATCH_EVENT.heartbeat);
+            }
+
+            // heartbeatTimer is null only after stopHeartbeatInternal has started.
+            if (this.heartbeatTimer !== null) {
+                this.scheduleNext(MEDIA_WATCH.heartbeatIntervalMs);
+            }
+        }, delayMs);
+    }
+
+    // Early send: the new position is saved sooner than a regular heartbeat.
+    scheduleEarlySend() {
+        this.scheduleNext(MEDIA_WATCH.minIntervalMs + EARLY_SEND_MARGIN_MS);
     }
 
     async startHeartbeat() {
@@ -152,21 +209,17 @@ export class MediaWatchTracker {
         this.currentPosition = this.video.currentTime;
 
         if (this.lastSentPosition === null || this.lastSentPosition > this.currentPosition) {
-            this.lastSentPosition = this.currentPosition
+            this.lastSentPosition = this.currentPosition;
         }
 
-        this.heartbeatTimer = setInterval(() => {
-            if (!this.video.paused && !this.video.ended) {
-                this.sendWatchEvent(MEDIA_WATCH_EVENT.heartbeat);
-            }
-        }, MEDIA_WATCH.heartbeatIntervalMs);
+        this.scheduleEarlySend();
     }
 
     async stopHeartbeat(type = null) {
         if (this.stopPromise !== null) {
             await this.stopPromise;
             return;
-        }        
+        }
 
         if (this.heartbeatTimer === null) {
             return;
@@ -182,15 +235,14 @@ export class MediaWatchTracker {
     }
 
     async stopHeartbeatInternal(type = null) {
-        clearInterval(this.heartbeatTimer);
+        // Stop the chain right away, so no new send is scheduled.
+        clearTimeout(this.heartbeatTimer);
+        this.heartbeatTimer = null;
 
         // Send the remaining playback time.
         if (type) {
             await this.sendWatchEvent(type);
         }
-
-        // Reset the heartbeat timer to avoid sending duplicate events.
-        this.heartbeatTimer = null;
 
         // Reset the current position to null to avoid sending duplicate events.
         this.currentPosition = null;
@@ -240,15 +292,35 @@ export class MediaWatchTracker {
 
         this.onSeeked = async () => {
             if (this.video.paused) {
+                this.baselineEpoch++;
                 this.lastSentPosition = null;
+                return;
             }
 
-            if (!this.video.paused &&
-                !this.video.ended &&
-                this.video.currentTime <= LOOP_THRESHOLD) {
+            if (this.video.ended) {
+                return;
+            }
 
+            // Looped video: playback jumped from the end back to the start.
+            const wasNearEnd =
+                this.currentPosition !== null &&
+                this.video.duration - this.currentPosition <= LOOP_END_THRESHOLD;
+
+            if (this.video.loop && wasNearEnd && this.video.currentTime <= LOOP_THRESHOLD) {
                 await this.stopHeartbeat(MEDIA_WATCH_EVENT.ended);
                 this.startHeartbeat();
+                return;
+            }
+
+            // Playback continues after a seek: re-baseline both positions,
+            // so the jumped range is not counted as watched time.
+            if (this.heartbeatTimer !== null) {
+                this.baselineEpoch++;
+                this.currentPosition = this.video.currentTime;
+                this.lastSentPosition = this.video.currentTime;
+
+                // Save the new position soon, without waiting for the regular heartbeat.
+                this.scheduleEarlySend();
             }
         };
 
@@ -258,7 +330,7 @@ export class MediaWatchTracker {
         this.video.addEventListener("timeupdate", this.onTimeUpdate);
         this.video.addEventListener("seeked", this.onSeeked);
     }
-    
+
     async destroy() {
         await this.stopHeartbeat(MEDIA_WATCH_EVENT.pause);
 
