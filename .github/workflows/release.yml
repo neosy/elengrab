@@ -300,8 +300,8 @@ jobs:
         shell: bash
         run: |
           TARGET_DIR="dist/${{ matrix.goos }}-${{ matrix.goarch }}"
-          BINARY="elengrab-${{ steps.version.outputs.version }}-${{ matrix.os_name }}-${{ matrix.arch_name }}.exe"
-          BUNDLE="elengrab-${{ steps.version.outputs.version }}-${{ matrix.os_name }}-${{ matrix.arch_name }}-bundle.zip"
+          BINARY="elengrab-${{ matrix.os_name }}-${{ matrix.arch_name }}.exe"
+          BUNDLE="elengrab-${{ matrix.os_name }}-${{ matrix.arch_name }}-bundle.zip"
 
           cd "${TARGET_DIR}"
 
