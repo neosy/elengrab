@@ -195,7 +195,7 @@ func (d *MediaDownload) Normalize() {
 func (d *MediaDownload) NormalizeFileName() string {
 	name := strings.TrimSpace(d.MediaTitle)
 	name = fasthttpx.SanitizeFileName(name)
-	name = stringx.TruncateBytesWords(name, filename.MaxTitleLength)
+	name = stringx.TruncateBytesWords(name, filename.MaxFilenameLength)
 	return name + d.FileExt()
 }
 
