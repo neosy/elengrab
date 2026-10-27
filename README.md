@@ -84,9 +84,9 @@ For all other downloads, see the <a href="https://github.com/neosy/elengrab/rele
 ## Features
 
 * Support for downloading video and audio from **1,000+ websites**, powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp) extractors.
-* Manual upload of audio and video files.
 * Configurable format and quality settings.
 * Cookie-based authentication support for YouTube and other supported websites.
+* Manual upload of audio and video files.
 * Task queue for media processing.
 * Concurrent processing of multiple tasks.
 * Instant addition and removal of tasks from the queue.
