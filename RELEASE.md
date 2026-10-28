@@ -6,6 +6,9 @@
 - Mobile: minimizable video player with adjusted size. [L186]
 - Mobile: no video preview while the video player is open. [L186]
 
+### 🐛 Fix
+- Fixed a startup error when the assets backup directory already exists
+
 ### 📦 Build
 - Added version information to Windows executable properties, including file description, product name, version, and copyright.
 

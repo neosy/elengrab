@@ -96,6 +96,7 @@ git-push-update-tag-version: ## Update the Git tag for the current version
 
 update-app-version: ## Update AppVersion in Go
 	@sed -i "s|AppVersion = \".*\"|AppVersion = \"${VERSION}\"|" ./internal/config/consts.go
+	@sed -i 's|"version": "[^"]*"|"version": "${VERSION}.0"|' ./cmd/server/winres/winres.json
 	@sed -i 's|"file_version": "[^"]*"|"file_version": "${VERSION}.0"|' ./cmd/server/winres/winres.json
 	@sed -i 's|"product_version": "[^"]*"|"product_version": "${VERSION}.0"|' ./cmd/server/winres/winres.json
 	@sed -i 's|"FileVersion": "[^"]*"|"FileVersion": "${VERSION}.0"|' ./cmd/server/winres/winres.json
@@ -126,6 +127,9 @@ update-deps: ## Update Go dependencies to the latest versions
 	
 generate-env-docs: ## Generate environment variables documentation
 	go generate ./internal/config/...
+
+build-windows-resources: ## Build Windows executable resources
+	@cd ./cmd/server && go-winres make --arch amd64
 
 checkout: ## Create branch with auto task id, e.g. git checkout -b fix/L001-name
 	@if [ ! -f $(TASK_ID_FILE) ]; then echo "L000" > $(TASK_ID_FILE); fi

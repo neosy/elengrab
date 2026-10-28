@@ -14,7 +14,12 @@ import (
 	nfile "github.com/neosy/elengrab/internal/pkg/filex"
 )
 
-const versionFileName = "version"
+const (
+	versionFileName = "version"
+
+	// maxBackupSuffix limits the number of attempts to find a free backup path
+	maxBackupSuffix = 100
+)
 
 func SetupAssets(cfg *iconfig.Config) error {
 	assetsPath := upaths.AbsPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir)
@@ -53,11 +58,16 @@ func ensureAssets(path string) error {
 		}
 
 		// Rename old assets directory
-		oldAssetPath := filepath.Join(parentAssetPath, oldAssetDirName)
-		err := os.Rename(path, oldAssetPath)
+		oldAssetPath, err := generateBackupPath(filepath.Join(parentAssetPath, oldAssetDirName))
 		if err != nil {
 			return err
 		}
+
+		err = os.Rename(path, oldAssetPath)
+		if err != nil {
+			return err
+		}
+
 		log.Printf("Rename assets to %s\n", oldAssetPath)
 	}
 
@@ -109,4 +119,21 @@ func getVersionFromFile(dir string) string {
 	}
 
 	return strings.TrimSpace(string(versionByte))
+}
+
+// generateBackupPath returns path as is if it is free,
+// otherwise appends sequential suffixes (_1, _2, ...) until an unused path is found
+func generateBackupPath(path string) (string, error) {
+	candidate := path
+	for i := 1; i <= maxBackupSuffix; i++ {
+		_, err := os.Stat(candidate)
+		if os.IsNotExist(err) {
+			return candidate, nil
+		}
+		if err != nil {
+			return "", fmt.Errorf("cannot access %s: %w", candidate, err)
+		}
+		candidate = fmt.Sprintf("%s_%d", path, i)
+	}
+	return "", fmt.Errorf("cannot find free name for %s", path)
 }
