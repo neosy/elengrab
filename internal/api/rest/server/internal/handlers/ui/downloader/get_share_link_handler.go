@@ -29,8 +29,14 @@ func (h *DownloaderHandlers) GetShareLinkHandler(ctx *fasthttp.RequestCtx) {
 
 	url, err := h.linkWeb.GetLastShortURL(
 		ctx,
-		h.buildMediaWatchURL(downloadID),
+		h.buildMediaWatchURL(ctx, downloadID),
 	)
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, err)
+		return
+	}
+
+	url, err = h.ensureAbsoluteURL(ctx, url)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, err)
 		return

@@ -1,5 +1,12 @@
 # Releases
 
+## v0.28.0 — 2026-11-15
+
+### ✨ Features
+- Improved link creation and base URL resolution. [L188]
+
+---
+
 ## v0.27.1 — 2026-10-28
 
 ### 🖥️ UI / Frontend
