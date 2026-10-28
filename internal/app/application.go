@@ -52,6 +52,8 @@ const (
 	assetFileCacheTTL = 60 * time.Minute
 	// TTL for uploaded file cache
 	defaultUploadedFileCacheTTL = 2 * time.Hour
+	// TTL for SSE event log cache
+	sseEventLogCacheTTL = 30 * time.Minute
 
 	// Update interval for site logo information
 	logoUpdateInterval = 24 * time.Hour
@@ -68,6 +70,7 @@ const (
 	cleanThumbnailFileCacheInterval         = 1 * time.Hour
 	cleanAssetFileCacheInterval             = 1 * time.Hour
 	cleanUploadedFileCacheInterval          = 30 * time.Minute
+	cleanSSEEventLogCacheInterval           = 15 * time.Minute
 
 	// Intervals for updating metrics
 	updateSystemInfoInterval = 15 * time.Minute
@@ -105,6 +108,7 @@ type Application struct {
 	// Caches
 	AssetFileCacheRepo    persistence.AssetFileCacheRepository
 	UploadedFileCacheRepo persistence.UploadedFileCacheRepository
+	SSEEventLogCacheRepo  persistence.SSEEventLogCacheRepository
 
 	Usecases *usecases.Usecases
 	Services *services.Services
@@ -160,6 +164,7 @@ func (a *Application) initialize() error {
 	inMemoryRepositories := a.initInMemoryRepositories()
 	a.AssetFileCacheRepo = inMemoryRepositories.AssetFile
 	a.UploadedFileCacheRepo = inMemoryRepositories.UploadedFile
+	a.SSEEventLogCacheRepo = inMemoryRepositories.SSEEventLog
 
 	// Initialize storages
 	storages, err := a.initStorages()
@@ -286,6 +291,7 @@ func (a *Application) initialize() error {
 		ThumbnailFileCache:          inMemoryRepositories.ThumbnailFile,
 		AssetFileCache:              inMemoryRepositories.AssetFile,
 		UploadedFileCache:           inMemoryRepositories.UploadedFile,
+		SSEEventLogCache:            inMemoryRepositories.SSEEventLog,
 
 		// runners
 		DownloaderMaintenance: a.Usecases.DownloaderMaintenance,
@@ -314,6 +320,7 @@ func (a *Application) initialize() error {
 		CleanThumbnailFileCacheInterval:          cleanThumbnailFileCacheInterval,
 		CleanAssetFileCacheInterval:              cleanAssetFileCacheInterval,
 		CleanUploadedFileCacheInterval:           cleanUploadedFileCacheInterval,
+		CleanSSEventLogCacheInterval:             cleanSSEEventLogCacheInterval,
 
 		// metrics
 		UpdateSystemInfoInterval: updateSystemInfoInterval,
@@ -533,6 +540,7 @@ func (a *Application) initInMemoryRepositories() *inmemoryrep.Repositories {
 		ThumbnailFileCacheTTL:          thumbnailFileCacheTTL,
 		AssetFileCacheTTL:              assetFileCacheTTL,
 		UploadedFileCacheTTL:           uploadedFileCacheTTL,
+		SSEEventLogCacheTTL:            sseEventLogCacheTTL,
 	}
 	return inmemoryrep.New(inMemoryDeps)
 }

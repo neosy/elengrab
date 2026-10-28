@@ -124,6 +124,36 @@ func (c *Cache[K, T]) SaveWithNow(key K, value *T, ttl time.Duration, now time.T
 	}
 }
 
+// SaveNoCloneWithNow stores the value as is, without cloning it.
+// The caller MUST NOT modify the value after saving.
+func (c *Cache[K, T]) SaveNoCloneWithNow(key K, value *T, ttl time.Duration, now time.Time) {
+	expiresAt := time.Time{}
+	if ttl > 0 {
+		if value == nil {
+			expiresAt = now.Add(c.negativeTTL()(ttl))
+		} else {
+			expiresAt = now.Add(ttl)
+		}
+	}
+
+	var cacheStatus = CacheStatusHit
+	if value == nil {
+		cacheStatus = CacheStatusNegativeHit
+	}
+
+	c.cache[key] = &Item[T]{
+		value:     value,
+		status:    cacheStatus,
+		expiresAt: expiresAt,
+	}
+}
+
+// SaveNoClone is a convenience wrapper that uses the current time.
+// The caller MUST NOT modify the value after saving.
+func (c *Cache[K, T]) SaveNoClone(key K, value *T, ttl time.Duration) {
+	c.SaveNoCloneWithNow(key, value, ttl, time.Now().UTC())
+}
+
 // Delete removes the item with the given key from the cache
 func (c *Cache[K, T]) Delete(key K) {
 	delete(c.cache, key)
@@ -180,6 +210,29 @@ func (c *Cache[K, T]) FindWithNow(key K, now time.Time) *T {
 	}
 
 	return valueClone
+}
+
+// FindNoClone returns the stored value for the given key without cloning it,
+// or nil if not found or expired.
+// The caller MUST NOT modify the returned value.
+func (c *Cache[K, T]) FindNoClone(key K) *T {
+	return c.FindNoCloneWithNow(key, time.Now().UTC())
+}
+
+// FindNoCloneWithNow returns the stored value for the given key without cloning it,
+// or nil if not found or expired.
+// The caller MUST NOT modify the returned value.
+func (c *Cache[K, T]) FindNoCloneWithNow(key K, now time.Time) *T {
+	cacheData, exists := c.cache[key]
+	if !exists {
+		return nil
+	}
+
+	if cacheData.ExpiredWithNow(now) {
+		return nil
+	}
+
+	return cacheData.value
 }
 
 // ExistsWithNow checks if a key exists in the cache and is not expired.

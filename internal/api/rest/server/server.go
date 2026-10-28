@@ -37,6 +37,7 @@ type Dependencies struct {
 	// Caches
 	AssetFileCacheRepo    persistence.AssetFileCacheRepository
 	UploadedFileCacheRepo persistence.UploadedFileCacheRepository
+	SSEEventLogCacheRepo  persistence.SSEEventLogCacheRepository
 
 	Usecases *usecases.Usecases
 	Template *template.Template
@@ -84,6 +85,7 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) (*
 		logger,
 		&handlers.Dependencies{
 			UploadedFileCacheRepo: deps.UploadedFileCacheRepo,
+			SSEEventLogCacheRepo:  deps.SSEEventLogCacheRepo,
 			DownloadsStorage:      deps.DownloadsStorage,
 			Assets:                assets.NewAssets(deps.AssetsDir, deps.AssetFileCacheRepo),
 			Usecases:              deps.Usecases,

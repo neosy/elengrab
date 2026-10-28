@@ -19,6 +19,7 @@ type Repositories struct {
 	ThumbnailFile          persistence.ThumbnailFileCacheRepository
 	AssetFile              persistence.AssetFileCacheRepository
 	UploadedFile           persistence.UploadedFileCacheRepository
+	SSEEventLog            persistence.SSEEventLogCacheRepository
 }
 
 type Dependencies struct {
@@ -33,6 +34,7 @@ type Dependencies struct {
 	ThumbnailFileCacheTTL          time.Duration
 	AssetFileCacheTTL              time.Duration
 	UploadedFileCacheTTL           time.Duration
+	SSEEventLogCacheTTL            time.Duration
 }
 
 // New returns a new Repositories struct.
@@ -49,5 +51,6 @@ func New(deps Dependencies) *Repositories {
 		ThumbnailFile:          newThumbnailFileRepository(deps.ThumbnailFileCacheTTL),
 		AssetFile:              newAssetFileRepository(deps.AssetFileCacheTTL),
 		UploadedFile:           newUploadedFileRepository(deps.UploadedFileCacheTTL),
+		SSEEventLog:            newSseEventLogRepository(deps.SSEEventLogCacheTTL),
 	}
 }
