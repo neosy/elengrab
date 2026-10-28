@@ -4,6 +4,7 @@
 
 ### ✨ Features
 - Improved link creation and base URL resolution. [L188]
+- Added Last-Event-ID support for resuming SSE event streams after reconnection. [L190]
 
 ---
 

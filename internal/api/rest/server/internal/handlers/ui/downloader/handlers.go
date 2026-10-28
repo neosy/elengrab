@@ -32,6 +32,7 @@ type DownloaderHandlers struct {
 
 	// Caches
 	uploadedFileCacheRepo persistence.UploadedFileCacheRepository
+	sseEventLogCacheRepo  persistence.SSEEventLogCacheRepository
 
 	// Usecases
 	authWeb     authweb.AuthWeb
@@ -59,6 +60,7 @@ func NewDownloaderHandlers(
 
 	// Caches
 	uploadedFileCacheRepo persistence.UploadedFileCacheRepository,
+	sseEventLogCacheRepo persistence.SSEEventLogCacheRepository,
 
 	usecases *usecases.Usecases,
 	appMode dtypes.AppMode,
@@ -80,6 +82,7 @@ func NewDownloaderHandlers(
 
 		// Caches
 		uploadedFileCacheRepo: uploadedFileCacheRepo,
+		sseEventLogCacheRepo:  sseEventLogCacheRepo,
 
 		// Usecases
 		authWeb:     usecases.AuthWeb,
