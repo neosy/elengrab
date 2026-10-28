@@ -27,6 +27,7 @@ func NewHandlers(
 
 	// Caches
 	uploadedFileCacheRepo persistence.UploadedFileCacheRepository,
+	sseEventLogCacheRepo persistence.SSEEventLogCacheRepository,
 
 	assets *assets.Assets,
 
@@ -69,6 +70,7 @@ func NewHandlers(
 
 			// Caches
 			uploadedFileCacheRepo,
+			sseEventLogCacheRepo,
 
 			// Usecases
 			usecases,

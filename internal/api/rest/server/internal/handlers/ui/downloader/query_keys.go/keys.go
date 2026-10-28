@@ -38,4 +38,7 @@ var (
 	LastCreateAtKey = keys.add("lastCreateAt", "date")
 	LastViewsKey    = keys.add("lastViews", "views")
 	LastCursorKey   = keys.add("lastCursor", "lc")
+
+	SSELastEventID = keys.add("lastEventId", "sselei")
+	SSEReconnect   = keys.add("reconnect", "sser")
 )

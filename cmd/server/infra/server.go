@@ -23,6 +23,7 @@ func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Applicat
 		DownloadsStorage:      app.DownloadsStorage,
 		AssetFileCacheRepo:    app.AssetFileCacheRepo,
 		UploadedFileCacheRepo: app.UploadedFileCacheRepo,
+		SSEEventLogCacheRepo:  app.SSEEventLogCacheRepo,
 		Usecases:              app.Usecases,
 		Template:              tmpl,
 
