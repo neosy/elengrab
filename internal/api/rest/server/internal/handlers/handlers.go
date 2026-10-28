@@ -24,6 +24,7 @@ type Dependencies struct {
 
 	// Caches
 	UploadedFileCacheRepo persistence.UploadedFileCacheRepository
+	SSEEventLogCacheRepo  persistence.SSEEventLogCacheRepository
 
 	// Assets
 	Assets *assets.Assets
@@ -62,6 +63,7 @@ func New(logger *slog.Logger, deps *Dependencies) (*Handlers, error) {
 			logger,
 			deps.DownloadsStorage,
 			deps.UploadedFileCacheRepo,
+			deps.SSEEventLogCacheRepo,
 			deps.Assets,
 			deps.Usecases,
 			templates,

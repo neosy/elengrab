@@ -56,7 +56,7 @@ export const DOM_ELEMENTS = {
     mediaPlayer: null,
 };
 
-export function initDomElements(elements = DOM_ELEMENTS) {    
+export function initDomElements(elements = DOM_ELEMENTS) {
     elements.result = document.getElementById("media-result");
 
     elements.resultInfo = document.getElementById("result-info");

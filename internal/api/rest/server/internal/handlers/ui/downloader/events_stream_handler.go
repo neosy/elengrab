@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -12,9 +13,11 @@ import (
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	utypes "github.com/neosy/elengrab/internal/app/usecases/types"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/domain/types/broadcast"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
@@ -49,7 +52,11 @@ func (h *DownloaderHandlers) streamEvents(
 	subscription := h.downloader.Broadcaster().Subscribe(clientKey, authCtx.RoleIDs)
 	defer h.downloader.Broadcaster().Unsubscribe(clientKey)
 
-	h.sendConnected(w, subscription.ConnectionID())
+	h.sendConnected(ctx, w, authCtx, subscription.ConnectionID())
+
+	if logID, lastNum := h.resolveEventsReplayPosition(ctx, authCtx); logID != uuid.Nil() {
+		h.replayEvents(ctx, w, authCtx, logID, lastNum)
+	}
 
 	pingTicker := time.NewTicker(15 * time.Second)
 	defer pingTicker.Stop()
@@ -58,7 +65,6 @@ func (h *DownloaderHandlers) streamEvents(
 		select {
 		case <-ctx.Done():
 			return
-
 		case <-pingTicker.C:
 			err := h.sendPing(w)
 			if err != nil {
@@ -73,7 +79,84 @@ func (h *DownloaderHandlers) streamEvents(
 	}
 }
 
-func (h *DownloaderHandlers) sendConnected(w *bufio.Writer, connectionID uuid.UUID) {
+// resolveEventsReplayPosition reads the replay position from the request.
+// A nil logID means there is nothing to replay.
+func (h *DownloaderHandlers) resolveEventsReplayPosition(
+	ctx *fasthttp.RequestCtx,
+	authCtx dauth.AuthContext,
+) (uuid.UUID, int) {
+	lastEventId := string(ctx.QueryArgs().Peek(qkeys.SSELastEventID.String()))
+	reconnect := ctx.QueryArgs().GetBool(qkeys.SSEReconnect.String())
+
+	if !reconnect && lastEventId == "" {
+		return uuid.Nil(), 0
+	}
+
+	if reconnect && lastEventId == "" {
+		logID, _ := h.sseEventLogCacheRepo.GetPosition(ctx, authCtx.EventKey().UUID().String())
+		return logID, 0
+	}
+
+	parts := strings.SplitN(lastEventId, ":", 2)
+	if len(parts) != 2 {
+		return uuid.Nil(), 0
+	}
+
+	logID, err := idcodec.DecodeUUIDBase64URL(parts[0])
+	if err != nil {
+		return uuid.Nil(), 0
+	}
+
+	lastNum, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return uuid.Nil(), 0
+	}
+
+	return logID, lastNum
+}
+
+// replayEvents sends events stored after lastEventId (the whole log if it is empty).
+func (h *DownloaderHandlers) replayEvents(
+	ctx *fasthttp.RequestCtx,
+	w *bufio.Writer,
+	authCtx dauth.AuthContext,
+	logID uuid.UUID,
+	lastNum int,
+) error {
+	if logID == uuid.Nil() {
+		return nil
+	}
+
+	key := authCtx.EventKey().UUID().String()
+
+	events, _, err := h.sseEventLogCacheRepo.GetEventsAfter(ctx, key, logID, lastNum)
+	if err != nil || len(events) == 0 {
+		return nil
+	}
+
+	for _, event := range events {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			fmt.Fprintf(w, "event: %s\n", event.Name)
+			fmt.Fprintf(w, "id: %s:%d\n", idcodec.EncodeUUIDBase64URL(logID), event.Num)
+			fmt.Fprintf(w, "data: %s\n\n", event.Data)
+			if err := w.Flush(); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (h *DownloaderHandlers) sendConnected(
+	ctx *fasthttp.RequestCtx,
+	w *bufio.Writer,
+	authCtx dauth.AuthContext,
+	connectionID uuid.UUID,
+) {
 	// fmt.Fprintf(w, "event: connected\ndata: {}\n\n")
 
 	jsonData, err := json.Marshal(struct {
@@ -83,7 +166,12 @@ func (h *DownloaderHandlers) sendConnected(w *bufio.Writer, connectionID uuid.UU
 		return
 	}
 
+	logID, logNum := h.sseEventLogCacheRepo.GetPosition(ctx, authCtx.EventKey().UUID().String())
+
 	fmt.Fprint(w, "event: connected\n")
+	if logID != uuid.Nil() {
+		fmt.Fprintf(w, "id: %s:%d\n", idcodec.EncodeUUIDBase64URL(logID), logNum)
+	}
 	fmt.Fprintf(w, "data: %s\n\n", jsonData)
 	w.Flush()
 }
@@ -108,9 +196,9 @@ func (h *DownloaderHandlers) handleEvent(
 	case utypes.BroadcastEventTypeDownloadUpdate:
 		h.handleDownloadUpdate(ctx, authCtx, w, event)
 	case utypes.BroadcastEventTypeDownloadPatch:
-		h.handleDownloadPatch(ctx, w, event)
+		h.handleDownloadPatch(ctx, authCtx, w, event)
 	case utypes.BroadcastEventTypeDownloadDelete:
-		h.handleDownloadDelete(w, event)
+		h.handleDownloadDelete(ctx, authCtx, w, event)
 	case utypes.BroadcastEventTypeProgressUpdate:
 		h.handleProgressUpdate(w, event)
 	case utypes.BroadcastEventTypeDownloadStartRefreshing:
@@ -157,8 +245,16 @@ func (h *DownloaderHandlers) handleDownloadAdd(
 		return
 	}
 
-	fmt.Fprintf(w, "event: %s\n", event.Type.SSEEventName())
-	fmt.Fprintf(w, "data: %s\n\n", jsonData)
+	sseEvent := &dtypes.SSEEvent{
+		Name: event.Type.SSEEventName(),
+		Data: jsonData,
+	}
+
+	logID, logNum, _ := h.sseEventLogCacheRepo.Push(ctx, authCtx.EventKey().UUID().String(), sseEvent)
+
+	fmt.Fprintf(w, "event: %s\n", sseEvent.Name)
+	fmt.Fprintf(w, "id: %s:%d\n", idcodec.EncodeUUIDBase64URL(logID), logNum)
+	fmt.Fprintf(w, "data: %s\n\n", sseEvent.Data)
 	w.Flush()
 }
 
@@ -209,12 +305,24 @@ func (h *DownloaderHandlers) handleDownloadUpdate(
 		return
 	}
 
-	fmt.Fprintf(w, "event: %s\n", event.Type.SSEEventName())
-	fmt.Fprintf(w, "data: %s\n\n", jsonData)
+	sseEvent := &dtypes.SSEEvent{
+		Name: event.Type.SSEEventName(),
+		Data: jsonData,
+	}
+
+	logID, logNum, _ := h.sseEventLogCacheRepo.Push(ctx, authCtx.EventKey().UUID().String(), sseEvent)
+
+	fmt.Fprintf(w, "event: %s\n", sseEvent.Name)
+	fmt.Fprintf(w, "id: %s:%d\n", idcodec.EncodeUUIDBase64URL(logID), logNum)
+	fmt.Fprintf(w, "data: %s\n\n", sseEvent.Data)
 	w.Flush()
 }
 
-func (h *DownloaderHandlers) handleDownloadPatch(ctx *fasthttp.RequestCtx, w *bufio.Writer, event ucdto.BroadcastEvent) {
+func (h *DownloaderHandlers) handleDownloadPatch(
+	ctx *fasthttp.RequestCtx,
+	authCtx dauth.AuthContext,
+	w *bufio.Writer,
+	event ucdto.BroadcastEvent) {
 	downloadChanged, ok := event.Data.(*ucdto.MediaDownloadChanged)
 	if !ok {
 		return
@@ -241,12 +349,25 @@ func (h *DownloaderHandlers) handleDownloadPatch(ctx *fasthttp.RequestCtx, w *bu
 		return
 	}
 
-	fmt.Fprintf(w, "event: %s\n", event.Type.SSEEventName())
-	fmt.Fprintf(w, "data: %s\n\n", jsonData)
+	sseEvent := &dtypes.SSEEvent{
+		Name: event.Type.SSEEventName(),
+		Data: jsonData,
+	}
+
+	logID, logNum, _ := h.sseEventLogCacheRepo.Push(ctx, authCtx.EventKey().UUID().String(), sseEvent)
+
+	fmt.Fprintf(w, "event: %s\n", sseEvent.Name)
+	fmt.Fprintf(w, "id: %s:%d\n", idcodec.EncodeUUIDBase64URL(logID), logNum)
+	fmt.Fprintf(w, "data: %s\n\n", sseEvent.Data)
 	w.Flush()
 }
 
-func (h *DownloaderHandlers) handleDownloadDelete(w *bufio.Writer, event ucdto.BroadcastEvent) {
+func (h *DownloaderHandlers) handleDownloadDelete(
+	ctx *fasthttp.RequestCtx,
+	authCtx dauth.AuthContext,
+	w *bufio.Writer,
+	event ucdto.BroadcastEvent,
+) {
 	downloadID, ok := event.Data.(uuid.UUID)
 	if !ok {
 		return
@@ -263,8 +384,16 @@ func (h *DownloaderHandlers) handleDownloadDelete(w *bufio.Writer, event ucdto.B
 		return
 	}
 
-	fmt.Fprintf(w, "event: %s\n", event.Type.SSEEventName())
-	fmt.Fprintf(w, "data: %s\n\n", jsonData)
+	sseEvent := &dtypes.SSEEvent{
+		Name: event.Type.SSEEventName(),
+		Data: jsonData,
+	}
+
+	logID, logNum, _ := h.sseEventLogCacheRepo.Push(ctx, authCtx.EventKey().UUID().String(), sseEvent)
+
+	fmt.Fprintf(w, "event: %s\n", sseEvent.Name)
+	fmt.Fprintf(w, "id: %s:%d\n", idcodec.EncodeUUIDBase64URL(logID), logNum)
+	fmt.Fprintf(w, "data: %s\n\n", sseEvent.Data)
 	w.Flush()
 }
 
