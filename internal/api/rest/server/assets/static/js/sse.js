@@ -1,6 +1,7 @@
 const sysInfoServerStatusDot = document.getElementById("server-status-dot");
 
 let globalEventSource = null;
+let reconnectTimer = null;
 
 /**
  * @param {Record<string, EventListener>} eventHandlers
@@ -17,10 +18,10 @@ export function initSSE(eventHandlers, usernameFilter = "") {
 
     window.addEventListener("pageshow", connect);
 
-    window.addEventListener("beforeunload", () => {
-        if (!globalEventSource || globalEventSource.readyState === EventSource.CLOSED) {
-            sse = createSSEConnection(eventHandlers, usernameFilter);
-        }
+    // Close the connection when leaving the page so the server slot is released
+    window.addEventListener("pagehide", () => {
+        sse?.close();
+        sse = null;
     });
 
     document.addEventListener("visibilitychange", () => {
@@ -28,6 +29,9 @@ export function initSSE(eventHandlers, usernameFilter = "") {
             connect();
         }
     });
+
+    // Connect immediately in case "pageshow" has already fired
+    connect();
 }
 
 /**
@@ -49,6 +53,7 @@ function createSSEConnection(eventHandlers, usernameFilter = "") {
 
     // Internal function to (re)connect
     function connect() {
+        clearTimeout(reconnectTimer);
         globalEventSource?.close();
 
         globalEventSource = new EventSource("/downloader/events");
@@ -62,7 +67,7 @@ function createSSEConnection(eventHandlers, usernameFilter = "") {
             globalEventSource.addEventListener(eventName, (event) => {
                 handler(event, usernameFilter);
             });
-        });        
+        });
 
         // Fallback: any default message marks server as online
         globalEventSource.onmessage = () => setServerStatus(true);
@@ -75,8 +80,9 @@ function createSSEConnection(eventHandlers, usernameFilter = "") {
                 globalEventSource?.close();
             }
 
-            // Reconnect after delay
-            setTimeout(connect, 5000);
+            // Reconnect after delay (cancelable, single timer for the module)
+            clearTimeout(reconnectTimer);
+            reconnectTimer = setTimeout(connect, 5000);
         };
     }
 
@@ -86,7 +92,9 @@ function createSSEConnection(eventHandlers, usernameFilter = "") {
     // Return only API to close connection from outside
     return {
         close: () => {
+            clearTimeout(reconnectTimer);
             setServerStatus(false);
             globalEventSource?.close();
+            globalEventSource = null;
         }};
 }
