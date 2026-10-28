@@ -1,5 +1,12 @@
 # Releases
 
+## v0.27.2 — 2026-10-28
+
+### 🐛 Fix
+- Fixed SSE connections piling up when navigating between pages, which could exhaust browser connection slots and make pages hang
+
+---
+
 ## v0.27.1 — 2026-10-28
 
 ### 🖥️ UI / Frontend
