@@ -9,7 +9,6 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
-	"github.com/neosy/elengrab/internal/pkg/fnx"
 	"github.com/valyala/fasthttp"
 )
 
@@ -26,13 +25,18 @@ func (h *DownloaderHandlers) renderErrorPage(
 ) {
 	cssStyleRaw, _ := paths.ErrorCssFileName.Raw(ctx, h.assets)
 
+	baseURL := h.getBaseURL(ctx)
+	if baseURL == "" {
+		baseURL = "/"
+	}
+
 	pageData := pages.ErrorPageData{
 		BaseValues: pages.NewBaseValues(),
 		BasePaths:  paths.NewHttpPaths(),
 		Values: pages.ErrorPageValues{
 			Title:          fmt.Sprintf("Error %v (%s)!!!", req.statusCode, req.statusText),
 			Header:         pages.Header,
-			BaseURL:        fnx.Ternary(h.baseURL != "", h.baseURL, "/"),
+			BaseURL:        baseURL,
 			CssStyle:       template.HTML("<style>" + string(cssStyleRaw) + "</style>"),
 			ErrorCode:      req.statusCode,
 			ErrorTitle:     req.statusText,

@@ -102,7 +102,7 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 
 	baseValues := pages.NewBaseValues()
 	baseValues.Title = fmt.Sprintf("%s - %s", userDisplayName, pages.AppName)
-	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(h.baseURL)
+	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(h.getBaseURL(ctx))
 
 	pagesListValues := pagesdata.BuildPagesListValues(authCtx, query, queryFilters, h.downloader)
 	pagesListValues.HasCreateAccess = isCurrentUserPage && pagesListValues.HasCreateAccess
