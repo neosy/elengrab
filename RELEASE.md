@@ -1,10 +1,13 @@
 # Releases
 
-## v0.28.0 — 2026-11-15
+## v0.27.1 — 2026-10-28
 
 ### 🖥️ UI / Frontend
 - Mobile: minimizable video player with adjusted size. [L186]
 - Mobile: no video preview while the video player is open. [L186]
+
+### 📦 Build
+- Added version information to Windows executable properties, including file description, product name, version, and copyright.
 
 ---
 

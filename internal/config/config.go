@@ -120,6 +120,7 @@ type ElengrabConfig struct {
 	MediaProcessingWorkers uint32 `env:"MEDIA_PROCESSING_WORKERS" envDefault:"3"`
 	// Maximum number of concurrent background operations.
 	OperationWorkers uint32 `env:"OPERATION_WORKERS" envDefault:"5"`
+	
 	// Scope used when checking media uniqueness before deleting duplicates.
 	DeleteDuplicatesUniquenessScope string `env:"DELETE_DUPLICATES_UNIQUENESS_SCOPE" envDefault:"per_user"`
 
