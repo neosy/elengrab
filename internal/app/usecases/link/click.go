@@ -78,7 +78,7 @@ func (u *link) validateClick(
 	}
 
 	// Check full match of ShortURL if required
-	if link.IsMatchShortURL && link.ShortURL != linkClick.ShortURL {
+	if u.shouldMatchShortURL(link) && u.shortURL(link.ShortCode) != linkClick.ShortURL {
 		return errorx.NewHTTP(
 			"short URL does not match the expected value",
 			fasthttp.StatusBadRequest,

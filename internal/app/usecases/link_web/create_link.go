@@ -27,9 +27,9 @@ func (u *linkWeb) CreateShortLink(ctx context.Context, url string) (string, erro
 
 	now := time.Now().UTC()
 
-	if link != nil && link.ShortURL == shortURL {
+	if link != nil {
 		if link.ExpiresAt == nil {
-			return link.ShortURL, nil
+			return shortURL, nil
 		}
 
 		refreshThreshold := refreshThresholdDefault
@@ -39,7 +39,7 @@ func (u *linkWeb) CreateShortLink(ctx context.Context, url string) (string, erro
 
 		// if link has more than shortCodeRefreshThreshold remaining, reuse existing short URL
 		if !link.IsExpired(now.Add(refreshThreshold)) {
-			return link.ShortURL, nil
+			return u.shortURL(link.ShortCode), nil
 		}
 	}
 
@@ -69,5 +69,5 @@ func (u *linkWeb) CreateShortLink(ctx context.Context, url string) (string, erro
 		)
 	}
 
-	return link.ShortURL, nil
+	return u.shortURL(link.ShortCode), nil
 }

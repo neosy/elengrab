@@ -8,7 +8,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
@@ -55,7 +55,7 @@ func ResolveUserOrAnonym(ctx *fasthttp.RequestCtx) dauth.AuthContext {
 func EnsureUser(ctx *fasthttp.RequestCtx) (dauth.AuthContext, error) {
 	userCtx := ResolveUser(ctx)
 
-	if userCtx == nil && !nfasthttp.IsForwardedHTTPS(ctx) {
+	if userCtx == nil && !fasthttpx.IsForwardedHTTPS(ctx) {
 		return dauth.AuthContext{}, errorx.NewHTTPMessage("HTTPS is required for authentication", fasthttp.StatusBadRequest)
 	}
 
@@ -79,5 +79,5 @@ func ResolveUserOrFallback(ctx *fasthttp.RequestCtx, appMode dtypes.AppMode) (da
 // IsAnonymousFallbackAllowed returns true if anonymous fallback is allowed for current request.
 // It's used in public app mode over non-HTTPS requests.
 func IsAnonymousFallbackAllowed(ctx *fasthttp.RequestCtx, appMode dtypes.AppMode) bool {
-	return !nfasthttp.IsForwardedHTTPS(ctx) && appMode.AllowsAnonymousRead()
+	return !fasthttpx.IsForwardedHTTPS(ctx) && appMode.AllowsAnonymousRead()
 }

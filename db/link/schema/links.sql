@@ -10,9 +10,6 @@ CREATE TABLE IF NOT EXISTS links
     -- Generated short code used in the shortened URL, e.g., "abc123
     short_code TEXT NOT NULL,
 
-    -- Full short URL, including domain, e.g., "https://s.nhub.ru/abc123"
-    short_url TEXT NOT NULL,
-
     -- Indicates if the full short URL should be used for exact match
 	is_match_short_url INTEGER NOT NULL DEFAULT 0,
 

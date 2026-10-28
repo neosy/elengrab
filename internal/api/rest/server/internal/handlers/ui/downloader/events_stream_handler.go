@@ -3,7 +3,6 @@ package downloader
 import (
 	"bufio"
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -164,7 +163,7 @@ func (h *DownloaderHandlers) handleDownloadAdd(
 }
 
 func (h *DownloaderHandlers) handleDownloadUpdate(
-	ctx context.Context,
+	ctx *fasthttp.RequestCtx,
 	authCtx dauth.AuthContext,
 	w *bufio.Writer,
 	event ucdto.BroadcastEvent,
@@ -215,7 +214,7 @@ func (h *DownloaderHandlers) handleDownloadUpdate(
 	w.Flush()
 }
 
-func (h *DownloaderHandlers) handleDownloadPatch(ctx context.Context, w *bufio.Writer, event ucdto.BroadcastEvent) {
+func (h *DownloaderHandlers) handleDownloadPatch(ctx *fasthttp.RequestCtx, w *bufio.Writer, event ucdto.BroadcastEvent) {
 	downloadChanged, ok := event.Data.(*ucdto.MediaDownloadChanged)
 	if !ok {
 		return

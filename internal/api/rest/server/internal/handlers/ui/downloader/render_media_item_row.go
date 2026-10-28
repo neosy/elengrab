@@ -1,7 +1,6 @@
 package downloader
 
 import (
-	"context"
 	"html/template"
 
 	"uuid"
@@ -37,7 +36,7 @@ type renderMediaItemRowParams struct {
 }
 
 func (h *DownloaderHandlers) renderMediaItemRow(
-	ctx context.Context,
+	ctx *fasthttp.RequestCtx,
 	params renderMediaItemRowParams,
 ) renderMediaItemRowResponse {
 	var (

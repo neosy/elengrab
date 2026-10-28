@@ -25,7 +25,7 @@ func (h *DownloaderHandlers) DeleteShareLinkHandler(ctx *fasthttp.RequestCtx) {
 
 	err = h.linkWeb.DeleteShortLink(
 		ctx,
-		h.buildMediaWatchURL(downloadID),
+		h.buildMediaWatchURL(ctx, downloadID),
 	)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)

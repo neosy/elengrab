@@ -7,9 +7,11 @@ type LinkOption func(*LinkOptions)
 type LinkOptions struct {
 	// Base URL for short links
 	BaseURL string
+
 	// Length of the generated short code
 	ShortCodeLength uint8
-	//
+
+	// Determines whether the short code generation is deterministic or not
 	Deterministic bool
 }
 

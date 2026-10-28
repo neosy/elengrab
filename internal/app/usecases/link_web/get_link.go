@@ -30,7 +30,7 @@ func (u *linkWeb) FindLastShortURL(ctx context.Context, url string) (string, err
 		return "", nil
 	}
 
-	return link.ShortURL, nil
+	return u.shortURL(link.ShortCode), nil
 }
 
 func (u *linkWeb) GetLastShortURL(ctx context.Context, url string) (string, error) {
@@ -44,5 +44,5 @@ func (u *linkWeb) GetLastShortURL(ctx context.Context, url string) (string, erro
 		)
 	}
 
-	return link.ShortURL, nil
+	return u.shortURL(link.ShortCode), nil
 }
