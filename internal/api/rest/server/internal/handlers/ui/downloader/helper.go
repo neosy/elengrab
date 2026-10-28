@@ -28,7 +28,6 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
-	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
@@ -232,12 +231,7 @@ func (h *DownloaderHandlers) getBaseURL(ctx *fasthttp.RequestCtx) string {
 		return ""
 	}
 
-	scheme := "http"
-	if ctx.IsTLS() || fasthttpx.IsForwardedHTTPS(ctx) {
-		scheme = "https"
-	}
-
-	return scheme + "://" + string(ctx.Host())
+	return h.getScheme(ctx) + "://" + string(ctx.Host())
 }
 
 func (h *DownloaderHandlers) ensureAbsoluteURL(ctx *fasthttp.RequestCtx, rawURL string) (string, error) {

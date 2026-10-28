@@ -52,7 +52,7 @@ func (h *DownloaderHandlers) renderIndexPage(
 	systemInfo := h.downloader.SystemInfo()
 
 	baseValues := pages.NewBaseValues()
-	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(h.baseURL)
+	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(h.getBaseURL(ctx))
 
 	queryFilters := h.mappers.MapQueryFiltersDomainToFilters(query.Filters)
 
