@@ -170,8 +170,8 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 	metaOgItems.Add("url", req.pageURL)
 	metaOgItems.Add("title", downloadInfo.MediaTitle)
 	metaOgItems.Add("description", description)
-	metaOgItems.Add("image", imageData.FullURL(h.baseURL))
-	metaOgItems.Add("image:secure_url", imageData.FullURL(h.baseURL))
+	metaOgItems.Add("image", imageData.FullURL(h.getBaseURL(ctx)))
+	metaOgItems.Add("image:secure_url", imageData.FullURL(h.getBaseURL(ctx)))
 	metaOgItems.Add("image:type", httpx.ContentTypeByExt(imageData.Format.String()))
 	metaOgItems.Add("image:alt", "Elengrab logo")
 	if imageData.Width != 0 && imageData.Height != 0 {
@@ -187,7 +187,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 	metaNameItems.Add("twitter:url", req.pageURL)
 	metaNameItems.Add("twitter:title", downloadInfo.MediaTitle)
 	metaNameItems.Add("twitter:description", description)
-	metaNameItems.Add("twitter:image", imageData.FullURL(h.baseURL))
+	metaNameItems.Add("twitter:image", imageData.FullURL(h.getBaseURL(ctx)))
 	metaNameItems.Add("application-title", iconfig.AppName)
 
 	baseValues := pages.NewBaseValues()

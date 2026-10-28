@@ -65,7 +65,7 @@ func (h *DownloaderHandlers) renderChannelPage(
 	systemInfo := h.downloader.SystemInfo()
 
 	baseValues := pages.NewBaseValues()
-	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(h.baseURL)
+	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(h.getBaseURL(ctx))
 
 	pagesListValues := pagesdata.BuildPagesListValues(authCtx, query, queryFilters, h.downloader)
 	pagesListValues.ResultNoRows = rowsBuf.Len() == 0
