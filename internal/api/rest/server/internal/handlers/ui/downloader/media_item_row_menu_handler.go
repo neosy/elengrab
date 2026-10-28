@@ -32,7 +32,7 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 		errorMessage = *downloadInfo.MediaDownload.ErrorMessage
 	}
 
-	link, _ := h.linkWeb.ResolveURL(ctx, h.buildMediaWatchURL(downloadInfo.DownloadID))
+	link, _ := h.linkWeb.ResolveURL(ctx, h.buildMediaWatchURL(ctx, downloadInfo.DownloadID))
 
 	extraData := make(map[string]any)
 	extraData[items.MenuActionsKey] = menu.RowMenuActions(

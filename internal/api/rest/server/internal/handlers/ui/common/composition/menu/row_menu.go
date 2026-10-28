@@ -84,7 +84,7 @@ var rowMenuActions = []rowMenuAction{
 	{
 		RenderType: renderTypeAction,
 		Action:     "share-link",
-		Title:      "Share link",
+		Title:      "Share",
 		Link: linkOptions{
 			URLTemplate: httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
 			Placeholder: RowMenuActionItemIDKey,
@@ -98,7 +98,7 @@ var rowMenuActions = []rowMenuAction{
 	{
 		RenderType: renderTypeAction,
 		Action:     rowMenuActionCreateLink,
-		Title:      "Create short link",
+		Title:      "Copy short link",
 		Link: linkOptions{
 			URLTemplate: httppaths.DownloaderGroup + httppaths.MediaItemShortLinkPath,
 			Placeholder: RowMenuActionItemIDKey,

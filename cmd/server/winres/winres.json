@@ -9,7 +9,11 @@
       "0409": {
         "identity": {
           "name": "Elengrab",
+<<<<<<< HEAD
           "version": "0.27.2.0"
+=======
+          "version": "0.28.0b.0"
+>>>>>>> 443120ca (Feature: Improve link creation and base URL resolution [L188])
         },
         "description": "Elengrab",
         "minimum-os": "win7",
@@ -33,22 +37,22 @@
     "#1": {
       "0000": {
         "fixed": {
-          "file_version": "0.27.2.0",
-          "product_version": "0.27.2.0"
+          "file_version": "0.28.0b.0",
+          "product_version": "0.28.0b.0"
         },
         "info": {
           "0409": {
             "Comments": "",
             "CompanyName": "",
             "FileDescription": "Elengrab",
-            "FileVersion": "0.27.2.0",
+            "FileVersion": "0.28.0b.0",
             "InternalName": "elengrab",
             "LegalCopyright": "Copyright © 2025–2026 Yury Savonin (Neosy)",
             "LegalTrademarks": "",
             "OriginalFilename": "elengrab.exe",
             "PrivateBuild": "",
             "ProductName": "Elengrab",
-            "ProductVersion": "0.27.2",
+            "ProductVersion": "0.28.0b",
             "SpecialBuild": ""
           }
         }

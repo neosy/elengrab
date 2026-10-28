@@ -2,7 +2,6 @@ package downloader
 
 import (
 	"bytes"
-	"context"
 	"html/template"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
@@ -13,10 +12,11 @@ import (
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) renderDownloadRows(
-	ctx context.Context,
+	ctx *fasthttp.RequestCtx,
 	buf *bytes.Buffer,
 	authCtx dauth.AuthContext,
 	query udto.MediaDownloadQuery,

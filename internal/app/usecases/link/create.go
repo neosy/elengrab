@@ -30,13 +30,6 @@ func (u *link) Create(ctx context.Context, req *dto.ShortLinkCreateRequest) (*dl
 	// Transform the incoming request into a domain model
 	link := u.mappers.MapLinkCreateRequestDtoToDomain(req)
 
-	// Set the default base URL from the configuration
-	baseURL := u.options.BaseURL
-	// If base_url is explicitly specified in the request, we use it instead of the default value
-	if req.BaseURL != nil && *req.BaseURL != "" {
-		baseURL = *req.BaseURL
-	}
-
 	// Set the default shortcode length from the configuration
 	shortCodeLength := u.options.ShortCodeLength
 	// If the request specifies the short_code length and it is greater than zero, we use it
@@ -50,7 +43,7 @@ func (u *link) Create(ctx context.Context, req *dto.ShortLinkCreateRequest) (*dl
 	}
 
 	// Create a record
-	link, err = u.link.Create(ctx, link, baseURL, shortCodeLength, deterministic)
+	link, err = u.link.Create(ctx, link, shortCodeLength, deterministic)
 	if err != nil {
 		return nil, err
 	}

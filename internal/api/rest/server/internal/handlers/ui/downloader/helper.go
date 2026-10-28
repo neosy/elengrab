@@ -3,6 +3,7 @@ package downloader
 import (
 	"context"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"hash/fnv"
 	"net/url"
@@ -27,6 +28,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
@@ -221,8 +223,43 @@ func mediaSourceFromURL(mediaURL string) string {
 	return mediaURL
 }
 
-func (h *DownloaderHandlers) buildMediaWatchURL(downloadID uuid.UUID) string {
-	return strings.TrimSuffix(h.baseURL, "/") +
+func (h *DownloaderHandlers) getBaseURL(ctx *fasthttp.RequestCtx) string {
+	if h.baseURL != "" {
+		return h.baseURL
+	}
+
+	if ctx == nil || len(ctx.Host()) == 0 {
+		return ""
+	}
+
+	scheme := "http"
+	if ctx.IsTLS() || fasthttpx.IsForwardedHTTPS(ctx) {
+		scheme = "https"
+	}
+
+	return scheme + "://" + string(ctx.Host())
+}
+
+func (h *DownloaderHandlers) ensureAbsoluteURL(ctx *fasthttp.RequestCtx, rawURL string) (string, error) {
+	parsedURL, err := url.Parse(rawURL)
+	if err != nil {
+		return "", fmt.Errorf("parse URL %q: %w", rawURL, err)
+	}
+
+	if parsedURL.IsAbs() {
+		return rawURL, nil
+	}
+
+	baseURL := h.getBaseURL(ctx)
+	if baseURL == "" {
+		return "", errors.New("base URL is empty")
+	}
+
+	return strings.TrimSuffix(baseURL, "/") + "/" + strings.TrimPrefix(rawURL, "/"), nil
+}
+
+func (h *DownloaderHandlers) buildMediaWatchURL(ctx *fasthttp.RequestCtx, downloadID uuid.UUID) string {
+	return strings.TrimSuffix(h.getBaseURL(ctx), "/") +
 		httppaths.BuildMediaItemPath(downloadID)
 }
 
@@ -250,8 +287,8 @@ func (h *DownloaderHandlers) buildVisibilityResponse(info *ucdto.MediaDownloadIn
 	return response
 }
 
-func (h *DownloaderHandlers) hasShareLink(ctx context.Context, downloadID uuid.UUID) bool {
-	link, _ := h.linkWeb.ResolveURL(ctx, h.buildMediaWatchURL(downloadID))
+func (h *DownloaderHandlers) hasShareLink(ctx *fasthttp.RequestCtx, downloadID uuid.UUID) bool {
+	link, _ := h.linkWeb.ResolveURL(ctx, h.buildMediaWatchURL(ctx, downloadID))
 	return link != nil
 }
 

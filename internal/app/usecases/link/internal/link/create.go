@@ -2,7 +2,6 @@ package link
 
 import (
 	"context"
-	"strings"
 
 	"uuid"
 
@@ -18,7 +17,6 @@ const maxGenShortCodeAttempts = 2
 func (u *Link) Create(
 	ctx context.Context,
 	link *dlink.Link,
-	baseURL string,
 	shortCodeLength uint8,
 	deterministic bool,
 ) (*dlink.Link, error) {
@@ -59,12 +57,6 @@ func (u *Link) Create(
 	} else {
 		link.ShortCode = dlink.GenerateShortCode(link.LinkID, link.OriginalURL, shortCodeLength, deterministic)
 	}
-
-	// Build the full short URL
-	if !strings.HasSuffix(baseURL, "/") {
-		baseURL += "/"
-	}
-	link.ShortURL = baseURL + link.ShortCode
 
 	// Insert the link into the repository
 	err := u.linkRepo().Insert(ctx, link)

@@ -20,9 +20,6 @@ type Link struct {
 	// Generated short code used in the shortened URL, e.g., "abc123
 	ShortCode string
 
-	// Full short URL, including domain, e.g., "https://s.nhub.ru/abc123"
-	ShortURL string
-
 	// Indicates if the full short URL should be used for exact match
 	IsMatchShortURL bool
 

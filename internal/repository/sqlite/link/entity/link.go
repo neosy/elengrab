@@ -21,9 +21,6 @@ type Link struct {
 	// Generated short code used in the shortened URL, e.g., "abc123
 	ShortCode string `db:"short_code"`
 
-	// Full short URL, including domain, e.g., "https://s.nhub.ru/abc123"
-	ShortURL string `db:"short_url"`
-
 	// Indicates if the full short URL should be used for exact match
 	IsMatchShortURL int `db:"is_match_short_url"`
 
