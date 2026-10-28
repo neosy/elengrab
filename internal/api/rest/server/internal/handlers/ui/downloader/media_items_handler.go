@@ -2,7 +2,6 @@ package downloader
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -106,7 +105,7 @@ func (h *DownloaderHandlers) mediaItemsPost(ctx *fasthttp.RequestCtx) {
 }
 
 func (h *DownloaderHandlers) renderDownloadItemList(
-	ctx context.Context,
+	ctx *fasthttp.RequestCtx,
 	buf *bytes.Buffer,
 	authCtx dauth.AuthContext,
 	query udto.MediaDownloadQuery,

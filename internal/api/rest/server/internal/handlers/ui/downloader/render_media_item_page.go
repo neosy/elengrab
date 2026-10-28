@@ -238,7 +238,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 
 	shortURL, _ := h.linkWeb.FindLastShortURL(
 		ctx,
-		h.buildMediaWatchURL(downloadInfo.DownloadID),
+		h.buildMediaWatchURL(ctx, downloadInfo.DownloadID),
 	)
 	if shortURL != "" {
 		mediaParameters = append(mediaParameters,
