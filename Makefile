@@ -96,6 +96,10 @@ git-push-update-tag-version: ## Update the Git tag for the current version
 
 update-app-version: ## Update AppVersion in Go
 	@sed -i "s|AppVersion = \".*\"|AppVersion = \"${VERSION}\"|" ./internal/config/consts.go
+	@sed -i 's|"file_version": "[^"]*"|"file_version": "${VERSION}.0"|' ./cmd/server/winres/winres.json
+	@sed -i 's|"product_version": "[^"]*"|"product_version": "${VERSION}.0"|' ./cmd/server/winres/winres.json
+	@sed -i 's|"FileVersion": "[^"]*"|"FileVersion": "${VERSION}.0"|' ./cmd/server/winres/winres.json
+	@sed -i 's|"ProductVersion": "[^"]*"|"ProductVersion": "${VERSION}"|' ./cmd/server/winres/winres.json
 
 version-create: ## Create a file with the application version number
 	echo -n $(VERSION_START) > $(VERSION_FILE)
