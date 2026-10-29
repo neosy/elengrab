@@ -2,16 +2,17 @@ package broadcaster
 
 import (
 	"sync"
+	"time"
 
 	"uuid"
 
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
-	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/types"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/domain/types/broadcast"
 	eventkey "github.com/neosy/elengrab/internal/domain/types/event_key"
+	dsse "github.com/neosy/elengrab/internal/domain/types/sse"
 )
 
 const broadcastChannelBufferSize = 100
@@ -30,7 +31,7 @@ func NewBroadcaster(authz *authz.Authorization) *Broadcaster {
 }
 
 func (b *Broadcaster) Subscribe(clientKey broadcast.ClientKey, roles dtypes.UserRoleIDs) subscription {
-	ch := make(chan dto.BroadcastEvent, broadcastChannelBufferSize)
+	ch := make(chan dsse.BroadcastEvent, broadcastChannelBufferSize)
 
 	subscription := subscription{
 		connectionID: clientKey.ConnectionID,
@@ -62,12 +63,15 @@ func (b *Broadcaster) Broadcast(eventType types.BroadcastEventType, data any) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
+	event := dsse.BroadcastEvent{
+		Type:      eventType,
+		Data:      data,
+		Timestamp: time.Now().UnixMicro(),
+	}
+
 	for _, subscription := range b.clients {
 		select {
-		case subscription.eventCh <- dto.BroadcastEvent{
-			Type: eventType,
-			Data: data,
-		}:
+		case subscription.eventCh <- event:
 			// sent successfully
 		default:
 			// skip if buffer is full
@@ -78,6 +82,12 @@ func (b *Broadcaster) Broadcast(eventType types.BroadcastEventType, data any) {
 func (b *Broadcaster) BroadcastPublic(key eventkey.EventKey, eventType types.BroadcastEventType, data any) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
+
+	event := dsse.BroadcastEvent{
+		Type:      eventType,
+		Data:      data,
+		Timestamp: time.Now().UnixMicro(),
+	}
 
 	for client, subscription := range b.clients {
 		allowed := client.EventKey.Type == key.Type && client.EventKey.ID == key.ID
@@ -94,11 +104,6 @@ func (b *Broadcaster) BroadcastPublic(key eventkey.EventKey, eventType types.Bro
 			continue
 		}
 
-		event := dto.BroadcastEvent{
-			Type: eventType,
-			Data: data,
-		}
-
 		select {
 		case subscription.eventCh <- event:
 			// sent successfully
@@ -112,16 +117,17 @@ func (b *Broadcaster) BroadcastByKey(key eventkey.EventKey, eventType types.Broa
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
+	event := dsse.BroadcastEvent{
+		Type:      eventType,
+		Data:      data,
+		Timestamp: time.Now().UnixMicro(),
+	}
+
 	for client, subscription := range b.clients {
 		allowed := client.EventKey.Type == key.Type && client.EventKey.ID == key.ID
 
 		if !allowed {
 			continue
-		}
-
-		event := dto.BroadcastEvent{
-			Type: eventType,
-			Data: data,
 		}
 
 		select {
@@ -137,6 +143,12 @@ func (b *Broadcaster) BroadcastByAccess(key eventkey.EventKey, eventType types.B
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
+	event := dsse.BroadcastEvent{
+		Type:      eventType,
+		Data:      data,
+		Timestamp: time.Now().UnixMicro(),
+	}
+
 	for client, subscription := range b.clients {
 		allowed := client.EventKey.Type == key.Type && client.EventKey.ID == key.ID
 
@@ -146,11 +158,6 @@ func (b *Broadcaster) BroadcastByAccess(key eventkey.EventKey, eventType types.B
 
 		if !allowed {
 			continue
-		}
-
-		event := dto.BroadcastEvent{
-			Type: eventType,
-			Data: data,
 		}
 
 		select {
