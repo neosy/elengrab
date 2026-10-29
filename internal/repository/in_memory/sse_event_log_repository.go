@@ -10,7 +10,7 @@ import (
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
 
-const defaultLenSseEventLog = 10
+const defaultLenSseEventLog = 1000
 
 type sseEventLog struct {
 	id      uuid.UUID // changes on every recreation of the log
