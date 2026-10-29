@@ -6,6 +6,9 @@
 - Improved link creation and base URL resolution. [L188]
 - The server stores up to 1,000 events per user and replays events missed during disconnection when the client reconnects, ensuring continuity of event delivery. [L190]
 
+### 🧩 Refactor
+- Simplified SSE event handling. [L191]
+
 ---
 
 ## v0.27.2 — 2026-10-28
