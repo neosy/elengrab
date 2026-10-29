@@ -12,6 +12,8 @@ type EventDownloadRowPatchResponse struct {
 	WatchPercent string             `json:"watchPercent,omitempty"`
 	Watched      *bool              `json:"watched,omitempty"`
 	ViewCount    *ViewCountResponse `json:"viewCount,omitempty"`
+
+	Timestamp int64 `json:"timestamp"`
 }
 
 type VisibilityResponse struct {
