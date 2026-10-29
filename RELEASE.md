@@ -4,7 +4,7 @@
 
 ### ✨ Features
 - Improved link creation and base URL resolution. [L188]
-- Added Last-Event-ID support for resuming SSE event streams after reconnection. [L190]
+- The server stores up to 1,000 events per user and replays events missed during disconnection when the client reconnects, ensuring continuity of event delivery. [L190]
 
 ---
 
