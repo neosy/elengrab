@@ -6,7 +6,7 @@ import (
 	"time"
 	"uuid"
 
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	dsse "github.com/neosy/elengrab/internal/domain/types/sse"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
 
@@ -15,7 +15,7 @@ const defaultLenSseEventLog = 1000
 type sseEventLog struct {
 	id      uuid.UUID // changes on every recreation of the log
 	lastNum int
-	items   []*dtypes.SSEEvent
+	items   []*dsse.Event
 
 	// uniqueIndex tracks uniqueness of event data: "userKey:dataHash"
 	uniqueIndex map[string]int
@@ -24,8 +24,20 @@ type sseEventLog struct {
 func newSseEventLog() *sseEventLog {
 	return &sseEventLog{
 		id:          uuid.New(),
-		items:       make([]*dtypes.SSEEvent, 0, defaultLenSseEventLog),
+		items:       make([]*dsse.Event, 0, defaultLenSseEventLog),
 		uniqueIndex: make(map[string]int),
+	}
+}
+
+// LastEventID returns the logID and the last event number of the log.
+func (l *sseEventLog) LastEventID() dsse.EventID {
+	if l == nil {
+		return dsse.EventID{}
+	}
+
+	return dsse.EventID{
+		LogID:  l.id,
+		LogNum: l.lastNum,
 	}
 }
 
@@ -61,10 +73,15 @@ func (r *sseEventLogRepository) Name() string {
 func (r *sseEventLogRepository) Push(
 	ctx context.Context,
 	key string,
-	event *dtypes.SSEEvent,
-) (logID uuid.UUID, logNum int, err error) {
+	event *dsse.Event,
+) (dsse.EventID, error) {
+	var (
+		eventIDNil dsse.EventID
+		eventID    dsse.EventID
+	)
+
 	if key == "" || event == nil {
-		return uuid.Nil(), 0, nil
+		return eventIDNil, nil
 	}
 
 	// Hash is computed once, outside the lock
@@ -79,8 +96,8 @@ func (r *sseEventLogRepository) Push(
 		if old != nil {
 			lastNum, exists := old.uniqueIndex[index]
 			if exists {
-				logID = old.id
-				logNum = lastNum
+				eventID.LogID = old.id
+				eventID.LogNum = lastNum
 				return nil
 			}
 
@@ -88,7 +105,7 @@ func (r *sseEventLogRepository) Push(
 
 			// Keep only the newest events
 			start := max(0, len(old.items)-defaultLenSseEventLog+1)
-			log.items = make([]*dtypes.SSEEvent, 0, defaultLenSseEventLog)
+			log.items = make([]*dsse.Event, 0, defaultLenSseEventLog)
 			log.items = append(log.items, old.items[start:]...)
 
 			// uniqueIndex is shared with the old log: it is only accessed under the mutex.
@@ -116,18 +133,18 @@ func (r *sseEventLogRepository) Push(
 			r.TTL(),
 		)
 
-		logID = log.id
-		logNum = log.lastNum
+		eventID.LogID = log.id
+		eventID.LogNum = log.lastNum
 
 		return nil
 	}
 
-	err = r.Repository.Save(ctx, save)
+	err := r.Repository.Save(ctx, save)
 	if err != nil {
-		return uuid.Nil(), 0, err
+		return eventIDNil, err
 	}
 
-	return logID, logNum, nil
+	return eventID, nil
 }
 
 // Delete removes the SSE event log for a given key from the repository.
@@ -148,7 +165,7 @@ func (r *sseEventLogRepository) Delete(ctx context.Context, key string) error {
 func (r *sseEventLogRepository) GetEvents(
 	ctx context.Context,
 	key string,
-) ([]*dtypes.SSEEvent, error) {
+) ([]*dsse.Event, error) {
 	log, err := r.Repository.Find(ctx, func() (*sseEventLog, error) {
 		data := r.cacheByKey.Find(key)
 		return data, nil
@@ -171,9 +188,8 @@ func (r *sseEventLogRepository) GetEvents(
 func (r *sseEventLogRepository) GetEventsAfter(
 	ctx context.Context,
 	key string,
-	logID uuid.UUID,
-	lastNum int,
-) (events []*dtypes.SSEEvent, resync bool, err error) {
+	eventID dsse.EventID,
+) (events []*dsse.Event, resync bool, err error) {
 	log, err := r.Repository.Find(ctx, func() (*sseEventLog, error) {
 		data := r.cacheByKey.Find(key)
 		return data, nil
@@ -183,13 +199,15 @@ func (r *sseEventLogRepository) GetEventsAfter(
 	}
 
 	if log == nil {
-		return nil, logID != uuid.Nil(), nil
+		return nil, !eventID.IsZero(), nil
 	}
 
 	// Log was recreated: the client's numbers belong to another log
-	if logID != log.id {
+	if eventID.LogID != log.id {
 		return nil, true, nil
 	}
+
+	lastNum := eventID.LogNum
 
 	if lastNum > log.lastNum {
 		return nil, true, nil
@@ -213,7 +231,7 @@ func (r *sseEventLogRepository) GetEventsAfter(
 func (r *sseEventLogRepository) GetPosition(
 	ctx context.Context,
 	key string,
-) (logID uuid.UUID, lastNum int) {
+) dsse.EventID {
 	log, _ := r.Repository.Find(ctx, func() (*sseEventLog, error) {
 		log := r.cacheByKey.FindNoClone(key)
 		if log == nil {
@@ -226,11 +244,7 @@ func (r *sseEventLogRepository) GetPosition(
 		}, nil
 	})
 
-	if log == nil {
-		return uuid.Nil(), 0
-	}
-
-	return log.id, log.lastNum
+	return log.LastEventID()
 }
 
 // CleanExpired cleans expired entries from the repository.

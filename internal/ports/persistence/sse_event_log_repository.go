@@ -2,9 +2,8 @@ package persistence
 
 import (
 	"context"
-	"uuid"
 
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	dsse "github.com/neosy/elengrab/internal/domain/types/sse"
 	"github.com/neosy/elengrab/internal/pkg/cache/memory"
 )
 
@@ -15,14 +14,14 @@ type SSEEventLogCacheRepository interface {
 	Push(
 		ctx context.Context,
 		key string,
-		event *dtypes.SSEEvent,
-	) (logID uuid.UUID, logNum int, err error)
+		event *dsse.Event,
+	) (dsse.EventID, error)
 
 	// GetEvents retrieves all events for a given key from the repository.
 	//
 	// The returned slice is a copy, but the events it points to are shared
 	// and MUST NOT be modified by the caller.
-	GetEvents(ctx context.Context, key string) ([]*dtypes.SSEEvent, error)
+	GetEvents(ctx context.Context, key string) ([]*dsse.Event, error)
 
 	// GetEventsAfter retrieves events with numbers greater than lastNum from the event log.
 	//
@@ -31,15 +30,14 @@ type SSEEventLogCacheRepository interface {
 	GetEventsAfter(
 		ctx context.Context,
 		key string,
-		logID uuid.UUID,
-		lastNum int,
-	) (events []*dtypes.SSEEvent, resync bool, err error)
+		eventID dsse.EventID,
+	) (events []*dsse.Event, resync bool, err error)
 
 	// GetPosition returns the logID and the last event number of the log for a key.
 	GetPosition(
 		ctx context.Context,
 		key string,
-	) (logID uuid.UUID, lastNum int)
+	) dsse.EventID
 
 	// CleanExpired cleans expired entries from the repository.
 	CleanExpired(ctx context.Context) error
