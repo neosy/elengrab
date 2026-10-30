@@ -1,10 +1,7 @@
 package uploadexecutor
 
 import (
-	"context"
 	"log/slog"
-
-	"uuid"
 
 	mediadownload "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download"
 	downloadstatus "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_download_status"
@@ -13,10 +10,6 @@ import (
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 	pstorage "github.com/neosy/elengrab/internal/ports/storage"
 )
-
-type Broadcaster struct {
-	MediaUpdated func(context.Context, uuid.UUID)
-}
 
 type Executor struct {
 	logger  *slog.Logger
