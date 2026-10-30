@@ -255,7 +255,7 @@ func (h *DownloaderHandlers) handleEvent(
 	case utypes.BroadcastEventTypeProgressUpdate:
 		h.handleProgressUpdate(w, event)
 	case utypes.BroadcastEventTypeDownloadStartRefreshing:
-		h.handleStartRefreshing(w, event)
+		h.handleStartRefreshing(ctx, authCtx, w, event)
 	case utypes.BroadcastEventTypeSystemInfoUpdate:
 		if h.downloader.HasWriteAccess(authCtx) {
 			h.handleSystemInfoUpdate(w, event)
@@ -464,7 +464,12 @@ func (h *DownloaderHandlers) handleProgressUpdate(w *bufio.Writer, event dsse.Br
 	_ = h.sendSSEEvent(w, event.Type.SSEEventName(), jsonData)
 }
 
-func (h *DownloaderHandlers) handleStartRefreshing(w *bufio.Writer, event dsse.BroadcastEvent) {
+func (h *DownloaderHandlers) handleStartRefreshing(
+	ctx *fasthttp.RequestCtx,
+	authCtx dauth.AuthContext,
+	w *bufio.Writer,
+	event dsse.BroadcastEvent,
+) {
 	downloadInfo, ok := event.Data.(*ucdto.MediaDownloadInfo)
 	if !ok {
 		return
@@ -481,7 +486,12 @@ func (h *DownloaderHandlers) handleStartRefreshing(w *bufio.Writer, event dsse.B
 		return
 	}
 
-	_ = h.sendSSEEvent(w, event.Type.SSEEventName(), jsonData)
+	sseEvent := dsse.Event{
+		Name: event.Type.SSEEventName(),
+		Data: jsonData,
+	}
+
+	_ = h.sendAndStoreSSEEvent(ctx, w, authCtx, sseEvent)
 }
 
 func (h *DownloaderHandlers) handleSystemInfoUpdate(w *bufio.Writer, event dsse.BroadcastEvent) {

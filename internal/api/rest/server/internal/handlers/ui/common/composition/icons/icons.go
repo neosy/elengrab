@@ -87,10 +87,11 @@ var (
 	}
 
 	downloaderIconsByMediaDownloadStatus = map[dtypes.MediaDownloadStatus]Icon{
-		dtypes.MediaDownloadStatusNew:     DownloadPendingIcon,
-		dtypes.MediaDownloadStatusPending: DownloadPendingIcon,
-		dtypes.MediaDownloadStatusDone:    DownloadIcon,
-		dtypes.MediaDownloadStatusFailed:  DownloadFailedIcon,
+		dtypes.MediaDownloadStatusNew:        DownloadPendingIcon,
+		dtypes.MediaDownloadStatusPending:    DownloadPendingIcon,
+		dtypes.MediaDownloadStatusDone:       DownloadIcon,
+		dtypes.MediaDownloadStatusFailed:     DownloadFailedIcon,
+		dtypes.MediaDownloadStatusRefreshing: DownloadIcon,
 	}
 )
 

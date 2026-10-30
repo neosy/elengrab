@@ -1,5 +1,5 @@
 {{- define "media-result-status" }}
-                        {{- if eq .Values.DownloadStatus "done" }}
+                        {{- if .Values.ShowDownloadLink }}
                         <div class="media-result__status">
                             <a class="media-result__download-link" 
                             href="{{ .Values.DownloadURL }}" 
@@ -17,7 +17,7 @@
                                 {{- end }}
                             </div>
                             {{- else }}
-                                {{- if and (eq .Values.DownloadStatus "failed") (eq .Values.SourceType "url") }}
+                                {{- if .Values.ShowRepeatButton }}
                                 <button class="media-result__status-button"
                                     hx-post="{{ .Values.DownloadRepeatPath }}"
                                     hx-swap="none">

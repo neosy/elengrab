@@ -205,7 +205,7 @@ func (uc *Executor) collectMetadata(
 }
 
 func (uc *Executor) fetchSourceMetadata(ctx context.Context, media *ddownload.MediaDownload) *sourceMetadata {
-	if media == nil || media.MediaURL == nil || *media.MediaURL == "" {
+	if media.SourceURL() == "" {
 		return nil
 	}
 

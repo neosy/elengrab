@@ -25,6 +25,9 @@ type (
 		IsReady         bool
 		HasShareLink    bool
 
+		ShowDownloadLink bool
+		ShowRepeatButton bool
+
 		SourceType string
 		IsUploaded bool
 

@@ -258,6 +258,7 @@ func NewDownloader(
 		taskexecutor.Broadcaster{
 			MediaUpdated:            downloader.broadcastMediaDownloadUpdated,
 			DownloadProgressUpdated: downloader.broadcastDownloadProgressUpdated,
+			StartRefreshing:         downloader.broadcastMediaDownloadStartRefreshing,
 		},
 
 		// Options
