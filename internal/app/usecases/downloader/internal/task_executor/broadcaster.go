@@ -7,6 +7,7 @@ import (
 )
 
 type Broadcaster struct {
-	MediaUpdated            func(context.Context, uuid.UUID)
-	DownloadProgressUpdated func(context.Context, uuid.UUID)
+	MediaUpdated            func(ctx context.Context, downloadID uuid.UUID)
+	DownloadProgressUpdated func(ctx context.Context, downloadID uuid.UUID)
+	StartRefreshing         func(ctx context.Context, downloadID uuid.UUID)
 }

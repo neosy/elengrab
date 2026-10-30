@@ -162,7 +162,7 @@ func (d *MediaDownload) FileExt() string {
 
 // SourceURL returns the media source URL, or an empty string for entries without one (e.g. uploads).
 func (d *MediaDownload) SourceURL() string {
-	if d.MediaURL == nil {
+	if d == nil || d.MediaURL == nil {
 		return ""
 	}
 	return *d.MediaURL
