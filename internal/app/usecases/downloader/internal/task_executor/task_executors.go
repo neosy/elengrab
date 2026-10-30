@@ -101,7 +101,8 @@ func NewTaskExecutors(
 
 		// Broadcaster
 		uploadexecutor.Broadcaster{
-			MediaUpdated: broadcaster.MediaUpdated,
+			MediaUpdated:    broadcaster.MediaUpdated,
+			StartRefreshing: broadcaster.StartRefreshing,
 		},
 	)
 

@@ -124,6 +124,15 @@ func (info *MediaDownloadInfo) IsUpload() bool {
 	return info.MediaDownload.SourceType == dtypes.MediaDownloadSourceTypeUpload
 }
 
+// IsURLSource reports whether the media was downloaded from a URL.
+// It returns false if info or its MediaDownload is nil.
+func (info *MediaDownloadInfo) IsURLSource() bool {
+	if info == nil || info.MediaDownload == nil {
+		return false
+	}
+	return info.MediaDownload.SourceType == dtypes.MediaDownloadSourceTypeURL
+}
+
 // WatchIndicatorEnabled reports whether the watch indicator
 // is enabled for this media.
 func (info *MediaDownloadInfo) WatchIndicatorEnabled() bool {
