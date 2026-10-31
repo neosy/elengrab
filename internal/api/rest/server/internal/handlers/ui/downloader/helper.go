@@ -127,7 +127,7 @@ func (h *DownloaderHandlers) parseSearchPostRequest(ctx *fasthttp.RequestCtx) (t
 	return h.parseSearchQueryString(ctx.PostArgs().String())
 }
 
-func (h *DownloaderHandlers) redirectGuestIfAuthRequired(ctx *fasthttp.RequestCtx) bool {
+func (h *DownloaderHandlers) redirectIfAuthRequired(ctx *fasthttp.RequestCtx) bool {
 	if h.appMode == dtypes.AppModeAuthenticated {
 		ctxUser := policy.ResolveUser(ctx)
 		if ctxUser == nil || ctxUser.UserType() < dtypes.UserTypeUser {

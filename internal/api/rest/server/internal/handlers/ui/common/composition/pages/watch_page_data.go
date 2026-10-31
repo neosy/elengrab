@@ -25,7 +25,7 @@ type (
 	}
 
 	WatchPageValues struct {
-		ItemID string
+		ItemURL string
 
 		IsVideoPlayer bool
 

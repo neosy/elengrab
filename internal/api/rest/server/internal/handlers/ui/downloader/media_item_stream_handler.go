@@ -9,7 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/valyala/fasthttp"
 )
@@ -20,7 +20,7 @@ func (h *DownloaderHandlers) MediaItemStreamHandler(ctx *fasthttp.RequestCtx) {
 
 	downloadID, err := h.extractDownloadID(ctx)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -30,7 +30,7 @@ func (h *DownloaderHandlers) MediaItemStreamHandler(ctx *fasthttp.RequestCtx) {
 func (h *DownloaderHandlers) ShortLinkStreamHandler(ctx *fasthttp.RequestCtx) {
 	_, downloadID, err := h.resolveShortLinkToDownloadID(ctx, false)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -55,7 +55,7 @@ func (h *DownloaderHandlers) stream(
 	}
 
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -67,7 +67,7 @@ func (h *DownloaderHandlers) stream(
 
 	// Check if the file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		nfasthttp.WriteErrorx(
+		fasthttpx.WriteErrorx(
 			ctx,
 			apierrors.ErrFileNotFound,
 		)
@@ -84,5 +84,5 @@ func (h *DownloaderHandlers) stream(
 	ctx.Response.Header.Set("Cache-Control", "public, max-age=3600")
 
 	// Stream the file directly (memory-efficient, supports Range)
-	nfasthttp.StreamFileDirect(ctx, filePath, contentType)
+	fasthttpx.StreamFileDirect(ctx, filePath, contentType)
 }

@@ -13,6 +13,10 @@ import (
 )
 
 func (h *DownloaderHandlers) UserDownloadsPageHandler(ctx *fasthttp.RequestCtx) {
+	if h.redirectIfAuthRequired(ctx) {
+		return
+	}
+
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
 	login, ok := ctx.UserValue(qkeys.UserLoginKey.String()).(string)

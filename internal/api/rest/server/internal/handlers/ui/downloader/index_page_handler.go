@@ -14,17 +14,12 @@ import (
 
 // IndexHandlers serves the main page (index.html)
 func (h *DownloaderHandlers) IndexPageHandler(ctx *fasthttp.RequestCtx) {
-	if ctx.IsHead() {
-		fasthttpx.WriteHTMLHeadResponse(ctx)
-		return
-	}
-
 	defer debugx.DumpGoroutinesIfTimeout(
 		fmt.Sprintf("IndexPageHandler [%s %s]", ctx.Method(), ctx.Path()),
 		5*time.Second,
 	)()
 
-	if h.redirectGuestIfAuthRequired(ctx) {
+	if h.redirectIfAuthRequired(ctx) {
 		return
 	}
 

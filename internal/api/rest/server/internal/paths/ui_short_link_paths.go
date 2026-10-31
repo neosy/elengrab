@@ -10,12 +10,17 @@ const (
 	// Paths short links, e.g. /s/{shortCode}
 	ShortLinkPath = "/{shortCode}"
 
-	ShortLinkStreamPath = ShortLinkPath + "/stream"
-	ShortLinkImagePath  = ShortLinkPath + "/image"
+	ShortLinkStreamPath        = ShortLinkPath + "/stream"
+	ShortLinkWatchTrackingPath = ShortLinkPath + "/watch-tracking"
+	ShortLinkImagePath         = ShortLinkPath + "/image"
 )
 
 func buildShortLinkPath(shortLinkPrefix, path, shortCode string) string {
 	return shortLinkPrefix + strings.Replace(path, "{shortCode}", shortCode, 1)
+}
+
+func BuildShortLinkPath(shortLinkPrefix, shortCode string) string {
+	return shortLinkPrefix + strings.Replace(ShortLinkPath, "{shortCode}", shortCode, 1)
 }
 
 func BuildShortLinkStreamPath(shortLinkPrefix, shortCode string) string {

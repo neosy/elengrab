@@ -15,11 +15,6 @@ func (h *DownloaderHandlers) DeleteUploadedFileHandler(ctx *fasthttp.RequestCtx)
 		return
 	}
 
-	if ctx.IsHead() {
-		fasthttpx.WriteHTMLHeadResponse(ctx)
-		return
-	}
-
 	fileID, err := h.extractFileID(ctx)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)

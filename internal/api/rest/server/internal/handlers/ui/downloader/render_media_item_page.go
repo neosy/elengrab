@@ -21,7 +21,6 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
-	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
 
@@ -39,11 +38,6 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 	ctx *fasthttp.RequestCtx,
 	req renderWatchPageRequest,
 ) {
-	if ctx.IsHead() {
-		fasthttpx.WriteHTMLHeadResponse(ctx)
-		return
-	}
-
 	var downloadInfo *dto.MediaDownloadInfo
 
 	if req.shortLink != nil {
@@ -266,7 +260,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 			StreamURL:   streamURLPath,
 		},
 		Values: pages.WatchPageValues{
-			ItemID:               idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
+			ItemURL:              req.pageURL,
 			ShowBackButton:       req.showBackButton,
 			IsVideoPlayer:        isVideoPlayer,
 			MediaTitle:           downloadInfo.MediaTitle,

@@ -16,12 +16,15 @@ export const API_PATHS = {
     downloaderItems: "/downloader/items",
     downloaderSearch: "/downloader/search",
     downloaderUpload: "/downloader/upload",
+    watchTracking: "/watch-tracking",
+    watchPosition: "/watch-position",
 }
 
 // Internal API request path templates.
 export const API_PATH_TEMPLATES = {
-    downloaderWatchTracking: "/downloader/items/{itemId}/watch-tracking",
-    downloaderWatchPosition: "/downloader/items/{itemId}/watch-position",
+    downloaderItemId: "/downloader/items/{itemId}",
+    downloaderWatchTracking: "/downloader/items/{itemId}" + API_PATHS.watchTracking,
+    downloaderWatchPosition: "/downloader/items/{itemId}" + API_PATHS.watchPosition,
 }
 
 export const CLASS_PREFIXES = {

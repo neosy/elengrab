@@ -73,10 +73,10 @@ function initPlayer() {
         }, { once: true });
     });
 
-    const itemId = DOM_ELEMENTS.mainContentPlayer?.dataset.itemId;
+    const itemUrl = DOM_ELEMENTS.mainContentPlayer?.dataset.itemUrl;
 
-    if (itemId) {
-        const watchTracker = new watchAPI.MediaWatchTracker(DOM_ELEMENTS.player, itemId);
+    if (itemUrl) {
+        const watchTracker = new watchAPI.MediaWatchTracker(DOM_ELEMENTS.player, null, itemUrl);
         watchTracker.init();        
     }
 }

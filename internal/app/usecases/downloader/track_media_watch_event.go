@@ -14,10 +14,27 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 )
 
-func (uc *downloader) TrackMediaWatchEvent(
+func (u *downloader) TrackMediaWatchEvent(
 	ctx context.Context,
 	authCtx dauth.AuthContext,
 	req dto.TrackMediaWatchEventRequest,
+) error {
+	return u.trackMediaWatchEvent(ctx, authCtx, req, false)
+}
+
+func (u *downloader) TrackMediaWatchEventUnrestricted(
+	ctx context.Context,
+	authCtx dauth.AuthContext,
+	req dto.TrackMediaWatchEventRequest,
+) error {
+	return u.trackMediaWatchEvent(ctx, authCtx, req, true)
+}
+
+func (uc *downloader) trackMediaWatchEvent(
+	ctx context.Context,
+	authCtx dauth.AuthContext,
+	req dto.TrackMediaWatchEventRequest,
+	unrestricted bool,
 ) error {
 	if req.DownloadID == uuid.Nil() {
 		uc.logger.Warn("Id for the DownloadID field is not defined")
@@ -40,8 +57,10 @@ func (uc *downloader) TrackMediaWatchEvent(
 		return apperrors.ErrDownloadNotFound
 	}
 
-	if !uc.authz.HasMediaDownloadViewAccess(authCtx, mediaDownload) {
-		return ierrors.ErrAccessDenied
+	if !unrestricted {
+		if !uc.authz.HasMediaDownloadViewAccess(authCtx, mediaDownload) {
+			return ierrors.ErrAccessDenied
+		}
 	}
 
 	var mediaDuration time.Duration

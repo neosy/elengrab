@@ -8,8 +8,7 @@ import (
 )
 
 func (h *DownloaderHandlers) MediaItemPageByDownloadIDHandler(ctx *fasthttp.RequestCtx) {
-	if ctx.IsHead() {
-		fasthttpx.WriteHTMLHeadResponse(ctx)
+	if h.redirectIfAuthRequired(ctx) {
 		return
 	}
 
