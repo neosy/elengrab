@@ -17,6 +17,13 @@ type AuthContext struct {
 	GuestCreated bool
 }
 
+func AuthContextNil() AuthContext {
+	return AuthContext{
+		UserID:  AnonymousUserID(),
+		RoleIDs: nil,
+	}
+}
+
 func AuthContextAnonymous(anonSessionID uuid.UUID) AuthContext {
 	return AuthContext{
 		UserID:        AnonymousUserID(),

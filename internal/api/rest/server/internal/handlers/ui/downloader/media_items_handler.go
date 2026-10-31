@@ -26,11 +26,6 @@ import (
 )
 
 func (h *DownloaderHandlers) MediaItemsHandler(ctx *fasthttp.RequestCtx) {
-	if ctx.IsHead() {
-		fasthttpx.WriteHTMLHeadResponse(ctx)
-		return
-	}
-
 	if ctx.IsGet() {
 		h.mediaItemsGet(ctx)
 		return

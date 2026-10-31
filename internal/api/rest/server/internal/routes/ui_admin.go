@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/admin"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 )
 
@@ -14,10 +15,10 @@ func (r *routes) registerUIAdmin(handlers *admin.AdminHandlers) {
 	g := nfasthttp.NewRouterGroup(httppaths.AdminGroup, r.router)
 	g.Use(middlewareError, r.middlewares.Auth.AuthOrAnonym)
 	{
-		g.HEAD("", handlers.AdminPageHandler)
+		g.HEAD("", fasthttpx.HTMLHeadHandler)
 		g.GET("", handlers.AdminPageHandler)
 
-		g.HEAD(httppaths.UsersPath, handlers.AdminPageHandler)
+		g.HEAD(httppaths.UsersPath, fasthttpx.HTMLHeadHandler)
 		g.GET(httppaths.UsersPath, handlers.AdminPageHandler)
 	}
 
@@ -25,10 +26,10 @@ func (r *routes) registerUIAdmin(handlers *admin.AdminHandlers) {
 	g = nfasthttp.NewRouterGroup(httppaths.AdminGroup, r.router)
 	g.Use(middlewareError, r.middlewares.Auth.RequireAdmin)
 	{
-		g.HEAD(httppaths.UserDetailPath, handlers.UserDetailHandler)
+		g.HEAD(httppaths.UserDetailPath, fasthttpx.HTMLHeadHandler)
 		g.GET(httppaths.UserDetailPath, handlers.UserDetailHandler)
 
-		g.HEAD(httppaths.UserTableRowPath, handlers.UserTableRowHandler)
+		g.HEAD(httppaths.UserTableRowPath, fasthttpx.HTMLHeadHandler)
 		g.GET(httppaths.UserTableRowPath, handlers.UserTableRowHandler)
 
 		g.POST(httppaths.UserRolesPath, handlers.SetUserRolesHandler)

@@ -10,11 +10,6 @@ import (
 )
 
 func (h *DownloaderHandlers) GetShareLinkHandler(ctx *fasthttp.RequestCtx) {
-	if ctx.IsHead() {
-		fasthttpx.WriteHTMLHeadResponse(ctx)
-		return
-	}
-
 	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
 	if !ok || downloadIDStr == "" {
 		fasthttpx.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)

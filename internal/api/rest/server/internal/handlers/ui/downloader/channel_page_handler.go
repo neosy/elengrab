@@ -13,6 +13,10 @@ import (
 )
 
 func (h *DownloaderHandlers) ChannelPageHandler(ctx *fasthttp.RequestCtx) {
+	if h.redirectIfAuthRequired(ctx) {
+		return
+	}
+
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
 	channelID, err := h.extractChannelID(ctx)

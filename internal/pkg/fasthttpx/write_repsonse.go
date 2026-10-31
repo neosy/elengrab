@@ -31,9 +31,3 @@ func WriteResponse(ctx *fasthttp.RequestCtx, data any) error {
 
 	return nil
 }
-
-// WriteHTMLHeadResponse writes a 200 OK response with an HTML Content-Type for HEAD requests.
-func WriteHTMLHeadResponse(ctx *fasthttp.RequestCtx) {
-	ctx.SetContentType(mime.TypeByExtension(".html"))
-	ctx.SetStatusCode(fasthttp.StatusOK)
-}

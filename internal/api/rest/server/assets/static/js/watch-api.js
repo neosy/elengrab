@@ -1,4 +1,4 @@
-import { MEDIA_WATCH, API_PATH_TEMPLATES } from './constants.js';
+import { MEDIA_WATCH, API_PATHS, API_PATH_TEMPLATES } from './constants.js';
 
 /**
  * Gets the saved watch position for a media item.
@@ -52,13 +52,14 @@ export const MEDIA_WATCH_EVENT = {
 };
 
 export class MediaWatchTracker {
-    constructor(video, itemId) {
+    constructor(video, itemId = "", itemUrl = "") {
         this.video = video;
 
         this.itemId = null;
-        if (itemId) {
-            this.itemId = itemId;
-        }
+        if (itemId) this.itemId = itemId;
+
+        this.itemUrl = null;
+        if (itemUrl) this.itemUrl = itemUrl;
 
         // Single timer of the send chain (early send, then regular heartbeats).
         this.heartbeatTimer = null;
@@ -85,6 +86,10 @@ export class MediaWatchTracker {
     }
 
     getWatchEventUrl() {
+        if (this.itemUrl) {
+            return this.itemUrl + API_PATHS.watchTracking;
+        }
+
         if (!this.itemId) {
             return null;
         }

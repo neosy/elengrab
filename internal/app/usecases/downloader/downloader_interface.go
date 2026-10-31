@@ -115,6 +115,7 @@ type DownloaderAPI interface {
 	GetChannelImage(ctx context.Context, channel *dmedia.Channel) (*dtypes.ImageData, error)
 	GetSiteImage(ctx context.Context, url string) (*dtypes.ImageData, error)
 	TrackMediaWatchEvent(ctx context.Context, authCtx dauth.AuthContext, req dto.TrackMediaWatchEventRequest) error
+	TrackMediaWatchEventUnrestricted(ctx context.Context, authCtx dauth.AuthContext, req dto.TrackMediaWatchEventRequest) error
 	SystemInfo() dto.SystemInfoResponse
 }
 
