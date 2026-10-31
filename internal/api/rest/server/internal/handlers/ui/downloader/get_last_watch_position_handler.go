@@ -11,11 +11,6 @@ import (
 )
 
 func (h *DownloaderHandlers) GetLastWatchPositionHandler(ctx *fasthttp.RequestCtx) {
-	if ctx.IsHead() {
-		fasthttpx.WriteHTMLHeadResponse(ctx)
-		return
-	}
-
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
 	downloadIDStr, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)

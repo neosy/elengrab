@@ -26,11 +26,6 @@ func (h *DownloaderHandlers) UploadFileHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	if ctx.IsHead() {
-		fasthttpx.WriteHTMLHeadResponse(ctx)
-		return
-	}
-
 	boundary := ctx.Request.Header.MultipartFormBoundary()
 	if len(boundary) == 0 {
 		fasthttpx.WriteErrorx(ctx, errorx.NewMessage("Expected a multipart/form-data request.", exceptions.INVALID_REQUEST))

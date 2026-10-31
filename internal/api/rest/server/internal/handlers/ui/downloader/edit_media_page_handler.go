@@ -11,11 +11,6 @@ import (
 )
 
 func (h *DownloaderHandlers) EditMediaPageByDownloadIDHandler(ctx *fasthttp.RequestCtx) {
-	if ctx.IsHead() {
-		fasthttpx.WriteHTMLHeadResponse(ctx)
-		return
-	}
-
 	authCtx, err := policy.ResolveUserOrFallback(ctx, h.appMode)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, err)

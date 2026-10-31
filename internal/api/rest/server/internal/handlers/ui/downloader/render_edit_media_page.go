@@ -25,11 +25,6 @@ func (h *DownloaderHandlers) renderEditMediaPage(
 	ctx *fasthttp.RequestCtx,
 	req renderEditMediaPageRequest,
 ) {
-	if ctx.IsHead() {
-		fasthttpx.WriteHTMLHeadResponse(ctx)
-		return
-	}
-
 	downloadInfo, err := h.downloader.GetDownloadInfoForEdit(ctx, req.authCtx, req.downloadID)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, err)
