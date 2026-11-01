@@ -58,6 +58,11 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 		}
 	}
 
+	if ctx.IsHead() {
+		fasthttpx.WriteHTMLHeadResponse(ctx)
+		return
+	}
+
 	var (
 		format        = "-"
 		videoQuality  string

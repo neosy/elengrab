@@ -10,21 +10,25 @@ import (
 func (r *routes) registerUIRoot(handlers *downloader.DownloaderHandlers) {
 	middlewareError := r.middlewares.Error.ErrorHandler
 
-	// With middleware (error, auth or anonym)
+	// Without middleware
 	g := fasthttpx.NewRouterGroup("", r.router)
-	g.Use(middlewareError, r.middlewares.Auth.AuthOrAnonym)
 	{
-		// Index
-		r.router.HEAD(httppaths.IndexPath, fasthttpx.HTMLHeadHandler)
-		g.GET(httppaths.IndexPath, handlers.IndexPageHandler)
-
 		// /favicon.ico
-		r.router.HEAD(httppaths.RootFaviconICOPath, fasthttpx.HTMLHeadHandler)
+		g.HEAD(httppaths.RootFaviconICOPath, handlers.AssetFaviconHandler)
 		g.GET(httppaths.RootFaviconICOPath, handlers.AssetFaviconHandler)
 
 		// /robots.txt
-		r.router.HEAD(httppaths.RootRobotsTxtPath, fasthttpx.HTMLHeadHandler)
+		g.HEAD(httppaths.RootRobotsTxtPath, handlers.AssetRobotsHandler)
 		g.GET(httppaths.RootRobotsTxtPath, handlers.AssetRobotsHandler)
+	}
+
+	// With middleware (error, auth or anonym)
+	g = fasthttpx.NewRouterGroup("", r.router)
+	g.Use(middlewareError, r.middlewares.Auth.AuthOrAnonym)
+	{
+		// Index
+		g.HEAD(httppaths.IndexPath, handlers.IndexPageHandler)
+		g.GET(httppaths.IndexPath, handlers.IndexPageHandler)
 	}
 
 	// User downloads
@@ -33,7 +37,7 @@ func (r *routes) registerUIRoot(handlers *downloader.DownloaderHandlers) {
 		g := fasthttpx.NewRouterGroup("", r.router)
 		g.Use(middlewareError, r.middlewares.Auth.AuthOrAnonym)
 		{
-			g.HEAD(httppaths.RootUserLoginPath, fasthttpx.HTMLHeadHandler)
+			g.HEAD(httppaths.RootUserLoginPath, handlers.UserDownloadsPageHandler)
 			g.GET(httppaths.RootUserLoginPath, handlers.UserDownloadsPageHandler)
 		}
 	}

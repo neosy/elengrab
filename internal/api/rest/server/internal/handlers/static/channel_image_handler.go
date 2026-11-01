@@ -38,18 +38,31 @@ func (h *StaticHandlers) ChannelImageHandler(ctx *fasthttp.RequestCtx) {
 		image, _ = h.downloader.GetSiteImage(ctx, channel.SiteURL())
 	}
 
-	if !image.IsZero() {
-		ctx.SetContentType(httpx.ContentTypeByExt(image.Format.String()))
-		ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
-		ctx.SetBody(image.Raw)
+	if image.IsZero() {
+		defaultAvatarSVG := icons.MediaDefaultIcon.FileRaw()
+
+		ctx.SetContentType("image/svg+xml")
 		ctx.SetStatusCode(fasthttp.StatusOK)
+		ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
+		ctx.Response.Header.SetContentLength(len(defaultAvatarSVG))
+
+		if ctx.IsHead() {
+			return
+		}
+
+		ctx.SetBody([]byte(defaultAvatarSVG))
+
 		return
 	}
 
-	defaultAvatarSVG := icons.MediaDefaultIcon.FileRaw()
-
-	ctx.SetContentType("image/svg+xml")
-	ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
-	ctx.SetBody([]byte(defaultAvatarSVG))
+	ctx.SetContentType(httpx.ContentTypeByExt(image.Format.String()))
 	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
+	ctx.Response.Header.SetContentLength(len(image.Raw))
+
+	if ctx.IsHead() {
+		return
+	}
+
+	ctx.SetBody(image.Raw)
 }

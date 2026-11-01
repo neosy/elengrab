@@ -8,6 +8,7 @@
 
 ### 🧩 Refactor
 - Simplified SSE event handling. [L191]
+- Improved HEAD request handling and added caching headers to image responses.
 
 ---
 

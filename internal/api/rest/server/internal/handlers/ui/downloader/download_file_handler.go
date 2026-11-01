@@ -6,7 +6,7 @@ import (
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
@@ -18,20 +18,20 @@ func (h *DownloaderHandlers) DownloadFileHandler(ctx *fasthttp.RequestCtx) {
 	// Get the file name from the query parameter
 	downloadIDStr := string(ctx.QueryArgs().Peek(qkeys.DownloadIDKey.String()))
 	if downloadIDStr == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
+		fasthttpx.WriteErrorx(ctx, apierrors.ErrDownloadIDIsRequired)
 		return
 	}
 
 	downloadID, err := idcodec.DecodeUUIDBase64URL(downloadIDStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
+		fasthttpx.WriteErrorx(ctx, apierrors.ErrDownloadIDIsIncorrect.Wrap(err))
 		return
 	}
 
 	// Build the full path to the download
 	downloadInfo, err := h.downloader.GetDownloadInfo(ctx, ctxUser, downloadID)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -42,7 +42,7 @@ func (h *DownloaderHandlers) DownloadFileHandler(ctx *fasthttp.RequestCtx) {
 
 	// Check if the file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrFileNotFound.Wrap(err))
+		fasthttpx.WriteErrorx(ctx, apierrors.ErrFileNotFound.Wrap(err))
 		return
 	}
 
@@ -50,5 +50,5 @@ func (h *DownloaderHandlers) DownloadFileHandler(ctx *fasthttp.RequestCtx) {
 	contentType := httpx.ContentTypeByExt(downloadInfo.FileExtNoDot, httpx.ContentTypeOptionWithIsAudio(downloadInfo.IsAudioOnly()))
 
 	// Send file via streaming
-	nfasthttp.SendFileDirect(ctx, filePath, downloadInfo.SafeReadableName, contentType)
+	fasthttpx.SendFileDirect(ctx, filePath, downloadInfo.SafeReadableName, contentType)
 }

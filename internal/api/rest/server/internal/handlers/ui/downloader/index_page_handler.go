@@ -37,5 +37,10 @@ func (h *DownloaderHandlers) IndexPageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if ctx.IsHead() {
+		fasthttpx.WriteHTMLHeadResponse(ctx)
+		return
+	}
+
 	h.renderIndexPage(ctx, authCtx, query)
 }

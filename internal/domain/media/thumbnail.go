@@ -2,6 +2,8 @@ package dmedia
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"time"
 
@@ -170,4 +172,17 @@ func (t *Thumbnail) IsPortrait() bool {
 	}
 
 	return *t.Width < *t.Height
+}
+
+// ETag returns an opaque entity tag that changes whenever the thumbnail
+// content may have changed. It does not expose the storage key.
+func (t *Thumbnail) ETag() string {
+	sum := sha256.Sum256(fmt.Appendf(nil,
+		"%s|%d|%d",
+		t.StorageKey,
+		t.Version,
+		t.UpdatedAt.UnixNano(),
+	))
+
+	return `"` + hex.EncodeToString(sum[:8]) + `"`
 }

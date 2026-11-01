@@ -87,7 +87,7 @@ func (h *StaticHandlers) newFSHandler(name string, httpPath string) fasthttp.Req
 		path := httppaths.StaticGroup + "/" + httpPath
 
 		pathSuffix := string(ctx.Path()[len(path):])
-		fileName, _ := strings.CutPrefix(pathSuffix, "/")
+		fileName := strings.TrimPrefix(filepath.Clean(pathSuffix), string(filepath.Separator))
 
 		matches := re.FindStringSubmatch(fileName)
 		if len(matches) == 4 {

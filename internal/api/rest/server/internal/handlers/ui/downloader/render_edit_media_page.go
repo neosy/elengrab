@@ -31,6 +31,11 @@ func (h *DownloaderHandlers) renderEditMediaPage(
 		return
 	}
 
+	if ctx.IsHead() {
+		fasthttpx.WriteHTMLHeadResponse(ctx)
+		return
+	}
+
 	baseValues := pages.NewBaseValues()
 	baseValues.Title = downloadInfo.MediaTitle
 

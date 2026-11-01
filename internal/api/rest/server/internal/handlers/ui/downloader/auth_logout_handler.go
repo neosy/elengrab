@@ -4,13 +4,13 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/middleware/auth"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) AuthLogoutHandler(ctx *fasthttp.RequestCtx) {
-	if err := nfasthttp.EnforceHTTPS(ctx); err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+	if err := fasthttpx.EnforceHTTPS(ctx); err != nil {
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -18,5 +18,6 @@ func (h *DownloaderHandlers) AuthLogoutHandler(ctx *fasthttp.RequestCtx) {
 	if ctxUser != nil {
 		authmw.CookieSessionTokenKey.DeleteWithSecure(ctx)
 	}
+
 	ctx.Redirect(httppaths.IndexPath, fasthttp.StatusFound)
 }

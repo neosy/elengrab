@@ -31,6 +31,11 @@ func (h *DownloaderHandlers) ChannelPageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if ctx.IsHead() {
+		fasthttpx.WriteHTMLHeadResponse(ctx)
+		return
+	}
+
 	searchValues, err := h.parseSearchGetRequest(ctx)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))

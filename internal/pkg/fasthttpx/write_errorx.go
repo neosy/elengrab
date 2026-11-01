@@ -83,6 +83,12 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 		message = "Internal Server Error"
 	}
 
+	ctx.SetStatusCode(httpStatus)
+
+	if ctx.IsHead() {
+		return
+	}
+
 	errorResponse := WriteErrorxResponse{
 		HTTPStatus: httpStatus,
 		Code:       exceptionCode,
@@ -92,7 +98,6 @@ func WriteErrorx(ctx *fasthttp.RequestCtx, err error) {
 		Timestamp:  time.Now().Format(time.RFC3339),
 	}
 
-	ctx.SetStatusCode(httpStatus)
 	ctx.SetContentType(mime.TypeByExtension(".json"))
 
 	errorResponseJSON, err := json.Marshal(errorResponse)

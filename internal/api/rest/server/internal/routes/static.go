@@ -8,11 +8,8 @@ import (
 
 // registerStatic register Static routes.
 func (r *routes) registerStatic(handlers *static.StaticHandlers) {
-	middlewareError := r.middlewares.Error.ErrorHandler
-
 	// Static with middleware (error)
 	g := fasthttpx.NewRouterGroup(httppaths.StaticGroup, r.router)
-	g.Use(middlewareError)
 	{
 		g.HEAD(httppaths.CssFilesPath, fasthttpx.CSSHeadHandler)
 		g.GET(httppaths.CssFilesPath, handlers.StaticCssHandler)
@@ -20,22 +17,22 @@ func (r *routes) registerStatic(handlers *static.StaticHandlers) {
 		g.HEAD(httppaths.JsFilesPath, fasthttpx.JSHeadHandler)
 		g.GET(httppaths.JsFilesPath, handlers.StaticJsHandler)
 
-		g.HEAD(httppaths.FontFilesPath, fasthttpx.HTMLHeadHandler)
+		g.HEAD(httppaths.FontFilesPath, handlers.StaticFontsHandler)
 		g.GET(httppaths.FontFilesPath, handlers.StaticFontsHandler)
 
-		g.HEAD(httppaths.PwaFilesPath, fasthttpx.HTMLHeadHandler)
+		g.HEAD(httppaths.PwaFilesPath, handlers.StaticPwaHandler)
 		g.GET(httppaths.PwaFilesPath, handlers.StaticPwaHandler)
 
-		g.HEAD(httppaths.ImageFilesPath, fasthttpx.HTMLHeadHandler)
+		g.HEAD(httppaths.ImageFilesPath, handlers.StaticImgHandler)
 		g.GET(httppaths.ImageFilesPath, handlers.StaticImgHandler)
 
-		g.HEAD(httppaths.IconFilesPath, fasthttpx.HTMLHeadHandler)
+		g.HEAD(httppaths.IconFilesPath, handlers.StaticIconHandler)
 		g.GET(httppaths.IconFilesPath, handlers.StaticIconHandler)
 
-		g.HEAD(httppaths.ThumbnailPath, fasthttpx.HTMLHeadHandler)
+		g.HEAD(httppaths.ThumbnailPath, handlers.ThumbnailHandler)
 		g.GET(httppaths.ThumbnailPath, handlers.ThumbnailHandler)
 
-		g.HEAD(httppaths.ChannelImagePath, fasthttpx.HTMLHeadHandler)
+		g.HEAD(httppaths.ChannelImagePath, handlers.ChannelImageHandler)
 		g.GET(httppaths.ChannelImagePath, handlers.ChannelImageHandler)
 	}
 }
