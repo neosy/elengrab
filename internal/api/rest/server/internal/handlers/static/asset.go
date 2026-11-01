@@ -2,7 +2,6 @@ package static
 
 import (
 	"context"
-	"mime"
 	"path"
 	"path/filepath"
 	"strings"
@@ -10,21 +9,11 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *StaticHandlers) newAssetHandler(subdirPath string) func(*fasthttp.RequestCtx) {
-	writeResponse := func(ctx *fasthttp.RequestCtx, fileName string, data []byte) {
-		contentType := mime.TypeByExtension(filepath.Ext(fileName))
-		if contentType == "" {
-			contentType = "application/octet-stream"
-		}
-
-		ctx.SetContentType(contentType)
-		ctx.SetStatusCode(fasthttp.StatusOK)
-		ctx.Write(data)
-	}
-
 	handler := func(ctx *fasthttp.RequestCtx) {
 		uri := string(ctx.RequestURI())
 
@@ -52,7 +41,14 @@ func (h *StaticHandlers) newAssetHandler(subdirPath string) func(*fasthttp.Reque
 			return
 		}
 
-		writeResponse(ctx, assetFile.FileName, assetFile.Raw)
+		ctx.SetContentType(httpx.ContentTypeByExt(filepath.Ext(assetFile.FileName)))
+		ctx.SetStatusCode(fasthttp.StatusOK)
+
+		if ctx.IsHead() {
+			return
+		}
+
+		ctx.Write(assetFile.Raw)
 	}
 
 	return handler

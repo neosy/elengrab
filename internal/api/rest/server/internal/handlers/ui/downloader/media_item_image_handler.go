@@ -85,8 +85,14 @@ func (h *DownloaderHandlers) renderMediaItemImage(ctx *fasthttp.RequestCtx, req 
 	if err == nil && imageData != nil && len(imageData.Raw) > 0 {
 		ctx.SetContentType(httpx.ContentTypeByExt(imageData.Format.String()))
 		ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
-		ctx.SetBody(imageData.Raw)
 		ctx.SetStatusCode(fasthttp.StatusOK)
+
+		if ctx.IsHead() {
+			return
+		}
+
+		ctx.SetBody(imageData.Raw)
+
 		return
 	}
 
@@ -110,6 +116,11 @@ func (h *DownloaderHandlers) renderMediaItemImage(ctx *fasthttp.RequestCtx, req 
 
 	ctx.SetContentType("image/svg+xml")
 	ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
-	ctx.SetBody([]byte(defaultImageSVG))
 	ctx.SetStatusCode(fasthttp.StatusOK)
+
+	if ctx.IsHead() {
+		return
+	}
+
+	ctx.SetBody([]byte(defaultImageSVG))
 }

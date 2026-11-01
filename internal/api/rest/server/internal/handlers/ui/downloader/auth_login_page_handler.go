@@ -14,13 +14,13 @@ import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) AuthLoginPageHandler(ctx *fasthttp.RequestCtx) {
-	if err := nfasthttp.EnforceHTTPS(ctx); err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+	if err := fasthttpx.EnforceHTTPS(ctx); err != nil {
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -35,9 +35,14 @@ func (h *DownloaderHandlers) AuthLoginPageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if ctx.IsHead() {
+		fasthttpx.WriteHTMLHeadResponse(ctx)
+		return
+	}
+
 	cssPaths, err := h.assetPaths.AuthPageCssPaths()
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -45,7 +50,7 @@ func (h *DownloaderHandlers) AuthLoginPageHandler(ctx *fasthttp.RequestCtx) {
 
 	jsScripts, err := h.assetPaths.AuthPageJsPaths(caps.IsLegacyWebKit)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -74,14 +79,14 @@ func (h *DownloaderHandlers) AuthLoginPageHandler(ctx *fasthttp.RequestCtx) {
 
 	// Execute template
 	if err := h.templates.Pages[pages.AuthLoginPage.Key()].ExecuteTemplate(ctx, pages.AuthLoginPage.Key(), pageData); err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
+		fasthttpx.WriteErrorx(ctx, errInternal(err))
 		return
 	}
 }
 
 func (h *DownloaderHandlers) AuthLoginSubmitHandler(ctx *fasthttp.RequestCtx) {
-	if err := nfasthttp.EnforceHTTPS(ctx); err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+	if err := fasthttpx.EnforceHTTPS(ctx); err != nil {
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -106,12 +111,12 @@ func (h *DownloaderHandlers) AuthLoginSubmitHandler(ctx *fasthttp.RequestCtx) {
 	// Register user and get response token
 	resp, err := h.authWeb.LoginUser(ctx, req)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
 	if resp == nil || resp.Token == nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrQueryReturnedEmptyResult)
+		fasthttpx.WriteErrorx(ctx, apierrors.ErrQueryReturnedEmptyResult)
 		return
 	}
 

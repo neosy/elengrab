@@ -37,6 +37,11 @@ func (h *DownloaderHandlers) GetShareLinkHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if ctx.IsHead() {
+		fasthttpx.WriteJSONHeadResponse(ctx)
+		return
+	}
+
 	h.downloader.NotifyDownloadUpdated(ctx, downloadID)
 
 	resp := dto.GetShareLinkResponse{

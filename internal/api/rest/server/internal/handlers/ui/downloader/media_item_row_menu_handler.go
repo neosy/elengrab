@@ -7,7 +7,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
@@ -17,13 +17,18 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 
 	downloadID, err := h.extractDownloadID(ctx)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
 	downloadInfo, err := h.downloader.GetDownloadInfo(ctx, authCtx, downloadID)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
+		return
+	}
+
+	if ctx.IsHead() {
+		fasthttpx.WriteHTMLHeadResponse(ctx)
 		return
 	}
 
@@ -56,8 +61,8 @@ func (h *DownloaderHandlers) MediaItemRowMenuHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Execute template
-	if err := h.templates.Base.ExecuteTemplate(ctx, components.MenuContentKey, pageData); err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
-		return
+	err = h.templates.Base.ExecuteTemplate(ctx, components.MenuContentKey, pageData)
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, errInternal(err))
 	}
 }
