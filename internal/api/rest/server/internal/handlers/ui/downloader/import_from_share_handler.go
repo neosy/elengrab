@@ -9,14 +9,14 @@ import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) ImportFromShareHandler(ctx *fasthttp.RequestCtx) {
 	ctxUser, err := policy.ResolveUserOrFallback(ctx, h.appMode)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -29,12 +29,12 @@ func (h *DownloaderHandlers) ImportFromShareHandler(ctx *fasthttp.RequestCtx) {
 
 	url = strings.TrimSpace(url)
 	if url == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrURLIsRequired)
+		fasthttpx.WriteErrorx(ctx, apierrors.ErrURLIsRequired)
 		return
 	}
 
 	if err := h.validators.Validate.Var(url, "url"); err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrInvalidURL.Wrap(err))
+		fasthttpx.WriteErrorx(ctx, apierrors.ErrInvalidURL.Wrap(err))
 		return
 	}
 
@@ -50,12 +50,12 @@ func (h *DownloaderHandlers) ImportFromShareHandler(ctx *fasthttp.RequestCtx) {
 		},
 	)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
 	if resp == nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrEmptyResponse)
+		fasthttpx.WriteErrorx(ctx, apierrors.ErrEmptyResponse)
 		return
 	}
 

@@ -21,7 +21,6 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
 	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
@@ -54,6 +53,11 @@ func (h *DownloaderHandlers) mediaItemsGet(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if ctx.IsHead() {
+		fasthttpx.WriteHTMLHeadResponse(ctx)
+		return
+	}
+
 	var bodyBuffer bytes.Buffer
 	err = h.renderDownloadItemList(ctx, &bodyBuffer, ctxUser, query)
 	if err != nil {
@@ -77,13 +81,13 @@ func (h *DownloaderHandlers) mediaItemsPost(ctx *fasthttp.RequestCtx) {
 
 	err = h.validators.Validate.Struct(postReq)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 		return
 	}
 
 	query, err := h.mappers.MapMediaItemsRequestToQuery(postReq)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 		return
 	}
 

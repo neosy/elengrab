@@ -31,6 +31,11 @@ func (h *DownloaderHandlers) GetLastWatchPositionHandler(ctx *fasthttp.RequestCt
 		return
 	}
 
+	if ctx.IsHead() {
+		fasthttpx.WriteJSONHeadResponse(ctx)
+		return
+	}
+
 	resp := dto.GetLastWatchPositionResponse{
 		DownloadID: idcodec.EncodeUUIDBase64URL(downloadID),
 		Position:   uint32(lastWatchPosition.Milliseconds()),

@@ -15,13 +15,13 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
 func (h *DownloaderHandlers) AuthRegisterPageHandler(ctx *fasthttp.RequestCtx) {
-	if err := nfasthttp.EnforceHTTPS(ctx); err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+	if err := fasthttpx.EnforceHTTPS(ctx); err != nil {
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -35,9 +35,14 @@ func (h *DownloaderHandlers) AuthRegisterPageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if ctx.IsHead() {
+		fasthttpx.WriteHTMLHeadResponse(ctx)
+		return
+	}
+
 	cssPaths, err := h.assetPaths.AuthPageCssPaths()
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -45,7 +50,7 @@ func (h *DownloaderHandlers) AuthRegisterPageHandler(ctx *fasthttp.RequestCtx) {
 
 	jsScripts, err := h.assetPaths.AuthPageJsPaths(caps.IsLegacyWebKit)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -66,14 +71,14 @@ func (h *DownloaderHandlers) AuthRegisterPageHandler(ctx *fasthttp.RequestCtx) {
 
 	// Execute template
 	if err := h.templates.Pages[pages.AuthRegisterPage.Key()].ExecuteTemplate(ctx, pages.AuthRegisterPage.Key(), pageData); err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
+		fasthttpx.WriteErrorx(ctx, errInternal(err))
 		return
 	}
 }
 
 func (h *DownloaderHandlers) AuthRegisterSubmitHandler(ctx *fasthttp.RequestCtx) {
-	if err := nfasthttp.EnforceHTTPS(ctx); err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+	if err := fasthttpx.EnforceHTTPS(ctx); err != nil {
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
@@ -92,7 +97,7 @@ func (h *DownloaderHandlers) AuthRegisterSubmitHandler(ctx *fasthttp.RequestCtx)
 
 	// Check if passwords match
 	if formPassword != formConfirmPassword {
-		nfasthttp.WriteErrorx(ctx, errorx.NewMessage(
+		fasthttpx.WriteErrorx(ctx, errorx.NewMessage(
 			"Passwords do not match. Please try again.", exceptions.INVALID_REQUEST))
 		return
 	}
@@ -105,12 +110,12 @@ func (h *DownloaderHandlers) AuthRegisterSubmitHandler(ctx *fasthttp.RequestCtx)
 	// Register user and get response token
 	resp, err := h.authWeb.RegisterUser(ctx, req)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
 	if resp == nil || resp.Token == nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrQueryReturnedEmptyResult)
+		fasthttpx.WriteErrorx(ctx, apierrors.ErrQueryReturnedEmptyResult)
 		return
 	}
 

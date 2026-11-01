@@ -27,8 +27,25 @@ func (h *StaticHandlers) ThumbnailHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	etag := thumbnail.ETag()
+
+	ctx.Response.Header.Set(fasthttp.HeaderETag, etag)
+	ctx.Response.Header.Set(fasthttp.HeaderCacheControl, "public, max-age=86400")
+	ctx.Response.Header.SetLastModified(thumbnail.UpdatedAt)
+
+	// Conditional request: the client already has this version
+	if string(ctx.Request.Header.Peek(fasthttp.HeaderIfNoneMatch)) == etag {
+		ctx.SetStatusCode(fasthttp.StatusNotModified)
+		return
+	}
+
 	ctx.SetContentType(httpx.ContentTypeByExt(thumbnail.Format.String()))
-	ctx.Response.Header.Set("Cache-Control", "public, max-age=86400")
-	ctx.SetBody(thumbnail.ImageRaw)
 	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.Response.Header.SetContentLength(len(thumbnail.ImageRaw))
+
+	if ctx.IsHead() {
+		return
+	}
+
+	ctx.SetBody(thumbnail.ImageRaw)
 }

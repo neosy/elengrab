@@ -8,7 +8,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/admin/dto"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
 	"github.com/valyala/fasthttp"
 )
@@ -16,19 +16,24 @@ import (
 func (h *AdminHandlers) UserTableRowHandler(ctx *fasthttp.RequestCtx) {
 	userIDStr, ok := ctx.UserValue(userIDKey).(string)
 	if !ok || userIDStr == "" {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrUserIDIsRequired)
+		fasthttpx.WriteErrorx(ctx, apierrors.ErrUserIDIsRequired)
 		return
 	}
 
 	userID, err := idcodec.DecodeUUIDBase64URL(userIDStr)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, apierrors.ErrUserIDIsIncorrect.Wrap(err))
+		fasthttpx.WriteErrorx(ctx, apierrors.ErrUserIDIsIncorrect.Wrap(err))
 		return
 	}
 
 	userInfo, err := h.usecases.admin.GetUserInfo(ctx, userID)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, err)
+		fasthttpx.WriteErrorx(ctx, err)
+		return
+	}
+
+	if ctx.IsHead() {
+		fasthttpx.WriteHTMLHeadResponse(ctx)
 		return
 	}
 
@@ -41,7 +46,7 @@ func (h *AdminHandlers) renderUserTableRow(ctx *fasthttp.RequestCtx, userInfo *u
 	var buf bytes.Buffer
 	err := h.templates.Base.ExecuteTemplate(&buf, components.AdminUsersPanelUserTableRowKey, data)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errTemplateInternal(err))
+		fasthttpx.WriteErrorx(ctx, errTemplateInternal(err))
 		return
 	}
 

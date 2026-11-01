@@ -49,5 +49,10 @@ func (h *DownloaderHandlers) UserDownloadsPageHandler(ctx *fasthttp.RequestCtx) 
 		return
 	}
 
+	if ctx.IsHead() {
+		fasthttpx.WriteHTMLHeadResponse(ctx)
+		return
+	}
+
 	h.renderUserDownloadsPage(ctx, authCtx, *user, query)
 }
