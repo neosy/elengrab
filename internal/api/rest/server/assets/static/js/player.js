@@ -7,6 +7,8 @@ import { CLASS_NAMES as CONST_CLASS_NAMES, MEDIA_WATCH, EVENT_NAMES } from './co
 import * as watchAPI from './watch-api.js';
 import * as playerUtils from './player-utils.js';
 
+const PLAYER_HASH = "#player"
+
 const CLASS_NAMES = {
     ...CONST_CLASS_NAMES,
 
@@ -90,15 +92,20 @@ const mediaPlayer = {
     playingRow: null,
     rowItemId: "",
 
+    unload() {
+        this.player?.removeAttribute("src");
+        this.player?.load();
+    },
+
     clear() {
         this.isAudio = false;
         this.isOpen = false;
 
         if (this.player) {
             if (this.player.paused) {
-                unloadMediaPlayer(this.player);
+                this.unload();
             } else {
-                this.player.addEventListener("pause", () => unloadMediaPlayer(this.player), { once: true });
+                this.player.addEventListener("pause", () => this.unload(), { once: true });
                 this.player.pause();
             }    
 
@@ -107,44 +114,83 @@ const mediaPlayer = {
 
         this.playingRow = null;
         this.rowItemId = "";
+
+        this.syncWithHash();
     },
 
-    isFullVideoPlayer() {
-        return this.isOpen && !this.isAudio && !isVideoPlayerMinimized()
-    },
-
-    isMinimizedVideoPlayer() {
-        return this.isOpen && !this.isAudio && isVideoPlayerMinimized();
+    isVideoPlayer() {
+        return this.isOpen && !this.isAudio;
     },
 
     isAudioPlayer() {
         return this.isOpen && this.isAudio;
     },
 
+    isMinimizedVideoPlayer() {
+        return this.isOpen && !this.isAudio && DOM_ELEMENTS.videoPlayerContainer.classList.contains(CLASS_NAMES.videoPlayerMinimized);
+    },
+
+    isFullVideoPlayer() {
+        return this.isOpen && !this.isAudio && !this.isMinimizedVideoPlayer();
+    },
+
     updateBodyState() {
         document.body.classList.toggle(CLASS_NAMES.body.playerPaused, this.player.paused);
         document.body.classList.toggle(CLASS_NAMES.body.playerSoundOn, !this.player.paused && !this.player.muted);
     },
+
+    updateBlockingState() {
+        document.documentElement.classList.toggle(CLASS_NAMES.ui.blockingActive, !this.isMinimizedVideoPlayer());
+    },
+
+    toggleMinimizeVideoPlayer() {
+        DOM_ELEMENTS.videoPlayerContainer.classList.toggle(CLASS_NAMES.videoPlayerMinimized);
+
+        const label = this.isMinimizedVideoPlayer() ? "Restore player" : "Minimize player";
+
+        DOM_ELEMENTS.videoPlayerMinimizeButton.title = label;
+        DOM_ELEMENTS.videoPlayerMinimizeButton.setAttribute("aria-label", label);
+
+        this.updateBlockingState();
+        this.syncWithHash();
+    },
+
+    // Returns true if the current URL hash matches the player hash.
+    isHash() {
+        return window.location.hash === PLAYER_HASH;
+    },
+
+    // Removes the hash from the URL if present, without adding a history entry.
+    clearHash() {
+        if (!this.isHash()) return;
+
+        history.replaceState(
+            history.state,
+            "",
+            window.location.pathname + window.location.search
+        );
+    },
+
+    // Player Overlay Functions
+    syncWithHash() {
+        if (!this.isOpen) {
+            this.clearHash();
+            return;
+        }
+
+        if (this.isAudio) {
+            this.clearHash();
+            return;
+        }
+
+        if (this.isMinimizedVideoPlayer()) {
+            this.clearHash();
+            return;
+        }
+        
+        history.pushState({ player: true }, "", PLAYER_HASH);
+    },
 };
-
-function updateBlockingState() {
-    document.documentElement.classList.toggle(CLASS_NAMES.ui.blockingActive, !isVideoPlayerMinimized());
-}    
-
-function toggleMinimizeVideoPlayer() {
-    DOM_ELEMENTS.videoPlayerContainer.classList.toggle(CLASS_NAMES.videoPlayerMinimized);
-
-    const label = mediaPlayer.isMinimizedVideoPlayer() ? "Restore player" : "Minimize player";
-
-    DOM_ELEMENTS.videoPlayerMinimizeButton.title = label;
-    DOM_ELEMENTS.videoPlayerMinimizeButton.setAttribute("aria-label", label);
-
-    updateBlockingState();
-}
-
-function isVideoPlayerMinimized() {
-    return DOM_ELEMENTS.videoPlayerContainer.classList.contains(CLASS_NAMES.videoPlayerMinimized);
-}
 
 function initAudioHandlers() {
     const handlePlay = () => {
@@ -174,11 +220,6 @@ function initAudioHandlers() {
         mediaPlayer.player.removeEventListener("volumechange", handleVolumeChange);
         mediaPlayer.player.removeEventListener("timeupdate", handleTimeUpdate);
     };
-}
-
-function unloadMediaPlayer(player) {
-    player.removeAttribute("src");
-    player.load();
 }
 
 function initWatchTracker(video, itemId) {
@@ -212,12 +253,14 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
 
     if (!videoContainer || !audioContainer || !videoPlayer || !audioPlayer) return;
 
+    mediaPlayer.syncWithHash();
+
     let cleanupHandlers = null;
 
     initWatchTracker();
 
     DOM_ELEMENTS.videoPlayerCloseButton.addEventListener("click", closePlayer);
-    DOM_ELEMENTS.videoPlayerMinimizeButton.addEventListener("click", toggleMinimizeVideoPlayer);
+    DOM_ELEMENTS.videoPlayerMinimizeButton.addEventListener("click", () => mediaPlayer.toggleMinimizeVideoPlayer());
     DOM_ELEMENTS.audioPlayerCloseButton.addEventListener("click", closePlayer);
 
     document.addEventListener("click", async (event) => {
@@ -262,6 +305,13 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
         if (event.key === "Escape" &&  mediaPlayer.isFullVideoPlayer()) closePlayer();
     });
 
+    // Close the full video player when its hash is removed or changed.
+    window.addEventListener("hashchange", () => {
+        if (mediaPlayer.isFullVideoPlayer() && !mediaPlayer.isHash()) {
+            closePlayer();
+        }
+    });
+
     async function openPlayer(row) {
         const itemId = row.dataset.itemId;
         const itemIsAudio = row.dataset.isAudio === "true";
@@ -275,7 +325,7 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
             if (mediaPlayer.isAudio != itemIsAudio) {
                 await closePlayer(false);
             } else {
-                unloadMediaPlayer(mediaPlayer.player);
+                mediaPlayer.unload();
             }
         }
 
@@ -316,10 +366,12 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
             if (positionMs > 0) {
                 mediaPlayer.player.currentTime = positionMs / 1000;
             }
-        }, { once: true });        
-      
+        }, { once: true });
+
         mediaPlayer.isOpen = true
         mediaPlayer.player.src = mediaURL;
+
+        mediaPlayer.syncWithHash();
 
         if (mediaPlayer.isAudio) {
             cleanupHandlers = initAudioHandlers();
@@ -338,7 +390,7 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
                 document.body.classList.add(CLASS_NAMES.body.mediaPlayerAudio);
             });
         } else {
-            updateBlockingState();
+            mediaPlayer.updateBlockingState();
             
             cleanupHandlers = initVideoHandlers();
 
