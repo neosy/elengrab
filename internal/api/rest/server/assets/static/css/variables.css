@@ -72,9 +72,10 @@
     --thumbnail-duration-color: #fff;
     --thumbnail-watched-bg: rgba(0, 0, 0, 0.65);
     --thumbnail-watched-color: #fff;
-    --thumbnail-watch-progress-bg: rgba(128, 128, 128, 0.5);
-    --thumbnail-watch-progress-value: #ff0033;
     --thumbnail-placeholder-bg: #e8e8e8;
+
+    --watch-progress-bg: rgba(128, 128, 128, 0.5);
+    --watch-progress-value-bg: #ff0033;
 
     --history-loading-spinner-bg: #e5e7eb;
     --history-loading-spinner-color: #6b7280;    

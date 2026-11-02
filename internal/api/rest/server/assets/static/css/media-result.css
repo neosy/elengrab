@@ -749,7 +749,17 @@ img[data-src] {
     stroke-width: 3;
 }
 
-.media-result__thumbnail-watch-progress {
+.media-result__row.is-player-attached .thumbnail-watch-progress {
+    --thumbnail-watch-progress-display: none;
+}
+
+.thumbnail-watch-progress--hidden {
+    --thumbnail-watch-progress-display: none;
+}
+
+.thumbnail-watch-progress {
+    display: var(--thumbnail-watch-progress-display, block);
+
     z-index: 2;
 
     position: absolute;
@@ -758,13 +768,13 @@ img[data-src] {
     bottom: 0;
 
     height: 4px;
-    background: var(--thumbnail-watch-progress-bg);
+    background: var(--watch-progress-bg);
 }
 
-.media-result__thumbnail-watch-progress-value {
+.thumbnail-watch-progress-value {
     width: var(--watch-progress);
     height: 100%;
-    background: var(--thumbnail-watch-progress-value);
+    background: var(--watch-progress-value-bg);
 }
 
 .media-result__channel {

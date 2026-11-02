@@ -139,11 +139,11 @@ export function handleRowPatch(event) {
         }
 
         if (data.watchPercent !== undefined) {
-            const progressEl = el.querySelector(CLASS_SELECTORS.mediaResultRowThumbnailWatchProgress);
-            const progressValueEl = el.querySelector(CLASS_SELECTORS.mediaResultRowThumbnailWatchProgressValue);
+            const progressEl = el.querySelector(CLASS_SELECTORS.thumbnailWatchProgress);
+            const progressValueEl = el.querySelector(CLASS_SELECTORS.thumbnailWatchProgressValue);
             if (progressEl && progressValueEl) {
                 const watchPercent = Number(data.watchPercent);
-                progressEl.classList.toggle("hidden", watchPercent === 0);
+                progressEl.classList.toggle(CLASS_NAMES.thumbnailWatchProgressHidden, watchPercent === 0);
                 progressValueEl.style.setProperty(
                     CSS_VARIABLE_NAMES.watchProgress,
                     `${watchPercent}%`,

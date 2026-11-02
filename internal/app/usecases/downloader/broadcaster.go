@@ -88,12 +88,11 @@ func (uc *downloader) broadcastMediaDownloadUpdated(
 	uc.broadcaster.BroadcastToUsersWithAccess(downloadInfo.UserID, types.BroadcastEventTypeDownloadUpdate, downloadInfo)
 }
 
-func (uc *downloader) broadcastWatchStatsUpdatedToAuth(
+func (uc *downloader) broadcastWatchStatsUpdated(
 	ctx context.Context,
-	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) {
-	downloadInfo, err := uc.findActualDownloadInfo(ctx, downloadID, withAuth(authCtx))
+	downloadInfo, err := uc.findActualDownloadInfo(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed find download info", "error", err)
 		return
@@ -110,7 +109,16 @@ func (uc *downloader) broadcastWatchStatsUpdatedToAuth(
 
 	downloadChanged.MarkWatchStatsChanged()
 
-	uc.broadcaster.BroadcastToAuth(authCtx, types.BroadcastEventTypeDownloadPatch, downloadChanged)
+	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
+		uc.broadcaster.BroadcastPublic(
+			eventkey.NewEventKeyUserID(downloadInfo.UserID),
+			types.BroadcastEventTypeDownloadPatch,
+			downloadChanged,
+		)
+		return
+	}
+
+	uc.broadcaster.BroadcastToUsersWithAccess(downloadInfo.UserID, types.BroadcastEventTypeDownloadPatch, downloadChanged)
 }
 
 func (uc *downloader) broadcastWatchPositionUpdatedToAuth(

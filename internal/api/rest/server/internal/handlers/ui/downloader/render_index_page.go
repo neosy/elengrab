@@ -62,10 +62,11 @@ func (h *DownloaderHandlers) renderIndexPage(
 	pagesListValues.AboutDialog = h.mappers.MapAboutDialogValues(systemInfo)
 	pagesListValues.UploadFileDialog = h.mappers.MapUploadFileDialogValues()
 	pagesListValues.VideoPlayerMinimizeIcon = icons.VideoPlayerMinimizeIcon.FileRaw()
+	pagesListValues.VideoPlayingIcon = icons.MediaVideoPlayingIcon.FileRaw()
 	pagesListValues.AudioPlayingIcon = icons.MediaAudioPlayingIcon.FileRaw()
 	pagesListValues.AudioNoteIcon = icons.MediaAudioNoteIcon.FileRaw()
-	pagesListValues.AudioPlayIcon = icons.MediaAudioPlayIcon.FileRaw()
-	pagesListValues.AudioPauseIcon = icons.MediaAudioPauseIcon.FileRaw()
+	pagesListValues.PlayIcon = icons.MediaAudioPlayIcon.FileRaw()
+	pagesListValues.PauseIcon = icons.MediaAudioPauseIcon.FileRaw()
 
 	uploadMenu, err := h.renderUploadMenu(authCtx.Login, pagesListValues.HasCreateAccess)
 	if err != nil {

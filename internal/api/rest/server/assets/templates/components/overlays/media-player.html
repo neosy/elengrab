@@ -18,21 +18,38 @@
             </div>
         </div>
     </div>       
-    <div class="media-player__audio-playing-overlay" id="media-player-audio-playing-overlay">
-        <div class="audio-playing-overlay__playing-icon">
-            {{ .Values.AudioPlayingIcon }}
+    <div class="media-player__playing-overlay media-player__playing-overlay--video" id="media-player-video-playing-overlay">
+        <div class="playing-overlay__icon playing-overlay__icon--video">
+            {{ .Values.VideoPlayingIcon }}
         </div>
-        <div class="audio-playing-overlay__duration">
-            <span class="audio-playing-overlay__duration-audio-icon">
-                {{ .Values.AudioNoteIcon }}
-            </span>
-            <span class="audio-playing-overlay__duration-value">0:00</span>
+        <div class="playing-overlay__duration">
+            <span class="playing-overlay__duration-value">0:00</span>
         </div>
-        <div class="audio-playing-overlay__play-icon">
-            {{ .Values.AudioPlayIcon }}
+        <div class="playing-overlay__play-icon">
+            {{ .Values.PlayIcon }}
         </div>
-        <div class="audio-playing-overlay__pause-icon">
-            {{ .Values.AudioPauseIcon }}
+        <div class="playing-overlay__progress">
+            <div class="playing-overlay__progress-value" style="--watch-progress: 0.00%"></div>
         </div>
     </div>     
+    <div class="media-player__playing-overlay media-player__playing-overlay--audio" id="media-player-audio-playing-overlay">
+        <div class="playing-overlay__icon playing-overlay__icon--audio">
+            {{ .Values.AudioPlayingIcon }}
+        </div>
+        <div class="playing-overlay__duration">
+            <span class="playing-overlay__duration-icon playing-overlay__duration-icon--audio">
+                {{ .Values.AudioNoteIcon }}
+            </span>
+            <span class="playing-overlay__duration-value">0:00</span>
+        </div>
+        <div class="playing-overlay__play-icon">
+            {{ .Values.PlayIcon }}
+        </div>
+        <div class="playing-overlay__pause-icon">
+            {{ .Values.PauseIcon }}
+        </div>
+        <div class="playing-overlay__progress">
+            <div class="playing-overlay__progress-value" style="--watch-progress: 0.00%"></div>
+        </div>
+    </div>
 {{- end }}

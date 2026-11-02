@@ -44,13 +44,21 @@ export const CLASS_NAMES = {
         playerSoundOn: "player-sound-on",
     },
 
+    ui: {
+        blockingActive: "ui-blocking-active",
+    },
+
     rowStatus: {
         success: "success",
         inProgress: "inprogress",
     },
 
-    ui: {
-        blockingActive: "ui-blocking-active",
+    row: {
+        refreshing: "row--refreshing",
+    },
+
+    player: {
+        isAttached: "is-player-attached",
     },
 };
 
