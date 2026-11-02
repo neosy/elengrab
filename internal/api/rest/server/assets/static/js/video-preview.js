@@ -7,7 +7,6 @@ const CLASS_NAMES = {
     ...CONST_CLASS_NAMES,
 
     previewPlaying: "video-preview-playing",
-    rowRefreshing: "row--refreshing",
 
     isPlaying: "is-playing",
     isSoundOff: "is-sound-off",
@@ -265,6 +264,10 @@ export function shouldShowVideoPreview(previewTarget) {
         return false;
     }
 
+    if (previewTarget.classList.contains(CLASS_NAMES.player.isAttached)) {
+        return false;
+    }
+
     return Boolean(previewTarget.dataset.itemId && previewTarget.dataset.media);
 }
 
@@ -289,7 +292,7 @@ export async function showVideoPreview(thumbnailElement, previewTarget) {
 
     const itemEl = document.getElementById(DOM_IDS.row(itemId));
     if (itemEl) {
-        if (itemEl.classList.contains(CLASS_NAMES.rowRefreshing)) {
+        if (itemEl.classList.contains(CLASS_NAMES.row.refreshing)) {
             return;
         }
 

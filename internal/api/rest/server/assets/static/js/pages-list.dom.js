@@ -1,4 +1,8 @@
+import { CLASS_NAMES as CONST_CLASS_NAMES } from './constants.js';
+
 export const CLASS_NAMES = {
+    ...CONST_CLASS_NAMES,
+    
     rowRemoving: "row--removing",
 
     mediaResultRow: "media-result__row",
@@ -11,8 +15,10 @@ export const CLASS_NAMES = {
     mediaResultRowThumbnailImageWrapper: "media-result__thumbnail-image__wrapper",
     mediaResultThumbnailPlaceholder: "media-result__thumbnail-placeholder",
     mediaResultRowThumbnailWatched: "media-result__thumbnail-watched",
-    mediaResultRowThumbnailWatchProgress: "media-result__thumbnail-watch-progress",
-    mediaResultRowThumbnailWatchProgressValue: "media-result__thumbnail-watch-progress-value",
+
+    thumbnailWatchProgress: "thumbnail-watch-progress",
+    thumbnailWatchProgressHidden: "thumbnail-watch-progress--hidden",
+    thumbnailWatchProgressValue: "thumbnail-watch-progress-value",
 
     mediaResultAvatar: "media-result__channel",
 
@@ -20,10 +26,6 @@ export const CLASS_NAMES = {
     mediaResultViewCount: "media-result__content-view-count",
     mediaResultVisibility: "media-result__content-visibility",
     mediaResultShareLink: "media-result__content-share-link",
-
-    row: {
-        rowRefreshing: "row--refreshing",
-    },
 };
 
 export const CLASS_SELECTORS = Object.fromEntries(

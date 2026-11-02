@@ -32,6 +32,8 @@ var (
 	DownloadDeleteIcon     = newIcon("DownloadDeleteIconName", "download-delete-icon.svg")
 	DownloadRefreshingIcon = newIcon("DownloadRefreshingIconName", "refresh-icon.svg")
 
+	MediaVideoPlayingIcon = newIcon("MediaVideoPlayingIconName", "video-icon.svg")
+
 	MediaAudioPlayingIcon = newIcon("MediaAudioPlayingIconName", "compact-disc-icon.svg")
 	MediaAudioPlayIcon    = newIcon("MediaAudioPlayIconName", "play-2-icon.svg")
 	MediaAudioPauseIcon   = newIcon("MediaAudioPauseIconName", "pause-icon.svg")
