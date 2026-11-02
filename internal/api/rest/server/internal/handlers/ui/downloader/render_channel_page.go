@@ -72,10 +72,11 @@ func (h *DownloaderHandlers) renderChannelPage(
 	pagesListValues.ResultRowsHTML = template.HTML(rowsBuf.String())
 	pagesListValues.AboutDialog = h.mappers.MapAboutDialogValues(systemInfo)
 	pagesListValues.VideoPlayerMinimizeIcon = icons.VideoPlayerMinimizeIcon.FileRaw()
+	pagesListValues.VideoPlayingIcon = icons.MediaVideoPlayingIcon.FileRaw()
 	pagesListValues.AudioPlayingIcon = icons.MediaAudioPlayingIcon.FileRaw()
 	pagesListValues.AudioNoteIcon = icons.MediaAudioNoteIcon.FileRaw()
-	pagesListValues.AudioPlayIcon = icons.MediaAudioPlayIcon.FileRaw()
-	pagesListValues.AudioPauseIcon = icons.MediaAudioPauseIcon.FileRaw()
+	pagesListValues.PlayIcon = icons.MediaAudioPlayIcon.FileRaw()
+	pagesListValues.PauseIcon = icons.MediaAudioPauseIcon.FileRaw()
 
 	pageData := pages.ChannelPageData{
 		BasePaths:  paths.NewHttpPaths(),

@@ -27,8 +27,8 @@ const CLASS_NAMES = {
     videoPlayer: "media-player__video-player",
     audioPlayer: "media-player__audio-player",
 
-    audioPlayingOverlay: "media-player__audio-playing-overlay",
-    audioPlayingDuration: "audio-playing-overlay__duration-value",
+    playingDuration: "playing-overlay__duration-value",
+    playingProgress: "playing-overlay__progress-value",
 };
 
 const CLASS_SELECTORS = Object.fromEntries(
@@ -37,10 +37,16 @@ const CLASS_SELECTORS = Object.fromEntries(
         .map(([key, value]) => [key, `.${value}`])
 );
 
+const CSS_VARIABLE_NAMES = {
+    watchBuffer: "--watch-buffer",
+    watchProgress: "--watch-progress"
+};
+
 const DOM_IDS = {
     videoPlayerContainer: "media-player-video",
     audioPlayerContainer: "media-player-audio",
 
+    videoPlayingOverlay: "media-player-video-playing-overlay",
     audioPlayingOverlay: "media-player-audio-playing-overlay",
 };
 
@@ -55,14 +61,20 @@ const DOM_ELEMENTS = {
     videoPlayerCloseButton: null,
     audioPlayerCloseButton: null,
 
+    videoPlayingOverlay: null,
+    videoPlayingDuration: null,
+    videoProgressValue: null,
+
     audioPlayingOverlay: null,
     audioPlayingDuration: null,
+    audioProgressValue: null,
 }  
 
 function initDomElements(elements = DOM_ELEMENTS) {    
     elements.videoPlayerContainer = document.getElementById(DOM_IDS.videoPlayerContainer);
     elements.audioPlayerContainer = document.getElementById(DOM_IDS.audioPlayerContainer);
 
+    elements.videoPlayingOverlay = document.getElementById(DOM_IDS.videoPlayingOverlay);
     elements.audioPlayingOverlay = document.getElementById(DOM_IDS.audioPlayingOverlay);
 
     if (elements.videoPlayerContainer) {
@@ -76,8 +88,14 @@ function initDomElements(elements = DOM_ELEMENTS) {
         elements.audioPlayerCloseButton = elements.audioPlayerContainer.querySelector(CLASS_SELECTORS.mediaPlayerCloseButton)
     }
 
+    if (elements.videoPlayingOverlay) {
+        elements.videoPlayingDuration = elements.videoPlayingOverlay.querySelector(CLASS_SELECTORS.playingDuration)
+        elements.videoProgressValue = elements.videoPlayingOverlay.querySelector(CLASS_SELECTORS.playingProgress)
+    }
+
     if (elements.audioPlayingOverlay) {
-        elements.audioPlayingDuration = elements.audioPlayingOverlay.querySelector(CLASS_SELECTORS.audioPlayingDuration)
+        elements.audioPlayingDuration = elements.audioPlayingOverlay.querySelector(CLASS_SELECTORS.playingDuration)
+        elements.audioProgressValue = elements.audioPlayingOverlay.querySelector(CLASS_SELECTORS.playingProgress)
     }
 }
 
@@ -192,36 +210,6 @@ const mediaPlayer = {
     },
 };
 
-function initAudioHandlers() {
-    const handlePlay = () => {
-        mediaPlayer.updateBodyState();
-    };
-
-    const handlePause = () => {
-        mediaPlayer.updateBodyState();
-    };
-
-    const handleVolumeChange = () => {
-        mediaPlayer.updateBodyState();
-    };
-
-    const handleTimeUpdate = () => {
-        playerUtils.updateRemainingDuration(DOM_ELEMENTS.audioPlayingDuration, mediaPlayer.player)
-    }
-
-    mediaPlayer.player.addEventListener("play", handlePlay);
-    mediaPlayer.player.addEventListener("pause", handlePause);
-    mediaPlayer.player.addEventListener("volumechange", handleVolumeChange);
-    mediaPlayer.player.addEventListener("timeupdate", handleTimeUpdate);
-
-    return () => {
-        mediaPlayer.player.removeEventListener("play", handlePlay);
-        mediaPlayer.player.removeEventListener("pause", handlePause);
-        mediaPlayer.player.removeEventListener("volumechange", handleVolumeChange);
-        mediaPlayer.player.removeEventListener("timeupdate", handleTimeUpdate);
-    };
-}
-
 function initWatchTracker(video, itemId) {
     if (!video) return;
     if (watchTracker !== null) return;
@@ -317,7 +305,7 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
         const itemIsAudio = row.dataset.isAudio === "true";
 
         if (mediaPlayer.isOpen) {
-            if (mediaPlayer.isAudio && itemId === mediaPlayer.rowItemId) {
+            if (itemId === mediaPlayer.rowItemId) {
                 mediaPlayer.player.paused ? mediaPlayer.player.play() : mediaPlayer.player.pause();
                 return;
             }
@@ -330,13 +318,13 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
         }
 
         if (mediaPlayer.playingRow) {
-            mediaPlayer.playingRow.classList.remove(CLASS_NAMES.isPlayerAttached);
+            mediaPlayer.playingRow.classList.remove(CLASS_NAMES.player.isAttached);
         }
 
         mediaPlayer.rowItemId = itemId;
         mediaPlayer.playingRow = row;
 
-        mediaPlayer.playingRow.classList.add(CLASS_NAMES.isPlayerAttached);
+        mediaPlayer.playingRow.classList.add(CLASS_NAMES.player.isAttached);
 
         const mediaURL = mediaPlayer.playingRow.dataset.media;
         if (!mediaURL) return;
@@ -394,6 +382,11 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
             
             cleanupHandlers = initVideoHandlers();
 
+            const overlayTarget = mediaPlayer.playingRow.querySelector(`.${overlayTargetClassName}`);
+            if (overlayTarget) {
+                showVideoPlayingOverlay(overlayTarget);
+            }
+
             requestAnimationFrame(() => {
                 document.body.classList.add(CLASS_NAMES.body.mediaPlayer);
                 document.body.classList.add(CLASS_NAMES.body.mediaPlayerVideo);
@@ -417,7 +410,7 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
         history.replaceState(null, "", location.pathname + location.search);
 
         if (mediaPlayer.playingRow) {
-            mediaPlayer.playingRow.classList.remove(CLASS_NAMES.isPlayerAttached);
+            mediaPlayer.playingRow.classList.remove(CLASS_NAMES.player.isAttached);
         }
 
         cleanupHandlers?.();
@@ -484,6 +477,20 @@ function initVideoHandlers() {
         mediaPlayer.updateBodyState();
     };
 
+    const handleTimeUpdate = () => {
+        playerUtils.updateRemainingDuration(DOM_ELEMENTS.videoPlayingDuration, mediaPlayer.player)
+
+        playerUtils.updateProgress(
+            null,
+            DOM_ELEMENTS.videoProgressValue,
+            mediaPlayer.player,
+            {
+                watchBuffer: CSS_VARIABLE_NAMES.watchBuffer,
+                watchProgress: CSS_VARIABLE_NAMES.watchProgress,
+            }
+        )
+    }
+
     videoContainer.addEventListener("mouseenter", showControls);
     mediaPlayer.player.addEventListener("mousemove", showControls);
     mediaPlayer.player.addEventListener("play", handlePlay);
@@ -491,6 +498,7 @@ function initVideoHandlers() {
     mediaPlayer.player.addEventListener("click", showControls);
     mediaPlayer.player.addEventListener("touchstart", showControls);
     mediaPlayer.player.addEventListener("volumechange", handleVolumeChange);
+    mediaPlayer.player.addEventListener("timeupdate", handleTimeUpdate);
 
     showControls();
     
@@ -502,6 +510,7 @@ function initVideoHandlers() {
         mediaPlayer.player.removeEventListener("click", showControls);
         mediaPlayer.player.removeEventListener("touchstart", showControls);
         mediaPlayer.player.removeEventListener("volumechange", handleVolumeChange);
+        mediaPlayer.player.removeEventListener("timeupdate", handleTimeUpdate);
 
         clearTimeout(controlsTimeout);
 
@@ -509,8 +518,54 @@ function initVideoHandlers() {
     };
 }
 
+function initAudioHandlers() {
+    const handlePlay = () => {
+        mediaPlayer.updateBodyState();
+    };
+
+    const handlePause = () => {
+        mediaPlayer.updateBodyState();
+    };
+
+    const handleVolumeChange = () => {
+        mediaPlayer.updateBodyState();
+    };
+
+    const handleTimeUpdate = () => {
+        playerUtils.updateRemainingDuration(DOM_ELEMENTS.audioPlayingDuration, mediaPlayer.player)
+
+        playerUtils.updateProgress(
+            null,
+            DOM_ELEMENTS.audioProgressValue,
+            mediaPlayer.player,
+            {
+                watchBuffer: CSS_VARIABLE_NAMES.watchBuffer,
+                watchProgress: CSS_VARIABLE_NAMES.watchProgress,
+            }
+        )
+    }
+
+    mediaPlayer.player.addEventListener("play", handlePlay);
+    mediaPlayer.player.addEventListener("pause", handlePause);
+    mediaPlayer.player.addEventListener("volumechange", handleVolumeChange);
+    mediaPlayer.player.addEventListener("timeupdate", handleTimeUpdate);
+
+    return () => {
+        mediaPlayer.player.removeEventListener("play", handlePlay);
+        mediaPlayer.player.removeEventListener("pause", handlePause);
+        mediaPlayer.player.removeEventListener("volumechange", handleVolumeChange);
+        mediaPlayer.player.removeEventListener("timeupdate", handleTimeUpdate);
+    };
+}
+
 function showAudioPlayingOverlay(target) {
     if (!target || !DOM_ELEMENTS.audioPlayingOverlay) return;
 
     target.append(DOM_ELEMENTS.audioPlayingOverlay);
+}
+
+function showVideoPlayingOverlay(target) {
+    if (!target || !DOM_ELEMENTS.videoPlayingOverlay) return;
+
+    target.append(DOM_ELEMENTS.videoPlayingOverlay);
 }
