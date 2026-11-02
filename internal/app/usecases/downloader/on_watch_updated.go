@@ -9,8 +9,8 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
-func (uc *downloader) onWatchUserStatsUpdated(ctx context.Context, authCtx dauth.AuthContext, downloadID uuid.UUID) {
-	uc.broadcastWatchStatsUpdatedToAuth(ctx, authCtx, downloadID)
+func (uc *downloader) onWatchUserStatsUpdated(ctx context.Context, _ dauth.AuthContext, downloadID uuid.UUID) {
+	uc.broadcastWatchStatsUpdated(ctx, downloadID)
 }
 
 func (uc *downloader) onWatchStatsUpdated(ctx context.Context, stat *ddownload.MediaWatchStat) {

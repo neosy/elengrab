@@ -9,6 +9,9 @@
 ### 🖥️ UI / Frontend
 - Fixed video player closing behavior when navigating browser history.
 
+### 🎨 Style
+- Added a dimming playback overlay with animation to the thumbnail of the currently playing video. [L193]
+
 ### 🧩 Refactor
 - Simplified SSE event handling. [L191]
 - Improved HEAD request handling and added caching headers to image responses.
