@@ -6,6 +6,9 @@
 - Improved link creation and base URL resolution. [L188]
 - The server stores up to 1,000 events per user and replays events missed during disconnection when the client reconnects, ensuring continuity of event delivery. [L190]
 
+### 🖥️ UI / Frontend
+- Fixed video player closing behavior when navigating browser history.
+
 ### 🧩 Refactor
 - Simplified SSE event handling. [L191]
 - Improved HEAD request handling and added caching headers to image responses.
