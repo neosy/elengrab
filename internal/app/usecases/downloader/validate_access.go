@@ -3,6 +3,7 @@ package downloader
 import (
 	"slices"
 
+	apperrors "github.com/neosy/elengrab/internal/app/errors"
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/types"
 	iconfig "github.com/neosy/elengrab/internal/config"
@@ -69,6 +70,14 @@ func (uc *downloader) validateDownloadEditableStatus(download *ddownload.MediaDo
 	return nil
 }
 
+func (uc *downloader) validateDownloadDeletableStatus(download *ddownload.MediaDownload) error {
+	if !slices.Contains(dtypes.MediaDownloadDeletableStatuses(), download.Status) {
+		return ierrors.ErrDeleteAccessDenied
+	}
+
+	return nil
+}
+
 func (uc *downloader) validateDownloadViewAccess(
 	authCtx dauth.AuthContext,
 	download *ddownload.MediaDownload,
@@ -84,6 +93,10 @@ func (uc *downloader) validateDownloadEditAccess(
 	authCtx dauth.AuthContext,
 	download *ddownload.MediaDownload,
 ) error {
+	if download == nil {
+		return apperrors.ErrFuncParamNullPointer
+	}
+
 	if iconfig.DemoMode() {
 		return ierrors.ErrDemoModeAccessDenied
 	}
@@ -112,8 +125,16 @@ func (uc *downloader) validateDownloadEditAccess(
 }
 
 func (uc *downloader) validateDownloadDeleteAccess(authCtx dauth.AuthContext, download *ddownload.MediaDownload) error {
+	if download == nil {
+		return apperrors.ErrFuncParamNullPointer
+	}
+
 	if iconfig.DemoMode() {
 		return ierrors.ErrDemoModeAccessDenied
+	}
+
+	if err := uc.validateDownloadDeletableStatus(download); err != nil {
+		return err
 	}
 
 	if err := uc.validateDownloadViewAccess(authCtx, download); err != nil {

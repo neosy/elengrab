@@ -66,6 +66,14 @@ var (
 		MediaDownloadStatusDone,
 		MediaDownloadStatusRefreshing,
 	}
+
+	deletableStatuses = []MediaDownloadStatus{
+		MediaDownloadStatusNew,
+		MediaDownloadStatusPending,
+		MediaDownloadStatusWorking,
+		MediaDownloadStatusDone,
+		MediaDownloadStatusFailed,
+	}
 )
 
 // String returns the value as a string.
@@ -107,6 +115,13 @@ func MediaDownloadCompletedStatuses() []MediaDownloadStatus {
 func MediaDownloadEditableStatuses() []MediaDownloadStatus {
 	statuses := make([]MediaDownloadStatus, len(editableStatuses))
 	copy(statuses, editableStatuses)
+	return statuses
+}
+
+// MediaDownloadDeletableStatuses returns a copy of the deletable download statuses.
+func MediaDownloadDeletableStatuses() []MediaDownloadStatus {
+	statuses := make([]MediaDownloadStatus, len(deletableStatuses))
+	copy(statuses, deletableStatuses)
 	return statuses
 }
 
