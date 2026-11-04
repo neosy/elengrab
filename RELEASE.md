@@ -16,6 +16,9 @@
 - Simplified SSE event handling. [L191]
 - Improved HEAD request handling and added caching headers to image responses.
 
+### 🐛 Fix
+- Prevented deleting downloads while their status is Refreshing
+
 ---
 
 ## v0.27.2 — 2026-10-28

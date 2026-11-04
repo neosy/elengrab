@@ -187,6 +187,7 @@ var rowMenuActions = []rowMenuAction{
 		},
 
 		icon:                icons.DownloaderRowMenuDeleteIcon,
+		visibleStatuses:     dtypes.MediaDownloadDeletableStatuses(),
 		requireEditAccess:   false,
 		requireDeleteAccess: true,
 	},
