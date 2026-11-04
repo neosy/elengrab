@@ -399,6 +399,9 @@ body.grid-view.player-paused .playing-overlay__play-icon {
 }
 
 /* ─────── Video playing overlay ────────────────────────────────────────────── */
+.media-player__playing-overlay--video {
+    background: rgba(0, 0, 0, 0.3);
+}
 
 body.grid-view.media-player--video .media-player__playing-overlay--video {
     opacity: 1;
