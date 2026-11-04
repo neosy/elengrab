@@ -8,7 +8,7 @@
                                 {{- else }}
                                 <img class="media-result__channel-image media-result__channel-image--avatar" {{ if .Values.LazyLoadImages }}data-src{{ else }}src{{ end }}="{{ .Values.ImageAvatarURL }}" alt="Channel avatar">
                                 {{- end }}
-                                {{- if eq .Values.DownloadStatus "done" }}
+                                {{- if .Values.IsReady }}
                                 <a class="media-result__channel-link" href="{{ .Values.ChannelLinkURL }}"></a>
                                 <button class="media-result__channel-button channel-button--play media-play-button" data-watch-url="{{ .Values.WatchURL }}" title="Play">
                                     <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -20,7 +20,7 @@
                             <span class="media-result__title">
                                 {{- $linkURL := .Values.WatchURL }}
                                 {{- $linkTarget := "_self" }}
-                                {{- if ne .Values.DownloadStatus "done" }}
+                                {{- if not .Values.IsReady }}
                                     {{ $linkURL = .Values.MediaURL }} 
                                     {{- $linkTarget = "_blank" }}
                                 {{- end }}

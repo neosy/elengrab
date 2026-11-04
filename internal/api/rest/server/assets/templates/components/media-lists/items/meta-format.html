@@ -1,6 +1,6 @@
 {{- define "media-result-format" }}
                         <div class="media-result__format">
-                            {{- if eq .Values.DownloadStatus "done" }}
+                            {{- if .Values.IsReady }}
                             <div class="media-result__format-value__wrapper"><span class="media-result__format-value" title="{{ .Values.FormatTitle }}" data-tooltip="{{ .Values.FormatTooltip }}" data-format="{{ .Values.DataFormat }}">{{ .Values.Format }}</span></div>
                             {{- else }}
                             <div class="media-result__format-value__wrapper"><span class="media-result__format-value {{.Values.ResultFormatFade}}" title="{{ .Values.FormatTitle }}" data-tooltip="{{ .Values.FormatTooltip }}" data-id="format">{{ .Values.Format }}</span></div>

@@ -1,6 +1,6 @@
 {{- define "media-result-delete" }}
                         {{- $title := "Delete downloaded media file" }}
-                        {{- if ne .Values.DownloadStatus "done" }}
+                        {{- if not .Values.IsReady }}
                             {{- $title = "Delete this download task" }}
                         {{- end }}
                         <div class="media-result__delete">
