@@ -9,3 +9,9 @@
     {{- block "upload-file-dialog-content" . }}{{- end }}
 </dialog>
 {{- end }}
+
+{{- define "download-list-dialog" }}
+<dialog class="modal-dialog download-list-dialog" id="download-list-dialog" aria-labelledby="download-list-dialog-title" data-dialog-static>
+    {{- block "download-list-dialog-content" . }}{{- end }}
+</dialog>
+{{- end }}

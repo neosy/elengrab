@@ -88,7 +88,7 @@ func (uc *downloader) ScheduleUpload(
 		}
 	}
 
-	err = uc.addUploadToQueueProcessing(ctx, downloadID, download.ProcessingTask.TaskID)
+	err = uc.enqueueUploadProcessing(ctx, downloadID, download.ProcessingTask.TaskID)
 	if err != nil {
 		uc.logger.Error("Failed add to queue", "error", err)
 		return nil, broadcastError(err)
@@ -106,7 +106,7 @@ func (uc *downloader) ScheduleUpload(
 	}, nil
 }
 
-func (uc *downloader) addUploadToQueueProcessing(ctx context.Context, downloadID uuid.UUID, taskId uuid.UUID) error {
+func (uc *downloader) enqueueUploadProcessing(ctx context.Context, downloadID uuid.UUID, taskId uuid.UUID) error {
 	var (
 		download *ddownload.MediaDownload
 	)

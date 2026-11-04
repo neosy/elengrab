@@ -19,9 +19,10 @@ var (
 
 	DonateIcon = newIcon("DonateIconName", "coffee-icon.svg")
 
-	UploadMenuPlusIcon        = newIcon("UploadMenuPlusIconName", "plus-icon.svg")
-	UploadMenuUploadFileIcon  = newIcon("UploadMenuUploadFileIconName", "upload-file-icon.svg")
-	UploadMenuMyDownloadsIcon = newIcon("UploadMenuMyDownloadsIconName", "list-icon.svg")
+	UploadMenuPlusIcon         = newIcon("UploadMenuPlusIconName", "plus-icon.svg")
+	UploadMenuDownloadListIcon = newIcon("UploadMenuDownloadListIconName", "list-add-icon.svg")
+	UploadMenuUploadFileIcon   = newIcon("UploadMenuUploadFileIconName", "upload-file-icon.svg")
+	UploadMenuMyDownloadsIcon  = newIcon("UploadMenuMyDownloadsIconName", "list-icon.svg")
 
 	IndexGrabSettingsButtonIcon = newIcon("IndexGrabSettingsButtonIconName", "settings-icon.svg")
 	IndexGrabGetButtonIcon      = newIcon("IndexGrabGetButtonIconName", "download-cloud-icon.svg")
@@ -76,6 +77,9 @@ var (
 	VideoPreviewSoundOffIcon = newIcon("VideoPreviewSoundOffIconName", "sound-off.svg")
 	VideoPreviewPlayIcon     = newIcon("VideoPreviewPlayIconName", "play-3-icon.svg")
 	VideoPreviewPauseIcon    = newIcon("VideoPreviewPauseIconName", "pause-icon.svg")
+
+	DialogDownloadListIcon    = newIcon("DialogDownloadListIconName", "download-list-icon.svg")
+	DialogDownloadListGetIcon = newIcon("DialogDownloadListGetIconName", "download-cloud-icon.svg")
 
 	DialogUploadFileIcon = newIcon("DialogUploadFileIconName", "upload-file-icon.svg")
 )

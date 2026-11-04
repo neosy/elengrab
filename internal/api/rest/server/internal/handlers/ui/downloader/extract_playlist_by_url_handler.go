@@ -1,0 +1,53 @@
+package downloader
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/valyala/fasthttp"
+)
+
+func (h *DownloaderHandlers) ExtractPlaylistByURLHandler(ctx *fasthttp.RequestCtx) {
+	authCtx, err := policy.ResolveUserOrFallback(ctx, h.appMode)
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, err)
+		return
+	}
+
+	var receivedReq dto.ExtractPlaylistByURLRequest
+	if err := json.Unmarshal(ctx.PostBody(), &receivedReq); err != nil {
+		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("Invalid JSON request body", http.StatusBadRequest, err))
+		return
+	}
+
+	if err := h.validators.Validate.Struct(receivedReq); err != nil {
+		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
+		return
+	}
+
+	if err := receivedReq.Validate(); err != nil {
+		fasthttpx.WriteErrorx(ctx, err)
+		return
+	}
+
+	playlist, err := h.downloader.ExtractPlaylistByURL(ctx, authCtx, receivedReq.URL)
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, err)
+		return
+	}
+
+	dataResponse, err := h.mappers.MapPlaylistToExtractPlaylistByURLResponse(playlist)
+	if err != nil {
+		fasthttpx.WriteErrorx(ctx, err)
+		return
+	}
+
+	ctx.SetStatusCode(fasthttp.StatusCreated)
+	fasthttpx.WriteResponse(ctx, dataResponse)
+}

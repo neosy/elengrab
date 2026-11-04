@@ -16,6 +16,7 @@ export const API_PATHS = {
     downloaderItems: "/downloader/items",
     downloaderSearch: "/downloader/search",
     downloaderUpload: "/downloader/upload",
+    downloaderExtract: "/downloader/extract",
     watchTracking: "/watch-tracking",
     watchPosition: "/watch-position",
 }

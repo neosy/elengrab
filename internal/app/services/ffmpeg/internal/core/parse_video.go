@@ -92,7 +92,7 @@ func (info *info) parseVideoFromFFmppeg(line string, baseInfo *dtypes.VideoInfo)
 				videoInfo.Height = int(h)
 				infoSetter.resolution = true
 			}
-			resolution, err := dtypes.ParseVideoResolutionFromString(res)
+			resolution, err := dtypes.ParseVideoResolutionStringWH(res)
 			if err == nil {
 				videoInfo.Resolution = resolution
 				infoSetter.resolution = true

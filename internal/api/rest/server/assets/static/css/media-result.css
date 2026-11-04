@@ -1367,7 +1367,7 @@ img[data-src] {
     padding: 12px;
     border-radius: 8px;
     background-color: var(--result-bg);
-    box-shadow: 0 2px 6px var(--shadow);
+    box-shadow: 0 2px 6px var(--input-box-shadow);
     color: var(--text-primary);
     font-family: "Inter", "Segoe UI", sans-serif;
     font-size: 16px;

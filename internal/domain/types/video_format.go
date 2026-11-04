@@ -10,27 +10,19 @@ import (
 type VideoFormat string
 
 const (
-	VideoFormatNone VideoFormat = "none"
+	VideoFormatNone VideoFormat = ""
 	VideoFormatAuto VideoFormat = "auto"
 	VideoFormatMP4  VideoFormat = "mp4"
 	VideoFormatWebM VideoFormat = "webm"
 )
 
 var (
-	videoFormatMap = map[VideoFormat]struct{}{
-		VideoFormatNone: {},
+	videoFormats = map[VideoFormat]struct{}{
 		VideoFormatAuto: {},
 		VideoFormatMP4:  {},
 		VideoFormatWebM: {},
 	}
-	parseVideoFormatMap = map[string]VideoFormat{
-		"none": VideoFormatNone,
-		"auto": VideoFormatAuto,
-		"mp4":  VideoFormatMP4,
-		"webm": VideoFormatWebM,
-	}
 	videoFormatToFileFormatMap = map[VideoFormat]FileFormat{
-		VideoFormatNone: FileFormatNone,
 		VideoFormatAuto: FileFormatAuto,
 		VideoFormatMP4:  FileFormatMP4,
 		VideoFormatWebM: FileFormatWebM,
@@ -52,19 +44,29 @@ func (v VideoFormat) Ptr() *VideoFormat {
 	return &v
 }
 
-// Exists returns true if the VideoFormat is valid.
+// Exists checks if the VideoFormat value exists in the predefined set of video formats.
 func (v VideoFormat) Exists() bool {
-	_, exists := videoFormatMap[v]
+	_, exists := videoFormats[v]
 	return exists
 }
 
 // ParseVideoFormat converting string to VideoFormat
 func ParseVideoFormat(s string) (VideoFormat, error) {
-	videoFormat, exists := parseVideoFormatMap[strings.ToLower(s)]
-	if !exists {
+	videoFormat := VideoFormat(strings.ToLower(s))
+	if !videoFormat.Exists() {
 		return "", errors.New("invalid value for VideoFormat")
 	}
 	return videoFormat, nil
+}
+
+// MustParseVideoFormat converts a string to VideoFormat and returns VideoFormatNone if the conversion fails.
+func MustParseVideoFormat(s string) VideoFormat {
+	videoFormat, err := ParseVideoFormat(s)
+	if err != nil {
+		return VideoFormatNone
+	}
+
+	return videoFormat
 }
 
 // ValidateVideoFormat checks if the field value is a valid VideoFormat enum.

@@ -65,7 +65,7 @@
 
 @media (min-width: 480px) {
     .upload-menu {
-        --menu-width: 200px;
+        --menu-width: 230px;
     }
 }
 
@@ -82,11 +82,13 @@
 }
 
 .menu-action--upload-url:hover,
+.menu-action--upload-list-url:hover,
 .menu-action--upload-file:hover {
     background: var(--menu-action-hover-bg-green);
 }
 
 .menu-action--upload-url .menu-action__content-icon,
+.menu-action--upload-list-url .menu-action__content-icon,
 .menu-action--upload-file .menu-action__content-icon {
     color: var(--menu-action-icon-green);
 }

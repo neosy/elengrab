@@ -39,7 +39,7 @@ func (d *Downloader) prepareDownload(
 	}
 
 	// Generate a unique filename if none provided
-	uniqueFilePart := options.UniqueFileName
+	uniqueFilePart := options.UniqueFileNameNoExt
 	if uniqueFilePart == "" {
 		uniqueFilePart = uuid.New().String()
 	}

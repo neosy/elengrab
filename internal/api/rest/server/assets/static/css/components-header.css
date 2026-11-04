@@ -86,7 +86,7 @@
 
 @media (hover: hover) {
     .header-actions__button-wrapper:hover {
-        background-color: var(--bg-button-hover);
+        background-color: var(--button-hover-bg);
     }
 
     .header-actions__upload-menu:hover {
@@ -191,7 +191,7 @@
     border-radius: 24px;
     outline: none;
     font-size: 14px;
-    background-color: var(--bg-input);
+    background-color: var(--input-bg);
     color: var(--text-primary);
     box-shadow: inset 0 1px 2px var(--border-shadow);
 
@@ -211,8 +211,8 @@
 
 .history-search__input:focus {
     width: calc(100vw - 330px - 88px - 110px);
-    background-color: var(--bg-input-focus);
-    border-color: var(--border-input-focus);
+    background-color: var(--input-focus-bg);
+    border-color: var(--input-focus-border-color);
 }
 
 @media (max-width: 768px) {
@@ -223,11 +223,11 @@
 
 .history-search__input_wrapper:has(.history-search__input:focus)::before,
 .history-search__input_wrapper:has(.history-search__input.has-value:not(:focus))::before {
-    background-color: var(--border-input-focus);
+    background-color: var(--input-focus-border-color);
 }
 
 .history-search__input:hover:not(:focus) {
-    border-color: var(--border-input);
+    border-color: var(--input-border-color);
 }
 
 .history-search__clear-button {
@@ -237,7 +237,7 @@
     transform: translateY(-50%);
     
     border: none;
-    color: var(--text-grab-area__action-button);
+    color: var(--input-action-button-color);
     background: transparent;
     font-size: 16px;
     cursor: pointer;

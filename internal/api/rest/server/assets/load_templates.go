@@ -34,6 +34,8 @@ var tmplPaths = [][]string{
 
 	{"templates", "components", "dialogs", "*.html"},
 	{"templates", "components", "dialogs", "content", "*.html"},
+
+	{"templates", "components", "downloads", "*.html"},
 }
 
 func LoadTemplates(assetsPath string) (*template.Template, error) {
