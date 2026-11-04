@@ -170,7 +170,7 @@ export function handleRowStartRefreshing(event) {
         const el = document.getElementById(DOM_IDS.row(data.itemId));
         if (!el) return;
 
-        el.classList.add(CLASS_NAMES.row.rowRefreshing);
+        el.classList.add(CLASS_NAMES.row.refreshing);
     } catch (err) {
         console.error(`SSE "${event.type}" handler error:`, err);
     }
