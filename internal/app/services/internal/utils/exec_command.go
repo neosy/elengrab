@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-func ExecCommandContext(ctx context.Context, name string, arg ...string) ([]byte, error) {
+func ExecCommandContext(ctx context.Context, name string, arg ...string) (bytes.Buffer, error) {
 	cmd := exec.CommandContext(ctx, name, arg...)
 
 	// Buffers to capture stdout and stderr
@@ -19,11 +19,11 @@ func ExecCommandContext(ctx context.Context, name string, arg ...string) ([]byte
 	if err := cmd.Run(); err != nil {
 		// The context was canceled
 		if ctx.Err() != nil {
-			return nil, fmt.Errorf("process canceled: %w", ctx.Err())
+			return bytes.Buffer{}, fmt.Errorf("process canceled: %w", ctx.Err())
 		}
 		errOut := fmt.Errorf("%s failed: %v, stderr: %s", filepath.Base(name), err, stderr.String())
-		return nil, errOut
+		return bytes.Buffer{}, errOut
 	}
 
-	return out.Bytes(), nil
+	return out, nil
 }

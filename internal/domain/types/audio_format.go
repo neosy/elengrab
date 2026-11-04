@@ -10,7 +10,7 @@ import (
 type AudioFormat string
 
 const (
-	AudioFormatNone AudioFormat = "none"
+	AudioFormatNone AudioFormat = ""
 	AudioFormatAuto AudioFormat = "auto"
 	AudioFormatMP3  AudioFormat = "mp3"
 	AudioFormatM4A  AudioFormat = "m4a"
@@ -19,8 +19,7 @@ const (
 )
 
 var (
-	audioFormatMap = map[AudioFormat]struct{}{
-		AudioFormatNone: {},
+	audioFormats = map[AudioFormat]struct{}{
 		AudioFormatAuto: {},
 		AudioFormatMP3:  {},
 		AudioFormatM4A:  {},
@@ -28,7 +27,7 @@ var (
 		AudioFormatOPUS: {},
 	}
 
-	audioFormatToFileFormatMap = map[AudioFormat]FileFormat{
+	fileFormatByAudioFormat = map[AudioFormat]FileFormat{
 		AudioFormatNone: FileFormatNone,
 		AudioFormatAuto: FileFormatAuto,
 		AudioFormatMP3:  FileFormatMP3,
@@ -45,7 +44,7 @@ func (v AudioFormat) String() string {
 
 // FileFormat returns the corresponding FileFormat value for the AudioFormat.
 func (v AudioFormat) FileFormat() FileFormat {
-	return audioFormatToFileFormatMap[v]
+	return fileFormatByAudioFormat[v]
 }
 
 // Ptr returns the pointer.
@@ -55,7 +54,7 @@ func (v AudioFormat) Ptr() *AudioFormat {
 
 // Exists returns true if the AudioFormat is valid.
 func (v AudioFormat) Exists() bool {
-	_, exists := audioFormatMap[v]
+	_, exists := audioFormats[v]
 	return exists
 }
 
@@ -63,11 +62,21 @@ func (v AudioFormat) Exists() bool {
 func ParseAudioFormat(s string) (AudioFormat, error) {
 	audioFormat := AudioFormat(strings.ToLower(s))
 
-	if _, exists := audioFormatMap[audioFormat]; !exists {
+	if !audioFormat.Exists() {
 		return "", errors.New("invalid value for AudioFormat")
 	}
 
 	return audioFormat, nil
+}
+
+// MustParseAudioFormat converts a string to AudioFormat and returns AudioFormatNone if the conversion fails.
+func MustParseAudioFormat(s string) AudioFormat {
+	audioFormat, err := ParseAudioFormat(s)
+	if err != nil {
+		return AudioFormatNone
+	}
+
+	return audioFormat
 }
 
 // ValidateAudioFormat checks if the field value is a valid AudioFormat enum.

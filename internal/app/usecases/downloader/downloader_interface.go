@@ -84,28 +84,43 @@ type DownloaderAPI interface {
 	HasWriteAccess(authCtx dauth.AuthContext) bool
 	CanCreateMediaDownload(authCtx dauth.AuthContext) bool
 	GetLastWatchPosition(ctx context.Context, authCtx dauth.AuthContext, downloadID uuid.UUID) (time.Duration, error)
+
 	ScheduleDownload(
 		ctx context.Context,
 		authCtx dauth.AuthContext,
 		url string,
 		options *ddownload.DownloadOptions,
 	) (*dto.ScheduleDownloadResponse, error)
+	ScheduleDownloadList(
+		ctx context.Context,
+		authCtx dauth.AuthContext,
+		req *dto.ScheduleDownloadListRequest,
+	) (*dto.ScheduleDownloadListResponse, error)
 	RetryDownload(
 		ctx context.Context,
 		authCtx dauth.AuthContext,
 		downloadID uuid.UUID,
 	) (*dto.MediaDownloadInfo, error)
+
+	ExtractPlaylistByURL(
+		ctx context.Context,
+		authCtx dauth.AuthContext,
+		url string,
+	) (*dto.Playlist, error)
+
 	ScheduleUpload(
 		ctx context.Context,
 		authCtx dauth.AuthContext,
 		upload pservices.UploadedFile,
 		req dto.ScheduleUploadRequest,
 	) (*dto.ScheduleUploadResponse, error)
+
 	ScheduleRefreshMetadata(
 		ctx context.Context,
 		authCtx dauth.AuthContext,
 		downloadID uuid.UUID,
 	) error
+
 	GetDownloadImage(
 		ctx context.Context,
 		userCtx dauth.AuthContext,

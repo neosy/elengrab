@@ -29,15 +29,15 @@ func (uc *downloader) ScheduleDownload(
 
 	broadcastError := uc.newErrorBroadcaster(authCtx, types.BroadcastNotificationModuleGrabForm)
 
-	downloadID := uuid.New()
-	uniqueFileNameNoExt := downloadID.String()
-
-	options.UniqueFileName = &uniqueFileNameNoExt
-
 	mediaVisibility := iconfig.InitialMediaVisibility()
 	if authCtx.UserID == uuid.Nil() {
 		mediaVisibility = dtypes.MediaVisibilityPublic
 	}
+
+	downloadID := uuid.New()
+	uniqueFileNameNoExt := downloadID.String()
+
+	options.UniqueFileNameNoExt = &uniqueFileNameNoExt
 
 	err := uc.download.CreateDownload(
 		ctx,
@@ -56,28 +56,9 @@ func (uc *downloader) ScheduleDownload(
 		return nil, broadcastError(err)
 	}
 
-	download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
+	download, err := uc.enqueueDownloadByID(ctx, downloadID)
 	if err != nil {
-		uc.logger.Error("Failed find download", "error", err)
 		return nil, broadcastError(err)
-	}
-	if download.DownloadTask == nil {
-		download.DownloadTask, err = uc.dlTask.GetByDownloadID(ctx, downloadID)
-		if err != nil {
-			uc.logger.Error("Failed find task", "error", err)
-			return nil, broadcastError(err)
-		}
-	}
-
-	err = uc.addDownloadToQueueDownload(ctx, downloadID, download.DownloadTask.TaskID)
-	if err != nil {
-		uc.logger.Error("Failed add to queue", "error", err)
-		return nil, broadcastError(err)
-	}
-
-	tmpDownload, _ := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
-	if tmpDownload != nil {
-		download = tmpDownload
 	}
 
 	downloadInfo, _ := uc.resolveActualDownloadInfoByDownload(ctx, download)
@@ -93,7 +74,36 @@ func (uc *downloader) ScheduleDownload(
 	}, nil
 }
 
-func (uc *downloader) addDownloadToQueueDownload(ctx context.Context, downloadID uuid.UUID, taskId uuid.UUID) error {
+func (uc *downloader) enqueueDownloadByID(ctx context.Context, downloadID uuid.UUID) (*ddownload.MediaDownload, error) {
+	download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
+	if err != nil {
+		uc.logger.Error("Failed find download", "error", err)
+		return nil, err
+	}
+
+	if download.DownloadTask == nil {
+		download.DownloadTask, err = uc.dlTask.GetByDownloadID(ctx, downloadID)
+		if err != nil {
+			uc.logger.Error("Failed find task", "error", err)
+			return nil, err
+		}
+	}
+
+	err = uc.enqueueDownload(ctx, downloadID, download.DownloadTask.TaskID)
+	if err != nil {
+		uc.logger.Error("Failed add to queue", "error", err)
+		return nil, err
+	}
+
+	updatedDownload, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
+	if err == nil && updatedDownload != nil {
+		download = updatedDownload
+	}
+
+	return download, nil
+}
+
+func (uc *downloader) enqueueDownload(ctx context.Context, downloadID uuid.UUID, taskId uuid.UUID) error {
 	var (
 		download *ddownload.MediaDownload
 	)

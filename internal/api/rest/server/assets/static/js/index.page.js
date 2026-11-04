@@ -16,6 +16,7 @@ import * as grabForm from './pages-list.grab-form.js';
 import * as search from './pages-list.search.js';
 import {  CLASS_NAMES, CLASS_SELECTORS, DOM_ELEMENTS, initDomElements } from "./index-page.dom.js";
 import { initUploadFileDialog } from "upload-file-dialog.js";
+import { initDownloadListDialog } from "download-list-dialog.js";
 
 // Global variables
 let searchInputClearButton = null;
@@ -50,6 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init dialogs
     dialog.initDialogs();
     initUploadFileDialog(API_PATHS.downloaderUpload);
+    initDownloadListDialog({
+        fetchUrl: API_PATHS.downloaderExtract,
+        submitUrl: "/api/media/download",
+    });
 
     // Init tooltips
     tooltip.initTooltips();

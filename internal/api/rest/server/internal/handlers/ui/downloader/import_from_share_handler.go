@@ -44,9 +44,9 @@ func (h *DownloaderHandlers) ImportFromShareHandler(ctx *fasthttp.RequestCtx) {
 		url,
 		&ddownload.DownloadOptions{
 			FormatType:      dtypes.FormatTypeVideoAudio,
-			VideoCodec:      new(dtypes.VideoCodecH264),
-			VideoResolution: new(dtypes.VideoResolution1080p),
-			VideoFormat:     new(dtypes.VideoFormatAuto),
+			VideoCodec:      dtypes.VideoCodecH264,
+			VideoResolution: dtypes.VideoResolution1080p,
+			VideoFormat:     dtypes.VideoFormatAuto,
 		},
 	)
 	if err != nil {

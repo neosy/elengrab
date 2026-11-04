@@ -13,13 +13,13 @@ import (
 type VideoResolution string
 
 const (
-	VideoResolutionNone  VideoResolution = "none"
+	VideoResolutionNone  VideoResolution = ""
 	VideoResolutionMin   VideoResolution = "min"
 	VideoResolutionMax   VideoResolution = "max"
-	VideoResolution16k   VideoResolution = "16k"
-	VideoResolution8k    VideoResolution = "8k"
-	VideoResolution4k    VideoResolution = "4k"
-	VideoResolution2k    VideoResolution = "2k"
+	VideoResolution16k   VideoResolution = "8640p"
+	VideoResolution8k    VideoResolution = "4320p"
+	VideoResolution4k    VideoResolution = "2160p"
+	VideoResolution2k    VideoResolution = "1440p"
 	VideoResolution1080p VideoResolution = "1080p"
 	VideoResolution720p  VideoResolution = "720p"
 	VideoResolution480p  VideoResolution = "480p"
@@ -30,8 +30,6 @@ const (
 
 var (
 	videoResolutionMap = map[VideoResolution]struct{}{
-		VideoResolutionNone: {},
-
 		VideoResolutionMin: {},
 		VideoResolutionMax: {},
 
@@ -143,6 +141,16 @@ func ParseVideoResolution(s string) (VideoResolution, error) {
 	return videoResolution, nil
 }
 
+// MustParseVideoResolution converts a string to VideoResolution and returns VideoResolutionNone if the conversion fails.
+func MustParseVideoResolution(s string) VideoResolution {
+	videoResolution, err := ParseVideoResolution(s)
+	if err != nil {
+		return VideoResolutionNone
+	}
+
+	return videoResolution
+}
+
 // ParseVideoResolutionWH
 func ParseVideoResolutionWH(w, h uint16) VideoResolution {
 	if w != 0 && h > w {
@@ -180,20 +188,15 @@ func VideoResolutionStringToWH(res string) (uint16, uint16, error) {
 	return uint16(v1), uint16(v2), nil
 }
 
-// ParseVideoResolutionFromString parses a resolution string in the form "WIDTHxHEIGHT"
+// ParseVideoResolutionStringWH parses a resolution string in the form "WIDTHxHEIGHT"
 // and returns a VideoResolution. Returns an error if the string is invalid.
-func ParseVideoResolutionFromString(res string) (VideoResolution, error) {
+func ParseVideoResolutionStringWH(res string) (VideoResolution, error) {
 	w, h, err := VideoResolutionStringToWH(res)
 	if err != nil {
 		return "", fmt.Errorf("invalid value for VideoResolution: %w", err)
 	}
 
 	return ParseVideoResolutionWH(w, h), nil
-}
-
-// ValidateVideoResolution checks if the field value is a valid VideoResolution enum.
-func ValidateVideoResolution(fl validator.FieldLevel) bool {
-	return VideoResolution(fl.Field().String()).Exists()
 }
 
 // Height returns the height in pixels for the given VideoResolution.
@@ -224,4 +227,9 @@ func (v VideoResolution) Next() VideoResolution {
 	}
 
 	return videoResolutionOrder[index+1]
+}
+
+// ValidateVideoResolution checks if the field value is a valid VideoResolution enum.
+func ValidateVideoResolution(fl validator.FieldLevel) bool {
+	return VideoResolution(fl.Field().String()).Exists()
 }

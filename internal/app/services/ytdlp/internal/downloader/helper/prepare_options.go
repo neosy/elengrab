@@ -45,28 +45,28 @@ func PrepareDownloadOptions(
 	}
 
 	// Override video format if provided
-	if options.VideoFormat != nil && *options.VideoFormat != dtypes.VideoFormatNone {
-		dlOptions.VideoFormat = *options.VideoFormat
+	if options.VideoFormat != dtypes.VideoFormatNone {
+		dlOptions.VideoFormat = options.VideoFormat
 	}
 
 	// Override video codec if provided
-	if options.VideoCodec != nil && *options.VideoCodec != dtypes.VideoCodecNone {
-		dlOptions.VideoCodec = *options.VideoCodec
+	if options.VideoCodec != dtypes.VideoCodecNone {
+		dlOptions.VideoCodec = options.VideoCodec
 	}
 
 	// Override video codec if provided
-	if options.VideoResolution != nil && *options.VideoResolution != dtypes.VideoResolutionNone {
-		dlOptions.VideoResolution = *options.VideoResolution
+	if options.VideoResolution != dtypes.VideoResolutionNone {
+		dlOptions.VideoResolution = options.VideoResolution
 	}
 
 	// Override audio format if provided
-	if options.AudioFormat != nil && *options.AudioFormat != dtypes.AudioFormatNone {
-		dlOptions.AudioFormat = *options.AudioFormat
+	if options.AudioFormat != dtypes.AudioFormatNone {
+		dlOptions.AudioFormat = options.AudioFormat
 	}
 
 	// Override file name if provided
-	if options.UniqueFileName != nil {
-		dlOptions.UniqueFileName = nfile.FileNameWithoutExt(*options.UniqueFileName)
+	if options.UniqueFileNameNoExt != nil {
+		dlOptions.UniqueFileNameNoExt = nfile.FileNameWithoutExt(*options.UniqueFileNameNoExt)
 	}
 
 	// Include title in filename

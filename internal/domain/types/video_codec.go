@@ -20,8 +20,7 @@ const (
 )
 
 var (
-	videoCodecMap = map[VideoCodec]struct{}{
-		VideoCodecNone: {},
+	videoCodecs = map[VideoCodec]struct{}{
 		VideoCodecBest: {},
 		VideoCodecH264: {},
 		VideoCodecH265: {},
@@ -29,7 +28,7 @@ var (
 		VideoCodecVP9:  {},
 	}
 
-	videoCodeToFormatMap = map[VideoCodec]VideoFormat{
+	videoFormatByVideCode = map[VideoCodec]VideoFormat{
 		VideoCodecNone: VideoFormatNone,
 		VideoCodecBest: VideoFormatNone,
 		VideoCodecH264: VideoFormatMP4,
@@ -38,7 +37,7 @@ var (
 		VideoCodecVP9:  VideoFormatWebM,
 	}
 
-	parseVideoCodecMap = map[string]VideoCodec{
+	videoCodecByStringValue = map[string]VideoCodec{
 		string(VideoCodecNone): VideoCodecNone,
 		string(VideoCodecBest): VideoCodecBest,
 		string(VideoCodecH264): VideoCodecH264,
@@ -48,7 +47,7 @@ var (
 		string(VideoCodecVP9):  VideoCodecVP9,
 	}
 
-	videoCodecTitleMap = map[VideoCodec]string{
+	videoCodecTitleByVideoCodec = map[VideoCodec]string{
 		VideoCodecBest: "Best",
 		VideoCodecH264: "H.264",
 		VideoCodecH265: "H.265",
@@ -64,12 +63,12 @@ func (v VideoCodec) String() string {
 
 // Title
 func (v VideoCodec) Title() string {
-	return videoCodecTitleMap[v]
+	return videoCodecTitleByVideoCodec[v]
 }
 
 // Format returns the corresponding VideoFormat for the VideoCodec.
 func (v VideoCodec) Format() VideoFormat {
-	return videoCodeToFormatMap[v]
+	return videoFormatByVideCode[v]
 }
 
 // Ptr returns the pointer.
@@ -79,20 +78,20 @@ func (v VideoCodec) Ptr() *VideoCodec {
 
 // Exists returns true if the VideoCodec is valid.
 func (v VideoCodec) Exists() bool {
-	_, exists := videoCodecMap[v]
+	_, exists := videoCodecs[v]
 	return exists
 }
 
 // ParseVideoCodec converting string to VideoCodec
 func ParseVideoCodec(s string) (VideoCodec, error) {
-	videoCodec, exists := parseVideoCodecMap[strings.ToLower(s)]
+	videoCodec, exists := videoCodecByStringValue[strings.ToLower(s)]
 	if !exists {
 		return VideoCodecNone, fmt.Errorf("%w: %s", apperrors.ErrUnsupportedVideoCodec, s)
 	}
 	return videoCodec, nil
 }
 
-// MustParseVideoCodec converting string to VideoCodec, ignoring any errors.
+// MustParseVideoCodec converts a string to VideoCodec and returns VideoCodecNone if the conversion fails.
 func MustParseVideoCodec(s string) VideoCodec {
 	codec, err := ParseVideoCodec(s)
 	if err != nil {

@@ -25,5 +25,5 @@ func GetVersion(ctx context.Context, ytDlpPath string) (string, error) {
 		return "", fmt.Errorf("failed to execute %s command: %w", consts.YtDlpName, err)
 	}
 
-	return strings.TrimSpace(string(out)), nil
+	return strings.TrimSpace(out.String()), nil
 }

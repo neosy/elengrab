@@ -1,4 +1,10 @@
-import * as utils from './utils.js';
+/* ------------------------------------------------------------------ */
+/* Helpers                                                             */
+/* ------------------------------------------------------------------ */
+
+function $select(root, name) {
+    return root.querySelector(`select[name="${name}"]`);
+}
 
 // -------------------------------------------------------------
 // Cookie Helper Module
@@ -27,9 +33,9 @@ const cookie = (() => {
 // -------------------------------------------------------------
 // Save all select values to cookies
 // -------------------------------------------------------------
-export function saveAllSelectsToCookie(names, cookieNames) {
+export function saveAllSelectsToCookie(root, names, cookieNames) {
     Object.entries(names).forEach(([key, name]) => {
-        const el = utils.getSelectByName(name);
+        const el = $select(root, name);
         if (el) cookie.set(cookieNames[key], el.value);
     });
 }
@@ -37,8 +43,8 @@ export function saveAllSelectsToCookie(names, cookieNames) {
 // -------------------------------------------------------------
 // Restore select value from cookie
 // -------------------------------------------------------------
-export function setupCookieSelectSync(selectName, cookieName, saveOnChange = false) {
-    const selectElement = utils.getSelectByName(selectName);
+export function setupCookieSelectSync(root, selectName, cookieName, saveOnChange = false) {
+    const selectElement = $select(root, selectName);
     if (!selectElement) return;
 
     const savedValue = cookie.get(cookieName);

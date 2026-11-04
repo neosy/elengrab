@@ -41,8 +41,8 @@ var (
 
 		cssFileNames{
 			"page-index.css",
-			"grab-form.css",
 			"upload-media-dialog.css",
+			"download-list-dialog.css",
 		}...,
 	)
 
@@ -58,8 +58,8 @@ var (
 		pagesListCssPaths,
 
 		cssFileNames{
-			"grab-form.css",
 			"upload-media-dialog.css",
+			"download-list-dialog.css",
 		}...,
 	)
 
