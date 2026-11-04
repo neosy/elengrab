@@ -11,19 +11,19 @@ type DownloadOptions struct {
 	FormatType dtypes.FormatType `json:"format_type"`
 
 	// Video format (best, mp4)
-	VideoFormat *dtypes.VideoFormat `json:"video_format,omitempty"`
+	VideoFormat dtypes.VideoFormat `json:"video_format,omitempty"`
 
 	// Video codec (best, h264, ...)
-	VideoCodec *dtypes.VideoCodec `json:"video_codec,omitempty"`
+	VideoCodec dtypes.VideoCodec `json:"video_codec,omitempty"`
 
 	// Video resolution (best, 4k, 2k, 1080p, 720p, ...)
-	VideoResolution *dtypes.VideoResolution
+	VideoResolution dtypes.VideoResolution
 
 	// Audio format (orig, mp3)
-	AudioFormat *dtypes.AudioFormat `json:"audio_format,omitempty"`
+	AudioFormat dtypes.AudioFormat `json:"audio_format,omitempty"`
 
 	// Custom file name for the downloaded content
-	UniqueFileName *string `json:"filename,omitempty"`
+	UniqueFileNameNoExt *string `json:"filename,omitempty"`
 
 	// Desired video quality
 	VideoQuality *string `json:"video_quality,omitempty"`
@@ -39,11 +39,7 @@ func (src *DownloadOptions) Clone() *DownloadOptions {
 
 	copy := *src
 
-	copy.VideoFormat = uptr.Clone(src.VideoFormat)
-	copy.VideoCodec = uptr.Clone(src.VideoCodec)
-	copy.VideoResolution = uptr.Clone(src.VideoResolution)
-	copy.AudioFormat = uptr.Clone(src.AudioFormat)
-	copy.UniqueFileName = uptr.Clone(src.UniqueFileName)
+	copy.UniqueFileNameNoExt = uptr.Clone(src.UniqueFileNameNoExt)
 	copy.VideoQuality = uptr.Clone(src.VideoQuality)
 	copy.AudioQuality = uptr.Clone(src.AudioQuality)
 

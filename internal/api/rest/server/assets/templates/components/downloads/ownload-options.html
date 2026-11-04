@@ -1,0 +1,52 @@
+{{- define "download-options-body" }}
+            <div class="download-options__wrapper">
+                <div class="download-options__list">
+                    <div class="download-options__item">
+                        <span class="download-options__label">Quality</span>
+                        <select name="quality-codec" title="Select your preferred video/audio quality or codec">
+                            <option value="best" selected>Best</option>
+                            <option value="only_audio">Only audio</option>
+                            <option value="h264">Video H.264</option>
+                            <option value="h265">Video H.265</option>
+                            <option value="av1">Video AV1</option>
+                        </select>
+                        <select name="quality-resolution" title="Select the video resolution you prefer">
+                            <option value="empty" hidden>Max</option>
+                            <option value="max" selected>Max</option>
+                            <option value="1080">1080p</option>
+                            <option value="720">720p</option>
+                            <option value="480">480p</option>
+                            <option value="360">360p</option>
+                        </select>
+                    </div>
+                    <div class="download-options__item">
+                        <span class="download-options__label">Format</span>
+                        <select name="format" title="Select the desired output format for video or audio">
+                            <option value="auto" selected>Auto</option>
+                            <optgroup label="Video">
+                                <option value="mp4">MP4</option>
+                                <option value="webm">WebM</option>
+                            </optgroup>
+                            <optgroup label="Audio">
+                                <option value="mp3">MP3</option>
+                                <option value="m4a">M4A</option>
+                                <option value="flac">FLAC</option>
+                                <option value="opus">OPUS</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+            </div>
+{{- end }}
+
+{{- define "download-options-collapsible" }}
+        <div class="download-options download-options-collapse is-collapsed">
+        {{- template "download-options-body" . }}
+        </div>
+{{- end }}
+
+{{- define "download-options" }}
+        <div class="download-options">
+        {{- template "download-options-body" . }}
+        </div>
+{{- end }}

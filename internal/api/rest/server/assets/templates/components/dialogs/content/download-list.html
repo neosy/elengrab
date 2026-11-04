@@ -1,0 +1,76 @@
+{{- define "download-list-dialog-content" }}
+    {{- with .Values.DownloadListDialog }}
+    <header class="modal-dialog__header">
+        <div class="modal-dialog__brand">
+            <span class="modal-dialog__logo" aria-hidden="true">{{ .LogoIcon }}</span>
+            <h2 class="modal-dialog__title" id="download-list-dialog-title">Download Media List</h2>
+        </div>
+        <button class="modal-dialog__close" type="button" aria-label="Close" data-dialog-close>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+        </button>
+    </header>
+
+    <div class="modal-dialog__body">
+        <form class="download-list-dialog__form" novalidate>
+            <!-- Step 1: URL input -->
+            <div class="download-list-dialog__source">
+                <div class="download-list-dialog__field">
+                    <label class="download-list-dialog__label download-list-dialog__label--url" for="download-list-url">List URL (required)</label>
+                    <div class="url-input-container download-list-dialog__source-row">
+                        <div class="url-input-wrapper download-list-dialog__input-wrapper">
+                            <input class="url-input download-list-dialog__input" type="url" id="download-list-url" name="url" placeholder="Enter playlist URL" autocomplete="off" required maxlength="2048">
+                        </div>
+                        <div class="url-input-actions download-list-dialog__input-actions">
+                            <button class="url-input-action-button download-list-dialog__action-button--paste no-select" id="download-list-paste-button" type="button"></button>
+                        </div>
+                        <div class="url-input-buttons download-list-dialog__source-buttons">
+                            <button class="url-input-button download-list-dialog__button--get-list no-select" title="Get List" type="button" disabled>{{ .GetListButtonIcon }}<span class="url-input-button-text">Get</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{- template "download-options" . }}
+            <!-- Step 2: waiting animation (long server request) -->
+            <div class="download-list-dialog__loading" role="status" aria-live="polite" hidden>
+                <span class="download-list-dialog__spinner" aria-hidden="true"></span>
+                <span class="download-list-dialog__loading-text">Searching for media…</span>
+            </div>
+            <p class="download-list-dialog__status" role="status" aria-live="polite"></p>
+            <!-- Step 3: result list with scroll -->
+            <div class="download-list-dialog__results" hidden>
+                <div class="download-list-dialog__toolbar">
+                    <label class="download-list-dialog__select-all">
+                        <input class="download-list-dialog__checkbox download-list-dialog__checkbox--all" type="checkbox">
+                        <span>Select all</span>
+                    </label>
+                    <span class="download-list-dialog__counter" aria-live="polite">Selected: 0 of 0</span>
+                </div>
+                <ul class="download-list-dialog__list" role="list" aria-label="Found media"></ul>
+            </div>
+            <!-- Row template: cloned by JS for every media item -->
+            <template class="download-list-dialog__item-template">
+                <li class="download-list-dialog__item">
+                    <label class="download-list-dialog__item-label">
+                        <input class="download-list-dialog__checkbox download-list-dialog__checkbox--item" type="checkbox">
+                        <span class="download-list-dialog__item-info">
+                            <span class="download-list-dialog__item-title"></span>
+                            <a class="download-list-dialog__item-url" target="_blank" rel="noopener noreferrer"></a>
+                        </span>
+                        <span class="download-list-dialog__item-duration"></span>
+                    </label>
+                </li>
+            </template>
+        </form>
+    </div>
+    
+    <footer class="modal-dialog__footer download-list-dialog__footer">
+        <button class="modal-dialog__button download-list-dialog__button download-list-dialog__button--cancel" type="button" data-dialog-close>Cancel</button>
+        <button class="modal-dialog__button download-list-dialog__button download-list-dialog__button--submit" type="button" disabled>
+            <span class="download-list-dialog__spinner download-list-dialog__spinner--small" aria-hidden="true" hidden></span>
+            <span class="download-list-dialog__submit-text">Add to Downloads</span>
+        </button>
+    </footer>
+    {{- end }}
+{{- end }}

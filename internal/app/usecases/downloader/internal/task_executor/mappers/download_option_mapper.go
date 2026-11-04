@@ -13,7 +13,7 @@ func (m *Mappers) MapDownloadOptionsDomainToService(options *ddownload.DownloadO
 	opt.VideoCodec = options.VideoCodec
 	opt.VideoResolution = options.VideoResolution
 	opt.AudioFormat = options.AudioFormat
-	opt.UniqueFileName = options.UniqueFileName
+	opt.UniqueFileNameNoExt = options.UniqueFileNameNoExt
 	opt.VideoQuality = options.VideoQuality
 	opt.AudioQuality = options.AudioQuality
 

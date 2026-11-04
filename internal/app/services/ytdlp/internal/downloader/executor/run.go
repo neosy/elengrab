@@ -86,7 +86,7 @@ func (e *Executor) RunYtDlp(
 	}
 
 	// Add YouTube cookies if allowed in service options
-	args = addCookiesToArgs(e.logger, args, idto.WithUseCookies(options.CookieFilePath))
+	args = addCookiesToArgs(args, idto.WithUseCookies(options.CookieFilePath))
 
 	// Add output file path to yt-dlp arguments
 	args = append(args, "-o", tmpFilePath)

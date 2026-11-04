@@ -58,7 +58,7 @@ body {
     padding: 24px;
     background: var(--auth-main-block-bg);
     border-radius: 20px;
-    box-shadow: 0 2px 6px var(--shadow);
+    box-shadow: 0 2px 6px var(--input-box-shadow);
 }
 
 .header__container {
@@ -108,7 +108,7 @@ input {
     padding: 10px;
     margin-bottom: 12px;
 
-    background-color: var(--bg-input);
+    background-color: var(--input-bg);
     color: var(--text-primary);
 
     border: 2px solid;
@@ -126,7 +126,7 @@ input:focus {
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 1000px var(--bg-input) inset !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
     -webkit-text-fill-color: var(--text-primary) !important;
     caret-color: var(--text-primary);
     transition: background-color 9999s ease-in-out 0s;
@@ -134,7 +134,7 @@ input:-webkit-autofill:active {
 
 /* Autofill + focus */
 input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 1000px var(--bg-input-focus) inset !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--input-focus-bg) inset !important;
     -webkit-text-fill-color: var(--text-primary) !important;
 }
 

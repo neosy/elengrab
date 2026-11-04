@@ -38,7 +38,7 @@ func (e *Executor) FetchTitle(
 	args = append(args, "--no-playlist", "--no-warnings", "-e")
 
 	// Add YouTube cookies if allowed in service options
-	args = addCookiesToArgs(e.logger, args, opts...)
+	args = addCookiesToArgs(args, opts...)
 
 	args = append(args, "--load-info-json", e.formatCache.CacheFilePath(url))
 	cmd = exec.CommandContext(ctx, e.ytDlpPath, args...)

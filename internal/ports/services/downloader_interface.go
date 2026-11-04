@@ -20,4 +20,7 @@ type Downloader interface {
 
 	ExtractThumbnailURL(ctx context.Context, mediaURL string, opts ...DownloaderOption) (string, error)
 	FetchThumbnail(ctx context.Context, mediaURL string, opts ...DownloaderOption) (*dtypes.ImageData, error)
+
+	// FetchPlaylist fetches a playlist from the provided URL and returns a DownloaderPlaylist object.
+	FetchPlaylist(ctx context.Context, playlistURL string) (*DownloaderPlaylist, error)
 }

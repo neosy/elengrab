@@ -19,6 +19,8 @@ const (
 	AccountMenuPath  = "/account-menu"
 	SettingsMenuPath = "/settings-menu"
 	GrabPath         = "/grab"
+	GrabListPath     = "/grab-list"
+	ExtractPath      = "/extract"
 	ShareTargetPath  = "/share-target"
 	DownloadFilePath = "/download"
 	SearchPath       = "/search"
@@ -54,6 +56,8 @@ const (
 	DownloaderAccountMenuPath  = DownloaderGroup + AccountMenuPath
 	DownloaderSettingsMenuPath = DownloaderGroup + SettingsMenuPath
 	DownloaderGrabPath         = DownloaderGroup + GrabPath
+	DownloaderGrabListPath     = DownloaderGroup + GrabListPath
+	DownloaderExtractPath      = DownloaderGroup + ExtractPath
 	DownloaderShareTargetPath  = DownloaderGroup + ShareTargetPath
 	DownloaderItemsPath        = DownloaderGroup + MediaItemsPath
 	DownloaderDownloadFilePath = DownloaderGroup + DownloadFilePath

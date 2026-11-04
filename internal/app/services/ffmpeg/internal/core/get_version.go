@@ -25,7 +25,7 @@ func GetFFmpegVersion(ctx context.Context, ffmpegPath string) (string, error) {
 		return "", fmt.Errorf("failed to execute %s command: %w", filepath.Base(ffmpegPath), err)
 	}
 
-	parts := strings.Fields(string(out))
+	parts := strings.Fields(out.String())
 
 	if len(parts) < 3 {
 		return "", fmt.Errorf("failed to parse ffmpeg version")

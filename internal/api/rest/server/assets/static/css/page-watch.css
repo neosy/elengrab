@@ -231,7 +231,7 @@ button {
     background: none;
     border: none;
 
-    background-color: var(--bg-button);
+    background-color: var(--button-bg);
     color: inherit;
 
     cursor: pointer;
@@ -270,7 +270,7 @@ button {
 }
 
 .back-button:hover {
-    background-color: var(--bg-button-hover);
+    background-color: var(--button-hover-bg);
 }
 
 .time {

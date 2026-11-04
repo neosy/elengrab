@@ -39,11 +39,11 @@ func (uc *downloader) ResetStuckJobs(ctx context.Context) error {
 		switch download.SourceType {
 		case dtypes.MediaDownloadSourceTypeURL:
 			if download.DownloadTask != nil {
-				uc.addDownloadToQueueDownload(ctx, download.DownloadID, download.DownloadTask.TaskID)
+				uc.enqueueDownload(ctx, download.DownloadID, download.DownloadTask.TaskID)
 			}
 		case dtypes.MediaDownloadSourceTypeUpload:
 			if download.ProcessingTask != nil {
-				uc.addUploadToQueueProcessing(ctx, download.DownloadID, download.ProcessingTask.TaskID)
+				uc.enqueueUploadProcessing(ctx, download.DownloadID, download.ProcessingTask.TaskID)
 			}
 		default:
 			return fmt.Errorf("unsupported source type %v for download %v", download.SourceType, download.DownloadID)

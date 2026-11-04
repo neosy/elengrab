@@ -8,20 +8,12 @@
     --dialog-control-border-focus: #4caf50;
     --dialog-field-error: #ff8983;
 
-    --dialog-option-border: #EBEBEB;
-    --dialog-option-label-bg: #EBEBEB;
-    --dialog-option-select-bg: #fff;
-
     --dialog-muted-color: var(--dialog-text-secondary);
 }
 
 .dark {
     --dialog-text-primary: #fff;
     --dialog-text-secondary: #cfd8e3;
-
-    --dialog-option-border: #3e3e3e;
-    --dialog-option-label-bg: #1f1f1f;
-    --dialog-option-select-bg: #3e3e3e;
 
     --dialog-scrollbar-track-bg: #3e3e3e;
     --dialog-scrollbar-thumb-bg: #606060;

@@ -264,7 +264,7 @@ body.media-player--audio .media-player__audio {
 }
 
 .media-player__audio .media-player__control {
-    background: var(--bg-button);
+    background: var(--button-bg);
     color: var(--text-primary);
 
     width: 28px;

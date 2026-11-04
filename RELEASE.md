@@ -5,9 +5,11 @@
 ### ✨ Features
 - Improved link creation and base URL resolution. [L188]
 - The server stores up to 1,000 events per user and replays events missed during disconnection when the client reconnects, ensuring continuity of event delivery. [L190]
+- Added a dialog for downloading media from a page URL, with a loading indicator and a scrollable selection list. [L194]
 
 ### 🖥️ UI / Frontend
 - Fixed video player closing behavior when navigating browser history.
+- Added a playback progress bar to the thumbnail of the media currently playing in the player. [L193]
 
 ### 🎨 Style
 - Added a dimming playback overlay with animation to the thumbnail of the currently playing video. [L193]

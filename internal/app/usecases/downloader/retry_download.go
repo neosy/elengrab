@@ -49,7 +49,7 @@ func (uc *downloader) RetryDownload(
 		return nil, err
 	}
 
-	err = uc.addDownloadToQueueDownload(ctx, downloadID, download.DownloadTask.TaskID)
+	err = uc.enqueueDownload(ctx, downloadID, download.DownloadTask.TaskID)
 	if err != nil {
 		uc.logger.Error("Failed add to queue", "error", err)
 		return nil, err

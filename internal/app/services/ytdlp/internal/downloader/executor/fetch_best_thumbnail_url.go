@@ -30,7 +30,7 @@ func (e *Executor) ExtractBestThumbnailURL(ctx context.Context, mediaURL string,
 	args = append(args, "--no-playlist", "--no-warnings", "--print", "%(thumbnails.-1.url)s")
 
 	// Add YouTube cookies if allowed in service options
-	args = addCookiesToArgs(e.logger, args, opts...)
+	args = addCookiesToArgs(args, opts...)
 
 	args = append(args, "--load-info-json", e.formatCache.CacheFilePath(mediaURL))
 	cmd = exec.CommandContext(ctx, e.ytDlpPath, args...)

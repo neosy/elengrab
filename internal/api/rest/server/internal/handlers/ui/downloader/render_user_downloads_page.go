@@ -108,14 +108,16 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 	pagesListValues.HasCreateAccess = isCurrentUserPage && pagesListValues.HasCreateAccess
 	pagesListValues.ResultNoRows = rowsBuf.Len() == 0
 	pagesListValues.ResultRowsHTML = template.HTML(rowsBuf.String())
-	pagesListValues.AboutDialog = h.mappers.MapAboutDialogValues(systemInfo)
-	pagesListValues.UploadFileDialog = h.mappers.MapUploadFileDialogValues()
 	pagesListValues.VideoPlayerMinimizeIcon = icons.VideoPlayerMinimizeIcon.FileRaw()
 	pagesListValues.VideoPlayingIcon = icons.MediaVideoPlayingIcon.FileRaw()
 	pagesListValues.AudioPlayingIcon = icons.MediaAudioPlayingIcon.FileRaw()
 	pagesListValues.AudioNoteIcon = icons.MediaAudioNoteIcon.FileRaw()
 	pagesListValues.PlayIcon = icons.MediaAudioPlayIcon.FileRaw()
 	pagesListValues.PauseIcon = icons.MediaAudioPauseIcon.FileRaw()
+
+	pagesListValues.AboutDialog = h.mappers.MapAboutDialogValues(systemInfo)
+	pagesListValues.UploadFileDialog = h.mappers.MapUploadFileDialogValues()
+	pagesListValues.DownloadListDialog = h.mappers.MapDownloadListDialogValues()
 
 	if pagesListValues.HasCreateAccess {
 		uploadMenu, err := h.renderUploadMenu(authCtx.Login, true)

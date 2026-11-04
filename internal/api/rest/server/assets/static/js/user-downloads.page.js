@@ -16,6 +16,7 @@ import * as grabForm from './pages-list.grab-form.js';
 import * as search from './pages-list.search.js';
 import { CLASS_NAMES, CLASS_SELECTORS, DOM_ELEMENTS, initDomElements } from "./user-downloads-page.dom.js";
 import { initUploadFileDialog } from "upload-file-dialog.js";
+import { initDownloadListDialog } from "download-list-dialog.js";
 
 
 // Global variables
@@ -51,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init dialogs
     dialog.initDialogs();
     initUploadFileDialog(API_PATHS.downloaderUpload);
+    initDownloadListDialog();
 
     // Init tooltips
     tooltip.initTooltips();
