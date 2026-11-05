@@ -54,26 +54,13 @@ func (d *Downloader) FetchChannelInfoWithCookieFallback(
 	ctx context.Context,
 	mediaURL string,
 ) (*dtypes.ChannelSource, error) {
-	getCookieFilePath := func() (string, error) {
-		if !d.serviceOptions.AllowCookies {
-			return "", nil
-		}
-
-		cookieFilePath, err := helper.CookieFilePathFromURL(mediaURL, d.serviceOptions.CookiesDir)
-		if err != nil {
-			return "", err
-		}
-
-		return cookieFilePath, nil
-	}
-
 	info, err := d.executor.FetchInfo(ctx, mediaURL)
 	if err != nil {
 		if !d.serviceOptions.AllowCookies || !helper.CheckCookiesError(err) {
 			return nil, err
 		}
 
-		cookieFilePath, err := getCookieFilePath()
+		cookieFilePath, err := d.cookieFilePath(mediaURL)
 		if err != nil {
 			return nil, err
 		}
@@ -95,7 +82,7 @@ func (d *Downloader) FetchChannelInfoWithCookieFallback(
 	channel := d.buildChannel(mediaURL, info)
 
 	if info.ChannelURL != "" {
-		cookieFilePath, _ := getCookieFilePath()
+		cookieFilePath, _ := d.cookieFilePath(mediaURL)
 		opts := d.buildChannelFetchOptions(info.ChannelURL, cookieFilePath)
 		image, _ := d.fetchChannelImage(ctx, info.ChannelURL, opts...)
 

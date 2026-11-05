@@ -124,7 +124,7 @@ func (e *Executor) fetchInfoJSON(
 	args = append(args, "--no-playlist", "--no-warnings", "--quiet")
 	args = append(args, "--dump-json")
 
-	// Add YouTube cookies if allowed in service options
+	// Add cookies if allowed in service options
 	args = addCookiesToArgs(e.logger, args, opts...)
 
 	args = append(args, url)
@@ -135,7 +135,7 @@ func (e *Executor) fetchInfoJSON(
 		return nil, fmt.Errorf("failed to execute %s command: %w", consts.YtDlpName, err)
 	}
 
-	outStr := string(out)
+	outStr := out.String()
 
 	// Find JSON start
 	start := strings.Index(outStr, "{")

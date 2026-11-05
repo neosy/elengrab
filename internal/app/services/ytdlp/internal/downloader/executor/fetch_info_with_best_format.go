@@ -58,7 +58,7 @@ func (e *Executor) FetchInfoWithBestFormat(
 		"elapsed", uformat.DurationFormat(elapsed),
 	)
 
-	outStr := strings.TrimSpace(string(out))
+	outStr := strings.TrimSpace(out.String())
 	if outStr == "" {
 		e.formatCache.DeleteByURL(url)
 		return nil, fmt.Errorf("best format not found")

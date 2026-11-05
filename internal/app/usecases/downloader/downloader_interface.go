@@ -97,11 +97,11 @@ type DownloaderAPI interface {
 		downloadID uuid.UUID,
 	) (*dto.MediaDownloadInfo, error)
 
-	ExtractByURL(
+	ExtractPlaylistByURL(
 		ctx context.Context,
 		authCtx dauth.AuthContext,
 		url string,
-	) (*dto.ExtractByURLResponse, error)
+	) (*dto.Playlist, error)
 
 	ScheduleUpload(
 		ctx context.Context,

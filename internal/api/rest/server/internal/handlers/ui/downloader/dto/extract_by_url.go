@@ -1,14 +1,14 @@
 package dto
 
-type ExtractByURLRequest struct {
+type ExtractPlaylistByURLRequest struct {
 	URL string `json:"url" validate:"required,url"`
 }
 
-type ExtractByURLResponse struct {
-	Items []ExtractByURLItem `json:"items"`
+type ExtractPlaylistByURLResponse struct {
+	Items []PlaylistItem `json:"items"`
 }
 
-type ExtractByURLItem struct {
+type PlaylistItem struct {
 	URL   string `json:"url"`
 	Title string `json:"title"`
 }

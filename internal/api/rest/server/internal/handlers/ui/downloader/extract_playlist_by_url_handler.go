@@ -12,26 +12,26 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) ExtractByURLHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) ExtractPlaylistByURLHandler(ctx *fasthttp.RequestCtx) {
 	authCtx, err := policy.ResolveUserOrFallback(ctx, h.appMode)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
-	var receivedReq dto.ExtractByURLRequest
+	var receivedReq dto.ExtractPlaylistByURLRequest
 	if err := json.Unmarshal(ctx.PostBody(), &receivedReq); err != nil {
 		nfasthttp.WriteErrorx(ctx, errorx.NewHTTPMessage("Invalid JSON request body", http.StatusBadRequest, err))
 		return
 	}
 
-	extractResponse, err := h.downloader.ExtractByURL(ctx, authCtx, receivedReq.URL)
+	playlist, err := h.downloader.ExtractPlaylistByURL(ctx, authCtx, receivedReq.URL)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
-	dataResponse, err := h.mappers.MapExtractByURLResponseDomainToDto(extractResponse)
+	dataResponse, err := h.mappers.MapPlaylistToExtractPlaylistByURLResponse(playlist)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, err)
 		return

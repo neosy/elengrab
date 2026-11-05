@@ -26,7 +26,7 @@ func GetVersion(ctx context.Context, denoPath string) (string, error) {
 		return "", fmt.Errorf("failed to execute %s command: %w", consts.DenoName, err)
 	}
 
-	parts := strings.Fields(string(out))
+	parts := strings.Fields(out.String())
 
 	if len(parts) < 2 {
 		return "", errors.New("invalid Deno version output")
