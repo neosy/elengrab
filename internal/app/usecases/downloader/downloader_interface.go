@@ -84,6 +84,7 @@ type DownloaderAPI interface {
 	HasWriteAccess(authCtx dauth.AuthContext) bool
 	CanCreateMediaDownload(authCtx dauth.AuthContext) bool
 	GetLastWatchPosition(ctx context.Context, authCtx dauth.AuthContext, downloadID uuid.UUID) (time.Duration, error)
+
 	ScheduleDownload(
 		ctx context.Context,
 		authCtx dauth.AuthContext,
@@ -95,17 +96,26 @@ type DownloaderAPI interface {
 		authCtx dauth.AuthContext,
 		downloadID uuid.UUID,
 	) (*dto.MediaDownloadInfo, error)
+
+	ExtractByURL(
+		ctx context.Context,
+		authCtx dauth.AuthContext,
+		url string,
+	) (*dto.ExtractByURLResponse, error)
+
 	ScheduleUpload(
 		ctx context.Context,
 		authCtx dauth.AuthContext,
 		upload pservices.UploadedFile,
 		req dto.ScheduleUploadRequest,
 	) (*dto.ScheduleUploadResponse, error)
+
 	ScheduleRefreshMetadata(
 		ctx context.Context,
 		authCtx dauth.AuthContext,
 		downloadID uuid.UUID,
 	) error
+
 	GetDownloadImage(
 		ctx context.Context,
 		userCtx dauth.AuthContext,

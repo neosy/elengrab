@@ -26,6 +26,7 @@ const (
 	MediaItemsPath   = "/items"
 	ChannelsPath     = "/channels"
 	UploadPath       = "/upload"
+	ExtractPath      = "/extract"
 
 	// Paths items Downloader
 	MediaItemPath                = MediaItemsPath + "/{itemId}"
@@ -63,6 +64,7 @@ const (
 	DownloaderUsersPath        = DownloaderGroup + ChannelPath
 	DownloaderUploadPath       = DownloaderGroup + UploadPath
 	DownloaderUploadFilePath   = DownloaderGroup + UploadFilePath
+	DownloaderExtractPath      = DownloaderGroup + ExtractPath
 )
 
 func buildMediaItemPath(path string, downloadID uuid.UUID) string {

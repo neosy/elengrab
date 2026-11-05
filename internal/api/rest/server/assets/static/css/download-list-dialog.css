@@ -1,0 +1,288 @@
+.download-list-dialog .modal-dialog__logo {
+    background: var(--dialog-logo-bg-green);
+}
+
+.download-list-dialog__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+/* The hidden attribute is used to switch states from JS */
+.download-list-dialog [hidden] {
+    display: none !important;
+}
+
+/* URL field */
+.download-list-dialog__field {
+    width: 100%;
+}
+
+.download-list-dialog__label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--editor-field-error-color, var(--dialog-text-title-secondary));
+    font-size: 13px;
+    font-weight: 400;
+    user-select: none;
+}
+
+.download-list-dialog__source-row {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+}
+
+.download-list-dialog__input {
+    flex: 1;
+    min-width: 0;
+    min-height: 40px;
+    padding: 6px 10px;
+    background: transparent;
+    color: var(--dialog-text-primary);
+    border: 0;
+    border-radius: 8px;
+    outline: none;
+    box-shadow: 0 0 0 var(--input-border-width, 1px) inset var(--input-border-color, var(--dialog-control-border));
+    box-sizing: border-box;
+    font-size: 16px;
+    font-family: inherit;
+    transition: box-shadow 0.5s ease;
+}
+
+.download-list-dialog__input::placeholder {
+    color: #888888;
+}
+
+.download-list-dialog__input:hover:not(:disabled) {
+    --input-border-color: var(--dialog-control-border-hover);
+}
+
+.download-list-dialog__input:focus {
+    --input-border-width: 2px;
+    --input-border-color: var(--dialog-control-border-focus);
+}
+
+.download-list-dialog__input:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Buttons */
+.download-list-dialog__button--fetch,
+.download-list-dialog__button--submit {
+    background: var(--dialog-button-bg-blue);
+    color: var(--dialog-button-color-white);
+}
+
+.download-list-dialog__button--fetch:disabled,
+.download-list-dialog__button--submit:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.download-list-dialog__button--submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Loading */
+.download-list-dialog__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 32px 0;
+    color: var(--dialog-text-secondary-color);
+    font-size: 0.875rem;
+}
+
+.download-list-dialog__spinner {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--dialog-border-color);
+    border-top-color: var(--dialog-accent-color);
+    border-radius: 50%;
+    animation: download-list-dialog-spin 0.8s linear infinite;
+}
+
+.download-list-dialog__spinner--small {
+    width: 14px;
+    height: 14px;
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.4);
+    border-top-color: var(--dialog-button-color-white);
+}
+
+@keyframes download-list-dialog-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Status message */
+.download-list-dialog__status {
+    margin: 0;
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+}
+
+.download-list-dialog__status:empty {
+    display: none;
+}
+
+.download-list-dialog__status--error {
+    color: var(--dialog-error-color);
+}
+
+.download-list-dialog__status--success {
+    color: var(--dialog-success-color);
+}
+
+/* Results */
+.download-list-dialog__results {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid var(--dialog-option-border);
+    border-radius: 8px;
+    transition: opacity 0.2s ease;
+}
+
+/* The list is locked while the selection is being sent */
+.download-list-dialog__results[aria-busy="true"] {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.download-list-dialog__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--dialog-option-label-bg);
+    border-bottom: 1px solid var(--dialog-option-border);
+}
+
+.download-list-dialog__select-all,
+.download-list-dialog__item-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.download-list-dialog__select-all {
+    color: var(--dialog-text-secondary);
+    user-select: none;
+}
+
+.download-list-dialog__counter {
+    color: var(--dialog-text-secondary);
+    font-size: 0.875rem;
+}
+
+.download-list-dialog__checkbox {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--dialog-control-border-focus);
+}
+
+/* Scrollable list (100+ items) */
+.download-list-dialog__list {
+    max-height: min(50vh, 420px);
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    list-style: none;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--dialog-scrollbar-thumb-bg, initial) var(--dialog-scrollbar-track-bg, initial);
+}
+
+.download-list-dialog__list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.download-list-dialog__list::-webkit-scrollbar-thumb {
+    background-color: var(--dialog-scrollbar-thumb-bg, initial);
+    border-radius: 4px;
+}
+
+.download-list-dialog__list::-webkit-scrollbar-thumb:hover {
+    background-color: var(--dialog-scrollbar-thumb-hover-bg, initial);
+}
+
+.download-list-dialog__list::-webkit-scrollbar-track {
+    background-color: var(--dialog-scrollbar-track-bg, initial);
+}
+
+.download-list-dialog__item + .download-list-dialog__item {
+    border-top: 1px solid var(--dialog-option-border);
+}
+
+.download-list-dialog__item-label {
+    padding: 8px 12px;
+    transition: background-color 0.2s ease;
+}
+
+.download-list-dialog__item-label:hover {
+    background-color: var(--dialog-option-label-bg);
+}
+
+.download-list-dialog__item-info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.download-list-dialog__item-title,
+.download-list-dialog__item-url {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.download-list-dialog__item-title {
+    color: var(--dialog-text-primary);
+    font-weight: 500;
+}
+
+.download-list-dialog__item-url {
+    color: var(--dialog-text-secondary-color);
+    font-size: 0.75rem;
+}
+
+/* Footer */
+.download-list-dialog__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.download-list-dialog__form [disabled]:not(.modal-dialog__button) {
+    cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .download-list-dialog__spinner {
+        animation-duration: 2.4s;
+    }
+
+    .download-list-dialog__input,
+    .download-list-dialog__results,
+    .download-list-dialog__item-label {
+        transition: none;
+    }
+}

@@ -11,9 +11,10 @@ type uploadMenuAction struct {
 }
 
 const (
-	uploadMenuActionUploadURL   = "upload-url"
-	uploadMenuActionUploadFile  = "upload-file"
-	uploadMenuActionMyDownloads = "my-downloads"
+	uploadMenuActionUploadURL     = "upload-url"
+	uploadMenuActionUploadListURL = "upload-list-url"
+	uploadMenuActionUploadFile    = "upload-file"
+	uploadMenuActionMyDownloads   = "my-downloads"
 )
 
 var uploadMenuActions = []uploadMenuAction{
@@ -24,6 +25,22 @@ var uploadMenuActions = []uploadMenuAction{
 			Title:      "Add download",
 		},
 		icon: &icons.UploadMenuPlusIcon,
+	},
+	{
+		menuAction: menuAction{
+			RenderType: renderTypeLink,
+			Action:     uploadMenuActionUploadListURL,
+			Title:      "Add download list",
+			Link: linkOptions{
+				DataAttributes: []dataAttribute{
+					{
+						Name:  "dialog-open",
+						Value: "download-list-dialog",
+					},
+				},
+			},
+		},
+		icon: &icons.UploadMenuDownloadListIcon,
 	},
 	{
 		menuAction: menuAction{

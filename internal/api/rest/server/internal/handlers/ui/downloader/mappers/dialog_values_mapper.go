@@ -34,3 +34,9 @@ func (m *Mappers) MapUploadFileDialogValues() pages.UploadFileDialogValues {
 		Visibility:     iconfig.InitialMediaVisibility().String(),
 	}
 }
+
+func (m *Mappers) MapDownloadListDialogValues() pages.DownloadListDialogValues {
+	return pages.DownloadListDialogValues{
+		LogoIcon: icons.DialogDownloadListIcon.FileRaw(),
+	}
+}
