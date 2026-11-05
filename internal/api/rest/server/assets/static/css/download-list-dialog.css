@@ -264,6 +264,17 @@
     font-size: 0.75rem;
 }
 
+.download-list-dialog__item-duration {
+    flex: none;
+    color: var(--dialog-text-secondary-color);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.download-list-dialog__item-duration:empty {
+    display: none;
+}
+
 /* Footer */
 .download-list-dialog__footer {
     display: flex;

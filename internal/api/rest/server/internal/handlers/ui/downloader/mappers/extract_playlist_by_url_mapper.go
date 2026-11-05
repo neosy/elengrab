@@ -17,8 +17,13 @@ func (m *Mappers) MapPlaylistToExtractPlaylistByURLResponse(playlist *ucdto.Play
 		respItems = append(
 			respItems,
 			dto.PlaylistItem{
+				Index: item.Index,
+
 				URL:   item.URL,
 				Title: item.Title,
+
+				DurationSec:  int(item.Duration.Seconds()),
+				DurationText: item.DurationText(),
 			},
 		)
 	}

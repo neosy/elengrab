@@ -125,7 +125,7 @@ func (e *Executor) fetchInfoJSON(
 	args = append(args, "--dump-json")
 
 	// Add cookies if allowed in service options
-	args = addCookiesToArgs(e.logger, args, opts...)
+	args = addCookiesToArgs(args, opts...)
 
 	args = append(args, url)
 

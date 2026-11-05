@@ -9,6 +9,11 @@ type ExtractPlaylistByURLResponse struct {
 }
 
 type PlaylistItem struct {
+	Index int `json:"index"`
+
 	URL   string `json:"url"`
 	Title string `json:"title"`
+
+	DurationSec  int    `json:"durationSec"`
+	DurationText string `json:"durationText"`
 }

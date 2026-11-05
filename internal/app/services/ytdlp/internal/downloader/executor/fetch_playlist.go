@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -38,18 +39,12 @@ func (e *Executor) FetchPlaylist(
 		"elapsed", uformat.DurationFormat(elapsed),
 	)
 
-	items := make([]idto.PlaylistItem, 0, len(extractItems))
-
-	for _, exItem := range extractItems {
-		items = append(items, idto.PlaylistItem{
-			URL:   exItem.URL,
-			Title: exItem.Title,
-		})
+	playlist, err := mapExtractPlaylistToDto(extractItems)
+	if err != nil {
+		return nil, fmt.Errorf("map extract playlist to dto error: %w", err)
 	}
 
-	return &idto.Playlist{
-		Items: items,
-	}, nil
+	return playlist, nil
 }
 
 func (e *Executor) fetchAndExtractPlaylist(
@@ -63,7 +58,7 @@ func (e *Executor) fetchAndExtractPlaylist(
 	args = append(args, "--flat-playlist", "--no-warnings", "--dump-json")
 
 	// Add cookies if allowed in service options
-	args = addCookiesToArgs(e.logger, args, opts...)
+	args = addCookiesToArgs(args, opts...)
 
 	// args = append(args, "--load-info-json", e.formatCache.CacheFilePath(playlistURL))
 
@@ -96,4 +91,63 @@ func (e *Executor) fetchAndExtractPlaylist(
 	}
 
 	return items, nil
+}
+
+func mapExtractPlaylistToDto(playlistItems []idto.ExtractPlaylistItem) (*idto.Playlist, error) {
+	if len(playlistItems) == 0 {
+		return nil, nil
+	}
+
+	itemsOut := make([]idto.PlaylistItem, 0, len(playlistItems))
+
+	for _, item := range playlistItems {
+		duration, _ := parseDuration(item.DurationText)
+
+		itemsOut = append(
+			itemsOut,
+			idto.PlaylistItem{
+				ID:       item.ID,
+				Index:    item.PlaylistIndex,
+				URL:      item.URL,
+				Title:    item.Title,
+				Duration: duration,
+			},
+		)
+	}
+
+	return &idto.Playlist{
+		Items: itemsOut,
+	}, nil
+}
+
+func parseDuration(value string) (time.Duration, error) {
+	parts := strings.Split(value, ":")
+	if len(parts) < 2 || len(parts) > 3 {
+		return 0, fmt.Errorf("invalid duration format: %q", value)
+	}
+
+	var hours, minutes, seconds int
+
+	var err error
+	if len(parts) == 3 {
+		hours, err = strconv.Atoi(parts[0])
+		if err != nil {
+			return 0, err
+		}
+		parts = parts[1:]
+	}
+
+	minutes, err = strconv.Atoi(parts[0])
+	if err != nil {
+		return 0, err
+	}
+
+	seconds, err = strconv.Atoi(parts[1])
+	if err != nil {
+		return 0, err
+	}
+
+	return time.Duration(hours)*time.Hour +
+		time.Duration(minutes)*time.Minute +
+		time.Duration(seconds)*time.Second, nil
 }

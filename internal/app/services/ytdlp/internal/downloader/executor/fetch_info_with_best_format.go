@@ -36,7 +36,7 @@ func (e *Executor) FetchInfoWithBestFormat(
 	args = append(args, "--no-warnings", "--quiet")
 
 	// Add YouTube cookies if allowed in service options
-	args = addCookiesToArgs(e.logger, args, opts...)
+	args = addCookiesToArgs(args, opts...)
 
 	args = append(args, "-f", format)
 	args = append(args, "--load-info-json", e.formatCache.CacheFilePath(url))

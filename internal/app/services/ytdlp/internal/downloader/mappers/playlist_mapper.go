@@ -17,8 +17,13 @@ func (m *Mappers) MapPlaylistDtoToService(playlistDto *idto.Playlist) (*pservice
 		items = append(
 			items,
 			pservices.DownloaderPlaylistItem{
+				ID:    item.ID,
+				Index: item.Index,
+
 				URL:   item.URL,
 				Title: item.Title,
+
+				Duration: item.Duration,
 			},
 		)
 	}

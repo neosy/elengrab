@@ -1,4 +1,5 @@
 import * as notify from "./notifications.js";
+import {formatDuration} from "player-utils.js";
 
 const CLASS_NAMES = {
     urlInput: "download-list-dialog__input",
@@ -15,6 +16,7 @@ const CLASS_NAMES = {
     itemCheckbox: "download-list-dialog__checkbox--item",
     itemLabel: "download-list-dialog__item-label",
     itemTitle: "download-list-dialog__item-title",
+    itemDuration: "download-list-dialog__item-duration",
     itemUrl: "download-list-dialog__item-url",
 };
 
@@ -113,7 +115,9 @@ function renderItems(ctx) {
         checkbox.checked = true;
         $(node, CLASS_NAMES.itemTitle).textContent = item.title || item.url;
         $(node, CLASS_NAMES.itemUrl).textContent = item.url;
+        $(node, CLASS_NAMES.itemDuration).textContent = formatDuration(item.durationSec);
         $(node, CLASS_NAMES.itemLabel).title = item.url;
+        
 
         fragment.appendChild(node);
     });
