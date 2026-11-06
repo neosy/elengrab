@@ -130,6 +130,10 @@ export function initMediaGrabForm() {
     const grabURLInput = DOM_ELEMENTS.mediaURLInput;
     const grabInputActionBtn = DOM_ELEMENTS.inputActionBtn;
 
+    const urlActions = {
+        pasteClear: null,
+    };
+
     cookie.setupCookieSelectSync(SELECT_NAMES.qualityCodec, COOKIE_NAMES.qualityCodec);
     cookie.setupCookieSelectSync(SELECT_NAMES.qualityResolution, COOKIE_NAMES.qualityResolution, true);
     cookie.setupCookieSelectSync(SELECT_NAMES.format, COOKIE_NAMES.format);
@@ -150,7 +154,7 @@ export function initMediaGrabForm() {
             if (grabURLInput) {
                 grabURLInput.value = '';
                 // update action button after clearing
-                actionButton.updateInputPasteClearButton(grabURLInput, grabInputActionBtn);
+                urlActions.pasteClear?.update();
             }
             if (DOM_ELEMENTS.resultInfo) DOM_ELEMENTS.resultInfo.classList.remove("show");
         });
@@ -202,5 +206,5 @@ export function initMediaGrabForm() {
     actionButton.initInputSettingsButton(DOM_ELEMENTS.inputActionSettingsBtn, DOM_ELEMENTS.grabOptionsCollapse, DOM_ELEMENTS.grabOptions);
 
     // Init action button for input field
-    actionButton.initInputPasteClearButton(DOM_ELEMENTS.mediaURLInput, DOM_ELEMENTS.inputActionBtn);
+    urlActions.pasteClear =  actionButton.initInputPasteClearButton(DOM_ELEMENTS.mediaURLInput, DOM_ELEMENTS.inputActionBtn);
 }

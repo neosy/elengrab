@@ -43,7 +43,7 @@ function setIcon(btn, url, alt) {
  * @param {HTMLInputElement} input
  * @param {HTMLElement} btn
  */
-export async function updateInputPasteClearButton(input, btn) {
+async function updateInputPasteClearButton(input, btn) {
     if (!input || !btn) return;
 
     const showPaste = !input.value.trim();
@@ -91,17 +91,22 @@ export async function updateInputPasteClearButton(input, btn) {
  * Initialize action button for the specified input.
  * @param {HTMLInputElement} input
  * @param {HTMLElement} btn
+ * @returns {{ update: () => void }}
  */
 export function initInputPasteClearButton(input, btn) {
     if (!input || !btn) return;
 
+    const update = () => updateInputPasteClearButton(input, btn);
+
     // Initial setup
-    updateInputPasteClearButton(input, btn);
+    update();
 
     // Attach input listener
     input.addEventListener('input', () => {
-        updateInputPasteClearButton(input, btn);
+        update();
     });
+
+    return { update };
 }
 
 /**

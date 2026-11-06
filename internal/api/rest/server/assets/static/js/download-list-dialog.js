@@ -46,7 +46,9 @@ function getDomElements(dialog) {
         dialog,
         urlInput: $(dialog, CLASS_NAMES.urlInput),
         inputPasteClearButton: document.getElementById(DOM_IDS.inputPasteClearButton),
+
         fetchButton: $(dialog, CLASS_NAMES.fetchButton),
+
         loading: $(dialog, CLASS_NAMES.loading),
         results: $(dialog, CLASS_NAMES.results),
         list: $(dialog, CLASS_NAMES.list),
@@ -145,7 +147,7 @@ function renderItems(ctx) {
 }
 
 function resetDialog(ctx) {
-    const { elements, state } = ctx;
+    const { elements, state, urlActions } = ctx;
 
     state.controller?.abort();
     state.controller = null;
@@ -155,6 +157,9 @@ function resetDialog(ctx) {
     elements.results.hidden = true;
     elements.loading.hidden = true;
     elements.urlInput.value = "";
+
+    urlActions.pasteClear?.update();
+
     setSubmitting(elements, false);
     setBusy(ctx, false);
 }
@@ -326,11 +331,13 @@ export function initDownloadListDialog(options) {
             items: [],
             busy: false,
             controller: null,
+            inputPasteClearButtonController: null,
+        },
+        urlActions: {
+            pasteClear: actionButton.initInputPasteClearButton(elements.urlInput, elements.inputPasteClearButton),
         },
     };
 
     bindEvents(ctx);
     updateControls(ctx);
-
-    actionButton.initInputPasteClearButton(elements.urlInput, elements.inputPasteClearButton);
 }
