@@ -37,6 +37,7 @@ func (m *Mappers) MapUploadFileDialogValues() pages.UploadFileDialogValues {
 
 func (m *Mappers) MapDownloadListDialogValues() pages.DownloadListDialogValues {
 	return pages.DownloadListDialogValues{
-		LogoIcon: icons.DialogDownloadListIcon.FileRaw(),
+		LogoIcon:          icons.DialogDownloadListIcon.FileRaw(),
+		GetListButtonIcon: icons.DialogDownloadListGetIcon.FileRaw(),
 	}
 }

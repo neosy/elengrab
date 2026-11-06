@@ -4,11 +4,14 @@ import "time"
 
 type ExtractPlaylistItem struct {
 	ID            string `json:"id"`
-	URL           string `json:"url"`
-	Title         string `json:"title"`
-	WebpageURL    string `json:"webpage_url"`
 	PlaylistIndex int    `json:"playlist_index"`
-	DurationText  string `json:"duration_string"`
+
+	Title      string `json:"title"`
+	URL        string `json:"url"`
+	WebpageURL string `json:"webpage_url"`
+
+	DurationSec  int    `json:"duration"`
+	DurationText string `json:"duration_string"`
 }
 
 type Playlist struct {

@@ -1,7 +1,13 @@
 package dto
 
+import (
+	"strings"
+
+	apierrors "github.com/neosy/elengrab/internal/api/errors"
+)
+
 type ExtractPlaylistByURLRequest struct {
-	URL string `json:"url" validate:"required,url"`
+	URL string `json:"url" validate:"required,url,max=2048"`
 }
 
 type ExtractPlaylistByURLResponse struct {
@@ -16,4 +22,13 @@ type PlaylistItem struct {
 
 	DurationSec  int    `json:"durationSec"`
 	DurationText string `json:"durationText"`
+}
+
+func (req ExtractPlaylistByURLRequest) Validate() error {
+	url := strings.TrimSpace(req.URL)
+	if url == "" {
+		return apierrors.ErrURLIsRequired
+	}
+
+	return nil
 }

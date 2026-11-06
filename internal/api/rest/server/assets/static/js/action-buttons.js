@@ -66,7 +66,7 @@ export async function updateInputPasteClearButton(input, btn) {
                 input.focus();
                 const text = await navigator.clipboard.readText();
                 input.value = text;
-                updateInputPasteClearButton(input, btn);
+                input.dispatchEvent(new Event("input", { bubbles: true }));
             } catch (e) {
                 console.error('Clipboard read failed', e);
                 btn.style.display = 'none';
@@ -82,7 +82,7 @@ export async function updateInputPasteClearButton(input, btn) {
         btn.onclick = () => {
             input.value = '';
             input.focus();
-            updateInputPasteClearButton(input, btn);
+            input.dispatchEvent(new Event("input", { bubbles: true }));
         };
     }
 }

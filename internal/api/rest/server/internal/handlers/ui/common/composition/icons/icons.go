@@ -78,8 +78,10 @@ var (
 	VideoPreviewPlayIcon     = newIcon("VideoPreviewPlayIconName", "play-3-icon.svg")
 	VideoPreviewPauseIcon    = newIcon("VideoPreviewPauseIconName", "pause-icon.svg")
 
-	DialogDownloadListIcon = newIcon("DialogDownloadListIconName", "download-list-icon.svg")
-	DialogUploadFileIcon   = newIcon("DialogUploadFileIconName", "upload-file-icon.svg")
+	DialogDownloadListIcon    = newIcon("DialogDownloadListIconName", "download-list-icon.svg")
+	DialogDownloadListGetIcon = newIcon("DialogDownloadListGetIconName", "download-cloud-icon.svg")
+
+	DialogUploadFileIcon = newIcon("DialogUploadFileIconName", "upload-file-icon.svg")
 )
 
 var (

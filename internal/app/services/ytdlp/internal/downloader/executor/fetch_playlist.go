@@ -1,11 +1,12 @@
 package executor
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
 	"time"
@@ -70,7 +71,11 @@ func (e *Executor) fetchAndExtractPlaylist(
 		return nil, fmt.Errorf("failed to execute %s command: %w", consts.YtDlpName, err)
 	}
 
-	outStr := out.String()
+	if len(out.Bytes()) == 0 {
+		return nil, fmt.Errorf("no output from %s command", consts.YtDlpName)
+	}
+
+	outStr := string(out.Bytes()[0:10])
 
 	// Find JSON start
 	found := strings.Contains(outStr, "{")
@@ -80,10 +85,17 @@ func (e *Executor) fetchAndExtractPlaylist(
 
 	items := make([]idto.ExtractPlaylistItem, 0)
 
-	scanner := bufio.NewScanner(bytes.NewReader(out.Bytes()))
-	for scanner.Scan() {
+	decoder := json.NewDecoder(bytes.NewReader(out.Bytes()))
+
+	for {
 		var item idto.ExtractPlaylistItem
-		if err := json.Unmarshal(scanner.Bytes(), &item); err != nil {
+
+		err := decoder.Decode(&item)
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+
 			return nil, fmt.Errorf("invalid JSON output from %s: %w", consts.YtDlpName, err)
 		}
 
@@ -101,15 +113,21 @@ func mapExtractPlaylistToDto(playlistItems []idto.ExtractPlaylistItem) (*idto.Pl
 	itemsOut := make([]idto.PlaylistItem, 0, len(playlistItems))
 
 	for _, item := range playlistItems {
-		duration, _ := parseDuration(item.DurationText)
+		duration := time.Second * time.Duration(item.DurationSec)
+
+		if duration == 0 && item.DurationText != "" {
+			duration, _ = parseDuration(item.DurationText)
+		}
 
 		itemsOut = append(
 			itemsOut,
 			idto.PlaylistItem{
-				ID:       item.ID,
-				Index:    item.PlaylistIndex,
-				URL:      item.URL,
-				Title:    item.Title,
+				ID:    item.ID,
+				Index: item.PlaylistIndex,
+
+				URL:   item.URL,
+				Title: item.Title,
+
 				Duration: duration,
 			},
 		)

@@ -28,55 +28,12 @@
     user-select: none;
 }
 
-.download-list-dialog__source-row {
-    display: flex;
-    align-items: stretch;
-    gap: 12px;
-}
-
-.download-list-dialog__input {
-    flex: 1;
-    min-width: 0;
-    min-height: 40px;
-    padding: 6px 10px;
-    background: transparent;
-    color: var(--dialog-text-primary);
-    border: 0;
-    border-radius: 8px;
-    outline: none;
-    box-shadow: 0 0 0 var(--input-border-width, 1px) inset var(--input-border-color, var(--dialog-control-border));
-    box-sizing: border-box;
-    font-size: 16px;
-    font-family: inherit;
-    transition: box-shadow 0.5s ease;
-}
-
-.download-list-dialog__input::placeholder {
-    color: #888888;
-}
-
-.download-list-dialog__input:hover:not(:disabled) {
-    --input-border-color: var(--dialog-control-border-hover);
-}
-
-.download-list-dialog__input:focus {
-    --input-border-width: 2px;
-    --input-border-color: var(--dialog-control-border-focus);
-}
-
-.download-list-dialog__input:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
 /* Buttons */
-.download-list-dialog__button--fetch,
 .download-list-dialog__button--submit {
     background: var(--dialog-button-bg-blue);
     color: var(--dialog-button-color-white);
 }
 
-.download-list-dialog__button--fetch:disabled,
 .download-list-dialog__button--submit:disabled {
     opacity: 0.5;
     cursor: default;
@@ -230,6 +187,16 @@
     border-top: 1px solid var(--dialog-option-border);
 }
 
+.download-list-dialog__item--unavailable .download-list-dialog__item-title,
+.download-list-dialog__item--unavailable .download-list-dialog__item-url,
+.download-list-dialog__item--unavailable .download-list-dialog__item-duration {
+    opacity: 0.5;
+}
+
+.download-list-dialog__item--unavailable .download-list-dialog__item-title {
+    font-style: italic;
+}
+
 .download-list-dialog__item-label {
     padding: 8px 12px;
     transition: background-color 0.2s ease;
@@ -255,13 +222,21 @@
 }
 
 .download-list-dialog__item-title {
-    color: var(--dialog-text-primary);
+    color: var(--dialog-text-primary-color);
     font-weight: 500;
 }
 
 .download-list-dialog__item-url {
+    align-self: flex-start;
+    max-width: 100%;
     color: var(--dialog-text-secondary-color);
     font-size: 0.75rem;
+    text-decoration: none;
+}
+
+.download-list-dialog__item-url[href]:hover {
+    color: var(--dialog-text-primary-color);
+    text-decoration: underline;
 }
 
 .download-list-dialog__item-duration {

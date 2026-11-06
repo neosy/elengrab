@@ -4,16 +4,16 @@
             hx-post="{{.BasePaths.DownloaderGrab}}"
             hx-include="#mediaURLInput, [name='formatType']"
             hx-swap="none">
-        <div class="grab-area">
-          <div class="grab-area__input-wrapper">
-            <input class="grab-area__input" type="text" id="mediaURLInput" name="mediaURL" placeholder="{{ .Values.GrabForm.InputPlaceholder }}" maxlength="255">
+        <div class="url-input-container grab-area">
+          <div class="url-input-wrapper grab-area__input-wrapper">
+            <input class="url-input grab-area__input" type="url" id="mediaURLInput" name="mediaURL" placeholder="{{ .Values.GrabForm.InputPlaceholder }}" maxlength="2048">
           </div>
-          <div class="grab-area__action">
-            <button class="grab-area__action-button grab-area__action-button-paste no-select" id="inputActionBtn" type="button"></button>
-            <button class="grab-area__action-button grab-area__action-button-settings no-select" id="inputActionSettingsBtn" type="button" aria-expanded="true">{{ .Values.GrabForm.SettingsButtonIcon }}</button>
+          <div class="url-input-actions grab-area__action">
+            <button class="url-input-action-button grab-area__action-button grab-area__action-button-paste no-select" id="inputActionBtn" type="button"></button>
+            <button class="url-input-action-button grab-area__action-button grab-area__action-button-settings no-select" id="inputActionSettingsBtn" type="button" aria-expanded="true">{{ .Values.GrabForm.SettingsButtonIcon }}</button>
           </div>
-          <div class="grab-area__submit">
-            <button type="submit" class="grab-area__submit-button no-select" title="Download media">{{ .Values.GrabForm.GetButtonIcon }}<span class="grab-area__submit-button-title">{{ .Values.GrabForm.GetButtonTitle }}</span></button>
+          <div class="url-input-buttons grab-area__submit">
+            <button type="submit" class="url-input-button grab-area__submit-button no-select" title="Download media">{{ .Values.GrabForm.GetButtonIcon }}<span class="grab-area__submit-button-title">{{ .Values.GrabForm.GetButtonTitle }}</span></button>
           </div>
         </div>
         <div class="grab-options-collapse is-collapsed" id="grabOptionsCollapse">

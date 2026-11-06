@@ -26,5 +26,6 @@ type UploadFileDialogValues struct {
 }
 
 type DownloadListDialogValues struct {
-	LogoIcon template.HTML
+	LogoIcon          template.HTML
+	GetListButtonIcon template.HTML
 }

@@ -17,10 +17,17 @@
             <!-- Step 1: URL input -->
             <div class="download-list-dialog__source">
                 <div class="download-list-dialog__field">
-                    <label class="download-list-dialog__label" for="downloadListUrl">List URL (required)</label>
-                    <div class="download-list-dialog__source-row">
-                        <input class="download-list-dialog__input" id="downloadListUrl" name="url" type="url" placeholder="https://" autocomplete="off" required>
-                        <button class="modal-dialog__button download-list-dialog__button download-list-dialog__button--fetch" type="button" disabled>Find Media</button>
+                    <label class="download-list-dialog__label" for="download-list-url">List URL (required)</label>
+                    <div class="url-input-container download-list-dialog__source-row">
+                        <div class="url-input-wrapper download-list-dialog__input-wrapper">
+                            <input class="url-input download-list-dialog__input" type="url" id="download-list-url" name="url" placeholder="Enter playlist URL" autocomplete="off" required maxlength="2048">
+                        </div>
+                        <div class="url-input-actions download-list-dialog__input-actions">
+                            <button class="url-input-action-button download-list-dialog__action-button--paste no-select" id="download-list-paste-button" type="button"></button>
+                        </div>
+                        <div class="url-input-buttons download-list-dialog__source-buttons">
+                            <button class="url-input-button download-list-dialog__button--get-list no-select" title="Get List" type="button" disabled>{{ .GetListButtonIcon }}<span class="url-input-button-text">Get</span></button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -48,7 +55,7 @@
                         <input class="download-list-dialog__checkbox download-list-dialog__checkbox--item" type="checkbox">
                         <span class="download-list-dialog__item-info">
                             <span class="download-list-dialog__item-title"></span>
-                            <span class="download-list-dialog__item-url"></span>
+                            <a class="download-list-dialog__item-url" target="_blank" rel="noopener noreferrer"></a>
                         </span>
                         <span class="download-list-dialog__item-duration"></span>
                     </label>
@@ -61,7 +68,7 @@
         <button class="modal-dialog__button download-list-dialog__button download-list-dialog__button--cancel" type="button" data-dialog-close>Cancel</button>
         <button class="modal-dialog__button download-list-dialog__button download-list-dialog__button--submit" type="button" disabled>
             <span class="download-list-dialog__spinner download-list-dialog__spinner--small" aria-hidden="true" hidden></span>
-            <span class="download-list-dialog__submit-text">Download Selected</span>
+            <span class="download-list-dialog__submit-text">Add to Downloads</span>
         </button>
     </footer>
     {{- end }}

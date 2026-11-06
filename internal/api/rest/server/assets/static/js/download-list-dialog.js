@@ -1,9 +1,10 @@
 import * as notify from "./notifications.js";
 import {formatDuration} from "player-utils.js";
+import * as actionButton from './action-buttons.js';
 
 const CLASS_NAMES = {
     urlInput: "download-list-dialog__input",
-    fetchButton: "download-list-dialog__button--fetch",
+    fetchButton: "download-list-dialog__button--get-list",
     loading: "download-list-dialog__loading",
     results: "download-list-dialog__results",
     list: "download-list-dialog__list",
@@ -13,6 +14,8 @@ const CLASS_NAMES = {
     submitButton: "download-list-dialog__button--submit",
     submitSpinner: "download-list-dialog__spinner--small",
     submitText: "download-list-dialog__submit-text",
+    item: "download-list-dialog__item",
+    itemUnavailable: "download-list-dialog__item--unavailable",
     itemCheckbox: "download-list-dialog__checkbox--item",
     itemLabel: "download-list-dialog__item-label",
     itemTitle: "download-list-dialog__item-title",
@@ -22,10 +25,11 @@ const CLASS_NAMES = {
 
 const DOM_IDS = {
     dialog: "download-list-dialog",
+    inputPasteClearButton: "download-list-paste-button",
 };
 
 const TEXTS = {
-    submitDefault: "Download Selected",
+    submitDefault: "Add to Downloads",
     submitBusy: "Sending…",
 };
 
@@ -41,6 +45,7 @@ function getDomElements(dialog) {
     const elements = {
         dialog,
         urlInput: $(dialog, CLASS_NAMES.urlInput),
+        inputPasteClearButton: document.getElementById(DOM_IDS.inputPasteClearButton),
         fetchButton: $(dialog, CLASS_NAMES.fetchButton),
         loading: $(dialog, CLASS_NAMES.loading),
         results: $(dialog, CLASS_NAMES.results),
@@ -70,6 +75,10 @@ function getSelectedItems({ elements, state }) {
     });
 
     return selected;
+}
+
+function isItemUnavailable(item) {
+    return !item.title && !item.durationSec;
 }
 
 /* ------------------------------------------------------------------ */
@@ -110,14 +119,22 @@ function renderItems(ctx) {
     state.items.forEach((item, index) => {
         const node = elements.itemTemplate.content.cloneNode(true);
         const checkbox = $(node, CLASS_NAMES.itemCheckbox);
+        const unavailable = isItemUnavailable(item);
 
         checkbox.id = `downloadListItem${index}`;
-        checkbox.checked = true;
+        checkbox.checked = !unavailable;
         $(node, CLASS_NAMES.itemTitle).textContent = item.title || item.url;
-        $(node, CLASS_NAMES.itemUrl).textContent = item.url;
         $(node, CLASS_NAMES.itemDuration).textContent = formatDuration(item.durationSec);
         $(node, CLASS_NAMES.itemLabel).title = item.url;
+
+        const link = $(node, CLASS_NAMES.itemUrl);
+
+        link.textContent = item.url;
+        link.href = item.url;
         
+        if (unavailable) {
+            $(node, CLASS_NAMES.item).classList.add(CLASS_NAMES.itemUnavailable);
+        }
 
         fragment.appendChild(node);
     });
@@ -168,7 +185,14 @@ async function fetchList(ctx) {
         });
 
         if (!response.ok) {
-            throw new Error(`Server responded with ${response.status}`);
+            const data  = await response.json();
+            let textError = data.message;
+
+            if (!textError) {
+                textError = `Server responded with ${response.status}`
+            }
+
+            throw new Error(textError);
         }
 
         const data = await response.json();
@@ -307,4 +331,6 @@ export function initDownloadListDialog(options) {
 
     bindEvents(ctx);
     updateControls(ctx);
+
+    actionButton.initInputPasteClearButton(elements.urlInput, elements.inputPasteClearButton);
 }

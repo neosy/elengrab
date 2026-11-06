@@ -19,6 +19,15 @@ type PlaylistItem struct {
 	Duration time.Duration
 }
 
+// Count returns the number of items in the playlist. If the playlist is nil, it returns 0.
+func (p *Playlist) Count() int {
+	if p == nil {
+		return 0
+	}
+
+	return len(p.Items)
+}
+
 // DurationText returns the duration of the playlist item formatted as a string in the format "HH:MM:SS"
 // or "MM:SS" if the duration is less than an hour.
 func (p *PlaylistItem) DurationText() string {
