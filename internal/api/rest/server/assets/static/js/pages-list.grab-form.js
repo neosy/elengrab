@@ -5,6 +5,13 @@ import * as actionButton from './action-buttons.js';
 // -------------------------------------------------------------
 // Element selectors and cookie names
 // -------------------------------------------------------------
+const CLASS_NAMES = {
+    downloadOptionsCollapse: "download-options-collapse",
+    downloadOptionsList: "download-options__list",
+    actionPasteButton: "grab-area__action-button--paste",
+    actionSettingsButton: "grab-area__action-button--settings",
+}
+
 const SELECT_NAMES = {
     qualityCodec: "quality-codec",
     qualityResolution: "quality-resolution",
@@ -30,13 +37,18 @@ export const DOM_ELEMENTS = {
     grabOptions: null,
 };
 
+function $(root, className) {
+    return root.querySelector(`.${className}`);
+}
+
 function initDomElements() {    
     DOM_ELEMENTS.grabForm = document.getElementById("grabForm");
+
     DOM_ELEMENTS.mediaURLInput = document.getElementById(DOM_IDS.mediaURLInput);
-    DOM_ELEMENTS.inputActionBtn = document.getElementById("inputActionBtn");
-    DOM_ELEMENTS.inputActionSettingsBtn = document.getElementById("inputActionSettingsBtn");
-    DOM_ELEMENTS.grabOptionsCollapse = document.getElementById("grabOptionsCollapse");
-    DOM_ELEMENTS.grabOptions = document.getElementById("grabOptions");
+    DOM_ELEMENTS.inputActionBtn = $(DOM_ELEMENTS.grabForm, CLASS_NAMES.actionPasteButton);
+    DOM_ELEMENTS.inputActionSettingsBtn = $(DOM_ELEMENTS.grabForm, CLASS_NAMES.actionSettingsButton);
+    DOM_ELEMENTS.grabOptionsCollapse = $(DOM_ELEMENTS.grabForm, CLASS_NAMES.downloadOptionsCollapse);
+    DOM_ELEMENTS.grabOptions = $(DOM_ELEMENTS.grabForm, CLASS_NAMES.downloadOptionsList);
 }
 
 // -------------------------------------------------------------
@@ -125,7 +137,7 @@ export function initMediaGrabForm() {
     }
 
     const grabForm = DOM_ELEMENTS.grabForm;
-    const buttonGrab = document.querySelector('.grab-area__submit-button');
+    const buttonGrab = document.querySelector('.url-input-button');
 
     const grabURLInput = DOM_ELEMENTS.mediaURLInput;
     const grabInputActionBtn = DOM_ELEMENTS.inputActionBtn;
