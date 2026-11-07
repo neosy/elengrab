@@ -1,6 +1,13 @@
 import * as notify from "./notifications.js";
 import {formatDuration} from "player-utils.js";
 import * as actionButton from './action-buttons.js';
+import * as downloadOptions from './download-options.js';
+
+const STORAGE_KEYS = new downloadOptions.StorageKeys({
+    qualityCodec: "download_list_dialog_quality_codec",
+    qualityResolution: "download_list_dialog_quality_resolution",
+    format: "download_list_dialog_format"
+});
 
 const CLASS_NAMES = {
     urlInput: "download-list-dialog__input",
@@ -320,6 +327,17 @@ export function initDownloadListDialog(options) {
     const elements = getDomElements(dialog);
 
     if (!elements) {
+        return;
+    }
+
+    // Init quality/format sync
+    const optionsCtx = {
+        root: elements.dialog,
+        storageKeys: STORAGE_KEYS,
+    };
+    const dlOptions = downloadOptions.initQualityFormatLogic(optionsCtx);
+    if (!dlOptions || !dlOptions.elements) {
+        console.error("Failed to initialize quality/format logic.");
         return;
     }
 

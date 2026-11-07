@@ -17,7 +17,7 @@
             <!-- Step 1: URL input -->
             <div class="download-list-dialog__source">
                 <div class="download-list-dialog__field">
-                    <label class="download-list-dialog__label" for="download-list-url">List URL (required)</label>
+                    <label class="download-list-dialog__label download-list-dialog__label--url" for="download-list-url">List URL (required)</label>
                     <div class="url-input-container download-list-dialog__source-row">
                         <div class="url-input-wrapper download-list-dialog__input-wrapper">
                             <input class="url-input download-list-dialog__input" type="url" id="download-list-url" name="url" placeholder="Enter playlist URL" autocomplete="off" required maxlength="2048">
@@ -31,6 +31,7 @@
                     </div>
                 </div>
             </div>
+            {{- template "download-options" . }}
             <!-- Step 2: waiting animation (long server request) -->
             <div class="download-list-dialog__loading" role="status" aria-live="polite" hidden>
                 <span class="download-list-dialog__spinner" aria-hidden="true"></span>

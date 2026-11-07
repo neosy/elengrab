@@ -1,5 +1,4 @@
-{{- define "download-options" }}
-        <div class="download-options download-options-collapse is-collapsed">
+{{- define "download-options-body" }}
             <div class="download-options__wrapper">
                 <div class="download-options__list">
                     <div class="download-options__item">
@@ -38,5 +37,16 @@
                     </div>
                 </div>
             </div>
+{{- end }}
+
+{{- define "download-options-collapsible" }}
+        <div class="download-options download-options-collapse is-collapsed">
+        {{- template "download-options-body" . }}
+        </div>
+{{- end }}
+
+{{- define "download-options" }}
+        <div class="download-options">
+        {{- template "download-options-body" . }}
         </div>
 {{- end }}

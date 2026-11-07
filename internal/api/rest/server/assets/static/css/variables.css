@@ -29,6 +29,7 @@
     --input-focus-bg: #f5f5f5;
     --bg-format: #f0f0f0;
     --button-bg: #ebebeb;
+    --button-hover-color: #333;
     --button-hover-bg: #e4e4e4;
     --bg-select-label: #ebebeb;
     --bg-tooltip: #171717;
@@ -143,6 +144,7 @@
     --input-focus-bg: #2c2c2c;
     --bg-format: #30363d;
     --button-bg: #30363d;
+    --button-hover-color: #d6e6fb;
     --button-hover-bg: #3f444b;
     --bg-select-label: #1F1F1F;
     --bg-tooltip: #171717;

@@ -19,6 +19,7 @@
     --dialog-border-color: #ccc;
 
     --dialog-link-color: #686a73;
+    --dialog-close-hover-color: var(--button-hover-color);
     --dialog-close-hover-bg: var(--button-hover-bg);
 
     --dialog-logo-bg-green: #4caf50;
@@ -195,7 +196,7 @@
 }
 
 .modal-dialog__close:hover {
-    color: var(--dialog-text-color);
+    color: var(--dialog-close-hover-color);
     background: var(--dialog-close-hover-bg);
 }
 
@@ -338,7 +339,7 @@
     justify-content: center;
 
     border: 1px solid transparent;
-    border-radius: 8px;
+    border-radius: 20px;
 
     background: var(--dialog-button-bg);
     color: var(--dialog-button-color);

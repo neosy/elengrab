@@ -16,6 +16,6 @@
             <button type="submit" class="url-input-button no-select" title="Download media">{{ .Values.GrabForm.GetButtonIcon }}<span>{{ .Values.GrabForm.GetButtonTitle }}</span></button>
           </div>
         </div>
-        {{- block "download-options" . }}{{- end }}
+        {{- template "download-options-collapsible" . }}
       </form>
 {{- end }}

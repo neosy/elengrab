@@ -1,3 +1,7 @@
+.download-list-dialog {
+    width: min(100%, 700px);
+}
+
 .download-list-dialog .modal-dialog__logo {
     background: var(--dialog-logo-bg-green);
 }
@@ -5,7 +9,6 @@
 .download-list-dialog__form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
     min-width: 0;
 }
 
@@ -26,6 +29,10 @@
     font-size: 13px;
     font-weight: 400;
     user-select: none;
+}
+
+.download-list-dialog__label--url {
+    display: none;
 }
 
 /* Buttons */
@@ -103,10 +110,16 @@
 .download-list-dialog__results {
     display: flex;
     flex-direction: column;
+
     min-height: 0;
+
+    margin-top: 16px;
+
     overflow: hidden;
+
     border: 1px solid var(--dialog-option-border);
     border-radius: 8px;
+
     transition: opacity 0.2s ease;
 }
 
@@ -258,7 +271,7 @@
 }
 
 .download-list-dialog__form [disabled]:not(.modal-dialog__button) {
-    cursor: not-allowed;
+    cursor: default;
 }
 
 @media (prefers-reduced-motion: reduce) {
