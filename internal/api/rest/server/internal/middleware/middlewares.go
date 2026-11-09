@@ -24,6 +24,6 @@ func NewMiddlewares(
 ) *Middlewares {
 	return &Middlewares{
 		Auth:  authmw.NewAuthMiddleware(logger, usecases.Auth, appMode),
-		Error: errormw.NewErrorMiddleware(logger, handlers.UI.Downloader.ErrorPageHandler),
+		Error: errormw.NewErrorMiddleware(logger, handlers.UI.Downloader.ErrorHandler),
 	}
 }

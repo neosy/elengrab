@@ -39,6 +39,10 @@ func WrapErrors(errs ...error) error {
 		return nil
 	}
 
+	if len(errs) == 1 {
+		return errs[0]
+	}
+
 	var wrapped error
 
 	for _, err := range errs {
@@ -48,7 +52,12 @@ func WrapErrors(errs ...error) error {
 
 		// If wrapped is nil, set it to the current error and continue to the next iteration.
 		if wrapped == nil {
-			wrapped = err
+			switch e := err.(type) {
+			case errorxInternal:
+				wrapped = Clone(e)
+			default:
+				wrapped = e
+			}
 			continue
 		}
 

@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initUploadFileDialog(API_PATHS.downloaderUpload);
     initDownloadListDialog({
         fetchUrl: API_PATHS.downloaderExtract,
-        submitUrl: "/api/media/download",
+        submitUrl: API_PATHS.downloaderGrabList,
     });
 
     // Init tooltips

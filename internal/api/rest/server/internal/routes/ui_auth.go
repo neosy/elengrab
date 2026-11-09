@@ -7,7 +7,7 @@ import (
 )
 
 func (r *routes) registerUIAuth(handlers *downloader.DownloaderHandlers) {
-	middlewareError := r.middlewares.Error.ErrorHandler
+	middlewareError := r.middlewares.Error.WrapErrorHandler
 
 	// Account with middleware (error, auth or anonym)
 	g := fasthttpx.NewRouterGroup(httppaths.AuthGroup, r.router)
