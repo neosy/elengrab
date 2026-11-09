@@ -39,9 +39,7 @@ type QueueMediaDownloadListRequestItem struct {
 
 type QueueMediaDownloadListResponseItem struct {
 	DownloadID string `json:"itemId"`
-
-	URL   string `json:"url"`
-	Title string `json:"title"`
+	URL        string `json:"url"`
 }
 
 type MediaDownloadOptions struct {

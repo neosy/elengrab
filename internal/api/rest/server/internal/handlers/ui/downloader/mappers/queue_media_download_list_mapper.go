@@ -48,7 +48,6 @@ func (m *Mappers) MapScheduleDownloadListResponseToQueueMediaDownloadListRespons
 			dto.QueueMediaDownloadListResponseItem{
 				DownloadID: idcodec.EncodeUUIDBase64URL(item.DownloadID),
 				URL:        item.URL,
-				Title:      item.MediaTitle,
 			},
 		)
 	}

@@ -93,7 +93,6 @@ func (uc *downloader) ScheduleDownloadList(
 			dto.ScheduleDownloadListResponseItem{
 				DownloadID: download.DownloadID,
 				URL:        download.SourceURL(),
-				MediaTitle: download.MediaTitle,
 			},
 		)
 	}
