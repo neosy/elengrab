@@ -17,9 +17,7 @@ type ScheduleDownloadListResponse struct {
 
 type ScheduleDownloadListResponseItem struct {
 	DownloadID uuid.UUID
-
 	URL        string
-	MediaTitle string
 }
 
 type ScheduleDownloadListRequestItem struct {
