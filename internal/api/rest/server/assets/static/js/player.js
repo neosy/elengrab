@@ -210,11 +210,11 @@ const mediaPlayer = {
     },
 };
 
-function initWatchTracker(video, itemId) {
-    if (!video) return;
+function initWatchTracker(player, itemId) {
+    if (!player) return;
     if (watchTracker !== null) return;
 
-    watchTracker = new watchAPI.MediaWatchTracker(video, itemId);
+    watchTracker = new watchAPI.MediaWatchTracker(player, itemId);
     watchTracker.init();        
 }
 
@@ -244,8 +244,6 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
     mediaPlayer.syncWithHash();
 
     let cleanupHandlers = null;
-
-    initWatchTracker();
 
     DOM_ELEMENTS.videoPlayerCloseButton.addEventListener("click", closePlayer);
     DOM_ELEMENTS.videoPlayerMinimizeButton.addEventListener("click", () => mediaPlayer.toggleMinimizeVideoPlayer());
@@ -314,6 +312,7 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
                 await closePlayer(false);
             } else {
                 mediaPlayer.unload();
+                destroyWatchTracker();
             }
         }
 
