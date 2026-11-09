@@ -67,7 +67,7 @@ func (r *routes) registerUIDownloader(handlers *downloader.DownloaderHandlers, s
 		g.Use(middlewareError, r.middlewares.Auth.AuthOrGuest)
 		{
 			g.POST(httppaths.GrabPath, handlers.QueueMediaDownloadByURLHandler)
-			// g.POST(httppaths.GrabListPath, handlers.QueueMediaDownloadListHandler)
+			g.POST(httppaths.GrabListPath, handlers.QueueMediaDownloadListHandler)
 			g.POST(httppaths.ExtractPath, handlers.ExtractPlaylistByURLHandler)
 
 			g.GET(httppaths.ShareTargetPath, handlers.ImportFromShareHandler)

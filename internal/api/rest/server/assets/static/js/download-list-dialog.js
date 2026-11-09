@@ -48,11 +48,25 @@ function $(root, className) {
     return root.querySelector(`.${className}`);
 }
 
-function getDomElements(dialog) {
+function $select(root, name) {
+    return root.querySelector(`select[name="${name}"]`);
+}
+
+function getDomElements(dialog, optionNames) {
+    const {
+        qualityCodec,
+        qualityResolution,
+        format
+    } = optionNames;
+
     const elements = {
         dialog,
         urlInput: $(dialog, CLASS_NAMES.urlInput),
         inputPasteClearButton: document.getElementById(DOM_IDS.inputPasteClearButton),
+
+        qualityCodecSelect: $select(dialog, qualityCodec),
+        qualityResolutionSelect: $select(dialog, qualityResolution),
+        formatSelect: $select(dialog, format),
 
         fetchButton: $(dialog, CLASS_NAMES.fetchButton),
 
@@ -196,18 +210,12 @@ async function fetchList(ctx) {
             signal: state.controller.signal,
         });
 
+        const data  = await response.json();
+
         if (!response.ok) {
-            const data  = await response.json();
-            let textError = data.message;
-
-            if (!textError) {
-                textError = `Server responded with ${response.status}`
-            }
-
-            throw new Error(textError);
+            throw new Error(data.message || `Server responded with ${response.status}`);
         }
 
-        const data = await response.json();
         state.items = Array.isArray(data.items) ? data.items : [];
 
         if (state.items.length === 0) {
@@ -239,15 +247,24 @@ async function submitSelected(ctx) {
     setSubmitting(elements, true);
 
     try {
+        const req = {
+            items: selected,
+            options: {
+                qualityCodec: elements.qualityCodecSelect.value,
+                qualityResolution: elements.qualityResolutionSelect.value,
+                format: elements.formatSelect.value,
+            },
+        };
+
         const response = await fetch(options.submitUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ items: selected }),
+            body: JSON.stringify(req),
         });
         const data = await response.json().catch(() => ({}));
 
-        if (!response.ok || data.success === false) {
-            throw new Error(data.error || `Server responded with ${response.status}`);
+        if (!response.ok) {
+            throw new Error(data.message || `Server responded with ${response.status}`);
         }
 
         resetDialog(ctx);
@@ -324,20 +341,20 @@ export function initDownloadListDialog(options) {
         return;
     }
 
-    const elements = getDomElements(dialog);
-
-    if (!elements) {
-        return;
-    }
-
     // Init quality/format sync
     const optionsCtx = {
-        root: elements.dialog,
+        root: dialog,
         storageKeys: STORAGE_KEYS,
     };
     const dlOptions = downloadOptions.initQualityFormatLogic(optionsCtx);
     if (!dlOptions || !dlOptions.elements) {
         console.error("Failed to initialize quality/format logic.");
+        return;
+    }
+
+    const elements = getDomElements(dialog, dlOptions.optionNames);
+
+    if (!elements) {
         return;
     }
 
