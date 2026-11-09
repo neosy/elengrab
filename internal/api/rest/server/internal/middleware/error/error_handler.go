@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"mime"
 
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
+	"github.com/neosy/elengrab/internal/pkg/errorx"
+	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
 
@@ -16,8 +17,20 @@ func (m *ErrorMiddleware) ErrorNotFoundHandler(ctx *fasthttp.RequestCtx) {
 		uri = string(ctx.Request.URI().RequestURI())
 	}
 
-	ctx.SetStatusCode(fasthttp.StatusNotFound)
-	m.writeError(ctx, fmt.Sprintf("The requested URL %s was not found on this server.", uri))
+	errorText := fmt.Sprintf("The requested URL %s was not found on this server.", uri)
+
+	if ctx.IsGet() {
+		ctx.SetStatusCode(fasthttp.StatusNotFound)
+		m.renderErrorPage(ctx, errorText)
+		return
+	}
+
+	fasthttpx.WriteErrorx(ctx,
+		errorx.Errorf("the requested page could not be found: %s", uri,
+			errorx.WithHttpStatus(fasthttp.StatusNotFound),
+			errorx.WithErrorMessage("The requested page could not be found."),
+		),
+	)
 }
 
 // ErrorMethodNotAllowedHandler is a handler that handles 405 Method Not Allowed errors.
@@ -28,32 +41,32 @@ func (m *ErrorMiddleware) ErrorMethodNotAllowedHandler(ctx *fasthttp.RequestCtx)
 	}
 
 	ctx.SetStatusCode(fasthttp.StatusMethodNotAllowed)
-	ctx.SetUserValue(ErrorxResponseKey, nfasthttp.WriteErrorxResponse{
+	ctx.SetUserValue(ErrorxResponseKey, fasthttpx.WriteErrorxResponse{
 		HTTPStatus: fasthttp.StatusMethodNotAllowed,
 		Message:    fasthttp.StatusMessage(fasthttp.StatusMethodNotAllowed),
 	})
-	m.writeError(ctx, fmt.Sprintf("The requested method %s is not allowed for URL %s.", ctx.Method(), uri))
+	m.renderErrorPage(ctx, fmt.Sprintf("The requested method %s is not allowed for URL %s.", ctx.Method(), uri))
 }
 
-// ErrorHandler is a middleware that renders an HTML error page for failed GET requests.
+// WrapErrorHandler wraps the given handler to render an HTML error page for failed GET requests.
 // It runs after the next handler, so it sees the final status code and body.
 // Errors of other methods (POST, PATCH, DELETE, HEAD) are left as is (JSON).
-func (m *ErrorMiddleware) ErrorHandler(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+func (m *ErrorMiddleware) WrapErrorHandler(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
 		next(ctx)
-		m.errorHandler(ctx)
+		m.handleErrorResponse(ctx)
 	}
 }
 
 // WrapWithErrorHandler wraps the given middleware with the error handler middleware.
-func (m *ErrorMiddleware) WrapWithErrorHandler(next nfasthttp.Middleware) nfasthttp.Middleware {
-	return nfasthttp.MiddlewareChain(m.ErrorHandler, next)
+func (m *ErrorMiddleware) WrapWithErrorHandler(next fasthttpx.Middleware) fasthttpx.Middleware {
+	return fasthttpx.MiddlewareChain(m.WrapErrorHandler, next)
 }
 
-// errorHandler replaces a failed GET response (status >= 400) with an HTML error page.
+// handleErrorResponse replaces a failed GET response (status >= 400) with an HTML error page.
 // For JSON errors it passes the message from the body to the page.
 // Other methods and non-error responses are not touched.
-func (m *ErrorMiddleware) errorHandler(ctx *fasthttp.RequestCtx) {
+func (m *ErrorMiddleware) handleErrorResponse(ctx *fasthttp.RequestCtx) {
 	if !ctx.IsGet() || ctx.Response.StatusCode() < 400 {
 		return
 	}
@@ -69,7 +82,7 @@ func (m *ErrorMiddleware) errorHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	if string(contentType) != mime.TypeByExtension(".json") {
-		m.writeError(ctx, "")
+		m.renderErrorPage(ctx, "")
 		return
 	}
 
@@ -78,7 +91,7 @@ func (m *ErrorMiddleware) errorHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	resp := nfasthttp.WriteErrorxResponse{}
+	resp := fasthttpx.WriteErrorxResponse{}
 
 	err := json.Unmarshal(body, &resp)
 	if err != nil {
@@ -86,10 +99,10 @@ func (m *ErrorMiddleware) errorHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	ctx.SetUserValue(ErrorxResponseKey, resp)
-	m.writeError(ctx, resp.Message)
+	m.renderErrorPage(ctx, resp.Message)
 }
 
-func (m *ErrorMiddleware) writeError(ctx *fasthttp.RequestCtx, errorText string) {
+func (m *ErrorMiddleware) renderErrorPage(ctx *fasthttp.RequestCtx, errorText string) {
 	ctx.SetUserValue(ErrorTextKey, errorText)
-	m.writeErrorHandler(ctx)
+	m.errorPageHandler(ctx)
 }

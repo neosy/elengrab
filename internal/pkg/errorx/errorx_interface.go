@@ -9,13 +9,9 @@ type Errorx interface {
 	// Err returns a value of type error
 	Err() error
 
-	// Wrap adds the given errors to the current error in place using the library's wrapping mechanism.
-	// The current Errorx object is mutated; the receiver remains the same. Nil errors are ignored.
-	Wrap(errs ...error) Errorx
-
-	// WrapNew returns a new Errorx that wraps the current error along with the provided errors.
+	// Wrap returns a new Errorx that wraps the current error along with the provided errors.
 	// The original error remains unchanged; nil errors are ignored.
-	WrapNew(errs ...error) Errorx
+	Wrap(errs ...error) Errorx
 
 	// Join merges the current underlying error with the provided errors using errors.Join.
 	// The existing e.err is included as the first element in the resulting error chain.
@@ -50,8 +46,8 @@ type Errorx interface {
 	// Exception returns a exception
 	Exception() exceptionx.Exception
 
-	// Copy copying an error including nested
-	Copy() error
+	// Clone copying an error including nested
+	Clone() error
 
 	// OuterMessage returns the first (outermost) message found in the error chain.
 	OuterMessage() string

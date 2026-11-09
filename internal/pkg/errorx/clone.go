@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-// Copy copying an error including nested
-func Copy(err error) error {
+// Clone copying an error including nested
+func Clone(err error) error {
 	if err == nil {
 		return nil
 	}
@@ -24,6 +24,10 @@ func Copy(err error) error {
 	var unwrap func(err error) error
 	unwrap = func(err error) error {
 		switch e := err.(type) {
+		case errorxInternal:
+			errx := New(e.Error(), e.args()...).(errorxInternal)
+			errx.setErr(Clone(e.Err()))
+			return errx.normalizeToInnerType()
 		case (interface{ Unwrap() []error }):
 			var errs = make([]error, 0, len(e.Unwrap()))
 			for _, subErr := range e.Unwrap() {
@@ -34,10 +38,6 @@ func Copy(err error) error {
 
 			}
 			return errors.Join(errs...)
-		case errorxInternal:
-			errx := New(e.Error(), e.args()...).(errorxInternal)
-			errx.setErr(Copy(e.Err()))
-			return errx.normalizeToInnerType()
 		default:
 			return e
 		}

@@ -25,9 +25,15 @@ type errorx struct {
 	// httpStatus is an optional HTTP status associated with this error.
 	// Takes precedence over the status in Exception.
 	httpStatus *int
-	// parent is used by embedding structs and holds a reference to the outer struct.
-	// It is required to determine the actual concrete type when methods are invoked
-	// from the embedded errorx.
+	// owner references the outer struct that embeds errorx.
+	// It allows methods defined on *errorx to access the complete outer object
+	// instead of operating only on the embedded errorx field.
+	//
+	// When a method promoted from errorx is called on an embedding struct,
+	// Go passes a pointer to the embedded errorx field as the method receiver.
+	// Consequently, the receiver does not represent the complete outer object.
+	// The owner field provides a reference to that outer object, preserving its
+	// actual concrete type and allowing access to its own method implementations.
 	//
 	// For example:
 	//
@@ -35,9 +41,11 @@ type errorx struct {
 	//	    errorx
 	//	}
 	//
-	// For this structure, parent will have the type wrapErrorx.
-	// If errorx is used directly (without embedding), parent will be of type errorx.
-	parent errorxInternal
+	// When a promoted method is called on *wrapErrorx, its receiver is *errorx,
+	// while owner references the complete *wrapErrorx instance.
+	// If errorx is used directly without embedding, owner references the
+	// errorx instance itself.
+	owner errorxInternal
 }
 
 // newByType creates an errorx object based on the given type.
@@ -45,11 +53,11 @@ func newByType(typ errorType) errorxInternal {
 	switch typ {
 	case errorTypeWrap:
 		errx := &wrapErrorx{}
-		errx.parent = errx
+		errx.owner = errx
 		return errx
 	case errorTypeJoin:
 		errx := &joinErrorx{}
-		errx.parent = errx
+		errx.owner = errx
 		return errx
 	default:
 		return &errorx{}
@@ -224,6 +232,7 @@ func Errorf(format string, args ...any) Errorx {
 	// Apply any special errorx arguments (e.g. exceptions, status statuss, custom messages)
 	if len(specialArgs) > 0 {
 		errx.initFromArgs(specialArgs...)
+		errx = errx.normalizeToInnerType()
 	}
 
 	return errx
@@ -257,11 +266,11 @@ func isErrorxSpecialArg(arg any) bool {
 	return false
 }
 
-// parentOrSelf returns an Errorx instance, giving priority to the explicitly set parent.
-// If no parent is set, it returns the current errorx object (which implements the Errorx interface).
-func (e *errorx) parentOrSelf() errorxInternal {
-	if e.parent != nil {
-		return e.parent
+// ownerOrSelf returns the owning Errorx instance if one is set.
+// Otherwise, it returns the current errorx object.
+func (e *errorx) ownerOrSelf() errorxInternal {
+	if e.owner != nil {
+		return e.owner
 	}
 	return e
 }
@@ -317,7 +326,7 @@ func (e *errorx) initFromArgs(args ...any) {
 	}
 
 	if err != nil {
-		e.Wrap(err)
+		e.wrapInPlace(err)
 	}
 }
 
@@ -341,32 +350,32 @@ func (e *errorx) args() []any {
 // normalizeToInnerType makes the error match the concrete type of its wrapped error.
 // Returns the original error if types already match.
 func (e *errorx) normalizeToInnerType() errorxInternal {
-	if typeOf(e.parentOrSelf()) == typeOf(e.err) {
-		return e.parentOrSelf()
+	if typeOf(e.ownerOrSelf()) == typeOf(e.err) {
+		return e.ownerOrSelf()
 	}
 
 	newErr := newByType(typeOf(e.err))
-	newErr.initFromErrorx(e.parentOrSelf())
+	newErr.initFromErrorx(e.ownerOrSelf())
 
 	return newErr
 }
 
 // Error returns the error text
 func (e *errorx) Error() string {
-	if e.err != nil {
-		return e.err.Error()
+	if e.Err() != nil {
+		return e.Err().Error()
 	}
 	return ""
-}
-
-// Err returns a value of type error
-func (e *errorx) Err() error {
-	return e.err
 }
 
 // setErr sets a value of type error
 func (e *errorx) setErr(err error) {
 	e.err = err
+}
+
+// Err returns a value of type error
+func (e *errorx) Err() error {
+	return e.err
 }
 
 // Message returns a value of type string
@@ -412,7 +421,7 @@ func (e *errorx) PublicHttpStatus() int {
 	}
 
 	// Check for HTTP status in the error chain, giving priority to the outermost error.
-	err := outerErrorxWithExceptionOrHttpStatus(e.parentOrSelf())
+	err := outerErrorxWithExceptionOrHttpStatus(e.ownerOrSelf())
 	if err != nil {
 		if status := err.HttpStatus(); status != 0 {
 			return status
@@ -432,6 +441,11 @@ func (e *errorx) PublicHttpStatusText() string {
 	return http.StatusText(e.PublicHttpStatus())
 }
 
+// setException sets a exception
+func (e *errorx) setException(exception exceptionx.Exception) {
+	e.exception = exception
+}
+
 // Exception returns a exception
 func (e *errorx) Exception() exceptionx.Exception {
 	return e.exception
@@ -443,22 +457,16 @@ func (e *errorx) PublicException() exceptionx.Exception {
 	return e.OuterException()
 }
 
-// setException sets a exception
-func (e *errorx) setException(exception exceptionx.Exception) {
-	e.exception = exception
-}
-
-// Wrap adds the given errors to the current error in place using the library's wrapping mechanism.
+// wrapInPlace adds the given errors to the current error in place using the library's wrapping mechanism.
 // The current Errorx object is mutated; the receiver remains the same. Nil errors are ignored.
-func (e *errorx) Wrap(errs ...error) Errorx {
-	e.err = e.WrapNew(errs...).Err()
-	return e.normalizeToInnerType()
+func (e *errorx) wrapInPlace(errs ...error) {
+	e.setErr(e.Wrap(errs...).Err())
 }
 
-// WrapNew returns a new Errorx that wraps the current error along with the provided errors.
+// Wrap returns a new Errorx that wraps the current error along with the provided errors.
 // The original error remains unchanged; nil errors are ignored.
-func (e *errorx) WrapNew(errs ...error) Errorx {
-	return WrapErrors(append([]error{e.parentOrSelf()}, errs...)...).(Errorx)
+func (e *errorx) Wrap(errs ...error) Errorx {
+	return WrapErrors(append([]error{e.ownerOrSelf()}, errs...)...).(Errorx)
 }
 
 // Join appends the given errors to the current error using errors.Join from
@@ -477,13 +485,13 @@ func (e *errorx) Join(errs ...error) Errorx {
 // UnwrapAll error analysis errors in a slice
 // Duplicates are not excluded
 func (e *errorx) UnwrapAll() []error {
-	return UnwrapAll(e.parentOrSelf())
+	return UnwrapAll(e.ownerOrSelf())
 }
 
 // UnwrapUnique error analysis errors in a slice
 // Duplicates are excluded
 func (e *errorx) UnwrapUnique() []error {
-	return UnwrapUnique(e.parentOrSelf())
+	return UnwrapUnique(e.ownerOrSelf())
 }
 
 // UnwrapTexts analyzes errors and then extracts text one by one
@@ -491,37 +499,37 @@ func (e *errorx) UnwrapTexts() *ErrorTexts {
 	return NewErrorTexts().AddUnwrapErr(e.err)
 }
 
-// Copy copying an error including nested
-func (e *errorx) Copy() error {
-	return Copy(e.parentOrSelf())
+// Clone copying an error including nested
+func (e *errorx) Clone() error {
+	return Clone(e.ownerOrSelf())
 }
 
 // OuterMessage returns the first (outermost) message found in the error chain.
 func (e *errorx) OuterMessage() string {
-	return OuterMessage(e.parentOrSelf())
+	return OuterMessage(e.ownerOrSelf())
 }
 
 // RootMessage returns the first (outermost) message found in the error chain.
 func (e *errorx) RootMessage() string {
-	return RootMessage(e.parentOrSelf())
+	return RootMessage(e.ownerOrSelf())
 }
 
 // OuterException returns the first (outermost) exception found in the error chain.
 func (e *errorx) OuterException() exceptionx.Exception {
-	return OuterException(e.parentOrSelf())
+	return OuterException(e.ownerOrSelf())
 }
 
 // RootException returns the first (outermost) exception found in the error chain.
 func (e *errorx) RootException() exceptionx.Exception {
-	return RootException(e.parentOrSelf())
+	return RootException(e.ownerOrSelf())
 }
 
 // OuterHttpStatus returns the first (outermost) HTTP status found in the error chain.
 func (e *errorx) OuterHttpStatus() int {
-	return OuterHttpStatus(e.parentOrSelf())
+	return OuterHttpStatus(e.ownerOrSelf())
 }
 
 // RootHttpStatus returns the first (outermost) HTTP status found in the error chain.
 func (e *errorx) RootHttpStatus() int {
-	return RootHttpStatus(e.parentOrSelf())
+	return RootHttpStatus(e.ownerOrSelf())
 }

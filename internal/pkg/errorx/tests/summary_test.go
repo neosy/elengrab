@@ -50,7 +50,7 @@ func TestErrorScenarios(t *testing.T) {
 			name: "errorx.Copy",
 			fn: func() string {
 				err := errors.Join(err1, err2)
-				copied := errorx.Copy(err)
+				copied := errorx.Clone(err)
 				return copied.Error()
 			},
 			want: "error 1\nerror 2",
@@ -117,7 +117,7 @@ func TestErrorScenarios(t *testing.T) {
 				err = errorx.NewFromError(err, exceptionx.NOT_FOUND).Join(fmt.Errorf("error 5"))
 				err = err.(errorx.Errorx).Wrap(errors.New("error 6"))
 				err = err.(errorx.Errorx).Wrap(errors.New("error 7"))
-				return fmt.Sprint(err.(errorx.Errorx).Copy())
+				return fmt.Sprint(err.(errorx.Errorx).Clone())
 			},
 			want: "error 4\nerror 3; error 2: error 1; error 3.1; error 3.2\nerror 5; error 6; error 7",
 		},
@@ -230,7 +230,7 @@ func TestErrorScenarios(t *testing.T) {
 				err = fmt.Errorf("error 3: %w", err)
 				err = fmt.Errorf("error 4: %w", err)
 				err = errorx.NewFromError(err, exceptionx.ERROR)
-				newErr := err.(errorx.Errorx).Copy()
+				newErr := err.(errorx.Errorx).Clone()
 				return fmt.Sprintf("%v %v %v", newErr.Error(), errorx.OuterException(newErr).Code(), errorx.OuterException(newErr).Message())
 			},
 			want: "error 4: error 3: error 1: error 2 ERROR Internal Server Error",
