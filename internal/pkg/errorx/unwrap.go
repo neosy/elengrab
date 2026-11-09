@@ -11,16 +11,16 @@ type wrapErrorx struct {
 	errorx
 }
 
+type joinErrorx struct {
+	errorx
+}
+
 func (e *wrapErrorx) Unwrap() error {
 	wrapErr, ok := e.Err().(interface{ Unwrap() error })
 	if !ok {
 		return nil
 	}
 	return wrapErr.Unwrap()
-}
-
-type joinErrorx struct {
-	errorx
 }
 
 func (e *joinErrorx) Unwrap() []error {

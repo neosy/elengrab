@@ -8,7 +8,7 @@ import (
 
 // registerUIRoot register ui root routes.
 func (r *routes) registerUIRoot(handlers *downloader.DownloaderHandlers) {
-	middlewareError := r.middlewares.Error.ErrorHandler
+	middlewareError := r.middlewares.Error.WrapErrorHandler
 
 	// Without middleware
 	g := fasthttpx.NewRouterGroup("", r.router)

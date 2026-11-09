@@ -8,7 +8,7 @@ import (
 
 // registerUIAdmin register UI admin routes.
 func (r *routes) registerUIAdmin(handlers *admin.AdminHandlers) {
-	middlewareError := r.middlewares.Error.ErrorHandler
+	middlewareError := r.middlewares.Error.WrapErrorHandler
 
 	// Admin with middleware (error, auth or anonym)
 	g := nfasthttp.NewRouterGroup(httppaths.AdminGroup, r.router)

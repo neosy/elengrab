@@ -9,12 +9,12 @@ import (
 type ErrorMiddleware struct {
 	logger *slog.Logger
 
-	writeErrorHandler func(ctx *fasthttp.RequestCtx)
+	errorPageHandler func(ctx *fasthttp.RequestCtx)
 }
 
-func NewErrorMiddleware(logger *slog.Logger, writeErrorHandler func(ctx *fasthttp.RequestCtx)) *ErrorMiddleware {
+func NewErrorMiddleware(logger *slog.Logger, errorPageHandler func(ctx *fasthttp.RequestCtx)) *ErrorMiddleware {
 	return &ErrorMiddleware{
-		logger:            logger,
-		writeErrorHandler: writeErrorHandler,
+		logger:           logger,
+		errorPageHandler: errorPageHandler,
 	}
 }

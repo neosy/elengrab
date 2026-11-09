@@ -11,7 +11,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (h *DownloaderHandlers) ErrorPageHandler(ctx *fasthttp.RequestCtx) {
+func (h *DownloaderHandlers) ErrorHandler(ctx *fasthttp.RequestCtx) {
 	var (
 		isDebugMode    bool
 		debugErrorData []byte
