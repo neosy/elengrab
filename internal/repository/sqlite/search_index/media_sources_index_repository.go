@@ -334,6 +334,14 @@ func (r *MediaSourceIndexRepository) iterateAll(
 		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.UserID): filterUserID})
 	}
 
+	if r.queryOptions.OwnerIDForInProgress != uuid.Nil() {
+		sqlOr := squirrel.Or{
+			squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true},
+			squirrel.Eq{eIndex.FieldName(&eIndex.UserID): r.queryOptions.OwnerIDForInProgress.String()},
+		}
+		conditions = append(conditions, sqlOr)
+	}
+
 	if !r.queryOptions.includeDeleted {
 		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.DeletedAt): nil})
 	}

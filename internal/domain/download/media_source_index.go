@@ -29,6 +29,9 @@ type MediaSourceIndex struct {
 	// Visibility access level for media (public or private)
 	Visibility dtypes.MediaVisibility
 
+	// Whether the media download is ready
+	IsReady bool
+
 	// Number of completed views
 	Views uint32
 
@@ -66,6 +69,7 @@ func (index *MediaSourceIndex) InitFromMediaDownload(download *MediaDownload) {
 
 	index.ChannelID = download.ChannelID
 	index.Visibility = download.Visibility
+	index.IsReady = download.Status.IsReady()
 	index.SourceCreatedAt = download.CreatedAt
 }
 

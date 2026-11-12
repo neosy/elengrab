@@ -87,7 +87,7 @@ func (uc *downloader) ScheduleDownloadList(
 			continue
 		}
 
-		uc.broadcastMediaDownloadAdded(downloadInfo)
+		uc.broadcastMediaDownloadAdded(authCtx, downloadInfo)
 
 		resp.Items = append(resp.Items,
 			dto.ScheduleDownloadListResponseItem{
