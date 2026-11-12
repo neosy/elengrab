@@ -27,7 +27,7 @@ export const DOM_ELEMENTS = {
 };
 
 function $(root, className) {
-    return root.querySelector(`.${className}`);
+    return root?.querySelector(`.${className}`);
 }
 
 function initDomElements() {    
@@ -42,7 +42,7 @@ export function initMediaGrabForm() {
     initDomElements();
 
     if (!DOM_ELEMENTS.grabForm) {
-        console.error("Grab form not found. Initialization aborted.");
+        console.debug("Grab form not found. Skipping media grab initialization.");
         return;
     }
 

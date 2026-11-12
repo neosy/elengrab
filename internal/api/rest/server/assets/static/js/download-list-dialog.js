@@ -45,11 +45,11 @@ const TEXTS = {
 /* ------------------------------------------------------------------ */
 
 function $(root, className) {
-    return root.querySelector(`.${className}`);
+    return root?.querySelector(`.${className}`);
 }
 
 function $select(root, name) {
-    return root.querySelector(`select[name="${name}"]`);
+    return root?.querySelector(`select[name="${name}"]`);
 }
 
 function getDomElements(dialog, optionNames) {
