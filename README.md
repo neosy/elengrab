@@ -391,6 +391,10 @@ docker service ls
 
 </details>
 
+## Contributing
+
+Bug reports and feature requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
 ## Donations
 
 If you find Elengrab useful, you can support its development:
