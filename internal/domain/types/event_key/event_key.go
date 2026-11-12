@@ -32,3 +32,8 @@ func (e EventKey) UUID() uuid.UUID {
 	data := fmt.Sprintf("%s:%s", e.Type.String(), e.ID)
 	return uuidx.UUIDv5OID([]byte(data))
 }
+
+// IsEqual checks whether two event keys are equal.
+func (e EventKey) IsEqual(key EventKey) bool {
+	return e.Type == key.Type && e.ID == key.ID
+}

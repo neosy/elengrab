@@ -33,6 +33,10 @@ func (uc *downloader) ListDownloadInfo(
 	options.Limit = new(query.Limit)
 	options.IsGuestRequest = authCtx.IsGuest()
 
+	if !uc.authz.HasViewAllAccess(authCtx.RoleIDs) {
+		options.OwnerIDForInProgress = authCtx.UserID
+	}
+
 	var existsUserIDFilter bool
 	if query.Filters != nil {
 		if filter, exists := query.Filters.Find(dtypes.QueryFilterNameUserID); exists {
@@ -47,7 +51,7 @@ func (uc *downloader) ListDownloadInfo(
 
 	if !existsUserIDFilter && uc.authz.ShouldRestrictDownloads(authCtx.RoleIDs) {
 		options.Filters.Add(dtypes.QueryFilterNameUserID, authCtx.UserID)
-		if authCtx.IsRegularUser() {
+		if authCtx.IsGuestOrUser() {
 			options.Visibility = new(dtypes.QueryMediaVisibilityAuthenticated)
 		}
 	}

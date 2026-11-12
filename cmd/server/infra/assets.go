@@ -21,6 +21,7 @@ const (
 	maxBackupSuffix = 100
 )
 
+// SetupAssets creates the assets directory if it doesn't exist.
 func SetupAssets(cfg *iconfig.Config) error {
 	assetsPath := upaths.AbsPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir)
 

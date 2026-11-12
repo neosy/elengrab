@@ -1,4 +1,4 @@
-import { CLASS_NAMES, CLASS_SELECTORS, CSS_VARIABLE_NAMES, DOM_IDS } from "./pages-list.dom.js";
+import { CLASS_NAMES, CLASS_SELECTORS, CSS_VARIABLE_NAMES, DOM_IDS, VIEW_MODES } from "./pages-list.dom.js";
 import { CLASS_PREFIXES, EVENT_NAMES } from './constants.js';
 
 // -------------------------------------------------------------
@@ -7,6 +7,8 @@ import { CLASS_PREFIXES, EVENT_NAMES } from './constants.js';
 // -------------------------------------------------------------
 export function handleRowAdd(event, usernameFilter = "") {
     try {
+        if (!VIEW_MODES.isNew()) return;
+
         // Payload is raw HTML with multiple rows
         const data = JSON.parse(event.data);
         if (!data.itemId || !data.html) return
@@ -14,7 +16,6 @@ export function handleRowAdd(event, usernameFilter = "") {
         const owner = data.owner;
 
         if (usernameFilter && owner !== usernameFilter) {
-            console.info(owner);
             return;
         }
 
@@ -22,32 +23,38 @@ export function handleRowAdd(event, usernameFilter = "") {
         const itemsEl = document.getElementById(DOM_IDS.mediaResultItems);
         if (!itemsEl) return;
 
+        const rowId = DOM_IDS.row(data.itemId);
+
+        // Check if the row already exists
+        let newEl = document.getElementById(rowId);
+        if (newEl) return;
+
         // Insert all rows right after the placeholder
         itemsEl.insertAdjacentHTML("afterbegin", data.html);
 
-        const newEl = document.getElementById(DOM_IDS.row(data.itemId));
-        if (newEl) {
-            // If the element exists, remove it from the DOM
-            const elNoItems = document.getElementById(DOM_IDS.rowNoItems);;
-            if (elNoItems) {
-                elNoItems.remove();
-            }
+        newEl = document.getElementById(DOM_IDS.row(data.itemId));
+        if (!newEl) return;
 
-            // Let HTMX process this element and activate any hx-* attributes
-            htmx.process(newEl);
-            
-            // Add animation class and initial styles
-            newEl.classList.add('animated');
-            newEl.style.opacity = 0;
-            newEl.style.transform = 'translateY(-20px)';
-            newEl.style.transition = 'opacity 0.75s ease, transform 0.75s ease';
-
-            // Trigger animation on the next browser frame
-            requestAnimationFrame(() => {
-                newEl.style.opacity = 1;
-                newEl.style.transform = 'translateY(0)';
-            });
+        // If the element exists, remove it from the DOM
+        const elNoItems = document.getElementById(DOM_IDS.rowNoItems);
+        if (elNoItems) {
+            elNoItems.remove();
         }
+
+        // Let HTMX process this element and activate any hx-* attributes
+        htmx.process(newEl);
+        
+        // Add animation class and initial styles
+        newEl.classList.add('animated');
+        newEl.style.opacity = 0;
+        newEl.style.transform = 'translateY(-20px)';
+        newEl.style.transition = 'opacity 0.75s ease, transform 0.75s ease';
+
+        // Trigger animation on the next browser frame
+        requestAnimationFrame(() => {
+            newEl.style.opacity = 1;
+            newEl.style.transform = 'translateY(0)';
+        });
     } catch (err) {
         console.error(`SSE "${event.type}" handler error:`, err);
     }
