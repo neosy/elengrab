@@ -11,6 +11,7 @@ type routes struct {
 	router      *router.Router
 }
 
+// NewRoutes creates a new routes instance and registers all the routes.
 func NewRoutes(
 	middlewares *middleware.Middlewares,
 	handlers *handlers.Handlers,
@@ -32,7 +33,6 @@ func NewRoutes(
 	return routes
 }
 
-// Router returns a router.
 func (r *routes) Router() *router.Router {
 	return r.router
 }

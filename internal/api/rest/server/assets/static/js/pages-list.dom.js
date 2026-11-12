@@ -58,6 +58,10 @@ export const DOM_ELEMENTS = {
     mediaPlayer: null,
 };
 
+function $(root, className) {
+    return root.querySelector(`.${className}`);
+}
+
 export function initDomElements(elements = DOM_ELEMENTS) {
     elements.result = document.getElementById("media-result");
 
@@ -66,4 +70,44 @@ export function initDomElements(elements = DOM_ELEMENTS) {
     elements.resultInfoFailed = document.getElementById("result-info-failed");
 
     elements.mediaPlayer = document.getElementById("media-player");
+}
+
+export const VIEW_MODES = {
+    New: "new",
+    Popular: "popular",
+    Old: "old",
+
+    getCurrent: getViewMode,
+    isNew: isNewViewMode,
+    isPopular: isPopularViewMode,
+    isOld: isOldViewMode,
+};
+
+/**
+ * @returns {string}
+ */
+export function getViewMode() {
+    const viewModeTabs = $(document, CLASS_NAMES.viewModeTabs);
+    return viewModeTabs?.dataset.viewMode || "";
+}
+
+/**
+ * @returns {boolean}
+ */
+export function isNewViewMode() {
+    return getViewMode() === VIEW_MODES.New;
+}
+
+/**
+ * @returns {boolean}
+ */
+export function isPopularViewMode() {
+    return getViewMode() === VIEW_MODES.Popular;
+}
+
+/**
+ * @returns {boolean}
+ */
+export function isOldViewMode() {
+    return getViewMode() === VIEW_MODES.Old;
 }

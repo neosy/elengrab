@@ -51,6 +51,7 @@ type Dependencies struct {
 	MaxUploadSize   int64
 }
 
+// 
 type httpServer struct {
 	logger *slog.Logger
 	appEnv appenv.AppEnv
@@ -70,6 +71,7 @@ type httpServer struct {
 	appMode         dtypes.AppMode
 	baseURL         string
 	shortLinkPrefix string
+	// a
 	assetsDir       string
 	metricsEnabled  bool
 	maxUploadSize   int64
@@ -127,6 +129,8 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) (*
 	}, nil
 }
 
+// ListenAndServe starts the HTTP server and listens on the specified port.
+// It sets up the router and starts the server loop.
 func (s *httpServer) ListenAndServe(ctx context.Context, port string, ready chan<- struct{}) error {
 	addr := fmt.Sprintf(":%s", port)
 

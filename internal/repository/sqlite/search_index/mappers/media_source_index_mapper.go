@@ -31,6 +31,7 @@ func (m *Mappers) MapMediaSourceIndexDomainToEntity(index *ddownload.MediaSource
 		DescriptionLower: descriptionLower,
 		ChannelID:        channelID,
 		Visibility:       index.Visibility.String(),
+		IsReady:          index.IsReady,
 		Views:            int(index.Views),
 		SourceCreatedAt:  index.SourceCreatedAt,
 	}, nil
@@ -54,6 +55,7 @@ func (m *Mappers) MapSourceIndexEntityToDomain(index *esearchindex.MediaSourceIn
 		Description:     index.Description,
 		ChannelID:       channelID,
 		Visibility:      visibility,
+		IsReady:         index.IsReady,
 		Views:           uint32(index.Views),
 		SourceCreatedAt: index.SourceCreatedAt,
 		DeletedAt:       index.DeletedAt,

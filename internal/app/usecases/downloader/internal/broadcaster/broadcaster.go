@@ -90,7 +90,7 @@ func (b *Broadcaster) BroadcastPublic(key eventkey.EventKey, eventType types.Bro
 	}
 
 	for client, subscription := range b.clients {
-		allowed := client.EventKey.Type == key.Type && client.EventKey.ID == key.ID
+		allowed := client.EventKey.IsEqual(key)
 
 		if !allowed {
 			allowed = b.authz.HasPublicViewAccess(subscription.roles)
@@ -101,6 +101,35 @@ func (b *Broadcaster) BroadcastPublic(key eventkey.EventKey, eventType types.Bro
 		}
 
 		if !allowed {
+			continue
+		}
+
+		select {
+		case subscription.eventCh <- event:
+			// sent successfully
+		default:
+			// skip if buffer is full
+		}
+	}
+}
+
+// BroadcastToViewAllAccess broadcasts an event to clients with view-all access, excluding the specified event key.
+func (b *Broadcaster) BroadcastToViewAllAccess(excludeKey eventkey.EventKey, eventType types.BroadcastEventType, data any) {
+	b.lock.RLock()
+	defer b.lock.RUnlock()
+
+	event := dsse.BroadcastEvent{
+		Type:      eventType,
+		Data:      data,
+		Timestamp: time.Now().UnixMicro(),
+	}
+
+	for client, subscription := range b.clients {
+		if client.EventKey.IsEqual(excludeKey) {
+			continue
+		}
+
+		if !b.authz.HasViewAllAccess(subscription.roles) {
 			continue
 		}
 
@@ -124,8 +153,7 @@ func (b *Broadcaster) BroadcastByKey(key eventkey.EventKey, eventType types.Broa
 	}
 
 	for client, subscription := range b.clients {
-		allowed := client.EventKey.Type == key.Type && client.EventKey.ID == key.ID
-
+		allowed := client.EventKey.IsEqual(key)
 		if !allowed {
 			continue
 		}
@@ -139,6 +167,7 @@ func (b *Broadcaster) BroadcastByKey(key eventkey.EventKey, eventType types.Broa
 	}
 }
 
+// BroadcastByAccess broadcast to all clients that have access to the event
 func (b *Broadcaster) BroadcastByAccess(key eventkey.EventKey, eventType types.BroadcastEventType, data any) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
@@ -150,7 +179,7 @@ func (b *Broadcaster) BroadcastByAccess(key eventkey.EventKey, eventType types.B
 	}
 
 	for client, subscription := range b.clients {
-		allowed := client.EventKey.Type == key.Type && client.EventKey.ID == key.ID
+		allowed := client.EventKey.IsEqual(key)
 
 		if !allowed {
 			allowed = b.authz.HasViewAllAccess(subscription.roles)
@@ -169,15 +198,16 @@ func (b *Broadcaster) BroadcastByAccess(key eventkey.EventKey, eventType types.B
 	}
 }
 
-func (b *Broadcaster) BroadcastToAuth(authCtx dauth.AuthContext, eventType types.BroadcastEventType, data any) {
-	if authCtx.UserID == uuid.Nil() && authCtx.AnonSessionID == uuid.Nil() {
+// BroadcastToAuthorized sends the event to all clients that have the given event key
+func (b *Broadcaster) BroadcastToAuthorized(authCtx dauth.AuthContext, eventType types.BroadcastEventType, data any) {
+	if authCtx.IsAnonymousWithoutSession() {
 		return
 	}
 	b.BroadcastByKey(authCtx.EventKey(), eventType, data)
 }
 
 func (b *Broadcaster) BroadcastToUser(userID uuid.UUID, eventType types.BroadcastEventType, data any) {
-	if userID == uuid.Nil() {
+	if dauth.IsNotRegisteredUserID(userID) {
 		return
 	}
 	b.BroadcastByKey(eventkey.NewEventKeyUserID(userID), eventType, data)
@@ -191,7 +221,7 @@ func (b *Broadcaster) BroadcastToSession(sessionID uuid.UUID, eventType types.Br
 }
 
 func (b *Broadcaster) BroadcastToUsersWithAccess(userID uuid.UUID, eventType types.BroadcastEventType, data any) {
-	if userID == uuid.Nil() {
+	if dauth.IsNotRegisteredUserID(userID) {
 		return
 	}
 	b.BroadcastByAccess(eventkey.NewEventKeyUserID(userID), eventType, data)

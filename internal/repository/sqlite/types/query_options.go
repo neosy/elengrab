@@ -1,6 +1,8 @@
 package types
 
 import (
+	"uuid"
+
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
 )
@@ -19,9 +21,12 @@ type QueryMediaOptions struct {
 	ViewMode   dtypes.QueryMediaViewMode
 	LastRecord dtypes.QueryMediaDownloadCursor
 
-	SearchText *string
-	Visibility *dtypes.QueryMediaVisibility
+	SearchText     *string
+	Visibility     *dtypes.QueryMediaVisibility
 	IsGuestRequest bool
+
+	// OwnerIDForInProgress limits in-progress downloads to the specified owner.
+	OwnerIDForInProgress uuid.UUID
 }
 
 func NewQueryOptions() QueryOptions {

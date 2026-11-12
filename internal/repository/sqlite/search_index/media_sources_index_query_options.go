@@ -32,6 +32,8 @@ func (r *MediaSourceIndexRepository) WithOptions(options dtypes.QueryMediaOption
 	r.queryOptions.Visibility = options.Visibility
 	r.queryOptions.IsGuestRequest = options.IsGuestRequest
 
+	r.queryOptions.OwnerIDForInProgress = options.OwnerIDForInProgress
+
 	if len(options.OrderBys) > 0 {
 		r.WithOrderBy(options.OrderBys...)
 	}

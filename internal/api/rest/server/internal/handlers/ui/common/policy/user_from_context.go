@@ -47,7 +47,7 @@ func ResolveUserOrAnonym(ctx *fasthttp.RequestCtx) dauth.AuthContext {
 		anonSessionID, _ = uuid.Parse(id)
 	}
 
-	return dauth.AuthContextAnonymous(anonSessionID)
+	return dauth.NewAnonymousSessionAuthContext(anonSessionID)
 }
 
 // EnsureUser returns authenticated user from fasthttp request context.

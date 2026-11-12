@@ -36,6 +36,9 @@ type MediaSourceIndex struct {
 	// Visibility access level for media (public or private)
 	Visibility string `db:"visibility"`
 
+	// Whether the media download is ready
+	IsReady bool `db:"is_ready"`
+
 	// Number of completed views
 	Views int `db:"views" pfield:"views"`
 

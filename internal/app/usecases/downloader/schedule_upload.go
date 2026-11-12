@@ -96,7 +96,7 @@ func (uc *downloader) ScheduleUpload(
 
 	downloadInfo, _ := uc.resolveActualDownloadInfoByDownload(ctx, download)
 
-	uc.broadcastMediaDownloadAdded(downloadInfo)
+	uc.broadcastMediaDownloadAdded(authCtx, downloadInfo)
 
 	return &dto.ScheduleUploadResponse{
 		DownloadID: download.DownloadID,

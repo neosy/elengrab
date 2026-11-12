@@ -11,6 +11,7 @@ import (
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
+// StartHTTPServer starts the HTTP server.
 func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Application, ready chan<- struct{}) {
 	tmpl, err := assets.LoadTemplates(upaths.AbsPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir))
 	if err != nil {

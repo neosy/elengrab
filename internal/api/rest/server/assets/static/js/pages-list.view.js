@@ -174,4 +174,6 @@ export function initViewModeBar({
 
         onSuccess(newRows);
     }
+
+    return
 }

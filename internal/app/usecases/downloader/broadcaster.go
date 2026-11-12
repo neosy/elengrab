@@ -35,23 +35,37 @@ func (uc *downloader) Broadcaster() *broadcaster.Broadcaster {
 	return uc.broadcaster
 }
 
-func (uc *downloader) broadcastMediaDownloadAdded(downloadInfo *dto.MediaDownloadInfo) {
+func (uc *downloader) broadcastMediaDownloadAdded(authCtx dauth.AuthContext, downloadInfo *dto.MediaDownloadInfo) {
 	if downloadInfo == nil {
 		return
 	}
 
-	if downloadInfo.UserID == uuid.Nil() {
-		uc.broadcaster.Broadcast(types.BroadcastEventTypeDownloadAdd, downloadInfo)
-		return
+	if !downloadInfo.Status.IsReady() {
+		if authCtx.HasSession() {
+			uc.broadcaster.BroadcastToAuthorized(authCtx, types.BroadcastEventTypeDownloadAdd, downloadInfo)
+			uc.broadcaster.BroadcastToViewAllAccess(authCtx.EventKey(), types.BroadcastEventTypeDownloadAdd, downloadInfo)
+			return
+		}
+
+		if dauth.IsNotRegisteredUserID(downloadInfo.UserID) {
+			return
+		}
 	}
 
-	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
-		uc.broadcaster.BroadcastPublic(
-			eventkey.NewEventKeyUserID(downloadInfo.UserID),
-			types.BroadcastEventTypeDownloadAdd,
-			downloadInfo,
-		)
-		return
+	if downloadInfo.Status.IsReady() {
+		if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
+			uc.broadcaster.BroadcastPublic(
+				eventkey.NewEventKeyUserID(downloadInfo.UserID),
+				types.BroadcastEventTypeDownloadAdd,
+				downloadInfo,
+			)
+			return
+		}
+
+		if dauth.IsNotRegisteredUserID(downloadInfo.UserID) {
+			uc.broadcaster.Broadcast(types.BroadcastEventTypeDownloadAdd, downloadInfo)
+			return
+		}
 	}
 
 	uc.broadcaster.BroadcastToUsersWithAccess(downloadInfo.UserID, types.BroadcastEventTypeDownloadAdd, downloadInfo)
@@ -143,7 +157,7 @@ func (uc *downloader) broadcastWatchPositionUpdatedToAuth(
 
 	downloadChanged.MarkWatchPositionChanged()
 
-	uc.broadcaster.BroadcastToAuth(authCtx, types.BroadcastEventTypeDownloadPatch, downloadChanged)
+	uc.broadcaster.BroadcastToAuthorized(authCtx, types.BroadcastEventTypeDownloadPatch, downloadChanged)
 }
 
 func (uc *downloader) broadcastMediaDownloadChanged(

@@ -23,6 +23,9 @@ CREATE TABLE media_sources_index (
     -- Visibility access level for media (public, authenticated or private)
     visibility TEXT NOT NULL,
 
+	-- Whether the media download is ready
+	is_ready BOOLEAN NOT NULL DEFAULT FALSE,
+
     -- Number of completed views
     views INTEGER NOT NULL DEFAULT 0,
 
