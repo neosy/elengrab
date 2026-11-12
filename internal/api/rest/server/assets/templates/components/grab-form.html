@@ -13,7 +13,7 @@
             <button class="url-input-action-button grab-area__action-button--settings no-select" type="button" aria-expanded="true">{{ .Values.GrabForm.SettingsButtonIcon }}</button>
           </div>
           <div class="url-input-buttons">
-            <button type="submit" class="url-input-button no-select" title="Download media">{{ .Values.GrabForm.GetButtonIcon }}<span>{{ .Values.GrabForm.GetButtonTitle }}</span></button>
+            <button type="submit" class="url-input-button no-select" title="Download media">{{ .Values.GrabForm.GetButtonIcon }}<span class="url-input-button-text">{{ .Values.GrabForm.GetButtonTitle }}</span></button>
           </div>
         </div>
         {{- template "download-options-collapsible" . }}
