@@ -59,7 +59,7 @@ export const DOM_ELEMENTS = {
 };
 
 function $(root, className) {
-    return root.querySelector(`.${className}`);
+    return root?.querySelector(`.${className}`);
 }
 
 export function initDomElements(elements = DOM_ELEMENTS) {

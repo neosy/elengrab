@@ -39,11 +39,11 @@ export class StorageKeys {
  * @returns {HTMLElement|null} - The selected element or null if not found.
  */
 function $(root, className) {
-    return root.querySelector(`.${className}`);
+    return root?.querySelector(`.${className}`);
 }
 
 function $select(root, name) {
-    return root.querySelector(`select[name="${name}"]`);
+    return root?.querySelector(`select[name="${name}"]`);
 }
 
 //-------------------------------------------------------------

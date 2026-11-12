@@ -48,7 +48,7 @@ const MEDIA_EXTENSIONS =
 /* ------------------------------------------------------------------ */
 
 function $(root, className) {
-    return root.querySelector(`.${className}`);
+    return root?.querySelector(`.${className}`);
 }
 
 function getDomElements(dialog) {
