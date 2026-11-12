@@ -80,6 +80,10 @@ func UploadMenuActions(userLogin string, hasCreateAccess bool) []uploadMenuActio
 			if !hasCreateAccess {
 				continue
 			}
+		case uploadMenuActionUploadListURL:
+			if !hasCreateAccess {
+				continue
+			}
 		case uploadMenuActionUploadFile:
 			if !hasCreateAccess {
 				continue
