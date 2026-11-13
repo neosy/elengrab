@@ -16,6 +16,7 @@ import (
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/routes"
 	"github.com/neosy/elengrab/internal/app/usecases"
+	iconfig "github.com/neosy/elengrab/internal/config"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/infrastructure/observability/metrics"
 	appenv "github.com/neosy/elengrab/internal/pkg/config/app_env"
@@ -43,7 +44,9 @@ type Dependencies struct {
 	Template *template.Template
 
 	// Options
+	AppEnv          appenv.AppEnv
 	AppMode         dtypes.AppMode
+	ReverseProxy    iconfig.HTTPServerReverseProxyConfig
 	BaseURL         string
 	ShortLinkPrefix string
 	AssetsDir       string
@@ -51,10 +54,8 @@ type Dependencies struct {
 	MaxUploadSize   int64
 }
 
-// 
 type httpServer struct {
 	logger *slog.Logger
-	appEnv appenv.AppEnv
 
 	// middleware
 	middlewares *middleware.Middlewares
@@ -68,16 +69,20 @@ type httpServer struct {
 	template *template.Template
 
 	// Options
+	appEnv          appenv.AppEnv
 	appMode         dtypes.AppMode
+	reverseProxy    iconfig.HTTPServerReverseProxyConfig
 	baseURL         string
 	shortLinkPrefix string
-	// a
 	assetsDir       string
 	metricsEnabled  bool
 	maxUploadSize   int64
 }
 
-func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) (*httpServer, error) {
+func NewServer(
+	logger *slog.Logger,
+	deps *Dependencies,
+) (*httpServer, error) {
 	maxUploadSize := deps.MaxUploadSize
 	if maxUploadSize <= 0 {
 		maxUploadSize = defaultMaxUploadSize
@@ -92,7 +97,7 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) (*
 			Assets:                assets.NewAssets(deps.AssetsDir, deps.AssetFileCacheRepo),
 			Usecases:              deps.Usecases,
 			Template:              deps.Template,
-			AppEnv:                appEnv,
+			AppEnv:                deps.AppEnv,
 			AppMode:               deps.AppMode,
 			BaseURL:               deps.BaseURL,
 			ShortLinkPrefix:       deps.ShortLinkPrefix,
@@ -105,13 +110,13 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) (*
 
 	return &httpServer{
 		logger: logger,
-		appEnv: appEnv,
 
 		middlewares: middleware.NewMiddlewares(
 			logger,
 			deps.Usecases,
 			handlers,
 			deps.AppMode,
+			deps.ReverseProxy,
 		),
 
 		handlers: handlers,
@@ -120,7 +125,9 @@ func NewServer(logger *slog.Logger, appEnv appenv.AppEnv, deps *Dependencies) (*
 		template: deps.Template,
 
 		// Optons
+		appEnv:          deps.AppEnv,
 		appMode:         deps.AppMode,
+		reverseProxy:    deps.ReverseProxy,
 		baseURL:         deps.BaseURL,
 		shortLinkPrefix: deps.ShortLinkPrefix,
 		assetsDir:       deps.AssetsDir,

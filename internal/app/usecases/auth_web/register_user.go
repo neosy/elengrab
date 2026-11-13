@@ -33,11 +33,11 @@ func (a *authWeb) RegisterUser(
 		return nil, errorx.NewHTTPMessage("password is required", fasthttp.StatusBadRequest)
 	}
 
-	if err := checkValidLogin(req.Login); err != nil {
+	if err := ValidateLogin(req.Login); err != nil {
 		return nil, err
 	}
 
-	if err := checkValidPassword(req.Password); err != nil {
+	if err := ValidatePassword(req.Password); err != nil {
 		return nil, err
 	}
 

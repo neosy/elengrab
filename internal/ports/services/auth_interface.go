@@ -10,16 +10,19 @@ import (
 
 type AuthMiddleware interface {
 	RegisterGuest(ctx context.Context) (*AuthUserResponse, error)
+	RegisterUser(ctx context.Context, req *AuthRegisterUserRequest) (*AuthUserResponse, error)
 
 	ValidateSession(ctx context.Context, token string) (*AuthUserResponse, error)
 	RefreshSession(ctx context.Context, token string) (*AuthUserResponse, error)
+
+	FindByLogin(ctx context.Context, login string) (*dauth.User, error)
 }
 
 type AuthService interface {
 	SoftDeleteUser(ctx context.Context, userID uuid.UUID) error
 
-	RegisterUser(ctx context.Context, req *AuthRegisterUserRequest) (*AuthUserResponse, error)
 	RegisterGuest(ctx context.Context) (*AuthUserResponse, error)
+	RegisterUser(ctx context.Context, req *AuthRegisterUserRequest) (*AuthUserResponse, error)
 	RegisterAdmin(ctx context.Context, req *AuthRegisterAdminRequest) (*AuthUserResponse, error)
 
 	AuthenticateUser(ctx context.Context, req *AuthUserRequest) (*AuthUserResponse, error)

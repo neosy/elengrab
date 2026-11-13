@@ -14,6 +14,11 @@ var (
 		exceptionx.WithMessage("Function parameter is a null pointer"),
 		exceptionx.WithHTTPStatus(fasthttp.StatusInternalServerError),
 	)
+	METHOD_RECEIVER_NULL_POINTER = exceptions.AddSeq(
+		"METHOD_RECEIVER_NULL_POINTER",
+		exceptionx.WithMessage("Method receiver is a null pointer"),
+		exceptionx.WithHTTPStatus(fasthttp.StatusInternalServerError),
+	)
 	FUNCTION_CONTAINS_EMPTY_FIELDS = exceptions.AddSeq(
 		"FUNCTION_CONTAINS_EMPTY_FIELDS",
 		exceptionx.WithMessage("Function parameter contains empty fields"),

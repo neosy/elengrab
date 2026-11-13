@@ -1,13 +1,8 @@
 package authmw
 
 import (
-	"errors"
-
 	"uuid"
 
-	autherr "github.com/neosy/elengrab/internal/app/usecases/auth/errors"
-	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
-	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -39,15 +34,15 @@ func (a *AuthMiddleware) AuthOrGuest(next fasthttp.RequestHandler) fasthttp.Requ
 			return
 		}
 
-		// If no valid session exists and guest sessions are not allowed,
-		// return an unauthorized response.
-		if userCtx == nil && a.appMode.AllowsAnonymousWrite() {
-			a.SetCookieAnonym(ctx)
-			next(ctx)
-			return
-		}
-
 		if userCtx == nil {
+			// If no valid session exists and guest sessions are not allowed,
+			// return an unauthorized response.
+			if a.appMode.AllowsAnonymousWrite() {
+				a.SetCookieAnonym(ctx)
+				next(ctx)
+				return
+			}
+
 			nfasthttp.WriteErrorx(ctx, ierrors.ErrUnauthorized)
 			return
 		}
@@ -225,71 +220,6 @@ func (a *AuthMiddleware) RequireAuthMode(next fasthttp.RequestHandler) fasthttp.
 		ctx.SetUserValue(UserKey, *userCtx)
 		next(ctx)
 	}
-}
-
-func (a *AuthMiddleware) processAuth(ctx *fasthttp.RequestCtx, createGuest bool) (*dauth.AuthContext, error) {
-	var session *udto.AuthUserResponse
-
-	if !nfasthttp.IsForwardedHTTPS(ctx) {
-		a.SetCookieAnonym(ctx)
-		return nil, nil
-	}
-
-	token := CookieSessionTokenKey.GetValue(ctx)
-
-	if token != "" {
-		var err error
-		session, err = a.auth.ValidateSession(ctx, token)
-		if err != nil {
-			switch {
-			case errors.Is(err, autherr.ErrSessionNotFound):
-			case errors.Is(err, autherr.ErrSessionExpired):
-			case errors.Is(err, autherr.ErrUserNotFound):
-			default:
-				return nil, err
-			}
-		}
-
-		if session != nil && session.Token.NeedsRefresh {
-			newSession, err := a.auth.RefreshSession(ctx, session.Token.Token)
-			if err != nil {
-				a.logger.Warn("failed to refresh session: %v", "error", err)
-				return nil, err
-			}
-			if newSession.Token.Token != session.Token.Token {
-				session = newSession
-				a.SetCookieToken(ctx, session.Token.Token, WithExpiresAt(session.Token.ExpiresAt))
-			}
-		}
-	}
-
-	var guestCreated bool
-	if session == nil && createGuest {
-		var err error
-		session, err = a.auth.RegisterGuest(ctx)
-		if err != nil {
-			return nil, err
-		}
-		guestCreated = true
-		a.SetCookieToken(ctx, session.Token.Token, WithExpiresAt(session.Token.ExpiresAt))
-	}
-
-	if session != nil {
-		roleIDs, err := dtypes.ParseUserRoleIDs(session.RoleIDs)
-		if err != nil {
-			return nil, err
-		}
-		userCtx := &dauth.AuthContext{
-			UserID:       session.UserID,
-			Login:        session.Login,
-			Email:        session.Email,
-			RoleIDs:      roleIDs,
-			GuestCreated: guestCreated,
-		}
-		return userCtx, nil
-	}
-
-	return nil, nil
 }
 
 func (m *AuthMiddleware) SetCookieAnonym(ctx *fasthttp.RequestCtx, opts ...cookieOption) {

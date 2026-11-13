@@ -29,7 +29,9 @@ func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Applicat
 		Template:              tmpl,
 
 		// Options
+		AppEnv:          cfg.AppConfig.AppEnv,
 		AppMode:         dtypes.MustParseAppMode(cfg.Elengrab.Mode),
+		ReverseProxy:    cfg.HTTPServer.ReverseProxy,
 		BaseURL:         cfg.Elengrab.BaseURL,
 		ShortLinkPrefix: cfg.Elengrab.ShortLinkPrefix,
 		AssetsDir:       upaths.AbsPath(cfg.Elengrab.RootDir, cfg.Elengrab.AssetsDir),
@@ -37,7 +39,7 @@ func StartHTTPServer(logger *slog.Logger, cfg *iconfig.Config, app *app.Applicat
 		MaxUploadSize:   cfg.Elengrab.Upload.MaxFileSize(),
 	}
 
-	httpServer, err := httpsrv.NewServer(logger, cfg.AppConfig.AppEnv, deps)
+	httpServer, err := httpsrv.NewServer(logger, deps)
 	if err != nil {
 		logger.Error("Failed to create HTTP server", "error", err)
 		app.Cancel()
