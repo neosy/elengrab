@@ -1,9 +1,41 @@
+.menu {
+    --top-menu-top: calc(var(--header-height) - 10px);
+    --bottom-menu-bottom: var(--menu-bottom, auto);
+    --top-menu-border-top-left-radius: var(--menu-border-radius-value);
+    --top-menu-border-top-right-radius: var(--menu-border-radius-value);
+}
+
+.menu.menu--mobile-layout {
+    --top-menu-top: var(--header-height);
+    --top-menu-right: 0;
+    --bottom-menu-bottom: 0;
+
+    --menu-box-shadow: 0 2px 10px var(--menu-box-shadow-color);
+}
+
+body:has(.header--hidden) .menu.menu--mobile-layout {
+    --top-menu-top: 0;
+    --top-menu-border-top-left-radius: 0;
+    --top-menu-border-top-right-radius: 0;
+}
+
 /*------------------ Account menu ------------------*/
+.menu-account {
+    --top-menu-right: calc(50px + 8px);
+}
+
 .menu-account {
     position: fixed;
 
-    top: calc(var(--header-height) - 10px);
-    right: calc(50px + 8px);
+    top: var(--top-menu-top);
+    right: var(--top-menu-right);
+
+    border-top-left-radius: var(--top-menu-border-top-left-radius);
+    border-top-right-radius: var(--top-menu-border-top-right-radius);
+}
+
+.menu-account.menu--mobile-layout {
+    --menu-transition: var(--menu-transition-base), top 0.3s ease;
 }
 
 @media (min-width: 480px) {
@@ -14,12 +46,6 @@
 
 @media (max-width: 768px) {
     .menu-account {
-        top: 0;
-        right: 0;
-
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-        
         transform: none;
     }
 
@@ -57,10 +83,21 @@
 
 /*------------------ Upload menu ------------------*/
 .upload-menu {
+    --top-menu-right: calc(80px);
+}
+
+.upload-menu {
     position: fixed;
 
-    top: calc(var(--header-height) - 10px);
-    right: calc(80px);
+    top: var(--top-menu-top);
+    right: var(--top-menu-right);
+
+    border-top-left-radius: var(--top-menu-border-top-left-radius);
+    border-top-right-radius: var(--top-menu-border-top-right-radius);
+}
+
+.upload-menu.menu--mobile-layout {
+    --menu-transition: var(--menu-transition-base), top 0.3s ease;
 }
 
 @media (min-width: 480px) {
@@ -71,12 +108,6 @@
 
 @media (max-width: 768px) {
     .upload-menu {
-        top: 0;
-        right: 0;
-
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-        
         transform: none;
     }
 }
@@ -106,9 +137,6 @@
 /*------------------ Row menu ------------------*/
 .menu-row {
     position: fixed;
-}
-
-.menu-row.menu--show {
     padding: 6px;
 }
 
@@ -118,7 +146,7 @@
 
 @media (max-width: 768px) {
     .menu.menu-row {
-        bottom: 0;
+        bottom: var(--bottom-menu-bottom);
         left: auto;
         right: 0;
 
