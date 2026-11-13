@@ -52,6 +52,8 @@ If set to 0, old backup files are not deleted.
  - `ELENGRAB_HTTP_SERVER_ADDRESS` - Address specifies the network address on which the HTTP server listens.
  - `ELENGRAB_HTTP_SERVER_PORT` (default: `8080`) - Port specifies the port on which the HTTP server listens.
  - `ELENGRAB_HTTP_SERVER_COMPRESS` (default: `true`) - Compress enables HTTP response compression.
+ - `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_ENABLE_AUTH` (default: `false`) - Enables authentication using headers provided by trusted reverse proxies.
+ - `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_TRUSTED_PROXIES` (comma-separated) - Specifies trusted reverse proxy IP addresses and CIDR ranges (comma-separated, e.g. "127.0.0.1/32,172.18.0.0/16").
  - `ELENGRAB_SQLITE_DATA_DIR` (default: `sqlite/data`) - Directory where SQLite database files are stored.
  - `ELENGRAB_SQLITE_BACKUPS_DIR` (default: `sqlite/backups`) - Directory where SQLite database backups are stored.
 

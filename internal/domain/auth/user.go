@@ -6,6 +6,7 @@ import (
 	"uuid"
 
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	ierrors "github.com/neosy/elengrab/internal/errors"
 )
 
 type User struct {
@@ -52,4 +53,13 @@ func (u *User) UserType() dtypes.UserType {
 		return dtypes.UserTypeAnonymous
 	}
 	return ResolveUserType(u.UserID, dtypes.NewUserRoleIDs(u.RoleIDs))
+}
+
+// ParseRoleIDs parses the user's role IDs into a slice of dtypes.UserRoleID.
+func (u *User) ParseRoleIDs() (dtypes.UserRoleIDs, error) {
+	if u == nil {
+		return nil, ierrors.ErrMethodReceiverNullPointer
+	}
+
+	return dtypes.ParseUserRoleIDs(u.RoleIDs)
 }

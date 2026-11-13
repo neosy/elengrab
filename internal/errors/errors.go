@@ -26,6 +26,10 @@ var (
 	ErrFuncParamNullPointer = exceptions.FUNCTION_PARAMETER_NULL_POINTER.NewErrorx(
 		errorx.WithErrorMessage("Something went wrong"),
 	).(errorx.Errorx)
+	ErrMethodReceiverNullPointer = exceptions.METHOD_RECEIVER_NULL_POINTER.NewErrorx(
+		errorx.WithErrorMessage("Something went wrong"),
+	).(errorx.Errorx)
+
 	ErrFuncContainsEmptyFields = exceptions.FUNCTION_CONTAINS_EMPTY_FIELDS.NewErrorx(
 		errorx.WithErrorMessage("Something went wrong"),
 	).(errorx.Errorx)
