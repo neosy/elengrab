@@ -20,6 +20,14 @@ const CLASS_NAMES = {
       this.menuScroll,
     ];
   },
+
+  reset(menu) {
+    menu.classList.remove(...this.getMenuStateClasses());
+
+    menu.addEventListener('transitionend', () => {
+        menu.classList.remove(this.menuMobileLayout);
+    }, { once: true });
+  },
 }
 
 const CLASS_SELECTORS = Object.fromEntries(
@@ -98,47 +106,7 @@ export function initMenu(config) {
   const menu = document.getElementById(menuId);
   if (!menu) return;
 
-  async function handleMenuAction(item) {
-    const action = kebabToCamel(item.dataset.action);
-    const handler = actions[action] || actions.default || defaultNavigate;
-    await handler(item, menu);
-  }
-
-  function defaultNavigate(item) {
-    if (item.dataset.url) {
-      const isNewTab = item.dataset.newTab === 'true';
-      // For links, open in new tab if specified and not in PWA mode; otherwise navigate in same tab
-      // In PWA mode, we generally want to stay in the app, so we ignore newTab for internal links
-      if (isNewTab && !isPWA) {
-        window.open(item.dataset.url, '_blank', 'noopener,noreferrer');
-      } else {
-        window.location.href = item.dataset.url;
-      }
-    }
-  }
-
-  function isMobileDefault() {
-    return window.matchMedia('(max-width: 768px)').matches;
-  }
-
-  function applyMobile(menu) {
-    const props = ['top', 'left', 'right', 'bottom', 'transform', 'position'];
-    props.forEach(prop => {
-      menu.style[prop] = '';
-    });
-    menu.classList.remove(CLASS_NAMES.menuMobileLayout);
-    menu.classList.add(CLASS_NAMES.menuMobileLayout);
-  }  
-
-  function syncMenuWithHash() {
-      if (location.hash === MENU_HASH) {
-          return;
-      }
-
-      if (menuState.get(menu.id) === true) {
-          closeMenu(menu, afterClose);
-      }
-  }
+  const mobileCheck = isMobile ? isMobile : isMobileDefault;
 
   document.body.addEventListener('click', (e) => {
     const trigger = e.target.closest(triggerSelector);
@@ -192,9 +160,9 @@ export function initMenu(config) {
         beforeRenderElement?.(el, id);
       });
 
-      if (isMobile ? isMobile() : isMobileDefault()) {
-        applyMobile(menu);
-      } else {
+      updateMenuLayout(menu, mobileCheck);
+
+      if (!mobileCheck()) {
         position?.(menu, trigger);
       }
 
@@ -210,6 +178,12 @@ export function initMenu(config) {
     }
   });
 
+  window.addEventListener('resize', () => {
+    if (menu.classList.contains(CLASS_NAMES.menuShow)) {
+        updateMenuLayout(menu, mobileCheck);
+    }
+  });
+
   /** Handle clicks inside the menu */
   menu.addEventListener('click', async (e) => {
     if (!menuState.get(menu.id)) return;
@@ -222,7 +196,7 @@ export function initMenu(config) {
     e.stopPropagation();
 
     try {
-      await handleMenuAction(item);
+      await handleMenuAction(menu, item, actions);
     } catch (err) {
       console.error('Menu action failed:', err);
     }
@@ -253,12 +227,68 @@ export function initMenu(config) {
   window.addEventListener('hashchange', syncMenuWithHash);
 }
 
+function isMobileDefault() {
+  return window.matchMedia('(max-width: 768px)').matches;
+}
+
+async function handleMenuAction(menu, item, actions) {
+  const action = kebabToCamel(item.dataset.action);
+  const handler = actions[action] || actions.default || defaultNavigate;
+  await handler(item, menu);
+}
+
+function defaultNavigate(item) {
+  if (item.dataset.url) {
+    const isNewTab = item.dataset.newTab === 'true';
+    // For links, open in new tab if specified and not in PWA mode; otherwise navigate in same tab
+    // In PWA mode, we generally want to stay in the app, so we ignore newTab for internal links
+    if (isNewTab && !isPWA) {
+      window.open(item.dataset.url, '_blank', 'noopener,noreferrer');
+    } else {
+      window.location.href = item.dataset.url;
+    }
+  }
+}
+
+function applyMobile(menu) {
+  const props = ['top', 'left', 'right', 'bottom', 'transform', 'position'];
+  props.forEach(prop => {
+    menu.style[prop] = '';
+  });
+  
+  menu.classList.add(CLASS_NAMES.menuMobileLayout);
+}  
+
+/**
+ * Update menu layout based on the current device orientation and screen size.
+ *
+ * @param {HTMLElement} menu - Menu element.
+ * @param {Function} isMobile - Function that checks whether the mobile layout should be applied.
+ */
+function updateMenuLayout(menu, isMobile) {
+    if (isMobile()) {
+        applyMobile(menu);
+    } else {
+        menu.classList.remove(CLASS_NAMES.menuMobileLayout);
+    }
+}
+
+function syncMenuWithHash() {
+    if (location.hash === MENU_HASH) {
+        return;
+    }
+
+    if (menuState.get(menu.id) === true) {
+        closeMenu(menu, afterClose);
+    }
+}
+
 function closeMenu(menu, fnAfterClose) {
   menuState.set(menu.id, false);
   
   history.replaceState(null, "", location.pathname + location.search);
 
-  menu.classList.remove(...CLASS_NAMES.getMenuStateClasses());
+  CLASS_NAMES.reset(menu);
 
   if (DOM_ELEMENTS.menuOverlay) {
     DOM_ELEMENTS.menuOverlay.classList.remove(CLASS_NAMES.menuOverlayShow)
@@ -276,7 +306,6 @@ function kebabToCamel(str) {
   if (!str) {return}
   return str.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 }
-
 
 export function positionFloatingMenu(menu, btn) {
   if (!menu || !btn) return;
