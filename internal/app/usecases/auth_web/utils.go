@@ -35,15 +35,17 @@ func isValidPassword(password string) bool {
 	return true
 }
 
-func checkValidLogin(login string) error {
+// ValidateLogin validates a login against the allowed format.
+func ValidateLogin(login string) error {
 	if !isValidLogin(login) {
 		return errorx.NewHTTPMessage("login must start with a letter, 5-20 letters/digits/_", fasthttp.StatusBadRequest)
 	}
 	return nil
 }
 
-func checkValidPassword(login string) error {
-	if !isValidPassword(login) {
+// ValidatePassword validates a password against the required complexity rules.
+func ValidatePassword(password string) error {
+	if !isValidPassword(password) {
 		return errorx.NewHTTPMessage("password must be at least 8 chars, include a letter, a number and a special symbol (!@#$%^&*)", fasthttp.StatusBadRequest)
 	}
 	return nil

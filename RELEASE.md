@@ -6,7 +6,8 @@
 - Improved link creation and base URL resolution. [L188]
 - The server stores up to 1,000 events per user and replays events missed during disconnection when the client reconnects, ensuring continuity of event delivery. [L190]
 - Added a dialog for downloading media from a page URL, with a loading indicator and a scrollable selection list. [L194]
-
+- Added authentication via the `X-Auth-Request-User` header from trusted reverse proxies. Closes #577.
+  
 ### 🖥️ UI / Frontend
 - Fixed video player closing behavior when navigating browser history.
 - Added a playback progress bar to the thumbnail of the media currently playing in the player. [L193]
@@ -27,6 +28,10 @@
 - Fixed filename length overflow.
 - Restored card animations for downloads with the Refreshing status.
 - Fixed element rendering for downloads with the Refreshing status.
+
+### ⚙️ Config
+- Added `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_ENABLE_AUTH` to enable reverse proxy authentication.
+- Added `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_TRUSTED_PROXIES` to specify trusted reverse proxy IP addresses and CIDR ranges.
 
 ---
 
@@ -90,7 +95,7 @@
 - Fixed lost or duplicated watch time on slow or failed requests.
 
 ### ⚙️ Config
-Added `ELENGRAB_ABOUT_DEVELOPER_SHOW_INFO` to control developer attribution visibility in the About dialog. [L177]
+- Added `ELENGRAB_ABOUT_DEVELOPER_SHOW_INFO` to control developer attribution visibility in the About dialog. [L177]
 
 ### 📦 Build
 - Removed version numbers from release artifact filenames.
