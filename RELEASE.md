@@ -10,6 +10,7 @@
 ### 🖥️ UI / Frontend
 - Fixed video player closing behavior when navigating browser history.
 - Added a playback progress bar to the thumbnail of the media currently playing in the player. [L193]
+- Added header-dependent spacing for the dropdown menu and improved its animations.
 
 ### 🎨 Style
 - Added a dimming playback overlay with animation to the thumbnail of the currently playing video. [L193]
@@ -17,9 +18,15 @@
 ### 🧩 Refactor
 - Simplified SSE event handling. [L191]
 - Improved HEAD request handling and added caching headers to image responses.
+- Improved media grab form initialization and upload processing.
+- Improved error wrapping and download owner handling.
 
 ### 🐛 Fix
 - Prevented deleting downloads while their status is Refreshing
+- Fixed watch tracking on thumbnails.
+- Fixed filename length overflow.
+- Restored card animations for downloads with the Refreshing status.
+- Fixed element rendering for downloads with the Refreshing status.
 
 ---
 
