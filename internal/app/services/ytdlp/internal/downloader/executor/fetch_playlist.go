@@ -119,13 +119,18 @@ func mapExtractPlaylistToDto(playlistItems []idto.ExtractPlaylistItem) (*idto.Pl
 			duration, _ = parseDuration(item.DurationText)
 		}
 
+		url := item.OriginalURL
+		if url == "" {
+			url = item.URL
+		}
+
 		itemsOut = append(
 			itemsOut,
 			idto.PlaylistItem{
 				ID:    item.ID,
 				Index: item.PlaylistIndex,
 
-				URL:   item.URL,
+				URL:   url,
 				Title: item.Title,
 
 				Duration: duration,
