@@ -28,10 +28,16 @@
 - Fixed filename length overflow.
 - Restored card animations for downloads with the Refreshing status.
 - Fixed element rendering for downloads with the Refreshing status.
+- Improved handling of unmatched files by continuing processing when an individual file cannot be moved to `.lost`. [L196]
 
 ### ⚙️ Config
 - Added `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_ENABLE_AUTH` to enable reverse proxy authentication.
 - Added `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_TRUSTED_PROXIES` to specify trusted reverse proxy IP addresses and CIDR ranges.
+- Improved automatic cleanup configuration [L196]:
+  - Added support for disabling automatic cleanup using `0`.
+  - Increased the default duplicate cleanup interval from 1h to 12h.
+  - Increased the default failed download cleanup interval from 1h to 24h.
+  - Increased the retention period for missing downloads before permanent deletion from 24h to 7 days.
 
 ---
 

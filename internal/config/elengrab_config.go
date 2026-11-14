@@ -119,18 +119,23 @@ type ElengrabBehaviorConfig struct {
 type ElengrabMaintenanceConfig struct {
 	// Interval for calculating and updating hashes of downloaded files.
 	// File hashes are used to identify duplicate files.
+	// Defaults to 8h if not specified.
 	UpdateHashInterval time.Duration `env:"UPDATE_HASH_INTERVAL" envDefault:"8h"`
 
 	// Interval for deleting duplicate media files.
-	DeleteDuplicatesInterval time.Duration `env:"DELETE_DUPLICATES_INTERVAL" envDefault:"1h"`
+	// Set to 0 to disable automatic deletion.
+	DeleteDuplicatesInterval time.Duration `env:"DELETE_DUPLICATES_INTERVAL" envDefault:"12h"`
 
 	// Interval for deleting database records whose downloaded files are missing.
+	// Set to 0 to disable automatic deletion.
 	DeleteMissingMediaDownloadsInterval time.Duration `env:"DELETE_MISSING_DOWNLOADS_INTERVAL" envDefault:"12h"`
 
 	// Interval for deleting failed download records.
-	DeleteFailedMediaDownloadsInterval time.Duration `env:"DELETE_FAILED_DOWNLOADS_INTERVAL" envDefault:"1h"`
+	// Set to 0 to disable automatic deletion.
+	DeleteFailedMediaDownloadsInterval time.Duration `env:"DELETE_FAILED_DOWNLOADS_INTERVAL" envDefault:"24h"`
 
-	// Enables moving unmatched files during periodic maintenance.
+	// Enables moving unmatched files to the .lost directory during periodic missing media cleanup.
+	// This operation runs according to DeleteMissingMediaDownloadsInterval.
 	MoveUnmatchedFilesEnabled bool `env:"ENABLE_MOVE_UNMATCHED_FILES" envDefault:"false"`
 
 	// Number of the latest database backups to keep.
