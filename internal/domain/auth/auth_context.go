@@ -78,14 +78,9 @@ func (u *AuthContext) IsGuest() bool {
 	return u.UserType() == dtypes.UserTypeGuest
 }
 
-// IsUser reports whether the authentication context belongs to a user.
-func (u *AuthContext) IsUser() bool {
-	return u.UserType() == dtypes.UserTypeUser
-}
-
-// IsAuthenticatedUser reports whether the authentication context belongs to an authenticated user.
-func (u *AuthContext) IsAuthenticatedUser() bool {
-	return u.UserType() >= dtypes.UserTypeUser
+// IsAdmin reports whether the authentication context belongs to an admin user.
+func (u *AuthContext) IsAdmin() bool {
+	return u.UserType() == dtypes.UserTypeAdmin
 }
 
 // IsGuestOrHigher reports whether the authentication context belongs to a guest or higher user type.
@@ -93,14 +88,9 @@ func (u *AuthContext) IsGuestOrHigher() bool {
 	return u.UserType() >= dtypes.UserTypeGuest
 }
 
-// IsAdmin reports whether the authentication context belongs to an admin user.
-func (u *AuthContext) IsAdmin() bool {
-	return u.UserType() == dtypes.UserTypeAdmin
-}
-
-// IsGuestOrUser reports whether the authentication context belongs to a guest or regular user.
-func (u *AuthContext) IsGuestOrUser() bool {
-	return u.IsUser() || u.IsGuest()
+// IsAuthenticatedUser reports whether the authentication context belongs to a user or higher user type.
+func (u *AuthContext) IsUserOrHigher() bool {
+	return u.UserType() >= dtypes.UserTypeUser
 }
 
 // HasSession checks whether the authentication context has an identifiable session.
