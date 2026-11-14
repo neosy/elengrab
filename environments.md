@@ -43,17 +43,22 @@ Supported values: private, authenticated, public.
 If not set, visibility is determined by the application mode.
  - `ELENGRAB_MAINTENANCE_UPDATE_HASH_INTERVAL` (default: `8h`) - Interval for calculating and updating hashes of downloaded files.
 File hashes are used to identify duplicate files.
- - `ELENGRAB_MAINTENANCE_DELETE_DUPLICATES_INTERVAL` (default: `1h`) - Interval for deleting duplicate media files.
+Defaults to 8h if not specified.
+ - `ELENGRAB_MAINTENANCE_DELETE_DUPLICATES_INTERVAL` (default: `12h`) - Interval for deleting duplicate media files.
+Set to 0 to disable automatic deletion.
  - `ELENGRAB_MAINTENANCE_DELETE_MISSING_DOWNLOADS_INTERVAL` (default: `12h`) - Interval for deleting database records whose downloaded files are missing.
- - `ELENGRAB_MAINTENANCE_DELETE_FAILED_DOWNLOADS_INTERVAL` (default: `1h`) - Interval for deleting failed download records.
- - `ELENGRAB_MAINTENANCE_ENABLE_MOVE_UNMATCHED_FILES` (default: `false`) - Enables moving unmatched files during periodic maintenance.
+Set to 0 to disable automatic deletion.
+ - `ELENGRAB_MAINTENANCE_DELETE_FAILED_DOWNLOADS_INTERVAL` (default: `24h`) - Interval for deleting failed download records.
+Set to 0 to disable automatic deletion.
+ - `ELENGRAB_MAINTENANCE_ENABLE_MOVE_UNMATCHED_FILES` (default: `false`) - Enables moving unmatched files to the .lost directory during periodic missing media cleanup.
+This operation runs according to DeleteMissingMediaDownloadsInterval.
  - `ELENGRAB_MAINTENANCE_DATABASE_BACKUPS_KEEP` (default: `7`) - Number of the latest database backups to keep.
 If set to 0, old backup files are not deleted.
  - `ELENGRAB_HTTP_SERVER_ADDRESS` - Address specifies the network address on which the HTTP server listens.
  - `ELENGRAB_HTTP_SERVER_PORT` (default: `8080`) - Port specifies the port on which the HTTP server listens.
  - `ELENGRAB_HTTP_SERVER_COMPRESS` (default: `true`) - Compress enables HTTP response compression.
- - `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_ENABLE_AUTH` (default: `false`) - Enables authentication using headers provided by trusted reverse proxies.
- - `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_TRUSTED_PROXIES` (comma-separated) - Specifies trusted reverse proxy IP addresses and CIDR ranges (comma-separated, e.g. "127.0.0.1/32,172.18.0.0/16").
+ - `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_ENABLE_AUTH` (default: `false`) - Enables authentication using the username provided in the X-Auth-Request-User header by trusted reverse proxies.
+ - `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_TRUSTED_PROXIES` (comma-separated) - Specifies trusted reverse proxy IP addresses and CIDR ranges (e.g. "127.0.0.1/32,172.18.0.0/16").
  - `ELENGRAB_SQLITE_DATA_DIR` (default: `sqlite/data`) - Directory where SQLite database files are stored.
  - `ELENGRAB_SQLITE_BACKUPS_DIR` (default: `sqlite/backups`) - Directory where SQLite database backups are stored.
 
