@@ -2,7 +2,6 @@ package downloader
 
 import (
 	"context"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -16,7 +15,7 @@ import (
 const (
 	// missingFileRetentionPeriod defines how long a missing download is retained
 	// in soft-deleted state before it becomes eligible for permanent deletion.
-	missingFileRetentionPeriod = 24 * time.Hour
+	missingFileRetentionPeriod = 7 * 24 * time.Hour
 
 	// moveUnmatchedFileRetentionPeriod defines how long unmatched downloads
 	// should remain in the downloads directory before being moved.
@@ -145,6 +144,11 @@ func (uc *downloader) moveUnmatchedFiles(ctx context.Context) error {
 
 			info, err := file.Info() // fs.FileInfo
 			if err != nil {
+				uc.logger.Warn("Failed to get file info", "file", fileName, "error", err)
+				return nil
+			}
+
+			if _, exists := names[fileName]; exists {
 				return nil
 			}
 
@@ -153,17 +157,15 @@ func (uc *downloader) moveUnmatchedFiles(ctx context.Context) error {
 			}
 
 			// Move file if it's not present in DB
-			if _, exists := names[fileName]; !exists {
-				src := path
-				dst := filepath.Join(uc.downloadsStorage.BasePath(), lostDirName, fileName)
+			src := path
+			dst := filepath.Join(uc.downloadsStorage.BasePath(), lostDirName, fileName)
 
-				if err := os.Rename(src, dst); err != nil {
-					uc.logger.Warn("Failed to move file", "file", fileName, "error", err)
-					return fmt.Errorf("failed to move file %s: %w", fileName, err)
-				}
-
-				uc.logger.Debug("Moved file to lost directory", "file", fileName)
+			if err := os.Rename(src, dst); err != nil {
+				uc.logger.Warn("Failed to move file", "file", fileName, "error", err)
+				return nil
 			}
+
+			uc.logger.Debug("Moved file to lost directory", "file", fileName)
 
 			return nil
 		},
