@@ -51,7 +51,7 @@ func (uc *downloader) ListDownloadInfo(
 
 	if !existsUserIDFilter && uc.authz.ShouldRestrictDownloads(authCtx.RoleIDs) {
 		options.Filters.Add(dtypes.QueryFilterNameUserID, authCtx.UserID)
-		if authCtx.IsGuestOrUser() {
+		if authCtx.IsGuestOrHigher() {
 			options.Visibility = new(dtypes.QueryMediaVisibilityAuthenticated)
 		}
 	}

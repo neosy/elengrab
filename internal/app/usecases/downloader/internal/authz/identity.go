@@ -26,8 +26,3 @@ func IsGuest(roleIDs dtypes.UserRoleIDs) bool {
 	userType := dtypes.ResolveUserTypeByRoles(roleIDs)
 	return userType == dtypes.UserTypeGuest
 }
-
-func IsUser(roleIDs dtypes.UserRoleIDs) bool {
-	userType := dtypes.ResolveUserTypeByRoles(roleIDs)
-	return userType == dtypes.UserTypeUser
-}

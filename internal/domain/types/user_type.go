@@ -14,12 +14,13 @@ func (ut UserType) HasRequiredAccess(required UserType) bool {
 	return ut >= required
 }
 
+// ResolveUserTypeByRoles determines the user type based on the provided role IDs.
 func ResolveUserTypeByRoles(roleIDs UserRoleIDs) UserType {
 	if len(roleIDs) == 0 {
 		return UserTypeAnonymous
 	}
 
-	var uType UserType = UserTypeAnonymous
+	uType := UserTypeAnonymous
 
 	for _, r := range roleIDs {
 		switch r {
