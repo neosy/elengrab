@@ -13,11 +13,8 @@ import (
 )
 
 const (
-	defaultUpdateHashInterval                  = 8 * time.Hour
-	defaultDeleteDuplicatesInterval            = 1 * time.Hour
-	defaultDeleteMissingMediaDownloadsInterval = 30 * time.Minute
-	defaultDeleteFailedMediaDownloadsInterval  = 1 * time.Hour
-	defaultResolveInconsistenciesInterval      = 6 * time.Hour
+	defaultUpdateHashInterval             = 8 * time.Hour
+	defaultResolveInconsistenciesInterval = 6 * time.Hour
 
 	defaultCleanMediaDownloadCacheInterval          = 30 * time.Minute
 	defaultCleanDownloadStateCacheInterval          = 20 * time.Minute
@@ -126,23 +123,29 @@ func Initialize(logger *slog.Logger, deps *Dependencies, ws *workers.Workers) {
 		workers.WithInitialDelay(7*time.Second),
 	))
 
-	ws.Add(workers.NewWorker(
-		wjobs.NewDeleteDuplicatesJob(ws.Logger(), deps.DownloaderMaintenance),
-		workers.WithIntervalFallback(deps.DeleteDuplicatesInterval, defaultDeleteDuplicatesInterval),
-		workers.WithInitialDelay(10*time.Second),
-	))
+	if deps.DeleteDuplicatesInterval > 0 {
+		ws.Add(workers.NewWorker(
+			wjobs.NewDeleteDuplicatesJob(ws.Logger(), deps.DownloaderMaintenance),
+			workers.WithInterval(deps.DeleteDuplicatesInterval),
+			workers.WithInitialDelay(10*time.Second),
+		))
+	}
 
-	ws.Add(workers.NewWorker(
-		wjobs.NewDeleteMissingMediaDownloadsJob(ws.Logger(), deps.DownloaderMaintenance, deps.MoveUnmatchedFilesEnabled),
-		workers.WithIntervalFallback(deps.DeleteMissingMediaDownloadsInterval, defaultDeleteMissingMediaDownloadsInterval),
-		workers.WithInitialDelay(15*time.Second),
-	))
+	if deps.DeleteMissingMediaDownloadsInterval > 0 {
+		ws.Add(workers.NewWorker(
+			wjobs.NewDeleteMissingMediaDownloadsJob(ws.Logger(), deps.DownloaderMaintenance, deps.MoveUnmatchedFilesEnabled),
+			workers.WithInterval(deps.DeleteMissingMediaDownloadsInterval),
+			workers.WithInitialDelay(15*time.Second),
+		))
+	}
 
-	ws.Add(workers.NewWorker(
-		wjobs.NewDeleteFailedMediaDownloadsJob(ws.Logger(), deps.DownloaderMaintenance),
-		workers.WithIntervalFallback(deps.DeleteFailedMediaDownloadsInterval, defaultDeleteFailedMediaDownloadsInterval),
-		workers.WithInitialDelay(20*time.Second),
-	))
+	if deps.DeleteFailedMediaDownloadsInterval > 0 {
+		ws.Add(workers.NewWorker(
+			wjobs.NewDeleteFailedMediaDownloadsJob(ws.Logger(), deps.DownloaderMaintenance),
+			workers.WithInterval(deps.DeleteFailedMediaDownloadsInterval),
+			workers.WithInitialDelay(20*time.Second),
+		))
+	}
 
 	ws.Add(workers.NewWorker(
 		wjobs.NewResolveInconsistenciesJob(ws.Logger(), deps.DownloaderMaintenance, consts.DefaultOrphanGracePeriod),
