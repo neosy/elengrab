@@ -12,6 +12,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	pagesdata "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/pages_data"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
@@ -72,9 +73,9 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 		}
 	}
 
-	userHeaderPageData := h.buildUserDownloadsHeaderPageData(ctx, userLogin)
+	userHeaderPageData := helper.BuildUserDownloadsHeaderPageData(ctx, userLogin)
 
-	userDisplayName := userDisplayName(
+	userDisplayName := helper.UserDisplayName(
 		user.UserID,
 		user.Login,
 		user.UserType(),
@@ -102,7 +103,7 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 
 	baseValues := pages.NewBaseValues()
 	baseValues.Title = fmt.Sprintf("%s - %s", userDisplayName, pages.AppName)
-	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(h.getBaseURL(ctx))
+	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(helper.GetBaseURL(ctx))
 
 	pagesListValues := pagesdata.BuildPagesListValues(authCtx, query, queryFilters, h.downloader)
 	pagesListValues.HasCreateAccess = isCurrentUserPage && pagesListValues.HasCreateAccess
@@ -161,7 +162,7 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 
 	// Execute template with PageTitle
 	if err := h.templates.Pages[pages.UserDownloadsPage.Key()].ExecuteTemplate(ctx, pages.UserDownloadsPage.Key(), pageData); err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
+		nfasthttp.WriteErrorx(ctx, helper.ErrTemplateExecution(err))
 		return
 	}
 }

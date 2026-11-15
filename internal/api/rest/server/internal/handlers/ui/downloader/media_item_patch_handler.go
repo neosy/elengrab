@@ -6,6 +6,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
@@ -18,7 +19,7 @@ func (h *DownloaderHandlers) PatchMediaByDownloadIDHandler(ctx *fasthttp.Request
 		return
 	}
 
-	downloadID, err := h.extractDownloadID(ctx)
+	downloadID, err := helper.ExtractDownloadID(ctx)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

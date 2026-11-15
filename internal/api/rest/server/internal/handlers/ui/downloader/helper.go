@@ -2,42 +2,23 @@ package downloader
 
 import (
 	"context"
-	"crypto/sha256"
-	"errors"
-	"fmt"
-	"hash/fnv"
 	"net/url"
 	"strings"
-	"unicode/utf8"
-
 	"uuid"
 
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
-
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/consts"
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
-	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
-	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
 	dlink "github.com/neosy/elengrab/internal/domain/link"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
-	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
-	"github.com/neosy/elengrab/internal/pkg/httpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
-	"github.com/neosy/elengrab/internal/pkg/stringx"
 	"github.com/valyala/fasthttp"
-)
-
-const (
-	defaultAvatarHue = 210 // neutral blue, same as the CSS fallback
-	nilUUIDString    = "00000000-0000-0000-0000-000000000000"
 )
 
 type shortLink struct {
@@ -47,84 +28,6 @@ type shortLink struct {
 	pathSuffix string
 
 	originalURL string
-}
-
-func parseSearchQueryString(queryString string) (*types.QueryFilters, error) {
-	if queryString == "" {
-		return nil, nil
-	}
-
-	items := strings.Split(queryString, "&")
-	if len(items) == 0 {
-		return nil, nil
-	}
-
-	queryItems := types.NewQueryFilters()
-
-	for _, item := range items {
-		parts := strings.SplitN(item, "=", 2)
-		if len(parts) != 2 {
-			continue
-		}
-
-		value, err := url.QueryUnescape(parts[1])
-		if err != nil {
-			return nil, err
-		}
-
-		k := parts[0]
-
-		key := qkeys.SearchQueryKeys.FindByShortKey(k)
-		if key == "" {
-			key = qkeys.SearchQueryKeys.FindByStringKey(k)
-		}
-
-		if key == "" {
-			continue
-		}
-
-		if !qkeys.SearchQueryKeys.ExistsByKey(key) {
-			continue
-		}
-
-		queryItems.Add(key, value)
-	}
-
-	if queryItems.Len() == 0 {
-		return nil, nil
-	}
-
-	return queryItems, nil
-}
-
-func (h *DownloaderHandlers) parseSearchQueryString(queryString string) (types.SearchValues, error) {
-	if queryString == "" {
-		return types.NewSearchValues(), nil
-	}
-
-	queryItems, err := parseSearchQueryString(queryString)
-	if err != nil {
-		return types.SearchValues{}, err
-	}
-
-	if queryItems.Len() == 0 {
-		return types.NewSearchValues(), nil
-	}
-
-	searchValues, err := h.mappers.MapSearchQueryToSearchValues(queryItems)
-	if err != nil {
-		return types.SearchValues{}, err
-	}
-
-	return searchValues, nil
-}
-
-func (h *DownloaderHandlers) parseSearchGetRequest(ctx *fasthttp.RequestCtx) (types.SearchValues, error) {
-	return h.parseSearchQueryString(ctx.QueryArgs().String())
-}
-
-func (h *DownloaderHandlers) parseSearchPostRequest(ctx *fasthttp.RequestCtx) (types.SearchValues, error) {
-	return h.parseSearchQueryString(ctx.PostArgs().String())
 }
 
 func (h *DownloaderHandlers) redirectIfAuthRequired(ctx *fasthttp.RequestCtx) bool {
@@ -138,175 +41,9 @@ func (h *DownloaderHandlers) redirectIfAuthRequired(ctx *fasthttp.RequestCtx) bo
 	return false
 }
 
-func errInternal(err error) error {
-	return errorx.Errorf(
-		"template execution error: %v", err,
-		errorx.NewFromDomainException(exceptionx.ERROR),
-	)
-}
-
-func (h *DownloaderHandlers) getScheme(ctx *fasthttp.RequestCtx) string {
-	if h.baseURL != "" {
-		if s := httpx.SchemeFromURL(h.baseURL); s != "" {
-			return s
-		}
-	}
-
-	if proto := string(ctx.Request.Header.Peek("X-Forwarded-Proto")); proto != "" {
-		return proto
-	}
-	if proto := string(ctx.Request.Header.Peek("X-Forwarded-Protocol")); proto != "" {
-		return proto
-	}
-	if ctx.IsTLS() {
-		return "https"
-	}
-
-	return "http"
-}
-
-// extractRequestMeta extracts metadata from the incoming HTTP request.
-// It returns the full request URL, client IP address, user agent, and referrer
-func (h *DownloaderHandlers) extractRequestMeta(ctx *fasthttp.RequestCtx) (url string, ip string, userAgent, referrer string) {
-	// Determine the protocol scheme (http or https)
-	scheme := h.getScheme(ctx)
-
-	// Creating the full URL
-	url = fmt.Sprintf("%s://%s%s", scheme, ctx.Host(), ctx.Request.URI().RequestURI())
-
-	// Getting the client's IP address
-	ip = nfasthttp.GetClientIP(ctx)
-
-	// Getting the User-Agent
-	userAgent = string(ctx.Request.Header.UserAgent())
-
-	// Getting the Referer
-	referrer = string(ctx.Request.Header.Referer())
-
-	return
-}
-
-func stripUUIDFromIDPath(path string) uuid.UUID {
-	parts := strings.Split(path, "/")
-
-	for _, p := range parts {
-		if p == "" {
-			continue
-		}
-
-		u, err := idcodec.DecodeUUIDBase64URL(p)
-		if err == nil {
-			return u
-		}
-	}
-
-	return uuid.Nil()
-}
-
-func mediaSourceFromURL(mediaURL string) string {
-	source := hostdetect.DetectPlatformType(mediaURL).Title()
-	if source != "" {
-		return source
-	}
-
-	u, err := url.Parse(mediaURL)
-	if err != nil {
-		return mediaURL
-	}
-
-	source = stringx.Capitalize(u.Hostname())
-	if source != "" {
-		return source
-	}
-
-	return mediaURL
-}
-
-func (h *DownloaderHandlers) getBaseURL(ctx *fasthttp.RequestCtx) string {
-	if h.baseURL != "" {
-		return h.baseURL
-	}
-
-	if ctx == nil || len(ctx.Host()) == 0 {
-		return ""
-	}
-
-	return h.getScheme(ctx) + "://" + string(ctx.Host())
-}
-
-func (h *DownloaderHandlers) ensureAbsoluteURL(ctx *fasthttp.RequestCtx, rawURL string) (string, error) {
-	parsedURL, err := url.Parse(rawURL)
-	if err != nil {
-		return "", fmt.Errorf("parse URL %q: %w", rawURL, err)
-	}
-
-	if parsedURL.IsAbs() {
-		return rawURL, nil
-	}
-
-	baseURL := h.getBaseURL(ctx)
-	if baseURL == "" {
-		return "", errors.New("base URL is empty")
-	}
-
-	return strings.TrimSuffix(baseURL, "/") + "/" + strings.TrimPrefix(rawURL, "/"), nil
-}
-
-func (h *DownloaderHandlers) buildMediaWatchURL(ctx *fasthttp.RequestCtx, downloadID uuid.UUID) string {
-	return strings.TrimSuffix(h.getBaseURL(ctx), "/") +
-		httppaths.BuildMediaItemPath(downloadID)
-}
-
-func shouldShowVisibility(visibility dtypes.MediaVisibility) bool {
-	_, exists := consts.DisplayedVisibilities[visibility]
-	return exists
-}
-
-func (h *DownloaderHandlers) buildVisibilityResponse(info *ucdto.MediaDownloadInfo) *dto.VisibilityResponse {
-	response := &dto.VisibilityResponse{
-		Visible: shouldShowVisibility(info.Visibility),
-		Value:   info.Visibility.String(),
-		Label:   info.Visibility.Label(),
-	}
-
-	switch info.Visibility {
-	case dtypes.MediaVisibilityPrivate:
-		response.Icon = icons.MediaPrivateIcon.FileRaw()
-	case dtypes.MediaVisibilityAuthenticated:
-		response.Icon = icons.MediaAuthenticatedIcon.FileRaw()
-	case dtypes.MediaVisibilityPublic:
-		response.Icon = icons.MediaPublicIcon.FileRaw()
-	}
-
-	return response
-}
-
 func (h *DownloaderHandlers) hasShareLink(ctx *fasthttp.RequestCtx, downloadID uuid.UUID) bool {
-	link, _ := h.linkWeb.ResolveURL(ctx, h.buildMediaWatchURL(ctx, downloadID))
+	link, _ := h.linkWeb.ResolveURL(ctx, helper.BuildMediaWatchURL(ctx, downloadID))
 	return link != nil
-}
-
-func (h *DownloaderHandlers) buildMediaAvatarImageURL(downloadInfo *ucdto.MediaDownloadInfo) string {
-	url := httppaths.BuildMediaItemImagePath(
-		downloadInfo.DownloadID,
-		downloadInfo.ImageMetaHash(),
-		[]dtypes.ImageSource{
-			dtypes.ImageSourceChannel,
-			dtypes.ImageSourceSite,
-		},
-	)
-	return url
-}
-
-func (h *DownloaderHandlers) buildMediaSiteImageURL(downloadInfo *ucdto.MediaDownloadInfo) string {
-	url := httppaths.BuildMediaItemImagePath(
-		downloadInfo.DownloadID,
-		downloadInfo.ImageMetaHash(),
-		[]dtypes.ImageSource{
-			dtypes.ImageSourceSite,
-		},
-	)
-	return url
 }
 
 func (h *DownloaderHandlers) buildChannelPageData(
@@ -367,85 +104,13 @@ func (h *DownloaderHandlers) buildChannelHeaderPageData(ctx context.Context, cha
 	}
 }
 
-func (h *DownloaderHandlers) buildUserDownloadsHeaderPageData(ctx context.Context, login string) pages.UserDownloadsHeader {
-	if login == "" {
-		return pages.UserDownloadsHeader{}
-	}
-
-	return pages.UserDownloadsHeader{
-		Title:       login,
-		Description: login,
-		ImageURL:    "",
-		Show:        true,
-	}
-}
-
-func (h *DownloaderHandlers) extractDownloadID(ctx *fasthttp.RequestCtx) (uuid.UUID, error) {
-	encodedDownloadID, ok := ctx.UserValue(qkeys.DownloadIDKey.String()).(string)
-	if !ok || encodedDownloadID == "" {
-		return uuid.Nil(), apierrors.ErrDownloadIDIsRequired
-	}
-
-	downloadID, err := idcodec.DecodeUUIDBase64URL(encodedDownloadID)
-	if err != nil {
-		return uuid.Nil(), apierrors.ErrDownloadIDIsIncorrect.Wrap(err)
-	}
-
-	return downloadID, nil
-}
-
-func (h *DownloaderHandlers) extractFileID(ctx *fasthttp.RequestCtx) (uuid.UUID, error) {
-	encodedFileID, ok := ctx.UserValue(qkeys.FileIDKey.String()).(string)
-	if !ok || encodedFileID == "" {
-		return uuid.Nil(), apierrors.ErrFileIDIsRequired
-	}
-
-	fileID, err := idcodec.DecodeUUIDBase64URL(encodedFileID)
-	if err != nil {
-		return uuid.Nil(), apierrors.ErrFileIDIsIncorrect.Wrap(err)
-	}
-
-	return fileID, nil
-}
-
-func (h *DownloaderHandlers) extractChannelID(ctx *fasthttp.RequestCtx) (uuid.UUID, error) {
-	encodedChannelID, ok := ctx.UserValue(qkeys.ChannelIDKey.String()).(string)
-	if !ok || encodedChannelID == "" {
-		return uuid.Nil(), apierrors.ErrChannelIDIsRequired
-	}
-
-	channelID, err := idcodec.DecodeUUIDBase64URL(encodedChannelID)
-	if err != nil {
-		return uuid.Nil(), apierrors.ErrChannelIDIsIncorrect.Wrap(err)
-	}
-
-	return channelID, nil
-}
-
-func (h *DownloaderHandlers) extractShortURL(rawURL string) (string, string) {
-	u, err := url.Parse(rawURL)
-	if err != nil {
-		return "", ""
-	}
-
-	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
-	if len(parts) < 2 || "/"+parts[0] != h.shortLinkPrefix {
-		return "", ""
-	}
-
-	shortURL := u.Scheme + "://" + u.Host + "/" + strings.Join(parts[:2], "/")
-	pathSuffix := strings.Join(parts[2:], "/")
-
-	return shortURL, pathSuffix
-}
-
 func (h *DownloaderHandlers) resolveShortLink(ctx *fasthttp.RequestCtx, clickShortLink bool) (*shortLink, error) {
 	shortCode, ok := ctx.UserValue(qkeys.ShortCodeKey.String()).(string)
 	if !ok || shortCode == "" {
 		return nil, errorx.NewHTTPMessage("shortCode is required", fasthttp.StatusBadRequest)
 	}
 
-	url, ipAddress, userAgent, referrer := h.extractRequestMeta(ctx)
+	url, ipAddress, userAgent, referrer := helper.ExtractRequestMeta(ctx)
 
 	shortURL, pathSuffix := h.extractShortURL(url)
 	if shortURL == "" {
@@ -487,7 +152,7 @@ func (h *DownloaderHandlers) resolveShortLinkToDownloadID(ctx *fasthttp.RequestC
 		return nil, uuid.Nil(), err
 	}
 
-	downloadID := stripUUIDFromIDPath(shortLink.originalURL)
+	downloadID := helper.StripUUIDFromIDPath(shortLink.originalURL)
 	if downloadID == uuid.Nil() {
 		return nil, uuid.Nil(), errorx.Errorf(
 			"failed short link %v, originalURL: %v", shortLink.shortURL, shortLink.originalURL,
@@ -568,57 +233,19 @@ func (h *DownloaderHandlers) restoreSearchQueryFilters(ctx context.Context, sear
 	return queryFilters, nil
 }
 
-func userDisplayName(userID uuid.UUID, userLogin string, userType dtypes.UserType, curUserID uuid.UUID) string {
-	switch userType {
-	case dtypes.UserTypeGuest:
-		if curUserID == userID {
-			return "Guest (You)"
-		}
-
-		id := strings.TrimPrefix(userLogin, "u-")
-		num := generateGuestNumber(id)
-
-		return fmt.Sprintf("Guest #%04d", num)
+func (h *DownloaderHandlers) extractShortURL(rawURL string) (string, string) {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return "", ""
 	}
 
-	return stringx.Capitalize(userLogin)
-}
-
-// userDisplayInitial returns the uppercased first letter of the name
-func userDisplayInitial(userName string) string {
-	r, _ := utf8.DecodeRuneInString(strings.TrimSpace(userName))
-	if r == utf8.RuneError {
-		return "?"
-	}
-	return strings.ToUpper(string(r))
-}
-
-// userDisplayInitialHueFNV derives a stable color hue (0-359) from the user ID using FNV-1a
-func userDisplayInitialHueFNV(userID string) int {
-	if userID == "" || userID == nilUUIDString {
-		return defaultAvatarHue
+	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
+	if len(parts) < 2 || "/"+parts[0] != h.shortLinkPrefix {
+		return "", ""
 	}
 
-	h := fnv.New32a()
-	h.Write([]byte(userID))
+	shortURL := u.Scheme + "://" + u.Host + "/" + strings.Join(parts[:2], "/")
+	pathSuffix := strings.Join(parts[2:], "/")
 
-	return int(h.Sum32() % 360)
-}
-
-// userDisplayInitialHueSHA256 derives a stable color hue (0-359) from the user ID using SHA-256
-func userDisplayInitialHueSHA256(userID string) int {
-	if userID == "" || userID == nilUUIDString {
-		return defaultAvatarHue
-	}
-
-	h := sha256.Sum256([]byte(userID))
-
-	return int(uint16(h[0])<<8|uint16(h[1])) % 360
-}
-
-func generateGuestNumber(id string) uint32 {
-	h := fnv.New32a()
-	_, _ = h.Write([]byte(id))
-
-	return h.Sum32() % 10000
+	return shortURL, pathSuffix
 }

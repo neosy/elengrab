@@ -9,6 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/middleware/auth"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
@@ -79,7 +80,7 @@ func (h *DownloaderHandlers) AuthLoginPageHandler(ctx *fasthttp.RequestCtx) {
 
 	// Execute template
 	if err := h.templates.Pages[pages.AuthLoginPage.Key()].ExecuteTemplate(ctx, pages.AuthLoginPage.Key(), pageData); err != nil {
-		fasthttpx.WriteErrorx(ctx, errInternal(err))
+		fasthttpx.WriteErrorx(ctx, helper.ErrTemplateExecution(err))
 		return
 	}
 }

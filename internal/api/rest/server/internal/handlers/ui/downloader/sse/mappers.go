@@ -1,4 +1,4 @@
-package mappers
+package sse
 
 import (
 	"strconv"
@@ -10,10 +10,10 @@ import (
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
 )
 
-func (m *Mappers) MapMediaDownloadChangedToEventResponse(
+func (h *SSEHandler) mapMediaDownloadChangedToEventResponse(
 	req *ucdto.MediaDownloadChanged,
-	getVisibility func(*ucdto.MediaDownloadInfo) *dto.VisibilityResponse,
-	getHasShareLink func(downloadID uuid.UUID) bool,
+	visibilityMapper func(*ucdto.MediaDownloadInfo) *dto.VisibilityResponse,
+	shareLinkChecker func(downloadID uuid.UUID) bool,
 ) *dto.EventDownloadRowPatchResponse {
 	var title string
 	if req.TitleChanged {
@@ -22,12 +22,12 @@ func (m *Mappers) MapMediaDownloadChangedToEventResponse(
 
 	var visibility *dto.VisibilityResponse
 	if req.VisibilityChanged {
-		visibility = getVisibility(req.Info)
+		visibility = visibilityMapper(req.Info)
 	}
 
 	var hasShareLink *bool
 	if req.ShareLinkChanged {
-		hasShareLink = new(getHasShareLink(req.Info.DownloadID))
+		hasShareLink = new(shareLinkChecker(req.Info.DownloadID))
 	}
 
 	var watchPercent string

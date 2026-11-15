@@ -11,6 +11,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	pagesdata "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/pages_data"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
@@ -65,7 +66,7 @@ func (h *DownloaderHandlers) renderChannelPage(
 	systemInfo := h.downloader.SystemInfo()
 
 	baseValues := pages.NewBaseValues()
-	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(h.getBaseURL(ctx))
+	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(helper.GetBaseURL(ctx))
 
 	pagesListValues := pagesdata.BuildPagesListValues(authCtx, query, queryFilters, h.downloader)
 	pagesListValues.ResultNoRows = rowsBuf.Len() == 0
@@ -98,7 +99,7 @@ func (h *DownloaderHandlers) renderChannelPage(
 
 	// Execute template with PageTitle
 	if err := h.templates.Pages[pages.ChannelPage.Key()].ExecuteTemplate(ctx, pages.ChannelPage.Key(), pageData); err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
+		nfasthttp.WriteErrorx(ctx, helper.ErrTemplateExecution(err))
 		return
 	}
 }

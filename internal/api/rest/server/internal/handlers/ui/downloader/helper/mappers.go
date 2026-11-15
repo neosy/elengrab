@@ -1,47 +1,12 @@
-package mappers
+package helper
 
 import (
-	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/consts"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
-	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-func (m *Mappers) MapSearchValuesToUsecaseQuery(values types.SearchValues) (udto.MediaDownloadQuery, error) {
-	query := udto.NewMediaDownloadQuery(
-		values.Parameters.ViewMode,
-		consts.LoadHistoryLimit,
-		values.Parameters.LastRecord,
-	)
-
-	qFilters := values.Filters.Clone()
-
-	if qFilters == nil {
-		qFilters = types.NewQueryFilters()
-	}
-
-	if values.Parameters.Filters.Len() != 0 {
-		for _, filter := range values.Parameters.Filters.List() {
-			qFilters.Append(filter)
-		}
-	}
-
-	if values.QueryText != "" {
-		qFilters.Add(qkeys.SearchQueryKey, values.QueryText)
-	}
-
-	filters, err := m.MapQueryFiltersToDomain(qFilters)
-	if err != nil {
-		return query, err
-	}
-
-	query.Filters = filters
-
-	return query, nil
-}
-
-func (m *Mappers) MapSearchQueryToSearchValues(queryItems *types.QueryFilters) (types.SearchValues, error) {
+func mapSearchQueryToSearchValues(queryItems *types.QueryFilters) (types.SearchValues, error) {
 	if queryItems == nil {
 		return types.SearchValues{}, nil
 	}

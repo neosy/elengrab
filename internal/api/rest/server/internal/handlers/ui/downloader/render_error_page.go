@@ -8,6 +8,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
@@ -25,7 +26,7 @@ func (h *DownloaderHandlers) renderErrorPage(
 ) {
 	cssStyleRaw, _ := paths.ErrorCssFileName.Raw(ctx, h.assets)
 
-	baseURL := h.getBaseURL(ctx)
+	baseURL := helper.GetBaseURL(ctx)
 	if baseURL == "" {
 		baseURL = "/"
 	}

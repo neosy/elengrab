@@ -9,6 +9,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -28,7 +29,7 @@ type renderMediaItemImageRequest struct {
 func (h *DownloaderHandlers) MediaItemImageHandler(ctx *fasthttp.RequestCtx) {
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
-	downloadID, err := h.extractDownloadID(ctx)
+	downloadID, err := helper.ExtractDownloadID(ctx)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

@@ -7,6 +7,7 @@ import (
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
@@ -22,7 +23,7 @@ func (h *DownloaderHandlers) QueueUploadedFileHandler(ctx *fasthttp.RequestCtx) 
 		return
 	}
 
-	fileID, err := h.extractFileID(ctx)
+	fileID, err := helper.ExtractFileID(ctx)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return

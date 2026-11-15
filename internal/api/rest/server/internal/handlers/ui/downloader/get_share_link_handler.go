@@ -3,6 +3,7 @@ package downloader
 import (
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
@@ -24,14 +25,14 @@ func (h *DownloaderHandlers) GetShareLinkHandler(ctx *fasthttp.RequestCtx) {
 
 	url, err := h.linkWeb.GetLastShortURL(
 		ctx,
-		h.buildMediaWatchURL(ctx, downloadID),
+		helper.BuildMediaWatchURL(ctx, downloadID),
 	)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
-	url, err = h.ensureAbsoluteURL(ctx, url)
+	url, err = helper.EnsureAbsoluteURL(ctx, url)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, err)
 		return
