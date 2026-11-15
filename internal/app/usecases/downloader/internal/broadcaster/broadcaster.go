@@ -9,13 +9,12 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/authz"
 	"github.com/neosy/elengrab/internal/app/usecases/types"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	dconsts "github.com/neosy/elengrab/internal/domain/consts"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/domain/types/broadcast"
 	eventkey "github.com/neosy/elengrab/internal/domain/types/event_key"
 	dsse "github.com/neosy/elengrab/internal/domain/types/sse"
 )
-
-const broadcastChannelBufferSize = 100
 
 type Broadcaster struct {
 	clients map[broadcast.ClientKey]subscription
@@ -31,7 +30,7 @@ func NewBroadcaster(authz *authz.Authorization) *Broadcaster {
 }
 
 func (b *Broadcaster) Subscribe(clientKey broadcast.ClientKey, roles dtypes.UserRoleIDs) subscription {
-	ch := make(chan dsse.BroadcastEvent, broadcastChannelBufferSize)
+	ch := make(chan dsse.BroadcastEvent, dconsts.SSEBroadcastChannelBufferSize)
 
 	subscription := subscription{
 		connectionID: clientKey.ConnectionID,
