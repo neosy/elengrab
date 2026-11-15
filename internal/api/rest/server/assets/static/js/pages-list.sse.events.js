@@ -29,6 +29,21 @@ export function handleRowAdd(event, usernameFilter = "") {
         let newEl = document.getElementById(rowId);
         if (newEl) return;
 
+        // Check whether the incoming row is older than the first existing row
+        const firstRow = itemsEl.querySelector(CLASS_SELECTORS.mediaResultRow);
+        if (firstRow) {
+            const firstCreatedAt = Number(firstRow.dataset.createdAtUnixMs);
+            const incomingCreatedAt = Number(data.createdAtUnixMs);
+
+            if (
+                Number.isFinite(firstCreatedAt) &&
+                Number.isFinite(incomingCreatedAt) &&
+                firstCreatedAt > incomingCreatedAt
+            ) {
+                return;
+            }
+        }        
+
         // Insert all rows right after the placeholder
         itemsEl.insertAdjacentHTML("afterbegin", data.html);
 

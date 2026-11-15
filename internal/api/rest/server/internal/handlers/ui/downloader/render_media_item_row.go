@@ -152,9 +152,12 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	}
 
 	data := pages.RowFragmentValues{
-		DownloadID:      encodedDownloadID,
-		DownloadStatus:  params.downloadInfo.Status.String(),
-		WorkingStatus:   dltypes.MapUsecaseWorkingStatusToUI(params.downloadInfo.WorkingStatus).String(),
+		DownloadID:        encodedDownloadID,
+		DownloadCreatedAt: params.downloadInfo.CreatedAt,
+
+		DownloadStatus: params.downloadInfo.Status.String(),
+		WorkingStatus:  dltypes.MapUsecaseWorkingStatusToUI(params.downloadInfo.WorkingStatus).String(),
+
 		Visibility:      params.downloadInfo.Visibility.String(),
 		VisibilityLabel: params.downloadInfo.Visibility.Label(),
 		IsReady:         params.downloadInfo.Status.IsReady(),

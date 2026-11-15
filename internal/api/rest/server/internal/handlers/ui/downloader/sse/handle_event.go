@@ -63,13 +63,15 @@ func (h *SSEHandler) handleDownloadAdd(
 	html := strings.TrimSpace(buf.String())
 
 	data := struct {
-		DownloadID     string `json:"itemId"`
-		OwnerUserLogin string `json:"owner"`
-		HTML           string `json:"html"`
+		DownloadID      string `json:"itemId"`
+		CreatedAtUnixMs int64  `json:"createdAtUnixMs"`
+		OwnerUserLogin  string `json:"owner"`
+		HTML            string `json:"html"`
 	}{
-		DownloadID:     idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
-		OwnerUserLogin: downloadInfo.UserLogin,
-		HTML:           html,
+		DownloadID:      idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
+		CreatedAtUnixMs: downloadInfo.CreatedAt.UnixMilli(),
+		OwnerUserLogin:  downloadInfo.UserLogin,
+		HTML:            html,
 	}
 
 	jsonData, err := json.Marshal(data)

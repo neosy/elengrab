@@ -182,7 +182,7 @@ func (uc *downloader) broadcastMediaDownloadChanged(
 		return
 	}
 
-	if req.Info.Visibility == dtypes.MediaVisibilityPublic {
+	if req.Info.Status.IsReady() && req.Info.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
 			eventkey.NewEventKeyUserID(req.Info.UserID),
 			types.BroadcastEventTypeDownloadPatch,
