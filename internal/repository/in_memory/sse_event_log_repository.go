@@ -6,11 +6,10 @@ import (
 	"time"
 	"uuid"
 
+	dconsts "github.com/neosy/elengrab/internal/domain/consts"
 	dsse "github.com/neosy/elengrab/internal/domain/types/sse"
 	memsimple "github.com/neosy/elengrab/internal/pkg/cache/memory/simple"
 )
-
-const defaultLenSseEventLog = 1000
 
 type sseEventLog struct {
 	id      uuid.UUID // changes on every recreation of the log
@@ -24,7 +23,7 @@ type sseEventLog struct {
 func newSseEventLog() *sseEventLog {
 	return &sseEventLog{
 		id:          uuid.New(),
-		items:       make([]*dsse.Event, 0, defaultLenSseEventLog),
+		items:       make([]*dsse.Event, 0, dconsts.SSEEventLogMaxLen),
 		uniqueIndex: make(map[string]int),
 	}
 }
@@ -104,8 +103,8 @@ func (r *sseEventLogRepository) Push(
 			log = new(*old)
 
 			// Keep only the newest events
-			start := max(0, len(old.items)-defaultLenSseEventLog+1)
-			log.items = make([]*dsse.Event, 0, defaultLenSseEventLog)
+			start := max(0, len(old.items)-dconsts.SSEEventLogMaxLen+1)
+			log.items = make([]*dsse.Event, 0, dconsts.SSEEventLogMaxLen)
 			log.items = append(log.items, old.items[start:]...)
 
 			// uniqueIndex is shared with the old log: it is only accessed under the mutex.

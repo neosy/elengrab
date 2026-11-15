@@ -17,3 +17,11 @@ const (
 	// DefaultDownloadChannelImage is the default for the "download channel image" option.
 	DefaultDownloadChannelImage = true
 )
+
+const (
+	// SSEBroadcastChannelBufferSize is the buffer size of an SSE broadcast channel per connection.
+	SSEBroadcastChannelBufferSize = 512
+
+	// SSEEventLogMaxLen is the maximum number of events stored in the SSE event log.
+	SSEEventLogMaxLen = 1000
+)
