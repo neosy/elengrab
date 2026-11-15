@@ -30,6 +30,7 @@
 - Restored card animations for downloads with the Refreshing status.
 - Fixed element rendering for downloads with the Refreshing status.
 - Improved handling of unmatched files by continuing processing when an individual file cannot be moved to `.lost`. [L196]
+- Prevented older media download rows received via SSE from being added to the top of the list. [L198]
 
 ### ⚙️ Config
 - Added `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_ENABLE_AUTH` to enable reverse proxy authentication.
@@ -39,6 +40,7 @@
   - Increased the default duplicate cleanup interval from 1h to 12h.
   - Increased the default failed download cleanup interval from 1h to 24h.
   - Increased the retention period for missing downloads before permanent deletion from 24h to 7 days.
+- Increased the SSE broadcast channel buffer size to 512. [L198]
 
 ---
 

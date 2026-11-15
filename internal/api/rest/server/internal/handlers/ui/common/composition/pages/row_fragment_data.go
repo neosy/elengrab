@@ -2,6 +2,7 @@ package pages
 
 import (
 	"html/template"
+	"time"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 )
@@ -17,9 +18,12 @@ type (
 	}
 
 	RowFragmentValues struct {
-		DownloadID      string
-		DownloadStatus  string
-		WorkingStatus   string
+		DownloadID        string
+		DownloadCreatedAt time.Time
+
+		DownloadStatus string
+		WorkingStatus  string
+
 		Visibility      string
 		VisibilityLabel string
 		IsReady         bool
