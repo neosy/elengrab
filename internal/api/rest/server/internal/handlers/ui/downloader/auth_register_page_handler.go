@@ -9,6 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	authmw "github.com/neosy/elengrab/internal/api/rest/server/internal/middleware/auth"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
@@ -71,7 +72,7 @@ func (h *DownloaderHandlers) AuthRegisterPageHandler(ctx *fasthttp.RequestCtx) {
 
 	// Execute template
 	if err := h.templates.Pages[pages.AuthRegisterPage.Key()].ExecuteTemplate(ctx, pages.AuthRegisterPage.Key(), pageData); err != nil {
-		fasthttpx.WriteErrorx(ctx, errInternal(err))
+		fasthttpx.WriteErrorx(ctx, helper.ErrTemplateExecution(err))
 		return
 	}
 }

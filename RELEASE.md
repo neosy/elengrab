@@ -21,6 +21,7 @@
 - Improved HEAD request handling and added caching headers to image responses.
 - Improved media grab form initialization and upload processing.
 - Improved error wrapping and download owner handling.
+- Restructured SSE event handlers into separate packages. [L197]
 
 ### 🐛 Fix
 - Prevented deleting downloads while their status is Refreshing

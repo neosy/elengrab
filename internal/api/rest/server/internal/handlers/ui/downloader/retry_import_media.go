@@ -8,6 +8,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
@@ -58,7 +59,7 @@ func (h *DownloaderHandlers) RetryImportMediaHandler(ctx *fasthttp.RequestCtx) {
 	var buf bytes.Buffer
 	err = h.templates.Base.ExecuteTemplate(&buf, components.ResultRowStatusKey, row.data)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
+		nfasthttp.WriteErrorx(ctx, helper.ErrTemplateExecution(err))
 		return
 	}
 

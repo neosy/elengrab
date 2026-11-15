@@ -5,6 +5,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/valyala/fasthttp"
 )
@@ -12,7 +13,7 @@ import (
 func (h *DownloaderHandlers) MediaItemRowHandler(ctx *fasthttp.RequestCtx) {
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
-	downloadID, err := h.extractDownloadID(ctx)
+	downloadID, err := helper.ExtractDownloadID(ctx)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, err)
 		return
@@ -50,7 +51,7 @@ func (h *DownloaderHandlers) MediaItemRowHandler(ctx *fasthttp.RequestCtx) {
 	var buf bytes.Buffer
 	err = h.templates.Base.ExecuteTemplate(&buf, components.ResultRowStatusKey, row.data)
 	if err != nil {
-		fasthttpx.WriteErrorx(ctx, errInternal(err))
+		fasthttpx.WriteErrorx(ctx, helper.ErrTemplateExecution(err))
 		return
 	}
 

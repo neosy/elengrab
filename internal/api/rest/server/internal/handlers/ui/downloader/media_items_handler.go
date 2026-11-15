@@ -13,6 +13,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/consts"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
@@ -41,7 +42,7 @@ func (h *DownloaderHandlers) MediaItemsHandler(ctx *fasthttp.RequestCtx) {
 func (h *DownloaderHandlers) mediaItemsGet(ctx *fasthttp.RequestCtx) {
 	ctxUser := policy.ResolveUserOrAnonym(ctx)
 
-	searchValues, err := h.parseSearchGetRequest(ctx)
+	searchValues, err := helper.ParseSearchGetRequest(ctx)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 		return
@@ -187,7 +188,7 @@ func (h *DownloaderHandlers) genRowLoadHistory(buf *bytes.Buffer) error {
 
 	err := h.templates.Base.ExecuteTemplate(buf, components.ResultLoadHistoryKey, pageData)
 	if err != nil {
-		return errInternal(err)
+		return helper.ErrTemplateExecution(err)
 	}
 
 	return nil
@@ -250,7 +251,7 @@ func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 
 	err := h.templates.Base.ExecuteTemplate(buf, components.ResultShouldLoadHistoryKey, pageData)
 	if err != nil {
-		return errInternal(err)
+		return helper.ErrTemplateExecution(err)
 	}
 
 	return nil

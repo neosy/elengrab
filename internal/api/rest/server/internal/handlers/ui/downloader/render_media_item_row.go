@@ -9,6 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/items"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	dltypes "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
@@ -128,18 +129,18 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	}
 
 	encodedDownloadID := idcodec.EncodeUUIDBase64URL(params.downloadInfo.DownloadID)
-	visibility := h.buildVisibilityResponse(params.downloadInfo)
+	visibility := helper.BuildVisibilityResponse(params.downloadInfo)
 
-	userName := userDisplayName(
+	userName := helper.UserDisplayName(
 		params.downloadInfo.UserID,
 		params.downloadInfo.UserLogin,
 		params.downloadInfo.UserType,
 		params.AuthCtx.UserID,
 	)
-	userInitial := userDisplayInitial(userName)
+	userInitial := helper.UserDisplayInitial(userName)
 
 	userDownloadsURL := httppaths.BuildRootUserDownloadsPath(params.downloadInfo.UserLogin)
-	userHue := userDisplayInitialHueFNV(params.downloadInfo.UserID.String())
+	userHue := helper.UserDisplayInitialHueFNV(params.downloadInfo.UserID.String())
 
 	var (
 		channelTitle   = channelPageData.Title
@@ -191,8 +192,8 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 		Watched:               params.downloadInfo.UserWatched,
 
 		ImageURL:       downloadItemImageURL,
-		ImageAvatarURL: h.buildMediaAvatarImageURL(params.downloadInfo),
-		ImageSiteURL:   h.buildMediaSiteImageURL(params.downloadInfo),
+		ImageAvatarURL: helper.BuildMediaAvatarImageURL(params.downloadInfo),
+		ImageSiteURL:   helper.BuildMediaSiteImageURL(params.downloadInfo),
 
 		DownloadRowPath:    httppaths.BuildMediaItemRowPath(params.downloadInfo.DownloadID),
 		DownloadRepeatPath: httppaths.BuildMediaItemDownloadRepeatPath(params.downloadInfo.DownloadID),

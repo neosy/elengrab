@@ -4,6 +4,7 @@ import (
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
@@ -34,14 +35,14 @@ func (h *DownloaderHandlers) CreateShareLinkHandler(ctx *fasthttp.RequestCtx) {
 
 	url, err := h.linkWeb.CreateShortLink(
 		ctx,
-		h.buildMediaWatchURL(ctx, downloadID),
+		helper.BuildMediaWatchURL(ctx, downloadID),
 	)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, err)
 		return
 	}
 
-	url, err = h.ensureAbsoluteURL(ctx, url)
+	url, err = helper.EnsureAbsoluteURL(ctx, url)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, err)
 		return

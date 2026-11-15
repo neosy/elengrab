@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/components"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
@@ -34,7 +35,7 @@ func (h *DownloaderHandlers) renderMediaItemRowPlaceholder(
 	var buf bytes.Buffer
 	err := h.templates.Base.ExecuteTemplate(&buf, components.ResultNewRowKey, row.data)
 	if err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
+		nfasthttp.WriteErrorx(ctx, helper.ErrTemplateExecution(err))
 		return nil, err
 	}
 
