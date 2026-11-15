@@ -5,8 +5,8 @@
 ### ✨ Features
 - Improved link creation and base URL resolution. [L188]
 - The server stores up to 1,000 events per user and replays events missed during disconnection when the client reconnects, ensuring continuity of event delivery. [L190]
-- Added a dialog for downloading media from a page URL, with a loading indicator and a scrollable selection list. [L194]
-- Added authentication via the `X-Auth-Request-User` header from trusted reverse proxies. Closes #577.
+- Added a dialog for downloading media from a page URL, with a loading indicator and a scrollable selection list. [L194] [#59]
+- Added authentication via the `X-Auth-Request-User` header from trusted reverse proxies. [#577]
   
 ### 🖥️ UI / Frontend
 - Fixed video player closing behavior when navigating browser history.
@@ -33,8 +33,8 @@
 - Prevented older media download rows received via SSE from being added to the top of the list. [L198]
 
 ### ⚙️ Config
-- Added `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_ENABLE_AUTH` to enable reverse proxy authentication.
-- Added `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_TRUSTED_PROXIES` to specify trusted reverse proxy IP addresses and CIDR ranges.
+- Added `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_ENABLE_AUTH` to enable reverse proxy authentication. [#577]
+- Added `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_TRUSTED_PROXIES` to specify trusted reverse proxy IP addresses and CIDR ranges. [#577]
 - Improved automatic cleanup configuration [L196]:
   - Added support for disabling automatic cleanup using `0`.
   - Increased the default duplicate cleanup interval from 1h to 12h.
