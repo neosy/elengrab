@@ -13,6 +13,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/images"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	iconfig "github.com/neosy/elengrab/internal/config"
@@ -169,8 +170,8 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 	metaOgItems.Add("url", req.pageURL)
 	metaOgItems.Add("title", downloadInfo.MediaTitle)
 	metaOgItems.Add("description", description)
-	metaOgItems.Add("image", imageData.FullURL(h.getBaseURL(ctx)))
-	metaOgItems.Add("image:secure_url", imageData.FullURL(h.getBaseURL(ctx)))
+	metaOgItems.Add("image", imageData.FullURL(helper.GetBaseURL(ctx)))
+	metaOgItems.Add("image:secure_url", imageData.FullURL(helper.GetBaseURL(ctx)))
 	metaOgItems.Add("image:type", httpx.ContentTypeByExt(imageData.Format.String()))
 	metaOgItems.Add("image:alt", "Elengrab logo")
 	if imageData.Width != 0 && imageData.Height != 0 {
@@ -186,7 +187,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 	metaNameItems.Add("twitter:url", req.pageURL)
 	metaNameItems.Add("twitter:title", downloadInfo.MediaTitle)
 	metaNameItems.Add("twitter:description", description)
-	metaNameItems.Add("twitter:image", imageData.FullURL(h.getBaseURL(ctx)))
+	metaNameItems.Add("twitter:image", imageData.FullURL(helper.GetBaseURL(ctx)))
 	metaNameItems.Add("application-title", iconfig.AppName)
 
 	baseValues := pages.NewBaseValues()
@@ -228,7 +229,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 		mediaParameters = append(mediaParameters,
 			pages.MediaParameter{
 				Name:     "Original Source",
-				Value:    mediaSourceFromURL(downloadInfo.MediaURL),
+				Value:    helper.MediaSourceFromURL(downloadInfo.MediaURL),
 				URL:      downloadInfo.MediaURL,
 				CopyIcon: icons.CopyURLIcon.FileRaw(),
 			},
@@ -237,7 +238,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 
 	shortURL, _ := h.linkWeb.FindLastShortURL(
 		ctx,
-		h.buildMediaWatchURL(ctx, downloadInfo.DownloadID),
+		helper.BuildMediaWatchURL(ctx, downloadInfo.DownloadID),
 	)
 	if shortURL != "" {
 		mediaParameters = append(mediaParameters,
@@ -290,7 +291,7 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 
 	// Execute template with PageTitle
 	if err := h.templates.Pages[pages.WatchPage.Key()].ExecuteTemplate(ctx, pages.WatchPage.Key(), pageData); err != nil {
-		fasthttpx.WriteErrorx(ctx, errInternal(err))
+		fasthttpx.WriteErrorx(ctx, helper.ErrTemplateExecution(err))
 		return
 	}
 }

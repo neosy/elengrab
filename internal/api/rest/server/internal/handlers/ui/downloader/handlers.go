@@ -5,7 +5,9 @@ import (
 
 	"github.com/neosy/elengrab/internal/api/rest/server/assets"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/mappers"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/sse"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/validators"
 	"github.com/neosy/elengrab/internal/app/usecases"
 	authweb "github.com/neosy/elengrab/internal/app/usecases/auth_web"
@@ -26,13 +28,13 @@ type DownloaderHandlers struct {
 	templates  *assets.Templates
 	assets     *assets.Assets
 	assetPaths paths.AssetPaths
+	sse        *sse.SSEHandler
 
 	// Storages
 	downloadsStorage pstorage.DownloadsStorage
 
 	// Caches
 	uploadedFileCacheRepo persistence.UploadedFileCacheRepository
-	sseEventLogCacheRepo  persistence.SSEEventLogCacheRepository
 
 	// Usecases
 	authWeb     authweb.AuthWeb
@@ -68,7 +70,9 @@ func NewDownloaderHandlers(
 	shortLinkPrefix string,
 	maxUploadSize int64,
 ) *DownloaderHandlers {
-	return &DownloaderHandlers{
+	helper.Init(baseURL)
+
+	handlers := &DownloaderHandlers{
 		logger:     logger,
 		mappers:    mappers.NewMappers(),
 		validators: validators.NewValidators(),
@@ -82,7 +86,6 @@ func NewDownloaderHandlers(
 
 		// Caches
 		uploadedFileCacheRepo: uploadedFileCacheRepo,
-		sseEventLogCacheRepo:  sseEventLogCacheRepo,
 
 		// Usecases
 		authWeb:     usecases.AuthWeb,
@@ -97,4 +100,15 @@ func NewDownloaderHandlers(
 		shortLinkPrefix: shortLinkPrefix,
 		maxUploadSize:   maxUploadSize,
 	}
+
+	handlers.sse = sse.NewSSEHandler(
+		sseEventLogCacheRepo,
+		usecases.DownloaderAPI,
+		usecases.LinkWeb,
+
+		handlers.renderMediaItemRowPlaceholder,
+		handlers.renderMediaItemRowForSSE,
+	)
+
+	return handlers
 }

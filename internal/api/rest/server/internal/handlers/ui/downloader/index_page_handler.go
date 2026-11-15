@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	"github.com/neosy/elengrab/internal/pkg/debugx"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/errorx/exceptionx"
@@ -25,7 +26,7 @@ func (h *DownloaderHandlers) IndexPageHandler(ctx *fasthttp.RequestCtx) {
 
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
-	searchValues, err := h.parseSearchGetRequest(ctx)
+	searchValues, err := helper.ParseSearchGetRequest(ctx)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 		return

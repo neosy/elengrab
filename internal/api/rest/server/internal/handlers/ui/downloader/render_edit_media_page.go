@@ -8,6 +8,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/clientcap"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	httppaths "github.com/neosy/elengrab/internal/api/rest/server/internal/paths"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	"github.com/neosy/elengrab/internal/pkg/fasthttpx"
@@ -81,7 +82,7 @@ func (h *DownloaderHandlers) renderEditMediaPage(
 
 	// Execute template with PageTitle
 	if err := h.templates.Pages[pages.EditMediaPage.Key()].ExecuteTemplate(ctx, pages.EditMediaPage.Key(), pageData); err != nil {
-		fasthttpx.WriteErrorx(ctx, errInternal(err))
+		fasthttpx.WriteErrorx(ctx, helper.ErrTemplateExecution(err))
 		return
 	}
 }

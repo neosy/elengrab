@@ -3,6 +3,7 @@ package downloader
 import (
 	apierrors "github.com/neosy/elengrab/internal/api/errors"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/dto"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
@@ -25,7 +26,7 @@ func (h *DownloaderHandlers) DeleteShareLinkHandler(ctx *fasthttp.RequestCtx) {
 
 	err = h.linkWeb.DeleteShortLink(
 		ctx,
-		h.buildMediaWatchURL(ctx, downloadID),
+		helper.BuildMediaWatchURL(ctx, downloadID),
 	)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)

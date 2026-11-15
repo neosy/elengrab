@@ -9,6 +9,7 @@ import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	pagesdata "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/pages_data"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
@@ -52,7 +53,7 @@ func (h *DownloaderHandlers) renderIndexPage(
 	systemInfo := h.downloader.SystemInfo()
 
 	baseValues := pages.NewBaseValues()
-	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(h.getBaseURL(ctx))
+	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(helper.GetBaseURL(ctx))
 
 	queryFilters := h.mappers.MapQueryFiltersDomainToFilters(query.Filters)
 
@@ -108,7 +109,7 @@ func (h *DownloaderHandlers) renderIndexPage(
 
 	// Execute template with PageTitle
 	if err := h.templates.Pages[pages.IndexPage.Key()].ExecuteTemplate(ctx, pages.IndexPage.Key(), pageData); err != nil {
-		nfasthttp.WriteErrorx(ctx, errInternal(err))
+		nfasthttp.WriteErrorx(ctx, helper.ErrTemplateExecution(err))
 		return
 	}
 }

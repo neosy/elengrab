@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/policy"
+	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -19,7 +20,7 @@ func (h *DownloaderHandlers) ChannelPageHandler(ctx *fasthttp.RequestCtx) {
 
 	authCtx := policy.ResolveUserOrAnonym(ctx)
 
-	channelID, err := h.extractChannelID(ctx)
+	channelID, err := helper.ExtractChannelID(ctx)
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
 		return
@@ -36,7 +37,7 @@ func (h *DownloaderHandlers) ChannelPageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	searchValues, err := h.parseSearchGetRequest(ctx)
+	searchValues, err := helper.ParseSearchGetRequest(ctx)
 	if err != nil {
 		fasthttpx.WriteErrorx(ctx, errorx.NewFromError(err, exceptionx.VALIDATE))
 		return
