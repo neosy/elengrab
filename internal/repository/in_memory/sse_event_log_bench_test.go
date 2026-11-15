@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	dconsts "github.com/neosy/elengrab/internal/domain/consts"
 	dsse "github.com/neosy/elengrab/internal/domain/types/sse"
 )
 
@@ -15,14 +16,14 @@ func BenchmarkPush(b *testing.B) {
 	ev := &dsse.Event{Name: "test", Data: []byte{}}
 
 	// Fill the log up to the limit
-	for i := range defaultLenSseEventLog {
+	for i := range dconsts.SSEEventLogMaxLen {
 		ev.Data = []byte(strconv.Itoa(i))
 		r.Push(ctx, "k", ev)
 	}
 
-	datas := make([][]byte, defaultLenSseEventLog*2)
+	datas := make([][]byte, dconsts.SSEEventLogMaxLen*2)
 
-	for i := range defaultLenSseEventLog * 2 {
+	for i := range dconsts.SSEEventLogMaxLen * 2 {
 		datas[i] = []byte(strconv.Itoa(i))
 	}
 
@@ -30,7 +31,7 @@ func BenchmarkPush(b *testing.B) {
 
 	var i int
 	for b.Loop() {
-		if i == defaultLenSseEventLog*2-1 {
+		if i == dconsts.SSEEventLogMaxLen*2-1 {
 			i = 0
 		}
 

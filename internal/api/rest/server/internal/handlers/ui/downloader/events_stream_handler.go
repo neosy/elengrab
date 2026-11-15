@@ -17,9 +17,11 @@ func (h *DownloaderHandlers) EventsStreamHandler(ctx *fasthttp.RequestCtx) {
 	// SSE headers
 	h.sse.SetupHeaders(ctx)
 
-	ctx.SetBodyStreamWriter(func(w *bufio.Writer) {
-		h.sse.StreamEvents(ctx, w, authCtx)
-	})
+	ctx.SetBodyStreamWriter(
+		func(w *bufio.Writer) {
+			h.sse.StreamEvents(ctx, w, authCtx)
+		},
+	)
 }
 
 // renderMediaItemRowForSSE renders a media item row for an SSE event.
