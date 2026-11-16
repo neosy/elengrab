@@ -11,7 +11,7 @@
 
 # Elengrab
 
-**Fast cross-platform application for downloading and watching video and audio with flexible format and quality options. Integrates with media processing utilities such as [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://github.com/FFmpeg/FFmpeg). Supports downloading from more than 1,000 websites and platforms, including YouTube, Facebook, Instagram, Twitter/X, Twitch, Pinterest, Reddit, VK Video, Rutube, and more.**
+**Fast cross-platform application for downloading and watching video and audio with flexible format and quality options. Integrates with media processing utilities such as [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://github.com/FFmpeg/FFmpeg). Supports downloading from more than 1,000 websites and platforms, including YouTube, Facebook, Instagram, Twitter/X, Twitch, Pinterest, Reddit, VK Video, Rutube, and more. Also supports extracting playlists and media lists from URLs, with individual item selection before downloading.**
 
 Elengrab provides a simple and very fast web interface for downloading and watching media directly in the browser, with a YouTube-like viewing experience, thumbnails, video previews, and a dedicated interface optimized for mobile devices. Supports Grid View, short links for sharing, and flexible playback options. On mobile devices, videos can be shared directly from apps such as YouTube and Instagram to Elengrab, where they are automatically picked up and downloaded.
 
@@ -85,8 +85,10 @@ For all other downloads, see the <a href="https://github.com/neosy/elengrab/rele
 
 * Support for downloading video and audio from **1,000+ websites**, powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp) extractors.
 * Configurable format and quality settings.
-* Cookie-based authentication support for YouTube and other supported websites.
+* Support for playlist and media list extraction from URLs in a dedicated dialog, with individual item selection and download.
 * Manual upload of audio and video files.
+* Cookie-based authentication support for YouTube and other supported websites.
+* Reverse proxy authentication support.
 * Task queue for media processing.
 * Concurrent processing of multiple tasks.
 * Instant addition and removal of tasks from the queue.
@@ -181,10 +183,13 @@ docker run -d \
 | `ELENGRAB_COOKIES_DIR` | `cookies` | Directory where cookie files are stored. Files must be in Netscape cookies.txt format (compatible with yt-dlp). |
 | `ELENGRAB_DOWNLOAD_WORKERS` | 3 | Number of concurrent workers used for processing YouTube video and audio tasks in parallel. |
 | `ELENGRAB_MODE` | `public` | Controls access mode. Possible values: `public` (anonymous, full access, shared download history), `public_readonly` (anonymous, read-only access to public media only), `guest` (anonymous, session-isolated download history), `authenticated` (login required, permission-based access). |
+| `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_ENABLE_AUTH` | `false` | Enables authentication using the username provided in the `X-Auth-Request-User` header by trusted reverse proxies. |
+| `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_TRUSTED_PROXIES` | *(not set)* | Comma-separated list of trusted reverse proxy IP addresses and CIDR ranges. |
 | `ELENGRAB_BASE_URL` | *(not set)* | Base URL of the Elengrab service, for example `https://example.com`. Used, for example, to generate short links. |
 | `ELENGRAB_ALLOW_COOKIES` | `false` | Enables use of cookies for multimedia sources. Requires [Deno](https://github.com/denoland/deno). The `youtube.txt` file should be located in the directory specified by `ELENGRAB_COOKIES_DIR`. |
 | `ELENGRAB_MAINTENANCE_ENABLE_MOVE_UNMATCHED_FILES` | `false`   | Enables the periodic operation that moves files not present in the database tables from the download folder to the `.lost` folder. Default is `false` (disabled). |
 
+For the complete list of available environment variables and their descriptions, see [Environment Variables](environments.md).
 
 
 ## Volumes
