@@ -355,12 +355,14 @@ func (r *MediaSourceIndexRepository) iterateAll(
 	switch r.queryOptions.ViewMode {
 	case dtypes.QueryMediaViewModeNew:
 		orderBys = dbutils.SortBy(eIndex.FieldName(&eIndex.SourceCreatedAt), dbutils.OrderDescending).List()
+		orderBys.Add(eIndex.FieldName(&eIndex.RowID), dbutils.OrderDescending)
 		if !r.queryOptions.LastRecord.CreatedAt.IsZero() {
 			lastCreatedAt := r.queryOptions.LastRecord.CreatedAt.UTC()
 			conditions = append(conditions, squirrel.Lt{eIndex.FieldName(&eIndex.SourceCreatedAt): lastCreatedAt})
 		}
 	case dtypes.QueryMediaViewModeOld:
 		orderBys = dbutils.SortBy(eIndex.FieldName(&eIndex.SourceCreatedAt), dbutils.OrderAscending).List()
+		orderBys.Add(eIndex.FieldName(&eIndex.RowID), dbutils.OrderAscending)
 		if !r.queryOptions.LastRecord.CreatedAt.IsZero() {
 			lastCreatedAt := r.queryOptions.LastRecord.CreatedAt.UTC()
 			conditions = append(conditions, squirrel.Gt{eIndex.FieldName(&eIndex.SourceCreatedAt): lastCreatedAt})
