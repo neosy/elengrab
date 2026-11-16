@@ -34,7 +34,7 @@ func (uc *downloader) ListDownloadInfo(
 	options.IsGuestRequest = authCtx.IsGuest()
 
 	if !uc.authz.HasViewAllAccess(authCtx.RoleIDs) {
-		options.OwnerIDForInProgress = authCtx.UserID
+		options.OwnerIDForInProgress = &authCtx.UserID
 	}
 
 	var existsUserIDFilter bool

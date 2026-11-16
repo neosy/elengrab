@@ -26,7 +26,8 @@ type QueryMediaOptions struct {
 	IsGuestRequest bool
 
 	// OwnerIDForInProgress limits in-progress downloads to the specified owner.
-	OwnerIDForInProgress uuid.UUID
+	// Anonymous users can only see ready downloads.
+	OwnerIDForInProgress *uuid.UUID
 }
 
 func NewQueryOptions() QueryOptions {
