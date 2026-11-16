@@ -1,6 +1,6 @@
 # Releases
 
-## v0.28.0 — 2026-11-15
+## v0.28.0 — 2026-11-16
 
 ### ✨ Features
 - Improved link creation and base URL resolution. [L188]
@@ -31,6 +31,7 @@
 - Fixed element rendering for downloads with the Refreshing status.
 - Improved handling of unmatched files by continuing processing when an individual file cannot be moved to `.lost`. [L196]
 - Prevented older media download rows received via SSE from being added to the top of the list. [L198]
+- Improved download sorting by using SQLite rowid as a secondary sorting criterion when creation timestamps match. [L199]
 
 ### ⚙️ Config
 - Added `ELENGRAB_HTTP_SERVER_REVERSE_PROXY_ENABLE_AUTH` to enable reverse proxy authentication. [#577]
