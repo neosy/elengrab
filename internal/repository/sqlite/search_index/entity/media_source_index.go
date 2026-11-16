@@ -12,6 +12,9 @@ import (
 type MediaSourceIndex struct {
 	dbentity.BaseEntity[MediaSourceIndex]
 
+	// RowID is the internal SQLite row identifier.
+	RowID int64 `db:"rowid" insert:"false"`
+
 	// Identifier of the watched media (UUID)
 	DownloadID uuid.UUID `db:"download_id"`
 
