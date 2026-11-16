@@ -9,6 +9,7 @@ import (
 	"uuid"
 
 	"github.com/Masterminds/squirrel"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
@@ -334,12 +335,15 @@ func (r *MediaSourceIndexRepository) iterateAll(
 		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.UserID): filterUserID})
 	}
 
-	if r.queryOptions.OwnerIDForInProgress != uuid.Nil() {
-		sqlOr := squirrel.Or{
-			squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true},
-			squirrel.Eq{eIndex.FieldName(&eIndex.UserID): r.queryOptions.OwnerIDForInProgress.String()},
+	if r.queryOptions.OwnerIDForInProgress != nil {
+		if *r.queryOptions.OwnerIDForInProgress != dauth.AnonymousUserID() {
+			conditions = append(conditions, squirrel.Or{
+				squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true},
+				squirrel.Eq{eIndex.FieldName(&eIndex.UserID): r.queryOptions.OwnerIDForInProgress.String()},
+			})
+		} else {
+			conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
 		}
-		conditions = append(conditions, sqlOr)
 	}
 
 	if !r.queryOptions.includeDeleted {
