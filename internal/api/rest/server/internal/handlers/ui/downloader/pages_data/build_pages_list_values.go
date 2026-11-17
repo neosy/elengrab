@@ -17,6 +17,7 @@ func BuildPagesListValues(
 	authCtx dauth.AuthContext,
 	query udto.MediaDownloadQuery,
 	queryFilters *types.QueryFilters,
+	contentTypeTabs []pages.ContentTypeTab,
 	downloader downloader.DownloaderAPI,
 ) pages.PagesListValues {
 	var (
@@ -34,7 +35,7 @@ func BuildPagesListValues(
 	}
 
 	searchParam := types.NewSearchParameters()
-	searchParam.AddValues(query.ViewMode, queryFilters, dtypes.QueryMediaDownloadCursor{})
+	searchParam.AddValues(query.ContentType, query.ViewMode, queryFilters, dtypes.QueryMediaDownloadCursor{})
 
 	searchFilters := queryFilters.FilterByKeys(qkeys.SearchFilterKeys)
 	searchParamFilters := searchParam.QueryFilters()
@@ -54,6 +55,9 @@ func BuildPagesListValues(
 
 		HasCreateAccess:         downloader.CanCreateMediaDownload(authCtx),
 		HasWriteOperationAccess: downloader.HasWriteAccess(authCtx),
+
+		ActiveContentType: query.ContentType.String(),
+		ContentTypeTabs: contentTypeTabs,
 
 		ActiveViewMode: query.ViewMode.String(),
 		ViewModeTabs:   pages.BuildViewModeTabs(query.ViewMode),

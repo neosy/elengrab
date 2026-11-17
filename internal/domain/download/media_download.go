@@ -121,6 +121,24 @@ func (m *MediaDownload) IsYouTube() bool {
 	return hostdetect.YouTube(url)
 }
 
+// IsShort returns true if the media download is a short-form vertical video.
+func (m *MediaDownload) IsShort() bool {
+	if m == nil || m.MediaInfo == nil {
+		return false
+	}
+
+	return m.MediaInfo.IsShorts()
+}
+
+// IsAudio returns true if the media download is audio-only (no video track).
+func (m *MediaDownload) IsAudio() bool {
+	if m == nil || m.MediaInfo == nil {
+		return false
+	}
+
+	return m.MediaInfo.IsAudioOnly()
+}
+
 func (m *MediaDownload) IsVideo() bool {
 	if m == nil || m.MediaInfo == nil {
 		return false

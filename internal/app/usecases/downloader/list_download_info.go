@@ -24,6 +24,8 @@ func (uc *downloader) ListDownloadInfo(
 ) ([]*dto.MediaDownloadInfo, error) {
 	options := dtypes.NewQueryMediaOptions()
 
+	options.ContentType = query.ContentType
+
 	options.ViewMode = query.ViewMode
 	if !options.ViewMode.Exists() {
 		options.ViewMode = dtypes.QueryMediaViewModeDefault

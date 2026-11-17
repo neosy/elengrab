@@ -1,38 +1,5 @@
 /* components.css */
 
-.section-tabs {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.section-tab {
-    padding: 6px 16px;
-
-    border: none;
-    border-radius: 8px;
-
-    background: var(--section-tab-background);
-    color: var(--section-tab-color);
-
-    font-family: "Arial", sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 20px;
-
-    cursor: pointer;
-    transition: background-color 0.15s, color 0.15s;
-}
-
-.section-tab:hover {
-    background: var(--section-tab-hover-background);
-}
-
-.section-tab.active {
-    background: var(--section-tab-active-background);
-    color: var(--section-tab-active-color);
-}
-
 select:disabled {
     color: var(--text-gray-disabled);
     cursor: default;
@@ -571,4 +538,185 @@ select:disabled {
 
 .grab-area__action-button--settings.is-dirty {
   color: var(--text-blue);
+}
+
+/* =================== View mode bar =================== */
+
+:root {
+    --view-mode-bar-margin-top: 10px;
+}
+
+.view-mode-bar {
+    display: flex;
+    width: 100%;
+    align-items: center;
+
+    margin: 0 auto;
+    margin-top: var(--view-mode-bar-margin-top);
+    margin-bottom: 16px;
+}
+
+.view-mode-tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.view-mode-tab {
+    padding: 5px 16px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: var(--view-mode-tab-bg);
+    color: var(--view-mode-tab-color);
+
+    font-family: "Arial", sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20px;
+
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.view-mode-tab:hover {
+    background: var(--view-mode-tab-hover-bg);
+}
+
+.view-mode-tab.active {
+    background: var(--view-mode-tab-active-bg);
+    color: var(--view-mode-tab-active-color);
+}
+
+/* =================== Content type bar =================== */
+
+.content-type-bar {
+    --content-type-bar-z-index: 10;
+    --content-type-bar-top: var(--header-height, 75px);
+
+    --content-type-bar-width: auto;
+
+    --content-type-bg: var(--content-bg);
+}
+
+@media (max-width: 580px) {
+    .content-type-bar {
+        --content-type-bar-width: 100cqw;
+    }
+}
+
+:root:has(.header--hidden) .content-type-bar {
+    --content-type-bar-top: 0px;
+    --content-type-bg: color-mix(in srgb, var(--content-bg) 85%, transparent);
+}
+
+.content-type-bar {
+    position: sticky;
+    top: var(--content-type-bar-top);
+    z-index: var(--content-type-bar-z-index);
+
+    width: var(--content-type-bar-width);
+
+    margin-inline: -10px;
+
+    background: var(--content-type-bg);
+
+    transition: top 0.4s ease
+}
+
+.content-type-bar::before {
+    content: "";
+    position: absolute;
+    inset-inline: calc(-1 * var(--main-padding) + 10px);
+    bottom: 0;
+    height: 1px;
+    box-shadow: inset 0 -1px 0 var(--content-type-border-color);
+}
+
+.content-type-bar::after {
+    content: "";
+    position: absolute;
+    inset-inline: calc(-1 * var(--main-padding) + 10px);
+    bottom: 0;
+    border-bottom: 1px solid var(--content-type-border-color);
+}
+
+.content-type-tabs {
+    display: flex;
+
+    align-items: stretch;
+
+    gap: 8px;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+}
+
+.content-type-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.content-type-tab {
+    position: relative;
+    flex: 0 0 auto;
+
+    padding: 12px 16px;
+
+    border: 0;
+    background: transparent;
+    color: var(--content-type-text);
+
+    font: inherit;
+    font-size: 1.1rem;
+    font-weight: 500;
+    line-height: 20px;
+
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.content-type-tab:hover {
+    color: var(--content-type-text-hover);
+}
+
+.content-type-tab:hover::after {
+    content: "";
+    position: absolute;
+
+    left: 16px;
+    right: 16px;
+    bottom: 0;
+    height: 2px;
+
+    background: var(--content-type-indicator-hover-bg);
+}
+
+.content-type-tab.active {
+    color: var(--content-type-text-active);
+}
+
+/* Active tab underline, drawn over the bar's bottom border */
+.content-type-tab.active::after {
+    content: "";
+    position: absolute;
+
+    left: 16px;
+    right: 16px;
+    bottom: 0;
+    height: 2px;
+
+    background: var(--content-type-indicator-bg);
+}
+
+.content-type-tab:focus-visible {
+    outline: 2px solid var(--content-type-focus);
+    outline-offset: -2px;
+    border-radius: 4px;
+}
+
+.content-type-tab:disabled {
+    cursor: progress;
+    opacity: 0.7;
 }

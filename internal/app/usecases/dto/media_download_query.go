@@ -9,8 +9,9 @@ type MediaDownloadFilters struct {
 }
 
 type MediaDownloadQuery struct {
-	ViewMode dtypes.QueryMediaViewMode
-	Limit    uint64
+	ContentType dtypes.QueryMediaContentType
+	ViewMode    dtypes.QueryMediaViewMode
+	Limit       uint64
 
 	LastRecord dtypes.QueryMediaDownloadCursor
 
@@ -18,6 +19,7 @@ type MediaDownloadQuery struct {
 }
 
 func NewMediaDownloadQuery(
+	contentType dtypes.QueryMediaContentType,
 	viewMode dtypes.QueryMediaViewMode,
 	limit uint64,
 	lastRecord dtypes.QueryMediaDownloadCursor,
@@ -28,9 +30,10 @@ func NewMediaDownloadQuery(
 	}
 
 	return MediaDownloadQuery{
-		ViewMode:   vMode,
-		Limit:      limit,
-		LastRecord: lastRecord,
+		ContentType: contentType,
+		ViewMode:    vMode,
+		Limit:       limit,
+		LastRecord:  lastRecord,
 	}
 }
 

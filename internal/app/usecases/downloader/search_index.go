@@ -11,7 +11,14 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
+type SearchIndexPatchData = searchindex.SearchIndexPatchData
+
 type SearchIndex interface {
+	IteratePatch(
+		ctx context.Context,
+		patch func(*SearchIndexPatchData) bool,
+	) error
+
 	IterateAllAndPatchChannelIDs(
 		ctx context.Context,
 		channelIDs map[uuid.UUID]uuid.UUID,

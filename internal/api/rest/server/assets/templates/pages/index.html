@@ -17,6 +17,7 @@
     {{- if .Values.HasCreateAccess  }}
     {{- template "grab-form" . }}
     {{- end }}
+    {{- template "content-type-bar" . }}
     {{- template "media-result" . }}
   </main>
 {{- end }}

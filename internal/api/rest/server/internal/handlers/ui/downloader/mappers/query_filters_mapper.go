@@ -35,8 +35,16 @@ func (m *Mappers) MapQueryFiltersDomainToFilters(filters *dtypes.QueryFilters) *
 	return queryFilters
 }
 
-func (m *Mappers) MapSearchValuesToUsecaseQuery(values types.SearchValues) (udto.MediaDownloadQuery, error) {
+func (m *Mappers) MapSearchValuesToUsecaseQuery(
+	values types.SearchValues,
+) (udto.MediaDownloadQuery, error) {
+	contentType := dtypes.QueryMediaContentTypeAll
+	if values.Parameters.ContentType != dtypes.QueryMediaContentTypeNone {
+		contentType = values.Parameters.ContentType
+	}
+
 	query := udto.NewMediaDownloadQuery(
+		contentType,
 		values.Parameters.ViewMode,
 		consts.LoadHistoryLimit,
 		values.Parameters.LastRecord,

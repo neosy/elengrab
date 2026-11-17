@@ -80,13 +80,13 @@ func (sp *SearchParameters) Add(key qkeys.QueryKey, value string) {
 
 func (sp *SearchParameters) AddFromParmValues(values SearchParameterValues) {
 	viewMode := dtypes.QueryMediaViewModeDefault
-
 	if values.ViewMode != dtypes.QueryMediaViewModeNone {
 		viewMode = values.ViewMode
 	}
 
 	lastCursor := MediaQueryCursor(values.LastRecord)
 
+	sp.Add(qkeys.ContentTypeKey, values.ContentType.String())
 	sp.Add(qkeys.ViewModeKey, viewMode.String())
 	if !lastCursor.IsZero() {
 		sp.Add(qkeys.LastCursorKey, lastCursor.Encode())
@@ -100,6 +100,7 @@ func (sp *SearchParameters) AddFromParmValues(values SearchParameterValues) {
 }
 
 func (sp *SearchParameters) AddValues(
+	contentType dtypes.QueryMediaContentType,
 	viewMode dtypes.QueryMediaViewMode,
 	filters *QueryFilters,
 	lastCursor dtypes.QueryMediaDownloadCursor,
@@ -107,9 +108,10 @@ func (sp *SearchParameters) AddValues(
 	searchFilters := filters.FilterByKeys(qkeys.SearchParameterFilterKeys)
 
 	sp.AddFromParmValues(SearchParameterValues{
-		ViewMode:   viewMode,
-		Filters:    searchFilters,
-		LastRecord: lastCursor,
+		ContentType: contentType,
+		ViewMode:    viewMode,
+		Filters:     searchFilters,
+		LastRecord:  lastCursor,
 	})
 }
 
@@ -120,6 +122,24 @@ func (sp *SearchParameters) Find(key qkeys.QueryKey) (string, bool) {
 	}
 
 	return item.Value, true
+}
+
+func (sp *SearchParameters) FindContentType() (dtypes.QueryMediaContentType, error) {
+	contentTypeStr, exists := sp.Find(qkeys.ContentTypeKey)
+	if !exists {
+		return dtypes.QueryMediaContentTypeNone, nil
+	}
+
+	if contentTypeStr == "" {
+		return dtypes.QueryMediaContentTypeNone, nil
+	}
+
+	cType, err := dtypes.ParseQueryMediaContentType(contentTypeStr)
+	if err != nil {
+		return dtypes.QueryMediaContentTypeNone, err
+	}
+
+	return cType, nil
 }
 
 func (sp *SearchParameters) FindViewMode() (dtypes.QueryMediaViewMode, error) {
@@ -204,12 +224,22 @@ func (sp *SearchParameters) ParseLastCursor() (*MediaQueryCursor, error) {
 
 func (sp *SearchParameters) ParseValues() (SearchParameterValues, error) {
 	values := SearchParameterValues{
-		ViewMode:   dtypes.QueryMediaViewModeDefault,
-		LastRecord: dtypes.QueryMediaDownloadCursor{},
+		ContentType: dtypes.QueryMediaContentTypeNone,
+		ViewMode:    dtypes.QueryMediaViewModeDefault,
+		LastRecord:  dtypes.QueryMediaDownloadCursor{},
 	}
 
 	if sp == nil {
 		return values, nil
+	}
+
+	contentType, err := sp.FindContentType()
+	if err != nil {
+		return values, err
+	}
+
+	if contentType != dtypes.QueryMediaContentTypeNone {
+		values.ContentType = contentType
 	}
 
 	viewMode, err := sp.FindViewMode()

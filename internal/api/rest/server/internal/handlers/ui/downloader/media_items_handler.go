@@ -225,7 +225,7 @@ func (h *DownloaderHandlers) renderRowShouldLoadHistory(
 	searchFilters := queryFilters.FilterByKeys(qkeys.SearchFilterKeys)
 
 	searchParameters := types.NewSearchParameters()
-	searchParameters.AddValues(query.ViewMode, queryFilters, query.LastRecord)
+	searchParameters.AddValues(query.ContentType, query.ViewMode, queryFilters, query.LastRecord)
 
 	var queryStrings []string
 

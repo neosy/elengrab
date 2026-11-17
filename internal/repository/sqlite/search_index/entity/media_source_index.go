@@ -42,6 +42,12 @@ type MediaSourceIndex struct {
 	// Whether the media download is ready
 	IsReady bool `db:"is_ready"`
 
+	// Whether the media is a short (short-form vertical video)
+	IsShort bool `db:"is_short"`
+
+	// Whether the media is audio only (no video track)
+	IsAudio bool `db:"is_audio"`
+
 	// Number of completed views
 	Views int `db:"views" pfield:"views"`
 

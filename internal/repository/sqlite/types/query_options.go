@@ -18,8 +18,9 @@ type QueryOptions struct {
 type QueryMediaOptions struct {
 	QueryOptions
 
-	ViewMode   dtypes.QueryMediaViewMode
-	LastRecord dtypes.QueryMediaDownloadCursor
+	ContentType dtypes.QueryMediaContentType
+	ViewMode    dtypes.QueryMediaViewMode
+	LastRecord  dtypes.QueryMediaDownloadCursor
 
 	SearchText     *string
 	Visibility     *dtypes.QueryMediaVisibility

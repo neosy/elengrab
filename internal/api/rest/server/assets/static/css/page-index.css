@@ -1,0 +1,13 @@
+.grid-view {
+    --header-bg: var(--header-bg-solid);
+}
+
+.list-view {
+    --header-bg: var(--body-bg);
+}
+
+@media (max-width: 580px) {
+    :root {
+        --header-border-radius: 0;
+    }
+}

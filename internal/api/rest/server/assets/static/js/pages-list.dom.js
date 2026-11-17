@@ -7,6 +7,9 @@ export const CLASS_NAMES = {
 
     mediaResultRow: "media-result__row",
 
+    contentTypeTabs: 'content-type-tabs',
+    contentTypeTab: 'content-type-tab',
+
     viewModeTabs: "view-mode-tabs",
     viewModeTab: "view-mode-tab",
 

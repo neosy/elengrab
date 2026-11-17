@@ -3,6 +3,12 @@ import storageState from './storage-state.js';
 import * as notify from './notifications.js';
 import { CLASS_SELECTORS, DOM_IDS } from "./pages-list.dom.js";
 
+export const VIEW_MODES = {
+    new: "new",
+    popular: "popular",
+    old: "old",
+};
+
 export function applyGridView(isGridView) {
     document.body.classList.toggle(CLASS_NAMES.body.gridView, isGridView);
     document.body.classList.toggle(CLASS_NAMES.body.listView, !isGridView);
@@ -113,6 +119,7 @@ export function initLazyImages({
  * @param {Object} options
  * @param {() => Object} options.getSearchQueryValues
  * @param {() => void} options.onSuccess
+ * @returns {{ setActiveTab: (value: string, options?: { reload?: boolean }) => Promise<void> } | undefined}
  */
 export function initViewModeBar({
     getSearchQueryValues,
@@ -131,6 +138,12 @@ export function initViewModeBar({
             return;
         }
 
+        applyTab(tab);
+
+        setViewMode();
+    });
+
+    function applyTab(tab) {
         tabs.dataset.viewMode = tab.dataset.viewMode;
 
         tabs.querySelectorAll(CLASS_SELECTORS.viewModeTab).forEach((item) => {
@@ -139,9 +152,26 @@ export function initViewModeBar({
             item.classList.toggle('active', selected);
             item.setAttribute('aria-selected', String(selected));
         });
+    }
 
-        setViewMode();
-    });
+    /**
+     * Switch to the tab with the given value.
+     * By default it also reloads the rows; pass { reload: false } to only update the UI.
+     */
+    async function setActiveTab(value, { reload = true } = {}) {
+        const tab = Array.from(tabs.querySelectorAll(CLASS_SELECTORS.viewModeTab))
+            .find((item) => item.dataset.viewMode === value);
+
+        if (!tab) {
+            return;
+        }
+
+        applyTab(tab);
+
+        if (reload) {
+            await setViewMode();
+        }
+    }
 
     async function setViewMode() {
         const rows = document.getElementById(DOM_IDS.mediaResultRows);
@@ -175,5 +205,76 @@ export function initViewModeBar({
         onSuccess(newRows);
     }
 
-    return
+    return {
+        setActiveTab,
+    };
+}
+
+/**
+ * @param {Object} options
+ * @param {() => Object} options.getSearchQueryValues
+ * @param {() => void} options.onSuccess
+ */
+export function initContentTypeBar({
+    getSearchQueryValues,
+    onSuccess,
+}) {
+    const tabs = document.querySelector(CLASS_SELECTORS.contentTypeTabs);
+
+    if (!tabs) {
+        return;
+    }
+
+    tabs.addEventListener('click', (event) => {
+        const tab = event.target.closest(CLASS_SELECTORS.contentTypeTab);
+
+        if (!tab || tab.classList.contains('active')) {
+            return;
+        }
+
+        tabs.dataset.contentType = tab.dataset.contentType;
+
+        tabs.querySelectorAll(CLASS_SELECTORS.contentTypeTab).forEach((item) => {
+            const selected = item === tab;
+
+            item.classList.toggle('active', selected);
+            item.setAttribute('aria-selected', String(selected));
+        });
+
+        setContentType();
+    });
+
+    async function setContentType() {
+        const rows = document.getElementById(DOM_IDS.mediaResultRows);
+
+        if (!rows) {
+            return;
+        }
+
+        const searchQuery = {
+            ...getSearchQueryValues(),
+        };
+
+        const response = await fetch(API_PATHS.downloaderSearch, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(searchQuery),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Search failed: ${response.status}`);
+        }
+
+        rows.outerHTML = await response.text();
+
+        const newRows = document.getElementById(DOM_IDS.mediaResultRows);
+
+        htmx.process(newRows);
+
+        onSuccess(newRows);
+    }
+
+    return;
 }
