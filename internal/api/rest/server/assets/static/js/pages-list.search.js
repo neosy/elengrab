@@ -63,10 +63,12 @@ export function initSearching() {
 
 export function getSearchQueryValues() {
     const viewModeTabs = document.querySelector(CLASS_SELECTORS.viewModeTabs)
+    const contentTypeTabs = document.querySelector(CLASS_SELECTORS.contentTypeTabs)
 
     let queryValues = {
         query: DOM_ELEMENTS.searchInput?.value ?? "",
-        viewMode: viewModeTabs.dataset.viewMode,
+        contentType: contentTypeTabs?.dataset.contentType,
+        viewMode: viewModeTabs?.dataset.viewMode,
     }
 
     const rows = document.getElementById(DOM_IDS.mediaResultRows);

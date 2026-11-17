@@ -1,4 +1,5 @@
 import * as notify from './notifications.js';
+import { isMobileScreen } from './browser.js';
 
 export function initHeaderAutoHide() {
     let lastScrollTop = 0;
@@ -9,7 +10,7 @@ export function initHeaderAutoHide() {
     function updateHeader() {
         const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
-        if (scrollTop > lastScrollTop && scrollTop > 250) {
+        if (isMobileScreen() && scrollTop > lastScrollTop && scrollTop > 250) {
             header.classList.add(hiddenClass);
         } else {
             header.classList.remove(hiddenClass);

@@ -11,6 +11,15 @@ import (
 func (m *Mappers) MapSearchRequestToSearchValues(
 	req dto.SearchRequest,
 ) (types.SearchValues, error) {
+	contentType := dtypes.QueryMediaContentTypeNone
+	if req.ContentType != "" {
+		var err error
+		contentType, err = dtypes.ParseQueryMediaContentType(req.ContentType)
+		if err != nil {
+			return types.SearchValues{}, err
+		}
+	}
+
 	viewMode := dtypes.QueryMediaViewModeDefault
 	if req.ViewMode != "" {
 		var err error
@@ -21,6 +30,7 @@ func (m *Mappers) MapSearchRequestToSearchValues(
 	}
 
 	searchValues := types.NewSearchValues()
+	searchValues.Parameters.ContentType = contentType
 	searchValues.Parameters.ViewMode = viewMode
 
 	filters := types.NewQueryFilters()

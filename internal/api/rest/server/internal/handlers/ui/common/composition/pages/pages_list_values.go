@@ -18,6 +18,9 @@ type PagesListValues struct {
 
 	UploadMenuContent template.HTML
 
+	ActiveContentType string
+	ContentTypeTabs   []ContentTypeTab
+
 	ActiveViewMode string
 	ViewModeTabs   []ViewModeTab
 

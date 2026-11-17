@@ -32,6 +32,12 @@ type MediaSourceIndex struct {
 	// Whether the media download is ready
 	IsReady bool
 
+	// Whether the media is a short (short-form vertical video)
+	IsShort bool
+
+	// Whether the media is audio only (no video track)
+	IsAudio bool
+
 	// Number of completed views
 	Views uint32
 
@@ -70,6 +76,8 @@ func (index *MediaSourceIndex) InitFromMediaDownload(download *MediaDownload) {
 	index.ChannelID = download.ChannelID
 	index.Visibility = download.Visibility
 	index.IsReady = download.Status.IsReady()
+	index.IsShort = download.IsShort()
+	index.IsAudio = download.IsAudio()
 	index.SourceCreatedAt = download.CreatedAt
 }
 
@@ -78,5 +86,7 @@ func (index *MediaSourceIndex) NeedsUpdateFromMediaDownload(download *MediaDownl
 		index.Title != download.MediaTitle ||
 		index.Description != download.MediaDescription ||
 		index.ChannelID != download.ChannelID ||
-		index.Visibility != download.Visibility
+		index.Visibility != download.Visibility ||
+		index.IsShort != download.IsShort() ||
+		index.IsAudio != download.IsAudio()
 }

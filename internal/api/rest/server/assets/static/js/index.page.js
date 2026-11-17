@@ -95,9 +95,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Initialize view mode bar
-    view.initViewModeBar({
+    const viewModeBar = view.initViewModeBar({
         getSearchQueryValues: search.getSearchQueryValues,
         onSuccess: (rows) => {
+            refreshVideoPreview(true);
+            search.setSearchParametersInUrl();
+
+            const lazyObservers= [
+                thumbnailLazyImages,
+                avatarLazyImages,
+            ];
+
+            for (const observer of lazyObservers) {
+                observer.observe(rows);
+            }
+        },
+    });
+
+    // Initialize content type bar
+    view.initContentTypeBar({
+        getSearchQueryValues: search.getSearchQueryValues,
+        onSuccess: (rows) => {
+            browser.scrollToTop();
+
             refreshVideoPreview(true);
             search.setSearchParametersInUrl();
 

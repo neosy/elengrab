@@ -8,6 +8,12 @@ type ViewModeTab struct {
 	Active bool
 }
 
+type ContentTypeTab struct {
+	Label  string
+	Value  string
+	Active bool
+}
+
 type VisibilityOption struct {
 	Value string
 	Label string
@@ -18,6 +24,22 @@ func BuildViewModeTabs(activeMode dtypes.QueryMediaViewMode) []ViewModeTab {
 
 	for _, mode := range dtypes.ViewModeList() {
 		tab := ViewModeTab{
+			Label:  mode.Label(),
+			Value:  mode.String(),
+			Active: mode == activeMode,
+		}
+
+		tabs = append(tabs, tab)
+	}
+
+	return tabs
+}
+
+func BuildContentTypeTabs(contentTypeList []dtypes.QueryMediaContentType, activeMode dtypes.QueryMediaContentType) []ContentTypeTab {
+	var tabs []ContentTypeTab
+
+	for _, mode := range contentTypeList {
+		tab := ContentTypeTab{
 			Label:  mode.Label(),
 			Value:  mode.String(),
 			Active: mode == activeMode,

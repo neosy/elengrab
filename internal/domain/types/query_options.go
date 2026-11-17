@@ -17,8 +17,9 @@ type QueryOptions struct {
 type QueryMediaOptions struct {
 	QueryOptions
 
-	ViewMode   QueryMediaViewMode
-	LastRecord QueryMediaDownloadCursor
+	ContentType QueryMediaContentType
+	ViewMode    QueryMediaViewMode
+	LastRecord  QueryMediaDownloadCursor
 
 	Visibility     *QueryMediaVisibility
 	IsGuestRequest bool

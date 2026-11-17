@@ -7,5 +7,6 @@ func (v *Validators) register() {
 
 	v.Validate.RegisterValidation("imageSource", dtypes.ValidateImageSource)
 	v.Validate.RegisterValidation("visibility", dtypes.ValidateMediaVisibility)
+	v.Validate.RegisterValidation("contentType", dtypes.ValidateQueryMediaContentType)
 	v.Validate.RegisterValidation("viewMode", dtypes.ValidateQueryMediaViewMode)
 }
