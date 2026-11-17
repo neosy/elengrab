@@ -8,9 +8,10 @@ import (
 )
 
 type SearchParameterValues struct {
-	ViewMode   dtypes.QueryMediaViewMode
-	Filters    *QueryFilters
-	LastRecord dtypes.QueryMediaDownloadCursor
+	ContentType dtypes.QueryMediaContentType
+	ViewMode    dtypes.QueryMediaViewMode
+	Filters     *QueryFilters
+	LastRecord  dtypes.QueryMediaDownloadCursor
 }
 
 func NewSearchParameterValues() SearchParameterValues {

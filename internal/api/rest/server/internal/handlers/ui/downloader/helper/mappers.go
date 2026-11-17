@@ -42,6 +42,12 @@ func mapSearchQueryToSearchValues(queryItems *types.QueryFilters) (types.SearchV
 			}
 
 			searchValues.Parameters = parmValues
+		case qkeys.ContentTypeKey:
+			contentType, err := dtypes.ParseQueryMediaContentType(item.Value)
+			if err != nil {
+				return types.SearchValues{}, err
+			}
+			searchValues.Parameters.ContentType = contentType
 		case qkeys.ViewModeKey:
 			viewMode, err := dtypes.ParseQueryMediaViewMode(item.Value)
 			if err != nil {

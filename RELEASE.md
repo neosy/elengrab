@@ -1,5 +1,12 @@
 # Releases
 
+## v0.28.0 — 2026-11-30
+
+### UI / Frontend
+- Added a content type bar with "All" and "Shorts" tabs. [L200]
+
+---
+
 ## v0.28.0 — 2026-11-16
 
 ### ✨ Features

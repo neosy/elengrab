@@ -26,6 +26,12 @@ CREATE TABLE media_sources_index (
 	-- Whether the media download is ready
 	is_ready BOOLEAN NOT NULL DEFAULT FALSE,
 
+    -- Whether the media is a short (short-form vertical video)
+    is_short BOOLEAN NOT NULL DEFAULT FALSE,
+
+    -- Whether the media is audio only (no video track)
+    is_audio BOOLEAN NOT NULL DEFAULT FALSE,
+    
     -- Number of completed views
     views INTEGER NOT NULL DEFAULT 0,
 

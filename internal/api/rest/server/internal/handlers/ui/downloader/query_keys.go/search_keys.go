@@ -19,6 +19,7 @@ func init() {
 
 	searchParameterFilterKeys.Append(ChannelPlatformKey)
 
+	searchParameterKeys.Append(ContentTypeKey)
 	searchParameterKeys.Append(ViewModeKey)
 	searchParameterKeys.Append(LastCursorKey)
 	searchParameterKeys.Append(searchParameterFilterKeys.List()...)

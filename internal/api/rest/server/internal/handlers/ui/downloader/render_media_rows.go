@@ -35,7 +35,7 @@ func (h *DownloaderHandlers) renderDownloadRows(
 	}
 
 	searchParam := types.NewSearchParameters()
-	searchParam.AddValues(query.ViewMode, searchQueryFilters, dtypes.QueryMediaDownloadCursor{})
+	searchParam.AddValues(query.ContentType, query.ViewMode, searchQueryFilters, dtypes.QueryMediaDownloadCursor{})
 
 	searchFilters := searchQueryFilters.FilterByKeys(qkeys.SearchFilterKeys)
 	searchParamFilters := searchParam.QueryFilters()

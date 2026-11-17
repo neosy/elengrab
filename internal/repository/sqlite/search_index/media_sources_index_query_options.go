@@ -26,6 +26,7 @@ func (r *MediaSourceIndexRepository) WithOptions(options dtypes.QueryMediaOption
 	r.queryOptions.Offset = options.Offset
 	r.queryOptions.Limit = options.Limit
 
+	r.queryOptions.ContentType = options.ContentType
 	r.queryOptions.ViewMode = options.ViewMode
 	r.queryOptions.LastRecord = options.LastRecord
 

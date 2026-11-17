@@ -105,7 +105,7 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 	baseValues.Title = fmt.Sprintf("%s - %s", userDisplayName, pages.AppName)
 	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(helper.GetBaseURL(ctx))
 
-	pagesListValues := pagesdata.BuildPagesListValues(authCtx, query, queryFilters, h.downloader)
+	pagesListValues := pagesdata.BuildPagesListValues(authCtx, query, queryFilters, nil, h.downloader)
 	pagesListValues.HasCreateAccess = isCurrentUserPage && pagesListValues.HasCreateAccess
 	pagesListValues.ResultNoRows = rowsBuf.Len() == 0
 	pagesListValues.ResultRowsHTML = template.HTML(rowsBuf.String())

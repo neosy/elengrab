@@ -30,7 +30,8 @@ var (
 	ShortCodeKey = keys.add("shortCode", "sc")
 	RedirectKey  = keys.add("redirect", "r")
 
-	ViewModeKey = keys.add("viewMode", "vm")
+	ContentTypeKey = keys.add("contentType", "ct")
+	ViewModeKey    = keys.add("viewMode", "vm")
 
 	SearchParametersKey = keys.add("searchParameters", "sp")
 

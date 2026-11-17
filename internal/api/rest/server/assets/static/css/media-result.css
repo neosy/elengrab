@@ -19,8 +19,6 @@
     --media-result-rows-padding: 0;
     --media-result-rows-align-items: start;
 
-    --media-result-view-mode-bar-margin-top: 10px;
-
     --media-result-row-max-width: 500px;
     --media-result-row-flex-direction: column;
     --media-result-row-align-items: normal;
@@ -80,7 +78,7 @@
 
 @media (min-width: 581px) {
     .list-view {
-        --media-result-view-mode-bar-margin-top: 15px;
+        --view-mode-bar-margin-top: 15px;
 
         --media-result-rows-display: flex;
         --media-result-rows-grid-template-columns: none;
@@ -328,16 +326,6 @@ img[data-src] {
 
     white-space: nowrap;
     overflow: hidden;
-}
-
-.media-result__view-mode-bar {
-    display: flex;
-    width: 100%;
-    align-items: center;
-
-    margin: 0 auto;
-    margin-top: var(--media-result-view-mode-bar-margin-top);
-    margin-bottom: 16px;
 }
 
 .media-result__rows-wrapper {

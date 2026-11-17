@@ -78,3 +78,7 @@ function syncViewportHeightVar() {
 export function isMobileScreen() {
     return window.matchMedia(`(max-width: ${MOBILE_SCREEN_WIDTH}px)`).matches;
 }
+
+export function scrollToTop(smooth = true) {
+    window.scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
+}

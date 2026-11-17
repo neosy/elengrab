@@ -68,7 +68,7 @@ func (h *DownloaderHandlers) renderChannelPage(
 	baseValues := pages.NewBaseValues()
 	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(helper.GetBaseURL(ctx))
 
-	pagesListValues := pagesdata.BuildPagesListValues(authCtx, query, queryFilters, h.downloader)
+	pagesListValues := pagesdata.BuildPagesListValues(authCtx, query, queryFilters, nil, h.downloader)
 	pagesListValues.ResultNoRows = rowsBuf.Len() == 0
 	pagesListValues.ResultRowsHTML = template.HTML(rowsBuf.String())
 	pagesListValues.AboutDialog = h.mappers.MapAboutDialogValues(systemInfo)

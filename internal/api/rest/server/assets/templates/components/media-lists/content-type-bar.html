@@ -1,0 +1,14 @@
+{{- define "content-type-bar" }}
+        <div class="content-type-bar">
+            <div class="content-type-tabs" role="tablist" data-content-type="{{ .Values.ActiveContentType }}">
+                {{ range .Values.ContentTypeTabs }}
+                    <button class="content-type-tab{{ if .Active }} active{{ end }}"
+                            type="button"
+                            role="tab"
+                            aria-label="{{ .Label }}"
+                            aria-selected="{{ .Active }}"
+                            data-content-type="{{ .Value }}">{{ .Label }}</button>
+                {{ end }}
+            </div>
+        </div>
+{{- end }}

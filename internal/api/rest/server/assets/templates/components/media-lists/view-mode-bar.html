@@ -1,8 +1,8 @@
 {{- define "view-mode-bar" }}
-        <div class="media-result__view-mode-bar">
-            <div class="view-mode-tabs section-tabs" role="tablist" data-view-mode="{{ .Values.ActiveViewMode }}">
+        <div class="view-mode-bar">
+            <div class="view-mode-tabs" role="tablist" data-view-mode="{{ .Values.ActiveViewMode }}">
                 {{ range .Values.ViewModeTabs }}
-                    <button class="view-mode-tab section-tab{{ if .Active }} active{{ end }}"
+                    <button class="view-mode-tab{{ if .Active }} active{{ end }}"
                             role="tab"
                             aria-label="{{ .Label }}"
                             aria-selected="{{ .Active }}"

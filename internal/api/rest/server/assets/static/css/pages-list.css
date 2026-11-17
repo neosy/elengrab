@@ -8,7 +8,7 @@
     --header-left: calc((100vw - min(var(--main-content-width), var(--main-content-max))) / 2);
     --header-padding: 10px;
     --header-align-items: center;
-    --header-bg: var(--header-bg-transparent);
+    --header-bg: var(--body-bg);
     --header-border-radius: 0 0 20px 20px;
 
     --header-logo-image-height: 3em;
@@ -28,7 +28,6 @@
 .grid-view {
     --body-bg: var(--grid-body-bg);
     --main-bg: var(--grid-main-bg);
-    --header-bg: var(--header-bg-light-transparent);
 
     --main-content-max: 100%;
 
@@ -92,7 +91,7 @@ html {
 }
 
 html, body {
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 .header {

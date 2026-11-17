@@ -13,6 +13,7 @@ import (
 	pagesdata "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/pages_data"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/valyala/fasthttp"
@@ -57,7 +58,19 @@ func (h *DownloaderHandlers) renderIndexPage(
 
 	queryFilters := h.mappers.MapQueryFiltersDomainToFilters(query.Filters)
 
-	pagesListValues := pagesdata.BuildPagesListValues(authCtx, query, queryFilters, h.downloader)
+	pagesListValues := pagesdata.BuildPagesListValues(
+		authCtx, query, queryFilters,
+		pages.BuildContentTypeTabs(
+			[]dtypes.QueryMediaContentType{
+				dtypes.QueryMediaContentTypeAll,
+				dtypes.QueryMediaContentTypeVideo,
+				dtypes.QueryMediaContentTypeShorts,
+				dtypes.QueryMediaContentTypeAudio,
+			},
+			query.ContentType,
+		),
+		h.downloader,
+	)
 	pagesListValues.ResultNoRows = rowsBuf.Len() == 0
 	pagesListValues.ResultRowsHTML = template.HTML(rowsBuf.String())
 	pagesListValues.VideoPlayerMinimizeIcon = icons.VideoPlayerMinimizeIcon.FileRaw()
