@@ -10,6 +10,7 @@ const (
 	BroadcastEventTypeDownloadDelete
 	BroadcastEventTypeProgressUpdate
 	BroadcastEventTypeDownloadStartRefreshing
+	BroadcastEventTypeDownloadsInProgress
 	BroadcastEventTypeSystemInfoUpdate
 	BroadcastEventTypeNotification
 )
@@ -24,6 +25,7 @@ var (
 		BroadcastEventTypeDownloadDelete:          "download_delete",
 		BroadcastEventTypeProgressUpdate:          "progress_update",
 		BroadcastEventTypeDownloadStartRefreshing: "start_refreshing",
+		BroadcastEventTypeDownloadsInProgress:     "downloads_in_progress",
 		BroadcastEventTypeSystemInfoUpdate:        "system_info_update",
 		BroadcastEventTypeNotification:            "notification",
 	}
@@ -35,6 +37,7 @@ var (
 		BroadcastEventTypeDownloadDelete:          "row-delete",
 		BroadcastEventTypeProgressUpdate:          "row-patch-field",
 		BroadcastEventTypeDownloadStartRefreshing: "row-start-refreshing",
+		BroadcastEventTypeDownloadsInProgress:     "downloads-in-progress",
 		BroadcastEventTypeSystemInfoUpdate:        "system-info-update",
 		BroadcastEventTypeNotification:            "notification",
 	}

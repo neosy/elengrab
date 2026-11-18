@@ -32,8 +32,6 @@ import (
 const (
 	// TTL for download state cache
 	mediaDownloadCacheTTL = 5 * time.Minute
-	// TTL for download state cache
-	downloadStateCacheTTL = 10 * time.Minute
 	// TTL for watch stat cache
 	mediaUserWatchStatCacheTTL = 30 * time.Minute
 	// TTL for watch stat cache
@@ -60,7 +58,6 @@ const (
 
 	// Cache cleanup intervals
 	cleanMediaDownloadCacheInterval         = 30 * time.Minute
-	cleanDownloadStateCacheInterval         = 30 * time.Minute
 	cleanMediaUserWatchStatCacheInterval    = 1 * time.Hour
 	cleanMediaWatchStatCacheInterval        = 1 * time.Hour
 	cleanMediaUserWatchPostionCacheInterval = 1 * time.Hour
@@ -229,6 +226,7 @@ func (a *Application) initialize() error {
 			// in memory
 			MediaDownloadCache:          inMemoryRepositories.MediaDownload,
 			DownloadStateCache:          inMemoryRepositories.DownloadState,
+			UploadStateCache:            inMemoryRepositories.UploadState,
 			MediaUserWatchStatCache:     inMemoryRepositories.MediaUserWatchStat,
 			MediaWatchStatCache:         inMemoryRepositories.MediaWatchStat,
 			MediaUserWatchPositionCache: inMemoryRepositories.MediaUserWatchPosition,
@@ -281,7 +279,6 @@ func (a *Application) initialize() error {
 	// Workers
 	wsDeps := &appworkers.Dependencies{
 		MediaDownloadCache:          inMemoryRepositories.MediaDownload,
-		DownloadStateCache:          inMemoryRepositories.DownloadState,
 		MediaUserWatchStatCache:     inMemoryRepositories.MediaUserWatchStat,
 		MediaWatchStatCache:         inMemoryRepositories.MediaWatchStat,
 		MediaUserWatchPositionCache: inMemoryRepositories.MediaUserWatchPosition,
@@ -310,7 +307,6 @@ func (a *Application) initialize() error {
 		MoveUnmatchedFilesEnabled:           a.cfg.Elengrab.Maintenance.MoveUnmatchedFilesEnabled,
 
 		CleanMediaDownloadCacheInterval:          cleanMediaDownloadCacheInterval,
-		CleanDownloadStateCacheInterval:          cleanDownloadStateCacheInterval,
 		CleanMediaUserWatchStatCacheInterval:     cleanMediaUserWatchStatCacheInterval,
 		CleanMediaWatchStatCacheInterval:         cleanMediaWatchStatCacheInterval,
 		CleanMediaUserWatchPositionCacheInterval: cleanMediaUserWatchPostionCacheInterval,
@@ -530,7 +526,6 @@ func (a *Application) initInMemoryRepositories() *inmemoryrep.Repositories {
 
 	inMemoryDeps := inmemoryrep.Dependencies{
 		MediaDownloadCacheTTL:          mediaDownloadCacheTTL,
-		DownloadStateCacheTTL:          downloadStateCacheTTL,
 		MediaUserWatchStatCacheTTL:     mediaUserWatchStatCacheTTL,
 		MediaWatchStatCacheTTL:         mediaWatchStatCacheTTL,
 		MediaUserWatchPositionCacheTTL: mediaUserWatchPositionCacheTTL,

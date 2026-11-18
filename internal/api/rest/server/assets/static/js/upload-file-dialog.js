@@ -639,9 +639,32 @@ export function initUploadFileDialog(uploadUrl, { onDone, mock = false, mockFail
 
     /* ---------- Events ---------- */
 
-    chooseButton.addEventListener("click", () => {
-        if (!uploading) {
+    chooseButton.addEventListener("click", async () => {
+        if (uploading) {
+            return;
+        }
+
+        // showOpenFilePicker doesn't make the page ineligible for bfcache, unlike input.click()
+        if (!window.showOpenFilePicker) {
             input.click();
+            return;
+        }
+
+        try {
+            const [handle] = await showOpenFilePicker({
+                multiple: false,
+                types: [{
+                    description: "Audio and video files",
+                    accept: { "audio/*": [], "video/*": [] },
+                }],
+            });
+
+            selectFile(await handle.getFile());
+        } catch (error) {
+            // AbortError means the user closed the dialog without choosing a file
+            if (error.name !== "AbortError") {
+                console.error("File picker failed", error);
+            }
         }
     });
 

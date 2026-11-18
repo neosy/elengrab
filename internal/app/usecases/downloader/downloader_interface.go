@@ -12,6 +12,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	dsse "github.com/neosy/elengrab/internal/domain/types/sse"
 	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
@@ -60,9 +61,13 @@ type DownloaderAPI interface {
 	downloaderBase
 
 	MigrateGuestData(ctx context.Context, guestID, userID uuid.UUID) error
+
 	Broadcaster() *broadcaster.Broadcaster
+	GetDownloadsInProgressEvent(ctx context.Context, authCtx dauth.AuthContext) (dsse.BroadcastEvent, error)
 	NotifyDownloadUpdated(ctx context.Context, downloadID uuid.UUID)
 	NotifyDownloadChanged(ctx context.Context, req dto.MediaDownloadChanged)
+	NotifyUserDownloadsInProgress(ctx context.Context, authCtx dauth.AuthContext)
+
 	FindChannelInfo(ctx context.Context, externalID string, platform string) (*dmedia.Channel, error)
 	GetChannelInfo(ctx context.Context, externalID string, platform string) (*dmedia.Channel, error)
 	GetChannelByID(ctx context.Context, channelID uuid.UUID) (*dmedia.Channel, error)

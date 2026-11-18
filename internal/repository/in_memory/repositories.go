@@ -8,49 +8,56 @@ import (
 
 // Repositories groups all database repositories.
 type Repositories struct {
-	MediaDownload          persistence.MediaDownloadCacheRepository
-	DownloadState          persistence.DownloadStateCacheRepository
+	MediaDownload persistence.MediaDownloadCacheRepository
+	DownloadState persistence.DownloadStateCacheRepository
+	UploadState   persistence.UploadStateCacheRepository
+
 	MediaUserWatchStat     persistence.MediaUserWatchStatCacheRepository
 	MediaWatchStat         persistence.MediaWatchStatCacheRepository
 	MediaUserWatchPosition persistence.MediaUserWatchPositionCacheRepository
-	Channel                persistence.ChannelCacheRepository
-	SiteLogo               persistence.SiteLogoCacheRepository
-	Thumbnail              persistence.ThumbnailCacheRepository
-	ThumbnailFile          persistence.ThumbnailFileCacheRepository
-	AssetFile              persistence.AssetFileCacheRepository
-	UploadedFile           persistence.UploadedFileCacheRepository
-	SSEEventLog            persistence.SSEEventLogCacheRepository
+
+	Channel       persistence.ChannelCacheRepository
+	SiteLogo      persistence.SiteLogoCacheRepository
+	Thumbnail     persistence.ThumbnailCacheRepository
+	ThumbnailFile persistence.ThumbnailFileCacheRepository
+	AssetFile     persistence.AssetFileCacheRepository
+	UploadedFile  persistence.UploadedFileCacheRepository
+	SSEEventLog   persistence.SSEEventLogCacheRepository
 }
 
 type Dependencies struct {
-	MediaDownloadCacheTTL          time.Duration
-	DownloadStateCacheTTL          time.Duration
+	MediaDownloadCacheTTL time.Duration
+
 	MediaUserWatchStatCacheTTL     time.Duration
 	MediaWatchStatCacheTTL         time.Duration
 	MediaUserWatchPositionCacheTTL time.Duration
-	ChannelCacheTTL                time.Duration
-	SiteLogoCacheTTL               time.Duration
-	ThumbnailCacheTTL              time.Duration
-	ThumbnailFileCacheTTL          time.Duration
-	AssetFileCacheTTL              time.Duration
-	UploadedFileCacheTTL           time.Duration
-	SSEEventLogCacheTTL            time.Duration
+
+	ChannelCacheTTL       time.Duration
+	SiteLogoCacheTTL      time.Duration
+	ThumbnailCacheTTL     time.Duration
+	ThumbnailFileCacheTTL time.Duration
+	AssetFileCacheTTL     time.Duration
+	UploadedFileCacheTTL  time.Duration
+	SSEEventLogCacheTTL   time.Duration
 }
 
 // New returns a new Repositories struct.
 func New(deps Dependencies) *Repositories {
 	return &Repositories{
-		MediaDownload:          newMediaDownloadRepository(deps.MediaDownloadCacheTTL),
-		DownloadState:          newDownloadStateRepository(deps.DownloadStateCacheTTL),
+		MediaDownload: newMediaDownloadRepository(deps.MediaDownloadCacheTTL),
+		DownloadState: newDownloadStateRepository(),
+		UploadState:   newUploadStateRepository(),
+
 		MediaUserWatchStat:     newMediaUserWatchStatRepository(deps.MediaUserWatchStatCacheTTL),
 		MediaWatchStat:         newMediaWatchStatRepository(deps.MediaWatchStatCacheTTL),
 		MediaUserWatchPosition: newMediaUserWatchPositionRepository(deps.MediaUserWatchPositionCacheTTL),
-		Channel:                newChannelRepository(deps.ChannelCacheTTL),
-		SiteLogo:               newSiteLogoRepository(deps.SiteLogoCacheTTL),
-		Thumbnail:              newThumbnailRepository(deps.ThumbnailCacheTTL),
-		ThumbnailFile:          newThumbnailFileRepository(deps.ThumbnailFileCacheTTL),
-		AssetFile:              newAssetFileRepository(deps.AssetFileCacheTTL),
-		UploadedFile:           newUploadedFileRepository(deps.UploadedFileCacheTTL),
-		SSEEventLog:            newSseEventLogRepository(deps.SSEEventLogCacheTTL),
+
+		Channel:       newChannelRepository(deps.ChannelCacheTTL),
+		SiteLogo:      newSiteLogoRepository(deps.SiteLogoCacheTTL),
+		Thumbnail:     newThumbnailRepository(deps.ThumbnailCacheTTL),
+		ThumbnailFile: newThumbnailFileRepository(deps.ThumbnailFileCacheTTL),
+		AssetFile:     newAssetFileRepository(deps.AssetFileCacheTTL),
+		UploadedFile:  newUploadedFileRepository(deps.UploadedFileCacheTTL),
+		SSEEventLog:   newSseEventLogRepository(deps.SSEEventLogCacheTTL),
 	}
 }

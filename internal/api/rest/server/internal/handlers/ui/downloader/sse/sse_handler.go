@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/neosy/elengrab/internal/app/usecases/downloader"
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
@@ -30,6 +31,8 @@ type (
 )
 
 type SSEHandler struct {
+	logger *slog.Logger
+
 	eventLogCacheRepo persistence.SSEEventLogCacheRepository
 
 	// Usecases
@@ -41,6 +44,8 @@ type SSEHandler struct {
 }
 
 func NewSSEHandler(
+	logger *slog.Logger,
+
 	eventLogCacheRepo persistence.SSEEventLogCacheRepository,
 	downloader downloader.DownloaderAPI,
 	linkWeb linkweb.LinkWeb,
@@ -49,6 +54,8 @@ func NewSSEHandler(
 	renderMediaItemRow renderMediaItemRowFunc,
 ) *SSEHandler {
 	return &SSEHandler{
+		logger: logger,
+
 		eventLogCacheRepo: eventLogCacheRepo,
 		downloader:        downloader,
 		linkWeb:           linkWeb,

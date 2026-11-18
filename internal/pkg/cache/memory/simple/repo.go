@@ -57,6 +57,26 @@ func (r *Repository[T]) Delete(ctx context.Context, fnDelete func() error) error
 	return fnDelete()
 }
 
+// Len executes a read operation safely under a read lock.
+func (r *Repository[T]) Len(ctx context.Context, fnLen func() (int, error)) (int, error) {
+	if !isTransactionContext(ctx) {
+		r.mu.RLock()
+		defer r.mu.RUnlock()
+	}
+
+	return fnLen()
+}
+
+// Count executes a read operation safely under a read lock.
+func (r *Repository[T]) Count(ctx context.Context, fnCount func() (int, error)) (int, error) {
+	if !isTransactionContext(ctx) {
+		r.mu.RLock()
+		defer r.mu.RUnlock()
+	}
+
+	return fnCount()
+}
+
 // Find executes a read operation safely under a read lock.
 func (r *Repository[T]) Find(ctx context.Context, fnFind func() (*T, error)) (*T, error) {
 	if !isTransactionContext(ctx) {

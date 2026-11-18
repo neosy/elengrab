@@ -8,6 +8,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	"github.com/neosy/elengrab/internal/app/usecases/types"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	ddownload "github.com/neosy/elengrab/internal/domain/download"
 )
 
 // RetryDownload repeats the download process for a specific download.
@@ -20,8 +21,12 @@ func (uc *downloader) RetryDownload(
 		return nil, err
 	}
 
+	var download *ddownload.MediaDownload
+
 	resetStatusToNew := func(ctx context.Context) error {
-		download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
+		var err error
+
+		download, err = uc.download.GetByDownloadIDNoCache(ctx, downloadID)
 		if err != nil {
 			return err
 		}
@@ -36,6 +41,7 @@ func (uc *downloader) RetryDownload(
 			uc.logger.Error("Failed to set download status to new", "error", err)
 			return err
 		}
+
 		return nil
 	}
 
@@ -44,23 +50,19 @@ func (uc *downloader) RetryDownload(
 		return nil, err
 	}
 
-	download, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
-	if err != nil {
-		return nil, err
+	if download.HasRegisteredUser() {
+		uc.broadcastDownloadsInProgressForUser(ctx, *download.UserID)
+	} else {
+		uc.broadcastDownloadsInProgress(ctx, authCtx)
 	}
 
-	err = uc.enqueueDownload(ctx, downloadID, download.DownloadTask.TaskID)
+	downloadUpdate, err := uc.enqueueDownloadByID(ctx, downloadID)
 	if err != nil {
 		uc.logger.Error("Failed add to queue", "error", err)
 		return nil, err
 	}
 
-	download, err = uc.download.GetByDownloadIDNoCache(ctx, downloadID)
-	if err != nil {
-		return nil, err
-	}
-
 	uc.broadcastMediaDownloadUpdated(ctx, downloadID)
 
-	return uc.resolveActualDownloadInfoByDownload(ctx, download)
+	return uc.resolveActualDownloadInfoByDownload(ctx, downloadUpdate)
 }

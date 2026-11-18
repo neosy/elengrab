@@ -7,3 +7,7 @@
         --header-border-radius: 0;
     }
 }
+
+:root:has(.content-type-tab--in-progress.active) {
+    --view-mode-bar-display: none;
+}

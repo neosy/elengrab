@@ -50,15 +50,29 @@ var (
 		MediaDownloadStatusRefreshing: {},
 	}
 
+	completedStatuses = []MediaDownloadStatus{
+		MediaDownloadStatusDone,
+		MediaDownloadStatusRefreshing,
+	}
+
+	incompleteStatusesByStatus = map[MediaDownloadStatus]struct{}{
+		MediaDownloadStatusNew:     {},
+		MediaDownloadStatusPending: {},
+		MediaDownloadStatusWorking: {},
+		MediaDownloadStatusFailed:  {},
+	}
+
+	incompletedStatuses = []MediaDownloadStatus{
+		MediaDownloadStatusNew,
+		MediaDownloadStatusPending,
+		MediaDownloadStatusWorking,
+		MediaDownloadStatusFailed,
+	}
+
 	processingStatusesByStatus = map[MediaDownloadStatus]struct{}{
 		MediaDownloadStatusNew:     {},
 		MediaDownloadStatusPending: {},
 		MediaDownloadStatusWorking: {},
-	}
-
-	completedStatuses = []MediaDownloadStatus{
-		MediaDownloadStatusDone,
-		MediaDownloadStatusRefreshing,
 	}
 
 	editableStatuses = []MediaDownloadStatus{
@@ -108,6 +122,13 @@ func (v MediaDownloadStatus) Contains(statuses []MediaDownloadStatus) bool {
 func MediaDownloadCompletedStatuses() []MediaDownloadStatus {
 	statuses := make([]MediaDownloadStatus, len(completedStatuses))
 	copy(statuses, completedStatuses)
+	return statuses
+}
+
+// MediaDownloadIncompleteStatuses returns a copy of the incomplete download statuses.
+func MediaDownloadIncompleteStatuses() []MediaDownloadStatus {
+	statuses := make([]MediaDownloadStatus, len(incompletedStatuses))
+	copy(statuses, incompletedStatuses)
 	return statuses
 }
 

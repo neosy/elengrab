@@ -98,6 +98,48 @@
     }
 }
 
+/* ----- Upload button: user downloads badge ----- */
+
+.header-actions__upload-menu {
+    --upload-menu-badge-left: -2px;
+
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .header-actions__upload-menu {
+        --upload-menu-badge-left: -4px;
+    }
+}
+
+body.has-user-downloads-in-progress .header-actions__upload-menu::after {
+    counter-reset: user-downloads var(--user-downloads-in-progress-count);
+    content: counter(user-downloads);
+
+    position: absolute;
+    left: var(--upload-menu-badge-left);
+    bottom: var(--upload-menu-badge-left);
+
+    height: clamp(12px, calc(10px + 0.5vw), 16px);
+    min-width: clamp(12px, calc(10px + 0.5vw), 16px);
+    padding: 0 2px;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+    background: var(--upload-menu-badge-bg);
+    color: var(--upload-menu-badge-color);
+
+    font-size: clamp(0.75rem, 0.65rem + 0.3vw, 0.9rem);
+    font-weight: 600;
+    line-height: 1;
+
+    pointer-events: none; /* Clicks go through to the button */
+}
+
 .user-avatar a {
     all: unset;
     text-decoration: none;

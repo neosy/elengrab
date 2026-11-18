@@ -102,6 +102,8 @@ func NewDownloaderHandlers(
 	}
 
 	handlers.sse = sse.NewSSEHandler(
+		logger,
+
 		sseEventLogCacheRepo,
 		usecases.DownloaderAPI,
 		usecases.LinkWeb,

@@ -6,9 +6,21 @@ import (
 	"uuid"
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
 
-func (uc *MediaDownload) SoftDelete(ctx context.Context, downloadID uuid.UUID) error {
+func (uc *MediaDownload) SoftDelete(
+	ctx context.Context,
+	downloadID uuid.UUID,
+) error {
+	return uc.SoftDeleteWithOnSuccess(ctx, downloadID, nil)
+}
+
+func (uc *MediaDownload) SoftDeleteWithOnSuccess(
+	ctx context.Context,
+	downloadID uuid.UUID,
+	onSuccess func(),
+) error {
 	download, err := uc.GetByDownloadID(ctx, downloadID)
 	if err != nil {
 		return err
@@ -21,7 +33,17 @@ func (uc *MediaDownload) SoftDelete(ctx context.Context, downloadID uuid.UUID) e
 	}
 
 	uc.downloadCacheRep.Delete(ctx, downloadID)
-	uc.dlStateCache.Delete(ctx, downloadID)
+
+	switch download.SourceType {
+	case dtypes.MediaDownloadSourceTypeURL:
+		uc.dlStateCache.Delete(ctx, downloadID)
+	case dtypes.MediaDownloadSourceTypeUpload:
+		uc.uploadStateCacheRepo.Delete(ctx, downloadID)
+	}
+
+	if onSuccess != nil {
+		onSuccess()
+	}
 
 	err = uc.softDeleteDependencies(ctx, download)
 	if err != nil {
@@ -31,7 +53,18 @@ func (uc *MediaDownload) SoftDelete(ctx context.Context, downloadID uuid.UUID) e
 	return nil
 }
 
-func (uc *MediaDownload) HardDelete(ctx context.Context, downloadID uuid.UUID) error {
+func (uc *MediaDownload) HardDelete(
+	ctx context.Context,
+	downloadID uuid.UUID,
+) error {
+	return uc.HardDeleteWithOnSuccess(ctx, downloadID, nil)
+}
+
+func (uc *MediaDownload) HardDeleteWithOnSuccess(
+	ctx context.Context,
+	downloadID uuid.UUID,
+	onSuccess func(),
+) error {
 	download, err := uc.GetByDownloadID(ctx, downloadID)
 	if err != nil {
 		return err
@@ -45,9 +78,21 @@ func (uc *MediaDownload) HardDelete(ctx context.Context, downloadID uuid.UUID) e
 
 	uc.downloadCacheRep.Delete(ctx, downloadID)
 
-	err = uc.dlStateCache.Delete(ctx, downloadID)
-	if err != nil {
-		uc.logger.Warn("Failed delete download state cache", "error", err)
+	switch download.SourceType {
+	case dtypes.MediaDownloadSourceTypeURL:
+		err = uc.dlStateCache.Delete(ctx, downloadID)
+		if err != nil {
+			uc.logger.Warn("Failed delete download state cache", "error", err)
+		}
+	case dtypes.MediaDownloadSourceTypeUpload:
+		err = uc.uploadStateCacheRepo.Delete(ctx, downloadID)
+		if err != nil {
+			uc.logger.Warn("Failed delete upload state cache", "error", err)
+		}
+	}
+
+	if onSuccess != nil {
+		onSuccess()
 	}
 
 	err = uc.hardDeleteDependencies(ctx, download)
