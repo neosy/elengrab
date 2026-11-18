@@ -308,10 +308,13 @@ func (r *MediaSourceIndexRepository) iterateAll(
 	case dtypes.QueryMediaContentTypeVideo:
 		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsShort): false})
 		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsAudio): false})
+		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
 	case dtypes.QueryMediaContentTypeShorts:
 		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsShort): true})
+		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
 	case dtypes.QueryMediaContentTypeAudio:
 		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsAudio): true})
+		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
 	}
 
 	if r.queryOptions.Visibility != nil {
