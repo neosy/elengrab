@@ -10,6 +10,9 @@
 
     --footer-bg: rgba(240, 240, 240, 0.5);
 
+    --elengrab-color: #7eb980;
+    --elengrab-color-muted: #7eb980b3;
+
     --list-body-bg: #f3f5f6;
     --list-main-bg: #fff;
     --grid-body-bg: #fff;
@@ -20,6 +23,8 @@
     --text-light-gray: #cfd8e3;
     --text-blue: #2563eb;
     --text-orange: #f59e0b;
+    --text-red: #ef5350;
+    --text-red-muted: #e57373;
     
     --icon-visibility-color: #6B7280;
 
@@ -45,7 +50,7 @@
     --input-action-button-color: #999;
     --input-action-button-hover-color: #333;
     --text-tooltip: white;
-    --input-border-color: #7eb980;
+    --input-border-color: var(--elengrab-color);
     --input-focus-border-color: #4caf50;
     --border-select: #dfe3e8;
     --border-result: #dfe3e8;
@@ -96,7 +101,7 @@
     --bg-auth-button-hover: #0056b3;
     --text-auth-button: white;
     --border-auth-input: #9e9e9e;
-    --border-auth-input-focus: #7eb980;
+    --border-auth-input-focus: var(--elengrab-color);
 
     --notification-bg: rgba(255, 255, 255, 0.92);
     --notification-text: #1f1f1f;
@@ -161,7 +166,7 @@
     --input-action-button-color: #9e9e9e;
     --input-action-button-hover-color: #cfd8e3;
     --text-tooltip: #cfd8e3;
-    --input-border-color: #7eb980;
+    --input-border-color: var(--elengrab-color);
     --input-focus-border-color: #58d660;
     --border-select: #30363d;
     --border-result: #30363d;
@@ -195,7 +200,7 @@
     --bg-auth-button-hover: #0056b3;
     --text-auth-button: white;
     --border-auth-input: #6e7681;
-    --border-auth-input-focus: #7eb980;
+    --border-auth-input-focus: var(--elengrab-color);
 
     --notification-bg: rgba(12, 12, 16, 0.90);
     --notification-text: #cfd8e3;
@@ -216,7 +221,8 @@
     --scrollbar-thumb-hover-bg: #707070;
 }
 
-/* ------------------ components ------------------ */
+/* ==================== components ==================== */
+
 :root {
     --view-mode-tab-bg: #f2f2f2;
     --view-mode-tab-color: #0f0f0f;
@@ -249,4 +255,10 @@
     --content-type-border-color: rgba(255, 255, 255, 0.2);
     --content-type-focus: #3ea6ff;
 }
-/* ==================== components ==================== */
+
+/* ==================== Menu ==================== */
+
+:root {
+    --upload-menu-badge-bg: var(--header-bg);
+    --upload-menu-badge-color: var(--download);
+}

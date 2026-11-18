@@ -85,7 +85,16 @@ func (uc *downloader) DeleteDownload(
 			return responseNil, err
 		}
 
-		err = uc.download.HardDelete(ctx, download.DownloadID)
+		err = uc.download.HardDeleteWithOnSuccess(
+			ctx, download.DownloadID,
+			func() {
+				if download.HasRegisteredUser() {
+					uc.broadcastDownloadsInProgressForUser(ctx, *download.UserID)
+				} else {
+					uc.broadcastDownloadsInProgress(ctx, authCtx)
+				}
+			},
+		)
 		if err != nil {
 			uc.logger.Error("Failed to delete download", "downloadID", download.DownloadID, "error", err)
 			return responseNil, err

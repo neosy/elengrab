@@ -10,6 +10,7 @@ import (
 	ucdto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	utypes "github.com/neosy/elengrab/internal/app/usecases/types"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	dsse "github.com/neosy/elengrab/internal/domain/types/sse"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/neosy/elengrab/internal/pkg/idcodec"
@@ -35,6 +36,8 @@ func (h *SSEHandler) handleEvent(
 		h.handleProgressUpdate(w, event)
 	case utypes.BroadcastEventTypeDownloadStartRefreshing:
 		h.handleStartRefreshing(ctx, authCtx, w, event)
+	case utypes.BroadcastEventTypeDownloadsInProgress:
+		h.handleDownloadsInProgress(w, event)
 	case utypes.BroadcastEventTypeSystemInfoUpdate:
 		if h.downloader.HasWriteAccess(authCtx) {
 			h.handleSystemInfoUpdate(w, event)
@@ -64,13 +67,15 @@ func (h *SSEHandler) handleDownloadAdd(
 
 	data := struct {
 		DownloadID      string `json:"itemId"`
-		CreatedAtUnixMs int64  `json:"createdAtUnixMs"`
 		OwnerUserLogin  string `json:"owner"`
+		IsReady         bool   `json:"isReady"`
+		CreatedAtUnixMs int64  `json:"createdAtUnixMs"`
 		HTML            string `json:"html"`
 	}{
 		DownloadID:      idcodec.EncodeUUIDBase64URL(downloadInfo.DownloadID),
-		CreatedAtUnixMs: downloadInfo.CreatedAt.UnixMilli(),
 		OwnerUserLogin:  downloadInfo.UserLogin,
+		IsReady:         downloadInfo.IsReady(),
+		CreatedAtUnixMs: downloadInfo.CreatedAt.UnixMilli(),
 		HTML:            html,
 	}
 
@@ -258,6 +263,20 @@ func (h *SSEHandler) handleStartRefreshing(
 	}
 
 	_ = h.sendAndStoreEvent(ctx, w, authCtx, sseEvent)
+}
+
+func (h *SSEHandler) handleDownloadsInProgress(w *bufio.Writer, event dsse.BroadcastEvent) {
+	downloadsInProgress, ok := event.Data.(dtypes.IncompleteDownloadsCount)
+	if !ok {
+		return
+	}
+
+	jsonData, err := json.Marshal(downloadsInProgress)
+	if err != nil {
+		return
+	}
+
+	_ = h.sendEvent(w, event.Type.SSEEventName(), jsonData)
 }
 
 func (h *SSEHandler) handleSystemInfoUpdate(w *bufio.Writer, event dsse.BroadcastEvent) {

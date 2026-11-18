@@ -21,10 +21,11 @@ func (uc *MediaDownload) CreateDownload(
 	ctx context.Context,
 	download *ddownload.MediaDownload,
 	dlOptions *ddownload.DownloadOptions,
-) error {
-	return uc.create(
+	onSuccess func(),
+) (*ddownload.MediaDownload, error) {
+	downloadCreated, err := uc.create(
 		ctx, download,
-		func(ctx context.Context) error {
+		func(ctx context.Context, download *ddownload.MediaDownload) error {
 			err := uc.CreateDownloadTask(ctx, download, dlOptions)
 			if err != nil {
 				return errorx.Errorf("failed to create task: %w", err, exceptionx.ERROR)
@@ -33,16 +34,28 @@ func (uc *MediaDownload) CreateDownload(
 			return nil
 		},
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	uc.dlStateCache.SaveByDownload(ctx, downloadCreated)
+
+	if onSuccess != nil {
+		onSuccess()
+	}
+
+	return downloadCreated, nil
 }
 
 func (uc *MediaDownload) CreateUpload(
 	ctx context.Context,
 	download *ddownload.MediaDownload,
 	sourcePath string,
+	onSuccess func(),
 ) error {
-	return uc.create(
+	downloadCreated, err := uc.create(
 		ctx, download,
-		func(ctx context.Context) error {
+		func(ctx context.Context, download *ddownload.MediaDownload) error {
 			err := uc.CreateUploadTask(ctx, download, sourcePath)
 			if err != nil {
 				return errorx.Errorf("failed to create task: %w", err, exceptionx.ERROR)
@@ -51,16 +64,27 @@ func (uc *MediaDownload) CreateUpload(
 			return nil
 		},
 	)
+	if err != nil {
+		return err
+	}
+
+	uc.saveUploadStateByDownload(ctx, downloadCreated)
+
+	if onSuccess != nil {
+		onSuccess()
+	}
+
+	return nil
 }
 
 func (uc *MediaDownload) create(
 	ctx context.Context,
 	download *ddownload.MediaDownload,
-	onCreated func(context.Context) error,
-) error {
+	onCreated func(context.Context, *ddownload.MediaDownload) error,
+) (*ddownload.MediaDownload, error) {
 	if download == nil {
 		uc.logger.Warn("Nil pointer in function")
-		return apperrors.ErrFuncParamNullPointer
+		return nil, apperrors.ErrFuncParamNullPointer
 	}
 
 	if download.DownloadID == uuid.Nil() {
@@ -74,8 +98,10 @@ func (uc *MediaDownload) create(
 	download.NormalizeForSave()
 
 	if err := download.Validate(); err != nil {
-		return err
+		return nil, err
 	}
+
+	var downloadCreated *ddownload.MediaDownload
 
 	create := func(ctx context.Context) error {
 		var err error
@@ -101,19 +127,19 @@ func (uc *MediaDownload) create(
 
 		uc.downloadCacheRep.Delete(ctx, download.DownloadID)
 
-		download, err = uc.GetByDownloadIDNoCache(ctx, download.DownloadID)
+		err = onCreated(ctx, download)
 		if err != nil {
 			return err
 		}
 
-		err = uc.createDependencies(ctx, download)
+		downloadCreated, err = uc.GetByDownloadIDNoCache(ctx, download.DownloadID)
+		if err != nil {
+			return err
+		}
+
+		err = uc.createDependencies(ctx, downloadCreated)
 		if err != nil {
 			return fmt.Errorf("failed to create media download dependencies: %w", err)
-		}
-
-		err = onCreated(ctx)
-		if err != nil {
-			return err
 		}
 
 		return nil
@@ -121,10 +147,10 @@ func (uc *MediaDownload) create(
 
 	err := uc.downloadRepo().Tx(ctx, create)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return downloadCreated, nil
 }
 
 func (uc *MediaDownload) createDependencies(ctx context.Context, download *ddownload.MediaDownload) error {

@@ -3,13 +3,12 @@ package broadcaster
 import (
 	"uuid"
 
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	dsse "github.com/neosy/elengrab/internal/domain/types/sse"
 )
 
 type subscription struct {
 	connectionID uuid.UUID
-	roles        dtypes.UserRoleIDs
+	userID       uuid.UUID
 	eventCh      chan dsse.BroadcastEvent
 }
 

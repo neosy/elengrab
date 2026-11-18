@@ -7,13 +7,11 @@ import { CLASS_PREFIXES, EVENT_NAMES } from './constants.js';
 // -------------------------------------------------------------
 export function handleRowAdd(event, usernameFilter = "") {
     try {
-        if (!VIEW_MODES.isNew()) return;
-
-        if (CONTENT_TYPES.getCurrent() && !CONTENT_TYPES.isAll()) return;
-
         // Payload is raw HTML with multiple rows
         const data = JSON.parse(event.data);
         if (!data.itemId || !data.html) return
+
+        if (!data.isReady && !CONTENT_TYPES.isInProgress()) return;
 
         const owner = data.owner;
 

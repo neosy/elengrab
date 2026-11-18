@@ -95,11 +95,12 @@ func NewDownloader(
 	siteLogoRepo persistence.SiteLogoRepositoryFactory,
 
 	// in memory
-	mediaDownloadCacheRep persistence.MediaDownloadCacheRepository,
-	downloadStateCacheRep persistence.DownloadStateCacheRepository,
-	mediaUserWatchStatCacheRep persistence.MediaUserWatchStatCacheRepository,
-	mediaWatchStatCacheRep persistence.MediaWatchStatCacheRepository,
-	mediaUserWatchPositionCacheRep persistence.MediaUserWatchPositionCacheRepository,
+	mediaDownloadCacheRepo persistence.MediaDownloadCacheRepository,
+	downloadStateCacheRepo persistence.DownloadStateCacheRepository,
+	uploadStateCacheRepo persistence.UploadStateCacheRepository,
+	mediaUserWatchStatCacheRepo persistence.MediaUserWatchStatCacheRepository,
+	mediaWatchStatCacheRepo persistence.MediaWatchStatCacheRepository,
+	mediaUserWatchPositionCacheRepo persistence.MediaUserWatchPositionCacheRepository,
 	ytChannelCacheRep persistence.ChannelCacheRepository,
 	siteLogoCacheRep persistence.SiteLogoCacheRepository,
 
@@ -126,7 +127,7 @@ func NewDownloader(
 	deleteDuplicatesUniquenessScope dtypes.UniquenessScope,
 	logoUpdateInterval time.Duration,
 ) *downloader {
-	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRep)
+	dlStateCache := dlstate.NewDownloadStateCache(logger, downloadStateCacheRepo)
 	dlTask := dltask.NewDownloadTask(logger, dlTaskRepo, dlStateCache)
 	processingTask := processingtask.NewProcessingTask(logger, processingTaskRepo)
 	dlTaskStatus := dltasktatus.NewDownloadTaskStatus(logger, dlTask)
@@ -168,7 +169,7 @@ func NewDownloader(
 		authz:                authz,
 
 		// broadcasters
-		broadcaster: broadcaster.NewBroadcaster(authz),
+		broadcaster: broadcaster.NewBroadcaster(authSrv, authz),
 
 		// usecases
 		thumbnail:   thumbnail,
@@ -190,9 +191,9 @@ func NewDownloader(
 
 		watchEventRepo, userWatchChunkRepo, userWatchStatRepo, watchStatRepo, userWatchPositionRepo,
 
-		mediaUserWatchStatCacheRep,
-		mediaWatchStatCacheRep,
-		mediaUserWatchPositionCacheRep,
+		mediaUserWatchStatCacheRepo,
+		mediaWatchStatCacheRepo,
+		mediaUserWatchPositionCacheRepo,
 
 		watchEventDispatcher,
 
@@ -205,7 +206,8 @@ func NewDownloader(
 		logger,
 
 		downloadRepo,
-		mediaDownloadCacheRep,
+		mediaDownloadCacheRepo,
+		uploadStateCacheRepo,
 
 		dlTask,
 		dlStateCache,
@@ -256,9 +258,11 @@ func NewDownloader(
 
 		// Broadcaster
 		taskexecutor.Broadcaster{
+			MediaAdded:              downloader.broadcastMediaDownloadAddedForUser,
 			MediaUpdated:            downloader.broadcastMediaDownloadUpdated,
 			DownloadProgressUpdated: downloader.broadcastDownloadProgressUpdated,
 			StartRefreshing:         downloader.broadcastMediaDownloadStartRefreshing,
+			DownloadsCountUpdated:   downloader.broadcastDownloadsInProgressForUser,
 		},
 
 		// Options

@@ -43,13 +43,6 @@ func (uc *MediaDownload) GetOrCreateState(
 	return state, nil
 }
 
-func (uc *MediaDownload) SaveState(
-	ctx context.Context,
-	state *ddownload.DownloadState,
-) error {
-	return uc.dlStateCache.Save(ctx, state)
-}
-
 func (uc *MediaDownload) PatchState(
 	ctx context.Context,
 	downloadID uuid.UUID,

@@ -40,4 +40,3 @@ func (h *SSEHandler) sendConnected(
 func (h *SSEHandler) sendPing(w *bufio.Writer) error {
 	return h.sendEvent(w, "ping", []byte("{}"))
 }
-

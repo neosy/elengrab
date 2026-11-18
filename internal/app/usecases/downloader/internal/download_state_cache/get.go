@@ -7,7 +7,15 @@ import (
 	"uuid"
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 )
+
+func (uc *DownloadStateCache) Count(
+	ctx context.Context,
+	userID uuid.UUID,
+) (dtypes.IncompleteDownloadsCount, error) {
+	return uc.stateCacheRep.Count(ctx, userID)
+}
 
 func (uc *DownloadStateCache) FindByDownloadID(
 	ctx context.Context,

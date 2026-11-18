@@ -80,9 +80,14 @@ export const CONTENT_TYPES = {
     video: "video",
     shorts: "shorts",
     audio: "audio",
+    inProgress: "in-progress",
 
     getCurrent: getContentType,
-    isAll: isAllContentType,
+    isAll() {return getContentType() === this.all},
+    isVideo() {return getContentType() === this.video},
+    isShorts() {return getContentType() === this.shorts},
+    isAudio() {return getContentType() === this.audio},
+    isInProgress() {return getContentType() === this.inProgress},
 }
 
 /**
@@ -93,22 +98,15 @@ export function getContentType() {
     return contentTypeTabs?.dataset.contentType || "";
 }
 
-/**
- * @returns {boolean}
- */
-export function isAllContentType() {
-    return getContentType() === CONTENT_TYPES.all;
-}
-
 export const VIEW_MODES = {
     new: "new",
     popular: "popular",
     old: "old",
 
     getCurrent: getViewMode,
-    isNew: isNewViewMode,
-    isPopular: isPopularViewMode,
-    isOld: isOldViewMode,
+    isNew() {return getViewMode() === this.new},
+    isPopular() {return getViewMode() === this.popular},
+    isOld() {return getViewMode() === this.old},
 };
 
 /**
@@ -117,25 +115,4 @@ export const VIEW_MODES = {
 export function getViewMode() {
     const viewModeTabs = $(document, CLASS_NAMES.viewModeTabs);
     return viewModeTabs?.dataset.viewMode || "";
-}
-
-/**
- * @returns {boolean}
- */
-export function isNewViewMode() {
-    return getViewMode() === VIEW_MODES.new;
-}
-
-/**
- * @returns {boolean}
- */
-export function isPopularViewMode() {
-    return getViewMode() === VIEW_MODES.popular;
-}
-
-/**
- * @returns {boolean}
- */
-export function isOldViewMode() {
-    return getViewMode() === VIEW_MODES.old;
 }

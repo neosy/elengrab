@@ -12,6 +12,7 @@ import (
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
+	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/exceptions"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
@@ -39,7 +40,7 @@ func (uc *downloader) ScheduleDownload(
 
 	options.UniqueFileNameNoExt = &uniqueFileNameNoExt
 
-	err := uc.download.CreateDownload(
+	downloadCreated, err := uc.download.CreateDownload(
 		ctx,
 		&ddownload.MediaDownload{
 			DownloadID:    downloadID,
@@ -50,20 +51,23 @@ func (uc *downloader) ScheduleDownload(
 			Visibility:    mediaVisibility,
 		},
 		options,
+		func() {
+			uc.broadcastDownloadsInProgress(ctx, authCtx)
+		},
 	)
 	if err != nil {
 		uc.logger.Error("Insert record failed", "error", err)
 		return nil, broadcastError(err)
 	}
 
-	download, err := uc.enqueueDownloadByID(ctx, downloadID)
+	download, err := uc.enqueueDownload(ctx, downloadCreated)
 	if err != nil {
 		return nil, broadcastError(err)
 	}
 
 	downloadInfo, _ := uc.resolveActualDownloadInfoByDownload(ctx, download)
 
-	uc.broadcastMediaDownloadAdded(authCtx, downloadInfo)
+	uc.broadcastMediaDownloadAdded(ctx, authCtx, downloadInfo)
 
 	return &dto.ScheduleDownloadResponse{
 		URL:        url,
@@ -89,68 +93,69 @@ func (uc *downloader) enqueueDownloadByID(ctx context.Context, downloadID uuid.U
 		}
 	}
 
-	err = uc.enqueueDownload(ctx, downloadID, download.DownloadTask.TaskID)
+	downloadUpdated, err := uc.enqueueDownload(ctx, download)
 	if err != nil {
 		uc.logger.Error("Failed add to queue", "error", err)
 		return nil, err
 	}
 
-	updatedDownload, err := uc.download.GetByDownloadIDNoCache(ctx, downloadID)
-	if err == nil && updatedDownload != nil {
-		download = updatedDownload
-	}
-
-	return download, nil
+	return downloadUpdated, nil
 }
 
-func (uc *downloader) enqueueDownload(ctx context.Context, downloadID uuid.UUID, taskId uuid.UUID) error {
-	var (
-		download *ddownload.MediaDownload
-	)
+func (uc *downloader) enqueueDownload(ctx context.Context, download *ddownload.MediaDownload) (*ddownload.MediaDownload, error) {
+	if download == nil {
+		return nil, ierrors.ErrFuncParamNullPointer
+	}
+
+	var downloadUpdated *ddownload.MediaDownload
 
 	err := uc.download.Tx(ctx, func(ctx context.Context) error {
 		jobID := uuid.New()
-		err := uc.downloadStatus.Pending(ctx, downloadID, taskId, jobID)
+		err := uc.downloadStatus.Pending(ctx, download.DownloadID, download.DownloadTaskID(), jobID)
 		if err != nil {
-			uc.logger.Warn("Failed update status", "downloadID", downloadID, "error", err)
+			uc.logger.Warn("Failed update status", "downloadID", download.DownloadID, "error", err)
 			return err
 		}
 
-		download, err = uc.download.GetByDownloadIDNoCache(ctx, downloadID)
+		downloadUpdated, err = uc.download.GetByDownloadIDNoCache(ctx, download.DownloadID)
 		if err != nil {
 			return err
 		}
 
 		return nil
 	})
-
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	job := uc.enqueueDownloadTask(download.DownloadTask)
+	job := uc.enqueueDownloadTask(downloadUpdated.DownloadTask)
 	if job == nil {
-		uc.logger.Warn("Task has not been added to the queue", "downloadID", download.DownloadID)
+		uc.logger.Warn("Task has not been added to the queue", "downloadID", downloadUpdated.DownloadID)
 
-		e := uc.downloadStatus.Failed(ctx, downloadID, nil, "failed to enqueue download task")
+		e := uc.downloadStatus.Failed(ctx, download.DownloadID, nil, "failed to enqueue download task")
 		if e != nil {
 			uc.logger.Warn("Failed update status", "downloadID", download.DownloadID, "error", e)
 
-			return errorx.Errorf(
+			return nil, errorx.Errorf(
 				"task has not been added to the queue: %w", e,
 				exceptions.QUEUE_PUBLISH_FAILED,
 				errorx.WithErrorMessage("We couldn’t process your request"),
 			)
 		}
 
-		return errorx.Errorf(
+		return nil, errorx.Errorf(
 			"task has not been added to the queue",
 			exceptions.QUEUE_PUBLISH_FAILED,
 			errorx.WithErrorMessage("We couldn’t process your request"),
 		)
 	}
 
-	return nil
+	tmpDownload, err := uc.download.GetByDownloadIDNoCache(ctx, download.DownloadID)
+	if err == nil && tmpDownload != nil {
+		downloadUpdated = tmpDownload
+	}
+
+	return downloadUpdated, nil
 }
 
 func (uc *downloader) enqueueDownloadTask(task *ddownload.DownloadTask) workerpool.Job {

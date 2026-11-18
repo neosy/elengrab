@@ -159,6 +159,37 @@ func (c *Cache[K, T]) Delete(key K) {
 	delete(c.cache, key)
 }
 
+// Len returns the number of cached values.
+func (c *Cache[K, T]) Len() int {
+	return len(c.cache)
+}
+
+// Count returns the number of non-expired cached values matching the optional predicate.
+// This is a convenience method that calls CountWithNow using the current time.
+func (c *Cache[K, T]) Count(predicate func(*T) bool) uint64 {
+	return c.CountWithNow(predicate, time.Now().UTC())
+}
+
+// Count returns the number of non-expired cached values matching the optional predicate.
+// If the predicate is nil, all non-expired values are counted.
+func (c *Cache[K, T]) CountWithNow(predicate func(*T) bool, now time.Time) uint64 {
+	var cnt uint64
+
+	for _, data := range c.cache {
+		if data.ExpiredWithNow(now) {
+			continue
+		}
+
+		if predicate != nil && !predicate(data.value) {
+			continue
+		}
+
+		cnt++
+	}
+
+	return cnt
+}
+
 // FindWithStatus returns the cached value for the given key, or nil if not found or expired.
 // An optional clone function can be used to return a copy of the value.
 func (c *Cache[K, T]) FindWithStatus(key K) (*T, CacheStatus) {

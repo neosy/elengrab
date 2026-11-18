@@ -6,6 +6,7 @@ import (
 	"mime"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/clientcap"
+	contenttype "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/content_type"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
@@ -13,7 +14,6 @@ import (
 	pagesdata "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/pages_data"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/valyala/fasthttp"
@@ -61,12 +61,7 @@ func (h *DownloaderHandlers) renderIndexPage(
 	pagesListValues := pagesdata.BuildPagesListValues(
 		authCtx, query, queryFilters,
 		pages.BuildContentTypeTabs(
-			[]dtypes.QueryMediaContentType{
-				dtypes.QueryMediaContentTypeAll,
-				dtypes.QueryMediaContentTypeVideo,
-				dtypes.QueryMediaContentTypeShorts,
-				dtypes.QueryMediaContentTypeAudio,
-			},
+			contenttype.BuildIndexPageContentTypes(authCtx, h.downloader),
 			query.ContentType,
 		),
 		h.downloader,
