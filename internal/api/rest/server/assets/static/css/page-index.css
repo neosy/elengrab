@@ -1,9 +1,5 @@
-.grid-view {
+:root:has(.grid-view) {
     --header-bg: var(--header-bg-solid);
-}
-
-.list-view {
-    --header-bg: var(--body-bg);
 }
 
 @media (max-width: 580px) {
