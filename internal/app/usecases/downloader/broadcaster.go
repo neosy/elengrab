@@ -12,6 +12,7 @@ import (
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	eventkey "github.com/neosy/elengrab/internal/domain/types/event_key"
+	dsse "github.com/neosy/elengrab/internal/domain/types/sse"
 )
 
 // newErrorBroadcaster returns a function that broadcasts the given error
@@ -35,7 +36,11 @@ func (uc *downloader) Broadcaster() *broadcaster.Broadcaster {
 	return uc.broadcaster
 }
 
-func (uc *downloader) broadcastMediaDownloadAdded(authCtx dauth.AuthContext, downloadInfo *dto.MediaDownloadInfo) {
+func (uc *downloader) broadcastMediaDownloadAdded(
+	ctx context.Context,
+	authCtx dauth.AuthContext,
+	downloadInfo *dto.MediaDownloadInfo,
+) {
 	if downloadInfo == nil {
 		return
 	}
@@ -43,7 +48,7 @@ func (uc *downloader) broadcastMediaDownloadAdded(authCtx dauth.AuthContext, dow
 	if !downloadInfo.Status.IsReady() {
 		if authCtx.HasSession() {
 			uc.broadcaster.BroadcastToAuthorized(authCtx, types.BroadcastEventTypeDownloadAdd, downloadInfo)
-			uc.broadcaster.BroadcastToViewAllAccess(authCtx.EventKey(), types.BroadcastEventTypeDownloadAdd, downloadInfo)
+			uc.broadcaster.BroadcastToViewAllAccess(ctx, authCtx.EventKey(), types.BroadcastEventTypeDownloadAdd, downloadInfo)
 			return
 		}
 
@@ -55,6 +60,7 @@ func (uc *downloader) broadcastMediaDownloadAdded(authCtx dauth.AuthContext, dow
 	if downloadInfo.Status.IsReady() {
 		if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
 			uc.broadcaster.BroadcastPublic(
+				ctx,
 				eventkey.NewEventKeyUserID(downloadInfo.UserID),
 				types.BroadcastEventTypeDownloadAdd,
 				downloadInfo,
@@ -68,7 +74,24 @@ func (uc *downloader) broadcastMediaDownloadAdded(authCtx dauth.AuthContext, dow
 		}
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(downloadInfo.UserID, types.BroadcastEventTypeDownloadAdd, downloadInfo)
+	uc.broadcaster.BroadcastToUsersWithAccess(ctx, downloadInfo.UserID, types.BroadcastEventTypeDownloadAdd, downloadInfo)
+}
+
+func (uc *downloader) broadcastMediaDownloadAddedForUser(
+	ctx context.Context,
+	userID uuid.UUID,
+	download *ddownload.MediaDownload,
+) {
+	authCtx := dauth.AuthContext{
+		UserID: userID,
+	}
+
+	downloadInfo, err := uc.resolveActualDownloadInfoByDownload(ctx, download)
+	if err != nil {
+		return
+	}
+
+	uc.broadcastMediaDownloadAdded(ctx, authCtx, downloadInfo)
 }
 
 func (uc *downloader) broadcastMediaDownloadUpdated(
@@ -92,6 +115,7 @@ func (uc *downloader) broadcastMediaDownloadUpdated(
 
 	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
+			ctx,
 			eventkey.NewEventKeyUserID(downloadInfo.UserID),
 			types.BroadcastEventTypeDownloadUpdate,
 			downloadInfo,
@@ -99,7 +123,7 @@ func (uc *downloader) broadcastMediaDownloadUpdated(
 		return
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(downloadInfo.UserID, types.BroadcastEventTypeDownloadUpdate, downloadInfo)
+	uc.broadcaster.BroadcastToUsersWithAccess(ctx, downloadInfo.UserID, types.BroadcastEventTypeDownloadUpdate, downloadInfo)
 }
 
 func (uc *downloader) broadcastWatchStatsUpdated(
@@ -125,6 +149,7 @@ func (uc *downloader) broadcastWatchStatsUpdated(
 
 	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
+			ctx,
 			eventkey.NewEventKeyUserID(downloadInfo.UserID),
 			types.BroadcastEventTypeDownloadPatch,
 			downloadChanged,
@@ -132,7 +157,7 @@ func (uc *downloader) broadcastWatchStatsUpdated(
 		return
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(downloadInfo.UserID, types.BroadcastEventTypeDownloadPatch, downloadChanged)
+	uc.broadcaster.BroadcastToUsersWithAccess(ctx, downloadInfo.UserID, types.BroadcastEventTypeDownloadPatch, downloadChanged)
 }
 
 func (uc *downloader) broadcastWatchPositionUpdatedToAuth(
@@ -184,6 +209,7 @@ func (uc *downloader) broadcastMediaDownloadChanged(
 
 	if req.Info.Status.IsReady() && req.Info.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
+			ctx,
 			eventkey.NewEventKeyUserID(req.Info.UserID),
 			types.BroadcastEventTypeDownloadPatch,
 			&req,
@@ -191,7 +217,7 @@ func (uc *downloader) broadcastMediaDownloadChanged(
 		return
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(req.Info.UserID, types.BroadcastEventTypeDownloadPatch, &req)
+	uc.broadcaster.BroadcastToUsersWithAccess(ctx, req.Info.UserID, types.BroadcastEventTypeDownloadPatch, &req)
 }
 
 func (uc *downloader) broadcastMediaDownloadStartRefreshing(
@@ -215,6 +241,7 @@ func (uc *downloader) broadcastMediaDownloadStartRefreshing(
 
 	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
+			ctx,
 			eventkey.NewEventKeyUserID(downloadInfo.UserID),
 			types.BroadcastEventTypeDownloadStartRefreshing,
 			downloadInfo,
@@ -222,10 +249,10 @@ func (uc *downloader) broadcastMediaDownloadStartRefreshing(
 		return
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(downloadInfo.UserID, types.BroadcastEventTypeDownloadStartRefreshing, downloadInfo)
+	uc.broadcaster.BroadcastToUsersWithAccess(ctx, downloadInfo.UserID, types.BroadcastEventTypeDownloadStartRefreshing, downloadInfo)
 }
 
-func (uc *downloader) broadcastMediaDownloadDeleted(_ context.Context, download *ddownload.MediaDownload) {
+func (uc *downloader) broadcastMediaDownloadDeleted(ctx context.Context, download *ddownload.MediaDownload) {
 	if download == nil {
 		return
 	}
@@ -237,6 +264,7 @@ func (uc *downloader) broadcastMediaDownloadDeleted(_ context.Context, download 
 
 	if download.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
+			ctx,
 			eventkey.NewEventKeyUserID(*download.UserID),
 			types.BroadcastEventTypeDownloadDelete,
 			download.DownloadID,
@@ -244,7 +272,7 @@ func (uc *downloader) broadcastMediaDownloadDeleted(_ context.Context, download 
 		return
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(*download.UserID, types.BroadcastEventTypeDownloadDelete, download.DownloadID)
+	uc.broadcaster.BroadcastToUsersWithAccess(ctx, *download.UserID, types.BroadcastEventTypeDownloadDelete, download.DownloadID)
 
 }
 
@@ -283,6 +311,7 @@ func (uc *downloader) broadcastDownloadProgressUpdated(
 
 	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
+			ctx,
 			eventkey.NewEventKeyUserID(downloadInfo.UserID),
 			types.BroadcastEventTypeProgressUpdate,
 			resp,
@@ -290,7 +319,7 @@ func (uc *downloader) broadcastDownloadProgressUpdated(
 		return
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(downloadInfo.UserID, types.BroadcastEventTypeProgressUpdate, resp)
+	uc.broadcaster.BroadcastToUsersWithAccess(ctx, downloadInfo.UserID, types.BroadcastEventTypeProgressUpdate, resp)
 }
 
 func (uc *downloader) broadcastSystemInfoUpdated() {
@@ -311,6 +340,76 @@ func (uc *downloader) broadcastNotification(
 	uc.broadcaster.BroadcastByKey(eventKey, types.BroadcastEventTypeNotification, notification)
 }
 
+// GetDownloadsInProgressEvent returns the SSE event for in-progress downloads.
+func (uc *downloader) GetDownloadsInProgressEvent(
+	ctx context.Context,
+	authCtx dauth.AuthContext,
+) (dsse.BroadcastEvent, error) {
+	eventType := types.BroadcastEventTypeDownloadsInProgress
+
+	if !authCtx.HasSession() {
+		return dsse.EmptyBroadcastEvent(), nil
+	}
+
+	downloadsCount, err := uc.GetIncompleteDownloadsCount(ctx, authCtx.UserID)
+	if err != nil {
+		return dsse.EmptyBroadcastEvent(), err
+	}
+
+	if !uc.authz.HasViewAllAccess(authCtx.RoleIDs) {
+		downloadsCount.ClearTotal()
+	}
+
+	return dsse.NewBroadcastEvent(eventType, downloadsCount), nil
+}
+
+// broadcastDownloadsInProgressToUser broadcasts in-progress downloads only to the specified user.
+func (uc *downloader) broadcastDownloadsInProgressToUser(
+	ctx context.Context,
+	authCtx dauth.AuthContext,
+) {
+	event, _ := uc.GetDownloadsInProgressEvent(ctx, authCtx)
+	if event.IsEmpty() {
+		return
+	}
+
+	uc.broadcaster.BroadcastToAuthorized(authCtx, event.Type, event.Data)
+}
+
+// broadcastDownloadsInProgress broadcasts in-progress downloads to the specified user and users with extended access.
+func (uc *downloader) broadcastDownloadsInProgress(ctx context.Context, authCtx dauth.AuthContext) {
+	uc.broadcastDownloadsInProgressToUser(ctx, authCtx)
+
+	uc.broadcaster.BroadcastToViewAllAccessWithDataBuilder(
+		ctx, authCtx.EventKey(), types.BroadcastEventTypeDownloadsInProgress,
+		func(userID uuid.UUID, roleIDs dtypes.UserRoleIDs) (any, bool) {
+			data, err := uc.GetIncompleteDownloadsCount(ctx, userID)
+			if err != nil {
+				return nil, false
+			}
+
+			return data, true
+		},
+	)
+}
+
+// broadcastDownloadsInProgressForUser broadcasts in-progress downloads to the specified user and users with extended access.
+func (uc *downloader) broadcastDownloadsInProgressForUser(ctx context.Context, userID uuid.UUID) {
+	authCtx := dauth.AuthContext{
+		UserID: userID,
+	}
+
+	if userID != dauth.AnonymousUserID() {
+		user, _ := uc.authSrv.FindByUserID(ctx, userID)
+		if user != nil {
+			authCtx.RoleIDs, _ = user.ParseRoleIDs()
+		}
+	}
+
+	uc.broadcastDownloadsInProgress(ctx, authCtx)
+}
+
+// NotifyDownloadUpdated notifies users about an updated media download.
 func (uc *downloader) NotifyDownloadUpdated(
 	ctx context.Context,
 	downloadID uuid.UUID,
@@ -318,9 +417,18 @@ func (uc *downloader) NotifyDownloadUpdated(
 	uc.broadcastMediaDownloadUpdated(ctx, downloadID)
 }
 
+// NotifyDownloadChanged notifies relevant users about changes to a media download.
 func (uc *downloader) NotifyDownloadChanged(
 	ctx context.Context,
 	req dto.MediaDownloadChanged,
 ) {
 	uc.broadcastMediaDownloadChanged(ctx, req)
+}
+
+// NotifyUserDownloadsInProgress notifies the specified user about in-progress downloads.
+func (uc *downloader) NotifyUserDownloadsInProgress(
+	ctx context.Context,
+	authCtx dauth.AuthContext,
+) {
+	uc.broadcastDownloadsInProgressToUser(ctx, authCtx)
 }

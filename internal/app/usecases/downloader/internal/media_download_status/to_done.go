@@ -51,5 +51,10 @@ func (s *mediaDownloadStatus) Done(
 		return nil
 	}
 
-	return s.download.Tx(ctx, update)
+	err = s.download.Tx(ctx, update)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -58,16 +58,8 @@ func (uc *DownloadStateCache) SaveByDownload(ctx context.Context, download *ddow
 		return nil
 	}
 
-	var taskId *uuid.UUID
-	if download.DownloadTask != nil {
-		taskId = &download.DownloadTask.TaskID
-	}
-
-	state := &ddownload.DownloadState{
-		DownloadID: download.DownloadID,
-		TaskID:     taskId,
-		Download:   download.Clone(),
-	}
+	state := &ddownload.DownloadState{}
+	state.InitFromMediaDownload(download)
 
 	oldState, _ := uc.stateCacheRep.FindByDownloadID(ctx, download.DownloadID)
 	if oldState != nil {

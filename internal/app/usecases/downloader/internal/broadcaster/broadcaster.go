@@ -1,8 +1,8 @@
 package broadcaster
 
 import (
+	"context"
 	"sync"
-	"time"
 
 	"uuid"
 
@@ -14,27 +14,31 @@ import (
 	"github.com/neosy/elengrab/internal/domain/types/broadcast"
 	eventkey "github.com/neosy/elengrab/internal/domain/types/event_key"
 	dsse "github.com/neosy/elengrab/internal/domain/types/sse"
+	pservices "github.com/neosy/elengrab/internal/ports/services"
 )
 
 type Broadcaster struct {
 	clients map[broadcast.ClientKey]subscription
 	lock    sync.RWMutex
-	authz   *authz.Authorization
+
+	auth  pservices.AuthUsecase
+	authz *authz.Authorization
 }
 
-func NewBroadcaster(authz *authz.Authorization) *Broadcaster {
+func NewBroadcaster(auth pservices.AuthUsecase, authz *authz.Authorization) *Broadcaster {
 	return &Broadcaster{
 		clients: make(map[broadcast.ClientKey]subscription),
+		auth:    auth,
 		authz:   authz,
 	}
 }
 
-func (b *Broadcaster) Subscribe(clientKey broadcast.ClientKey, roles dtypes.UserRoleIDs) subscription {
+func (b *Broadcaster) Subscribe(clientKey broadcast.ClientKey, userID uuid.UUID) subscription {
 	ch := make(chan dsse.BroadcastEvent, dconsts.SSEBroadcastChannelBufferSize)
 
 	subscription := subscription{
 		connectionID: clientKey.ConnectionID,
-		roles:        roles,
+		userID:       userID,
 		eventCh:      ch,
 	}
 
@@ -58,15 +62,33 @@ func (b *Broadcaster) Unsubscribe(clientKey broadcast.ClientKey) {
 	close(data.eventCh)
 }
 
+func (b *Broadcaster) roleIDsByUserID(ctx context.Context, userID uuid.UUID) (dtypes.UserRoleIDs, error) {
+	if userID == dauth.AnonymousUserID() {
+		return nil, nil
+	}
+
+	user, err := b.auth.FindByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, nil
+	}
+
+	roleIDs, err := user.ParseRoleIDs()
+	if err != nil {
+		return nil, err
+	}
+
+	return roleIDs, nil
+}
+
 func (b *Broadcaster) Broadcast(eventType types.BroadcastEventType, data any) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
-	event := dsse.BroadcastEvent{
-		Type:      eventType,
-		Data:      data,
-		Timestamp: time.Now().UnixMicro(),
-	}
+	event := dsse.NewBroadcastEvent(eventType, data)
 
 	for _, subscription := range b.clients {
 		select {
@@ -78,25 +100,26 @@ func (b *Broadcaster) Broadcast(eventType types.BroadcastEventType, data any) {
 	}
 }
 
-func (b *Broadcaster) BroadcastPublic(key eventkey.EventKey, eventType types.BroadcastEventType, data any) {
+func (b *Broadcaster) BroadcastPublic(ctx context.Context, key eventkey.EventKey, eventType types.BroadcastEventType, data any) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
-	event := dsse.BroadcastEvent{
-		Type:      eventType,
-		Data:      data,
-		Timestamp: time.Now().UnixMicro(),
-	}
+	event := dsse.NewBroadcastEvent(eventType, data)
 
 	for client, subscription := range b.clients {
 		allowed := client.EventKey.IsEqual(key)
 
-		if !allowed {
-			allowed = b.authz.HasPublicViewAccess(subscription.roles)
+		roleIDs, err := b.roleIDsByUserID(ctx, subscription.userID)
+		if err != nil {
+			continue
 		}
 
 		if !allowed {
-			allowed = b.authz.HasViewAllAccess(subscription.roles)
+			allowed = b.authz.HasPublicViewAccess(roleIDs)
+		}
+
+		if !allowed {
+			allowed = b.authz.HasViewAllAccess(roleIDs)
 		}
 
 		if !allowed {
@@ -113,24 +136,53 @@ func (b *Broadcaster) BroadcastPublic(key eventkey.EventKey, eventType types.Bro
 }
 
 // BroadcastToViewAllAccess broadcasts an event to clients with view-all access, excluding the specified event key.
-func (b *Broadcaster) BroadcastToViewAllAccess(excludeKey eventkey.EventKey, eventType types.BroadcastEventType, data any) {
+func (b *Broadcaster) BroadcastToViewAllAccess(
+	ctx context.Context,
+	excludeKey eventkey.EventKey,
+	eventType types.BroadcastEventType,
+	data any,
+) {
+	b.BroadcastToViewAllAccessWithDataBuilder(
+		ctx, excludeKey, eventType,
+		func(_ uuid.UUID, _ dtypes.UserRoleIDs) (any, bool) {
+			return data, true
+		},
+	)
+}
+
+// BroadcastToViewAllAccessWithDataBuilder broadcasts an event to clients with view-all access,
+// excluding the specified event key and building event data separately for each user.
+func (b *Broadcaster) BroadcastToViewAllAccessWithDataBuilder(
+	ctx context.Context,
+	excludeKey eventkey.EventKey,
+	eventType types.BroadcastEventType,
+	dataBuilder func(userID uuid.UUID, roleIDs dtypes.UserRoleIDs) (any, bool),
+) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
-	event := dsse.BroadcastEvent{
-		Type:      eventType,
-		Data:      data,
-		Timestamp: time.Now().UnixMicro(),
-	}
+	event := dsse.NewBroadcastEvent(eventType, nil)
 
 	for client, subscription := range b.clients {
 		if client.EventKey.IsEqual(excludeKey) {
 			continue
 		}
 
-		if !b.authz.HasViewAllAccess(subscription.roles) {
+		roleIDs, err := b.roleIDsByUserID(ctx, subscription.userID)
+		if err != nil {
 			continue
 		}
+
+		if !b.authz.HasViewAllAccess(roleIDs) {
+			continue
+		}
+
+		data, ok := dataBuilder(subscription.userID, roleIDs)
+		if !ok {
+			continue
+		}
+
+		event.Data = data
 
 		select {
 		case subscription.eventCh <- event:
@@ -145,11 +197,7 @@ func (b *Broadcaster) BroadcastByKey(key eventkey.EventKey, eventType types.Broa
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
-	event := dsse.BroadcastEvent{
-		Type:      eventType,
-		Data:      data,
-		Timestamp: time.Now().UnixMicro(),
-	}
+	event := dsse.NewBroadcastEvent(eventType, data)
 
 	for client, subscription := range b.clients {
 		allowed := client.EventKey.IsEqual(key)
@@ -167,21 +215,27 @@ func (b *Broadcaster) BroadcastByKey(key eventkey.EventKey, eventType types.Broa
 }
 
 // BroadcastByAccess broadcast to all clients that have access to the event
-func (b *Broadcaster) BroadcastByAccess(key eventkey.EventKey, eventType types.BroadcastEventType, data any) {
+func (b *Broadcaster) BroadcastByAccess(
+	ctx context.Context,
+	key eventkey.EventKey,
+	eventType types.BroadcastEventType,
+	data any,
+) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
-	event := dsse.BroadcastEvent{
-		Type:      eventType,
-		Data:      data,
-		Timestamp: time.Now().UnixMicro(),
-	}
+	event := dsse.NewBroadcastEvent(eventType, data)
 
 	for client, subscription := range b.clients {
 		allowed := client.EventKey.IsEqual(key)
 
+		roleIDs, err := b.roleIDsByUserID(ctx, subscription.userID)
+		if err != nil {
+			continue
+		}
+
 		if !allowed {
-			allowed = b.authz.HasViewAllAccess(subscription.roles)
+			allowed = b.authz.HasViewAllAccess(roleIDs)
 		}
 
 		if !allowed {
@@ -219,9 +273,14 @@ func (b *Broadcaster) BroadcastToSession(sessionID uuid.UUID, eventType types.Br
 	b.BroadcastByKey(eventkey.NewEventKeySessionID(sessionID), eventType, data)
 }
 
-func (b *Broadcaster) BroadcastToUsersWithAccess(userID uuid.UUID, eventType types.BroadcastEventType, data any) {
+func (b *Broadcaster) BroadcastToUsersWithAccess(
+	ctx context.Context,
+	userID uuid.UUID,
+	eventType types.BroadcastEventType,
+	data any,
+) {
 	if dauth.IsNotRegisteredUserID(userID) {
 		return
 	}
-	b.BroadcastByAccess(eventkey.NewEventKeyUserID(userID), eventType, data)
+	b.BroadcastByAccess(ctx, eventkey.NewEventKeyUserID(userID), eventType, data)
 }

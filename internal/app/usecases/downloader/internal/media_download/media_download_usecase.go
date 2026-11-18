@@ -19,7 +19,8 @@ type MediaDownload struct {
 	downloadRepo persistence.MediaDownloadRepositoryFactory
 
 	// caches
-	downloadCacheRep persistence.MediaDownloadCacheRepository
+	downloadCacheRep     persistence.MediaDownloadCacheRepository
+	uploadStateCacheRepo persistence.UploadStateCacheRepository
 
 	// internal
 	dlTask         *dltask.DownloadTask
@@ -40,6 +41,7 @@ func NewMediaDownload(
 
 	// caches
 	downloadCacheRep persistence.MediaDownloadCacheRepository,
+	uploadStateCacheRepo persistence.UploadStateCacheRepository,
 
 	// internal
 	dlTask *dltask.DownloadTask,
@@ -52,9 +54,12 @@ func NewMediaDownload(
 	thumbnail thumbnail.Thumbnail,
 ) *MediaDownload {
 	return &MediaDownload{
-		logger:           logger,
-		downloadRepo:     downloadRepo,
-		downloadCacheRep: downloadCacheRep,
+		logger:       logger,
+		downloadRepo: downloadRepo,
+
+		// Caches in memory
+		downloadCacheRep:     downloadCacheRep,
+		uploadStateCacheRepo: uploadStateCacheRepo,
 
 		// internal
 		dlTask:         dlTask,

@@ -64,6 +64,17 @@ export const CLASS_NAMES = {
     },
 };
 
+export const CSS_VARIABLE_NAMES = {
+    downloadsCount: {
+        userInProgress: "--user-downloads-in-progress-count",
+        userFailed: "--user-downloads-failed-count",
+        userTotal: "--user-downloads-count",
+        totalInProgress: "--total-downloads-in-progress-count",
+        totalFailed: "--total-downloads-failed-count",
+        total: "--total-downloads-count",
+    },
+};
+
 export const EVENT_NAMES = {
     videoPreviewStop: 'video-preview-stop',
 

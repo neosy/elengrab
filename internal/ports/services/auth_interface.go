@@ -18,6 +18,11 @@ type AuthMiddleware interface {
 	FindByLogin(ctx context.Context, login string) (*dauth.User, error)
 }
 
+type AuthUsecase interface {
+	FindByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User, error)
+	GetByUserID(ctx context.Context, userID uuid.UUID) (*dauth.User, error)
+}
+
 type AuthService interface {
 	SoftDeleteUser(ctx context.Context, userID uuid.UUID) error
 

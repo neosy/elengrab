@@ -47,7 +47,7 @@ func (uc *downloader) ScheduleDownloadList(
 			options := req.Options
 			options.UniqueFileNameNoExt = &uniqueFileNameNoExt
 
-			err := uc.download.CreateDownload(
+			downloadCreated, err := uc.download.CreateDownload(
 				ctx,
 				&ddownload.MediaDownload{
 					DownloadID:    downloadID,
@@ -58,18 +58,21 @@ func (uc *downloader) ScheduleDownloadList(
 					Visibility:    mediaVisibility,
 				},
 				&options,
+				func() {
+					uc.broadcastDownloadsInProgress(ctx, authCtx)
+				},
 			)
 			if err != nil {
 				uc.logger.Error("Insert record failed", "error", err)
 				return err
 			}
 
-			download, err := uc.enqueueDownloadByID(ctx, downloadID)
+			downloadUpdated, err := uc.enqueueDownload(ctx, downloadCreated)
 			if err != nil {
 				return err
 			}
 
-			createdDownloads = append(createdDownloads, download)
+			createdDownloads = append(createdDownloads, downloadUpdated)
 		}
 		return nil
 	})
@@ -87,7 +90,7 @@ func (uc *downloader) ScheduleDownloadList(
 			continue
 		}
 
-		uc.broadcastMediaDownloadAdded(authCtx, downloadInfo)
+		uc.broadcastMediaDownloadAdded(ctx, authCtx, downloadInfo)
 
 		resp.Items = append(resp.Items,
 			dto.ScheduleDownloadListResponseItem{

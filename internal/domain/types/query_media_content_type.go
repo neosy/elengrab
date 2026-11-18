@@ -6,32 +6,42 @@ import (
 	"strings"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/neosy/elengrab/internal/pkg/stringx"
 )
 
-type QueryMediaContentType string
+type QueryMediaContentType uint8
 
 const (
-	QueryMediaContentTypeNone   QueryMediaContentType = ""
-	QueryMediaContentTypeAll    QueryMediaContentType = "all"
-	QueryMediaContentTypeVideo  QueryMediaContentType = "video"
-	QueryMediaContentTypeShorts QueryMediaContentType = "shorts"
-	QueryMediaContentTypeAudio  QueryMediaContentType = "audio"
+	QueryMediaContentTypeNone QueryMediaContentType = iota
+	QueryMediaContentTypeAll
+	QueryMediaContentTypeVideo
+	QueryMediaContentTypeShorts
+	QueryMediaContentTypeAudio
+	QueryMediaContentTypeInProgress
 )
 
 var (
-	queryMediaContentTypes = map[QueryMediaContentType]struct{}{
-		QueryMediaContentTypeAll:    {},
-		QueryMediaContentTypeVideo:  {},
-		QueryMediaContentTypeShorts: {},
-		QueryMediaContentTypeAudio:  {},
+	queryMediaContentTypes = map[QueryMediaContentType]string{
+		QueryMediaContentTypeAll:        "all",
+		QueryMediaContentTypeVideo:      "video",
+		QueryMediaContentTypeShorts:     "shorts",
+		QueryMediaContentTypeAudio:      "audio",
+		QueryMediaContentTypeInProgress: "in-progress",
 	}
 
 	queryMediaContentTypeByName = map[string]QueryMediaContentType{
-		"all":    QueryMediaContentTypeAll,
-		"video":  QueryMediaContentTypeVideo,
-		"shorts": QueryMediaContentTypeShorts,
-		"audio":  QueryMediaContentTypeAudio,
+		"all":         QueryMediaContentTypeAll,
+		"video":       QueryMediaContentTypeVideo,
+		"shorts":      QueryMediaContentTypeShorts,
+		"audio":       QueryMediaContentTypeAudio,
+		"in-progress": QueryMediaContentTypeInProgress,
+	}
+
+	queryMediaContentTypeLabels = map[QueryMediaContentType]string{
+		QueryMediaContentTypeAll:        "All",
+		QueryMediaContentTypeVideo:      "Video",
+		QueryMediaContentTypeShorts:     "Shorts",
+		QueryMediaContentTypeAudio:      "Audio",
+		QueryMediaContentTypeInProgress: "In Progress",
 	}
 
 	contentTypeList = []QueryMediaContentType{
@@ -39,17 +49,18 @@ var (
 		QueryMediaContentTypeVideo,
 		QueryMediaContentTypeShorts,
 		QueryMediaContentTypeAudio,
+		QueryMediaContentTypeInProgress,
 	}
 )
 
 // String returns the value as a string.
 func (v QueryMediaContentType) String() string {
-	return string(v)
+	return queryMediaContentTypes[v]
 }
 
 // Label returns the display label for the content type.
 func (v QueryMediaContentType) Label() string {
-	return stringx.Capitalize(string(v))
+	return queryMediaContentTypeLabels[v]
 }
 
 // Ptr returns the pointer.

@@ -17,6 +17,7 @@ import * as search from './pages-list.search.js';
 import {  CLASS_NAMES, CLASS_SELECTORS, DOM_ELEMENTS, initDomElements } from "./index-page.dom.js";
 import { initUploadFileDialog } from "upload-file-dialog.js";
 import { initDownloadListDialog } from "download-list-dialog.js";
+import { CONTENT_TYPES, VIEW_MODES } from './pages-list.dom.js';
 
 // Global variables
 let searchInputClearButton = null;
@@ -114,8 +115,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize content type bar
     view.initContentTypeBar({
-        getSearchQueryValues: search.getSearchQueryValues,
+        getSearchQueryValues: () => {
+            const values = search.getSearchQueryValues();
+
+            if (values.contentType === CONTENT_TYPES.inProgress) {
+                values.viewMode = VIEW_MODES.new;
+            }
+
+            return values;
+        },
         onSuccess: (rows) => {
+            if (CONTENT_TYPES.isInProgress()) {
+                viewModeBar.setActiveTab(VIEW_MODES.new, {reload: false})
+            }
+
             browser.scrollToTop();
 
             refreshVideoPreview(true);
@@ -140,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         "row-delete": rowEventHandlers.handleRowDelete,
         "row-patch-field": rowEventHandlers.handleRowPatchField,
         "row-start-refreshing": rowEventHandlers.handleRowStartRefreshing,
+        "downloads-in-progress": commonEventHandlers.handleDownloadsInProgress,
         "system-info-update": commonEventHandlers.handleSystemInfoUpdate,
         "notification": commonEventHandlers.handleNotification,
     };    

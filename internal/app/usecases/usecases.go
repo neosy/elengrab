@@ -90,6 +90,7 @@ type DepRepositories struct {
 	// in memory
 	MediaDownloadCache          persistence.MediaDownloadCacheRepository
 	DownloadStateCache          persistence.DownloadStateCacheRepository
+	UploadStateCache            persistence.UploadStateCacheRepository
 	MediaUserWatchStatCache     persistence.MediaUserWatchStatCacheRepository
 	MediaWatchStatCache         persistence.MediaWatchStatCacheRepository
 	MediaUserWatchPositionCache persistence.MediaUserWatchPositionCacheRepository
@@ -166,6 +167,7 @@ func NewUsecases(ctx context.Context, logger *slog.Logger, deps *Dependencies) *
 		// in memory
 		deps.Repositories.MediaDownloadCache,
 		deps.Repositories.DownloadStateCache,
+		deps.Repositories.UploadStateCache,
 		deps.Repositories.MediaUserWatchStatCache,
 		deps.Repositories.MediaWatchStatCache,
 		deps.Repositories.MediaUserWatchPositionCache,

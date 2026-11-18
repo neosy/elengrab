@@ -22,14 +22,31 @@ func (h *SSEHandler) StreamEvents(
 	eventKey := authCtx.EventKey()
 	clientKey := broadcast.BuildClientKey(eventKey)
 
-	subscription := h.downloader.Broadcaster().Subscribe(clientKey, authCtx.RoleIDs)
+	subscription := h.downloader.Broadcaster().Subscribe(clientKey, authCtx.UserID)
 	defer h.downloader.Broadcaster().Unsubscribe(clientKey)
 
-	h.sendConnected(ctx, w, authCtx, subscription.ConnectionID())
+	connectionID := subscription.ConnectionID()
+
+	h.logger.Debug(
+		"SSE subscribed",
+		"connectionId", connectionID,
+		"eventKey", eventKey,
+		"login", authCtx.Login,
+	)
+	defer h.logger.Debug(
+		"SSE closed",
+		"connectionId", connectionID,
+		"eventKey", eventKey,
+		"login", authCtx.Login,
+	)
+
+	h.sendConnected(ctx, w, authCtx, connectionID)
 
 	if eventID := h.resolveEventsReplayPosition(ctx, authCtx); !eventID.IsZero() {
 		_ = h.replayEvents(ctx, w, authCtx, eventID)
 	}
+
+	h.sendInitialEvents(ctx, w, authCtx)
 
 	pingTicker := time.NewTicker(15 * time.Second)
 	defer pingTicker.Stop()
@@ -49,6 +66,18 @@ func (h *SSEHandler) StreamEvents(
 			}
 			h.handleEvent(ctx, w, authCtx, event)
 		}
+	}
+}
+
+// sendInitialEvents sends the initial events to the client.
+func (h *SSEHandler) sendInitialEvents(
+	ctx *fasthttp.RequestCtx,
+	w *bufio.Writer,
+	authCtx dauth.AuthContext,
+) {
+	event, err := h.downloader.GetDownloadsInProgressEvent(ctx, authCtx)
+	if err == nil && !event.IsEmpty() {
+		h.handleDownloadsInProgress(w, event)
 	}
 }
 

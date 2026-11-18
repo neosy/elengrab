@@ -2,7 +2,7 @@
         <div class="content-type-bar">
             <div class="content-type-tabs" role="tablist" data-content-type="{{ .Values.ActiveContentType }}">
                 {{ range .Values.ContentTypeTabs }}
-                    <button class="content-type-tab{{ if .Active }} active{{ end }}"
+                    <button class="content-type-tab content-type-tab--{{ .Value }}{{ if .Active }} active{{ end }}"
                             type="button"
                             role="tab"
                             aria-label="{{ .Label }}"

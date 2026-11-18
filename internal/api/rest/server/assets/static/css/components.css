@@ -547,7 +547,7 @@ select:disabled {
 }
 
 .view-mode-bar {
-    display: flex;
+    display: var(--view-mode-bar-display, flex);;
     width: 100%;
     align-items: center;
 
@@ -594,15 +594,24 @@ select:disabled {
 .content-type-bar {
     --content-type-bar-z-index: 10;
     --content-type-bar-top: var(--header-height, 75px);
-
     --content-type-bar-width: auto;
 
     --content-type-bg: var(--content-bg);
+
+    --content-type-tabs-gap: 8px;
+    --content-type-tab-padding: 12px 16px;
+    --content-type-tab-transform: none;
+    --content-type-tab-transform-origin: center;    
 }
 
 @media (max-width: 580px) {
     .content-type-bar {
         --content-type-bar-width: 100cqw;
+
+        --content-type-tabs-gap: 0px;
+        --content-type-tab-padding: 12px 10px;
+        --content-type-tab-transform: scaleX(0.90);
+        --content-type-tab-transform-origin: left center;
     }
 }
 
@@ -647,7 +656,7 @@ select:disabled {
 
     align-items: stretch;
 
-    gap: 8px;
+    gap: var(--content-type-tabs-gap);
 
     overflow-x: auto;
     overflow-y: hidden;
@@ -662,7 +671,7 @@ select:disabled {
     position: relative;
     flex: 0 0 auto;
 
-    padding: 12px 16px;
+    padding: var(--content-type-tab-padding);
 
     border: 0;
     background: transparent;
@@ -672,6 +681,9 @@ select:disabled {
     font-size: 1.1rem;
     font-weight: 500;
     line-height: 20px;
+
+    transform: var(--content-type-tab-transform);
+    transform-origin: var(--content-type-tab-transform-origin);
 
     cursor: pointer;
     transition: color 0.15s ease;
@@ -719,4 +731,83 @@ select:disabled {
 .content-type-tab:disabled {
     cursor: progress;
     opacity: 0.7;
+}
+
+/* ***** In-progress download indicator ***** */
+
+/* Default (other users' downloads only): gray */
+body:is(.has-user-downloads-in-progress, .has-user-downloads-failed, .has-total-downloads-in-progress, .has-total-downloads-failed) .content-type-tab--in-progress {
+    --indicator-color-active: var(--content-type-text-active);
+    --indicator-color: var(--content-type-text);
+
+    /* Reserve room on the right so the spinner doesn't overlap the label */
+    padding-right: calc(16px + 0.9em + 0.5em);
+}
+
+body.has-user-downloads-failed .content-type-tab--in-progress {
+    --indicator-color-active: var(--text-red);
+    --indicator-color: var(--text-red-muted);
+}
+
+body.has-total-downloads-in-progress .content-type-tab--in-progress {
+    --indicator-color-active: var(--content-type-text-active);
+    --indicator-color: var(--content-type-text);
+}
+
+/* Current user's downloads: green (must stay after the gray rule) */
+body.has-user-downloads-in-progress .content-type-tab--in-progress {
+    --indicator-color-active: var(--elengrab-color);
+    --indicator-color: var(--elengrab-color-muted);
+}
+
+.content-type-tab--in-progress::before {
+    display: none; /* Hidden by default */
+
+    position: absolute;
+    right: 16px;
+    top: 50%;
+
+    width: 0.9em;
+    height: 0.9em;
+    margin-top: -0.45em; /* Vertical centering without touching transform */
+
+    color: var(--indicator-color);
+    border-color: var(--indicator-color);
+}
+
+body:is(.has-total-downloads-failed, .has-user-downloads-failed) .content-type-tab--in-progress::before {
+    content: "!";
+    display: block;
+
+    font-size: 1em;
+    font-weight: 700;
+    line-height: 0.9em;
+    text-align: center;
+}
+
+body:is(.has-total-downloads-in-progress, .has-user-downloads-in-progress) .content-type-tab--in-progress::before {
+    content: "";
+    display: block;
+
+    box-sizing: border-box;
+    border: 2px solid;
+    border-top-color: transparent; /* Gap in the circle */
+    border-radius: 50%;
+
+    animation: tab-spinner 1.6s linear infinite;
+}
+
+/* Full color when the tab is active */
+.content-type-tab--in-progress.active::before {
+    color: var(--indicator-color-active);
+    border-color: var(--indicator-color-active);
+}
+
+/* Full color when the tab is active */
+body:is(.has-total-downloads-in-progress, .has-user-downloads-in-progress) .content-type-tab--in-progress.active::before {
+    border-top-color: transparent; /* Keep the gap */
+}
+
+@keyframes tab-spinner {
+    to { transform: rotate(360deg); }
 }

@@ -23,6 +23,9 @@ func (uc *downloader) ResetStuckJobs(ctx context.Context) error {
 			if err := uc.download.DeleteNewWithoutTask(ctx); err != nil {
 				return err
 			}
+			if err := uc.download.ResetDownloadStateCache(ctx); err != nil {
+				return err
+			}
 			return nil
 		},
 	)
@@ -39,11 +42,11 @@ func (uc *downloader) ResetStuckJobs(ctx context.Context) error {
 		switch download.SourceType {
 		case dtypes.MediaDownloadSourceTypeURL:
 			if download.DownloadTask != nil {
-				uc.enqueueDownload(ctx, download.DownloadID, download.DownloadTask.TaskID)
+				uc.enqueueDownload(ctx, download)
 			}
 		case dtypes.MediaDownloadSourceTypeUpload:
 			if download.ProcessingTask != nil {
-				uc.enqueueUploadProcessing(ctx, download.DownloadID, download.ProcessingTask.TaskID)
+				uc.enqueueUploadProcessing(ctx, download)
 			}
 		default:
 			return fmt.Errorf("unsupported source type %v for download %v", download.SourceType, download.DownloadID)

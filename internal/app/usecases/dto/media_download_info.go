@@ -11,6 +11,7 @@ import (
 	"github.com/neosy/elengrab/internal/app/usecases/types"
 	"github.com/neosy/elengrab/internal/app/utils/hash"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dmedia "github.com/neosy/elengrab/internal/domain/media"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
@@ -191,4 +192,9 @@ func (info *MediaDownloadInfo) IsAudioOnly() bool {
 
 func (info *MediaDownloadInfo) ViewCountText() string {
 	return fmt.Sprintf("%s views", humanize.CompactNumber(info.ViewCount))
+}
+
+// HasRegisteredUser returns true if the download is associated with a registered user.
+func (info *MediaDownloadInfo) HasRegisteredUser() bool {
+	return info != nil && dauth.IsRegisteredUserID(info.UserID)
 }

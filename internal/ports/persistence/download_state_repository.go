@@ -6,6 +6,7 @@ import (
 	"uuid"
 
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
+	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/cache/memory"
 )
 
@@ -19,8 +20,9 @@ type DownloadStateCacheRepository interface {
 
 	FindByDownloadID(ctx context.Context, downloadID uuid.UUID) (*ddownload.DownloadState, error)
 	FindByTaskID(ctx context.Context, taskID uuid.UUID) (*ddownload.DownloadState, error)
+	Count(ctx context.Context, userID uuid.UUID) (dtypes.IncompleteDownloadsCount, error)
 
 	WithUser(userID uuid.UUID) DownloadStateCacheRepository
 
-	CleanExpired(ctx context.Context) error
+	Clear(ctx context.Context) error
 }

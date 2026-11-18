@@ -4,13 +4,10 @@ import (
 	"uuid"
 
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
 type DownloadState struct {
-	UserID     *uuid.UUID
-	DownloadID uuid.UUID
-	TaskID     *uuid.UUID
+	TaskID *uuid.UUID
 
 	Download *MediaDownload
 	Progress *dtypes.DownloadProgress
@@ -26,8 +23,6 @@ func (s *DownloadState) InitFromMediaDownload(download *MediaDownload) {
 		return
 	}
 
-	s.UserID = download.UserID
-	s.DownloadID = download.DownloadID
 	s.Download = download
 
 	if download.DownloadTask != nil {
@@ -43,11 +38,37 @@ func (src *DownloadState) Clone() *DownloadState {
 
 	copy := *src
 
-	copy.UserID = uptr.Clone(src.UserID)
-	copy.TaskID = uptr.Clone(src.TaskID)
 	copy.Download = src.Download.Clone()
 	copy.Progress = src.Progress.Clone()
 
 	return &copy
 
+}
+
+func (s *DownloadState) IsEmpty() bool {
+	if s == nil {
+		return true
+	}
+	return s.Download == nil
+}
+
+func (src *DownloadState) DownloadStatus() dtypes.MediaDownloadStatus {
+	if src == nil || src.Download == nil {
+		return dtypes.MediaDownloadStatusNone
+	}
+	return src.Download.Status
+}
+
+func (src *DownloadState) UserID() uuid.UUID {
+	if src == nil {
+		return uuid.Nil()
+	}
+	return src.Download.EnsureUserID()
+}
+
+func (src *DownloadState) DownloadID() uuid.UUID {
+	if src == nil || src.Download == nil {
+		return uuid.Nil()
+	}
+	return src.Download.DownloadID
 }

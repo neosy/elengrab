@@ -31,10 +31,20 @@ func (uc *MediaDownload) Update(ctx context.Context, userID *uuid.UUID, download
 func (uc *MediaDownload) updateCacheDependencies(ctx context.Context, download *ddownload.MediaDownload) error {
 	uc.downloadCacheRep.Delete(ctx, download.DownloadID)
 
-	if download.Status == dtypes.MediaDownloadStatusWorking {
-		uc.dlStateCache.SaveByDownload(ctx, download)
+	if !download.Status.IsReady() {
+		switch download.SourceType {
+		case dtypes.MediaDownloadSourceTypeURL:
+			uc.dlStateCache.SaveByDownload(ctx, download)
+		case dtypes.MediaDownloadSourceTypeUpload:
+			uc.saveUploadStateByDownload(ctx, download)
+		}
 	} else {
-		uc.dlStateCache.Delete(ctx, download.DownloadID)
+		switch download.SourceType {
+		case dtypes.MediaDownloadSourceTypeURL:
+			uc.dlStateCache.Delete(ctx, download.DownloadID)
+		case dtypes.MediaDownloadSourceTypeUpload:
+			uc.uploadStateCacheRepo.Delete(ctx, download.DownloadID)
+		}
 	}
 
 	return nil

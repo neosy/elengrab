@@ -13,6 +13,7 @@ import (
 
 	"github.com/neosy/elengrab/internal/app/utils/filename"
 	hostdetect "github.com/neosy/elengrab/internal/app/utils/host_detect"
+	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	dconsts "github.com/neosy/elengrab/internal/domain/consts"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	"github.com/neosy/elengrab/internal/pkg/errorx"
@@ -119,6 +120,24 @@ func (m *MediaDownload) IsYouTube() bool {
 	}
 
 	return hostdetect.YouTube(url)
+}
+
+// DownloadTaskID returns the ID of the download task associated with this media download.
+func (m *MediaDownload) DownloadTaskID() uuid.UUID {
+	if m.DownloadTask == nil {
+		return uuid.Nil()
+	}
+
+	return m.DownloadTask.TaskID
+}
+
+// ProcessingTaskID returns the ID of the processing task associated with this media download.
+func (m *MediaDownload) ProcessingTaskID() uuid.UUID {
+	if m.ProcessingTask == nil {
+		return uuid.Nil()
+	}
+
+	return m.ProcessingTask.TaskID
 }
 
 // IsShort returns true if the media download is a short-form vertical video.
@@ -287,4 +306,17 @@ func (d *MediaDownload) HasTask() bool {
 	}
 
 	return d.DownloadTask != nil || d.ProcessingTask != nil
+}
+
+// HasRegisteredUser returns true if the download is associated with a registered user.
+func (d *MediaDownload) HasRegisteredUser() bool {
+	return d != nil && d.UserID != nil && dauth.IsRegisteredUserID(*d.UserID)
+}
+
+// EnsureUserID returns the user ID associated with the download, or a zero value if none.
+func (d *MediaDownload) EnsureUserID() uuid.UUID {
+	if d == nil || d.UserID == nil {
+		return uuid.UUID{}
+	}
+	return *d.UserID
 }

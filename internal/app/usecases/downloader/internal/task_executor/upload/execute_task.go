@@ -22,7 +22,7 @@ func (uc *Executor) Execute(
 	defer func() {
 		uc.removeSourceFile(task)
 		uc.updateSystemDiskInfo()
-		uc.broadcaster.MediaUpdated(ctx, task.DownloadID)
+		uc.broadcaster.DownloadUpdated(ctx, task.DownloadID)
 	}()
 
 	err := uc.uploadStatus.Working(ctx, task.DownloadID, task.TaskID, workerId)
@@ -32,7 +32,7 @@ func (uc *Executor) Execute(
 		return err
 	}
 
-	uc.broadcaster.MediaUpdated(ctx, task.DownloadID)
+	uc.broadcaster.DownloadUpdated(ctx, task.DownloadID)
 
 	download, err := uc.download.GetByDownloadID(ctx, task.DownloadID)
 	if err != nil {
@@ -84,7 +84,14 @@ func (uc *Executor) Execute(
 		return nil
 	}
 
-	uc.broadcaster.MediaUpdated(ctx, task.DownloadID)
+	download, err = uc.download.GetByDownloadID(ctx, task.DownloadID)
+	if err != nil {
+		return nil
+	}
+
+	uc.broadcaster.DownloadAdded(ctx, download.EnsureUserID(), download)
+	uc.broadcaster.DownloadUpdated(ctx, task.DownloadID)
+	uc.broadcaster.DownloadsCountUpdated(ctx, download.EnsureUserID())
 
 	err = uc.postProcessing(ctx, task.DownloadID)
 	if err != nil {
