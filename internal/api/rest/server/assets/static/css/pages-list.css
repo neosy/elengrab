@@ -25,7 +25,7 @@
     --main-border-box-shadow: 0 2px 6px var(--border-shadow);
 }
 
-.grid-view {
+:root:has(.grid-view) {
     --body-bg: var(--grid-body-bg);
     --main-bg: var(--grid-main-bg);
 
@@ -38,7 +38,7 @@
     --header-left: calc((100vw - min(var(--main-content-width), var(--main-content-max))) / 2);
 }
 
-.list-view {
+:root:has(.list-view) {
     --body-bg: var(--list-body-bg);
     --main-bg: var(--list-main-bg);
 }
