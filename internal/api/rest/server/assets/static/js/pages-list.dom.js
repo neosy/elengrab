@@ -75,10 +75,35 @@ export function initDomElements(elements = DOM_ELEMENTS) {
     elements.mediaPlayer = document.getElementById("media-player");
 }
 
+export const CONTENT_TYPES = {
+    all: "all",
+    video: "video",
+    shorts: "shorts",
+    audio: "audio",
+
+    getCurrent: getContentType,
+    isAll: isAllContentType,
+}
+
+/**
+ * @returns {string}
+ */
+export function getContentType() {
+    const contentTypeTabs = $(document, CLASS_NAMES.contentTypeTabs);
+    return contentTypeTabs?.dataset.contentType || "";
+}
+
+/**
+ * @returns {boolean}
+ */
+export function isAllContentType() {
+    return getContentType() === CONTENT_TYPES.all;
+}
+
 export const VIEW_MODES = {
-    New: "new",
-    Popular: "popular",
-    Old: "old",
+    new: "new",
+    popular: "popular",
+    old: "old",
 
     getCurrent: getViewMode,
     isNew: isNewViewMode,
@@ -98,19 +123,19 @@ export function getViewMode() {
  * @returns {boolean}
  */
 export function isNewViewMode() {
-    return getViewMode() === VIEW_MODES.New;
+    return getViewMode() === VIEW_MODES.new;
 }
 
 /**
  * @returns {boolean}
  */
 export function isPopularViewMode() {
-    return getViewMode() === VIEW_MODES.Popular;
+    return getViewMode() === VIEW_MODES.popular;
 }
 
 /**
  * @returns {boolean}
  */
 export function isOldViewMode() {
-    return getViewMode() === VIEW_MODES.Old;
+    return getViewMode() === VIEW_MODES.old;
 }

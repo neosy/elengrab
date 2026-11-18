@@ -1,4 +1,4 @@
-import { CLASS_NAMES, CLASS_SELECTORS, CSS_VARIABLE_NAMES, DOM_IDS, VIEW_MODES } from "./pages-list.dom.js";
+import { CLASS_NAMES, CLASS_SELECTORS, CSS_VARIABLE_NAMES, DOM_IDS, VIEW_MODES, CONTENT_TYPES } from "./pages-list.dom.js";
 import { CLASS_PREFIXES, EVENT_NAMES } from './constants.js';
 
 // -------------------------------------------------------------
@@ -8,6 +8,8 @@ import { CLASS_PREFIXES, EVENT_NAMES } from './constants.js';
 export function handleRowAdd(event, usernameFilter = "") {
     try {
         if (!VIEW_MODES.isNew()) return;
+
+        if (CONTENT_TYPES.getCurrent() && !CONTENT_TYPES.isAll()) return;
 
         // Payload is raw HTML with multiple rows
         const data = JSON.parse(event.data);

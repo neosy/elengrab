@@ -3,12 +3,6 @@ import storageState from './storage-state.js';
 import * as notify from './notifications.js';
 import { CLASS_SELECTORS, DOM_IDS } from "./pages-list.dom.js";
 
-export const VIEW_MODES = {
-    new: "new",
-    popular: "popular",
-    old: "old",
-};
-
 export function applyGridView(isGridView) {
     document.body.classList.toggle(CLASS_NAMES.body.gridView, isGridView);
     document.body.classList.toggle(CLASS_NAMES.body.listView, !isGridView);
