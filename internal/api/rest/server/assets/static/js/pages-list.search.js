@@ -67,9 +67,15 @@ export function getSearchQueryValues() {
 
     let queryValues = {
         query: DOM_ELEMENTS.searchInput?.value ?? "",
-        contentType: contentTypeTabs?.dataset.contentType,
-        viewMode: viewModeTabs?.dataset.viewMode,
     }
+
+    if (contentTypeTabs) {
+        queryValues.contentType = contentTypeTabs.dataset.contentType
+    }
+
+    if (viewModeTabs) {
+        queryValues.viewMode = viewModeTabs.dataset.viewMode
+    }    
 
     const rows = document.getElementById(DOM_IDS.mediaResultRows);
     if (!rows) {
