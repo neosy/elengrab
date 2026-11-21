@@ -46,7 +46,7 @@ func (m *Mappers) MapSearchValuesToUsecaseQuery(
 	query := udto.NewMediaDownloadQuery(
 		contentType,
 		values.Parameters.ViewMode,
-		consts.LoadHistoryLimit,
+		consts.LoadHistoryLimit(contentType),
 		values.Parameters.LastRecord,
 	)
 

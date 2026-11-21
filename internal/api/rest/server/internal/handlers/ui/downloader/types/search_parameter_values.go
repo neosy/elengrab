@@ -31,16 +31,16 @@ func (v *SearchParameterValues) IsZero() bool {
 
 func (v SearchParameterValues) BuildUsecaseQuery(filters *dtypes.QueryFilters) udto.MediaDownloadQuery {
 	viewMode := dtypes.QueryMediaViewModeDefault
-
 	if v.ViewMode != dtypes.QueryMediaViewModeNone {
 		viewMode = v.ViewMode
 	}
 
 	return udto.MediaDownloadQuery{
-		ViewMode:   viewMode,
-		Limit:      consts.LoadHistoryLimit,
-		LastRecord: v.LastRecord,
-		Filters:    filters.Clone(),
+		ContentType: v.ContentType,
+		ViewMode:    viewMode,
+		Limit:       consts.LoadHistoryLimit(v.ContentType),
+		LastRecord:  v.LastRecord,
+		Filters:     filters.Clone(),
 	}
 }
 

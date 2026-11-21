@@ -1,6 +1,7 @@
 package dto
 
 type MediaItemsRequest struct {
+	ContentType string `json:"contentType" validate:"required,contentType"`
 	ViewMode    string `json:"viewMode" validate:"required,viewMode"`
 	SearchQuery string `json:"searchQuery" validate:"max=100"`
 
