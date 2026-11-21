@@ -1,26 +1,50 @@
-import {CLASS_NAMES, STORAGE_KEYS, API_PATHS} from './constants.js';
+import {CLASS_NAMES, STORAGE_KEYS, STORAGE_VALUES, API_PATHS} from './constants.js';
 import storageState from './storage-state.js';
 import * as notify from './notifications.js';
-import { CLASS_SELECTORS, DOM_IDS } from "./pages-list.dom.js";
+import { CLASS_SELECTORS, DOM_IDS, CONTENT_TYPES } from "./pages-list.dom.js";
 
 export function applyGridView(isGridView) {
     document.body.classList.toggle(CLASS_NAMES.body.gridView, isGridView);
     document.body.classList.toggle(CLASS_NAMES.body.listView, !isGridView);
 }
 
+function getCurrentCardLayout() {
+    const contentType = CONTENT_TYPES.getCurrent();
+
+    const settings = {
+        [CONTENT_TYPES.inProgress]: {
+            key: STORAGE_KEYS.settingsCardLayout.inProgress,
+            defaultValue: STORAGE_VALUES.cardLayout.defaultInProgress,
+        },
+    }[contentType] ?? {
+        key: STORAGE_KEYS.settingsCardLayout.default,
+        defaultValue: STORAGE_VALUES.cardLayout.default,
+    };
+
+    return {
+        key: settings.key,
+        value: storageState.get(settings.key, settings.defaultValue),
+    };
+}
+
 export function toggleGridView() {
-    const current = storageState.get(STORAGE_KEYS.settingsGridView, true);
-    const next = !current;
+    const { key: cardLayoutKey, value: currentCardLayout } = getCurrentCardLayout();
 
-    storageState.set(STORAGE_KEYS.settingsGridView, next);
+    const nextIsGrid = currentCardLayout !== STORAGE_VALUES.cardLayout.grid;
+    const nextCardLayout = nextIsGrid
+        ? STORAGE_VALUES.cardLayout.grid
+        : STORAGE_VALUES.cardLayout.list;
 
-    applyGridView(next);
+    storageState.set(cardLayoutKey, nextCardLayout);
 
-    return next;
+    applyGridView(nextIsGrid);
+
+    return nextIsGrid;
 }
 
 export function initGridView() {
-    const isGridView = storageState.get(STORAGE_KEYS.settingsGridView, true);
+    const { value: cardLayout } = getCurrentCardLayout();
+    const isGridView = cardLayout === STORAGE_VALUES.cardLayout.grid;
 
     applyGridView(isGridView);
 
@@ -28,7 +52,7 @@ export function initGridView() {
 }
 
 export function getGridView() {
-    return storageState.get(STORAGE_KEYS.settingsGridView, true);
+    return getCurrentCardLayout().value === STORAGE_VALUES.cardLayout.grid;
 }
 
 function selectGrabInput(grabInput) {

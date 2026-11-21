@@ -2,7 +2,21 @@
 
 export const STORAGE_KEYS = {
     grabOptionsCollapsed: "grabOptionsCollapsed",
-    settingsGridView: "settingsGridView",
+
+    settingsCardLayout: {
+        default: "settingsCardLayout",
+        inProgress: "settingsCardLayoutInProgress",
+    },
+};
+
+export const STORAGE_VALUES = {
+    cardLayout: {
+        grid: "grid",
+        list: "list",
+
+        default: "grid",
+        defaultInProgress: "list",
+    },
 };
 
 export const ICONS = {

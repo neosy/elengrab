@@ -2,9 +2,25 @@
 
 ## v0.28.0 — 2026-11-30
 
+### ✨ Features
+- Improved card layout settings: [L203]
+  - Added independent Grid/List view mode for the In Progress tab.
+  - Replaced boolean storage values with "grid" / "list".
+  - Reset previously saved card layout preferences due to changed storage keys.
+
 ### UI / Frontend
 - Added a content type bar with "All", "Video", "Shorts" and "Audio" tabs. [L200]
 - Added an "In Progress" tab to the content type bar for viewing current downloads. [L201]
+- Added status indicators next to the In Progress tab title: [L201]
+  - Display active downloads and completed downloads with errors.
+  - Show separate indicators for the current user's downloads and other users' downloads.
+- Added an indicator showing the current user's active download count on the Add Download button. [L201]
+- Updated download card visibility across tabs: [L201]
+  - Show media cards in All, Video, Shorts, and other content tabs only after processing is complete.
+  - Show downloads that are still in progress exclusively in the In Progress tab.
+
+### 🎨 Style
+- Added animated status indicators with distinct icons and colors for different download states. [L201]
 
 ---
 
