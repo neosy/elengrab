@@ -13,6 +13,15 @@ import (
 )
 
 func (m *Mappers) MapMediaItemsRequestToQuery(req dto.MediaItemsRequest) (udto.MediaDownloadQuery, error) {
+	contentType := dtypes.QueryMediaContentTypeNone
+	if req.ContentType != "" {
+		var err error
+		contentType, err = dtypes.ParseQueryMediaContentType(req.ContentType)
+		if err != nil {
+			return udto.MediaDownloadQuery{}, err
+		}
+	}
+
 	viewMode, err := dtypes.ParseQueryMediaViewMode(req.ViewMode)
 	if err != nil {
 		return udto.MediaDownloadQuery{}, err
@@ -41,7 +50,7 @@ func (m *Mappers) MapMediaItemsRequestToQuery(req dto.MediaItemsRequest) (udto.M
 
 	query := udto.MediaDownloadQuery{
 		ViewMode: viewMode,
-		Limit:    consts.LoadHistoryLimit,
+		Limit:    consts.LoadHistoryLimit(contentType),
 
 		LastRecord: dtypes.QueryMediaDownloadCursor{
 			ID:        lastID,
