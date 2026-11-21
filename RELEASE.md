@@ -18,6 +18,7 @@
 - Updated download card visibility across tabs: [L201]
   - Show media cards in All, Video, Shorts, and other content tabs only after processing is complete.
   - Show downloads that are still in progress exclusively in the In Progress tab.
+- Increased the number of rows loaded on scroll in In Progress from 20 to 500. [L204]
 
 ### 🎨 Style
 - Added animated status indicators with distinct icons and colors for different download states. [L201]

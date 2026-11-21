@@ -121,12 +121,12 @@ func (h *DownloaderHandlers) renderDownloadItemList(
 		return nil
 	}
 
-	shouldLoadNextHistory := len(downloads) > consts.LoadHistoryLimit
+	shouldLoadNextHistory := uint64(len(downloads)) > consts.LoadHistoryLimit(query.ContentType)
 
 	// If there are more items than the limit, we show only the limited number of items and a "Load more"
 	lines := downloads
-	if len(downloads) > consts.LoadHistoryLimit {
-		lines = downloads[:consts.LoadHistoryLimit]
+	if uint64(len(downloads)) > consts.LoadHistoryLimit(query.ContentType) {
+		lines = downloads[:consts.LoadHistoryLimit(query.ContentType)]
 	}
 
 	lastLine := lines[len(lines)-1]
@@ -161,7 +161,7 @@ func (h *DownloaderHandlers) renderDownloadItemList(
 			continue
 		}
 
-		if shouldLoadNextHistory && i == consts.PreloadHistoryAfter-1 {
+		if shouldLoadNextHistory && uint64(i) == consts.PreloadHistoryAfter(query.ContentType)-1 {
 			newQuery := query.Clone()
 			newQuery.LastRecord.ID = lastDownloadID
 			newQuery.LastRecord.CreatedAt = lastCreatedAt
