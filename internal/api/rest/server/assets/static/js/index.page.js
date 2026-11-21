@@ -31,11 +31,11 @@ if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
 }
 
-// Apply persisted grid/list layout state on initial page load 
-view.initGridView();
-
 document.addEventListener('DOMContentLoaded', () => {
     initDomElements();
+
+    // Apply persisted grid/list layout state on initial page load 
+    view.initGridView();
 
     // Mark layout as ready
     document.body.classList.add('layout-ready');
@@ -128,6 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (CONTENT_TYPES.isInProgress()) {
                 viewModeBar.setActiveTab(VIEW_MODES.new, {reload: false})
             }
+
+            view.initGridView();
 
             browser.scrollToTop();
 
