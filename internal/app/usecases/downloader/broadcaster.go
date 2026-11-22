@@ -180,7 +180,7 @@ func (uc *downloader) broadcastWatchPositionUpdatedToAuth(
 		return
 	}
 
-	downloadChanged := &dto.MediaDownloadChanged{
+	downloadChanged := dto.MediaDownloadChanged{
 		DownloadID: downloadID,
 		Info:       downloadInfo,
 	}
@@ -208,7 +208,7 @@ func (uc *downloader) broadcastMediaDownloadChanged(
 	}
 
 	if req.Info.UserID == uuid.Nil() {
-		uc.broadcaster.Broadcast(types.BroadcastEventTypeDownloadPatch, &req)
+		uc.broadcaster.Broadcast(types.BroadcastEventTypeDownloadPatch, req)
 		return
 	}
 
@@ -222,7 +222,7 @@ func (uc *downloader) broadcastMediaDownloadChanged(
 		return
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(ctx, req.Info.UserID, types.BroadcastEventTypeDownloadPatch, &req)
+	uc.broadcaster.BroadcastToUsersWithAccess(ctx, req.Info.UserID, types.BroadcastEventTypeDownloadPatch, req)
 }
 
 func (uc *downloader) broadcastMediaDownloadStartRefreshing(
