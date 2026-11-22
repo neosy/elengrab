@@ -16,9 +16,23 @@ type MediaDownloadChanged struct {
 	Info *MediaDownloadInfo
 }
 
-func (m *MediaDownloadChanged) MarkWatchStatsChanged() {
+func (m *MediaDownloadChanged) ResetMark() {
+	m.TitleChanged = false
+	m.VisibilityChanged = false
+	m.ShareLinkChanged = false
+
+	m.WatchPositionChanged = false
+	m.WatchedChanged = false
+	m.ViewCountChanged = false
+}
+
+func (m *MediaDownloadChanged) MarkUserWatchStatsChanged() {
 	m.WatchPositionChanged = true
+	m.ViewCountChanged = true
 	m.WatchedChanged = true
+}
+
+func (m *MediaDownloadChanged) MarkPublicWatchStatsChanged() {
 	m.ViewCountChanged = true
 }
 
