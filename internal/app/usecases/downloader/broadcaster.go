@@ -217,7 +217,7 @@ func (uc *downloader) broadcastMediaDownloadChanged(
 			ctx,
 			eventkey.NewEventKeyUserID(req.Info.UserID),
 			types.BroadcastEventTypeDownloadPatch,
-			&req,
+			req,
 		)
 		return
 	}
