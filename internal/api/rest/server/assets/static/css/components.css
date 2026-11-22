@@ -766,18 +766,18 @@ body:is(.has-downloads-in-progress) .content-type-bar {
     padding-right: calc(var(--content-type-tab-padding-x) + var(--content-type-tab-spinner-space));
 }
 
-body.has-user-downloads-failed .content-type-tab--in-progress {
+body:is(.has-user-downloads-failed) .content-type-tab--in-progress {
     --indicator-color-active: var(--text-red);
     --indicator-color: var(--text-red-muted);
 }
 
-body.has-total-downloads-in-progress .content-type-tab--in-progress {
+body:is(.has-total-downloads-in-progress) .content-type-tab--in-progress {
     --indicator-color-active: var(--content-type-text-active);
     --indicator-color: var(--content-type-text);
 }
 
 /* Current user's downloads: green (must stay after the gray rule) */
-body.has-user-downloads-in-progress .content-type-tab--in-progress {
+body:is(.has-user-downloads-in-progress) .content-type-tab--in-progress {
     --indicator-color-active: var(--elengrab-color);
     --indicator-color: var(--elengrab-color-muted);
 }
