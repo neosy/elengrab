@@ -197,8 +197,8 @@ func NewDownloader(
 
 		watchEventDispatcher,
 
-		downloader.onWatchUserStatsUpdated,
 		downloader.onWatchStatsUpdated,
+		downloader.onWatchStatsUpdatedDependencies,
 		downloader.onWatchUserPositionUpdated,
 	)
 

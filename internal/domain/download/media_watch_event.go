@@ -6,7 +6,6 @@ import (
 
 	"uuid"
 
-	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 )
 
@@ -31,22 +30,6 @@ type MediaWatchEvent struct {
 
 	// Record creation timestamp, set automatically
 	CreatedAt time.Time
-}
-
-func (e *MediaWatchEvent) AuthCtx() dauth.AuthContext {
-	if e.UserID != nil && *e.UserID != uuid.Nil() {
-		return dauth.AuthContext{
-			UserID: *e.UserID,
-		}
-	}
-
-	if e.SessionID != nil && *e.SessionID != uuid.Nil() {
-		return dauth.AuthContext{
-			AnonSessionID: *e.SessionID,
-		}
-	}
-
-	return dauth.AuthContext{}
 }
 
 func (e *MediaWatchEvent) Start() time.Duration {

@@ -216,12 +216,14 @@ func (uc *downloader) resolveActualDownloadInfoByDownload(
 
 	var lastWatchPosition time.Duration
 	if options.authCtx != nil {
-		userID := options.authCtx.UserID
-		lastWatchPosition, _ = uc.mediaWatch.GetLastUserWatchPosition(ctx, download.DownloadID, userID, options.authCtx.AnonSessionID)
+		lastWatchPosition, _ = uc.mediaWatch.GetLastUserWatchPosition(
+			ctx, download.DownloadID,
+			options.authCtx.UserID, options.authCtx.AnonSessionID,
+		)
 	}
 
 	var watched bool
-	if authCtx.UserID != uuid.Nil() {
+	if authCtx.UserID != dauth.AnonymousUserID() {
 		watched, _ = uc.mediaWatch.HasUserWatched(ctx, download.DownloadID, authCtx.UserID)
 	}
 

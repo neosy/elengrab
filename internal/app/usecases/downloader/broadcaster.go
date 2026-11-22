@@ -128,9 +128,10 @@ func (uc *downloader) broadcastMediaDownloadUpdated(
 
 func (uc *downloader) broadcastWatchStatsUpdated(
 	ctx context.Context,
+	authCtx dauth.AuthContext,
 	downloadID uuid.UUID,
 ) {
-	downloadInfo, err := uc.findActualDownloadInfo(ctx, downloadID)
+	downloadInfo, err := uc.findActualDownloadInfo(ctx, downloadID, withAuth(authCtx))
 	if err != nil {
 		uc.logger.Error("Failed find download info", "error", err)
 		return
@@ -157,7 +158,12 @@ func (uc *downloader) broadcastWatchStatsUpdated(
 		return
 	}
 
-	uc.broadcaster.BroadcastToUsersWithAccess(ctx, downloadInfo.UserID, types.BroadcastEventTypeDownloadPatch, downloadChanged)
+	userID := downloadInfo.UserID
+	if authCtx.UserID != dauth.AnonymousUserID() {
+		userID = authCtx.UserID
+	}
+
+	uc.broadcaster.BroadcastToUsersWithAccess(ctx, userID, types.BroadcastEventTypeDownloadPatch, downloadChanged)
 }
 
 func (uc *downloader) broadcastWatchPositionUpdatedToAuth(

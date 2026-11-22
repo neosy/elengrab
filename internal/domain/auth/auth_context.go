@@ -41,6 +41,19 @@ func NewAnonymousSessionAuthContext(anonSessionID uuid.UUID) AuthContext {
 	}
 }
 
+func (u *AuthContext) InitFromUser(user *User) error {
+	if u == nil || user == nil {
+		return nil
+	}
+
+	roleIDs, err := dtypes.ParseUserRoleIDs(user.RoleIDs)
+
+	u.UserID = user.UserID
+	u.RoleIDs = roleIDs
+
+	return err
+}
+
 func (u *AuthContext) UserType() dtypes.UserType {
 	if u == nil {
 		return dtypes.UserTypeAnonymous

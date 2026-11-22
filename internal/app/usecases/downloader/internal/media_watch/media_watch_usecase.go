@@ -4,27 +4,24 @@ import (
 	"context"
 	"log/slog"
 
-	"uuid"
-
 	"github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/mappers"
 	uwatchchunk "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_user_watch_chunk"
 	uwatchposition "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_user_watch_position"
 	uwatchstat "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_user_watch_stat"
 	watchevent "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_watch_event"
 	watchstat "github.com/neosy/elengrab/internal/app/usecases/downloader/internal/media_watch/media_watch_stat"
-	dauth "github.com/neosy/elengrab/internal/domain/auth"
+	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	"github.com/neosy/elengrab/internal/pkg/workerpool"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 )
 
 type (
-	onWatchUserUpdated func(
-		ctx context.Context,
-		authCtx dauth.AuthContext,
-		downloadID uuid.UUID,
-	)
 	onWatchUpdated func(
+		ctx context.Context,
+		key dto.MediaWatchUpdateKey,
+	)
+	onWatchStatsUpdatedDependencies func(
 		ctx context.Context,
 		stat *ddownload.MediaWatchStat,
 	)
@@ -48,9 +45,9 @@ type MediaWatch struct {
 	userPosition *uwatchposition.MediaUserWatchPosition
 
 	// Callbacks
-	onWatchUserStatsUpdated    onWatchUserUpdated
-	onWatchStatsUpdated        onWatchUpdated
-	onWatchUserPositionUpdated onWatchUserUpdated
+	onWatchUpdated                  onWatchUpdated
+	onWatchStatsUpdatedDependencies onWatchStatsUpdatedDependencies
+	onWatchUserPositionUpdated      onWatchUpdated
 }
 
 func NewMediaWatch(
@@ -72,9 +69,9 @@ func NewMediaWatch(
 	watchEventDispatcher workerpool.JobDispatcher,
 
 	// Callbacks
-	onWatchUserStatsUpdated onWatchUserUpdated,
-	onWatchStatsUpdated onWatchUpdated,
-	onWatchUserPositionUpdated onWatchUserUpdated,
+	onWatchUpdated onWatchUpdated,
+	onWatchStatsUpdatedDependencies onWatchStatsUpdatedDependencies,
+	onWatchUserPositionUpdated onWatchUpdated,
 ) *MediaWatch {
 	return &MediaWatch{
 		logger:  logger,
@@ -93,8 +90,8 @@ func NewMediaWatch(
 		userPosition: uwatchposition.NewMediaUserWatchPosition(logger, positionRepo, positionCacheRep),
 
 		// Callbacks
-		onWatchUserStatsUpdated:    onWatchUserStatsUpdated,
-		onWatchStatsUpdated:        onWatchStatsUpdated,
-		onWatchUserPositionUpdated: onWatchUserPositionUpdated,
+		onWatchUpdated:                  onWatchUpdated,
+		onWatchStatsUpdatedDependencies: onWatchStatsUpdatedDependencies,
+		onWatchUserPositionUpdated:      onWatchUserPositionUpdated,
 	}
 }

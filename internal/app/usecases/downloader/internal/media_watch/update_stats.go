@@ -137,8 +137,8 @@ func (uc *MediaWatch) updateStatsFromQueue(ctx context.Context) error {
 		}
 		processed[processedKey] = struct{}{}
 
-		downloadIDs[key.downloadID] = duration
-		err := uc.updateUserStats(ctx, key.downloadID, key.userID, duration)
+		downloadIDs[key.DownloadID] = duration
+		err := uc.updateUserStats(ctx, key.DownloadID, key.UserID, duration)
 		if err != nil {
 			hasError = true
 		}
@@ -165,14 +165,14 @@ func (uc *MediaWatch) updateStatsFromQueue(ctx context.Context) error {
 
 	// Update the external handler about updated user watch statistics for each processed downloadID and userID.
 	for key := range queue {
-		if _, exists := updatedIDs[key.downloadID]; exists {
-			uc.onWatchUserStatsUpdated(ctx, key.authCtx(), key.downloadID)
+		if _, exists := updatedIDs[key.DownloadID]; exists {
+			uc.onWatchUpdated(ctx, key.MediaWatchUpdateKey)
 		}
 	}
 
 	// Update the external handler about updated watch statistics for each downloadID.
 	for _, stat := range updatedIDs {
-		uc.onWatchStatsUpdated(ctx, stat)
+		uc.onWatchStatsUpdatedDependencies(ctx, stat)
 	}
 
 	return nil

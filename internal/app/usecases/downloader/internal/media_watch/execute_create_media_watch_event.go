@@ -25,7 +25,7 @@ func (uc *MediaWatch) ExecuteCreateMediaWatchEvent(
 	position := uc.mappers.MapUserWatchEventToWatchPosition(event, req.MediaDuration)
 	if position.Validate() == nil {
 		uc.userPosition.Write(ctx, position)
-		uc.onWatchUserPositionUpdated(ctx, req.Event.AuthCtx(), req.Event.DownloadID)
+		uc.onWatchUserPositionUpdated(ctx, req.MediaWatchUpdateKey())
 	}
 
 	create := func(ctx context.Context) error {
