@@ -38,12 +38,12 @@ func (uc *downloader) PatchMediaDownload(
 		return err
 	}
 
-	downloadChanged := &dto.MediaDownloadChanged{
+	downloadChanged := dto.MediaDownloadChanged{
 		DownloadID: download.DownloadID,
 	}
 	downloadChanged.MarkManualChanges()
 
-	uc.broadcastMediaDownloadChanged(ctx, *downloadChanged)
+	uc.broadcastMediaDownloadChanged(ctx, downloadChanged)
 
 	return nil
 }
