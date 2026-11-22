@@ -138,12 +138,8 @@ func (h *SSEHandler) handleDownloadPatch(
 	authCtx dauth.AuthContext,
 	w *bufio.Writer,
 	event dsse.BroadcastEvent) {
-	downloadChanged, ok := event.Data.(*ucdto.MediaDownloadChanged)
+	downloadChanged, ok := event.Data.(ucdto.MediaDownloadChanged)
 	if !ok {
-		return
-	}
-
-	if downloadChanged == nil {
 		return
 	}
 

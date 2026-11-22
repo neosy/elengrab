@@ -11,7 +11,7 @@ import (
 )
 
 func (h *SSEHandler) mapMediaDownloadChangedToEventResponse(
-	req *ucdto.MediaDownloadChanged,
+	req ucdto.MediaDownloadChanged,
 	visibilityMapper func(*ucdto.MediaDownloadInfo) *dto.VisibilityResponse,
 	shareLinkChecker func(downloadID uuid.UUID) bool,
 ) *dto.EventDownloadRowPatchResponse {

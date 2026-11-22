@@ -141,12 +141,16 @@ func (uc *downloader) broadcastWatchStatsUpdated(
 		return
 	}
 
-	downloadChanged := &dto.MediaDownloadChanged{
+	downloadChanged := dto.MediaDownloadChanged{
 		DownloadID: downloadID,
 		Info:       downloadInfo,
 	}
 
-	downloadChanged.MarkWatchStatsChanged()
+	downloadChanged.MarkUserWatchStatsChanged()
+	uc.broadcaster.BroadcastToAuthorized(authCtx, types.BroadcastEventTypeDownloadPatch, downloadChanged)
+
+	downloadChanged.ResetMark()
+	downloadChanged.MarkPublicWatchStatsChanged()
 
 	if downloadInfo.Visibility == dtypes.MediaVisibilityPublic {
 		uc.broadcaster.BroadcastPublic(
@@ -158,12 +162,7 @@ func (uc *downloader) broadcastWatchStatsUpdated(
 		return
 	}
 
-	userID := downloadInfo.UserID
-	if authCtx.UserID != dauth.AnonymousUserID() {
-		userID = authCtx.UserID
-	}
-
-	uc.broadcaster.BroadcastToUsersWithAccess(ctx, userID, types.BroadcastEventTypeDownloadPatch, downloadChanged)
+	uc.broadcaster.BroadcastToViewAllAccess(ctx, authCtx.EventKey(), types.BroadcastEventTypeDownloadPatch, downloadChanged)
 }
 
 func (uc *downloader) broadcastWatchPositionUpdatedToAuth(
