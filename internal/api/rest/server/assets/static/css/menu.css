@@ -4,7 +4,7 @@
     --menu-transform: translateY(0);
     --menu-overflow-y: hidden;
     --menu-box-shadow: 0 8px 24px var(--menu-box-shadow-color);
-    --menu-transition-base: max-height 0.3s ease, opacity 0.5s ease;
+    --menu-transition-base: max-height 0.3s ease, opacity 0.5s ease, visibility 0.5s ease;
     --menu-transition: var(--menu-transition-base);
 
     --menu-show-max-height: 500px;
@@ -71,6 +71,7 @@
 
 .menu:not(.menu--show) {
     opacity: 0;
+    visibility: hidden;
 }
 
 .menu-overlay {
