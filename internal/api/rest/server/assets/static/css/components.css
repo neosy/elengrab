@@ -599,9 +599,23 @@ select:disabled {
     --content-type-bg: var(--content-bg);
 
     --content-type-tabs-gap: 8px;
-    --content-type-tab-padding: 12px 16px;
-    --content-type-tab-transform: none;
-    --content-type-tab-transform-origin: center;    
+    --content-type-tabs-justify-content: normal;
+
+    --content-type-tab-padding-x: 16px;
+    --content-type-tab-padding: 12px var(--content-type-tab-padding-x);
+    --content-type-tab-letter-spacing: none;
+    --content-type-tab-underline-inset: var(--content-type-tab-padding-x);
+    --content-type-tab-spinner-space: 0px;
+}
+
+body:is(.has-downloads-failed) .content-type-bar {
+    /* Reserve room on the right so the spinner doesn't overlap the label */
+    --content-type-tab-spinner-space: 1.0em;
+}
+
+body:is(.has-downloads-in-progress) .content-type-bar {
+    /* Reserve room on the right so the spinner doesn't overlap the label */
+    --content-type-tab-spinner-space: 1.5em;
 }
 
 @media (max-width: 580px) {
@@ -609,9 +623,21 @@ select:disabled {
         --content-type-bar-width: 100cqw;
 
         --content-type-tabs-gap: 0px;
-        --content-type-tab-padding: 12px 10px;
-        --content-type-tab-transform: scaleX(0.90);
-        --content-type-tab-transform-origin: left center;
+        --content-type-tab-padding-x: 10px;
+    }
+}
+
+@media (max-width: 420px) {
+    .content-type-bar {
+        --content-type-tabs-justify-content: safe center;
+        --content-type-tab-padding-x: 8px;
+        --content-type-tab-letter-spacing: -0.5px;
+    }
+}
+
+@media (max-width: 360px) {
+    .content-type-bar {
+        --content-type-tab-letter-spacing: -0.7px;
     }
 }
 
@@ -655,6 +681,7 @@ select:disabled {
     display: flex;
 
     align-items: stretch;
+    justify-content: var(--content-type-tabs-justify-content);
 
     gap: var(--content-type-tabs-gap);
 
@@ -681,9 +708,7 @@ select:disabled {
     font-size: 1.1rem;
     font-weight: 500;
     line-height: 20px;
-
-    transform: var(--content-type-tab-transform);
-    transform-origin: var(--content-type-tab-transform-origin);
+    letter-spacing: var(--content-type-tab-letter-spacing);
 
     cursor: pointer;
     transition: color 0.15s ease;
@@ -697,8 +722,8 @@ select:disabled {
     content: "";
     position: absolute;
 
-    left: 16px;
-    right: 16px;
+    left: var(--content-type-tab-underline-inset);
+    right: var(--content-type-tab-underline-inset);
     bottom: 0;
     height: 2px;
 
@@ -714,8 +739,8 @@ select:disabled {
     content: "";
     position: absolute;
 
-    left: 16px;
-    right: 16px;
+    left: var(--content-type-tab-underline-inset);
+    right: var(--content-type-tab-underline-inset);
     bottom: 0;
     height: 2px;
 
@@ -736,12 +761,12 @@ select:disabled {
 /* ***** In-progress download indicator ***** */
 
 /* Default (other users' downloads only): gray */
-body:is(.has-user-downloads-in-progress, .has-user-downloads-failed, .has-total-downloads-in-progress, .has-total-downloads-failed) .content-type-tab--in-progress {
+.content-type-tab--in-progress {
     --indicator-color-active: var(--content-type-text-active);
     --indicator-color: var(--content-type-text);
 
     /* Reserve room on the right so the spinner doesn't overlap the label */
-    padding-right: calc(16px + 0.9em + 0.5em);
+    padding-right: calc(var(--content-type-tab-padding-x) + var(--content-type-tab-spinner-space));
 }
 
 body.has-user-downloads-failed .content-type-tab--in-progress {
@@ -764,7 +789,6 @@ body.has-user-downloads-in-progress .content-type-tab--in-progress {
     display: none; /* Hidden by default */
 
     position: absolute;
-    right: 16px;
     top: 50%;
 
     width: 0.9em;
@@ -775,9 +799,11 @@ body.has-user-downloads-in-progress .content-type-tab--in-progress {
     border-color: var(--indicator-color);
 }
 
-body:is(.has-total-downloads-failed, .has-user-downloads-failed) .content-type-tab--in-progress::before {
+body:is(.has-downloads-failed) .content-type-tab--in-progress::before {
     content: "!";
     display: block;
+
+    right: var(--content-type-tab-padding-x);
 
     font-size: 1em;
     font-weight: 700;
@@ -785,9 +811,11 @@ body:is(.has-total-downloads-failed, .has-user-downloads-failed) .content-type-t
     text-align: center;
 }
 
-body:is(.has-total-downloads-in-progress, .has-user-downloads-in-progress) .content-type-tab--in-progress::before {
+body:is(.has-downloads-in-progress) .content-type-tab--in-progress::before {
     content: "";
     display: block;
+
+    right: var(--content-type-tab-padding-x);
 
     box-sizing: border-box;
     border: 2px solid;
@@ -804,7 +832,7 @@ body:is(.has-total-downloads-in-progress, .has-user-downloads-in-progress) .cont
 }
 
 /* Full color when the tab is active */
-body:is(.has-total-downloads-in-progress, .has-user-downloads-in-progress) .content-type-tab--in-progress.active::before {
+body:is(.has-downloads-in-progress) .content-type-tab--in-progress.active::before {
     border-top-color: transparent; /* Keep the gap */
 }
 
