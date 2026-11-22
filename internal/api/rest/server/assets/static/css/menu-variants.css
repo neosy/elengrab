@@ -129,6 +129,35 @@ body:has(.header--hidden) .menu.menu--mobile-layout {
     color: var(--menu-action-icon-blue);
 }
 
+body:is(.has-user-downloads-failed) .menu-action--my-downloads::after {
+    --downloads-indicator-color: var(--text-red);
+}
+
+body:is(.has-user-downloads-in-progress) .menu-action--my-downloads::after {
+    --downloads-indicator-color: var(--upload-menu-badge-color);
+}
+
+body:is(.has-user-downloads-failed, .has-user-downloads-in-progress) .menu-action--my-downloads {
+    display: flex;
+    align-items: center;
+}
+
+body:is(.has-user-downloads-failed, .has-user-downloads-in-progress) .menu-action--my-downloads::after {
+    margin-left: auto;
+
+    color: var(--downloads-indicator-color);
+    font-weight: bold;
+}
+
+body:is(.has-user-downloads-failed) .menu-action--my-downloads::after {
+    content: "!";
+}
+
+body:is(.has-user-downloads-in-progress) .menu-action--my-downloads::after {
+    counter-reset: user-downloads var(--user-downloads-in-progress-count);
+    content: counter(user-downloads);
+}
+
 /*------------------ Settings menu ------------------*/
 .menu-settings {
     position: fixed;
