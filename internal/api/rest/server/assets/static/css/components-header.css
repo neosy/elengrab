@@ -106,16 +106,25 @@
     position: relative;
 }
 
+body:is(.has-user-downloads-failed) .header-actions__upload-menu {
+    --upload-menu-badge-left: 0px;
+}
+
 @media (max-width: 768px) {
     .header-actions__upload-menu {
         --upload-menu-badge-left: -4px;
     }
 }
 
-body.has-user-downloads-in-progress .header-actions__upload-menu::after {
-    counter-reset: user-downloads var(--user-downloads-in-progress-count);
-    content: counter(user-downloads);
+body:is(.has-user-downloads-failed) .header-actions__upload-menu::after {
+    --indicator-color: var(--text-red);
+}
 
+body:is(.has-user-downloads-in-progress) .header-actions__upload-menu::after {
+    --indicator-color: var(--upload-menu-badge-color);
+}
+
+body:is(.has-user-downloads-in-progress, .has-user-downloads-failed) .header-actions__upload-menu::after {
     position: absolute;
     left: var(--upload-menu-badge-left);
     bottom: var(--upload-menu-badge-left);
@@ -131,13 +140,22 @@ body.has-user-downloads-in-progress .header-actions__upload-menu::after {
 
     border-radius: 8px;
     background: var(--upload-menu-badge-bg);
-    color: var(--upload-menu-badge-color);
+    color: var(--indicator-color);
 
     font-size: clamp(0.75rem, 0.65rem + 0.3vw, 0.9rem);
     font-weight: 600;
     line-height: 1;
 
     pointer-events: none; /* Clicks go through to the button */
+}
+
+body:is(.has-user-downloads-failed) .header-actions__upload-menu::after {
+    content: "!";
+}
+
+body:is(.has-user-downloads-in-progress) .header-actions__upload-menu::after {
+    counter-reset: user-downloads var(--user-downloads-in-progress-count);
+    content: counter(user-downloads);
 }
 
 .user-avatar a {
