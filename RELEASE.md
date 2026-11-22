@@ -24,6 +24,7 @@
 ### 🎨 Style
 - Added animated status indicators with distinct icons and colors for different download states. [L201]
 - Displayed In Progress items in a compact layout on mobile when using list view. [L206]
+- Added download count and error indicator to the My Downloads menu item. [L208]
 
 ---
 
