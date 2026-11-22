@@ -542,17 +542,13 @@ select:disabled {
 
 /* =================== View mode bar =================== */
 
-:root {
-    --view-mode-bar-margin-top: 10px;
-}
-
 .view-mode-bar {
     display: var(--view-mode-bar-display, flex);;
     width: 100%;
     align-items: center;
 
     margin: 0 auto;
-    margin-top: var(--view-mode-bar-margin-top);
+    margin-top: var(--view-mode-bar-margin-top, 10px);
     margin-bottom: 16px;
 }
 
@@ -627,18 +623,7 @@ body:is(.has-downloads-in-progress) .content-type-bar {
     }
 }
 
-@media (max-width: 380px) {
-    .content-type-bar {
-        --content-type-tabs-justify-content: safe center;
-        --content-type-tab-padding-x: 8px;
-    }
-
-    body:is(.has-downloads-in-progress, .has-downloads-failed) .content-type-bar {
-        --content-type-tab-letter-spacing: -0.5px;
-    }    
-}
-
-:root:has(.header--hidden) .content-type-bar {
+body:has(.header--hidden) .content-type-bar {
     --content-type-bar-top: 0px;
     --content-type-bg: color-mix(in srgb, var(--content-bg) 85%, transparent);
 }

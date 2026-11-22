@@ -79,7 +79,7 @@
 }
 
 @media (min-width: 581px) {
-    body:is(.list-view) {
+    body:is(.list-view) .view-mode-bar {
         --view-mode-bar-margin-top: 15px;
     }
 

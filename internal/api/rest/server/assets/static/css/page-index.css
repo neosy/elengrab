@@ -1,5 +1,9 @@
-:root:has(.grid-view) {
+body:is(.grid-view) {
     --header-bg: var(--header-bg-solid);
+}
+
+body:has(.content-type-tab--in-progress.active) {
+    --view-mode-bar-display: none;
 }
 
 @media (max-width: 580px) {
@@ -8,6 +12,13 @@
     }
 }
 
-:root:has(.content-type-tab--in-progress.active) {
-    --view-mode-bar-display: none;
+@media (max-width: 380px) {
+    body:has(.content-type-tab--in-progress) .content-type-bar {
+        --content-type-tabs-justify-content: safe center;
+        --content-type-tab-padding-x: 8px;
+    }
+
+    body:is(.has-downloads-in-progress, .has-downloads-failed) .content-type-bar {
+        --content-type-tab-letter-spacing: -0.5px;
+    }    
 }
