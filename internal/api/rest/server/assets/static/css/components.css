@@ -627,7 +627,7 @@ body:is(.has-downloads-in-progress) .content-type-bar {
     }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 380px) {
     .content-type-bar {
         --content-type-tabs-justify-content: safe center;
         --content-type-tab-padding-x: 8px;
