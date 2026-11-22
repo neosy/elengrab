@@ -631,14 +631,11 @@ body:is(.has-downloads-in-progress) .content-type-bar {
     .content-type-bar {
         --content-type-tabs-justify-content: safe center;
         --content-type-tab-padding-x: 8px;
-        --content-type-tab-letter-spacing: -0.5px;
     }
-}
 
-@media (max-width: 360px) {
-    .content-type-bar {
-        --content-type-tab-letter-spacing: -0.7px;
-    }
+    body:is(.has-downloads-in-progress, .has-downloads-failed) .content-type-bar {
+        --content-type-tab-letter-spacing: -0.5px;
+    }    
 }
 
 :root:has(.header--hidden) .content-type-bar {
