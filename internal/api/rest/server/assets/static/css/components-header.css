@@ -1,4 +1,4 @@
-:root {
+body {
     --header-actions-top: 16px;
     --header-actions-right: 10px;
     --header-actions-height: 40px;
@@ -11,7 +11,7 @@
 }
 
 @media (max-width: 768px) {
-    :root {
+    body {
         --header-actions-top: 10px;
         --header-actions-height: 30px;
         --header-actions-svg-size: 27px;
@@ -21,7 +21,7 @@
 }
 
 @media (max-width: 580px) {
-    :root {
+    body {
         --header-actions-svg-size: 23px;
 
         --header-actions-search-display: flex;

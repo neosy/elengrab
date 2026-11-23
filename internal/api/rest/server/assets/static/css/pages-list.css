@@ -1,4 +1,4 @@
-:root {
+body {
     --main-content-max: 1260px;
     --main-content-width: 95%;
 
@@ -50,7 +50,7 @@ body:is(.list-view) {
 }
 
 @media (max-width: 768px) {
-    :root {
+    body {
         --header-bg: var(--header-bg-light-transparent);
 
         --header-height: 50px;
@@ -78,7 +78,7 @@ body:is(.list-view) {
 }
 
 @media (max-width: 580px) {
-    :root {
+    body {
         --header-height: 40px;
 
         --header-padding-top: 2px;
@@ -92,7 +92,7 @@ body:is(.list-view) {
 }
 
 @media (max-width: 480px) {
-    :root {
+    body {
         --main-padding-size: 10px;
 
         --header-link-gap: 8px;

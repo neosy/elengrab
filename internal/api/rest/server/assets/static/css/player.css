@@ -200,7 +200,7 @@ body.media-player--video:has(.media-player__video--minimized)::after {
 
 /* ── Audio player bar ────────────────────────────────────────────────────────── */
 
-:root {
+body {
     --audio-player-max-width: 860px;
     --audio-player-wrapper-padding-x: 40px;
     --audio-player-wrapper-padding-y: 10px;
@@ -208,7 +208,7 @@ body.media-player--video:has(.media-player__video--minimized)::after {
 }
 
 @media (max-width: 480px) {
-    :root {
+    body {
         --audio-player-wrapper-padding-y: 5px;
         --audio-player-border-radius: none;
     }

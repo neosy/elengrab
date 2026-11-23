@@ -124,13 +124,13 @@
 }
 
 .dark {
-    --header-bg-solid: #1f1f1f;
-
     --body-bg: #1f1f1f;
     --body-hover-bg: #292929;
     --main-bg: inherit;
     --content-bg: #1f1f1f;
     --footer-bg: rgba(23, 23, 23, 0.5);
+
+    --header-bg-solid: #1f1f1f;
 
     --list-body-bg: #171717;
     --list-main-bg: #1f1f1f;
@@ -258,7 +258,7 @@
 
 /* ==================== Menu ==================== */
 
-:root {
+body {
     --upload-menu-badge-bg: var(--header-bg);
     --upload-menu-badge-color: var(--download);
 }

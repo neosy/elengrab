@@ -2,7 +2,7 @@
     --h2: 1.40rem;
 }
 
-:root {
+body {
     --header-bg: var(--page-main-bg);
 
     --main-margin-x: 20px;
@@ -20,7 +20,7 @@
 }
 
 @media (max-width: 480px) {
-    :root {
+    body {
         --main-margin-x: 5px;
         --main-margin-y: 5px;
         --main-margin-top: calc(var(--header-height) + var(--main-margin-y));
