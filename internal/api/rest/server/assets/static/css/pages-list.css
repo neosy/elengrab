@@ -2,30 +2,36 @@
     --main-content-max: 1260px;
     --main-content-width: 95%;
 
-    --header-height: 75px;
+    --header-height: 60px;
     --header-width: var(--main-content-width);
     --header-max-width: var(--main-content-max);
     --header-left: calc((100vw - min(var(--main-content-width), var(--main-content-max))) / 2);
-    --header-padding: 10px;
+    --header-padding-size: 10px;
+    --header-padding: var(--header-padding-size);
+    --header-padding-top: 5px;
+    --header-padding-bottom: 0px;
     --header-align-items: center;
     --header-bg: var(--body-bg);
     --header-border-radius: 0 0 20px 20px;
 
-    --header-logo-image-height: 3em;
-    --header-title-font-size: 55px;
+    --header-logo-image-height: 2.5em;
+    --header-title-font-size: 45px;
     --header-link-gap: 10px;
 
     --main-margin-top: var(--header-height);
     --main-margin-bottom: 10px;
-    --main-padding: 30px;
-    --main-padding-top: calc(var(--main-padding) - 10px);
+    --main-padding-size: 30px;
+    --main-padding-top: 10px;
     --main-padding-bottom: 10px;
+    --main-padding: var(--main-padding-top) var(--main-padding-size) var(--main-padding-bottom);
 
     --main-border-radius: 20px;
     --main-border-box-shadow: 0 2px 6px var(--border-shadow);
+
+    --grab-form-margin-bottom: 5px;
 }
 
-:root:has(.grid-view) {
+body:is(.grid-view) {
     --body-bg: var(--grid-body-bg);
     --main-bg: var(--grid-main-bg);
 
@@ -38,7 +44,7 @@
     --header-left: calc((100vw - min(var(--main-content-width), var(--main-content-max))) / 2);
 }
 
-:root:has(.list-view) {
+body:is(.list-view) {
     --body-bg: var(--list-body-bg);
     --main-bg: var(--list-main-bg);
 }
@@ -48,17 +54,21 @@
         --header-bg: var(--header-bg-light-transparent);
 
         --header-height: 50px;
+        --header-padding-top: 0px;
 
-        --header-logo-image-height: 2.5em;
-        --header-title-font-size: 40px;
+        --header-logo-image-height: 2.1em;
+        --header-title-font-size: 35px;
 
         --main-content-width: 100%;
-        --main-margin-top: calc(var(--header-height) + 10px);
+        --main-margin-top: calc(var(--header-height) + 0px);
         --main-margin-bottom: 0;
-        --main-padding: 15px;
+        --main-padding-size: 15px;
+        --main-padding-top: 2px;
 
         --main-border-radius: 0;
         --main-border-box-shadow: none;
+
+        --grab-form-margin-bottom: 0px;
     }
 
     .list-view {
@@ -69,18 +79,21 @@
 
 @media (max-width: 580px) {
     :root {
-        --header-height: 50px;
+        --header-height: 40px;
+
+        --header-padding-top: 2px;
 
         --header-logo-image-height: 1.8em;
         --header-title-font-size: 28px;
 
+        --main-padding-top: 0px;
         --main-margin-top: calc(var(--header-height) + 5px);
     }
 }
 
 @media (max-width: 480px) {
     :root {
-        --main-padding: 10px;
+        --main-padding-size: 10px;
 
         --header-link-gap: 8px;
     }
@@ -104,7 +117,7 @@ html, body {
     top: 0;
     left: var(--header-left);
 
-    padding: 0 var(--header-padding);
+    padding: var(--header-padding-top) var(--header-padding-size) var(--header-padding-bottom);
  
     background-color: var(--header-bg);
 
@@ -115,7 +128,7 @@ html, body {
 }
 
 @media (max-width: 768px) {
-    .header--hidden:not(.is-search) {
+    body:not(:has(.history-search__input.has-value)) .header--hidden:not(.is-search) {
         transform: translateY(-100%);
     }
 }
@@ -192,7 +205,7 @@ body.ui-blocking-active {
     max-width: var(--main-content-max);
     min-height: calc(100vh - 40px - 2*8px - 30px - 10px - 30px - 10px);
 
-    padding: var(--main-padding-top) var(--main-padding) var(--main-padding-bottom);
+    padding: var(--main-padding);
     margin-top: var(--main-margin-top);
     margin-bottom: var(--main-margin-bottom);
 

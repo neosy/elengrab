@@ -1,4 +1,5 @@
 const MOBILE_SCREEN_WIDTH = 580;
+const MOBILE_LANDSCAPE_SCREEN_WIDTH = 768;
 
 let stableHeight = 0;
 
@@ -77,6 +78,10 @@ function syncViewportHeightVar() {
 
 export function isMobileScreen() {
     return window.matchMedia(`(max-width: ${MOBILE_SCREEN_WIDTH}px)`).matches;
+}
+
+export function isMobileLandscapeScreen() {
+    return window.matchMedia(`(max-width: ${MOBILE_LANDSCAPE_SCREEN_WIDTH}px) and (orientation: landscape)`).matches;
 }
 
 export function scrollToTop(smooth = true) {
