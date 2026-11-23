@@ -526,7 +526,7 @@ select:disabled {
 
 /* =================== Grab form =================== */
 
-:root {
+body {
     --grab-form-margin-bottom: 0px;
 }
 

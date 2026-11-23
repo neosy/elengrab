@@ -1,4 +1,4 @@
-:root {
+body {
     --footer-height: 33px;
     --footer-max-width: var(--main-content-max);
 }

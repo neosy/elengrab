@@ -27,7 +27,7 @@ h2 { font-size: var(--h2); font-weight: 600; }
 h3 { font-size: var(--h3); font-weight: 600; }
 h4 { font-size: var(--h4); }
 
-:root {
+body {
     --header-height: 60px;
     --header-padding-x: 20px;
     --header-bg: var(--page-header-bg-transparent);
@@ -44,13 +44,13 @@ h4 { font-size: var(--h4); }
 }
 
 @media (max-width: 768px) {
-    :root {
+    body {
         --header-logo-image-height: 2.3em;
     }
 }
 
 @media (max-width: 480px) {
-    :root {
+    body {
         --header-height: 50px;
         --header-padding-x: 10px;
 

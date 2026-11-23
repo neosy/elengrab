@@ -43,7 +43,9 @@
     --h2: 1.6rem;
     --h3: 1.25rem;
     --h4: 1.0rem;
+}
 
+body {
     --header-height: 50px;
     --header-padding-x: 32px;
     --header-padding: 0 var(--header-padding-x);
@@ -87,7 +89,7 @@ body.content-open {
 }
 
 @media (max-width: 1300px) {
-    :root {
+    body {
         --content-detail-panel-width: 100%;
         --user-detail-panel-width: 100%;
     }
@@ -101,7 +103,9 @@ body.content-open {
     :root {
         --h1: 1.6rem;
         --h2: 1.4rem;
+    }
 
+    body {
         --header-height: 40px;
         --header-padding-x: 16px;
         --header-padding: 0 var(--header-padding-x);
@@ -120,7 +124,7 @@ body.content-open {
 }
 
 @media (max-width: 900px) {
-    :root {
+    body {
         --panel-detail-header-padding: 10px 16px;
 
         --info-block-padding: 10px 16px;
@@ -138,7 +142,9 @@ body.content-open {
     :root {
         --h3: 1.125rem;
         --h4: 1.0rem;
+    }
 
+    body {
         --header-title-display: flex;
         --header-page-title-display: none;
 

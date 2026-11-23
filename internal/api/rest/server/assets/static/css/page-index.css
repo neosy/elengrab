@@ -7,7 +7,7 @@ body:has(.content-type-tab--in-progress.active) {
 }
 
 @media (max-width: 580px) {
-    :root {
+    body {
         --header-border-radius: 0;
     }
 }
