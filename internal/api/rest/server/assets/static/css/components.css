@@ -526,8 +526,12 @@ select:disabled {
 
 /* =================== Grab form =================== */
 
+:root {
+    --grab-form-margin-bottom: 0px;
+}
+
 .grab-form {
-    margin-bottom: 10px;
+    margin-bottom: var(--grab-form-margin-bottom, 0px);
 }
 
 .grab-area__action-button--settings {
@@ -549,7 +553,7 @@ select:disabled {
 
     margin: 0 auto;
     margin-top: var(--view-mode-bar-margin-top, 10px);
-    margin-bottom: 16px;
+    margin-bottom: var(--view-mode-bar-margin-bottom, 10px);
 }
 
 .view-mode-tabs {
@@ -597,8 +601,10 @@ select:disabled {
     --content-type-tabs-gap: 8px;
     --content-type-tabs-justify-content: normal;
 
+    --content-type-tab-padding-top: 12px;
+    --content-type-tab-padding-bottom: 12px;
     --content-type-tab-padding-x: 16px;
-    --content-type-tab-padding: 12px var(--content-type-tab-padding-x);
+    --content-type-tab-padding: var(--content-type-tab-padding-top) var(--content-type-tab-padding-x) var(--content-type-tab-padding-bottom);
     --content-type-tab-letter-spacing: none;
     --content-type-tab-underline-inset: var(--content-type-tab-padding-x);
     --content-type-tab-spinner-space: 0px;
@@ -645,7 +651,7 @@ body:has(.header--hidden) .content-type-bar {
 .content-type-bar::before {
     content: "";
     position: absolute;
-    inset-inline: calc(-1 * var(--main-padding) + 10px);
+    inset-inline: calc(-1 * var(--main-padding-size) + 10px);
     bottom: 0;
     height: 1px;
     box-shadow: inset 0 -1px 0 var(--content-type-border-color);
@@ -654,7 +660,7 @@ body:has(.header--hidden) .content-type-bar {
 .content-type-bar::after {
     content: "";
     position: absolute;
-    inset-inline: calc(-1 * var(--main-padding) + 10px);
+    inset-inline: calc(-1 * var(--main-padding-size) + 10px);
     bottom: 0;
     border-bottom: 1px solid var(--content-type-border-color);
 }
