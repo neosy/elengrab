@@ -71,7 +71,7 @@ body:is(.list-view) {
         --grab-form-margin-bottom: 0px;
     }
 
-    .list-view {
+    body:is(.list-view) {
         --body-bg: var(--grid-body-bg);
         --main-bg: var(--grid-main-bg);
     }
