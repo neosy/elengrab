@@ -249,3 +249,18 @@ func (uc *downloader) fetchDownloadsByIndex(
 
 	return downloads, nil
 }
+
+func (u *downloader) CountUserDownloads(
+	ctx context.Context,
+	userID uuid.UUID,
+) (int, error) {
+	if userID == dauth.AnonymousUserID() {
+		return 0, nil
+	}
+
+	options := dtypes.NewQueryMediaOptions()
+
+	options.Filters.Add(dtypes.QueryFilterNameUserID, userID)
+
+	return u.searchIndex.CountFromIndex(ctx, &options)
+}

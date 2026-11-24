@@ -3,6 +3,7 @@
 ## v0.28.0 — 2026-11-30
 
 ### ✨ Features
+- Added a flexible content type bar with support for custom tabs and content filtering. [L200]
 - Improved card layout settings: [L203]
   - Added independent Grid/List view mode for the In Progress tab.
   - Replaced boolean storage values with "grid" / "list".
@@ -24,6 +25,7 @@
   - Show downloads that are still in progress exclusively in the In Progress tab.
 - Increased the number of rows loaded on scroll in In Progress from 20 to 500. [L204]
 - Added a download error indicator to the Add Download button. [L207]
+- Added the current user's media count next to their username on the My Downloads page. [L212]
 
 ### 🎨 Style
 - Added animated status indicators with distinct icons and colors for different download states. [L201]
