@@ -24,6 +24,7 @@ func (m *Mappers) MapMediaSourceIndexDomainToEntity(index *ddownload.MediaSource
 
 	return &esearchindex.MediaSourceIndex{
 		DownloadID:       index.DownloadID,
+		SourceType:       index.SourceType.String(),
 		UserID:           index.UserID,
 		Title:            index.Title,
 		TitleLower:       strings.ToLower(index.Title),
@@ -40,6 +41,11 @@ func (m *Mappers) MapMediaSourceIndexDomainToEntity(index *ddownload.MediaSource
 }
 
 func (m *Mappers) MapSourceIndexEntityToDomain(index *esearchindex.MediaSourceIndex) (*ddownload.MediaSourceIndex, error) {
+	sourceType, err := dtypes.ParseMediaDownloadSourceType(index.SourceType)
+	if err != nil {
+		return nil, err
+	}
+
 	visibility, err := dtypes.ParseMediaVisibility(index.Visibility)
 	if err != nil {
 		return nil, err
@@ -52,6 +58,7 @@ func (m *Mappers) MapSourceIndexEntityToDomain(index *esearchindex.MediaSourceIn
 
 	return &ddownload.MediaSourceIndex{
 		DownloadID:      index.DownloadID,
+		SourceType:      sourceType,
 		UserID:          index.UserID,
 		Title:           index.Title,
 		Description:     index.Description,

@@ -26,5 +26,5 @@ var indexContentTypeOptions = []contentTypeOption{
 }
 
 func BuildIndexPageContentTypes(authCtx dauth.AuthContext, downloader downloader.DownloaderAPI) []dtypes.QueryMediaContentType {
-	return buildContentTypes(authCtx, downloader, indexContentTypeOptions)
+	return buildContentTypes(authCtx, downloader, indexContentTypeOptions, nil)
 }

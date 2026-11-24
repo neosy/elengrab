@@ -6,6 +6,14 @@ body:has(.content-type-tab--in-progress.active) {
     --view-mode-bar-display: none;
 }
 
+body:is(.has-downloads-failed) .content-type-tab--in-progress::before {
+    display: block;
+}
+
+body:is(.has-downloads-in-progress) .content-type-tab--in-progress::before {
+    display: block;
+}
+
 @media (max-width: 580px) {
     body {
         --header-border-radius: 0;

@@ -12,12 +12,15 @@
   </header>
 {{- end }}
 
+{{- define "media-result-bar" }}
+  {{- template "content-type-bar" . }}
+{{- end }}
+
 {{- define "main" }}
   <main class="main">
     {{- if .Values.HasCreateAccess  }}
     {{- template "grab-form" . }}
     {{- end }}
-    {{- template "content-type-bar" . }}
     {{- template "media-result" . }}
   </main>
 {{- end }}

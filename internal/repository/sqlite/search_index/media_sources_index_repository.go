@@ -317,6 +317,9 @@ func (r *MediaSourceIndexRepository) iterateAll(
 	case dtypes.QueryMediaContentTypeAudio:
 		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsAudio): true})
 		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
+	case dtypes.QueryMediaContentTypeUploads:
+		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.SourceType): dtypes.MediaDownloadSourceTypeUpload.String()})
+		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
 	case dtypes.QueryMediaContentTypeInProgress:
 		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): false})
 	}
