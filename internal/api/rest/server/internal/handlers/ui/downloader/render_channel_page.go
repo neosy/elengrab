@@ -8,6 +8,7 @@ import (
 	"uuid"
 
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/clientcap"
+	contenttype "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/content_type"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
@@ -68,7 +69,14 @@ func (h *DownloaderHandlers) renderChannelPage(
 	baseValues := pages.NewBaseValues()
 	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(helper.GetBaseURL(ctx))
 
-	pagesListValues := pagesdata.BuildPagesListValues(authCtx, query, queryFilters, nil, h.downloader)
+	pagesListValues := pagesdata.BuildPagesListValues(
+		authCtx, query, queryFilters,
+		pages.BuildContentTypeTabs(
+			contenttype.BuildChannelPageContentTypes(authCtx, h.downloader),
+			query.ContentType,
+		),
+		h.downloader,
+	)
 	pagesListValues.ResultNoRows = rowsBuf.Len() == 0
 	pagesListValues.ResultRowsHTML = template.HTML(rowsBuf.String())
 	pagesListValues.AboutDialog = h.mappers.MapAboutDialogValues(systemInfo)
