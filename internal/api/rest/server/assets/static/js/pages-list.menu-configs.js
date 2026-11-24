@@ -273,7 +273,7 @@ const uploadMenuConfig = {
           block: "center",
       });
 
-      DOM_ELEMENTS.mediaURLInput.focus();
+      DOM_ELEMENTS.mediaURLInput.focus({ preventScroll: true });
     },
 
     uploadFile(item) {

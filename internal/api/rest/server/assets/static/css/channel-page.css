@@ -1,3 +1,14 @@
 .header__search {
     padding: 0 8px 0 12px;
 }
+
+.media-result {
+    --main-header-margin-bottom: 0px;
+    --main-header-border-bottom: none;
+}
+
+@media (max-width: 580px) {
+    body {
+        --header-border-radius: 0;
+    }
+}

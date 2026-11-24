@@ -476,22 +476,11 @@ img[data-src] {
 }
 
 .row--removing {
-    transition: opacity 0.4s ease, 
-        transform 0.4s ease, 
-        height 0.4s ease, 
-        margin 0.4s ease, 
-        padding 0.4s ease;
-
-    opacity: 0 !important;
-
-    height: 0 !important;
-
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-
-    transform: translateY(-10px) !important;
+    position: fixed;
+    margin: 0;
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 1;
 }
 
 .media-result__row-thumbnail {

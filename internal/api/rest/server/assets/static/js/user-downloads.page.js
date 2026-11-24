@@ -14,10 +14,10 @@ import { initUserDownloadsMenus as initMenus } from './pages-list.menu-configs.j
 import * as view from './pages-list.view.js';
 import * as grabForm from './pages-list.grab-form.js';
 import * as search from './pages-list.search.js';
+import { CONTENT_TYPES, VIEW_MODES } from './pages-list.dom.js';
 import { CLASS_NAMES, CLASS_SELECTORS, DOM_ELEMENTS, initDomElements } from "./user-downloads-page.dom.js";
 import { initUploadFileDialog } from "upload-file-dialog.js";
 import { initDownloadListDialog } from "download-list-dialog.js";
-import { CONTENT_TYPES, VIEW_MODES } from './pages-list.dom.js';
 
 // Global variables
 let searchInputClearButton = null;

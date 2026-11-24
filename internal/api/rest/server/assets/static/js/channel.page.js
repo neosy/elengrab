@@ -98,6 +98,30 @@ document.addEventListener('DOMContentLoaded', () => {
         },
     });
 
+    // Initialize content type bar
+    view.initContentTypeBar({
+        getSearchQueryValues: () => {
+            return search.getSearchQueryValues();
+        },
+        onSuccess: (rows) => {
+            view.initGridView();
+
+            browser.scrollToTop();
+
+            refreshVideoPreview(true);
+            search.setSearchParametersInUrl();
+
+            const lazyObservers= [
+                thumbnailLazyImages,
+                avatarLazyImages,
+            ];
+
+            for (const observer of lazyObservers) {
+                observer.observe(rows);
+            }
+        },
+    });
+
     // Create SSE connection
     const sseEventHandlers = {
         "row-update": rowEventHandlers.handleRowUpdate,
