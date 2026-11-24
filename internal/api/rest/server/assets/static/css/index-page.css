@@ -2,6 +2,21 @@ body:is(.grid-view) {
     --header-bg: var(--header-bg-solid);
 }
 
+.content-type-tab--in-progress {
+    opacity: 0;
+    visibility: hidden;
+
+    transition: opacity 0.3s ease-in-out, visibility 0s 0.3s;
+}
+
+body:is(.has-downloads-failed, .has-downloads-in-progress) .content-type-tab--in-progress,
+.content-type-tab--in-progress.active {
+    opacity: 1;
+    visibility: visible;
+
+    transition: opacity 0.3s ease-in-out, visibility 0s;
+}
+
 body:has(.content-type-tab--in-progress.active) {
     --view-mode-bar-display: none;
 }
