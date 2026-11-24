@@ -11,6 +11,8 @@ type PagesListValues struct {
 
 	UserAvatar UserAvatar
 
+	ItemsCount int
+
 	ShowHistorySearch   bool
 	SearchBackArrowIcon template.HTML
 

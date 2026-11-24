@@ -331,13 +331,40 @@ img[data-src] {
     text-decoration: none;
 }
 
-.main-header-description {
+.main-header-meta {
     max-width: clamp(100px, 80vw, 100%);
 
     font-size: clamp(14px, 3vw, 16px);
 
+    color: var(--text-secondary);
+
     white-space: nowrap;
     overflow: hidden;
+}
+
+.main-header-meta > span {
+    white-space: nowrap;
+}
+
+.main-header-meta > span + span::before {
+    display: inline-block;
+
+    width: 4px;
+    height: 4px;
+
+    margin: 0 8px 0 6px;
+
+    vertical-align: middle;
+
+    border-radius: 50%;
+    background: var(--text-secondary);
+
+    content: "";
+    opacity: 0.6;
+}
+
+.main-header-username {
+    color: var(--text-primary);
 }
 
 .media-result__rows-wrapper {

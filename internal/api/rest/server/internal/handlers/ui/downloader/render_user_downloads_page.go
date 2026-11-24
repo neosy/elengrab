@@ -34,6 +34,8 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 		return
 	}
 
+	itemsCount, _ := h.downloader.CountUserDownloads(ctx, user.UserID)
+
 	cssPaths, err := h.assetPaths.UserDownloadsPageCssPaths()
 	if err != nil {
 		nfasthttp.WriteErrorx(ctx, err)
@@ -87,6 +89,7 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 		),
 		h.downloader,
 	)
+	pagesListValues.ItemsCount = itemsCount
 	pagesListValues.HasCreateAccess = isCurrentUserPage && pagesListValues.HasCreateAccess
 	pagesListValues.ResultNoRows = rowsBuf.Len() == 0
 	pagesListValues.ResultRowsHTML = template.HTML(rowsBuf.String())
