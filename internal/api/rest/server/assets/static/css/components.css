@@ -594,7 +594,7 @@ body {
 .content-type-bar {
     --content-type-bar-z-index: 10;
     --content-type-bar-top: var(--header-height, 75px);
-    --content-type-bar-width: auto;
+    --content-type-bar-width: 100%;
 
     --content-type-bg: var(--content-bg);
 
@@ -789,7 +789,6 @@ body:is(.has-user-downloads-in-progress) .content-type-tab--in-progress {
 
 body:is(.has-downloads-failed) .content-type-tab--in-progress::before {
     content: "!";
-    display: block;
 
     right: var(--content-type-tab-padding-x);
 
@@ -801,7 +800,6 @@ body:is(.has-downloads-failed) .content-type-tab--in-progress::before {
 
 body:is(.has-downloads-in-progress) .content-type-tab--in-progress::before {
     content: "";
-    display: block;
 
     right: var(--content-type-tab-padding-x);
 

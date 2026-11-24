@@ -28,7 +28,7 @@ var (
 
 		"theme-switcher.css",
 
-		"pages-list.css",
+		"list-pages.css",
 
 		"menu.css",
 		"menu-variants.css",
@@ -40,7 +40,7 @@ var (
 		pagesListCssPaths,
 
 		cssFileNames{
-			"page-index.css",
+			"index-page.css",
 			"upload-media-dialog.css",
 			"download-list-dialog.css",
 		}...,
@@ -50,7 +50,7 @@ var (
 		pagesListCssPaths,
 
 		cssFileNames{
-			"page-channel.css",
+			"channel-page.css",
 		}...,
 	)
 
@@ -58,6 +58,7 @@ var (
 		pagesListCssPaths,
 
 		cssFileNames{
+			"user-downloads-page.css",
 			"upload-media-dialog.css",
 			"download-list-dialog.css",
 		}...,
@@ -73,7 +74,7 @@ var (
 		"notifications.css",
 
 		"theme-switcher.css",
-		"page-admin.css",
+		"admin-page.css",
 	}
 
 	authPageCssPaths = cssFileNames{
@@ -84,7 +85,7 @@ var (
 		"variables.css",
 
 		"theme-switcher.css",
-		"page-auth.css",
+		"auth-page.css",
 	}
 
 	pagesDetailCssPaths = cssFileNames{
@@ -103,7 +104,7 @@ var (
 
 		"theme-switcher.css",
 
-		"pages-detail.css",
+		"detail-pages.css",
 
 		"menu.css",
 		"menu-variants.css",
@@ -113,7 +114,7 @@ var (
 		pagesDetailCssPaths,
 
 		cssFileNames{
-			"page-watch.css",
+			"watch-page.css",
 		}...,
 	)
 
@@ -121,7 +122,7 @@ var (
 		pagesDetailCssPaths,
 
 		cssFileNames{
-			"page-edit-media.css",
+			"edit-media-page.css",
 		}...,
 	)
 )

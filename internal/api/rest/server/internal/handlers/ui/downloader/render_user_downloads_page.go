@@ -6,19 +6,16 @@ import (
 	"html/template"
 	"mime"
 
-	"uuid"
-
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/clientcap"
+	contenttype "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/content_type"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/icons"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/pages"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/common/composition/paths"
 	"github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/helper"
 	pagesdata "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/pages_data"
-	qkeys "github.com/neosy/elengrab/internal/api/rest/server/internal/handlers/ui/downloader/query_keys.go"
 	"github.com/neosy/elengrab/internal/app/usecases/dto"
 	udto "github.com/neosy/elengrab/internal/app/usecases/dto"
 	dauth "github.com/neosy/elengrab/internal/domain/auth"
-	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	nfasthttp "github.com/neosy/elengrab/internal/pkg/fasthttpx"
 	"github.com/neosy/elengrab/internal/pkg/humanize"
 	"github.com/valyala/fasthttp"
@@ -65,16 +62,6 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 		return
 	}
 
-	var userLogin string
-
-	if queryFilters != nil {
-		if filter, exists := queryFilters.Find(qkeys.UserNameKey); exists {
-			userLogin = filter.Value
-		}
-	}
-
-	userHeaderPageData := helper.BuildUserDownloadsHeaderPageData(ctx, userLogin)
-
 	userDisplayName := helper.UserDisplayName(
 		user.UserID,
 		user.Login,
@@ -82,22 +69,9 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 		authCtx.UserID,
 	)
 
-	if userDisplayName != "" {
-		userHeaderPageData.Title = userDisplayName
-	}
+	isCurrentUserPage := authCtx.UserID == user.UserID
 
-	var isCurrentUserPage bool
-
-	if query.Filters != nil {
-		if filter, exists := query.Filters.Find(dtypes.QueryFilterNameUserID); exists {
-			userID, ok := filter.Value().(uuid.UUID)
-			isCurrentUserPage = ok && userID == authCtx.UserID
-		}
-	}
-
-	if isCurrentUserPage {
-		userHeaderPageData.Title = "My Downloads"
-	}
+	userHeaderPageData := helper.BuildUserDownloadsHeaderPageData(ctx, user.Login, userDisplayName, isCurrentUserPage)
 
 	systemInfo := h.downloader.SystemInfo()
 
@@ -105,7 +79,14 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 	baseValues.Title = fmt.Sprintf("%s - %s", userDisplayName, pages.AppName)
 	baseValues.MetaOgItems = pagesdata.BuildMetaOgItems(helper.GetBaseURL(ctx))
 
-	pagesListValues := pagesdata.BuildPagesListValues(authCtx, query, queryFilters, nil, h.downloader)
+	pagesListValues := pagesdata.BuildPagesListValues(
+		authCtx, query, queryFilters,
+		pages.BuildContentTypeTabs(
+			contenttype.BuildUserDownloadsPageContentTypes(authCtx, h.downloader, isCurrentUserPage),
+			query.ContentType,
+		),
+		h.downloader,
+	)
 	pagesListValues.HasCreateAccess = isCurrentUserPage && pagesListValues.HasCreateAccess
 	pagesListValues.ResultNoRows = rowsBuf.Len() == 0
 	pagesListValues.ResultRowsHTML = template.HTML(rowsBuf.String())

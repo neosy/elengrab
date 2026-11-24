@@ -7,6 +7,9 @@
 }
 
 .media-result {
+    --main-header-margin-bottom: 16px;
+    --main-header-border-bottom: 1px solid var(--main-header-border-color);
+
     --media-result-separator-width: 20px;
 
     --thumbnail-frame-border-radius: 12px;
@@ -290,11 +293,11 @@ img[data-src] {
 
     margin: 0 auto;
     margin-top: 10px;
-    margin-bottom: 16px;
+    margin-bottom: var(--main-header-margin-bottom);
 
     padding-bottom: 10px;
 
-    border-bottom: 1px solid var(--main-header-border-color);
+    border-bottom: var(--main-header-border-bottom);
 }
 
 .main-header-image {

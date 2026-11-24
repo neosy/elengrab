@@ -13,10 +13,11 @@ func (m *migrations) updateSearchIndex(ctx context.Context) error {
 
 	err := m.Usecases().Downloader.MediaDownload().IterateAll(
 		ctx, func(download *ddownload.MediaDownload) error {
-			patchDataByDownloadID[download.DownloadID] = &downloader.SearchIndexPatchData{
-				IsShort: download.MediaInfo.IsShorts(),
-				IsAudio: download.MediaInfo.IsAudioOnly(),
-			}
+			patchData := downloader.NewSearchIndexPatchData(nil)
+			patchData.InitFromMediaDownload(download)
+
+			patchDataByDownloadID[download.DownloadID] = patchData
+
 			return nil
 		})
 	if err != nil {

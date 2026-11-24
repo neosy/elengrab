@@ -251,7 +251,7 @@ func (h *DownloaderHandlers) renderMediaItemRow(
 	if params.downloadInfo.MediaInfo != nil {
 		data.IsPortrait = params.downloadInfo.MediaInfo.IsPortrait()
 		data.IsAudioOnly = params.downloadInfo.MediaInfo.IsAudioOnly()
-		data.IsShorts = params.downloadInfo.MediaInfo.IsShorts()
+		data.IsShorts = params.downloadInfo.MediaInfo.IsShort()
 		data.LoopPlayback = data.IsShorts || data.IsAudioOnly
 	}
 

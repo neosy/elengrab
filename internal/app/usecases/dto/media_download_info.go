@@ -21,6 +21,7 @@ import (
 
 type MediaDownloadInfo struct {
 	DownloadID    uuid.UUID
+	SourceType    dtypes.MediaDownloadSourceType
 	Status        dtypes.MediaDownloadStatus
 	WorkingStatus types.WorkingStatus
 
@@ -119,19 +120,19 @@ func (info *MediaDownloadInfo) IsReady() bool {
 // IsUpload reports whether the media was uploaded by a user.
 // It returns false if info or its MediaDownload is nil.
 func (info *MediaDownloadInfo) IsUpload() bool {
-	if info == nil || info.MediaDownload == nil {
+	if info == nil {
 		return false
 	}
-	return info.MediaDownload.SourceType == dtypes.MediaDownloadSourceTypeUpload
+	return info.SourceType == dtypes.MediaDownloadSourceTypeUpload
 }
 
 // IsURLSource reports whether the media was downloaded from a URL.
 // It returns false if info or its MediaDownload is nil.
 func (info *MediaDownloadInfo) IsURLSource() bool {
-	if info == nil || info.MediaDownload == nil {
+	if info == nil {
 		return false
 	}
-	return info.MediaDownload.SourceType == dtypes.MediaDownloadSourceTypeURL
+	return info.SourceType == dtypes.MediaDownloadSourceTypeURL
 }
 
 // WatchIndicatorEnabled reports whether the watch indicator
@@ -174,12 +175,12 @@ func (info *MediaDownloadInfo) UserWatchDisplayPercent() float64 {
 	return info.UserWatchPercent()
 }
 
-func (info *MediaDownloadInfo) IsShorts() bool {
+func (info *MediaDownloadInfo) IsShort() bool {
 	if info.MediaInfo == nil {
 		return false
 	}
 
-	return info.MediaInfo.IsShorts()
+	return info.MediaInfo.IsShort()
 }
 
 func (info *MediaDownloadInfo) IsAudioOnly() bool {

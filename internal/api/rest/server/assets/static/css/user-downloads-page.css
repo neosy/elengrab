@@ -1,0 +1,33 @@
+body:has(.content-type-tab--in-progress.active) {
+    --view-mode-bar-display: none;
+}
+
+.media-result {
+    --main-header-margin-bottom: 0px;
+    --main-header-border-bottom: none;
+}
+
+body:is(.has-user-downloads-failed) .content-type-tab--in-progress::before {
+    display: block;
+}
+
+body:is(.has-user-downloads-in-progress) .content-type-tab--in-progress::before {
+    display: block;
+}
+
+@media (max-width: 580px) {
+    body {
+        --header-border-radius: 0;
+    }
+}
+
+@media (max-width: 380px) {
+    body:has(.content-type-tab--in-progress) .content-type-bar {
+        --content-type-tabs-justify-content: safe center;
+        --content-type-tab-padding-x: 8px;
+    }
+
+    body:is(.has-downloads-in-progress, .has-downloads-failed) .content-type-bar {
+        --content-type-tab-letter-spacing: -0.5px;
+    }    
+}

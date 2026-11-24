@@ -16,6 +16,7 @@ const (
 	QueryMediaContentTypeVideo
 	QueryMediaContentTypeShorts
 	QueryMediaContentTypeAudio
+	QueryMediaContentTypeUploads
 	QueryMediaContentTypeInProgress
 )
 
@@ -25,6 +26,7 @@ var (
 		QueryMediaContentTypeVideo:      "video",
 		QueryMediaContentTypeShorts:     "shorts",
 		QueryMediaContentTypeAudio:      "audio",
+		QueryMediaContentTypeUploads:    "uploads",
 		QueryMediaContentTypeInProgress: "in-progress",
 	}
 
@@ -33,6 +35,7 @@ var (
 		"video":       QueryMediaContentTypeVideo,
 		"shorts":      QueryMediaContentTypeShorts,
 		"audio":       QueryMediaContentTypeAudio,
+		"uploads":     QueryMediaContentTypeUploads,
 		"in-progress": QueryMediaContentTypeInProgress,
 	}
 
@@ -41,6 +44,7 @@ var (
 		QueryMediaContentTypeVideo:      "Video",
 		QueryMediaContentTypeShorts:     "Shorts",
 		QueryMediaContentTypeAudio:      "Audio",
+		QueryMediaContentTypeUploads:    "Uploads",
 		QueryMediaContentTypeInProgress: "In Progress",
 	}
 
@@ -49,6 +53,7 @@ var (
 		QueryMediaContentTypeVideo,
 		QueryMediaContentTypeShorts,
 		QueryMediaContentTypeAudio,
+		QueryMediaContentTypeUploads,
 		QueryMediaContentTypeInProgress,
 	}
 )

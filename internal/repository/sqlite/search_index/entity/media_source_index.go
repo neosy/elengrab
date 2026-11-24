@@ -21,6 +21,9 @@ type MediaSourceIndex struct {
 	// User identifier
 	UserID *uuid.UUID `db:"user_id" pfield:"userID"`
 
+	// Source of the media record: a remote URL or a file uploaded by the user
+	SourceType string `db:"source_type"`
+
 	// Media title
 	Title string `db:"title"`
 

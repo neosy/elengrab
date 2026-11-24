@@ -5,6 +5,9 @@ CREATE TABLE media_sources_index (
     -- User identifier
     user_id TEXT NULL,
 
+    -- Source of the media record: a remote URL or a file uploaded by the user
+    source_type TEXT NOT NULL, -- url, upload
+
     -- Title media
     title TEXT NOT NULL,
 

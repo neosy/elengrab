@@ -282,8 +282,8 @@ func (h *DownloaderHandlers) renderMediaItemPage(
 	if downloadInfo.MediaInfo != nil {
 		pageData.Values.MediaIsPortrait = downloadInfo.MediaInfo.IsPortrait()
 		pageData.Values.MediaIsAudioOnly = downloadInfo.MediaInfo.IsAudioOnly()
-		pageData.Values.MediaIsShorts = downloadInfo.MediaInfo.IsShorts()
-		pageData.Values.MediaLoopPlayback = pageData.Values.MediaIsShorts || pageData.Values.MediaIsAudioOnly
+		pageData.Values.MediaIsShort = downloadInfo.MediaInfo.IsShort()
+		pageData.Values.MediaLoopPlayback = pageData.Values.MediaIsShort || pageData.Values.MediaIsAudioOnly
 	}
 
 	// Set content type so browser renders HTML properly

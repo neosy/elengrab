@@ -1,6 +1,44 @@
 import { CLASS_NAMES, CLASS_SELECTORS, CSS_VARIABLE_NAMES, DOM_IDS, VIEW_MODES, CONTENT_TYPES } from "./pages-list.dom.js";
 import { CLASS_PREFIXES, EVENT_NAMES } from './constants.js';
 
+function shouldAddRow(data) {
+    const currentContentType = CONTENT_TYPES.getCurrent();
+
+    if (currentContentType) {
+        if (!data.isReady && !CONTENT_TYPES.isInProgress()) return false;
+
+        if (data.isReady) {
+            switch (currentContentType) {
+                case CONTENT_TYPES.all:
+                    break;
+
+                case CONTENT_TYPES.video:
+                    if (data.isShort || data.isAudio) return false;
+                    break;
+                    
+                case CONTENT_TYPES.shorts:
+                    if (!data.isShort) return false;
+                    break;
+
+                case CONTENT_TYPES.audio:
+                    if (!data.isAudio) return false;
+                    break;
+
+                case CONTENT_TYPES.uploads:
+                    if (data.sourceType !== "upload") return false;
+                    break;
+
+                default:
+                    return false;
+            }
+        }
+    }
+
+    if (VIEW_MODES.getCurrent() && !VIEW_MODES.isNew()) return false;
+
+    return true;
+}
+
 // -------------------------------------------------------------
 // Handle row-add SSE event with multiple rows in one payload
 // and insert them after the top placeholder div
@@ -11,7 +49,7 @@ export function handleRowAdd(event, usernameFilter = "") {
         const data = JSON.parse(event.data);
         if (!data.itemId || !data.html) return
 
-        if (!data.isReady && !CONTENT_TYPES.isInProgress()) return;
+        if (!shouldAddRow(data)) return;
 
         const owner = data.owner;
 

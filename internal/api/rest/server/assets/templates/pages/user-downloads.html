@@ -16,6 +16,10 @@
   {{- template "user-downloads-media-result-header" . }}
 {{- end }}
 
+{{- define "media-result-bar" }}
+  {{- template "content-type-bar" . }}
+{{- end }}
+
 {{- define "main" }}
   <main class="main">
     {{- if .Values.HasCreateAccess  }}

@@ -284,13 +284,17 @@ func BuildMediaSiteImageURL(downloadInfo *ucdto.MediaDownloadInfo) string {
 	return url
 }
 
-func BuildUserDownloadsHeaderPageData(ctx context.Context, login string) pages.UserDownloadsHeader {
-	if login == "" {
-		return pages.UserDownloadsHeader{}
+func BuildUserDownloadsHeaderPageData(
+	ctx context.Context,
+	login, userName string,
+	isCurrentUserPage bool,
+) pages.UserDownloadsHeader {
+	if isCurrentUserPage {
+		userName = "My Downloads"
 	}
 
 	return pages.UserDownloadsHeader{
-		Title:       login,
+		Title:       userName,
 		Description: login,
 		ImageURL:    "",
 		Show:        true,

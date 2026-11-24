@@ -13,6 +13,10 @@ import (
 
 type SearchIndexPatchData = searchindex.SearchIndexPatchData
 
+func NewSearchIndexPatchData(src *ddownload.MediaSourceIndex) *SearchIndexPatchData {
+	return searchindex.NewSearchIndexPatchData(src)
+}
+
 type SearchIndex interface {
 	IteratePatch(
 		ctx context.Context,
