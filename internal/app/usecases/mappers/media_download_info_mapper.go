@@ -33,6 +33,7 @@ func (m *Mappers) MapDownloadDomainToDownloadInfoResponse(
 
 	return &dto.MediaDownloadInfo{
 		DownloadID: download.DownloadID,
+		SourceType: download.SourceType,
 
 		Status:        download.Status,
 		WorkingStatus: workingStatus,

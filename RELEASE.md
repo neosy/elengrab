@@ -7,6 +7,9 @@
   - Added independent Grid/List view mode for the In Progress tab.
   - Replaced boolean storage values with "grid" / "list".
   - Reset previously saved card layout preferences due to changed storage keys.
+- Added content type bar to My Downloads: [L210]
+  - Added All, Video, Shorts, Audio, and In Progress tabs.
+  - Show the In Progress tab only to the owner and display only their active downloads.
 
 ### UI / Frontend
 - Added a content type bar with "All", "Video", "Shorts" and "Audio" tabs. [L200]

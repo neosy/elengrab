@@ -37,11 +37,11 @@ type MediaDownload struct {
 	// Unique short download code
 	DownloadCode string
 
-	// Source of the media record: a remote URL or a file uploaded by the user
-	SourceType dtypes.MediaDownloadSourceType
-
 	// Associated user identifier (UUID)
 	UserID *uuid.UUID
+
+	// Source of the media record: a remote URL or a file uploaded by the user
+	SourceType dtypes.MediaDownloadSourceType
 
 	// Status
 	Status dtypes.MediaDownloadStatus
@@ -146,7 +146,7 @@ func (m *MediaDownload) IsShort() bool {
 		return false
 	}
 
-	return m.MediaInfo.IsShorts()
+	return m.MediaInfo.IsShort()
 }
 
 // IsAudio returns true if the media download is audio-only (no video track).

@@ -17,7 +17,7 @@ import * as search from './pages-list.search.js';
 import { CLASS_NAMES, CLASS_SELECTORS, DOM_ELEMENTS, initDomElements } from "./user-downloads-page.dom.js";
 import { initUploadFileDialog } from "upload-file-dialog.js";
 import { initDownloadListDialog } from "download-list-dialog.js";
-
+import { CONTENT_TYPES, VIEW_MODES } from './pages-list.dom.js';
 
 // Global variables
 let searchInputClearButton = null;
@@ -93,9 +93,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Initialize view mode bar
-    view.initViewModeBar({
+    const viewModeBar = view.initViewModeBar({
         getSearchQueryValues: search.getSearchQueryValues,
         onSuccess: (rows) => {
+            refreshVideoPreview(true);
+            search.setSearchParametersInUrl();
+
+            const lazyObservers= [
+                thumbnailLazyImages,
+                avatarLazyImages,
+            ];
+
+            for (const observer of lazyObservers) {
+                observer.observe(rows);
+            }
+        },
+    });
+
+    // Initialize content type bar
+    view.initContentTypeBar({
+        getSearchQueryValues: () => {
+            const values = search.getSearchQueryValues();
+
+            if (values.contentType === CONTENT_TYPES.inProgress) {
+                values.viewMode = VIEW_MODES.new;
+            }
+
+            return values;
+        },
+        onSuccess: (rows) => {
+            if (CONTENT_TYPES.isInProgress()) {
+                viewModeBar.setActiveTab(VIEW_MODES.new, {reload: false})
+            }
+
+            view.initGridView();
+
+            browser.scrollToTop();
+
             refreshVideoPreview(true);
             search.setSearchParametersInUrl();
 
@@ -117,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         "row-delete": rowEventHandlers.handleRowDelete,
         "row-patch-field": rowEventHandlers.handleRowPatchField,
         "row-start-refreshing": rowEventHandlers.handleRowStartRefreshing,
+        "downloads-in-progress": commonEventHandlers.handleDownloadsInProgress,
         "notification": commonEventHandlers.handleNotification,
     };
 

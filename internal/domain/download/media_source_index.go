@@ -17,6 +17,9 @@ type MediaSourceIndex struct {
 	// User identifier
 	UserID *uuid.UUID
 
+	// Source of the media record: a remote URL or a file uploaded by the user
+	SourceType dtypes.MediaDownloadSourceType
+
 	// Media title
 	Title string
 
@@ -68,6 +71,7 @@ func (index *MediaSourceIndex) Validate() error {
 
 func (index *MediaSourceIndex) InitFromMediaDownload(download *MediaDownload) {
 	index.DownloadID = download.DownloadID
+	index.SourceType = download.SourceType
 	index.UserID = download.UserID
 
 	index.Title = download.MediaTitle

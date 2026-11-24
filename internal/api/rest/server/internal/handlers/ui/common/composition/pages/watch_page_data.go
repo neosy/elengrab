@@ -44,7 +44,7 @@ type (
 
 		MediaIsAudioOnly  bool
 		MediaIsPortrait   bool
-		MediaIsShorts     bool
+		MediaIsShort     bool
 		MediaLoopPlayback bool
 
 		AboutDialog AboutDialogValues

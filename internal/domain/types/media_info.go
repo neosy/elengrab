@@ -128,8 +128,8 @@ func (m *MediaInfo) Duration() time.Duration {
 	return time.Duration(m.DurationMs) * time.Millisecond
 }
 
-// IsShorts returns true if the media is a video and its duration is less than or equal to 3 minutes (180 seconds).
-func (m *MediaInfo) IsShorts() bool {
+// IsShort returns true if the media is a video and its duration is less than or equal to 3 minutes (180 seconds).
+func (m *MediaInfo) IsShort() bool {
 	if m == nil {
 		return false
 	}
@@ -144,11 +144,9 @@ func (m *MediaInfo) IsShorts() bool {
 
 	duration := m.Duration()
 
-	isShorts := duration > 0 &&
+	return duration > 0 &&
 		duration <= 180*time.Second &&
 		m.VideoInfo.AspectRatio() <= 1.0
-
-	return isShorts
 }
 
 // IsAudioOnly returns true if the media is audio-only (no video).

@@ -9,4 +9,5 @@ func (m *migrations) initMigrations() {
 	m.Add("06_fill_search_index_channel_id", m.fillSearchIndexChannelID)
 	m.Add("07_fill_download_code", m.fillDownloadCode)
 	m.Add("08_update_search_index", m.updateSearchIndex)
+	m.Add("09_update_source_type_search_index", m.updateSourceTypeInSearchIndex)
 }

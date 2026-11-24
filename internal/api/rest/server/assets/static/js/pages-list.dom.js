@@ -80,6 +80,7 @@ export const CONTENT_TYPES = {
     video: "video",
     shorts: "shorts",
     audio: "audio",
+    uploads: "uploads",
     inProgress: "in-progress",
 
     getCurrent: getContentType,
@@ -87,6 +88,7 @@ export const CONTENT_TYPES = {
     isVideo() {return getContentType() === this.video},
     isShorts() {return getContentType() === this.shorts},
     isAudio() {return getContentType() === this.audio},
+    isUploads() {return getContentType() === this.uploads},
     isInProgress() {return getContentType() === this.inProgress},
 }
 
