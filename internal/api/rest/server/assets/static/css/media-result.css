@@ -206,8 +206,8 @@ body:is(.grid-view) .media-result {
         --result-delete-display: none;
     }
 
-    body:is(.list-view):has(.content-type-tab--in-progress) .media-result {
-        --media-result-thumbnail-image-display: none;
+    body:is(.list-view):has(.content-type-tab--in-progress.active) .media-result {
+        --media-result-row-thumbnail-display: none;
         --result-delete-display: inline-flex;
     }
 
