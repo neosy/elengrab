@@ -528,6 +528,92 @@ func (r *MediaSourceIndexRepository) FillEmptyMediaTitleLower(ctx context.Contex
 	return nil
 }
 
+func (r *MediaSourceIndexRepository) Count(ctx context.Context) (int, error) {
+	var eIndex esearchindex.MediaSourceIndex
+
+	sqlWhere := squirrel.And{}
+
+	for name, filter := range r.queryOptions.Filters {
+		switch name {
+		case "":
+			continue
+		case eIndex.FieldName(&eIndex.TitleLower):
+			title, ok := filter.Condition().Value().(string)
+			if !ok {
+				return 0, fmt.Errorf("expected string, got %T (%v)", filter.Condition().Value(), filter.Condition().Value())
+			}
+			sqlWhere = append(sqlWhere, sqlutil.Like(eIndex.FieldName(&eIndex.TitleLower), title))
+		case eIndex.FieldName(&eIndex.UserID):
+			userID, ok := filter.Condition().Value().(uuid.UUID)
+			if !ok {
+				return 0, fmt.Errorf("expected uuid.UUID, got %T", filter.Condition().Value())
+			}
+			sqlWhere = append(sqlWhere, sqlutil.Like(eIndex.FieldName(&eIndex.UserID), userID.String()))
+		default:
+			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlCondition())
+		}
+	}
+
+	if text := uptr.Deref(r.queryOptions.SearchText); strings.TrimSpace(text) != "" {
+		text = strings.ToLower(text)
+		sqlWhere = append(sqlWhere, squirrel.Or{
+			sqlutil.Like(eIndex.FieldName(&eIndex.TitleLower), text),
+			sqlutil.Like(eIndex.FieldName(&eIndex.DescriptionLower), text),
+		})
+	}
+
+	switch r.queryOptions.ContentType {
+	case dtypes.QueryMediaContentTypeAll:
+		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
+	case dtypes.QueryMediaContentTypeVideo:
+		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsShort): false})
+		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsAudio): false})
+		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
+	case dtypes.QueryMediaContentTypeShorts:
+		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsShort): true})
+		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
+	case dtypes.QueryMediaContentTypeAudio:
+		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsAudio): true})
+		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
+	case dtypes.QueryMediaContentTypeUploads:
+		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.SourceType): dtypes.MediaDownloadSourceTypeUpload.String()})
+		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
+	case dtypes.QueryMediaContentTypeInProgress:
+		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): false})
+	}
+
+	if !r.queryOptions.includeDeleted {
+		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.DeletedAt): nil})
+	}
+
+	sqlQuery, args, err := squirrel.Select("COUNT(*)").
+		From(eIndex.TableName()).
+		Where(sqlWhere).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+
+	if err != nil {
+		return 0, fmt.Errorf("error generating SQL: %v", err)
+	}
+
+	// Execute the query
+	var count int
+	db := dbexec.Resolve(ctx, r.dbEntry)
+	execQuery := func() error {
+		err := db.QueryRowContext(ctx, sqlQuery, args...).Scan(&count)
+		if err == sql.ErrNoRows {
+			return nil
+		}
+		return err
+	}
+	err = dbexec.ExecRetry(ctx, r.retryOptions, execQuery)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (r *MediaSourceIndexRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
 	return dbexec.Tx(ctx, r.dbEntry, fn)
 }
