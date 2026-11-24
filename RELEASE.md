@@ -10,6 +10,7 @@
 - Added content type bar to My Downloads: [L210]
   - Added All, Video, Shorts, Audio, and In Progress tabs.
   - Show the In Progress tab only to the owner and display only their active downloads.
+- Added content type bar to uploaded media channel pages with All, Video, Shorts and Audio tabs. [L211]
 
 ### UI / Frontend
 - Added a content type bar with "All", "Video", "Shorts" and "Audio" tabs. [L200]
@@ -29,6 +30,7 @@
 - Displayed In Progress items in a compact layout on mobile when using list view. [L206]
 - Added download count and error indicator to the My Downloads menu item. [L208]
 - Hide the header when scrolling down on mobile landscape screens. [L209]
+- Improved animations when adding and removing media items during downloads and uploads. [L211]
 
 ---
 
