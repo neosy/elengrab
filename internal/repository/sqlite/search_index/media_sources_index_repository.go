@@ -9,17 +9,14 @@ import (
 	"uuid"
 
 	"github.com/Masterminds/squirrel"
-	dauth "github.com/neosy/elengrab/internal/domain/auth"
 	ddownload "github.com/neosy/elengrab/internal/domain/download"
 	dtypes "github.com/neosy/elengrab/internal/domain/types"
 	ierrors "github.com/neosy/elengrab/internal/errors"
 	"github.com/neosy/elengrab/internal/pkg/dbutils"
-	uptr "github.com/neosy/elengrab/internal/pkg/utils/pointer"
 	"github.com/neosy/elengrab/internal/ports/persistence"
 	"github.com/neosy/elengrab/internal/repository/sqlite/dbexec"
 	esearchindex "github.com/neosy/elengrab/internal/repository/sqlite/search_index/entity"
 	"github.com/neosy/elengrab/internal/repository/sqlite/search_index/mappers"
-	"github.com/neosy/elengrab/internal/repository/sqlite/sqlutil"
 )
 
 type MediaSourceIndexRepository struct {
@@ -124,7 +121,7 @@ func (r *MediaSourceIndexRepository) UpdateOwner(ctx context.Context, fromID, to
 func (r *MediaSourceIndexRepository) SoftDelete(ctx context.Context, downloadID uuid.UUID) error {
 	var eIndex esearchindex.MediaSourceIndex
 
-	fieldsToUpdate := map[string]interface{}{
+	fieldsToUpdate := map[string]any{
 		eIndex.FieldName(&eIndex.DeletedAt): squirrel.Expr("CURRENT_TIMESTAMP"),
 	}
 
@@ -218,11 +215,7 @@ func (r *MediaSourceIndexRepository) FindByDownloadID(ctx context.Context, downl
 		},
 	)
 
-	for name, filter := range r.queryOptions.Filters {
-		if name != "" {
-			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlCondition())
-		}
-	}
+	sqlWhere = r.applySearchFilter(sqlWhere)
 
 	sqlQuery, args, err := squirrel.Select(eIndex.QueryFields()...).
 		From(eIndex.TableName()).
@@ -270,105 +263,25 @@ func (r *MediaSourceIndexRepository) iterateAll(
 	fn func(*ddownload.MediaSourceIndex) error,
 ) error {
 	var (
-		eIndex       esearchindex.MediaSourceIndex
-		filterUserID string
-		conditions   = squirrel.And{}
+		eIndex     esearchindex.MediaSourceIndex
+		conditions = squirrel.And{}
 	)
 
-	for name, filter := range r.queryOptions.Filters {
-		switch name {
-		case "":
-			continue
-		case eIndex.FieldName(&eIndex.TitleLower):
-			title, ok := filter.Condition().Value().(string)
-			if !ok {
-				return fmt.Errorf("expected string, got %T (%v)", filter.Condition().Value(), filter.Condition().Value())
-			}
-			conditions = append(conditions, sqlutil.Like(eIndex.FieldName(&eIndex.TitleLower), title))
-		case eIndex.FieldName(&eIndex.UserID):
-			userID, ok := filter.Condition().Value().(uuid.UUID)
-			if !ok {
-				return fmt.Errorf("expected uuid.UUID, got %T", filter.Condition().Value())
-			}
-			filterUserID = userID.String()
-		default:
-			conditions = append(conditions, filter.PrepareForSql().SqlCondition())
-		}
+	conditions, filterUserID, err := r.applyFiltersWithoutUserID(conditions)
+	if err != nil {
+		return err
 	}
 
-	if text := uptr.Deref(r.queryOptions.SearchText); strings.TrimSpace(text) != "" {
-		text = strings.ToLower(text)
-		conditions = append(conditions, squirrel.Or{
-			sqlutil.Like(eIndex.FieldName(&eIndex.TitleLower), text),
-			sqlutil.Like(eIndex.FieldName(&eIndex.DescriptionLower), text),
-		})
-	}
+	conditions, hasUserFilter := r.applyVisibilityAndCheckUserFilter(conditions, filterUserID)
 
-	switch r.queryOptions.ContentType {
-	case dtypes.QueryMediaContentTypeAll:
-		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
-	case dtypes.QueryMediaContentTypeVideo:
-		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsShort): false})
-		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsAudio): false})
-		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
-	case dtypes.QueryMediaContentTypeShorts:
-		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsShort): true})
-		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
-	case dtypes.QueryMediaContentTypeAudio:
-		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsAudio): true})
-		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
-	case dtypes.QueryMediaContentTypeUploads:
-		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.SourceType): dtypes.MediaDownloadSourceTypeUpload.String()})
-		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
-	case dtypes.QueryMediaContentTypeInProgress:
-		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): false})
-	}
-
-	if r.queryOptions.Visibility != nil {
-		queryVisibility := *r.queryOptions.Visibility
-
-		var sqlOr squirrel.Or
-		if queryVisibility > dtypes.QueryMediaVisibilityAll {
-			sqlOr = squirrel.Or{
-				squirrel.Eq{eIndex.FieldName(&eIndex.UserID): nil},
-				squirrel.Eq{eIndex.FieldName(&eIndex.UserID): uuid.Nil().String()},
-				squirrel.Eq{eIndex.FieldName(&eIndex.Visibility): dtypes.MediaVisibilityPublic.String()},
-			}
-		}
-
-		if queryVisibility == dtypes.QueryMediaVisibilityAuthenticated {
-			if !r.queryOptions.IsGuestRequest {
-				sqlOr = append(sqlOr, squirrel.Eq{eIndex.FieldName(&eIndex.Visibility): dtypes.MediaVisibilityAuthenticated.String()})
-			}
-			if filterUserID != "" {
-				sqlOr = append(sqlOr, squirrel.Eq{eIndex.FieldName(&eIndex.UserID): filterUserID})
-				filterUserID = ""
-			}
-		}
-
-		if len(sqlOr) > 0 {
-			conditions = append(conditions, sqlOr)
-		}
-	}
-
-	if filterUserID != "" {
+	if !hasUserFilter && filterUserID != "" {
 		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.UserID): filterUserID})
 	}
 
-	if r.queryOptions.OwnerIDForInProgress != nil {
-		if *r.queryOptions.OwnerIDForInProgress != dauth.AnonymousUserID() {
-			conditions = append(conditions, squirrel.Or{
-				squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true},
-				squirrel.Eq{eIndex.FieldName(&eIndex.UserID): r.queryOptions.OwnerIDForInProgress.String()},
-			})
-		} else {
-			conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
-		}
-	}
-
-	if !r.queryOptions.includeDeleted {
-		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.DeletedAt): nil})
-	}
+	conditions = r.applySearchFilter(conditions)
+	conditions = r.applyContentTypeFilter(conditions)
+	conditions = r.applyInProgressOwnerFilter(conditions)
+	conditions = r.applyDeletedFilter(conditions)
 
 	var orderBys dbutils.OrderByList
 
@@ -533,58 +446,15 @@ func (r *MediaSourceIndexRepository) Count(ctx context.Context) (int, error) {
 
 	sqlWhere := squirrel.And{}
 
-	for name, filter := range r.queryOptions.Filters {
-		switch name {
-		case "":
-			continue
-		case eIndex.FieldName(&eIndex.TitleLower):
-			title, ok := filter.Condition().Value().(string)
-			if !ok {
-				return 0, fmt.Errorf("expected string, got %T (%v)", filter.Condition().Value(), filter.Condition().Value())
-			}
-			sqlWhere = append(sqlWhere, sqlutil.Like(eIndex.FieldName(&eIndex.TitleLower), title))
-		case eIndex.FieldName(&eIndex.UserID):
-			userID, ok := filter.Condition().Value().(uuid.UUID)
-			if !ok {
-				return 0, fmt.Errorf("expected uuid.UUID, got %T", filter.Condition().Value())
-			}
-			sqlWhere = append(sqlWhere, sqlutil.Like(eIndex.FieldName(&eIndex.UserID), userID.String()))
-		default:
-			sqlWhere = append(sqlWhere, filter.PrepareForSql().SqlCondition())
-		}
+	sqlWhere, err := r.applyFilters(sqlWhere)
+	if err != nil {
+		return 0, err
 	}
 
-	if text := uptr.Deref(r.queryOptions.SearchText); strings.TrimSpace(text) != "" {
-		text = strings.ToLower(text)
-		sqlWhere = append(sqlWhere, squirrel.Or{
-			sqlutil.Like(eIndex.FieldName(&eIndex.TitleLower), text),
-			sqlutil.Like(eIndex.FieldName(&eIndex.DescriptionLower), text),
-		})
-	}
-
-	switch r.queryOptions.ContentType {
-	case dtypes.QueryMediaContentTypeAll:
-		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
-	case dtypes.QueryMediaContentTypeVideo:
-		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsShort): false})
-		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsAudio): false})
-		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
-	case dtypes.QueryMediaContentTypeShorts:
-		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsShort): true})
-		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
-	case dtypes.QueryMediaContentTypeAudio:
-		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsAudio): true})
-		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
-	case dtypes.QueryMediaContentTypeUploads:
-		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.SourceType): dtypes.MediaDownloadSourceTypeUpload.String()})
-		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): true})
-	case dtypes.QueryMediaContentTypeInProgress:
-		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.IsReady): false})
-	}
-
-	if !r.queryOptions.includeDeleted {
-		sqlWhere = append(sqlWhere, squirrel.Eq{eIndex.FieldName(&eIndex.DeletedAt): nil})
-	}
+	sqlWhere = r.applyVisibilityFilter(sqlWhere, "")
+	sqlWhere = r.applySearchFilter(sqlWhere)
+	sqlWhere = r.applyContentTypeFilter(sqlWhere)
+	sqlWhere = r.applyDeletedFilter(sqlWhere)
 
 	sqlQuery, args, err := squirrel.Select("COUNT(*)").
 		From(eIndex.TableName()).

@@ -34,7 +34,7 @@ func (h *DownloaderHandlers) renderUserDownloadsPage(
 		return
 	}
 
-	itemsCount, _ := h.downloader.CountUserDownloads(ctx, user.UserID)
+	itemsCount, _ := h.downloader.CountUserDownloads(ctx, authCtx, user.UserID)
 
 	cssPaths, err := h.assetPaths.UserDownloadsPageCssPaths()
 	if err != nil {
