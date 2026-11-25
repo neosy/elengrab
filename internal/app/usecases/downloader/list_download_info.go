@@ -252,6 +252,7 @@ func (uc *downloader) fetchDownloadsByIndex(
 
 func (u *downloader) CountUserDownloads(
 	ctx context.Context,
+	authCtx dauth.AuthContext,
 	userID uuid.UUID,
 ) (int, error) {
 	if userID == dauth.AnonymousUserID() {
@@ -259,8 +260,15 @@ func (u *downloader) CountUserDownloads(
 	}
 
 	options := dtypes.NewQueryMediaOptions()
-
 	options.Filters.Add(dtypes.QueryFilterNameUserID, userID)
+
+	if u.authz.ShouldRestrictDownloads(authCtx.RoleIDs) && userID != authCtx.UserID {
+		if authCtx.IsGuestOrHigher() {
+			options.Visibility = new(dtypes.QueryMediaVisibilityAuthenticated)
+		} else {
+			options.Visibility = new(dtypes.QueryMediaVisibilityPublic)
+		}
+	}
 
 	return u.searchIndex.CountFromIndex(ctx, &options)
 }
