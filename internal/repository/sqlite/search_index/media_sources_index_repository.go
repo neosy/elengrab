@@ -267,17 +267,12 @@ func (r *MediaSourceIndexRepository) iterateAll(
 		conditions = squirrel.And{}
 	)
 
-	conditions, filterUserID, err := r.applyFiltersWithoutUserID(conditions)
+	conditions, err := r.applyFilters(conditions)
 	if err != nil {
 		return err
 	}
 
-	conditions, hasUserFilter := r.applyVisibilityAndCheckUserFilter(conditions, filterUserID)
-
-	if !hasUserFilter && filterUserID != "" {
-		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.UserID): filterUserID})
-	}
-
+	conditions = r.applyVisibilityFilter(conditions)
 	conditions = r.applySearchFilter(conditions)
 	conditions = r.applyContentTypeFilter(conditions)
 	conditions = r.applyInProgressOwnerFilter(conditions)
@@ -451,7 +446,7 @@ func (r *MediaSourceIndexRepository) Count(ctx context.Context) (int, error) {
 		return 0, err
 	}
 
-	sqlWhere = r.applyVisibilityFilter(sqlWhere, "")
+	sqlWhere = r.applyVisibilityFilter(sqlWhere)
 	sqlWhere = r.applySearchFilter(sqlWhere)
 	sqlWhere = r.applyContentTypeFilter(sqlWhere)
 	sqlWhere = r.applyDeletedFilter(sqlWhere)
