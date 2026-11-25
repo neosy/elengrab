@@ -3,7 +3,10 @@
           <img class="main-header-image{{ if not .Values.ChannelHeader.ImageURL }} hidden{{ end }}" id="channel-header-image" alt="Channel avatar" src="{{ .Values.ChannelHeader.ImageURL }}">
           <div class="main-header-content">
             <span class="main-header-title" id="channel-header-title">{{ .Values.ChannelHeader.Title }}</span>
-            <span class="main-header-meta" id="channel-header-ext-username">@{{ .Values.ChannelHeader.Ext.Username }}</span>
+            <div class="main-header-meta">
+                <span class="main-header-username" id="channel-header-ext-username">@{{ .Values.ChannelHeader.Ext.Username }}</span>
+                <span class="main-header-count">{{ .Values.ItemsCount }} media</span>
+            </div>
           </div>
         </div>
 {{- end }}

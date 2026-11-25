@@ -55,5 +55,5 @@ func (h *DownloaderHandlers) ChannelPageHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	h.renderChannelPage(ctx, authCtx, query)
+	h.renderChannelPage(ctx, authCtx, channelID, query)
 }
