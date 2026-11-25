@@ -25,6 +25,7 @@ import (
 func (h *DownloaderHandlers) renderChannelPage(
 	ctx *fasthttp.RequestCtx,
 	authCtx dauth.AuthContext,
+	channelID uuid.UUID,
 	query udto.MediaDownloadQuery,
 ) {
 	var rowsBuf bytes.Buffer
@@ -33,6 +34,8 @@ func (h *DownloaderHandlers) renderChannelPage(
 		nfasthttp.WriteErrorx(ctx, err)
 		return
 	}
+
+	itemsCount, _ := h.downloader.CountChannelDownloads(ctx, authCtx, channelID)
 
 	cssPaths, err := h.assetPaths.ChannelPageCssPaths()
 	if err != nil {
@@ -77,6 +80,7 @@ func (h *DownloaderHandlers) renderChannelPage(
 		),
 		h.downloader,
 	)
+	pagesListValues.ItemsCount = itemsCount
 	pagesListValues.ResultNoRows = rowsBuf.Len() == 0
 	pagesListValues.ResultRowsHTML = template.HTML(rowsBuf.String())
 	pagesListValues.AboutDialog = h.mappers.MapAboutDialogValues(systemInfo)

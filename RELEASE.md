@@ -25,7 +25,8 @@
   - Show downloads that are still in progress exclusively in the In Progress tab.
 - Increased the number of rows loaded on scroll in In Progress from 20 to 500. [L204]
 - Added a download error indicator to the Add Download button. [L207]
-- Added the current user's media count next to their username on the My Downloads page. [L212]
+- Added the user's media count next to their username on the My Downloads page. [L212]
+- Added the media count next to the channel name on the channel page. [L213]
 
 ### 🎨 Style
 - Added animated status indicators with distinct icons and colors for different download states. [L201]

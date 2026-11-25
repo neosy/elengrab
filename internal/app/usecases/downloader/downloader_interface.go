@@ -90,6 +90,7 @@ type DownloaderAPI interface {
 	CanCreateMediaDownload(authCtx dauth.AuthContext) bool
 	GetLastWatchPosition(ctx context.Context, authCtx dauth.AuthContext, downloadID uuid.UUID) (time.Duration, error)
 	CountUserDownloads(ctx context.Context, authCtx dauth.AuthContext, userID uuid.UUID) (int, error)
+	CountChannelDownloads(ctx context.Context, authCtx dauth.AuthContext, channelID uuid.UUID) (int, error)
 
 	ScheduleDownload(
 		ctx context.Context,
