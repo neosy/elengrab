@@ -33,7 +33,6 @@ func (uc *downloader) ListDownloadInfo(
 
 	options.LastRecord = query.LastRecord
 	options.Limit = new(query.Limit)
-	options.IsGuestRequest = authCtx.IsGuest()
 
 	if !uc.authz.HasViewAllAccess(authCtx.RoleIDs) {
 		options.OwnerIDForInProgress = &authCtx.UserID
@@ -45,16 +44,27 @@ func (uc *downloader) ListDownloadInfo(
 			userID, ok := filter.Value().(uuid.UUID)
 			existsUserIDFilter = ok && userID != uuid.Nil()
 
-			if existsUserIDFilter && uc.authz.ShouldRestrictDownloads(authCtx.RoleIDs) && userID != authCtx.UserID {
-				options.Visibility = new(dtypes.QueryMediaVisibilityPublic)
+			if existsUserIDFilter && userID == authCtx.UserID {
+				options.Visibility = new(dtypes.QueryMediaVisibilityAll)
 			}
 		}
 	}
 
-	if !existsUserIDFilter && uc.authz.ShouldRestrictDownloads(authCtx.RoleIDs) {
-		options.Filters.Add(dtypes.QueryFilterNameUserID, authCtx.UserID)
-		if authCtx.IsGuestOrHigher() {
+	if options.Visibility == nil && !uc.authz.ShouldRestrictDownloads(authCtx.RoleIDs) {
+		options.Visibility = new(dtypes.QueryMediaVisibilityAll)
+	}
+
+	if options.Visibility == nil {
+		if authCtx.IsUserOrHigher() {
 			options.Visibility = new(dtypes.QueryMediaVisibilityAuthenticated)
+		} else {
+			options.Visibility = new(dtypes.QueryMediaVisibilityPublic)
+		}
+	}
+
+	if !existsUserIDFilter && *options.Visibility > dtypes.QueryMediaVisibilityAll {
+		if authCtx.IsGuestOrHigher() {
+			options.VisibilityUserID = &authCtx.UserID
 		}
 	}
 
@@ -262,8 +272,12 @@ func (u *downloader) CountUserDownloads(
 	options := dtypes.NewQueryMediaOptions()
 	options.Filters.Add(dtypes.QueryFilterNameUserID, userID)
 
-	if u.authz.ShouldRestrictDownloads(authCtx.RoleIDs) && userID != authCtx.UserID {
-		if authCtx.IsGuestOrHigher() {
+	if userID == authCtx.UserID || !u.authz.ShouldRestrictDownloads(authCtx.RoleIDs) {
+		options.Visibility = new(dtypes.QueryMediaVisibilityAll)
+	}
+
+	if options.Visibility == nil {
+		if authCtx.IsUserOrHigher() {
 			options.Visibility = new(dtypes.QueryMediaVisibilityAuthenticated)
 		} else {
 			options.Visibility = new(dtypes.QueryMediaVisibilityPublic)

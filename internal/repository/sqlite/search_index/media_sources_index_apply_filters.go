@@ -81,35 +81,26 @@ func (r *MediaSourceIndexRepository) applyInProgressOwnerFilter(conditions []squ
 	return conditions
 }
 
-func (r *MediaSourceIndexRepository) applyVisibilityAndCheckUserFilter(
-	conditions []squirrel.Sqlizer,
-	filterUserID string,
-) ([]squirrel.Sqlizer, bool) {
+func (r *MediaSourceIndexRepository) applyVisibilityFilter(conditions []squirrel.Sqlizer) []squirrel.Sqlizer {
 	var (
-		eIndex        esearchindex.MediaSourceIndex
-		hasUserFilter bool
+		eIndex esearchindex.MediaSourceIndex
 	)
 
 	if r.queryOptions.Visibility != nil && *r.queryOptions.Visibility > dtypes.QueryMediaVisibilityAll {
 		queryVisibility := *r.queryOptions.Visibility
 
-		var sqlOr squirrel.Or
-		if queryVisibility > dtypes.QueryMediaVisibilityAll {
-			sqlOr = squirrel.Or{
-				squirrel.Eq{eIndex.FieldName(&eIndex.UserID): nil},
-				squirrel.Eq{eIndex.FieldName(&eIndex.UserID): uuid.Nil().String()},
-				squirrel.Eq{eIndex.FieldName(&eIndex.Visibility): dtypes.MediaVisibilityPublic.String()},
-			}
+		sqlOr := squirrel.Or{
+			squirrel.Eq{eIndex.FieldName(&eIndex.UserID): nil},
+			squirrel.Eq{eIndex.FieldName(&eIndex.UserID): uuid.Nil().String()},
+			squirrel.Eq{eIndex.FieldName(&eIndex.Visibility): dtypes.MediaVisibilityPublic.String()},
 		}
 
 		if queryVisibility == dtypes.QueryMediaVisibilityAuthenticated {
-			if !r.queryOptions.IsGuestRequest {
-				sqlOr = append(sqlOr, squirrel.Eq{eIndex.FieldName(&eIndex.Visibility): dtypes.MediaVisibilityAuthenticated.String()})
-			}
-			if filterUserID != "" {
-				sqlOr = append(sqlOr, squirrel.Eq{eIndex.FieldName(&eIndex.UserID): filterUserID})
-				hasUserFilter = true
-			}
+			sqlOr = append(sqlOr, squirrel.Eq{eIndex.FieldName(&eIndex.Visibility): dtypes.MediaVisibilityAuthenticated.String()})
+		}
+
+		if r.queryOptions.VisibilityUserID != nil {
+			sqlOr = append(sqlOr, squirrel.Eq{eIndex.FieldName(&eIndex.UserID): r.queryOptions.VisibilityUserID.String()})
 		}
 
 		if len(sqlOr) > 0 {
@@ -117,18 +108,12 @@ func (r *MediaSourceIndexRepository) applyVisibilityAndCheckUserFilter(
 		}
 	}
 
-	return conditions, hasUserFilter
-}
-
-func (r *MediaSourceIndexRepository) applyVisibilityFilter(conditions []squirrel.Sqlizer, filterUserID string) []squirrel.Sqlizer {
-	conditions, _ = r.applyVisibilityAndCheckUserFilter(conditions, filterUserID)
 	return conditions
 }
 
-func (r *MediaSourceIndexRepository) applyFiltersWithoutUserID(conditions []squirrel.Sqlizer) ([]squirrel.Sqlizer, string, error) {
+func (r *MediaSourceIndexRepository) applyFilters(conditions []squirrel.Sqlizer) ([]squirrel.Sqlizer, error) {
 	var (
-		eIndex       esearchindex.MediaSourceIndex
-		filterUserID string
+		eIndex esearchindex.MediaSourceIndex
 	)
 
 	for name, filter := range r.queryOptions.Filters {
@@ -138,32 +123,18 @@ func (r *MediaSourceIndexRepository) applyFiltersWithoutUserID(conditions []squi
 		case eIndex.FieldName(&eIndex.TitleLower):
 			title, ok := filter.Condition().Value().(string)
 			if !ok {
-				return nil, "", fmt.Errorf("expected string, got %T (%v)", filter.Condition().Value(), filter.Condition().Value())
+				return nil, fmt.Errorf("expected string, got %T (%v)", filter.Condition().Value(), filter.Condition().Value())
 			}
 			conditions = append(conditions, sqlutil.Like(eIndex.FieldName(&eIndex.TitleLower), title))
 		case eIndex.FieldName(&eIndex.UserID):
 			userID, ok := filter.Condition().Value().(uuid.UUID)
 			if !ok {
-				return nil, "", fmt.Errorf("expected uuid.UUID, got %T", filter.Condition().Value())
+				return nil, fmt.Errorf("expected uuid.UUID, got %T", filter.Condition().Value())
 			}
-			filterUserID = userID.String()
+			conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.UserID): userID.String()})
 		default:
 			conditions = append(conditions, filter.PrepareForSql().SqlCondition())
 		}
-	}
-
-	return conditions, filterUserID, nil
-}
-
-func (r *MediaSourceIndexRepository) applyFilters(conditions []squirrel.Sqlizer) ([]squirrel.Sqlizer, error) {
-	conditions, filterUserID, err := r.applyFiltersWithoutUserID(conditions)
-	if err != nil {
-		return nil, err
-	}
-
-	if filterUserID != "" {
-		var eIndex esearchindex.MediaSourceIndex
-		conditions = append(conditions, squirrel.Eq{eIndex.FieldName(&eIndex.UserID): filterUserID})
 	}
 
 	return conditions, nil

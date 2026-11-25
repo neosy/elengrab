@@ -37,7 +37,6 @@ func (r *MediaDownloadRepository) WithOptions(options dtypes.QueryMediaOptions) 
 
 	r.queryOptions.ViewMode = options.ViewMode
 	r.queryOptions.Visibility = options.Visibility
-	r.queryOptions.IsGuestRequest = options.IsGuestRequest
 
 	if len(options.OrderBys) > 0 {
 		r.WithOrderBy(options.OrderBys...)

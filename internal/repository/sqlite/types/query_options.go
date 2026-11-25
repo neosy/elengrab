@@ -22,9 +22,10 @@ type QueryMediaOptions struct {
 	ViewMode    dtypes.QueryMediaViewMode
 	LastRecord  dtypes.QueryMediaDownloadCursor
 
-	SearchText     *string
-	Visibility     *dtypes.QueryMediaVisibility
-	IsGuestRequest bool
+	SearchText *string
+
+	Visibility       *dtypes.QueryMediaVisibility
+	VisibilityUserID *uuid.UUID
 
 	// OwnerIDForInProgress limits in-progress downloads to the specified owner.
 	// Anonymous users can only see ready downloads.

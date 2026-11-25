@@ -19,11 +19,10 @@ type rowMenuAction struct {
 	visibleStatuses    []dtypes.MediaDownloadStatus
 	disallowRefreshing bool
 
-	requireVisibilityPublic             bool
-	requireVisibilityPublicOrEditAccess bool
-	requireEditAccess                   bool
-	requireDeleteAccess                 bool
-	requireSourceType                   dtypes.MediaDownloadSourceType
+	requireVisibilityPublic bool
+	requireEditAccess       bool
+	requireDeleteAccess     bool
+	requireSourceType       dtypes.MediaDownloadSourceType
 }
 
 const (
@@ -90,9 +89,8 @@ var rowMenuActions = []rowMenuAction{
 			Placeholder: RowMenuActionItemIDKey,
 		},
 
-		icon:                                icons.DownloaderRowMenuShareLinkIcon,
-		visibleStatuses:                     dtypes.MediaDownloadCompletedStatuses(),
-		requireVisibilityPublicOrEditAccess: true,
+		icon:            icons.DownloaderRowMenuShareLinkIcon,
+		visibleStatuses: dtypes.MediaDownloadCompletedStatuses(),
 	},
 
 	{
@@ -104,9 +102,8 @@ var rowMenuActions = []rowMenuAction{
 			Placeholder: RowMenuActionItemIDKey,
 		},
 
-		icon:                                icons.DownloaderRowMenuCopyLinkIcon,
-		visibleStatuses:                     dtypes.MediaDownloadCompletedStatuses(),
-		requireVisibilityPublicOrEditAccess: true,
+		icon:            icons.DownloaderRowMenuCopyLinkIcon,
+		visibleStatuses: dtypes.MediaDownloadCompletedStatuses(),
 	},
 
 	{
@@ -230,12 +227,6 @@ func RowMenuActions(
 
 		if a.requireVisibilityPublic && options.Visibility != dtypes.MediaVisibilityPublic {
 			continue
-		}
-
-		if a.requireVisibilityPublicOrEditAccess {
-			if !hasEditAccess && options.Visibility != dtypes.MediaVisibilityPublic {
-				continue
-			}
 		}
 
 		switch a.Action {

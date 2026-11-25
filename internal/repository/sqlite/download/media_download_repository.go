@@ -487,7 +487,6 @@ func (r *MediaDownloadRepository) iterateAll(
 		})
 	}
 
-	var filterUserID string
 	for name, filter := range r.queryOptions.Filters {
 		switch name {
 		case "":
@@ -497,7 +496,7 @@ func (r *MediaDownloadRepository) iterateAll(
 			if !ok {
 				return fmt.Errorf("expected uuid.UUID, got %T", filter.Condition().Value())
 			}
-			filterUserID = userID.String()
+			conditions = append(conditions, squirrel.Eq{eDownload.FieldName(&eDownload.UserID, aliasDownloads): userID.String()})
 		default:
 			conditions = append(conditions, filter.PrepareForSql().SqlConditionWithAlias(aliasDownloads))
 		}
@@ -511,21 +510,17 @@ func (r *MediaDownloadRepository) iterateAll(
 				squirrel.Eq{eDownload.FieldName(&eDownload.UserID, aliasDownloads): uuid.Nil().String()},
 				squirrel.Eq{eDownload.FieldName(&eDownload.Visibility, aliasDownloads): dtypes.MediaVisibilityPublic.String()},
 			}
+
 			if queryVisibility == dtypes.QueryMediaVisibilityAuthenticated {
-				if !r.queryOptions.IsGuestRequest {
-					sqlOr = append(sqlOr, squirrel.Eq{eDownload.FieldName(&eDownload.Visibility): dtypes.MediaVisibilityAuthenticated.String()})
-				}
-				if filterUserID != "" {
-					sqlOr = append(sqlOr, squirrel.Eq{eDownload.FieldName(&eDownload.UserID): filterUserID})
-					filterUserID = ""
-				}
+				sqlOr = append(sqlOr, squirrel.Eq{eDownload.FieldName(&eDownload.Visibility): dtypes.MediaVisibilityAuthenticated.String()})
 			}
+
+			if r.queryOptions.VisibilityUserID != nil {
+				sqlOr = append(sqlOr, squirrel.Eq{eDownload.FieldName(&eDownload.UserID): r.queryOptions.VisibilityUserID.String()})
+			}
+
 			conditions = append(conditions, sqlOr)
 		}
-	}
-
-	if filterUserID != "" {
-		conditions = append(conditions, squirrel.Eq{eDownload.FieldName(&eDownload.UserID, aliasDownloads): filterUserID})
 	}
 
 	if r.queryOptions.partialHash != nil {
