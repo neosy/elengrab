@@ -106,8 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
         onSuccess: (rows) => {
             view.initGridView();
 
-            browser.scrollToTop();
-
             refreshVideoPreview(true);
             search.setSearchParametersInUrl();
 
@@ -136,5 +134,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Force scroll to top after full page load
 window.addEventListener('load', () => {
-    window.scrollTo(0, 0);
+    browser.scrollToTop(false);
 });
