@@ -27,6 +27,9 @@ const CLASS_NAMES = {
     videoPlayer: "media-player__video-player",
     audioPlayer: "media-player__audio-player",
 
+    videoPlayerOverlayTitle: "media-player__video-overlay-title",
+    videoPlayerTitle: "media-player__video-title",
+
     playingDuration: "playing-overlay__duration-value",
     playingProgress: "playing-overlay__progress-value",
 };
@@ -57,6 +60,9 @@ const DOM_ELEMENTS = {
     videoPlayer: null,
     audioPlayer: null,
 
+    videoPlayerOverlayTitle: null,
+    videoPlayerTitle: null,
+
     videoPlayerMinimizeButton: null,
     videoPlayerCloseButton: null,
     audioPlayerCloseButton: null,
@@ -79,6 +85,8 @@ function initDomElements(elements = DOM_ELEMENTS) {
 
     if (elements.videoPlayerContainer) {
         elements.videoPlayer = elements.videoPlayerContainer.querySelector(CLASS_SELECTORS.videoPlayer);
+        elements.videoPlayerOverlayTitle = elements.videoPlayerContainer.querySelector(CLASS_SELECTORS.videoPlayerOverlayTitle);
+        elements.videoPlayerTitle = elements.videoPlayerContainer.querySelector(CLASS_SELECTORS.videoPlayerTitle);
         elements.videoPlayerMinimizeButton = elements.videoPlayerContainer.querySelector(CLASS_SELECTORS.mediaPlayerMinimizeButton)
         elements.videoPlayerCloseButton = elements.videoPlayerContainer.querySelector(CLASS_SELECTORS.mediaPlayerCloseButton)
     }
@@ -106,6 +114,7 @@ const mediaPlayer = {
     isOpen: false,
 
     player: null,
+    playerTitle: null,
 
     playingRow: null,
     rowItemId: "",
@@ -128,6 +137,7 @@ const mediaPlayer = {
             }    
 
             this.player = null;
+            this.playerTitle = null;
         }
 
         this.playingRow = null;
@@ -328,10 +338,13 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
         const mediaURL = mediaPlayer.playingRow.dataset.media;
         if (!mediaURL) return;
 
+        const mediaTitle = mediaPlayer.playingRow.dataset.title || "";
+
         mediaPlayer.isAudio = itemIsAudio;
 
         if (!mediaPlayer.isAudio) {
             mediaPlayer.player = videoPlayer;
+            mediaPlayer.playerTitle = DOM_ELEMENTS.videoPlayerTitle;
             document.dispatchEvent(new Event(EVENT_NAMES.videoPlayerOpened));
         } else {
             mediaPlayer.player = audioPlayer;
@@ -357,6 +370,10 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
 
         mediaPlayer.isOpen = true
         mediaPlayer.player.src = mediaURL;
+
+        if (mediaPlayer.playerTitle) {
+            mediaPlayer.playerTitle.textContent = mediaTitle;
+        }
 
         mediaPlayer.syncWithHash();
 
@@ -392,6 +409,10 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
             });
 
             mediaPlayer.player.focus({ preventScroll: true });
+
+            if (DOM_ELEMENTS.videoPlayerOverlayTitle) {
+                DOM_ELEMENTS.videoPlayerOverlayTitle.textContent = mediaTitle;
+            }
         }
 
         if (itemId) {

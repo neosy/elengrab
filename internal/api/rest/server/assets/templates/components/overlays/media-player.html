@@ -2,10 +2,20 @@
     <div class="media-player" id="media-player">
         <div class="media-player__video" id="media-player-video">
             <div class="media-player__wrapper">
+                <div class="media-player__video-overlay">
+                    <div class="media-player__video-overlay-title"></div>
+                </div>
                 <video class="media-player__video-player" disablepictureinpicture src=""></video>
                 <div class="media-player__controls media-player__controls--horizontal">
                     <button class="media-player__control media-player__control--minimize" title="Minimize player" aria-label="Minimize player">{{ .Values.VideoPlayerMinimizeIcon }}</button>
                     <button class="media-player__control media-player__control--close" title="Close player" aria-label="Close player">×</button>
+                </div>
+            </div>
+            <div class="media-player__video-info">
+                <div class="media-player__video-title">Test</div>
+                <div class="media-player__video-queue">
+                    <span class="media-player__video-queue-position"></span>
+                    <button class="media-player__video-queue-toggle" title="Show playlist" aria-label="Show playlist"></button>
                 </div>
             </div>
         </div>
