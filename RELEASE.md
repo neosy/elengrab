@@ -37,6 +37,9 @@
 - Improved animations when adding and removing media items during downloads and uploads. [L211]
 - Added a dimmed loading state when switching Content Type and View Mode tabs. [L214]
 
+### 🧩 Refactor
+  - Unified audio and video player structure. [L216]
+
 ---
 
 ## v0.28.0 — 2026-11-16

@@ -11,20 +11,24 @@
                     <button class="media-player__control media-player__control--close" title="Close player" aria-label="Close player">×</button>
                 </div>
             </div>
-            <div class="media-player__video-info">
-                <div class="media-player__video-title">Test</div>
-                <div class="media-player__video-queue">
-                    <span class="media-player__video-queue-position"></span>
-                    <button class="media-player__video-queue-toggle" title="Show playlist" aria-label="Show playlist"></button>
+            <div class="media-player__info media-player__info--video">
+                <div class="media-player__info-title"></div>
+                <div class="media-player__info-queue">
+                    <span class="media-player__info-queue-position"></span>
+                    <button class="media-player__info-queue-toggle" title="Show playlist" aria-label="Show playlist"></button>
                 </div>
             </div>
         </div>
         <div class="media-player__audio" id="media-player-audio">
             <div class="media-player__wrapper">
-                <audio class="media-player__audio-player" src=""></audio>
+                <video class="media-player__audio-player" src=""></video>
+                <div class="media-player__click-area"></div>
                 <div class="media-player__controls media-player__controls--horizontal">
-                    <button class="media-player__control media-player__control--close" aria-label="Close audio player">×</button>
+                    <button class="media-player__control media-player__control--close" title="Close player" aria-label="Close player">×</button>
                 </div>
+            </div>
+            <div class="media-player__info media-player__info--audio">
+                <div class="media-player__info-title"></div>
             </div>
         </div>
     </div>       

@@ -18,6 +18,7 @@ const CLASS_NAMES = {
     isPlayerAttached: "is-player-attached",
 
     mediaPlayerWrapper: "media-player__wrapper",
+    mediaPlayerClickArea: "media-player__click-area",
     mediaPlayerCloseButton: "media-player__control--close",
     mediaPlayerMinimizeButton: "media-player__control--minimize",
 
@@ -28,7 +29,8 @@ const CLASS_NAMES = {
     audioPlayer: "media-player__audio-player",
 
     videoPlayerOverlayTitle: "media-player__video-overlay-title",
-    videoPlayerTitle: "media-player__video-title",
+    videoPlayerTitle: "media-player__info-title",
+    audioPlayerTitle: "media-player__info-title",
 
     playingDuration: "playing-overlay__duration-value",
     playingProgress: "playing-overlay__progress-value",
@@ -62,9 +64,11 @@ const DOM_ELEMENTS = {
 
     videoPlayerOverlayTitle: null,
     videoPlayerTitle: null,
+    audioPlayerTitle: null,
 
     videoPlayerMinimizeButton: null,
     videoPlayerCloseButton: null,
+    audioPlayerClickArea: null,
     audioPlayerCloseButton: null,
 
     videoPlayingOverlay: null,
@@ -93,6 +97,8 @@ function initDomElements(elements = DOM_ELEMENTS) {
 
     if (elements.audioPlayerContainer) {
         elements.audioPlayer = elements.audioPlayerContainer.querySelector(CLASS_SELECTORS.audioPlayer);
+        elements.audioPlayerTitle = elements.audioPlayerContainer.querySelector(CLASS_SELECTORS.audioPlayerTitle);
+        elements.audioPlayerClickArea = elements.audioPlayerContainer.querySelector(CLASS_SELECTORS.mediaPlayerClickArea);
         elements.audioPlayerCloseButton = elements.audioPlayerContainer.querySelector(CLASS_SELECTORS.mediaPlayerCloseButton)
     }
 
@@ -308,6 +314,22 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
         }
     });
 
+    audioPlayer.addEventListener("click", () => {
+        if (audioPlayer.paused) {
+            audioPlayer.play();
+        } else {
+            audioPlayer.pause();
+        }
+    });
+
+    DOM_ELEMENTS.audioPlayerClickArea.addEventListener("click", () => {
+        if (audioPlayer.paused) {
+            audioPlayer.play();
+        } else {
+            audioPlayer.pause();
+        }
+    });
+
     async function openPlayer(row) {
         const itemId = row.dataset.itemId;
         const itemIsAudio = row.dataset.isAudio === "true";
@@ -339,6 +361,7 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
         if (!mediaURL) return;
 
         const mediaTitle = mediaPlayer.playingRow.dataset.title || "";
+        const thumbnailURL = mediaPlayer.playingRow.dataset.thumbnail || "";
 
         mediaPlayer.isAudio = itemIsAudio;
 
@@ -348,6 +371,7 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
             document.dispatchEvent(new Event(EVENT_NAMES.videoPlayerOpened));
         } else {
             mediaPlayer.player = audioPlayer;
+            mediaPlayer.playerTitle = DOM_ELEMENTS.audioPlayerTitle;
         }
 
         const shouldLoop = mediaPlayer.playingRow.dataset.loop === "true";
@@ -379,6 +403,8 @@ export function initPlayer(playerContainer, overlayTargetClassName) {
 
         if (mediaPlayer.isAudio) {
             cleanupHandlers = initAudioHandlers();
+
+            mediaPlayer.player.style.backgroundImage = `url("${thumbnailURL}")`;
 
             mediaPlayer.player.focus({ preventScroll: true });
 
