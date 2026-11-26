@@ -7,6 +7,12 @@ select:disabled {
     opacity: 0.6;
 }
 
+.is-content-loading {
+    opacity: 0.4;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+}
+
 /* =================== Tooltips =================== */
 
 .tooltip {

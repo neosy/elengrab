@@ -56,3 +56,13 @@ export function initHTMX() {
         }
     });
 }
+
+/**
+ * Delays execution for the specified duration.
+ *
+ * @param {number} duration - Delay duration in milliseconds.
+ * @returns {Promise<void>}
+ */
+export function sleep(duration) {
+    return new Promise(resolve => setTimeout(resolve, duration));
+}
