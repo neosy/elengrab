@@ -8,7 +8,7 @@
                     {{- if eq .Values.DownloadStatus "refreshing" }}
                         {{- $refreshingClass = "row--refreshing" }}
                     {{- end }}
-                <div class="media-result__row success {{ $refreshingClass }} {{ $sourceTypeClass }}" id="{{ .Values.RowID }}" data-item-id="{{ .Values.ItemID }}" data-created-at-unix-ms="{{ .Values.DownloadCreatedAt.UnixMilli }}" data-media="{{ .Values.StreamURL }}" data-title="{{ .Values.MediaTitle }}" data-is-audio="{{ .Values.IsAudioOnly }}" data-loop="{{ .Values.LoopPlayback }}">
+                <div class="media-result__row success {{ $refreshingClass }} {{ $sourceTypeClass }}" id="{{ .Values.RowID }}" data-item-id="{{ .Values.ItemID }}" data-created-at-unix-ms="{{ .Values.DownloadCreatedAt.UnixMilli }}" data-media="{{ .Values.StreamURL }}" data-title="{{ .Values.MediaTitle }}" data-thumbnail="{{ .Values.ThumbnailURL }}" data-is-audio="{{ .Values.IsAudioOnly }}" data-loop="{{ .Values.LoopPlayback }}">
                 {{- else }}
                 <div class="media-result__row inprogress {{ .Values.ResultRowFade }} {{ $sourceTypeClass }}" id="{{ .Values.RowID }}" data-item-id="{{ .Values.ItemID }}" data-created-at-unix-ms="{{ .Values.DownloadCreatedAt.UnixMilli }}">
                 {{- end }}
