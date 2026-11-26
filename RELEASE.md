@@ -34,6 +34,7 @@
 - Added download count and error indicator to the My Downloads menu item. [L208]
 - Hide the header when scrolling down on mobile landscape screens. [L209]
 - Improved animations when adding and removing media items during downloads and uploads. [L211]
+- Added a dimmed loading state when switching Content Type and View Mode tabs. [L214]
 
 ---
 

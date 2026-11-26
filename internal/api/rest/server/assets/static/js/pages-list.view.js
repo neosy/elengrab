@@ -1,7 +1,15 @@
-import {CLASS_NAMES, STORAGE_KEYS, STORAGE_VALUES, API_PATHS} from './constants.js';
+import {CLASS_NAMES as CONSTS_CLASS_NAMES, STORAGE_KEYS, STORAGE_VALUES, API_PATHS} from './constants.js';
+import * as common from './common.js';
+import * as browser from './browser.js';
 import storageState from './storage-state.js';
 import * as notify from './notifications.js';
 import { CLASS_SELECTORS, DOM_IDS, CONTENT_TYPES } from "./pages-list.dom.js";
+
+export const CLASS_NAMES = {
+    ...CONSTS_CLASS_NAMES,
+
+    isContentLoading: "is-content-loading",
+}
 
 export function applyGridView(isGridView) {
     document.body.classList.toggle(CLASS_NAMES.body.gridView, isGridView);
@@ -198,29 +206,39 @@ export function initViewModeBar({
             return;
         }
 
-        const searchQuery = {
-            ...getSearchQueryValues(),
-        };
+        rows.classList.add(CLASS_NAMES.isContentLoading);
 
-        const response = await fetch(API_PATHS.downloaderSearch, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(searchQuery),
-        });
+        try {
+            const searchQuery = {
+                ...getSearchQueryValues(),
+            };
 
-        if (!response.ok) {
-            throw new Error(`Search failed: ${response.status}`);
+            const response = await fetch(API_PATHS.downloaderSearch, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(searchQuery),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Search failed: ${response.status}`);
+            }
+
+            browser.scrollToTop(false);
+
+            rows.outerHTML = await response.text();
+
+            const newRows = document.getElementById(DOM_IDS.mediaResultRows);
+
+            htmx.process(newRows);
+
+            onSuccess(newRows);
+        } catch (error) {
+            rows.classList.remove(CLASS_NAMES.isContentLoading);
+            notify.show('Failed to load content', notify.notifyType.ERROR);
+            throw error;
         }
-
-        rows.outerHTML = await response.text();
-
-        const newRows = document.getElementById(DOM_IDS.mediaResultRows);
-
-        htmx.process(newRows);
-
-        onSuccess(newRows);
     }
 
     return {
@@ -269,29 +287,39 @@ export function initContentTypeBar({
             return;
         }
 
-        const searchQuery = {
-            ...getSearchQueryValues(),
-        };
+        rows.classList.add(CLASS_NAMES.isContentLoading);
 
-        const response = await fetch(API_PATHS.downloaderSearch, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(searchQuery),
-        });
+        try {
+            const searchQuery = {
+                ...getSearchQueryValues(),
+            };
 
-        if (!response.ok) {
-            throw new Error(`Search failed: ${response.status}`);
+            const response = await fetch(API_PATHS.downloaderSearch, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(searchQuery),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Search failed: ${response.status}`);
+            }
+
+            browser.scrollToTop(false);
+            
+            rows.outerHTML = await response.text();
+
+            const newRows = document.getElementById(DOM_IDS.mediaResultRows);
+
+            htmx.process(newRows);
+
+            onSuccess(newRows);
+        } catch (error) {
+            rows.classList.remove(CLASS_NAMES.isContentLoading);
+            notify.show('Failed to load content', notify.notifyType.ERROR);
+            throw error;
         }
-
-        rows.outerHTML = await response.text();
-
-        const newRows = document.getElementById(DOM_IDS.mediaResultRows);
-
-        htmx.process(newRows);
-
-        onSuccess(newRows);
     }
 
     return;
