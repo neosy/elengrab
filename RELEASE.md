@@ -27,6 +27,7 @@
 - Added a download error indicator to the Add Download button. [L207]
 - Added the user's media count next to their username on the My Downloads page. [L212]
 - Added the media count next to the channel name on the channel page. [L213]
+- Added the current video title below the minimized video player thumbnail. [L215]
 
 ### 🎨 Style
 - Added animated status indicators with distinct icons and colors for different download states. [L201]
