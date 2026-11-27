@@ -6,7 +6,7 @@
 ---
 
 <p align="center">
-  <img width="1908" height="911" alt="elengrab_interface" src="https://github.com/user-attachments/assets/b44100d3-a31b-463f-95ec-bb50ea3d3957" />
+  <img width="1920" height="911" alt="Elengrab v0 29 0" src="https://github.com/user-attachments/assets/4b9a8268-964d-475a-b113-7819447d6b03" />
 </p>
 
 # Elengrab
