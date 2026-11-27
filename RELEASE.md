@@ -40,6 +40,9 @@
 ### 🧩 Refactor
   - Unified audio and video player structure. [L216]
 
+### 🐛 Fix
+  - Fixed an issue where the menu remained open when navigating back.
+
 ---
 
 ## v0.28.0 — 2026-11-16
