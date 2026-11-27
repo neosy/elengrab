@@ -4,5 +4,6 @@ import "strings"
 
 func CheckCookiesError(err error) bool {
 	errStr := err.Error()
-	return strings.Contains(errStr, "--cookies-from-browser or --cookies")
+	return strings.Contains(errStr, "--cookies-from-browser or --cookies") ||
+		strings.Contains(errStr, "content isn't available to everyone")
 }

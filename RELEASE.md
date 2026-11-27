@@ -1,5 +1,12 @@
 # Releases
 
+## v0.29.1 — 2026-11-28
+
+### 🐛 Fix
+- Added automatic retry with cookies when yt-dlp reports that Instagram content isn't available to everyone. [L218]
+
+---
+
 ## v0.29.0 — 2026-11-27
 
 ### ✨ Features
@@ -38,10 +45,10 @@
 - Added a dimmed loading state when switching Content Type and View Mode tabs. [L214]
 
 ### 🧩 Refactor
-  - Unified audio and video player structure. [L216]
+- Unified audio and video player structure. [L216]
 
 ### 🐛 Fix
-  - Fixed an issue where the menu remained open when navigating back.
+ - Fixed an issue where the menu remained open when navigating back.
 
 ---
 
