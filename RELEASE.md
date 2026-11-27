@@ -13,7 +13,7 @@
   - Show the In Progress tab only to the owner and display only their active downloads.
 - Added content type bar to uploaded media channel pages with All, Video, Shorts and Audio tabs. [L211]
 
-### UI / Frontend
+### 🖥️ UI / Frontend
 - Added a content type bar with "All", "Video", "Shorts" and "Audio" tabs. [L200]
 - Added an "In Progress" tab to the content type bar for viewing current downloads. [L201]
 - Added status indicators next to the In Progress tab title: [L201]
