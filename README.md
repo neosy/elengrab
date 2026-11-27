@@ -31,9 +31,9 @@ For all other downloads, see the <a href="https://github.com/neosy/elengrab/rele
 <summary><strong>Desktop — Light and dark themes</strong></summary>
   &nbsp;&nbsp;
   <p align="center">
-    <img width="1842" height="909" alt="Screenshot_160" src="https://github.com/user-attachments/assets/2153a3c9-0423-483b-bb0f-6e510df3505f" />
+    <img width="1920" height="911" alt="image" src="https://github.com/user-attachments/assets/6b2a20f7-88bc-4623-ace1-7a484d7ef225" />
     &nbsp;&nbsp;
-    <img width="1867" height="915" alt="Screenshot_158" src="https://github.com/user-attachments/assets/0ae7c011-cdba-42ae-b344-65ffaaf59dac" />
+    <img width="1920" height="911" alt="image" src="https://github.com/user-attachments/assets/1f8437fc-2431-4a7e-bbc2-3c57081fbb44" />
   </p>
 </details>
 <details>
