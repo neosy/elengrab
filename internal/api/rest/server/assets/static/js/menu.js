@@ -224,7 +224,7 @@ export function initMenu(config) {
       history.replaceState(null, "", location.pathname + location.search);
   }
 
-  window.addEventListener('hashchange', syncMenuWithHash);
+  window.addEventListener('hashchange', () => syncMenuWithHash(menu, afterClose));
 }
 
 function isMobileDefault() {
@@ -273,7 +273,7 @@ function updateMenuLayout(menu, isMobile) {
     }
 }
 
-function syncMenuWithHash() {
+function syncMenuWithHash(menu, afterClose) {
     if (location.hash === MENU_HASH) {
         return;
     }
