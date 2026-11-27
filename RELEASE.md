@@ -1,6 +1,6 @@
 # Releases
 
-## v0.28.0 — 2026-11-30
+## v0.29.0 — 2026-11-27
 
 ### ✨ Features
 - Added a flexible content type bar with support for custom tabs and content filtering. [L200]
