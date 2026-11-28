@@ -2,6 +2,9 @@
 
 ## v0.29.1 — 2026-11-28
 
+### 🖥️ UI / Frontend
+- Added an elapsed time counter to the media search loading indicator. [L220]
+
 ### 🐛 Fix
 - Added automatic retry with cookies when yt-dlp reports that Instagram content isn't available to everyone. [L218]
 - Restricted the Uploads tab on user pages to the profile owner and administrators. [L219]

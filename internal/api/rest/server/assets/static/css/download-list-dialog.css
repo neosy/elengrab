@@ -63,6 +63,10 @@
     font-size: 0.875rem;
 }
 
+.download-list-dialog__loading-timer {
+    color: var(--dialog-text-primary-color);
+}
+
 .download-list-dialog__spinner {
     flex: none;
     width: 28px;

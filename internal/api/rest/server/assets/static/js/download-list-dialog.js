@@ -13,6 +13,7 @@ const CLASS_NAMES = {
     urlInput: "download-list-dialog__input",
     fetchButton: "download-list-dialog__button--get-list",
     loading: "download-list-dialog__loading",
+    loadingTimer: "download-list-dialog__loading-timer",
     results: "download-list-dialog__results",
     list: "download-list-dialog__list",
     itemTemplate: "download-list-dialog__item-template",
@@ -71,6 +72,7 @@ function getDomElements(dialog, optionNames) {
         fetchButton: $(dialog, CLASS_NAMES.fetchButton),
 
         loading: $(dialog, CLASS_NAMES.loading),
+        loadingTimer: $(dialog, CLASS_NAMES.loadingTimer),
         results: $(dialog, CLASS_NAMES.results),
         list: $(dialog, CLASS_NAMES.list),
         itemTemplate: $(dialog, CLASS_NAMES.itemTemplate),
@@ -202,6 +204,8 @@ async function fetchList(ctx) {
     elements.loading.hidden = false;
     setBusy(ctx, true);
 
+    const stopLoadingTimer = startLoadingTimer(elements.loadingTimer);
+
     try {
         const response = await fetch(options.fetchUrl, {
             method: "POST",
@@ -230,9 +234,28 @@ async function fetchList(ctx) {
             notify.show(error.message, notify.notifyType.ERROR);
         }
     } finally {
+        stopLoadingTimer();
         elements.loading.hidden = true;
         setBusy(ctx, false);
     }
+}
+
+function startLoadingTimer(element) {
+    const startTime = performance.now();
+
+    const update = () => {
+        const elapsedSeconds = Math.floor((performance.now() - startTime) / 1000);
+        const minutes = Math.floor(elapsedSeconds / 60);
+        const seconds = elapsedSeconds % 60;
+
+        element.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    };
+
+    update();
+
+    const interval = setInterval(update, 1000);
+
+    return () => clearInterval(interval);
 }
 
 async function submitSelected(ctx) {
