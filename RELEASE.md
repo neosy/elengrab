@@ -4,6 +4,7 @@
 
 ### 🐛 Fix
 - Added automatic retry with cookies when yt-dlp reports that Instagram content isn't available to everyone. [L218]
+- Restricted the Uploads tab on user pages to the profile owner and administrators. [L219]
 
 ---
 

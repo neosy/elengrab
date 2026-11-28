@@ -36,6 +36,9 @@ func BuildUserDownloadsPageContentTypes(
 	return buildContentTypes(
 		authCtx, downloader, userDownloadsContentTypeOptions,
 		func(opt contentTypeOption) bool {
+			if opt.contentType == dtypes.QueryMediaContentTypeUploads {
+				return isCurrentUserPage || authCtx.IsAdmin()
+			}
 			if opt.contentType == dtypes.QueryMediaContentTypeInProgress {
 				return isCurrentUserPage
 			}
