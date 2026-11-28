@@ -10,7 +10,7 @@ import (
 const (
 	AppName = iconfig.AppName
 
-	PageTitle       = AppName + " - Fast Media Downloader | YouTube, VK Video and more"
+	PageTitle       = AppName + " - Fast Media Downloader | YouTube, Instagram, TikTok and more"
 	PageDescription = "Download video and audio from YouTube, Facebook, Instagram, VK, TikTok, and more with " + AppName + "."
 	Header          = AppName
 
